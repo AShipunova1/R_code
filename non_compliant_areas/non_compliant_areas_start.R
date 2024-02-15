@@ -759,97 +759,46 @@ cat(vsls_in_compl_metrics_only, sep = ", ")
 # 517238, FL8312PA, 936388, FL4650HK, 1064042, FL9242GM, 982351, 906483, 1293629, 1209015, 1207188, FL9793RU, 1320533, 1078789, 1061382, 974323, 523112, FL3860SK
 
 # 1078789, FL3860SK in metrics on the website, no SA permit
-
-# compl_err_db_data_metrics_2022_23_clean__ports |>
-#   filter(vessel_official_number %in% vsls_in_compl_metrics_only) |>
-#   # filter(vessel_official_number %in% c("1078789", "FL3860SK")) |>
-#   filter(year == "2023") |>
-#   write_csv(file.path(current_output_dir,
-#                       "vsls_in_compl_metrics_only.csv"))
+# They have expired SA permits and still are in compliance data for 2023, but not in Metrics tracking.
 
 ## 3) before plotting ----
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__perc$`2023 sa_only` |> 
   select(state_fixed, total_vsl_by_state_cnt) |> 
   distinct() |> 
   count(wt = total_vsl_by_state_cnt)
-  # mutate(sum(total_vsl_by_state_cnt)) same result
 # 2178
 
-### States not used in the map ----
+### all states ----
 all_states_cnts <-
   vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__nc_perc_labels$`2023 sa_only` |>
   select(state_fixed,
          total_vsl_by_state_cnt) |>
   distinct()
-
 # "NJ" "MD" "VA" "DE" "NY" "MA" "AK" "RI" "PA" "NH" "CO"
 
-vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__perc$`2023 sa_only` |>
-  filter(state_fixed %in%
-           states_not_is_sa) |>
-  select(state_fixed, total_vsl_by_state_cnt) |>
-  distinct() |>
-  count(wt = total_vsl_by_state_cnt)
-# 1913 SA
-# 265 not SA
-# 399+191+63+1226
-# 1879 In 4 states
-# 1879+18+6+2+6
-# 1911 all SA
+all_states_cnts$total_vsl_by_state_cnt |> sum()
+# 2176
 
-
-# 4) join with south_east_coast_states_shp
-shp_file_with_cnts_list$`2023 sa_only` |> 
-  sf::st_drop_geometry() |>
-  count(wt = total_vsl_by_state_cnt)
-# 1911
-# 2178-1911
-# lost 267
-
+## 4) subset by states ----
+### all SA states ----
 shp_file_with_cnts_2023_sa_only_df <-
   shp_file_with_cnts_list$`2023 sa_only` |>
   sf::st_drop_geometry() |>
   select(STUSPS, total_vsl_by_state_cnt) |>
   distinct()
-  
-shp_file_with_cnts_2023_sa_only_df |>
-  count(wt = total_vsl_by_state_cnt)
-#      n
-# 1 1911
 
-second_df <-
-  vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__nc_perc_labels$`2023 sa_only` |>
-  select(state_fixed,
-         total_vsl_by_state_cnt) |>
-  distinct()
+shp_file_with_cnts_2023_sa_only_df$total_vsl_by_state_cnt |> sum()
+# 1911
+# 2178-1911
+# lost 267
 
-second_df |>
-  count(wt = total_vsl_by_state_cnt)
-# 2176
+# 4 SA council states only
+shp_file_with_cnts_list_sa_only_23$STUSPS |> unique()
+# [1] "GA" "FL" "SC" "NC"
 
-# *) check states
-states_not_is_sa <-
-  setdiff(second_df$state_fixed,
-          shp_file_with_cnts_2023_sa_only_df$STUSPS)
-# "NJ" "MD" "VA" "DE" "NY" "MA" "AK" "RI" "PA" "NH" "CO"
-
-str(states_not_is_sa)
-# chr 11
-
-# setdiff(shp_file_with_cnts_2023_sa_only_df$STUSPS,
-#         second_df$state_fixed)
-# 0
-
-vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt__short__nc_perc_labels$`2023 sa_only` |>
-  filter(state_fixed %in%
-           states_not_is_sa) |> 
-  count(wt = total_vsl_by_state_cnt)
-# 265
-
-# # 12% lost
-# # 2145-1879
-# # 266
-# Not in SA states 
-# # *) check where are they home ports
-# # 266
+shp_file_with_cnts_list_sa_only_23$total_vsl_by_state_cnt |> 
+  sum()
+# 1879
+2178 - 1879
+# 299 in non SA council states
 
