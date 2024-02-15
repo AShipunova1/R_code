@@ -226,16 +226,15 @@ compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short <-
   distinct()
 
 dim(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short)
-# [1] 38  5
-# 144   6 (sep dual)
-# [1] 120   7
+# 144   7
 
 compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc <-
   compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short |>
   mutate(cnt_m_compl_perc =
            cnt_vsl_m_compl * 100 / total_vsl_m_by_year_perm)
 
-# View(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc)
+dim(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc)
+# [1] 144   8
 
 # Plot non compliant perc by month ----
 
@@ -244,9 +243,17 @@ compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc__nc_comb_col <-
   compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc |>
   filter(compl_or_not == "non_compliant")
 
-# View(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc__nc_comb_col)
+dim(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc__nc_comb_col)
+# [1] 72  8
 
-## split
+## split ----
+# Explanations:
+# Split the dataframe 'compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc__nc_comb_col'
+# into a list of dataframes based on the levels of 'year_permit_sa_gom_dual'.
+# 1. Use split to create a list of dataframes.
+# 2. The splitting is done based on the levels of 'year_permit_sa_gom_dual'.
+#    - Each dataframe in the list corresponds to a unique value of 'year_permit_sa_gom_dual'.
+
 compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l_nc <-
   split(
     compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc__nc_comb_col,
@@ -255,13 +262,25 @@ compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l_nc <-
     )
   )
 
-# View(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l_nc[[1]])
+dim(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l_nc[[1]])
+# [1] 12  8
 
 ## make % line plots by permit ----
 line_df_23_gom_monthly_nc_percent_plot_color =
   plot_colors$non_compliant_by_month
 
-# curr_permit_sa_gom_dual <- "2023 sa_dual" # (for tests)
+# Explanations:
+# Generate a list of line plots for monthly non-compliance percentages for different
+# year_permit_sa_gom_dual combinations.
+# 1. Iterate over each 'curr_year_permit' in the list of names.
+# 2. Split 'curr_year_permit' into 'curr_year' and 'curr_permit_sa_gom_dual'.
+# 3. Create a dataframe 'one_df' from the corresponding dataframe in the list.
+#    - Add columns 'my_label' and 'tot_cnt_label' for labeling points and annotating text.
+# 4. Use ggplot to create a line plot for each dataframe in the list.
+# 5. Customize the plot appearance, labels, and limits.
+# 6. Scale the x-axis as a date with monthly breaks and labels.
+# 7. Expand the x-axis limits to the end of the year.
+# 8. Return a list of line plots.
 
 line_monthly_nc_plot_l <-
   names(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l_nc) |>
