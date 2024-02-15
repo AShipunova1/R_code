@@ -145,22 +145,22 @@ compl_clean_sa_vs_gom_m_int_tot_short <-
 
 # Get compl, no compl, or both per month ----
 
-get_compl_by <- 
-  function(my_df, group_by_for_compl, names_from_list) {
-  my_df %>%
-    group_by_at(group_by_for_compl) %>%
-    # can unique, because we are looking at vessels, not weeks
-    unique() %>%
-    # more columns, a column per vessel
-    tidyr::pivot_wider(
-      names_from = all_of(names_from_list),
-      values_from = compliant_,
-      # make it "NO_YES" if both
-      values_fn = ~ paste0(sort(.x), collapse = "_")
-    ) %>%
-    ungroup() %>%
-    return()
-}
+# get_compl_by <- 
+#   function(my_df, group_by_for_compl, names_from_list) {
+#   my_df %>%
+#     group_by_at(group_by_for_compl) %>%
+#     # can unique, because we are looking at vessels, not weeks
+#     unique() %>%
+#     # more columns, a column per vessel
+#     tidyr::pivot_wider(
+#       names_from = all_of(names_from_list),
+#       values_from = compliant_,
+#       # make it "NO_YES" if both
+#       values_fn = ~ paste0(sort(.x), collapse = "_")
+#     ) %>%
+#     ungroup() %>%
+#     return()
+# }
 
 # all columns except "vessel_official_number" and "compliant_"
 # group_by_for_compl_m <-
