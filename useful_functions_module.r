@@ -768,9 +768,9 @@ compliance_cleaning <- function(compl_arr) {
     compl_clean |>
     imap(\(x, idx) {
       field_name <- permitgroupexpirations[[idx]]
-      x |> 
+      x |>
         mutate({{field_name}} := as.POSIXct(pull(x[field_name]),
-                                            format = "%m/%d/%Y")) 
+                                            format = "%m/%d/%Y"))
       # change_to_dates(x, permitgroupexpirations[[idx]], "%m/%d/%Y")
     })
 
@@ -1222,6 +1222,11 @@ save_plot_to_file <-
     )
   }
 
+# Explanations:
+# The function 'read_an_answer' performs the following operations:
+# 1. Reads user input with the provided prompt using 'readline'.
+# 2. Checks if the first character of the input is 'n'. If true, sets 'ANSWER' to "no"; otherwise, sets it to "yes".
+# 3. Returns the processed answer.
 read_an_answer <- function(my_prompt) {
   ANSWER <- readline(my_prompt)
   if (tolower(substr(ANSWER, 1, 1)) == "n")
@@ -1233,6 +1238,14 @@ read_an_answer <- function(my_prompt) {
 # if (interactive()) read_an_answer(my_prompt)
 
 # make it "NO_YES" if both compliant and not compliant
+# Explanations:
+# The function 'get_compl_by' performs the following operations:
+# 1. Groups the data frame by the specified columns using 'group_by_at'.
+# 2. Selects unique rows based on the grouping columns since we are looking at vessels, not weeks.
+# 3. Pivots the data wider, creating a column for each vessel.
+# 4. Combines values if there are multiple entries for the same vessel using a custom function that sorts and concatenates them.
+# 5. Removes the grouping to return the data to its original structure.
+# 6. Returns the modified data frame.
 get_compl_by <- function(my_df, group_by_for_compl) {
   my_df %>%
     dplyr::group_by_at(group_by_for_compl) %>%
@@ -1249,8 +1262,9 @@ get_compl_by <- function(my_df, group_by_for_compl) {
     return()
 }
 
+# Example:
 # all columns except...
-group_by_for_compl <- 
+group_by_for_compl <-
   vars(-c("vessel_official_number", "compliant_"))
 
 # Usage example:
@@ -1260,13 +1274,20 @@ group_by_for_compl <-
 #     "total_vsl_y_by_year_perm",
 #     "year_permit_sa_gom_dual"
 #     )
-# 
+#
 # compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_both <-
 #   compl__back_to_longer_format(
 #     compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide__both,
 #     cols_names
 #   )
 
+# Explanations:
+# The function 'compl__back_to_longer_format' performs the following operations:
+# 1. Turns the data frame back to a longer format with vessel IDs in one column.
+# 2. Specifies the columns to pivot. All columns except those specified in 'cols_names' are treated as vessel IDs.
+# 3. Sets the values to the column 'is_compl_or_both'.
+# 4. Sets the names to the column 'vessel_official_number'.
+# 5. Returns the modified data frame.
 compl__back_to_longer_format <-
   function(my_df,
            cols_names) {
@@ -1282,6 +1303,13 @@ compl__back_to_longer_format <-
   }
 
 # ===
+# Explanations:
+# The function 'add_cnt_in_gr' performs the following operations:
+# 1. Groups the data frame by the specified columns using `group_by_at(group_by_col)`. `group_by_col` is defined above.
+# 2. Adds a new column named 'cnt_col_name' representing the count of distinct vessel official numbers in each group using `mutate({cnt_col_name} := n_distinct(vessel_official_number))`.
+# The syntax `{cnt_col_name} :=` is used to create a new column dynamically with the name provided in the `cnt_col_name` argument.
+# 3. Removes the grouping to return the data to its original structure with `ungroup()`.
+# 4. Returns the modified data frame.
 add_cnt_in_gr <-
   function(my_df,
            group_by_col,
