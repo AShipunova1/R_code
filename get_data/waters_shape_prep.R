@@ -1,3 +1,5 @@
+# R_code_github/get_data/waters_shape_prep.R
+
 # setup ----
 # maps:
 library(mapview)
@@ -202,11 +204,31 @@ names(shp_4326_list) <- my_dfs_to_transform_names
 
 # (dd_rbathy)
 
+big_bounding_box <- c(
+   xmin = -97.79954,
+   ymin = 21.521757, #Cuba
+   xmax = -64.790337, #Bermuda
+   ymax = 49 #Canada
+ )
+
+red_bounding_box <-
+  geom_rect(
+    aes(
+      xmin = big_bounding_box[["xmin"]],
+      xmax = big_bounding_box[["xmax"]],
+      ymin = big_bounding_box[["ymin"]],
+      ymax = big_bounding_box[["ymax"]]
+    ),
+    color = "red",
+    fill = NA
+  )
+
 # Results ----
 result_names <- c("GOMsf",
              "world_state_and_fed_waters_path",
              "fl_state_w_counties_shp",
              "GOM_s_fl_state_waters_only",
+             "big_bounding_box",
              "shp_4326_list: ",
              my_dfs_to_transform_names)
 title_message_print(result_names)

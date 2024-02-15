@@ -1,11 +1,11 @@
 # Non compliant vessels (2022) by home port
-# identifying any particular areas of high non-compliance to help focus future outreach efforts. 
+# identifying any particular areas of high non-compliance to help focus future outreach efforts.
 # do this as a map
 # Included overriden compliance in the total counts
 
 # home port from the permit as an area
 
-# source the usual setup 
+# source the usual setup
 # get data
 # remove not in metrics
 # separate by permit region
@@ -44,27 +44,62 @@ my_paths <- set_work_dir()
 
 current_project_dir_path <- this.path::this.dir()
 
-current_project_dir_name <- basename(current_project_dir_path)
+current_project_basename <- basename(current_project_dir_path)
 
 # prepare data ----
 get_data_file_path <-
   file.path(my_paths$git_r,
-            current_project_dir_name,
+            current_project_basename,
             "non_compliant_areas_get_data.R")
 
 source(get_data_file_path)
 
+## prepare permit data ----
+### Check how many vessels don't have home port info ----
 # vessels_permits_home_port_lat_longs_city_state |> dim()
 # [1] 4729    6
 
-## prepare permit data ---- 
+# ---
+# Explanation:
+# The code utilizes the pipe operator |> to perform a series of operations on
+# the 'vessels_permits_home_port_lat_longs_city_state' data frame.
+# - Filtering: Rows are filtered based on conditions related to the 'state_fixed' column.
+# - Selection: Only the 'SERO_OFFICIAL_NUMBER' column is selected for further processing.
+# - Deduplication: Duplicate rows are removed based on the selected column.
+# - Sorting: The resulting data frame is arranged in ascending order by
+#   'SERO_OFFICIAL_NUMBER'.
+vessels_permits_home_port_lat_longs_city_state |>
+  filter(state_fixed %in% c("NA", "UN") | is.na(state_fixed)) |>
+  select(SERO_OFFICIAL_NUMBER) |>
+  distinct() |>
+  arrange(SERO_OFFICIAL_NUMBER)
+
+all_vessels_permits_home_port_na_state <-
+  all_vessels_permits_home_port |>
+  filter(SERO_HOME_PORT_STATE %in% c("NA", "UN") |
+           is.na(SERO_HOME_PORT_STATE)) |>
+  select(SERO_OFFICIAL_NUMBER) |>
+  distinct() |>
+  arrange(SERO_OFFICIAL_NUMBER)
+# 13
+
+vessels_permits_home_port_short_trim_no_county |>
+  filter(SERO_OFFICIAL_NUMBER %in% all_vessels_permits_home_port_na_state$SERO_OFFICIAL_NUMBER) |>
+  arrange(SERO_HOME_PORT_CITY)
+# |>
+#   select(SERO_OFFICIAL_NUMBER) ->
+#   no_state_vessels
+# 2              FL9026LT            BOKEELIA                   FL
+# 7                615565         SWANQUARTER                   NC
+
 ### check for duplicate vessels ----
 vessels_permits_home_port_lat_longs_city_state |>
   dplyr::distinct() |>
   dplyr::group_by(SERO_OFFICIAL_NUMBER) %>%
   dplyr::filter(dplyr::n() > 1) |>
   dim()
-# 0
+# 76 5?
+# TODO
 
 ### check how many coords have more than one vessel ----
 vessels_permits_home_port_lat_longs_city_state |>
@@ -83,8 +118,10 @@ vessels_permits_home_port_lat_longs_city_state |>
 # state_fixed            17
 # lat                   323
 
-## Compliance info combine dual and GOM ----
+# [1] 6578    5
 
+## Compliance info combine dual and GOM ----
+# Not needed if use Metrics tracking permits
 # compl_err_db_data_metrics_2022_clean_list_short is sourced from non_compliant_areas_get_data.R
 
 # Use the 'map' function from the 'purrr' package to apply the 'dim' function to each element
@@ -92,19 +129,19 @@ vessels_permits_home_port_lat_longs_city_state |>
 purrr::map(compl_err_db_data_metrics_2022_clean_list_short, dim)
 # $dual
 # [1] 474   2
-# 
+#
 # $gom_only
 # [1] 1114    2
-# 
+#
 # $sa_only
 # [1] 2855    2
-# 
+#
 # $gom_dual
 # [1] 1588    2
 
 # $GOM
 # [1] 1492    2
-# 
+#
 # $SA
 # [1] 2976    2
 
@@ -114,15 +151,15 @@ purrr::map(compl_err_db_data_metrics_2022_clean_list_short,
 # $dual
 # vessel_official_nbr 374
 # is_comp               2
-# 
+#
 # $gom_only
 # vessel_official_nbr 939
 # is_comp               2
-# 
+#
 # $sa_only
 # vessel_official_nbr 2135
 # is_comp                2
-# 
+#
 # $gom_dual
 # vessel_official_nbr 1313
 # is_comp                2
@@ -133,7 +170,7 @@ purrr::map(compl_err_db_data_metrics_2022_clean_list_short,
 #                           .
 # vessel_official_number 1232
 # is_comp                   2
-# 
+#
 # $SA
 #                           .
 # vessel_official_number 2241
@@ -141,59 +178,115 @@ purrr::map(compl_err_db_data_metrics_2022_clean_list_short,
 
 ## Compliance info, if a vessel is non compliant even once - it is non compliant the whole year, keep only unique vessel ids ----
 
-# compl_err_db_data_metrics_2022_clean_list_short$GOM |> View()
+# Explanations:
+# The code creates a new list of data frames 'compl_err_db_data_metrics_2022_clean_list_short_year_nc'
+# using the pipe operator and purrr::map() function:
+# - purrr::map(): Iterates over each data frame in 'compl_err_db_data_metrics_2022_clean_list_short'.
+# - For each data frame in the list:
+#   - Group by 'vessel_official_number'.
+#   - Add a new column 'non_compl_year' that checks if 0 is present in the 'is_comp' column.
+#   - Ungroup the data frame.
+# The resulting list contains modified data frames with added 'non_compl_year' column
+# indicating whether the year is non-compliant for each 'vessel_official_number'.
 
-compl_err_db_data_metrics_2022_clean_list_short_year_nc <- 
-  compl_err_db_data_metrics_2022_clean_list_short |> 
+compl_err_db_data_metrics_2022_clean_list_short_year_nc <-
+  compl_err_db_data_metrics_2022_clean_list_short |>
   purrr::map(\(curr_df) {
-    # For each data frame curr_df in the list (one df for a permit_region):
     curr_df |>
-      dplyr::group_by(vessel_official_number) |> 
-      dplyr::mutate(non_compl_year = 0 %in% is_comp) |> 
-      # Add a new column non_compl_year, which is TRUE if 0 ("is not compliant") is in the is_comp column for this vessel.
-      
+      dplyr::group_by(vessel_official_number) |>
+      dplyr::mutate(non_compl_year = 0 %in% is_comp) |>
       dplyr::ungroup()
-      # Ungroup the data frame, removing the grouping structure.
   })
 
 ## check compl_year ----
 compl_err_db_data_metrics_2022_clean_list_short_year_nc$SA |>
   # filter(vessel_official_number == 1020822) |>
-  dplyr::arrange(vessel_official_number) |> 
+  dplyr::arrange(vessel_official_number) |>
   head(5)
 #   vessel_official_number is_comp non_compl_year
-#   <chr>                 <int> <lgl>         
-# 1000164                   0 TRUE          
-# 1020057                   1 FALSE         
+#   <chr>                 <int> <lgl>
+# 1000164                   0 TRUE
+# 1020057                   1 FALSE
 # ...
-# 1020822                   1 TRUE          
-# 1020822                   0 TRUE          
+# 1020822                   1 TRUE
+# 1020822                   0 TRUE
 
-# 1020822 is non compliant for the whole year 
+# 1020822 is non compliant for the whole year
 
 ## keep unique vessel ids only ----
-# Create a new list 'compl_err_db_data_metrics_2022_clean_list_short_uniq' by applying a series of
-# operations to each element of the 'compl_err_db_data_metrics_2022_clean_list_short_year_nc' list.
-compl_err_db_data_metrics_2022_clean_list_short_uniq <- 
-  compl_err_db_data_metrics_2022_clean_list_short_year_nc |> 
+
+compl_err_db_data_metrics_2022_clean_list_short_uniq <-
+  compl_err_db_data_metrics_2022_clean_list_short_year_nc |>
   purrr::map(\(curr_df){
     # Select all columns except 'is_comp' and retain only distinct rows.
-    curr_df |> 
-      dplyr::select(-is_comp) |> 
+    curr_df |>
+      dplyr::select(-is_comp) |>
       dplyr::distinct()
   })
+
+compl_err_db_data_metrics_2022_clean_list_short$GOM |>
+  filter(!trimws(tolower(vessel_official_number)) %in% trimws(tolower(
+    vessels_permits_home_port_22$SERO_OFFICIAL_NUMBER
+  ))) |>
+  select(vessel_official_number) |>
+  distinct() |>
+  nrow()
+# 228
+# !!! No vessel information for 228 vessels !!!
+
+compl_vessl_not_in_ves_perm <-
+  compl_err_db_data_metrics_2022_clean_list_short$GOM |>
+  filter(!trimws(tolower(vessel_official_number)) %in% trimws(tolower(
+    vessels_permits_home_port_lat_longs_city_state$SERO_OFFICIAL_NUMBER
+  ))) |>
+  select(vessel_official_number) |>
+  distinct()
+
+nrow(compl_vessl_not_in_ves_perm)
+# 228
+# !!! No vessel information for 228 vessels !!!
+
+# "1201160", "TX5996JU", "1305731", "FL8041ME"
+# compl_err_db_data_metrics_2022_clean_list_short$GOM |>
+#   filter(!trimws(tolower(vessel_official_number)) %in% trimws(tolower(
+#     vessels_permits1$SERO_OFFICIAL_NUMBER
+#   ))) |>
+#   select(vessel_official_number) |>
+#   distinct() |>
+#   nrow()
+# 1
+
+compl_err_db_data_metrics_2022_clean_list_short$GOM |>
+  filter(!trimws(tolower(vessel_official_number)) %in% trimws(tolower(
+    all_get_db_data_result_l$vessels_permits$SERO_OFFICIAL_NUMBER
+  ))) |>
+  select(vessel_official_number) |>
+  distinct() |>
+  nrow()
+# 1
 
 # check
 compl_err_db_data_metrics_2022_clean_list_short_uniq$SA |>
   dplyr::filter(vessel_official_number == 1020822)
 #   vessel_official_number non_compl_year
-# 1 1020822             TRUE          
+# 1 1020822             TRUE
 
 # Join home port and compliance info by vessel ----
 
 # In summary, this code applies a left join operation to each data frame in the 'compl_err_db_data_metrics_2022_clean_list_short' list with another data frame, and the result is stored in a new list named 'vessels_permits_home_port_22_compliance_list'. The join is based on the equality of the columns 'vessel_official_number' and 'SERO_OFFICIAL_NUMBER'. The map function is used to apply this left join operation to each element of the list.
 
 # Use only permit information from Metrics tracking
+
+# Explanations:
+# The code creates a new list of data frames 'vessels_permits_home_port_22_compliance_list'
+# using the pipe operator and purrr::map() function:
+# - purrr::map(): Iterates over each data frame in 'compl_err_db_data_metrics_2022_clean_list_short_uniq'.
+# - For each data frame in the list:
+#   - Perform a left join with 'vessels_permits_home_port_lat_longs_city_state'.
+#   - Join based on the equality of 'vessel_official_number' and 'SERO_OFFICIAL_NUMBER'.
+#   - Select all columns except 'permit_sa_gom'.
+# The resulting list contains modified data frames with additional geolocation information,
+# excluding the 'permit_sa_gom' column if it exists.
 
 vessels_permits_home_port_22_compliance_list <-
   compl_err_db_data_metrics_2022_clean_list_short_uniq |>
@@ -202,8 +295,8 @@ vessels_permits_home_port_22_compliance_list <-
       curr_df,
       vessels_permits_home_port_lat_longs_city_state,
       dplyr::join_by(vessel_official_number == SERO_OFFICIAL_NUMBER)
-    ) |> 
-      select(-permit_sa_gom)
+    ) |>
+      select(-any_of("permit_sa_gom"))
   })
 
 purrr::map(vessels_permits_home_port_22_compliance_list,
@@ -234,7 +327,7 @@ purrr::map(vessels_permits_home_port_22_compliance_list,
 # state_fixed              16
 # lat                     165
 # long                    165
-# 
+#
 # $SA
 #                           .
 # vessel_official_number 2241
@@ -250,6 +343,14 @@ purrr::map(vessels_permits_home_port_22_compliance_list,
 # add the same for SA
 
 ## Check missing home port states ----
+
+# Explanations:
+# The code creates a new data frame 'gom_no_home_port_state_vessel_ids' using
+# the pipe operator and dplyr functions:
+# - filter(): Selects rows from the 'GOM' column where 'state_fixed' is missing or
+#   is "NA" or "UN".
+# - select(): Retains only the 'vessel_official_number' column.
+# The resulting data frame contains vessel IDs with GOM permits and no valid home port state.
 
 gom_no_home_port_state_vessel_ids <-
   vessels_permits_home_port_22_compliance_list$GOM |>
@@ -270,7 +371,18 @@ nrow(gom_no_home_port_state_vessel_ids)
 
 # print_df_names(all_get_db_data_result_l$vessels_permits)
 
-missing_states_gom <- 
+# Explanations:
+# The code creates a new data frame 'missing_states_gom' using the pipe operator
+# and dplyr functions:
+# - select(): Extracts relevant columns related to permits from 'all_get_db_data_result_l$vessels_permits'.
+#   - Starts with "SERO_", contains "DATE", and excludes specific columns.
+# - distinct(): Removes duplicate rows based on all selected columns.
+# - filter(): Retains rows where 'SERO_OFFICIAL_NUMBER' is in
+#   'gom_no_home_port_state_vessel_ids$vessel_official_number'.
+# The resulting data frame contains permit information for vessels with GOM permits
+# and no valid home port state.
+
+missing_states_gom <-
   all_get_db_data_result_l$vessels_permits |>
   select(starts_with("SERO_"),
          # REGISTERING_STATE, # sometimes diff from home port
@@ -278,22 +390,22 @@ missing_states_gom <-
          contains("DATE")) |>
   distinct() |>
   filter(SERO_OFFICIAL_NUMBER %in%
-           gom_no_home_port_state_vessel_ids$vessel_official_number) 
+           gom_no_home_port_state_vessel_ids$vessel_official_number)
 
 dim(missing_states_gom)
 # 470 13
 
 # View(missing_states)
-missing_states_gom_uniq <- 
-  missing_states_gom |> 
-  select(-contains("DATE")) |> 
+missing_states_gom_uniq <-
+  missing_states_gom |>
+  select(-contains("DATE")) |>
   distinct()
 
-missing_states_gom_uniq |> 
-  group_by(SERO_OFFICIAL_NUMBER) |> 
+missing_states_gom_uniq |>
+  group_by(SERO_OFFICIAL_NUMBER) |>
   summarize(n = n()) |>
-  filter(n > 1) |> 
-  ungroup() |> 
+  filter(n > 1) |>
+  ungroup() |>
   dim()
 # 0 (One home port per vessel)
 
@@ -302,10 +414,19 @@ missing_states_gom_uniq |>
 
 ## join missing port states to the current df list ----
 
+# Explanations:
+# The code creates a new list of data frames 'vessels_permits_home_port_22_compliance_list_add_ports'
+# using the pipe operator and purrr::map() function:
+# - purrr::map(): Iterates over each data frame in 'vessels_permits_home_port_22_compliance_list'.
+# - For each data frame in the list:
+#   - Perform a left join with 'missing_states_gom_uniq'.
+#   - Join based on the equality of 'vessel_official_number' and 'SERO_OFFICIAL_NUMBER'.
+# The resulting list contains modified data frames with additional permit information
+# from 'missing_states_gom_uniq'.
+
 vessels_permits_home_port_22_compliance_list_add_ports <-
   vessels_permits_home_port_22_compliance_list |>
   purrr::map(\(curr_df) {
-    # Group the data by 'state_fixed', add a count column, and ungroup the data.
     curr_df |>
       left_join(
         missing_states_gom_uniq,
@@ -318,8 +439,20 @@ vessels_permits_home_port_22_compliance_list_add_ports <-
 #   left_join(missing_states_gom_uniq,
 #             join_by(vessel_official_number == SERO_OFFICIAL_NUMBER))
 
-### combining ports to one column ---- 
+### combining ports to one column ----
 # For now SA home_state is the same as state_fixed
+
+# Explanations:
+# The code creates a new list of data frames 'vessels_permits_home_port_22_compliance_list_add_ports_clean'
+# using the pipe operator and purrr::map() function:
+# - purrr::map(): Iterates over each data frame in 'vessels_permits_home_port_22_compliance_list_add_ports'.
+# - For each data frame in the list:
+#   - Use mutate() to add a new column 'home_state':
+#     - If 'state_fixed' is missing or is "UN" or "NA", use 'SERO_HOME_PORT_STATE';
+#       otherwise, use 'state_fixed'.
+#   - Use select() to remove columns starting with "SERO_".
+# The resulting list contains modified data frames with additional 'home_state' column,
+# and columns starting with "SERO_" are removed.
 
 vessels_permits_home_port_22_compliance_list_add_ports_clean <-
   vessels_permits_home_port_22_compliance_list_add_ports |>
@@ -338,7 +471,7 @@ vessels_permits_home_port_22_compliance_list_add_ports_clean <-
 # check
 vessels_permits_home_port_22_compliance_list_add_ports_clean$GOM |>
   filter(vessel_official_number %in% c("AL0264VE",
-                                       "AL4295AK")) |> 
+                                       "AL4295AK")) |>
   glimpse()
 # $ vessel_official_number <chr> "AL0264VE", "AL4295AK"
 # $ non_compl_year         <lgl> FALSE, FALSE
@@ -351,23 +484,30 @@ vessels_permits_home_port_22_compliance_list_add_ports_clean$GOM |>
 # Count vessels by state name ----
 ## total vsls per state ----
 
+# Explanations:
+# The code creates a new list of data frames 'vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt'
+# using the pipe operator and purrr::map() function:
+# - purrr::map(): Iterates over each data frame in 'vessels_permits_home_port_22_compliance_list_add_ports_clean'.
+# - For each data frame in the list:
+#   - Group by 'home_state'.
+#   - Add a new count column 'total_vsl_by_state_cnt' representing the total count per state.
+#   - Ungroup the data frame.
+# The resulting list contains modified data frames with additional count information
+# indicating the total vessel count per home state.
+
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt <-
   vessels_permits_home_port_22_compliance_list_add_ports_clean |>
   purrr::map(\(curr_df) {
-    # Group the data by 'home_state', add a count column, and ungroup the data.
     curr_df |>
       dplyr::group_by(home_state) |>
       dplyr::add_count(home_state,
-                name = "total_vsl_by_state_cnt") |> 
+                name = "total_vsl_by_state_cnt") |>
       dplyr::ungroup()
   })
 
 # View(vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt)
 
-### cnt by state prove of concept ----
-
-# vessels_permits_home_port_22_compliance_list_add_ports_clean$SA |>
-#   glimpse()
+### cnt by state proof of concept ----
 
 #### select first, then count ----
 # Create a new list 'vessel_by_state_cnt' by applying a series of operations to each element
@@ -396,7 +536,7 @@ vessel_by_state_cnt1 <-
   purrr::map(\(curr_df) {
     curr_df |>
       dplyr::group_by(home_state) |>
-      dplyr::add_count(home_state) |> 
+      dplyr::add_count(home_state) |>
       dplyr::select(vessel_official_number, home_state, n) |>
       dplyr::distinct()
   })
@@ -411,28 +551,37 @@ head(vessel_by_state_cnt1$SA)
 
 # cnt vessel by state and compliance ----
 
-# Use map() to create a new list by applying a series of operations to each element of the
-# 'vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt'.
-# Group the data by 'home_state' and 'non_compl_year',
-# add a count column (counting vessel number per state and compliance), and ungroup the data.
+# Explanations:
+# The code creates a new list of data frames
+# 'vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt'
+# using the pipe operator and purrr::map() function:
+# - purrr::map(): Iterates over each data frame in
+#   'vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt'.
+# - For each data frame in the list:
+#   - Group by 'home_state' and 'non_compl_year'.
+#   - Add a new count column 'compliance_by_state_cnt' representing the compliance
+#     count per state and year.
+#   - Ungroup the data frame.
+# The resulting list contains modified data frames with additional count information
+# indicating the compliance count per home state and year.
 
 vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt <-
   vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt |>
   purrr::map(\(curr_df) {
     curr_df |>
       dplyr::group_by(home_state, non_compl_year) |>
-      dplyr::add_count(home_state, non_compl_year, 
+      dplyr::add_count(home_state, non_compl_year,
                        name = "compliance_by_state_cnt") |>
       dplyr::ungroup()
   })
 
 ## spot check if compl and non compl vessel number is equal total counts ----
-vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt$SA |> 
+vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt$SA |>
   dplyr::select(vessel_official_number, home_state, non_compl_year, total_vsl_by_state_cnt, compliance_by_state_cnt) |>
   dplyr::distinct() |>
-  dplyr::select(-vessel_official_number) |> 
-  dplyr::distinct() |> 
-  dplyr::filter(home_state %in% c("FL", "GA")) |> 
+  dplyr::select(-vessel_official_number) |>
+  dplyr::distinct() |>
+  dplyr::filter(home_state %in% c("FL", "GA")) |>
   dplyr::glimpse()
 # $ home_state             <chr> "FL", "FL", "GA", "GA"
 # $ non_compl_year          <lgl> TRUE, FALSE, TRUE, FALSE
@@ -447,7 +596,7 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt$SA |>
 
 ## test counts on one input df ----
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt$SA |>
-  dplyr::filter(home_state %in% c("FL", "GA")) |> 
+  dplyr::filter(home_state %in% c("FL", "GA")) |>
   dplyr::glimpse()
 
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt$SA |>
@@ -459,19 +608,41 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt$SA |>
   dplyr::add_count(home_state, non_compl_year) |>
   dplyr::select(-vessel_official_number) |>
   dplyr::distinct() |>
-  dplyr::filter(home_state %in% c("FL", "GA")) |> 
+  dplyr::filter(home_state %in% c("FL", "GA")) |>
   dplyr::glimpse()
 # the result is the same as above
 
+vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt$GOM |>
+  dplyr::select(vessel_official_number,
+                state_fixed,
+                # non_compl_year,
+                total_vsl_by_state_cnt) |>
+  dplyr::distinct() |>
+  # filter(non_compl_year == FALSE) |>
+  select(-vessel_official_number) |>
+  dplyr::distinct() |>
+  mutate(s = sum(total_vsl_by_state_cnt)) |>
+  glimpse()
+# 1232
+
 # percent of non compliant by state ----
 
-# use map() to apply a series of operations to each df (permit_region) of the list
-vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc <- 
+# Explanations:
+# The code creates a new list of data frames
+# 'vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc'
+# using the pipe operator and purrr::map() function:
+# - purrr::map(): Iterates over each data frame in
+#   'vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt'.
+# - For each data frame in the list:
+#   - Group by 'home_state'.
+#   - Add new columns calculating non-compliance count, proportion, and percentage per state.
+#   - Ungroup the data frame.
+# The resulting list contains modified data frames with additional columns indicating
+# non-compliance count, proportion, and percentage per home state.
+
+vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc <-
   vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt |>
   purrr::map(\(curr_df) {
-    # Group the data by 'home_state' and 'non_compl_year',
-    # calculate non compliance percentage per state, and ungroup the data.
-    
     curr_df |>
       dplyr::group_by(home_state) |>
       dplyr::mutate(
@@ -523,29 +694,46 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc$GOM 
 # $ non_compl_percent_per_st    <dbl> 21.73913, 21.73913, 0.00000
 # $ non_compl_proportion_per_st <dbl> 0.2173913, 0.2173913, 0.0000000
 
-# map percentage ----
+vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt$GOM |>
+  select(state_fixed, total_vsl_by_state_cnt) |>
+  distinct() |>
+  count(wt = total_vsl_by_state_cnt)
+# 1232
 
-### shorten ----
-vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short <-
+# vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc$GOM |>
+#     select(non_compl_year, state_fixed, compliance_by_state_cnt) |>
+#     distinct() |>
+#     count(wt = compliance_by_state_cnt)
+# map percentage ----
+# 1232
+
+## shorten and add labels ----
+# Explanations:
+# The code creates a new list of data frames
+# 'vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short_labels'
+# using the pipe operator and purrr::map() function:
+# - purrr::map(): Iterates over each data frame in
+#   'vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc'.
+# - For each data frame in the list:
+#   - Select relevant columns including 'state_fixed', counts, and percentages.
+#   - Remove duplicate rows.
+#   - Add new columns with rounded percentages and proportions, and create labeled strings.
+# The resulting list contains modified data frames with concise information
+# about non-compliance percentages and proportions per home state.
+vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short_labels <-
   vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc |>
   purrr::map(\(curr_df) {
     curr_df |>
       dplyr::select(
+        state_fixed,
         home_state,
         total_vsl_by_state_cnt,
         non_compliance_by_state_cnt,
         non_compl_percent_per_st,
         non_compl_proportion_per_st
       ) |>
-      dplyr::distinct()
-  })
-
-# Add round ups and labels
-vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short_labels <- 
-  vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short |>
-  purrr::map(\(curr_df) {
-    curr_df |>
-      mutate(
+      dplyr::distinct() |>
+      dplyr::mutate(
         nc_round_perc = round(non_compl_percent_per_st),
         nc_round_proportion = round(non_compl_proportion_per_st, 2),
         my_label_perc =
@@ -566,38 +754,60 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_shor
       )
   })
 
+### Check the counts ----
+vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short_labels$GOM |>
+  select(state_fixed, total_vsl_by_state_cnt) |>
+    distinct() |>
+    count(wt = total_vsl_by_state_cnt)
+# 1226
+# 1232 (incl compl)
+
 ### check the labels ----
-vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short_labels$GOM |> 
+vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short_labels$GOM |>
   glimpse()
-# $ my_label_long               <glue> "FL:\n144/644 = 0.22", "AL:\n35/121 = 0.29…
-# with all states
-# $ my_label_long               <glue> "FL:\n170/782 = 0.22", "AL:\n38/146 =…
 
 # Keep only GOM states for GOM only plots ----
-# print_df_names(vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short$GOM)
 
-get_full_state_name <- function(home_state) {
-  my_state_name[[tolower(home_state)]]
+# Explanations:
+# The code defines a function 'get_state_fixed_full_name' that takes a parameter
+# 'state_fixed' and returns the corresponding full state name from 'my_state_name'
+# using double brackets. 'tolower()' is used to ensure case-insensitive matching.
+
+get_state_fixed_full_name <- function(state_fixed){
+  my_state_name[[tolower(state_fixed)]]
 }
 
-# my_func_vect <- Vectorize(my_func)
+# ---
+# Explanations:
+# The code modifies the 'gom_states' column in the data frame
+# 'vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short_labels':
+# - Create a new column 'state_fixed_full' using 'possibly()' to safely apply
+#   'get_state_fixed_full_name' to 'state_fixed'.
+# - Filter out rows where 'state_fixed_full' is not NA.
+# - Filter out rows where the lowercase 'state_fixed_full' is in the lowercase 'gom' states.
+# - Ungroup the data frame.
 
 vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short_labels$gom_states <-
   vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short_labels$GOM |>
   rowwise() %>%
-  mutate(home_state_full =
-           possibly(get_full_state_name, 
-                    otherwise = NA)(home_state)) |>
-  filter(!is.na(home_state_full)) |>
-  filter(tolower(home_state_full) %in% tolower(east_coast_states$gom)) |>
+  mutate(state_fixed_full =
+           possibly(get_state_fixed_full_name,
+                    otherwise = NA)(state_fixed)) |>
+  filter(!is.na(state_fixed_full)) |>
+  filter(tolower(state_fixed_full) %in% tolower(east_coast_states$gom)) |>
   ungroup()
-
-# View(vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short_labels$gom_states)
 
 ## add to the shape file by state name ----
 
-# Left join the 'south_east_coast_states_shp' shape file data frame with the each permit region data frame from the list,
-# using 'STUSPS' from the shapefile and 'home_state' from the current data frame.
+# Explanations:
+# The code creates a new list of spatial data frames 'shp_file_with_cnts_list'
+# using the pipe operator and purrr::map() function:
+# - purrr::map(): Iterates over each data frame in
+#   'vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short_labels'.
+# - For each data frame in the list:
+#   - Perform a left join with 'south_east_coast_states_shp'.
+#   - Join based on the equality of 'STUSPS' and 'home_state'.
+# The resulting list contains spatial data frames with additional compliance count information.
 
 shp_file_with_cnts_list <-
   vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt_perc_short_labels |>
@@ -629,21 +839,33 @@ shp_file_with_cnts_sa <-
 # View(shp_file_with_cnts_sa)
 
 # print_df_names(shp_file_with_cnts_sa)
-# [1] "STATEFP, STATENS, AFFGEOID, GEOID, STUSPS, NAME, LSAD, ALAND, AWATER, total_vsl_by_state_cnt, compliance_by_state_cnt, compl_percent_per_st, nc_round_perc, my_label, geometry"
+# [1] "STATEFP, STATENS, AFFGEOID, GEOID, STUSPS, NAME, LSAD, ALAND, AWATER, total_vsl_by_state_cnt, compliance_by_state_cnt, non_compl_percent_per_st, nc_round_perc, my_label, geometry"
 
-# shp_file_with_cnts_sa |> 
+# shp_file_with_cnts_sa |>
 #   mapview(zcol = "nc_round_perc")
 # View(shp_file_with_cnts)
 
-# shp_file_with_cnts_list$SA |> 
+# shp_file_with_cnts_list$SA |>
 #   mapview(zcol = "nc_round_perc")
 
 # get south states map ----
 # to add empty states to the map
+
+# Explanations:
+# The code creates an sf object 'states_sf' representing U.S. states:
+# - Use maps::map() to generate a map of U.S. states without plotting it.
+# - Convert the resulting map to an sf object using sf::st_as_sf().
+
 states_sf <-
   sf::st_as_sf(maps::map("state", plot = FALSE, fill = TRUE))
 
 # add X and Y
+# Explanations:
+# The code adds coordinates of centroids to the 'states_sf' sf object:
+# - Use sf::st_centroid() to compute the centroid of each state in 'states_sf'.
+# - Use sf::st_coordinates() to extract the coordinates of centroids.
+# - Use cbind() to add the coordinates to 'states_sf'.
+
 states_sf <-
   cbind(states_sf,
         sf::st_coordinates(sf::st_centroid(states_sf)))
@@ -658,29 +880,55 @@ label_text_size <- 5
 # axis_text_size <- 4
 # title_text_size <- 4
 
-# shp_file_with_cnts_list$gom_states |> print_df_names()
+# Explanations:
+# The code creates a new data frame 'gom_state_proportion_indexes':
+# - Start with 'shp_file_with_cnts_list$gom_states'.
+# - Drop geometry information using sf::st_drop_geometry().
+# - Select the column 'nc_round_proportion'.
+# - Remove duplicate rows.
+# - Drop rows with missing values.
+# - Arrange the data frame based on 'nc_round_proportion'.
+
 gom_state_proportion_indexes <-
-  shp_file_with_cnts_list$gom_states |> 
-  sf::st_drop_geometry() |> 
-  select(nc_round_proportion) |> 
-  distinct() |> 
-  drop_na() |> 
+  shp_file_with_cnts_list$gom_states |>
+  sf::st_drop_geometry() |>
+  select(nc_round_proportion) |>
+  distinct() |>
+  drop_na() |>
   arrange(nc_round_proportion)
 
 len_colors_gom_states = nrow(gom_state_proportion_indexes)
+
+# ---
+# Explanations:
+# The code defines a color palette 'mypalette' using the viridis package:
+# - Use the viridis::viridis() function to generate a color palette.
+# - Set the number of colors with 'len_colors_gom_states'.
+# - Choose the "D" option for the color map.
 
 mypalette = viridis(len_colors_gom_states, option = "D")
 # mypalette <- rainbow(length(gom_all_cnt_indexes))
 names(mypalette) <- gom_state_proportion_indexes$nc_round_proportion
 
 # mypalette
-#        0.14        0.16        0.21        0.22        0.29 
-# "#440154FF" "#3B528BFF" "#21908CFF" "#5DC863FF" "#FDE725FF" 
+#        0.14        0.16        0.21        0.22        0.29
+# "#440154FF" "#3B528BFF" "#21908CFF" "#5DC863FF" "#FDE725FF"
 
 # The code creates a plot using the ggplot2 library to visualize spatial data.
-# View(shp_file_with_cnts_list$gom_states)
 
-shp_file_with_cnts_list_maps <- 
+# Explanations:
+# The code creates a new list of ggplot2 maps 'shp_file_with_cnts_list_maps':
+# - Start with 'shp_file_with_cnts_list'.
+# - Use purrr::map() to iterate over each sf object in the list.
+# - For each sf object:
+#   - Filter out rows with missing 'total_vsl_by_state_cnt'.
+#   - Modify the sf object for mapping by adding a 'my_nudge_y' column.
+#   - Create a ggplot2 map with specified aesthetics, labels, and themes.
+#   - Set coordinate limits based on the bounding box of southeast coast states.
+#   - Customize axis labels, legend, and color scale.
+#   - Add the resulting ggplot2 map to the list 'shp_file_with_cnts_list_maps'.
+
+shp_file_with_cnts_list_maps <-
   shp_file_with_cnts_list |>
   purrr::map(\(curr_sf) {
     curr_sf_for_map <-
@@ -756,22 +1004,29 @@ perc_plot_titles <-
 names(perc_plot_titles) <- permit_regions
 
 ## save plot to file function ----
+# Explanations:
+# The code defines a function 'write_png_to_file' to save a ggplot2 map to a PNG file:
+# - Takes parameters 'output_file_name' and 'map_plot'.
+# - Sets 'png_width'.
+# - Uses ggplot2::ggsave() to save the ggplot2 map to a PNG file.
+# - Specifies the file path, width, height, and units.
+
 write_png_to_file <- function(output_file_name,
                               map_plot) {
-  
+
   png_width  <- 31
   # png_height <- 25
   # png_width <- 800
   # png_height <- 600
-  
+
   ggplot2::ggsave(
       file = output_file_name,
       plot = map_plot,
       device = "png",
       path = file.path(my_paths$outputs,
-                       current_project_dir_name),
+                       current_project_basename),
       width = png_width,
-      height = png_height,
+      # height = png_height,
       units = "cm" # "px"
     )
 }
@@ -810,8 +1065,55 @@ sa_only_map <-
   shp_file_with_cnts_list_maps$SA +
   ggplot2::ggtitle(perc_plot_titles[[permit_region]])
 
-output_file_name <- 
+output_file_name <-
   str_glue("sa_only_perc_by_state_{today()}.png")
 
 write_png_to_file(output_file_name,
                   sa_only_map)
+
+# Check no home port vessels ----
+## GOM ----
+vessels_no_home_port <-
+  vessels_permits_home_port_22_compliance_list_vessel_by_state_compl_cnt$GOM |>
+  filter(state_fixed %in% c("NA", "UN") | is.na(state_fixed)) |>
+  select(vessel_official_number) |>
+  distinct()
+
+nrow(vessels_no_home_port)
+# 230
+
+vessels_permits_home_port_22 |>
+  select(starts_with("SERO")) |>
+  distinct() |>
+  filter(trimws(tolower(SERO_OFFICIAL_NUMBER)) %in% trimws(tolower(vessels_no_home_port$vessel_official_number))) |>
+  nrow()
+# 2
+
+all_get_db_data_result_l$vessels_permits |>
+  select(starts_with("SERO")) |>
+  distinct() |>
+  filter(trimws(tolower(SERO_OFFICIAL_NUMBER)) %in% trimws(tolower(vessels_no_home_port$vessel_official_number))) |>
+  glimpse()
+
+
+compl_err_db_data_metrics_2022_clean_list_short$GOM |>
+  filter(trimws(tolower(vessel_official_number)) %in% trimws(tolower(
+    vessels_no_home_port$vessel_official_number
+  ))) |>
+  select(vessel_official_number) |>
+  distinct() |>
+  nrow()
+# 230
+
+compl_err_db_data_metrics_2022_clean_list_short_uniq$GOM |>
+  filter(trimws(tolower(vessel_official_number)) %in% trimws(tolower(
+    vessels_no_home_port$vessel_official_number
+  ))) |>
+  nrow()
+# 230
+
+# vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt$GOM |>
+#   filter(trimws(tolower(vessel_official_number)) %in% trimws(tolower(
+#     vessels_no_home_port$vessel_official_number
+#   ))) |>
+#   View()

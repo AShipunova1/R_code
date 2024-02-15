@@ -5,6 +5,7 @@ get_metrics_tracking_path <-
             get_data_from_fhier_dir,
             "get_metrics_tracking.R")
 source(get_metrics_tracking_path)
+# View(fhier_reports_metrics_tracking_list)
 
 get_srhs_vessels_path <-
   file.path(my_paths$git_r,
@@ -28,7 +29,8 @@ fhier_reports_metrics_tracking_not_srhs_ids <-
   dplyr::distinct()
 
 dim(fhier_reports_metrics_tracking_not_srhs_ids)
-# [1] 2981    1
+# [1] 2981    1 2022
+# [1] 3387    1 2023
 
 # the same, but result kept in a list
 # Create a list named 'fhier_reports_metrics_tracking_not_srhs_ids_list'
@@ -56,12 +58,20 @@ purrr::map(fhier_reports_metrics_tracking_list, dim)
 # [[2]]
 # [1] 3460   13
 
+# [1] "2024-02-01"
+# $`2023`
+# [1] 3513   13
+
 purrr::map(fhier_reports_metrics_tracking_not_srhs_ids_list, dim)
 # [[1]]
 # [1] 3571    1
 #
 # [[2]]
 # [1] 3399    1
+
+# [1] "2024-02-01"
+# $`2023`
+# [1] 3513   13
 
 # Keep all metrics tracking columns one df ----
 fhier_reports_metrics_tracking_not_srhs_all_cols <-
@@ -86,9 +96,8 @@ fhier_reports_metrics_tracking_not_srhs_all_cols_list <-
       # exclude SRHS vessels
       dplyr::filter(!vessel_official_number %in% srhs_vessels_2022_info$uscg__)
   )
-  
-# View(fhier_reports_metrics_tracking_not_srhs_all_cols_list)
 
+# View(fhier_reports_metrics_tracking_not_srhs_all_cols_list)
 
 cat("Results:",
     "fhier_reports_metrics_tracking_not_srhs_ids_list",
