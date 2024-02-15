@@ -363,25 +363,16 @@ line_monthly_nc_plot_l <-
     #          color = "blue")
   })
 
-# rm(line_monthly_nc_plot_l)
 names(line_monthly_nc_plot_l) <-
   names(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l_nc)
 
-# print_df_names(line_monthly_nc_plot_l)
-
-# line_monthly_nc_plot_l
 line_monthly_nc_plot_l["2023 sa_only"]
+
 # save to files ----
 plots_to_save <- c(line_monthly_nc_plot_l["2022 sa_only"],
                    line_monthly_nc_plot_l["2023 sa_only"],
                    line_monthly_nc_plot_l["2023 dual"])
 
-# line_monthly_nc_plot_l["2022 sa_only"]
-
-# plots_to_save <- c(line_monthly_nc_plot_l["2022 sa_only"],
-#                    line_monthly_nc_plot_l["2023 sa_dual"])
-
-# plots_to_save
 plots_to_save |>
   map(\(one_plot) {
     # browser()
