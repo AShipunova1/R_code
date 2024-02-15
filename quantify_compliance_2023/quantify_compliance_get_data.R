@@ -85,16 +85,6 @@ tic("get_data_from_csv")
 compl_clean_sa_vs_gom_m_int_c <- get_data_from_csv()
 toc()
 
-# # get data from db ----
-# file.path(my_paths$git_r, r"(get_data\get_db_data\get_db_data.R)") |>
-#   source()
-# 
-# tic("run_all_get_db_data()")
-# all_get_db_data_result_l <- run_all_get_db_data()
-# toc()
-# run_all_get_db_data(): 13.61 sec elapsed
-
-# View(all_get_db_data_result_l)
 # get_permit_data_from_metrics_tracking ----
 processed_input_data_path <- 
   file.path(my_paths$inputs,
