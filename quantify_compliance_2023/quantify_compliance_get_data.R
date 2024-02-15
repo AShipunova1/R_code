@@ -80,7 +80,7 @@ additional_clean_up <- function(my_df) {
   return(compl_clean_sa_vs_gom_m_int)
 }
 
-# Uncomment and run above functions if using csvs downloaded from FHIER
+# Run above functions if using csvs downloaded from FHIER
 tic("get_data_from_csv")
 compl_clean_sa_vs_gom_m_int_c <- get_data_from_csv()
 toc()
@@ -134,7 +134,6 @@ names(processed_logbooks) <-
   names(processed_logbooks) |>
   tolower()
 
-
 # get vessels with no logbooks ----
 # For all years
 vessels_no_logbooks_file_names <-
@@ -152,8 +151,11 @@ names(vessels_no_logbooks) <-
   names(vessels_no_logbooks) |>
   tolower()
 
-# results:
-# all_get_db_data_result_l
-# processed_metrics_tracking_permits
-# processed_logbooks
-# vessels_no_logbooks
+results <- c(
+  "compl_clean_sa_vs_gom_m_int_c",
+  "processed_metrics_tracking_permits",
+  "processed_logbooks",
+  "vessels_no_logbooks"
+)
+
+cat(results, sep = "\n")
