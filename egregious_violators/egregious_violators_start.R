@@ -6,9 +6,19 @@ library(zoo)
 
 # ----set up----
 my_paths <- set_work_dir()
-current_project_name <- "egregious_violators"
-current_project_path <-
-  file.path(my_paths$git_r, current_project_name)
+
+current_project_path <- this.path::this.dir()
+
+current_project_basename <-
+  basename(current_project_path)
+
+curr_proj_output_path <- file.path(my_paths$outputs,
+                         current_project_basename)
+
+curr_proj_input_path <- file.path(my_paths$inputs,
+                         current_project_basename)
+
+current_project_name <- current_project_basename
 
 source(file.path(current_project_path, "get_data_egregious_violators.R"))
 
