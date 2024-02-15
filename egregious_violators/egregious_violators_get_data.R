@@ -25,12 +25,9 @@
 # vessels_with_zero_logbooks_2022.rds
 # vessels_with_zero_logbooks_2023.rds
 
-
 # library(lubridate)
 # library(tictoc)
 # library(stringr)
-
-
 
 # source(file.path(current_project_path,
 #                  "db_functions.R"))
@@ -40,20 +37,20 @@
 # permit info from processed metrics tracking
 
 # Download from FHIER first
-csv_names_list_22_23 = c("Correspondence__08_01_2023.csv",
-                         r"(FHIER_Compliance_2022__08_01_2023.csv)",
-                         r"(FHIER_Compliance_2023__08_01_2023.csv)")
+# "~\R_files_local\my_inputs\from_Fhier\Correspondence\Correspondence_2023_02_15.csv"
+# "~\R_files_local\my_inputs\from_Fhier\FHIER Compliance\2024_02_05\FHIER_Compliance_2022__02_05_2024.csv"
+# "~\R_files_local\my_inputs\from_Fhier\FHIER Compliance\2024_01_24\FHIER_Compliance_2023__01_24_2024.csv"
+csv_names_list_22_23 = c("Correspondence_2023_02_15.csv",
+                         r"(2024_02_05\FHIER_Compliance_2022__02_05_2024.csv)",
+                         r"(2024_01_24\FHIER_Compliance_2023__01_24_2024.csv)")
 
 data_file_date <- today()
-  # lubridate::mdy("06_22_2023")
 
 ## ---- get csv data into variables ----
-all_inputs <- my_paths$inputs
-my_paths$inputs <- file.path(my_paths$inputs, "from_Fhier")
-# [1] "~/R_files_local/my_inputs"
+from_fhier_data_path <-
+  file.path(my_paths$inputs, "from_Fhier")
 
-# "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\from_Fhier\Correspondence\Correspondence_22_23__06_22_2023.csv"
-temp_var <- get_compl_and_corresp_data(my_paths, csv_names_list_22_23)
+temp_var <- get_compl_and_corresp_data(from_fhier_data_path, csv_names_list_22_23)
 
 compl_clean <- temp_var[[1]]
 corresp_contact_cnts_clean0 <- temp_var[[2]]
