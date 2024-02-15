@@ -1,11 +1,11 @@
-library(ROracle)
+# library(ROracle)
 
-con = dbConnect(
-  dbDriver("Oracle"),
-  username = keyring::key_list("SECPR")[1, 2],
-  password = keyring::key_get("SECPR", keyring::key_list("SECPR")[1, 2]),
-  dbname = "SECPR"
-)
+# con = dbConnect(
+#   dbDriver("Oracle"),
+#   username = keyring::key_list("SECPR")[1, 2],
+#   password = keyring::key_get("SECPR", keyring::key_list("SECPR")[1, 2]),
+#   dbname = "SECPR"
+# )
 
 get_fields <- function() {
   con <- connect_to_secpr()
