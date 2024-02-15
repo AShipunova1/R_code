@@ -8,20 +8,6 @@ axis_title_size <- text_sizes[["axis_text_x_size"]]
 axis_title_size <- 12
 point_size <- 4
 
-# add_cnt_in_gr <-
-#   function(my_df, 
-#            group_by_col, 
-#            cnt_col_name = "total_vsl_m_by_year_perm") {
-#     my_df %>%
-#       # group by per month and permit
-#     group_by_at(group_by_col) %>%
-#     # cnt distinct vessels in each group
-#     mutate({{cnt_col_name}} :=
-#                     n_distinct(vessel_official_number)) %>%
-#     ungroup() %>%
-#     return()
-# }
-
 # Add total vessels count per month and region ----
 # (both compl. and not, a vsl can be in both)
 
@@ -120,25 +106,7 @@ compl_clean_sa_vs_gom_m_int_tot_short <-
 
 # Get compl, no compl, or both per month ----
 
-# get_compl_by <- 
-#   function(my_df, group_by_for_compl, names_from_list) {
-#   my_df %>%
-#     group_by_at(group_by_for_compl) %>%
-#     # can unique, because we are looking at vessels, not weeks
-#     unique() %>%
-#     # more columns, a column per vessel
-#     tidyr::pivot_wider(
-#       names_from = all_of(names_from_list),
-#       values_from = compliant_,
-#       # make it "NO_YES" if both
-#       values_fn = ~ paste0(sort(.x), collapse = "_")
-#     ) %>%
-#     ungroup() %>%
-#     return()
-# }
-
-# all columns except "vessel_official_number" and "compliant_"
-
+## all columns except "vessel_official_number" and "compliant_" ----
 group_by_for_compl_m <-
   vars(-c(vessel_official_number,
           compliant_))
@@ -163,6 +131,12 @@ not_vessel_id_col_names <-
     "year_permit_sa_gom_dual",
     "total_vsl_m_by_year_perm")
 
+# Explanations:
+# Pivot the compl_clean_sa_vs_gom_m_int_tot_short_wide dataframe to a longer format.
+# 1. Use tidyr::pivot_longer to transform the dataframe by specifying:
+#    - cols: All columns except those listed in not_vessel_id_col_names are considered values.
+#    - values_to: The new column "is_compl_or_both" will store the values from the pivoted columns.
+#    - names_to: The new column "vessel_official_number" will store the names of the pivoted columns.
 compl_clean_sa_vs_gom_m_int_tot_short_wide_long <- 
   compl_clean_sa_vs_gom_m_int_tot_short_wide |> 
   tidyr::pivot_longer(
