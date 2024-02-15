@@ -6,6 +6,9 @@
 # FHIER_Compliance_2022__02_05_2024.csv
 # FHIER_Compliance_2023__01_24_2024.csv
 
+# All other files are from Processed data google folder:
+# https://drive.google.com/drive/folders/1ZObq0pd7yr7caYGXjZfgRFa9BqN00OKv
+
 # 2) Processed metrics_tracking
 # SEFHIER_permitted_vessels_nonSRHS_2022.rds
 # SEFHIER_permitted_vessels_nonSRHS_2023.rds
