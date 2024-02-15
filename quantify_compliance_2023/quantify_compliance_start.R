@@ -6,7 +6,17 @@
 # FHIER_Compliance_2022__02_05_2024.csv
 # FHIER_Compliance_2023__01_24_2024.csv
 
-# 2)
+# 2) Processed metrics_tracking
+# SEFHIER_permitted_vessels_nonSRHS_2022.rds
+# SEFHIER_permitted_vessels_nonSRHS_2023.rds
+
+# 3) Processed Logbooks
+# SEFHIER_processed_Logbooks_2022.rds
+# SEFHIER_processed_Logbooks_2023.rds
+
+# 4) Vessels with no logbooks
+# vessels_with_zero_logbooks_2022.rds
+# vessels_with_zero_logbooks_2023.rds
 
 # --- old
 # Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)
