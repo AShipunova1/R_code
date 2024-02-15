@@ -4,12 +4,10 @@
 # FHIER_Compliance_2023__01_24_2023.csv (from FHIER / compliance report)
 # FHIER_Compliance_2022__02_05_2024.csv (from FHIER / compliance report)
 
-# Compliance_Error_Types_03_29_2023.csv
-
 # Processed Metrics tracking
 # SEFHIER_permitted_vessels_nonSRHS_{my_year}
 
-# "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\processing_logbook_data\Outputs\SEFHIER_processed_Logbooks_2022.rds"
+# "~\R_files_local\my_inputs\processing_logbook_data\Outputs\SEFHIER_processed_Logbooks_2022.rds"
 
 project_dir_name <- "FHIER Compliance"
 
@@ -36,27 +34,27 @@ get_data_from_FHIER_csvs <- function() {
 }
 
 # Define a function named 'get_compliance_error_definitions' with no parameters
-get_compliance_error_definitions <- function() {
-  
-  # Create a character vector 'err_desc_filenames' containing the file path
-  err_desc_filenames = c(file.path(project_dir_name, "Compliance_Error_Types_03_29_2023.csv"))
-  
-  # Load the contents of the CSV file specified in 'err_desc_filenames' using 'load_csv_names' and 'my_paths'
-  err_desc_csv_contents <- load_csv_names(my_paths, err_desc_filenames)
-  
-  # Clean the headers of the loaded CSV content using 'clean_headers'
-  err_desc_clean_headers_csv_content <-
-    clean_headers(err_desc_csv_contents[[1]])
-  
-  # Convert a specific column ("last_updated") to date format using 'change_to_dates'
-  err_desc <-
-    change_to_dates(err_desc_clean_headers_csv_content,
-                    "last_updated",
-                    "%m/%d/%Y %I:%M:%S %p")
-  
-  # Return the cleaned and processed data frame 'err_desc'
-  return(err_desc)
-}
+# get_compliance_error_definitions <- function() {
+#   
+#   # Create a character vector 'err_desc_filenames' containing the file path
+#   err_desc_filenames = c(file.path(project_dir_name, "Compliance_Error_Types_03_29_2023.csv"))
+#   
+#   # Load the contents of the CSV file specified in 'err_desc_filenames' using 'load_csv_names' and 'my_paths'
+#   err_desc_csv_contents <- load_csv_names(my_paths, err_desc_filenames)
+#   
+#   # Clean the headers of the loaded CSV content using 'clean_headers'
+#   err_desc_clean_headers_csv_content <-
+#     clean_headers(err_desc_csv_contents[[1]])
+#   
+#   # Convert a specific column ("last_updated") to date format using 'change_to_dates'
+#   err_desc <-
+#     change_to_dates(err_desc_clean_headers_csv_content,
+#                     "last_updated",
+#                     "%m/%d/%Y %I:%M:%S %p")
+#   
+#   # Return the cleaned and processed data frame 'err_desc'
+#   return(err_desc)
+# }
 
 get_data_from_csv <- function() {
   # uncomment to run
@@ -71,7 +69,7 @@ get_data_from_csv <- function() {
   # View(compl_clean)
   
   ## get compliance error definitions from csvs ----
-  err_desc <- get_compliance_error_definitions()
+  # err_desc <- get_compliance_error_definitions()
   
   # Check the result is a single dataframe, and if not, combine separate dataframes for all years into one.
   if (length(compl_clean) > 1) {
