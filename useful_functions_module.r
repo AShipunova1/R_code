@@ -174,14 +174,10 @@ if (get_username() == "anna.shipunova") {
 }
 
 # Define a function named 'load_csv_names' that takes two parameters: 'my_paths' and 'csv_names_list'
-load_csv_names <- function(my_paths, csv_names_list) {
-
-  # Extract the 'inputs' directory path from 'my_paths' and store it in 'my_inputs'
-  my_inputs <- my_paths$inputs
-
-  # Use 'lapply' to prepend the 'my_inputs' directory path to each file name in 'csv_names_list'
+load_csv_names <- function(csv_files_paths, csv_names_list) {
+ # Use 'lapply' to add the 'my_inputs' directory path in front of each file name in 'csv_names_list'
   # This creates a list of full file paths for the CSV files
-  myfiles <- lapply(csv_names_list, function(x) file.path(my_inputs, x))
+  myfiles <- lapply(csv_names_list, function(x) file.path(csv_files_paths, x))
 
   # Use 'lapply' again to read all CSV files listed in 'myfiles'
   # The 'read_csv' function from the 'readr' package is used, specifying default column types as 'c' ('character')
