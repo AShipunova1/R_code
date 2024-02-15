@@ -47,18 +47,13 @@ res1 <-
   arrange(year_month, permit_sa_gom_dual_both)
 
 # tail(res1)
-# 1 2023 sa_dual Dec 2023                       1969
-# 2 2023 sa_dual Sep 2023                       1986
-# 3 2023 sa_dual May 2023                       2020
-# 4 2023 sa_dual Aug 2023                       2023
-# 5 2023 sa_dual Jun 2023                       2026
-# 6 2023 sa_dual Jul 2023                       2036
+# 1 2023 dual Nov 2023 270
+# 2 2023 gom_only Nov 2023 949
+# 3 2023 sa_only Nov 2023 1729
+# 4 2023 dual Dec 2023 272
+# 5 2023 gom_only Dec 2023 947
+# 6 2023 sa_only Dec 2023 1726
 
-# res1 |> 
-#   filter(year == 2023) |> 
-#   glimpse()
-
-# rm(res2)
 res2 <-
   compl_clean_sa_vs_gom_m_int_tot |>
   select(year,
@@ -68,38 +63,17 @@ res2 <-
   distinct() |>
   arrange(year_month, permit_sa_gom_dual_both)
 
-# tail(res2)
-# 1 2023  gom_only                Oct 2023                        955
-# 2 2023  sa_dual                 Oct 2023                       1965
-# 3 2023  gom_only                Nov 2023                        949
-# 4 2023  sa_dual                 Nov 2023                       1963
-# 5 2023  gom_only                Dec 2023                        947
-# 6 2023  sa_dual                 Dec 2023                       1963
-
 diffdf::diffdf(res1, res2)
 # T
 
 compl_clean_sa_vs_gom_m_int_tot |>
-  filter(year == "2023", 
+  filter(year == "2023",
          permit_sa_gom_dual %in%
-           c("sa_only", "dual")) |> 
-  select(year_month, total_vsl_m_by_year_perm) |>
-  distinct() |> 
-  arrange(year_month) |> 
+           c("sa_only", "dual")) |>
+  select(year_month, compliant_, total_vsl_m_by_year_perm) |>
+  distinct() |>
+  arrange(year_month) |>
   head()
-# 1 Jan 2023          1967
-# 2 Feb 2023          1958
-# 3 Mar 2023          1954
-# 4 Apr 2023          1968
-# 5 May 2023          2020
-# 6 Jun 2023          2026
-
-# 1 Jan 2023                       1753
-# 2 Feb 2023                       1744
-# 3 Mar 2023                       1740
-# 4 Apr 2023                       1752
-# 5 May 2023                       1791
-# 6 Jun 2023                       1793
 
 # sa_dual
 # 1 Jan 2023                       1982
@@ -109,14 +83,13 @@ compl_clean_sa_vs_gom_m_int_tot |>
 # 5 May 2023                       2032
 # 6 Jun 2023                       2035
 
-compl_clean_sa_vs_gom_m_int_tot |>
-  filter(year_permit_sa_gom_dual == "2023 sa_dual") |> 
-  select(year_month,
-         year_permit_sa_gom_dual,
-         total_vsl_m_by_year_perm) |>
-  distinct() |> 
-  arrange(year_month) |> 
-  head()
+# sa_only
+# 1 Jan 2023   YES                            1753
+# 2 Jan 2023   NO                             1753
+# 3 Jan 2023   YES                             285
+# 4 Jan 2023   NO                              285
+# 5 Feb 2023   YES                            1744
+# 6 Feb 2023   NO                             1744
 
 compl_clean_sa_vs_gom_m_int_tot |>
   filter(year == "2023" &
@@ -128,6 +101,8 @@ compl_clean_sa_vs_gom_m_int_tot |>
   ungroup() |> 
   arrange(year_month) |> 
   head()
+# 1 Jan 2023   sa_only                                1753        2038
+# 2 Jan 2023   dual                                    285        2038
 
 # Fewer columns ----
 compl_clean_sa_vs_gom_m_int_tot_short <-
@@ -163,13 +138,6 @@ compl_clean_sa_vs_gom_m_int_tot_short <-
 # }
 
 # all columns except "vessel_official_number" and "compliant_"
-# group_by_for_compl_m <-
-#   vars(c(
-#     year_month,
-#     year,
-#     permit_sa_gom_dual,
-#     total_vsl_m_by_year_perm
-#   ))
 
 group_by_for_compl_m <-
   vars(-c(vessel_official_number,
@@ -184,10 +152,10 @@ compl_clean_sa_vs_gom_m_int_tot_short_wide <-
     names_from_list
   )
 
-# View(compl_clean_sa_vs_gom_m_int_tot_short_wide)
+dim(compl_clean_sa_vs_gom_m_int_tot_short_wide)
+# [1]   72 4021
 
 ## Back to long format ----
-
 not_vessel_id_col_names <-
   c("year_month",
     "year",
