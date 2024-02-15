@@ -1,10 +1,17 @@
 # quantify_compliance_start.R
 
-# TODO: change
 # need files:
+# 1) compliance data
+# Download files from FHIER / Reports / FHIER COMPLIANCE REPORT
+# FHIER_Compliance_2022__02_05_2024.csv
+# FHIER_Compliance_2023__01_24_2024.csv
+
+# 2)
+
+# --- old
 # Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)
 # Detail_Report_12312021_12312022__08_23_2023.csv
-# FHIER_Compliance_2023__01_24_2023.csv
+
 # Compliance_Error_Types_03_29_2023.csv
 # Permits_2023-03-29_1611_active.csv
 
@@ -44,7 +51,7 @@ curr_proj_input_path <- file.path(my_paths$inputs,
                          current_project_basename)
 
 project_name <- current_project_basename
-  # "quantify_compliance_2023"
+# "quantify_compliance_2023"
 
 # Read R Code from files
 quantify_compliance_functions_path <- 
