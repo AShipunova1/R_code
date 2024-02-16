@@ -1,6 +1,6 @@
 # 1) NO reports for all 26 weeks back from week ago today;
 # 2) permits have not expired as of today;
-# 3) the grace period is 6 days back from today.
+# 3) the grace period is 7 days back from today.
 
 # Get common functions
 source("~/R_code_github/useful_functions_module.r")
@@ -153,8 +153,7 @@ dim(compl_clean_w_permit_exp_last_half_year__sa_non_compl)
 # [1] 12454    23
 # [1] 10291    22
 
-compl_clean_w_permit_exp_last_half_year__sa_non_compl |>
-  count_uniq_by_column() |> head(1)
+n_distinct(compl_clean_w_permit_exp_last_half_year__sa_non_compl$vessel_official_number)
 # vesselofficialnumber 1785
 # today()
 # "2023-06-23"
@@ -166,15 +165,18 @@ compl_clean_w_permit_exp_last_half_year__sa_non_compl |>
 # vessel_official_number 1370
 # vessel_official_number 1328
 # [1] "2024-02-16"
-# vessel_official_number 1052
+# 1052
 
 ## dplyr::filter for egregious ----
 ### check if there is no "compliant_ == YES" since half_year_ago ----
+compl_clean_w_permit_exp_last_half_year__sa__wide <-
+  get_compl_by(compl_clean_w_permit_exp_last_half_year__sa)
 
-last_week_start <- data_file_date - 6
+last_week_start <- data_file_date - grace_period
 # [1] "2024-02-10"
 
-compl_clean_w_permit_exp_last_half_year__sa |> check_new_vessels()
+compl_clean_w_permit_exp_last_half_year__sa |> 
+  check_new_vessels()
 # 4
 
 compl_clean_w_permit_exp_last_half_year__sa_non_c_not_exp <-
