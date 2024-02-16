@@ -31,7 +31,9 @@ my_end2 <- str_glue("{my_year2}-12-31")
 
 # get_data ----
 
-source(file.path(current_project_path, "egregious_violators_get_data.R"))
+get_data_path <- 
+  file.path(current_project_path, "egregious_violators_get_data.R")
+source(get_data_path)
 
 ## check ----
 check_new_vessels <-
