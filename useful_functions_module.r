@@ -1267,7 +1267,17 @@ get_compl_by <-
 group_by_for_compl <-
   vars(-c("vessel_official_number", "compliant_"))
 
+# ---
+# Explanations:
+# The function 'compl__back_to_longer_format' performs the following operations:
+# 1. Turns the data frame back to a longer format with vessel IDs in one column.
+# 2. Specifies the columns to pivot. All columns except those specified in 'cols_names' are treated as vessel IDs.
+# 3. Sets the values to the column 'is_compl_or_both'.
+# 4. Sets the names to the column 'vessel_official_number'.
+# 5. Returns the modified data frame.
+
 # Usage example:
+# cols_names are all names except vessel_official_numbers
 # cols_names <-
 #   c("year",
 #     "permit_sa_gom_dual",
@@ -1280,14 +1290,6 @@ group_by_for_compl <-
 #     compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide__both,
 #     cols_names
 #   )
-
-# Explanations:
-# The function 'compl__back_to_longer_format' performs the following operations:
-# 1. Turns the data frame back to a longer format with vessel IDs in one column.
-# 2. Specifies the columns to pivot. All columns except those specified in 'cols_names' are treated as vessel IDs.
-# 3. Sets the values to the column 'is_compl_or_both'.
-# 4. Sets the names to the column 'vessel_official_number'.
-# 5. Returns the modified data frame.
 compl__back_to_longer_format <-
   function(my_df,
            cols_names) {
