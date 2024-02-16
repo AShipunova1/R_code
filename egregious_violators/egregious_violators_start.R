@@ -133,16 +133,17 @@ today()
 # [1] "2023-08-10"
 # [1] "2024-02-16"
 
-## Not "compliant_" only ----
-compl_clean_w_permit_exp_last_half_year__sa_non_compl <-
-  compl_clean_w_permit_exp_last_half_year__sa |>
-  dplyr::filter(compliant_ == 'NO')
-
-check_new_vessels(compl_clean_w_permit_exp_last_half_year__sa_non_compl)
+# ## Not "compliant_" only ----
+# TODO: what if no_yes?
+# compl_clean_w_permit_exp_last_half_year__sa_non_compl <-
+#   compl_clean_w_permit_exp_last_half_year__sa |>
+#   dplyr::filter(compliant_ == 'NO')
+# 
+# check_new_vessels(compl_clean_w_permit_exp_last_half_year__sa_non_compl)
 # 4
 # 3
 
-dim(compl_clean_w_permit_exp_last_half_year__sa_non_compl)
+# dim(compl_clean_w_permit_exp_last_half_year__sa_non_compl)
 # [1] 18205    23
 # [1] 11473    23
 # [1] 10597    23
@@ -167,7 +168,20 @@ n_distinct(compl_clean_w_permit_exp_last_half_year__sa_non_compl$vessel_official
 # [1] "2024-02-16"
 # 1052
 
+## get only not expired last 27 weeks of data minus grace period ----
+compl_clean_w_permit_exp_last_half_year__sa__not_exp <-
+  compl_clean_w_permit_exp_last_half_year__sa |>
+  # the last 27 week
+  dplyr::filter(week_start > half_year_ago) |>
+  # before the last week (a report's grace period)
+  dplyr::filter(week_start < last_week_start) |>
+  # not expired
+  dplyr::filter(tolower(permit_expired) == "no")
+
+View(compl_clean_w_permit_exp_last_half_year__sa__not_exp)
+
 ## filter for egregious ----
+
 ### add no_yes compliant ----
 compl_clean_w_permit_exp_last_half_year__sa__wide <-
   get_compl_by(compl_clean_w_permit_exp_last_half_year__sa)
@@ -196,13 +210,18 @@ cols_names <- c(
   "year_month"
 )
 
+# TODO: remove all unused columns before running the next command, too slow
 tic("back_to_long")
 compl_clean_w_permit_exp_last_half_year__sa__wide__long <-
   compl_clean_w_permit_exp_last_half_year__sa__wide |>
-  compl__back_to_longer_format(cols_names)
+  compl__back_to_longer_format(cols_names) |>
+  filter(stats::complete.cases(is_compl_or_both))
 toc()
+# back_to_long: 21.31 sec elapsed
 
-View(compl_clean_w_permit_exp_last_half_year__sa__wide__long)
+compl_clean_w_permit_exp_last_half_year__sa__wide__long$is_compl_or_both |> 
+  unique()
+# [1] "YES" "NO" 
 
 last_week_start <- data_file_date - grace_period
 # [1] "2024-02-10"
