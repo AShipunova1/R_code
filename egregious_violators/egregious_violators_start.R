@@ -1,3 +1,7 @@
+# 1) NO reports for all 26 weeks back from week ago today;
+# 2) permits have not expired as of today;
+# 3) the grace period is 6 days back from today.
+
 # Get common functions
 source("~/R_code_github/useful_functions_module.r")
 
@@ -29,6 +33,22 @@ my_year2 <- "2023"
 my_beginning2 <- str_glue("{my_year2}-01-01")
 my_end2 <- str_glue("{my_year2}-12-31")
 
+data_file_date <- today()
+# [1] "2024-02-16"
+
+number_of_weeks_for_non_compliancy = 26
+days_in_non_compl_weeks <- 
+  number_of_weeks_for_non_compliancy * 7
+# 182
+
+grace_period = 7 #days
+
+half_year_ago <-
+  data_file_date - days_in_non_compl_weeks - grace_period
+# [1] "2023-08-11"
+
+permit_expired_check_date <- data_file_date
+  
 # get_data ----
 
 get_data_path <- 
@@ -37,12 +57,14 @@ source(get_data_path)
 
 ## check ----
 check_new_vessels <-
-  function(my_df) {
-    list_to_check <-
-      c("FL1848EY",
-        "FL4232JY",
-        "1246468",
-        "FL7549EJ")
+  function(my_df, list_to_check = NULL) {
+    if (is.null(list_to_check)) {
+      list_to_check <-
+        c("FL1848EY",
+          "FL4232JY",
+          "1246468",
+          "FL7549EJ")
+    }
     my_df |>
       dplyr::filter(vessel_official_number %in% list_to_check) |>
       dplyr::select(vessel_official_number) |>
@@ -51,64 +73,65 @@ check_new_vessels <-
       return()
   }
 
-
 # ---- Preparing compliance info ----
 
 ## ---- add permit_expired column ----
 check_new_vessels(compl_clean)
 # 4
 
+# print_df_names(compl_clean)
 compl_clean_w_permit_exp <-
   compl_clean |>
-  # if permit group expiration is more than a month from data_file_date than "no"
-  dplyr::mutate(permit_expired = dplyr::case_when(permitgroupexpiration > (data_file_date + 30) ~ "no",
-                                    .default = "yes"))
+  # if permit group expiration is today than "no"
+  dplyr::mutate(permit_expired =
+                  dplyr::case_when(
+                    permit_groupexpiration > (permit_expired_check_date) ~ "no",
+                    .default = "yes"
+                  ))
+
+# glimpse(compl_clean_w_permit_exp)
 
 ## ---- add year_month column ----
 
-number_of_weeks_for_non_compliancy = 27
-days_in_27_weeks <- number_of_weeks_for_non_compliancy*7
-
-half_year_ago <-
-  data_file_date - days_in_27_weeks
-
-compl_clean_w_permit_exp_last_27w <-
+compl_clean_w_permit_exp_last_half_year <-
   compl_clean_w_permit_exp |>
   dplyr::mutate(year_month = as.yearmon(week_start)) |>
-  # keep entries for the last 28 weeks
+  # keep entries for the last check period
   dplyr::filter(year_month >= as.yearmon(half_year_ago))
 
 dim(compl_clean_w_permit_exp)
 # today()
 # [1] "2023-08-10"
 # [1] 235509     22
+# [1] "2024-02-16"
+# [1] 296294     21
 
 check_new_vessels(compl_clean_w_permit_exp)
 # 4
 
-# 185538
-# [1] 217772     22
-dim(compl_clean_w_permit_exp_last_27w)
+dim(compl_clean_w_permit_exp_last_half_year)
 # [1] 74809    23
 # [1] 70118    23
 # [1] 92370    23 (7m)
 # [1] 81153    23 189 d
 # [1] 87826    23
 # [1] 74169    23
+# [1] 60677    22
 
-check_new_vessels(compl_clean_w_permit_exp_last_27w)
+check_new_vessels(compl_clean_w_permit_exp_last_half_year)
 # 4
 
 ## ---- Have only SA permits, exclude those with Gulf permits ----
 
 compl_clean_sa <-
-  compl_clean_w_permit_exp_last_27w |>
+  compl_clean_w_permit_exp_last_half_year |>
   dplyr::filter(!grepl("RCG|HRCG|CHG|HCHG", permitgroup))
 
 today()
 # [1] "2023-08-01"
 # [1] "2023-07-10"
 # [1] "2023-08-10"
+# [1] "2024-02-16"
 
 ## Not "compliant_" only ----
 compl_clean_sa_non_compl <-
@@ -117,6 +140,7 @@ compl_clean_sa_non_compl <-
 
 check_new_vessels(compl_clean_sa_non_compl)
 # 4
+# 3
 
 dim(compl_clean_sa_non_compl)
 # [1] 18205    23
@@ -127,6 +151,7 @@ dim(compl_clean_sa_non_compl)
 # [1] 13992    23
 # [1] 14204    23
 # [1] 12454    23
+# [1] 10291    22
 
 compl_clean_sa_non_compl |>
   count_uniq_by_column() |> head(1)
@@ -140,11 +165,14 @@ compl_clean_sa_non_compl |>
 # [1] "2023-08-01"
 # vessel_official_number 1370
 # vessel_official_number 1328
+# [1] "2024-02-16"
+# vessel_official_number 1052
 
 ## dplyr::filter for egregious ----
 ### check if there is no "compliant_ == YES" since half_year_ago ----
 
 last_week_start <- data_file_date - 6
+# [1] "2024-02-10"
 
 compl_clean_sa |> check_new_vessels()
 # 4
@@ -164,9 +192,11 @@ dim(compl_clean_sa_non_c_not_exp)
 # [1] 10419    23
 # [1] 9486   23
 # [1] 9315   23
+# [1] 7138   22
 
 compl_clean_sa_non_c_not_exp |> check_new_vessels()
 # 3
+# 1
 
 compl_clean_sa_all_weeks_non_c_short <-
   compl_clean_sa_non_c_not_exp |>
@@ -178,13 +208,14 @@ compl_clean_sa_all_weeks_non_c_short <-
   dplyr::arrange(dplyr::desc(compl_weeks_amnt),
                  vessel_official_number) |>
   dplyr::select(-week) |>
-  dplyr::distinct() |>
+  dplyr::distinct() |> View()
   # all weeks were...
   dplyr::filter(total_weeks >= (number_of_weeks_for_non_compliancy - 3)) |>
   # ...non compliant
   dplyr::filter(compl_weeks_amnt == total_weeks)
 
 dim(compl_clean_sa_all_weeks_non_c_short)
+# 0
 
 compl_clean_sa_non_c_not_exp |>
   dplyr::select(vessel_official_number, week, compliant_) |>
@@ -213,7 +244,7 @@ need_cols_names <- c(
   "name",
   "permit_expired",
   "permitgroup",
-  "permitgroupexpiration"
+  "permit_groupexpiration"
   # ,
   # "week_start"
 )
@@ -885,7 +916,7 @@ compl_corr_to_investigation1_short <-
     "name",
     "permit_expired",
     "permitgroup",
-    "permitgroupexpiration",
+    "permit_groupexpiration",
     "contactrecipientname",
     !!contactphonenumber_field_name,
     "contactemailaddress",
@@ -1030,7 +1061,7 @@ data_overview(compl_corr_to_investigation1_short_dup_marked) |> head(1)
 #   name,
 #   permit_expired,
 #   permitgroup,
-#   permitgroupexpiration,
+#   permit_groupexpiration,
 #   contactrecipientname,
 #   contactphone_number,
 #   contactemailaddress,
@@ -1046,7 +1077,7 @@ data_overview(compl_corr_to_investigation1_short_dup_marked) |> head(1)
 #                ".commented_output")
 #             )
 # Joining with `by = join_by(vessel_official_number, name, permit_expired,
-# permitgroup, permitgroupexpiration, contactrecipientname,
+# permitgroup, permit_groupexpiration, contactrecipientname,
 # contactphone_number, contactemailaddress, week_start, date__contacttypes)`
 
 # dim(compl_corr_to_investigation1_short_output_w_comments)
@@ -1218,7 +1249,7 @@ compl_corr_to_investigation1_short_dup_marked_ch <-
       name,
       permit_expired,
       permitgroup,
-      permitgroupexpiration,
+      permit_groupexpiration,
       contactrecipientname,
       contactphone_number,
       contactemailaddress,
