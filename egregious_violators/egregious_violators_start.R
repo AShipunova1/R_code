@@ -715,6 +715,8 @@ vessels_permits_participants_short_u_flat_sp <-
     across(where(is.character),
            ~ str_replace_all(.x, ";;", ";")),
     across(where(is.character),
+           ~ str_replace_all(.x, "^;", ";")),
+    across(where(is.character),
            ~ str_replace_all(.x, ";$", ""))
   )
 
@@ -803,7 +805,7 @@ vessels_permits_participants_short_u_flat_sp_join <-
   left_join(vessels_permits_participants_short_u_flat_sp,
             addr_name_in_fhier)
 # Joining with `by = join_by(P_VESSEL_ID, sero_home_port, full_name, full_address)`
-glimpse(vessels_permits_participants_short_u_flat_sp_join)
+# glimpse(vessels_permits_participants_short_u_flat_sp_join)
 
 vessels_permits_participants_short_u_flat_sp_add <- 
   vessels_permits_participants_short_u_flat_sp_join |> 
@@ -886,10 +888,11 @@ num_of_vsl_to_investigate == n_distinct(compl_corr_to_investigation1__w_addr$ves
 contactphonenumber_field_name <-
   find_col_name(compl_corr_to_investigation1, ".*contact", "number.*")[1]
 
-# print_df_names(vessels_permits_participants_date__contacttype_per_id)
+# print_df_names(compl_corr_to_investigation1__w_addr)
 
 compl_corr_to_investigation1_short <-
-  compl_corr_to_investigation1_w_non_compliant_weeks_n_date__contacttype_per_id |>
+  compl_corr_to_investigation1__w_addr |>
+  # compl_corr_to_investigation1_w_non_compliant_weeks_n_date__contacttype_per_id |>
   dplyr::select(
     "vessel_official_number",
     "name",
@@ -899,14 +902,19 @@ compl_corr_to_investigation1_short <-
     "contactrecipientname",
     !!contactphonenumber_field_name,
     "contactemailaddress",
-    date__contacttypes, 
-    sero_home_port, 
-    full_name, 
+    sero_home_port,
+    full_name,
     full_address,
     # "week_start",
     "date__contacttypes"
   ) |>
-  combine_rows_based_on_multiple_columns_and_keep_all_unique_values("vessel_official_number")
+  group_by(vessel_official_number) |>
+  summarise_all(concat_unique)
+
+compl_corr_to_investigation1_short |> glimpse()
+# TODO: " UN" full_address
+
+  # combine_rows_based_on_multiple_columns_and_keep_all_unique_values("vessel_official_number")
 
 # View(compl_corr_to_investigation1_short)
 # [1] 107   9
