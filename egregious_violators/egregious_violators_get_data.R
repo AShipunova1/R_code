@@ -214,8 +214,8 @@ vessels_permits_participants <-
   read_rds_or_run(
     vessels_permits_participants_file_path,
     vessels_permits_participants_query,
-    vessels_permits_participants_fun,
-    force_from_db = "yes"
+    vessels_permits_participants_fun
+    # force_from_db = "yes"
   )
 # 2023-08-14 run the function: 12.84 sec elapsed
 # 2024-02-16 run for vessels_permits_participants.rds: 5.81 sec elapsed
