@@ -925,6 +925,8 @@ compl_corr_to_investigation1_short |> glimpse()
 # 97
 # 116   9
 
+# STOPPED HERE ---- 
+
 ## ---- 3) mark vessels already in the know list ----
 # The first column (report created) indicates the vessels that we have created a case for. My advice would be not to exclude those vessels. EOs may have provided compliance assistance and/or warnings already. If that is the case and they continue to be non-compliant after that, they will want to know and we may need to reopen those cases.
 
