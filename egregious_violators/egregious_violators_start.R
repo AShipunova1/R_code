@@ -167,10 +167,42 @@ n_distinct(compl_clean_w_permit_exp_last_half_year__sa_non_compl$vessel_official
 # [1] "2024-02-16"
 # 1052
 
-## dplyr::filter for egregious ----
-### check if there is no "compliant_ == YES" since half_year_ago ----
+## filter for egregious ----
+### add no_yes compliant ----
 compl_clean_w_permit_exp_last_half_year__sa__wide <-
   get_compl_by(compl_clean_w_permit_exp_last_half_year__sa)
+
+# print_df_names(compl_clean_w_permit_exp_last_half_year__sa__wide)
+cols_names <- c(
+  "name",
+  "permitgroup",
+  "permit_groupexpiration",
+  "year",
+  "week",
+  "gom_permitteddeclarations__",
+  "captainreports__",
+  "negativereports__",
+  "complianceerrors__",
+  "set_permits_on_hold_",
+  "overridden_",
+  "override_date",
+  "override_by",
+  "contactedwithin_48_hours_",
+  "submittedpower_down_",
+  "week_num",
+  "week_start",
+  "week_end",
+  "permit_expired",
+  "year_month"
+)
+
+tic("back_to_long")
+compl_clean_w_permit_exp_last_half_year__sa__wide__long <-
+  compl_clean_w_permit_exp_last_half_year__sa__wide |>
+  compl__back_to_longer_format(cols_names)
+toc()
+
+View(compl_clean_w_permit_exp_last_half_year__sa__wide__long)
 
 last_week_start <- data_file_date - grace_period
 # [1] "2024-02-10"
@@ -178,6 +210,7 @@ last_week_start <- data_file_date - grace_period
 compl_clean_w_permit_exp_last_half_year__sa |> 
   check_new_vessels()
 # 4
+### check if there is no "compliant_ == YES" since half_year_ago ----
 
 compl_clean_w_permit_exp_last_half_year__sa_non_c_not_exp <-
   compl_clean_w_permit_exp_last_half_year__sa |>
