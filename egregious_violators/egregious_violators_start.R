@@ -6,6 +6,7 @@
 source("~/R_code_github/useful_functions_module.r")
 
 library(zoo)
+library(diffdf)
 # library(RColorBrewer)
 
 # ----set up----
@@ -460,6 +461,11 @@ n_distinct(compl_corr_to_investigation1$vesselofficial_number)
 
 # View(compl_corr_to_investigation1)
 
+## save number of vessels to investigate ----
+num_of_vsl_to_investigate <- 
+  n_distinct(compl_corr_to_investigation1$vesselofficial_number)
+# 133
+
 # ---- output needed investigation ----
 # 1) create additional columns
 # 2) remove duplicated columns
@@ -797,54 +803,65 @@ vessels_permits_participants_short_u_flat_sp_join <-
   left_join(vessels_permits_participants_short_u_flat_sp,
             addr_name_in_fhier)
 # Joining with `by = join_by(P_VESSEL_ID, sero_home_port, full_name, full_address)`
-glimpse(vessels_permits_participants_short_u_flat_sp_add)
+glimpse(vessels_permits_participants_short_u_flat_sp_join)
 
 vessels_permits_participants_short_u_flat_sp_add <- 
   vessels_permits_participants_short_u_flat_sp_join |> 
   mutate(
     full_name =
       dplyr::case_when(
-        is.na(full_name) | full_name == "UN" ~
+        is.na(full_name) | 
+          full_name %in% c("", "UN") ~
           permit_holder_names,
         .default = full_name
       ),
     full_address =
       dplyr::case_when(
-        is.na(full_address) | full_address == "UN" ~
+        is.na(full_address) | 
+          full_address %in% c("", "UN") ~
           fhier_address,
         .default = full_address
       )
   ) |>
-  dplyr::select(P_VESSEL_ID, sero_home_port, full_name, full_address) |>
+  dplyr::select(P_VESSEL_ID, 
+                sero_home_port, 
+                full_name, 
+                full_address) |>
   dplyr::distinct()
 
-library(diffdf)
-diffdf(vessels_permits_participants_short_u_flat_sp,
+diffdf::diffdf(vessels_permits_participants_short_u_flat_sp,
        vessels_permits_participants_short_u_flat_sp_add)
-  
-  #    Variable    No of Differences 
-  #  full_address         896        
-
+#    Variable    No of Differences 
+#   full_name          1008        
+#  full_address         747        
 
 # combine vessels_permits and date__contacttype ----
 
 vessels_permits_participants_date__contacttype_per_id <-
-  inner_join(
+  left_join(
     date__contacttype_per_id,
-    vessels_permits_participants_short_u_flat_sp,
+    vessels_permits_participants_short_u_flat_sp_add,
     join_by(vessel_official_number == P_VESSEL_ID)
   )
 
+# View(vessels_permits_participants_date__contacttype_per_id)
+# n_distinct(date__contacttype_per_id$vessel_official_number)
+# 133
 dim(vessels_permits_participants_date__contacttype_per_id)
 # 117
+# [1] 133   5
 
-# ---- combine output ----
-compl_corr_to_investigation1_w_non_compliant_weeks_n_date__contacttype_per_id <-
-  compl_corr_to_investigation1 |>
-  inner_join(vessels_permits_participants_date__contacttype_per_id,
-             by = "vessel_official_number")
+# compare vsl numbers
+num_of_vsl_to_investigate == n_distinct(vessels_permits_participants_date__contacttype_per_id$vessel_official_number)
+# T
 
-dim(compl_corr_to_investigation1_w_non_compliant_weeks_n_date__contacttype_per_id)
+# # ---- combine output ----
+# compl_corr_to_investigation1_w_non_compliant_weeks_n_date__contacttype_per_id <-
+#   compl_corr_to_investigation1 |>
+#   inner_join(vessels_permits_participants_date__contacttype_per_id,
+#              by = "vessel_official_number")
+
+# dim(compl_corr_to_investigation1_w_non_compliant_weeks_n_date__contacttype_per_id)
 # [1] 264  31
 # 309
 # 271
