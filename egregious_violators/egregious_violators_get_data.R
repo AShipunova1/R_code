@@ -68,6 +68,34 @@ map(compl_clean, dim)
 dim(corresp_contact_cnts_clean0)
 # [1] 31038    20
 
+# get permits from FHIER Metric Tracking ----
+processed_input_data_path <- 
+  file.path(my_paths$inputs,
+            "processing_logbook_data",
+            "Outputs")
+dir.exists(processed_input_data_path)
+# T  
+
+# file names for all years
+processed_metrics_tracking_file_names <-
+  list.files(path = processed_input_data_path,
+             pattern = "SEFHIER_permitted_vessels_nonSRHS_*",
+             recursive = TRUE,
+             full.names = TRUE)
+
+processed_metrics_tracking_permits <-
+  map_df(processed_metrics_tracking_file_names,
+         read_rds)
+
+names(processed_metrics_tracking_permits) <-
+  names(processed_metrics_tracking_permits) |>
+  tolower()
+
+# [1] "vessel_official_number, vessel_name, effective_date, end_date, permits, sa_permits_, gom_permits_, permit_region, permit_sa_gom_dual"
+
+dim(processed_metrics_tracking_permits)
+# [1] 6822    9
+
 # get vessels, permits and participants info from the db ----
 
 # get_vessels with permits and participants ----
