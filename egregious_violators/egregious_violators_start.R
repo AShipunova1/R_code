@@ -410,7 +410,21 @@ compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c |>
 # 2
 # 1
 
-View(corresp_contact_cnts_clean_direct_cnt_2atmps)
+## fix dates ----
+head(corresp_contact_cnts_clean_direct_cnt_2atmps$contact_date, 1)
+# [1] "02/15/2024 03:15PM"
+
+corresp_contact_cnts_clean_direct_cnt_2atmps_1 <-
+  corresp_contact_cnts_clean_direct_cnt_2atmps |>
+  mutate(contact_date_dttm = lubridate::parse_date_time(contact_date,
+                                                        c("mdY R")))
+           
+
+str(corresp_contact_cnts_clean_direct_cnt_2atmps_1$contact_date_dttm)
+# POSIXct[1:29089], format: "2024-02-15 15:15:00" 
+
+
+
 
 compl_corr_to_investigation1 <-
   inner_join(
