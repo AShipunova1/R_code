@@ -38,17 +38,16 @@
 
 # Download from FHIER first
 # "~\R_files_local\my_inputs\from_Fhier\Correspondence\Correspondence_2023_02_15.csv"
-# "~\R_files_local\my_inputs\from_Fhier\FHIER Compliance\2024_02_05\FHIER_Compliance_2022__02_05_2024.csv"
-# "~\R_files_local\my_inputs\from_Fhier\FHIER Compliance\2024_01_24\FHIER_Compliance_2023__01_24_2024.csv"
-csv_names_list_22_23 = c("Correspondence_2023_02_15.csv",
-                         r"(2024_02_05\FHIER_Compliance_2022__02_05_2024.csv)",
-                         r"(2024_01_24\FHIER_Compliance_2023__01_24_2024.csv)")
+all_csv_names_list = c("Correspondence_2024_02_15.csv",
+                         r"(2024_02_15\FHIER_Compliance_2023__02_15_2024.csv)",
+                         r"(2024_02_15\FHIER_Compliance_2024__02_15_2024.csv)")
 
 ## ---- get csv data into variables ----
 from_fhier_data_path <-
   file.path(my_paths$inputs, "from_Fhier")
 
-temp_var <- get_compl_and_corresp_data(from_fhier_data_path, csv_names_list_22_23)
+temp_var <-
+  get_compl_and_corresp_data(from_fhier_data_path, all_csv_names_list)
 
 compl_clean_list <- temp_var[[1]]
 corresp_contact_cnts_clean0 <- temp_var[[2]]
@@ -57,17 +56,16 @@ names(compl_clean_list) <- c(my_year1, my_year2)
 
 # check
 map(compl_clean_list, dim)
+# $`2023`
+# [1] 149025     20
 # 
-# 2022
-# [1] 147338     20
-# 
-# 2023
-# [1] 148956     20
+# $`2024`
+# [1] 19715    20
 
 # combine years in one df <- 
-compl_clean <- rbind(compl_clean_list$`2022`, compl_clean_list$`2023`)
+compl_clean <- rbind(compl_clean_list[[1]], compl_clean_list[[2]])
 dim(compl_clean)
-# [1] 296294     20
+# [1] 168740     20
 
 dim(corresp_contact_cnts_clean0)
 # [1] 31038    20
