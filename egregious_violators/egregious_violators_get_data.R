@@ -10,6 +10,9 @@
 # Actions / Download
 # "~\my_inputs\from_Fhier\Correspondence\Correspondence_2023_02_15.csv"
 
+# 3) Previous results (from google drive)
+# ~\R_files_local\my_inputs\egregious_violators\egregious violators for investigation_2023-01-24_to_2023-08-01_OLEAction(green).xlsx"
+
 # All other files are from Processed data google folder:
 # https://drive.google.com/drive/folders/1ZObq0pd7yr7caYGXjZfgRFa9BqN00OKv
 
@@ -71,6 +74,22 @@ dim(compl_clean)
 
 dim(corresp_contact_cnts_clean0)
 # [1] 31038    20
+
+
+# get previous results ---
+prev_result_path <- 
+  file.path(my_paths$inputs,
+            current_project_basename,
+            "egregious violators for investigation_2023-01-24_to_2023-08-01_OLEAction(green).xlsx")
+
+# file.exists(prev_result_path)
+prev_result <-
+  read_xlsx(prev_result_path) |> 
+  remove_empty_cols() |> 
+  clean_headers()
+
+glimpse(prev_result)
+# [1] 96 18
 
 # get permits from FHIER Metric Tracking ----
 processed_input_data_path <- 
