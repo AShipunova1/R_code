@@ -754,125 +754,28 @@ setdiff(
 
 # We don't need to check the reverse, there will be more vessels in the permit info we are not interested in
 
-## Manually check missing addresses ----
+fix_addresses_path <-
+  file.path(current_project_path,
+            str_glue("{current_project_basename}_fix_addresses.R"))
 
-### From FHIER ----
+file.exists(fix_addresses_path)
 
-# fewer fields
-fhier_addr_short <-
-  fhier_addr |>
-  dplyr::select(
-    vessel_official_number,
-    permit_holder_names,
-    physical_address_1,
-    physical_address_2,
-    physical_city,
-    physical_county,
-    physical_state,
-    physical_zip_code,
-    phone_number,
-    primary_email
-  ) |>
-  mutate(
-    fhier_address =
-      paste(
-        physical_address_1,
-        physical_address_2,
-        physical_city,
-        physical_county,
-        physical_state,
-        physical_zip_code
-      )
-  ) |>
-  dplyr::select(
-    -c(
-      physical_address_1,
-      physical_address_2,
-      physical_city,
-      physical_county,
-      physical_state,
-      physical_zip_code
-    )
-  )
-
-# join with the previous results from the db
-fhier_addr__compl_corr <-
-  right_join(
-    fhier_addr_short,
-    compl_corr_to_investigation1_short_dup_marked,
-    join_by("vessel_official_number")
-  )
-
-dim(fhier_addr__compl_corr)
-# [1] 117  17
-
-### check if the address or name missing from the db is in FHIER ----
-addr_name_in_fhier <-
-  fhier_addr__compl_corr |>
-  filter((is.na(full_name) &
-            !is.na(permit_holder_names)) |
-           is.na(full_address) &
-           !is.na(fhier_address))
-
-dim(new_addr)
-# 0
-
-### check if the address or name is a "UN" in the db is in FHIER ----
-addr_name_in_fhier <-
-  fhier_addr__compl_corr |>
-  filter((full_name == "UN" &
-            !is.na(permit_holder_names)) |
-           full_address == "UN" &
-           !is.na(fhier_address))
-
-dim(addr_name_in_fhier)
-# [1] 19 17
-
-addr_name_in_not_fhier <-
-  fhier_addr__compl_corr |>
-  filter(((!is.na(full_name) | !full_name == "UN") &
-            is.na(permit_holder_names)) |
-           (!is.na(full_address) | !full_address == "UN") &
-           is.na(fhier_address))
-
-dim(addr_name_in_not_fhier)
-39
-
-### check if the address or name missing from the db is in FHIER ----
-addr_name_in_fhier <-
-  fhier_addr__compl_corr |>
-  filter((is.na(full_name) &
-            !is.na(permit_holder_names)) |
-           is.na(full_address) &
-           !is.na(fhier_address))
-
-dim(new_addr)
-# 0
-
-### check if the address or name is a "UN" in the db is in FHIER ----
-addr_name_in_fhier <-
-  fhier_addr__compl_corr |>
-  filter((full_name == "UN" &
-            !is.na(permit_holder_names)) |
-           full_address == "UN" &
-           !is.na(fhier_address))
-
-dim(addr_name_in_fhier)
-# [1] 19 17
+source(fix_addresses_path)
 
 ### add info from FHIER to the results ----
 setdiff(names(vessels_permits_participants_short_u_flat_sp),
-  names(fhier_addr__compl_corr)
-)
+        names(fhier_addr_short))
 
 setdiff(
-  names(fhier_addr__compl_corr),
+  names(fhier_addr_short),
+  # names(fhier_addr__compl_corr),
   names(vessels_permits_participants_short_u_flat_sp)
-  )
+)
 # print_df_names(fhier_addr__compl_corr)
 
+View(fhier_addr_short)
 vessels_permits_participants_short_u_flat_sp_add <-
-  vessels_permits_participants_short_u_flat_sp |>
+  vessels_permits_participants_short_u_flat_sp |> View()
   left_join(
     fhier_addr__compl_corr,
     join_by(
@@ -1154,113 +1057,113 @@ data_overview(compl_corr_to_investigation1_short_dup_marked) |> head(1)
 # setdiff(in_the_new_res_only_df, no_comments_vsls_ids$vessel_official_number)
 # 0
 
-# temp 1 ----
-fhier_addr <-
-  read_csv(
-    r"(C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\egregious_violators\For-hire Primary Physical Address List.csv)",
-    col_types = cols(.default = 'c'),
-    name_repair = fix_names
-  )
-
-# vessel_official_number, permits, effective_date, end_date, has_sa_permits_, has_gom_permits_, assigned_permit_region_grouping, permit_holder_names, physical_address_1, physical_address_2, physical_city, physical_county, physical_state, physical_zip_code, phone_number, primary_email
-
-fhier_addr_short <-
-  fhier_addr |>
-  dplyr::select(
-    vessel_official_number,
-    permit_holder_names,
-    physical_address_1,
-    physical_address_2,
-    physical_city,
-    physical_county,
-    physical_state,
-    physical_zip_code,
-    phone_number,
-    primary_email
-  ) |>
-  mutate(
-    fhier_address =
-      paste(
-        physical_address_1,
-        physical_address_2,
-        physical_city,
-        physical_county,
-        physical_state,
-        physical_zip_code
-      )
-  ) |>
-  dplyr::select(
-    -c(
-      physical_address_1,
-      physical_address_2,
-      physical_city,
-      physical_county,
-      physical_state,
-      physical_zip_code
-    )
-  )
-
-res1 <-
-  right_join(
-    fhier_addr_short,
-    compl_corr_to_investigation1_short_dup_marked,
-    join_by("vessel_official_number")
-  )
-
-# View(res1)
-no_addr_vessl <-
-  c("1305388",
-    "949058",
-    "FL2555TF",
-    "MI9152BZ",
-    "NC2851DH")
-
-res1 |> 
-  filter(vessel_official_number %in% no_addr_vessl) |> 
-  dim()
-
-fhier_addr_short |> 
-  filter(vessel_official_number %in% no_addr_vessl) |> 
-  dim()
-# 0
-
-no_addr1 <-
-  c("1066100",
-    "1069364",
-    "1209015",
-    "1266505",
-    "1316879",
-    "622813",
-    "678141",
-    "938364",
-    "996263",
-    "FL0061PZ",
-    "FL0380JY",
-    "FL0435LD",
-    "FL2153SM",
-    "FL2367PW",
-    "FL2453TE",
-    "FL3002LF",
-    "FL3017ME",
-    "FL3262PM",
-    "FL5736GJ",
-    "FL6954LD",
-    "FL7772SV",
-    "FL8077RA",
-    "FL8666CH",
-    "FL9131RJ",
-    "FL9793RU",
-    "NC9819DF")
-
-fhier_addr_short |>
-  # filter(vessel_official_number == "1308401") |>
-  filter(vessel_official_number %in% no_addr1) |>
-  dplyr::select(vessel_official_number,
-         permit_holder_names, fhier_address) |>
-  write_csv("fhier_addr_short.csv")
-# 22
-
-
+# # temp 1 ----
+# fhier_addr <-
+#   read_csv(
+#     r"(C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\egregious_violators\For-hire Primary Physical Address List.csv)",
+#     col_types = cols(.default = 'c'),
+#     name_repair = fix_names
+#   )
+# 
+# # vessel_official_number, permits, effective_date, end_date, has_sa_permits_, has_gom_permits_, assigned_permit_region_grouping, permit_holder_names, physical_address_1, physical_address_2, physical_city, physical_county, physical_state, physical_zip_code, phone_number, primary_email
+# 
+# fhier_addr_short <-
+#   fhier_addr |>
+#   dplyr::select(
+#     vessel_official_number,
+#     permit_holder_names,
+#     physical_address_1,
+#     physical_address_2,
+#     physical_city,
+#     physical_county,
+#     physical_state,
+#     physical_zip_code,
+#     phone_number,
+#     primary_email
+#   ) |>
+#   mutate(
+#     fhier_address =
+#       paste(
+#         physical_address_1,
+#         physical_address_2,
+#         physical_city,
+#         physical_county,
+#         physical_state,
+#         physical_zip_code
+#       )
+#   ) |>
+#   dplyr::select(
+#     -c(
+#       physical_address_1,
+#       physical_address_2,
+#       physical_city,
+#       physical_county,
+#       physical_state,
+#       physical_zip_code
+#     )
+#   )
+# 
+# res1 <-
+#   right_join(
+#     fhier_addr_short,
+#     compl_corr_to_investigation1_short_dup_marked,
+#     join_by("vessel_official_number")
+#   )
+# 
+# # View(res1)
+# no_addr_vessl <-
+#   c("1305388",
+#     "949058",
+#     "FL2555TF",
+#     "MI9152BZ",
+#     "NC2851DH")
+# 
+# res1 |> 
+#   filter(vessel_official_number %in% no_addr_vessl) |> 
+#   dim()
+# 
+# fhier_addr_short |> 
+#   filter(vessel_official_number %in% no_addr_vessl) |> 
+#   dim()
+# # 0
+# 
+# no_addr1 <-
+#   c("1066100",
+#     "1069364",
+#     "1209015",
+#     "1266505",
+#     "1316879",
+#     "622813",
+#     "678141",
+#     "938364",
+#     "996263",
+#     "FL0061PZ",
+#     "FL0380JY",
+#     "FL0435LD",
+#     "FL2153SM",
+#     "FL2367PW",
+#     "FL2453TE",
+#     "FL3002LF",
+#     "FL3017ME",
+#     "FL3262PM",
+#     "FL5736GJ",
+#     "FL6954LD",
+#     "FL7772SV",
+#     "FL8077RA",
+#     "FL8666CH",
+#     "FL9131RJ",
+#     "FL9793RU",
+#     "NC9819DF")
+# 
+# fhier_addr_short |>
+#   # filter(vessel_official_number == "1308401") |>
+#   filter(vessel_official_number %in% no_addr1) |>
+#   dplyr::select(vessel_official_number,
+#          permit_holder_names, fhier_address) |>
+#   write_csv("fhier_addr_short.csv")
+# # 22
+# 
+# 
 # temp 2 ----
 prev_res <-
   read_csv(r"(C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\egregious_violators\egregious violators for investigation - 2023-01-24_to_2023-08-01_comment.csv)",
