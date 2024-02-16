@@ -194,18 +194,9 @@ max(compl_clean_w_permit_exp_last_half_year__sa__not_exp$week_start)
 max(compl_clean_w_permit_exp_last_half_year__sa__not_exp$week_end)
 # [1] "2024-02-04"
 
-## filter for egregious ----
-
-### add no_yes compliant ----
-compl_clean_w_permit_exp_last_half_year__sa__wide <-
-  get_compl_by(compl_clean_w_permit_exp_last_half_year__sa)
-
-# print_df_names(compl_clean_w_permit_exp_last_half_year__sa__wide)
-cols_names <- c(
+# fewer columns ----
+remove_columns <- c(
   "name",
-  "permitgroup",
-  "permit_groupexpiration",
-  "year",
   "week",
   "gom_permitteddeclarations__",
   "captainreports__",
@@ -216,7 +207,30 @@ cols_names <- c(
   "override_date",
   "override_by",
   "contactedwithin_48_hours_",
-  "submittedpower_down_",
+  "submittedpower_down_"
+)
+
+compl_clean_w_permit_exp_last_half_year__sa_short <-
+  compl_clean_w_permit_exp_last_half_year__sa |>
+  select(-any_of(remove_columns)) |> 
+  distinct()
+
+dim(compl_clean_w_permit_exp_last_half_year__sa)
+# [1] 55194    22
+dim(compl_clean_w_permit_exp_last_half_year__sa_short)
+# [1] 55194    10
+
+## filter for egregious ----
+### add no_yes compliant ----
+compl_clean_w_permit_exp_last_half_year__sa__wide <-
+  get_compl_by(compl_clean_w_permit_exp_last_half_year__sa_short)
+
+# print_df_names(compl_clean_w_permit_exp_last_half_year__sa__wide)
+
+cols_names <- c(
+  "permitgroup",
+  "permit_groupexpiration",
+  "year",
   "week_num",
   "week_start",
   "week_end",
@@ -224,7 +238,6 @@ cols_names <- c(
   "year_month"
 )
 
-# TODO: remove all unused columns before running the next command, too slow
 tic("back_to_long")
 compl_clean_w_permit_exp_last_half_year__sa__wide__long <-
   compl_clean_w_permit_exp_last_half_year__sa__wide |>
