@@ -221,14 +221,16 @@ dim(compl_clean_w_permit_exp_last_half_year__sa)
 dim(compl_clean_w_permit_exp_last_half_year__sa_short)
 # [1] 55194    9
 
-# remove weeks, work with the whole period ----
+# work with the whole period ----
 compl_clean_w_permit_exp_last_half_year__sa_short_no_week <- 
   compl_clean_w_permit_exp_last_half_year__sa_short |>
-  select(-contains("week")) |> 
+  select(-contains("week")) |>
+  select(-contains("month")) |>
+  select(-contains("year")) |> 
   distinct()
 
-dim(compl_clean_w_permit_exp_last_half_year__sa_short_no_week)
-# [1] 16071     6
+View(compl_clean_w_permit_exp_last_half_year__sa_short_no_week)
+# [1] 3668    4
 
 ## filter for egregious ----
 ### add no_yes compliant ----
