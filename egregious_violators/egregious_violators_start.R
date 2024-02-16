@@ -855,7 +855,21 @@ dim(vessels_permits_participants_date__contacttype_per_id)
 num_of_vsl_to_investigate == n_distinct(vessels_permits_participants_date__contacttype_per_id$vessel_official_number)
 # T
 
-# # ---- combine output ----
+## combine output ----
+
+compl_corr_to_investigation1__w_addr <-
+  left_join(
+    compl_corr_to_investigation1,
+    vessels_permits_participants_date__contacttype_per_id
+  )
+
+dim(compl_corr_to_investigation1__w_addr)
+# [1] 940  31
+
+# compare vsl numbers
+num_of_vsl_to_investigate == n_distinct(compl_corr_to_investigation1__w_addr$vessel_official_number)
+# T
+
 # compl_corr_to_investigation1_w_non_compliant_weeks_n_date__contacttype_per_id <-
 #   compl_corr_to_investigation1 |>
 #   inner_join(vessels_permits_participants_date__contacttype_per_id,
