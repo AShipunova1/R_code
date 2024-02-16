@@ -157,7 +157,7 @@ today()
 # [1] 12454    23
 # [1] 10291    22
 
-n_distinct(compl_clean_w_permit_exp_last_half_year__sa_non_compl$vessel_official_number)
+# n_distinct(compl_clean_w_permit_exp_last_half_year__sa_non_compl$vessel_official_number)
 # vesselofficialnumber 1785
 # today()
 # "2023-06-23"
@@ -177,11 +177,16 @@ compl_clean_w_permit_exp_last_half_year__sa__not_exp <-
   # the last 27 week
   dplyr::filter(week_start > half_year_ago) |>
   # before the last week (a report's grace period)
-  dplyr::filter(week_start < last_week_start) |>
+  dplyr::filter(week_end < last_week_start) |>
   # not expired
   dplyr::filter(tolower(permit_expired) == "no")
 
 View(compl_clean_w_permit_exp_last_half_year__sa__not_exp)
+# print_df_names(compl_clean_w_permit_exp_last_half_year__sa__not_exp)
+min(compl_clean_w_permit_exp_last_half_year__sa__not_exp$permit_groupexpiration)
+
+min(compl_clean_w_permit_exp_last_half_year__sa__not_exp$week)
+max(compl_clean_w_permit_exp_last_half_year__sa__not_exp$week)
 
 ## filter for egregious ----
 
@@ -225,9 +230,6 @@ toc()
 compl_clean_w_permit_exp_last_half_year__sa__wide__long$is_compl_or_both |> 
   unique()
 # [1] "YES" "NO" 
-
-last_week_start <- data_file_date - grace_period
-# [1] "2024-02-10"
 
 compl_clean_w_permit_exp_last_half_year__sa |> 
   check_new_vessels()
@@ -1380,8 +1382,6 @@ current_project_path <-
   file.path(my_paths$git_r, current_project_name)
 
 # make a flat file ----
-
-"C:\Users\anna.shipunova\Documents\R_code_github\egregious_violators\get_data_egregious_violators.R"
 
 files_to_combine <-
   c("~/R_code_github/useful_functions_module.r",
