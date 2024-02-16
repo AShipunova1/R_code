@@ -257,34 +257,29 @@ n_distinct(compl_clean_w_permit_exp_last_half_year__sa$vessel_official_number)
 n_distinct(compl_clean_w_permit_exp_last_half_year__sa_short_no_dates__wide__long$vessel_official_number)
 # [1] 2246
 
-compl_clean_w_permit_exp_last_half_year__sa |> 
+compl_clean_w_permit_exp_last_half_year__sa_short_no_dates__wide__long |> 
   check_new_vessels()
 # 4
-### check if there is no "compliant_ == YES" since half_year_ago ----
 
-compl_clean_w_permit_exp_last_half_year__sa_non_c_not_exp <-
-  compl_clean_w_permit_exp_last_half_year__sa |>
+### get only all "compliant_ == "NO"for the past half year ----
+compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp <-
+  compl_clean_w_permit_exp_last_half_year__sa_short_no_dates__wide__long |>
   # not compliant
-  filter(tolower(compliant_) == "no") |>
-  # in the last 27 week
-  filter(week_start > half_year_ago) |>
-  # before the last week (a report's grace period)
-  filter(week_start < last_week_start) |>
-  # not expired
-  filter(tolower(permit_expired) == "no")
+  filter(tolower(is_compl_or_both) == "no")
 
-dim(compl_clean_w_permit_exp_last_half_year__sa_non_c_not_exp)
+dim(compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp)
 # [1] 10419    23
 # [1] 9486   23
 # [1] 9315   23
 # [1] 7138   22
+# [1] 141   2
 
-compl_clean_w_permit_exp_last_half_year__sa_non_c_not_exp |> check_new_vessels()
+compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp |> check_new_vessels()
 # 3
 # 1
 
 compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_short <-
-  compl_clean_w_permit_exp_last_half_year__sa_non_c_not_exp |>
+  compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp |>
   dplyr::select(vessel_official_number, week, compliant_) |>
   dplyr::add_count(vessel_official_number,
                    name = "total_weeks") |>
@@ -302,7 +297,7 @@ compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_short <-
 dim(compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_short)
 # 0
 
-compl_clean_w_permit_exp_last_half_year__sa_non_c_not_exp |>
+compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp |>
   dplyr::select(vessel_official_number, week, compliant_) |>
   dplyr::add_count(vessel_official_number,
                    name = "total_weeks") |>
@@ -333,12 +328,12 @@ need_cols_names <- c(
   # ,
   # "week_start"
 )
-compl_clean_w_permit_exp_last_half_year__sa_non_c_not_exp |> check_new_vessels()
+compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp |> check_new_vessels()
 # 3
 
-# dim(compl_clean_w_permit_exp_last_half_year__sa_non_c_not_exp)
+# dim(compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp)
 compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c <-
-  compl_clean_w_permit_exp_last_half_year__sa_non_c_not_exp |>
+  compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp |>
   dplyr::select(all_of(need_cols_names)) |>
   inner_join(compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_short) |>
 # Joining with `by = join_by(vessel_official_number)`
