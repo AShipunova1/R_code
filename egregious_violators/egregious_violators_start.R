@@ -107,7 +107,7 @@ dim(compl_clean_w_permit_exp)
 # [1] "2023-08-10"
 # [1] 235509     22
 # [1] "2024-02-16"
-# [1] 296294     21
+# [1] 168740     21
 
 check_new_vessels(compl_clean_w_permit_exp)
 # 4
@@ -119,16 +119,16 @@ dim(compl_clean_w_permit_exp_last_half_year)
 # [1] 81153    23 189 d
 # [1] 87826    23
 # [1] 74169    23
-# [1] 60677    22
+# [1] 80413    22
 
 check_new_vessels(compl_clean_w_permit_exp_last_half_year)
 # 4
 
-## ---- Have only SA permits, exclude those with Gulf permits ----
+## ---- Have only SA and dual permits ----
 
 compl_clean_w_permit_exp_last_half_year__sa <-
   compl_clean_w_permit_exp_last_half_year |>
-  dplyr::filter(!grepl("RCG|HRCG|CHG|HCHG", permitgroup))
+  dplyr::filter(grepl("CDW|CHS|SC", permitgroup))
 
 today()
 # [1] "2023-08-01"
@@ -177,11 +177,11 @@ compl_clean_w_permit_exp_last_half_year__sa__not_exp <-
   # the last 27 week
   dplyr::filter(week_start > half_year_ago) |>
   # before the last week (a report's grace period)
-  dplyr::filter(week_end < last_week_start) |>
+  dplyr::filter(week_start < last_week_start) |>
   # not expired
   dplyr::filter(tolower(permit_expired) == "no")
 
-View(compl_clean_w_permit_exp_last_half_year__sa__not_exp)
+# View(compl_clean_w_permit_exp_last_half_year__sa__not_exp)
 # print_df_names(compl_clean_w_permit_exp_last_half_year__sa__not_exp)
 min(compl_clean_w_permit_exp_last_half_year__sa__not_exp$permit_groupexpiration)
 
