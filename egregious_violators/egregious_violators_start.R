@@ -414,21 +414,27 @@ compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c |>
 head(corresp_contact_cnts_clean_direct_cnt_2atmps$contact_date, 1)
 # [1] "02/15/2024 03:15PM"
 
-corresp_contact_cnts_clean_direct_cnt_2atmps_1 <-
+corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates <-
   corresp_contact_cnts_clean_direct_cnt_2atmps |>
-  mutate(contact_date_dttm = lubridate::parse_date_time(contact_date,
-                                                        c("mdY R")))
-           
+  mutate(
+    created_on_dttm =
+      lubridate::parse_date_time(created_on,
+                                 c("mdY R")),
+    contact_date_dttm =
+      lubridate::parse_date_time(contact_date,
+                                 c("mdY R"))
+  )
 
-str(corresp_contact_cnts_clean_direct_cnt_2atmps_1$contact_date_dttm)
+# str(corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates)
+# 
+
+str(corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates$contact_date_dttm)
 # POSIXct[1:29089], format: "2024-02-15 15:15:00" 
 
-
-
-
+# join with compliance ----
 compl_corr_to_investigation1 <-
   inner_join(
-    corresp_contact_cnts_clean_direct_cnt_2atmps,
+    corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates,
     compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c,
     by = c("vessel_official_number"),
     multiple = "all",
@@ -438,7 +444,7 @@ compl_corr_to_investigation1 <-
 dim(compl_corr_to_investigation1)
 # [1] 486  30
 # [1] 522  30
-# [1] 940  25
+# [1] 940  27
 
 # check
 n_distinct(compl_corr_to_investigation1$vesselofficial_number)
@@ -452,7 +458,7 @@ n_distinct(compl_corr_to_investigation1$vesselofficial_number)
 # vesselofficial_number 116
 # 133
 
-View(compl_corr_to_investigation1)
+# View(compl_corr_to_investigation1)
 
 ## ---- output needed investigation ----
 # 1) create additional columns
