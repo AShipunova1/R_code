@@ -207,7 +207,8 @@ remove_columns <- c(
   "override_date",
   "override_by",
   "contactedwithin_48_hours_",
-  "submittedpower_down_"
+  "submittedpower_down_",
+  "permit_expired"
 )
 
 compl_clean_w_permit_exp_last_half_year__sa_short <-
@@ -218,14 +219,23 @@ compl_clean_w_permit_exp_last_half_year__sa_short <-
 dim(compl_clean_w_permit_exp_last_half_year__sa)
 # [1] 55194    22
 dim(compl_clean_w_permit_exp_last_half_year__sa_short)
-# [1] 55194    10
+# [1] 55194    9
+
+# remove weeks, work with the whole period ----
+compl_clean_w_permit_exp_last_half_year__sa_short_no_week <- 
+  compl_clean_w_permit_exp_last_half_year__sa_short |>
+  select(-contains("week")) |> 
+  distinct()
+
+dim(compl_clean_w_permit_exp_last_half_year__sa_short_no_week)
+# [1] 16071     6
 
 ## filter for egregious ----
 ### add no_yes compliant ----
 compl_clean_w_permit_exp_last_half_year__sa__wide <-
   get_compl_by(compl_clean_w_permit_exp_last_half_year__sa_short)
 
-# print_df_names(compl_clean_w_permit_exp_last_half_year__sa__wide)
+print_df_names(compl_clean_w_permit_exp_last_half_year__sa__wide)
 
 cols_names <- c(
   "permitgroup",
@@ -244,7 +254,8 @@ compl_clean_w_permit_exp_last_half_year__sa__wide__long <-
   compl__back_to_longer_format(cols_names) |>
   filter(stats::complete.cases(is_compl_or_both))
 toc()
-# back_to_long: 21.31 sec elapsed
+# back_to_long: 21.31 sec elapsed with 22 cols
+# back_to_long: 1.5 sec elapsed with 10 cols
 
 compl_clean_w_permit_exp_last_half_year__sa__wide__long$is_compl_or_both |> 
   unique()
