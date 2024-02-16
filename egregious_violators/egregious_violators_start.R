@@ -344,7 +344,7 @@ compl_clean_w_permit_exp_last_half_year__sa |>
   #   year_month,
   #   latest_compl) |>
   # dplyr::distinct() |> 
-  # dplyr::glimpse()
+  # glimpse()
 # $ year_month   <yearmon> Jul 2023
 # $ latest_compl <int> 31
 
@@ -529,8 +529,9 @@ compl_corr_to_investigation1 |>
 date__contacttype_per_id |>
   check_new_vessels()
 # 2
+# 1
 
-# add permit and address info ----
+## add permit and address info ----
 # print_df_names(vessels_permits_participants)
 
 ### check ----
@@ -541,17 +542,48 @@ vessels_permits_participants_v_ids <-
 
 dim(vessels_permits_participants_v_ids)
 # [1] 3302    1
+# [1] 3203    1
 
-setdiff(date__contacttype_per_id$vessel_official_number,
-        vessels_permits_participants_v_ids$P_VESSEL_ID
-) |> cat(sep = "', '")
-# |> 
-#   length()
+vessels_not_in_vessel_permit_from_db <-
+  setdiff(
+    date__contacttype_per_id$vessel_official_number,
+    vessels_permits_participants_v_ids$P_VESSEL_ID
+  ) |>
+  sort()
+
+length(vessels_not_in_vessel_permit_from_db)
+# 8
+vessels_not_in_vessel_permit_from_db |>
+  cat(sep = "\n")
+# cat(sep = "', '")
+  # length()
 # 6
 # '1305388', '565041', 'FL0001TG', 'MI9152BZ', 'NC2851DH', 'VA1267CJ' 
 # (wrong license_nbr in full_participants
 # or entity_id in permits,
 # check manually)
+
+# 8
+# 1285453', '1305388', '1319584', 'FL1431JU', 'FL2995SR', 'MI9152BZ', 'NC6160CM', 'SC8379DP
+
+vessels_from_pims_needed <-
+  vessels_from_pims |>
+  filter(official__ %in% vessels_not_in_vessel_permit_from_db)
+
+vessels_from_pims_needed |> 
+  arrange(official__) |> 
+  dim()
+# 9
+# 2 addresses for FL1431JU
+
+vessels_from_pims_double |>
+  filter(
+    vessel_official_number1 %in% vessels_not_in_vessel_permit_from_db |
+      vessel_official_number2 %in% vessels_not_in_vessel_permit_from_db
+  ) |>
+  arrange(vessel_official_number1, vessel_official_number2) |>
+  dim()
+# 0
 
 # setdiff(vessels_permits_participants_v_ids$P_VESSEL_ID,
 #         date__contacttype_per_id$vessel_official_number
@@ -568,6 +600,7 @@ vessels_permits_participants_space <-
 
 dim(vessels_permits_participants_space)
 # [1] 31942    38
+# [1] 30511    38
 
 vessels_permits_participants_short_u <-
   vessels_permits_participants_space |>
@@ -600,9 +633,10 @@ vessels_permits_participants_short_u <-
   dplyr::ungroup() |>
   dplyr::distinct()
 
-# dim(vessels_permits_participants_short)
+dim(vessels_permits_participants_short_u)
 # [1] 7858    4
 # [1] 3302    4
+# [1] 3203    4
 
 # View(vessels_permits_participants_short_u)
 
@@ -621,9 +655,9 @@ vessels_permits_participants_short_u_flat <-
   dplyr::mutate_if(is.list, ~ paste(unlist(.), collapse = ', ')) %>%
   dplyr::ungroup()
 
-data_overview(vessels_permits_participants_short_u_flat) |> 
-  head(1)
+n_distinct(vessels_permits_participants_short_u_flat$P_VESSEL_ID)
 # P_VESSEL_ID 3302
+# 3203
 
 vessels_permits_participants_short_u_flat_sp <-
   vessels_permits_participants_short_u_flat |>
@@ -659,16 +693,13 @@ vessels_permits_participants_short_u_flat_sp <-
       full_address),
     ~ str_replace_all(.x, "^,", "")
   ))
-# |>
-#   dplyr::glimpse()
-# 
 # 
 # vessels_permits_participants_short_u_flat_sp |>
 #   dplyr::arrange(P_VESSEL_ID) |> 
 #   head() |> 
 #   str()
 
-# add permit and address info ----
+## add permit and address info ----
 ### check ----
 vessels_permits_participants_v_ids <-
   vessels_permits_participants |> 
@@ -677,6 +708,7 @@ vessels_permits_participants_v_ids <-
 
 dim(vessels_permits_participants_v_ids)
 # [1] 3302    1
+# 3203
 
 # how many vessels are missing from the db report
 setdiff(
