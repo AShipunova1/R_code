@@ -52,18 +52,24 @@ from_fhier_data_path <-
 
 temp_var <- get_compl_and_corresp_data(from_fhier_data_path, csv_names_list_22_23)
 
-compl_clean <- temp_var[[1]]
+compl_clean_list <- temp_var[[1]]
 corresp_contact_cnts_clean0 <- temp_var[[2]]
 
-names(compl_clean) <- c(my_year1, my_year2)
+names(compl_clean_list) <- c(my_year1, my_year2)
+
 # check
-map(compl_clean, dim)
+map(compl_clean_list, dim)
 # 
 # 2022
 # [1] 147338     20
 # 
 # 2023
 # [1] 148956     20
+
+# combine years in one df <- 
+compl_clean <- rbind(compl_clean_list$`2022`, compl_clean_list$`2023`)
+dim(compl_clean)
+# [1] 296294     20
 
 dim(corresp_contact_cnts_clean0)
 # [1] 31038    20
@@ -225,3 +231,13 @@ dim(vessels_permits_participants)
 # [1] 31942    38
 # [1] "2024-02-16"
 # [1] 30511    38
+
+results <-
+  c("vessels_permits_participants",
+    "compl_clean",
+    "corresp_contact_cnts_clean0"
+)
+
+cat(c("Data are in:",
+      results),
+    sep = "\n")
