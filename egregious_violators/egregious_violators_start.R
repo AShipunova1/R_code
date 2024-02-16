@@ -627,7 +627,7 @@ vessels_permits_participants_short_u <-
   dplyr::ungroup() |>
   dplyr::distinct()
 
-View(vessels_permits_participants_short_u)
+dim(vessels_permits_participants_short_u)
 # [1] 7858    4
 # [1] 3302    4
 # [1] 3203    4
@@ -646,12 +646,26 @@ View(vessels_permits_participants_short_u)
 vessels_permits_participants_short_u_flat <-
   vessels_permits_participants_short_u |>
   rowwise() |>
-  mutate_if(is.list, ~ paste(unlist(.), collapse = ', ')) %>%
+  mutate_if(is.list, ~ paste(unlist(.), collapse = '; ')) %>%
   dplyr::ungroup()
 
 n_distinct(vessels_permits_participants_short_u_flat$P_VESSEL_ID)
 # P_VESSEL_ID 3302
 # 3203
+
+vessels_permits_participants |>
+  filter(P_VESSEL_ID == "635942") |>
+  select(ADDRESS_1,
+         ADDRESS_2,
+         STATE,
+         POSTAL_CODE) |>
+  distinct() |>
+  dim()
+# 7
+# $ ADDRESS_1   <chr> "160 SNUFF MILL RD", "160 SNUFF MILL ROAD", "P O BOX 625", "P…
+# $ ADDRESS_2   <chr> NA, NA, NA, NA, NA, NA, NA
+# $ STATE       <chr> "RI", "RI", "MD", "VA", "SC", "MD", NA
+# $ POSTAL_CODE <chr> "02874", "02874", "21041", "23183", "295822571", "21014", NA
 
 vessels_permits_participants_short_u_flat_sp <-
   vessels_permits_participants_short_u_flat |>
@@ -686,9 +700,11 @@ vessels_permits_participants_short_u_flat_sp <-
       full_name,
       full_address),
     ~ str_replace_all(.x, "^,", "")
-  ))
+  )) |> 
+  mutate(across(where(is.character),
+                ~ str_replace_all(.x, ", ;", ";")))
 
-glimpse(vessels_permits_participants_short_u_flat_sp)
+# View(vessels_permits_participants_short_u_flat_sp)
 
 vessels_from_pims_needed_short <-
   vessels_from_pims_needed |>
