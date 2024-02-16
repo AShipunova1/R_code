@@ -490,7 +490,9 @@ get_date_contacttype <-
   function(compl_corr_to_investigation1) {
     compl_corr_to_investigation1 |>
       # add a new column date__contacttype with contactdate and contacttype
-      dplyr::mutate(date__contacttype = paste(!!sym(contactdate_field_name), contacttype, sep = " ")) |>
+      dplyr::mutate(date__contacttype =
+                      paste(!!sym(contactdate_field_name),
+                            contacttype)) |>
       # use 2 columns only
       dplyr::select(vessel_official_number, date__contacttype) |>
       # [1] 49903     2
@@ -499,13 +501,14 @@ get_date_contacttype <-
       dplyr::distinct() |>
       dplyr::group_by(vessel_official_number) |>
       # for each vessel id combine all date__contacttypes separated by comma in one cell
-      summarise(date__contacttypes = paste(date__contacttype, collapse = ", ")) %>%
+      summarise(date__contacttypes = 
+                  paste(date__contacttype, collapse = ", ")) %>%
       return()
   }
 
 date__contacttype_per_id <-
   get_date_contacttype(compl_corr_to_investigation1)
-glimpse(date__contacttype_per_id)
+dim(date__contacttype_per_id)
 # [1] 110    2
 # 107
 # 27: 177
@@ -516,11 +519,12 @@ glimpse(date__contacttype_per_id)
 # [1] 116   2 (2 contact attempts)
 # [1] 133   2
 
-View(date__contacttype_per_id)
+# glimpse(date__contacttype_per_id)
 
 compl_corr_to_investigation1 |>
   check_new_vessels()
 # 2
+# 1
 
 date__contacttype_per_id |>
   check_new_vessels()
