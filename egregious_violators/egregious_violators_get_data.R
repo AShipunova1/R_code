@@ -200,16 +200,9 @@ vessels_permits_participants_file_path <-
             "vessels_permits_participants.rds")
  
 # dir.exists(file.path(all_inputs,
-            # current_project_name))
+#             current_project_name))
 
-# vessels_permits_participants <-
-#   dbGetQuery(con,
-#              vessels_permits_participants_query)
-
-# dim(vessels_permits_participants)
-# [1] 63928    38
-
-# View(vessels_permits_participants)
+con <- connect_to_secpr()
 vessels_permits_participants_fun <-
   function(vessels_permits_participants) {
     # browser()
@@ -221,11 +214,14 @@ vessels_permits_participants <-
   read_rds_or_run(
     vessels_permits_participants_file_path,
     vessels_permits_participants_query,
-    vessels_permits_participants_fun
+    vessels_permits_participants_fun,
+    force_from_db = "yes"
   )
 # 2023-08-14 run the function: 12.84 sec elapsed
+# 2024-02-16 run for vessels_permits_participants.rds: 5.81 sec elapsed
 
 dim(vessels_permits_participants)
 # [1] 63928    38
 # [1] 31942    38
-
+# [1] "2024-02-16"
+# [1] 30511    38
