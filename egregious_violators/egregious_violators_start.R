@@ -348,8 +348,6 @@ compl_clean_w_permit_exp_last_half_year__sa |>
 # $ year_month   <yearmon> Jul 2023
 # $ latest_compl <int> 31
 
-# TODO: add check for earlier weeks
-
 ## ---- Preparing Correspondence ----
 
 ## ---- remove 999999 ----
@@ -357,11 +355,12 @@ corresp_contact_cnts_clean <-
   corresp_contact_cnts_clean0 |>
   filter(!grepl("^99999", vessel_official_number))
 
-data_overview(corresp_contact_cnts_clean) |>
-  head(1)
+n_distinct(corresp_contact_cnts_clean$vesselofficial_number)
 # vesselofficial_number   3223
 # vessel_official_number  3371
 # vesselofficial_number 3434
+# 4118
+
 
 # "2023-08-09"
 # Michelle
@@ -385,16 +384,20 @@ test_new_egr2 <-
 test_new_egr2[1] == 4
 # T
 
-dim(corresp_contact_cnts_clean)
+# dim(corresp_contact_cnts_clean)
 # [1] 18629    23
-dim(corresp_contact_cnts_clean_direct_cnt_2atmps)
+# dim(corresp_contact_cnts_clean_direct_cnt_2atmps)
 # [1] 18163    23
+# today()
+# [1] "2024-02-16"
+dim(corresp_contact_cnts_clean)
+# [1] 29587    20
+dim(corresp_contact_cnts_clean_direct_cnt_2atmps)
+# [1] 29089    20
 
-data_overview(corresp_contact_cnts_clean_direct_cnt_2atmps) |>
-  head(1)
+n_distinct(corresp_contact_cnts_clean_direct_cnt_2atmps$vesselofficial_number)
 # vesselofficial_number 2968
-dim(corresp_contact_cnts_clean_direct_cnt_2atmps)
-# [1] 18163    23
+# 3620
 
 ## ---- Combine compliance information with filtered correspondence info by vesselofficialnumber ----
 
@@ -405,6 +408,9 @@ corresp_contact_cnts_clean_direct_cnt_2atmps |>
 compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c |>
   check_new_vessels()
 # 2
+# 1
+
+View(corresp_contact_cnts_clean_direct_cnt_2atmps)
 
 compl_corr_to_investigation1 <-
   inner_join(
@@ -418,10 +424,10 @@ compl_corr_to_investigation1 <-
 dim(compl_corr_to_investigation1)
 # [1] 486  30
 # [1] 522  30
+# [1] 940  25
 
 # check
-count_uniq_by_column(compl_corr_to_investigation1) |>
-  head(1)
+n_distinct(compl_corr_to_investigation1$vesselofficial_number)
 # 110
 # 107
 # 27: 177
@@ -430,6 +436,9 @@ count_uniq_by_column(compl_corr_to_investigation1) |>
 # 108
 # 97
 # vesselofficial_number 116
+# 133
+
+View(compl_corr_to_investigation1)
 
 ## ---- output needed investigation ----
 # 1) create additional columns
