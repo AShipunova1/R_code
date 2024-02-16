@@ -44,8 +44,6 @@ csv_names_list_22_23 = c("Correspondence_2023_02_15.csv",
                          r"(2024_02_05\FHIER_Compliance_2022__02_05_2024.csv)",
                          r"(2024_01_24\FHIER_Compliance_2023__01_24_2024.csv)")
 
-data_file_date <- today()
-
 ## ---- get csv data into variables ----
 from_fhier_data_path <-
   file.path(my_paths$inputs, "from_Fhier")
