@@ -105,16 +105,16 @@ addr_name_in_fhier <-
            grepl("\\bUN\\b", full_address) &
            !is.na(fhier_address))
 
-View(addr_name_in_fhier)
+# View(addr_name_in_fhier)
 # [1] 19 17
 # [1] 351   8
 
-addr_name_in_not_fhier <-
-  fhier_addr__compl_corr |>
-  filter(((!is.na(full_name) | !full_name == "UN") &
-            is.na(permit_holder_names)) |
-           (!is.na(full_address) | !full_address == "UN") &
-           is.na(fhier_address))
-
-dim(addr_name_in_not_fhier)
-# 39
+# addr_name_in_not_fhier <-
+#   fhier_addr__compl_corr |>
+#   filter(((!is.na(full_name) | !full_name == "UN") &
+#             is.na(permit_holder_names)) |
+#            (!is.na(full_address) | !full_address == "UN") &
+#            is.na(fhier_address))
+# 
+# dim(addr_name_in_not_fhier)
+# # 39
