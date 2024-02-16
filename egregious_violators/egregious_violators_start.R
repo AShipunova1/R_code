@@ -598,7 +598,9 @@ vessels_permits_participants_space <-
   mutate(across(where(is.character),
                 ~ replace_na(., ""))) |>
   mutate(across(where(is.character),
-                ~ str_trim(.)))
+                ~ str_trim(.))) |> 
+  mutate(across(where(is.character),
+                ~ str_replace(., "\bUN\b", "")))
 
 dim(vessels_permits_participants_space)
 # [1] 31942    38
@@ -701,10 +703,17 @@ vessels_permits_participants_short_u_flat_sp <-
       full_address),
     ~ str_replace_all(.x, "^,", "")
   )) |> 
-  mutate(across(where(is.character),
-                ~ str_replace_all(.x, ", ;", ";")))
+  mutate(
+    across(where(is.character),
+           ~ str_replace_all(.x, ", ;", ";")),
+    across(where(is.character),
+           ~ str_replace_all(.x, ";;", ";")),
+    across(where(is.character),
+           ~ str_replace_all(.x, ";$", ""))
+  )
 
 # View(vessels_permits_participants_short_u_flat_sp)
+
 ## combine with info from PIMS when missing ----
 vessels_from_pims_needed_short <-
   vessels_from_pims_needed |>
