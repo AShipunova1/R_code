@@ -55,6 +55,19 @@ temp_var <- get_compl_and_corresp_data(from_fhier_data_path, csv_names_list_22_2
 compl_clean <- temp_var[[1]]
 corresp_contact_cnts_clean0 <- temp_var[[2]]
 
+names(compl_clean) <- c(my_year1, my_year2)
+# check
+map(compl_clean, dim)
+# 
+# 2022
+# [1] 147338     20
+# 
+# 2023
+# [1] 148956     20
+
+dim(corresp_contact_cnts_clean0)
+# [1] 31038    20
+
 # get vessels, permits and participants info from the db ----
 
 # get_vessels with permits and participants ----
