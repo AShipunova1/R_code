@@ -20,6 +20,17 @@ curr_proj_input_path <- file.path(my_paths$inputs,
 
 current_project_name <- current_project_basename
 
+all_inputs <- my_paths$inputs
+my_year1 <- "2022"
+my_beginning1 <- str_glue("{my_year1}-01-01")
+my_end1 <- str_glue("{my_year1}-12-31")
+
+my_year2 <- "2023"
+my_beginning2 <- str_glue("{my_year2}-01-01")
+my_end2 <- str_glue("{my_year2}-12-31")
+
+# get_data ----
+
 source(file.path(current_project_path, "egregious_violators_get_data.R"))
 
 ## check ----
