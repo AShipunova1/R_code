@@ -86,7 +86,7 @@ check_new_vessels(compl_clean)
 compl_clean_w_permit_exp <-
   compl_clean |>
   # if permit group expiration is today than "no"
-  dplyr::mutate(permit_expired =
+  mutate(permit_expired =
                   dplyr::case_when(
                     permit_groupexpiration > (permit_expired_check_date) ~ "no",
                     .default = "yes"
@@ -98,7 +98,7 @@ compl_clean_w_permit_exp <-
 
 compl_clean_w_permit_exp_last_half_year <-
   compl_clean_w_permit_exp |>
-  dplyr::mutate(year_month = as.yearmon(week_start)) |>
+  mutate(year_month = as.yearmon(week_start)) |>
   # keep entries for the last check period
   filter(year_month >= as.yearmon(half_year_ago))
 
@@ -336,7 +336,7 @@ compl_clean_w_permit_exp_last_half_year__sa |>
   dim()
 # 0
   # get only the latest compliant weeks
-  # dplyr::mutate(latest_compl = max(week_num)) |>
+  # mutate(latest_compl = max(week_num)) |>
   # filter(week_num == latest_compl) |> 
   # dplyr::ungroup() |> 
   # dplyr::select(
@@ -474,7 +474,7 @@ contactdate_field_name <-
   find_col_name(compl_corr_to_investigation1, "contact", "date")[1]
 contacttype_field_name <-
   find_col_name(compl_corr_to_investigation1, "contact", "type")[1]
-# 
+ 
 # write.csv(compl_corr_to_investigation1,
 #           file.path(
 #             my_paths$outputs,
@@ -490,7 +490,7 @@ get_date_contacttype <-
   function(compl_corr_to_investigation1) {
     compl_corr_to_investigation1 |>
       # add a new column date__contacttype with contactdate and contacttype
-      dplyr::mutate(date__contacttype =
+      mutate(date__contacttype =
                       paste(!!sym(contactdate_field_name),
                             contacttype)) |>
       # use 2 columns only
@@ -593,9 +593,11 @@ vessels_from_pims_double |>
 
 vessels_permits_participants_space <-
   vessels_permits_participants |>
-  dplyr::mutate(across(where(is.character),
+  mutate(across(where(is.character),
+                ~ str_replace(., ",$", ""))) |>
+  mutate(across(where(is.character),
                 ~ replace_na(., ""))) |>
-  dplyr::mutate(across(where(is.character),
+  mutate(across(where(is.character),
                 ~ str_trim(.)))
 
 dim(vessels_permits_participants_space)
@@ -605,35 +607,27 @@ dim(vessels_permits_participants_space)
 vessels_permits_participants_short_u <-
   vessels_permits_participants_space |>
   dplyr::group_by(P_VESSEL_ID) |>
-  dplyr::mutate(
+  mutate(
     sero_home_port = list(unique(
-      paste(
-        SERO_HOME_PORT_CITY,
-        SERO_HOME_PORT_COUNTY,
-        SERO_HOME_PORT_STATE
+      str_glue(
+        "{SERO_HOME_PORT_CITY}, {SERO_HOME_PORT_COUNTY}, {SERO_HOME_PORT_STATE}"
       )
     )),
     full_name = list(unique(
-      paste(FIRST_NAME,
-            MIDDLE_NAME,
-            LAST_NAME,
-            NAME_SUFFIX)
+      str_glue("{FIRST_NAME} {MIDDLE_NAME} {LAST_NAME}, {NAME_SUFFIX}")
     )),
     full_address = list(unique(
-        paste(ADDRESS_1,
-              ADDRESS_2,
-              STATE,
-              POSTAL_CODE)
-      ))
+      str_glue("{ADDRESS_1}, {ADDRESS_2}, {STATE}, {POSTAL_CODE}")
+    ))
   ) |>
   dplyr::select(P_VESSEL_ID,
-         sero_home_port,
-         full_name,
-         full_address) |>
+                sero_home_port,
+                full_name,
+                full_address) |>
   dplyr::ungroup() |>
   dplyr::distinct()
 
-dim(vessels_permits_participants_short_u)
+View(vessels_permits_participants_short_u)
 # [1] 7858    4
 # [1] 3302    4
 # [1] 3203    4
@@ -645,14 +639,14 @@ dim(vessels_permits_participants_short_u)
 #   # unnest(full_name) %>%
 #   # unnest_wider(full_name, names_sep = "_") |> 
 #   rowwise() |> 
-#   dplyr::mutate_if(is.list, ~paste(unlist(.), collapse = ', ')) %>% 
+#   mutate_if(is.list, ~paste(unlist(.), collapse = ', ')) %>% 
 #   View()
  # cat()
 
 vessels_permits_participants_short_u_flat <-
   vessels_permits_participants_short_u |>
   rowwise() |>
-  dplyr::mutate_if(is.list, ~ paste(unlist(.), collapse = ', ')) %>%
+  mutate_if(is.list, ~ paste(unlist(.), collapse = ', ')) %>%
   dplyr::ungroup()
 
 n_distinct(vessels_permits_participants_short_u_flat$P_VESSEL_ID)
@@ -661,8 +655,8 @@ n_distinct(vessels_permits_participants_short_u_flat$P_VESSEL_ID)
 
 vessels_permits_participants_short_u_flat_sp <-
   vessels_permits_participants_short_u_flat |>
-  # gdf %>% dplyr::mutate(across(v1:v2, ~ .x + n))
-  dplyr::mutate(
+  # gdf %>% mutate(across(v1:v2, ~ .x + n))
+  mutate(
     across(
     c(sero_home_port,
       full_name,
@@ -704,6 +698,7 @@ vessels_from_pims_needed_short <-
   distinct()
 
 ### add an empty column ----
+# to make the same amount of column as from db
 vessels_from_pims_needed_short[ncol(vessels_from_pims_needed_short) + 1] <-
   c("")
 
@@ -722,48 +717,51 @@ vessels_permits_participants_short_u_flat_sp_full <-
 ## add permit and address info ----
 ### check ----
 vessels_permits_participants_v_ids <-
-  vessels_permits_participants |> 
+  vessels_permits_participants_short_u_flat_sp_full |> 
   dplyr::select(P_VESSEL_ID) |> 
   dplyr::distinct()
 
 dim(vessels_permits_participants_v_ids)
 # [1] 3302    1
 # 3203
+# 3211
 
 # how many vessels are missing from the db report
 setdiff(
   date__contacttype_per_id$vessel_official_number,
   vessels_permits_participants_v_ids$P_VESSEL_ID
-) |> cat(sep = "', '")
-# |>
-#   length()
+) |> 
+  # cat(sep = "', '")
+  length()
 # 6
 # '1305388', '565041', 'FL0001TG', 'MI9152BZ', 'NC2851DH', 'VA1267CJ'
 # (wrong license_nbr in full_participants
 # or entity_id in permits,
 # check manually)
+# 0 after adding from db
 
 # We don't need to check the reverse, there will be more vessels in the permit info we are not interested in
 
 # clean up the report
 vessels_permits_participants_space <-
-  vessels_permits_participants |>
+  vessels_permits_participants_short_u_flat_sp_full |>
   # remove NAs
-  dplyr::mutate(dplyr::across(where(is.character),
+  mutate(dplyr::across(where(is.character),
                 ~ replace_na(., ""))) |>
   # trim trailing spaces, and replaces all internal whitespace with a single space.
-  dplyr::mutate(dplyr::across(where(is.character),
+  mutate(dplyr::across(where(is.character),
                 ~ str_squish(.)))
 
 dim(vessels_permits_participants_space)
 # [1] 31942    38
+# [1] 3212    4
 
 # combine info
 vessels_permits_participants_short_u <-
   vessels_permits_participants_space |>
   # for each vessel
   dplyr::group_by(P_VESSEL_ID) |>
-  dplyr::mutate(
+  mutate(
     sero_home_port = list(unique(
       paste(
         SERO_HOME_PORT_CITY,
@@ -799,7 +797,7 @@ dim(vessels_permits_participants_short_u)
 vessels_permits_participants_short_u_flat <-
   vessels_permits_participants_short_u |>
   dplyr::rowwise() |>
-  dplyr::mutate_if(is.list,
+  mutate_if(is.list,
             ~ paste(unlist(.),
                     collapse = ', ')) %>%
   # back to colwise
@@ -812,7 +810,7 @@ data_overview(vessels_permits_participants_short_u_flat) |>
 # clean up weird comma and space combinations
 vessels_permits_participants_short_u_flat_sp <-
   vessels_permits_participants_short_u_flat |>
-  dplyr::mutate(
+  mutate(
     dplyr::across(
     c(sero_home_port,
       full_name,
@@ -881,7 +879,7 @@ fhier_addr_short <-
     phone_number,
     primary_email
   ) |>
-  dplyr::mutate(
+  mutate(
     fhier_address =
       paste(
         physical_address_1,
@@ -990,7 +988,7 @@ vessels_permits_participants_short_u_flat_sp_add <-
       full_address
     )
   ) |>
-  dplyr::mutate(
+  mutate(
     full_name =
       dplyr::case_when(
         is.na(full_name) | full_name == "UN" ~
@@ -1103,7 +1101,7 @@ vessels_to_mark_ids <-
 # mark these vessels
 compl_corr_to_investigation1_short_dup_marked <-
   compl_corr_to_investigation1_short |>
-  dplyr::mutate(
+  mutate(
     duplicate_w_last_time =
       dplyr::case_when(
         vessel_official_number %in%
@@ -1286,7 +1284,7 @@ fhier_addr_short <-
     phone_number,
     primary_email
   ) |>
-  dplyr::mutate(
+  mutate(
     fhier_address =
       paste(
         physical_address_1,
@@ -1380,7 +1378,7 @@ intersect(names(prev_res),
 
 compl_corr_to_investigation1_short_dup_marked_ch <-
   compl_corr_to_investigation1_short_dup_marked |>
-  dplyr::mutate(across(everything(), as.character)) |>
+  mutate(across(everything(), as.character)) |>
   dplyr::select(
     -c(
       name,
