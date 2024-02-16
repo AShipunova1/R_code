@@ -754,6 +754,20 @@ setdiff(
 
 # We don't need to check the reverse, there will be more vessels in the permit info we are not interested in
 
+## add missing addresses ----
+no_addr_vessel_ids <-
+  vessels_permits_participants_short_u_flat_sp_full |> 
+  filter(is.na(full_address) | 
+           full_address == "" |
+           is.na(full_name) | 
+           full_name == "") |> 
+  select(P_VESSEL_ID) |> 
+  distinct()
+
+nrow(no_addr_vessel_ids)
+# 755
+# 1390 both addr and names
+
 fix_addresses_path <-
   file.path(current_project_path,
             str_glue("{current_project_basename}_fix_addresses.R"))
