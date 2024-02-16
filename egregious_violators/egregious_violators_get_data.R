@@ -175,7 +175,6 @@ fhier_addresses <-
   read_csv(fhier_addresses_path,
            # read all as characters
            col_types = cols(.default = 'c'),
-           # use the same function for names, see above
            name_repair = fix_names)
 
 # View(fhier_addresses)
