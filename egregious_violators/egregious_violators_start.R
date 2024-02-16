@@ -278,46 +278,6 @@ compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp |> check_new_vessels(
 # 3
 # 1
 
-compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_short <-
-  compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp |>
-  dplyr::select(vessel_official_number, week, compliant_) |>
-  dplyr::add_count(vessel_official_number,
-                   name = "total_weeks") |>
-  dplyr::add_count(vessel_official_number, compliant_,
-                   name = "compl_weeks_amnt") |>
-  dplyr::arrange(dplyr::desc(compl_weeks_amnt),
-                 vessel_official_number) |>
-  dplyr::select(-week) |>
-  dplyr::distinct() |> View()
-  # all weeks were...
-  filter(total_weeks >= (number_of_weeks_for_non_compliancy - 3)) |>
-  # ...non compliant
-  filter(compl_weeks_amnt == total_weeks)
-
-dim(compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_short)
-# 0
-
-compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp |>
-  dplyr::select(vessel_official_number, week, compliant_) |>
-  dplyr::add_count(vessel_official_number,
-                   name = "total_weeks") |>
-  dplyr::add_count(vessel_official_number, compliant_,
-                   name = "compl_weeks_amnt") |>
-  # dim()
-  # [1] 9486    5
-  # [1] 9315    5
-  dplyr::arrange(dplyr::desc(compl_weeks_amnt), vessel_official_number) |>
-  dplyr::select(-week) |>
-  dplyr::distinct() |>
-  # dim()
-  # [1] 1045    4
-  # all weeks were non compliant
-  # filter(compl_weeks_amnt == total_weeks) |>
-    dplyr::glimpse()
-
-dim(compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_short)
-# 121
-
 ### add back columns needed for the output ----
 need_cols_names <- c(
   "vessel_official_number",
@@ -328,54 +288,63 @@ need_cols_names <- c(
   # ,
   # "week_start"
 )
+
 compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp |> check_new_vessels()
 # 3
+# 1
 
-# dim(compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp)
+dim(compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp)
+# 141 2
+
 compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c <-
-  compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp |>
-  dplyr::select(all_of(need_cols_names)) |>
-  inner_join(compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_short) |>
-# Joining with `by = join_by(vessel_official_number)`
-  dplyr::distinct()
+  compl_clean_w_permit_exp_last_half_year__sa |>
+  select(all_of(need_cols_names)) |>
+  inner_join(compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp) |>
+  # Joining with `by = join_by(vessel_official_number)`
+  distinct()
 
 dim(compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c)
 # [1] 130   8
 # 0
 # 127
 # 121
+# [1] 141   6
 
 ## check the last report date ----
-# ids only
+### get ids only ----
 compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_short_vesl_ids <-
-  compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_short |>
+  compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c |>
   dplyr::select(vessel_official_number) |>
   dplyr::distinct()
 
 dim(compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_short_vesl_ids)
 # [1] 128   1
+# [1] 141   1
 
-# check these ids in the full compliance information
+### check these ids in the full compliance information ----
 compl_clean_w_permit_exp_last_half_year__sa |>
   filter(
     vessel_official_number %in% compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_short_vesl_ids$vessel_official_number
   ) |>
   # dim()
   # [1] 3146   23
+  # [1] 1938   22
   dplyr::group_by(vessel_official_number) |>
   filter(tolower(compliant_) == "yes" &
            # not the current month
            year_month < as.yearmon(data_file_date)) |>
+  dim()
+# 0
   # get only the latest compliant weeks
-  dplyr::mutate(latest_compl = max(week_num)) |>
-  filter(week_num == latest_compl) |> 
-  dplyr::ungroup() |> 
-  dplyr::select(
-    # vessel_official_number,
-    year_month,
-    latest_compl) |>
-  dplyr::distinct() |> 
-  dplyr::glimpse()
+  # dplyr::mutate(latest_compl = max(week_num)) |>
+  # filter(week_num == latest_compl) |> 
+  # dplyr::ungroup() |> 
+  # dplyr::select(
+  #   # vessel_official_number,
+  #   year_month,
+  #   latest_compl) |>
+  # dplyr::distinct() |> 
+  # dplyr::glimpse()
 # $ year_month   <yearmon> Jul 2023
 # $ latest_compl <int> 31
 
