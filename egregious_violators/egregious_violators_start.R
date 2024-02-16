@@ -222,43 +222,40 @@ dim(compl_clean_w_permit_exp_last_half_year__sa_short)
 # [1] 55194    9
 
 # work with the whole period ----
-compl_clean_w_permit_exp_last_half_year__sa_short_no_week <- 
+compl_clean_w_permit_exp_last_half_year__sa_short_no_dates <- 
   compl_clean_w_permit_exp_last_half_year__sa_short |>
-  select(-contains("week")) |>
-  select(-contains("month")) |>
-  select(-contains("year")) |> 
+  select(vessel_official_number, compliant_) |>
   distinct()
 
-View(compl_clean_w_permit_exp_last_half_year__sa_short_no_week)
-# [1] 3668    4
+glimpse(compl_clean_w_permit_exp_last_half_year__sa_short_no_dates)
+# [1] 3668    2
 
 ## filter for egregious ----
 ### add no_yes compliant ----
-compl_clean_w_permit_exp_last_half_year__sa__wide <-
-  get_compl_by(compl_clean_w_permit_exp_last_half_year__sa_short_no_week)
+compl_clean_w_permit_exp_last_half_year__sa_short_no_dates__wide <-
+  get_compl_by(compl_clean_w_permit_exp_last_half_year__sa_short_no_dates)
 
-# print_df_names(compl_clean_w_permit_exp_last_half_year__sa__wide)
-# permitgroup, permit_groupexpiration, year, year_month,
+cols_names <- c()
 
-cols_names <- c(
-  "permitgroup",
-  "permit_groupexpiration",
-  "year",
-  "year_month"
-)
-
-tic("back_to_long")
-compl_clean_w_permit_exp_last_half_year__sa__wide__long <-
-  compl_clean_w_permit_exp_last_half_year__sa__wide |>
+compl_clean_w_permit_exp_last_half_year__sa_short_no_dates__wide__long <-
+  compl_clean_w_permit_exp_last_half_year__sa_short_no_dates__wide |>
   compl__back_to_longer_format(cols_names) |>
   filter(stats::complete.cases(is_compl_or_both))
-toc()
 # back_to_long: 21.31 sec elapsed with 22 cols
 # back_to_long: 0.87 sec elapsed with 6 cols
 
-compl_clean_w_permit_exp_last_half_year__sa__wide__long$is_compl_or_both |> 
+compl_clean_w_permit_exp_last_half_year__sa_short_no_dates__wide__long$is_compl_or_both |> 
   unique()
 # [1] "YES"    "NO"     "NO_YES"
+
+dim(compl_clean_w_permit_exp_last_half_year__sa_short_no_dates__wide__long)
+# [1] 2246    2
+
+n_distinct(compl_clean_w_permit_exp_last_half_year__sa$vessel_official_number)
+# 2246
+
+n_distinct(compl_clean_w_permit_exp_last_half_year__sa_short_no_dates__wide__long$vessel_official_number)
+# [1] 2246
 
 compl_clean_w_permit_exp_last_half_year__sa |> 
   check_new_vessels()
