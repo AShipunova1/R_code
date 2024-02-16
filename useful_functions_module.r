@@ -419,18 +419,32 @@ join_all_csvs <- function(corresp_arr, compl_arr) {
 # It returns the 'result_df', which is the input data frame with the specified column converted to dates according to the specified 'date_format'.
 
 # ===
-change_to_dates <- function(my_df, field_name, date_format) {
+change_to_dates <- function(my_df, field_name, date_format = "") {
   # Convert the specified column ('field_name') in 'my_df' to POSIXct date format using 'as.POSIXct'
   # Within the mutate function, it uses pull to extract the column specified by 'field_name' and then applies as.POSIXct to convert the values in that column to POSIXct date format using the provided 'date_format'.
 
+  # browser()
+  if (date_format == "") {
+    my_tryFormats = c(
+      "%m/%d/%Y %I:%M%p",
+      "%m/%d/%Y %I:%M %p",
+      "%m/%d/%Y %R%OS",
+      "%Y-%m-%d %H:%M:%OS",
+      "%Y/%m/%d %H:%M:%OS",
+      "%Y-%m-%d %H:%M",
+      "%Y/%m/%d %H:%M",
+      "%Y-%m-%d",
+      "%Y/%m/%d"
+    )
+  }
+  
+  new_field_name <- str_glue("{field_name}_dttm")
+  
   result_df <-
     my_df |>
-    mutate(!!field_name := as.POSIXct(!!field_name, format = date_format))
-    # dplyr::mutate({
-    #   {
-    #     field_name
-    #   }
-    # } := as.POSIXct(dplyr::pull(my_df[field_name]), format = date_format))
+    mutate(!!new_field_name := as.POSIXct(!!field_name, 
+                                      tryFormats = my_tryFormats,
+                                      format = date_format))
 
   # Return the data frame with the specified column converted to dates
   return(result_df)
@@ -730,12 +744,10 @@ corresp_cleaning <- function(csvs_clean1) {
   # Change the data types of 'createdon' and 'contactdate' columns to POSIXct.
   corresp_arr_contact_cnts <-
     change_to_dates(corresp_arr_contact_cnts,
-                    createdon_field_name,
-                    "%m/%d/%Y %H:%M")
+                    createdon_field_name)
   corresp_arr_contact_cnts <-
     change_to_dates(corresp_arr_contact_cnts,
-                    contactdate_field_name,
-                    "%m/%d/%Y %I:%M %p")
+                    contactdate_field_name)
 
   # Return the cleaned and processed correspondence data.
   return(corresp_arr_contact_cnts)
