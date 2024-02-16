@@ -119,6 +119,46 @@ names(processed_metrics_tracking_permits) <-
 dim(processed_metrics_tracking_permits)
 # [1] 6822    9
 
+# Get vessels from PIMS ----
+get_vessel_data_pims <-
+  function(vessel_names_file_path,
+           to_skip = 0,
+           my_sheet = "Sheet 1") {
+    # file.exists(vessel_names_file_path)
+    
+    vessels_from_pims_raw <-
+      read_xlsx(vessel_names_file_path,
+                sheet = my_sheet,
+                skip = to_skip)
+    
+    # clean_headers
+    vessels_from_pims <-
+      vessels_from_pims_raw %>%
+      clean_headers()
+    
+    return(vessels_from_pims)
+  }
+
+vessel_data_pims_double_address <-
+    file.path(my_paths$inputs,
+              r"(non_compliant_areas\vessels_permit_hailng_port_double_name.xlsx)")
+
+vessel_names_file_path <- 
+    file.path(my_paths$inputs,
+              r"(non_compliant_areas\Vessels - 2024-02-12_1633.xlsx)")
+
+vessels_from_pims <- get_vessel_data_pims(vessel_names_file_path)
+
+dim(vessels_from_pims)
+# [1] 23059     8
+
+vessels_from_pims_double <- 
+  get_vessel_data_pims(vessel_data_pims_double_address,
+                       to_skip = 0)
+
+dim(vessels_from_pims_double)
+# [1] 652   3
+
 # get vessels, permits and participants info from the db ----
 
 # get_vessels with permits and participants ----
