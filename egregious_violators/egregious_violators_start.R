@@ -705,7 +705,7 @@ vessels_permits_participants_short_u_flat_sp <-
                 ~ str_replace_all(.x, ", ;", ";")))
 
 # View(vessels_permits_participants_short_u_flat_sp)
-
+## combine with info from PIMS when missing ----
 vessels_from_pims_needed_short <-
   vessels_from_pims_needed |>
   select(official__,
@@ -725,12 +725,6 @@ vessels_permits_participants_short_u_flat_sp_full <-
   rbind(vessels_permits_participants_short_u_flat_sp,
         vessels_from_pims_needed_short)
 
-# vessels_permits_participants_short_u_flat_sp |>
-#   dplyr::arrange(P_VESSEL_ID) |> 
-#   head() |> 
-#   str()
-
-## add permit and address info ----
 ### check ----
 vessels_permits_participants_v_ids <-
   vessels_permits_participants_short_u_flat_sp_full |> 
@@ -754,114 +748,11 @@ setdiff(
 # (wrong license_nbr in full_participants
 # or entity_id in permits,
 # check manually)
+# today()
+# [1] "2024-02-16"
 # 0 after adding from db
 
 # We don't need to check the reverse, there will be more vessels in the permit info we are not interested in
-
-# clean up the report
-vessels_permits_participants_space <-
-  vessels_permits_participants_short_u_flat_sp_full |>
-  # remove NAs
-  mutate(dplyr::across(where(is.character),
-                ~ replace_na(., ""))) |>
-  # trim trailing spaces, and replaces all internal whitespace with a single space.
-  mutate(dplyr::across(where(is.character),
-                ~ str_squish(.)))
-
-dim(vessels_permits_participants_space)
-# [1] 31942    38
-# [1] 3212    4
-
-# combine info
-vessels_permits_participants_short_u <-
-  vessels_permits_participants_space |>
-  # for each vessel
-  dplyr::group_by(P_VESSEL_ID) |>
-  mutate(
-    sero_home_port = list(unique(
-      paste(
-        SERO_HOME_PORT_CITY,
-        SERO_HOME_PORT_COUNTY,
-        SERO_HOME_PORT_STATE
-      )
-    )),
-    full_name = list(unique(
-      paste(FIRST_NAME,
-            MIDDLE_NAME,
-            LAST_NAME,
-            NAME_SUFFIX)
-    )),
-    full_address = list(unique(
-        paste(ADDRESS_1,
-              ADDRESS_2,
-              STATE,
-              POSTAL_CODE)
-      ))
-  ) |>
-  # use only new columns and the vessel id
-  dplyr::select(P_VESSEL_ID,
-         sero_home_port,
-         full_name,
-         full_address) |>
-  dplyr::ungroup() |>
-  dplyr::distinct()
-
-dim(vessels_permits_participants_short_u)
-# [1] 3302    4
-
-# convert lists in comma separated strings
-vessels_permits_participants_short_u_flat <-
-  vessels_permits_participants_short_u |>
-  dplyr::rowwise() |>
-  mutate_if(is.list,
-            ~ paste(unlist(.),
-                    collapse = ', ')) %>%
-  # back to colwise
-  dplyr::ungroup()
-
-data_overview(vessels_permits_participants_short_u_flat) |> 
-  head(1)
-# P_VESSEL_ID 3302
-
-# clean up weird comma and space combinations
-vessels_permits_participants_short_u_flat_sp <-
-  vessels_permits_participants_short_u_flat |>
-  mutate(
-    dplyr::across(
-    c(sero_home_port,
-      full_name,
-      full_address),
-    # remove whitespace at the start and end, and replaces all internal whitespace with a single space.
-    ~ stringr::str_squish(.x)
-  ),
-    dplyr::across(
-    c(sero_home_port,
-      full_name,
-      full_address),
-    # remove space characters before commas
-    ~ stringr::str_replace_all(.x, "\\s+,", ",")
-  ),
-  dplyr::across(
-    c(sero_home_port,
-      full_name,
-      full_address),
-    # replace 2+ commas with one
-    ~ stringr::str_replace_all(.x, ",,+", ",")
-  ),
-  dplyr::across(
-    c(sero_home_port,
-      full_name,
-      full_address),
-    # remove commas at the end
-    ~ stringr::str_replace_all(.x, ",$", "")
-  ),
-    dplyr::across(
-    c(sero_home_port,
-      full_name,
-      full_address),
-    # remove commas in front
-    ~ stringr::str_replace_all(.x, "^,", "")
-  ))
 
 ## Manually check missing addresses ----
 
