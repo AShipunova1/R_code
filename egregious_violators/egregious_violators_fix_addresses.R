@@ -61,15 +61,26 @@ dim(fhier_addr_short__comb_addr)
 # [1] 3266    5
 
 # join with the previous results from the db
-# fhier_addr__compl_corr <-
-#   right_join(
-#     fhier_addr_short,
-#     compl_corr_to_investigation1_short_dup_marked,
-#     join_by("vessel_official_number")
-#   )
 
-# dim(fhier_addr__compl_corr)
-# [1] 117  17
+fhier_addr_short__comb_addr_needed <-
+  fhier_addr_short__comb_addr |>
+  filter(vessel_official_number %in% no_addr_vessel_ids$P_VESSEL_ID)
+
+# View(fhier_addr_short__comb_addr_needed)
+# intersect(names(vessels_permits_participants_short_u_flat_sp_full),
+#           names(fhier_addr_short__comb_addr_needed))
+# 0
+
+vessels_permits_participants_short_u_flat_sp_full__more_addr <- 
+  left_join(
+    vessels_permits_participants_short_u_flat_sp_full,
+    fhier_addr_short__comb_addr_needed,
+    join_by(P_VESSEL_ID == vessel_official_number)
+  )
+
+View(vessels_permits_participants_short_u_flat_sp_full__more_addr)
+# [1] 3212    8
+# "UN"
 
 ### check if the address or name missing from the db is in FHIER ----
 addr_name_in_fhier <-
