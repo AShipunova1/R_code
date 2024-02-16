@@ -159,7 +159,28 @@ vessels_from_pims_double <-
 dim(vessels_from_pims_double)
 # [1] 652   3
 
-# get vessels, permits and participants info from the db ----
+# Physical Address List from FHIER ----
+# REPORTS / For-hire Primary Physical Address List
+
+fhier_addresses_path <-
+  file.path(
+    my_paths$outputs,
+    current_project_basename,
+    "For-hire Primary Physical Address List.csv"
+  )
+
+# file.exists(fhier_addresses_path)
+
+fhier_addresses <-
+  read_csv(fhier_addresses_path,
+           # read all as characters
+           col_types = cols(.default = 'c'),
+           # use the same function for names, see above
+           name_repair = fix_names)
+
+# View(fhier_addresses)
+
+# get info from the db ----
 
 # get_vessels with permits and participants ----
 vessel_permit_where_part <-
