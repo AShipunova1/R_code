@@ -712,7 +712,9 @@ vessels_permits_participants_short_u_flat_sp <-
            ~ str_replace_all(.x, ";$", ""))
   )
 
-# View(vessels_permits_participants_short_u_flat_sp)
+# filter(vessels_permits_participants_short_u_flat_sp,
+#        P_VESSEL_ID == "1173297") |> 
+#   View()
 
 ## combine with info from PIMS when missing ----
 vessels_from_pims_needed_short <-
@@ -786,28 +788,19 @@ file.exists(fix_addresses_path)
 source(fix_addresses_path)
 
 ### add info from FHIER to the results ----
-setdiff(names(vessels_permits_participants_short_u_flat_sp),
-        names(fhier_addr_short))
-
-setdiff(
-  names(fhier_addr_short),
-  # names(fhier_addr__compl_corr),
-  names(vessels_permits_participants_short_u_flat_sp)
-)
+intersect(names(vessels_permits_participants_short_u_flat_sp),
+        names(addr_name_in_fhier))
+# P_VESSEL_ID
 # print_df_names(fhier_addr__compl_corr)
 
-View(fhier_addr_short)
-vessels_permits_participants_short_u_flat_sp_add <-
-  vessels_permits_participants_short_u_flat_sp |> View()
-  left_join(
-    fhier_addr__compl_corr,
-    join_by(
-      P_VESSEL_ID == vessel_official_number,
-      sero_home_port,
-      full_name,
-      full_address
-    )
-  ) |>
+vessels_permits_participants_short_u_flat_sp_join <-
+  left_join(vessels_permits_participants_short_u_flat_sp,
+            addr_name_in_fhier)
+# Joining with `by = join_by(P_VESSEL_ID, sero_home_port, full_name, full_address)`
+glimpse(vessels_permits_participants_short_u_flat_sp_add)
+
+vessels_permits_participants_short_u_flat_sp_add <- 
+  vessels_permits_participants_short_u_flat_sp_join |> 
   mutate(
     full_name =
       dplyr::case_when(
