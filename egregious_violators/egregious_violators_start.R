@@ -757,19 +757,6 @@ setdiff(
 ## Manually check missing addresses ----
 
 ### From FHIER ----
-# REPORTS / For-hire Primary Physical Address List
-fhier_addr <-
-  read_csv(
-    file.path(
-      all_inputs,
-      "..",
-      r"(my_outputs\egregious_violators\For-hire Primary Physical Address List.csv)"
-    ),
-    # read all as characters
-    col_types = cols(.default = 'c'),
-    # use the same function for names, see above
-    name_repair = fix_names
-  )
 
 # fewer fields
 fhier_addr_short <-
