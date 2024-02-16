@@ -1244,7 +1244,8 @@ read_an_answer <- function(my_prompt) {
 # 6. Returns the modified data frame.
 get_compl_by <-
   function(my_df,
-           group_by_for_compl,
+           group_by_for_compl = 
+               vars(-c("vessel_official_number", "compliant_")),
            names_from_list = c("vessel_official_number")) {
     my_df %>%
     dplyr::group_by_at(group_by_for_compl) %>%
