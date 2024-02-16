@@ -233,18 +233,15 @@ dim(compl_clean_w_permit_exp_last_half_year__sa_short_no_week)
 ## filter for egregious ----
 ### add no_yes compliant ----
 compl_clean_w_permit_exp_last_half_year__sa__wide <-
-  get_compl_by(compl_clean_w_permit_exp_last_half_year__sa_short)
+  get_compl_by(compl_clean_w_permit_exp_last_half_year__sa_short_no_week)
 
-print_df_names(compl_clean_w_permit_exp_last_half_year__sa__wide)
+# print_df_names(compl_clean_w_permit_exp_last_half_year__sa__wide)
+# permitgroup, permit_groupexpiration, year, year_month,
 
 cols_names <- c(
   "permitgroup",
   "permit_groupexpiration",
   "year",
-  "week_num",
-  "week_start",
-  "week_end",
-  "permit_expired",
   "year_month"
 )
 
@@ -255,11 +252,11 @@ compl_clean_w_permit_exp_last_half_year__sa__wide__long <-
   filter(stats::complete.cases(is_compl_or_both))
 toc()
 # back_to_long: 21.31 sec elapsed with 22 cols
-# back_to_long: 1.5 sec elapsed with 10 cols
+# back_to_long: 0.87 sec elapsed with 6 cols
 
 compl_clean_w_permit_exp_last_half_year__sa__wide__long$is_compl_or_both |> 
   unique()
-# [1] "YES" "NO" 
+# [1] "YES"    "NO"     "NO_YES"
 
 compl_clean_w_permit_exp_last_half_year__sa |> 
   check_new_vessels()
