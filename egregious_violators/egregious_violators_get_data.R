@@ -62,8 +62,10 @@ map(compl_clean_list, dim)
 # $`2024`
 # [1] 19715    20
 
-# combine years in one df <- 
-compl_clean <- rbind(compl_clean_list[[1]], compl_clean_list[[2]])
+# combine years in one df
+compl_clean <-
+  rbind(compl_clean_list[[my_year1]], compl_clean_list[[my_year2]])
+
 dim(compl_clean)
 # [1] 168740     20
 
