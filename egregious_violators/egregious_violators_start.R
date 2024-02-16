@@ -693,7 +693,27 @@ vessels_permits_participants_short_u_flat_sp <-
       full_address),
     ~ str_replace_all(.x, "^,", "")
   ))
-# 
+
+glimpse(vessels_permits_participants_short_u_flat_sp)
+
+vessels_from_pims_needed_short <-
+  vessels_from_pims_needed |>
+  select(official__,
+         hailing_port,
+         owner) |>
+  distinct()
+
+### add an empty column ----
+vessels_from_pims_needed_short[ncol(vessels_from_pims_needed_short) + 1] <-
+  c("")
+
+names(vessels_from_pims_needed_short) <- 
+  names(vessels_permits_participants_short_u_flat_sp)
+
+vessels_permits_participants_short_u_flat_sp_full <-
+  rbind(vessels_permits_participants_short_u_flat_sp,
+        vessels_from_pims_needed_short)
+
 # vessels_permits_participants_short_u_flat_sp |>
 #   dplyr::arrange(P_VESSEL_ID) |> 
 #   head() |> 
