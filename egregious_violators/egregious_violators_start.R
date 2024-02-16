@@ -460,20 +460,20 @@ n_distinct(compl_corr_to_investigation1$vesselofficial_number)
 
 # View(compl_corr_to_investigation1)
 
-## ---- output needed investigation ----
+# ---- output needed investigation ----
 # 1) create additional columns
 # 2) remove duplicated columns
-# 3) remove vessels already in the know list
+# 3) mark vessels already in the know list (prev_result)
 
 ## ---- 1) create additional columns ----
 
 ## ----- list of contact dates and contact type in parentheses  -----
 
 # # put names into vars
-# contactdate_field_name <-
-#   find_col_name(compl_corr_to_investigation1, "contact", "date")[1]
-# contacttype_field_name <-
-#   find_col_name(compl_corr_to_investigation1, "contact", "type")[1]
+contactdate_field_name <-
+  find_col_name(compl_corr_to_investigation1, "contact", "date")[1]
+contacttype_field_name <-
+  find_col_name(compl_corr_to_investigation1, "contact", "type")[1]
 # 
 # write.csv(compl_corr_to_investigation1,
 #           file.path(
@@ -490,7 +490,7 @@ get_date_contacttype <-
   function(compl_corr_to_investigation1) {
     compl_corr_to_investigation1 |>
       # add a new column date__contacttype with contactdate and contacttype
-      dplyr::mutate(date__contacttype = paste(contactdate_field_name, contacttype, sep = " ")) |>
+      dplyr::mutate(date__contacttype = paste(!!sym(contactdate_field_name), contacttype, sep = " ")) |>
       # use 2 columns only
       dplyr::select(vessel_official_number, date__contacttype) |>
       # [1] 49903     2
@@ -505,7 +505,7 @@ get_date_contacttype <-
 
 date__contacttype_per_id <-
   get_date_contacttype(compl_corr_to_investigation1)
-dim(date__contacttype_per_id)
+glimpse(date__contacttype_per_id)
 # [1] 110    2
 # 107
 # 27: 177
@@ -514,6 +514,9 @@ dim(date__contacttype_per_id)
 # 108
 # 97
 # [1] 116   2 (2 contact attempts)
+# [1] 133   2
+
+View(date__contacttype_per_id)
 
 compl_corr_to_investigation1 |>
   check_new_vessels()
