@@ -25,11 +25,11 @@ curr_proj_input_path <- file.path(my_paths$inputs,
 current_project_name <- current_project_basename
 
 all_inputs <- my_paths$inputs
-my_year1 <- "2022"
+my_year1 <- "2023"
 my_beginning1 <- str_glue("{my_year1}-01-01")
 my_end1 <- str_glue("{my_year1}-12-31")
 
-my_year2 <- "2023"
+my_year2 <- "2024"
 my_beginning2 <- str_glue("{my_year2}-01-01")
 my_end2 <- str_glue("{my_year2}-12-31")
 
@@ -48,6 +48,9 @@ half_year_ago <-
 # [1] "2023-08-11"
 
 permit_expired_check_date <- data_file_date
+
+last_week_start <- data_file_date - grace_period
+# [1] "2024-02-10"
   
 # get_data ----
 
