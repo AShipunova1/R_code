@@ -705,7 +705,7 @@ vessels_permits_participants |>
          STATE,
          POSTAL_CODE) |>
   distinct() |>
-  s()
+  dim()
 # 7
 # $ ADDRESS_1   <chr> "160 SNUFF MILL RD", "160 SNUFF MILL ROAD", "P O BOX 625", "P…
 # $ ADDRESS_2   <chr> NA, NA, NA, NA, NA, NA, NA
@@ -854,12 +854,12 @@ setdiff(
 vessels_permits_participants_date__contacttype_per_id <-
   left_join(
     date__contacttype_per_id,
-    vessels_permits_participants_short_u_flat_sp_add,
+    vessels_permits_participants_short_u_flat_sp,
     join_by(vessel_official_number == P_VESSEL_ID)
   )
 
 # View(vessels_permits_participants_date__contacttype_per_id)
-# n_distinct(date__contacttype_per_id$vessel_official_number)
+n_distinct(date__contacttype_per_id$vessel_official_number)
 # 133
 dim(vessels_permits_participants_date__contacttype_per_id)
 # 117
@@ -883,6 +883,7 @@ dim(compl_corr_to_investigation1__w_addr)
 # compare vsl numbers
 num_of_vsl_to_investigate == n_distinct(compl_corr_to_investigation1__w_addr$vessel_official_number)
 # T
+# 133
 
 # compl_corr_to_investigation1_w_non_compliant_weeks_n_date__contacttype_per_id <-
 #   compl_corr_to_investigation1 |>
@@ -924,20 +925,19 @@ compl_corr_to_investigation1_short <-
   summarise_all(concat_unique)
 
 compl_corr_to_investigation1_short |> glimpse()
-# TODO: " UN" full_address
 
   # combine_rows_based_on_multiple_columns_and_keep_all_unique_values("vessel_official_number")
 
-# View(compl_corr_to_investigation1_short)
+# dim(compl_corr_to_investigation1_short)
 # [1] 107   9
 # 27: [1] 177  10
 # [1] 105   9
 # 108
+# [1] 133  12
+
 # str(compl_corr_to_investigation1_short)
 # 97
 # 116   9
-
-# STOPPED HERE ---- 
 
 ## ---- 3) mark vessels already in the know list ----
 # The first column (report created) indicates the vessels that we have created a case for. My advice would be not to exclude those vessels. EOs may have provided compliance assistance and/or warnings already. If that is the case and they continue to be non-compliant after that, they will want to know and we may need to reopen those cases.
@@ -966,6 +966,8 @@ vessels_to_mark_ids <-
   # filter(tolower(`Contacted 2x?`) == 'yes') |>
   dplyr::select(vessel_official_number)
 
+dim(vessels_to_mark_ids)
+
 # mark these vessels
 compl_corr_to_investigation1_short_dup_marked <-
   compl_corr_to_investigation1_short |>
@@ -985,18 +987,12 @@ dim(compl_corr_to_investigation1_short_dup_marked)
 # 97
 # [1] 110  10 2 atmpts
 # [1] 116  10
-
-dim(compl_corr_to_investigation1_short_dup_marked)
-# 102
-# 27: 164
-# 177
-# 31
-# 108
+# [1] 133  13
 
 #### check ----
   # no applicable method for 'distinct' applied to an object of class "character"
 
-length(unique(compl_corr_to_investigation1_short_dup_marked$vessel_official_number))
+n_distinct(compl_corr_to_investigation1_short_dup_marked$vessel_official_number)
 # 107
 # 102
 # 27: 164
@@ -1006,8 +1002,8 @@ length(unique(compl_corr_to_investigation1_short_dup_marked$vessel_official_numb
 # 97
 # 110
 # 116
+# 133
 
-data_overview(compl_corr_to_investigation1_short_dup_marked) |> head(1)
 # vessel_official_number
 # 177
 # 105
@@ -1015,328 +1011,12 @@ data_overview(compl_corr_to_investigation1_short_dup_marked) |> head(1)
 # 110
 # 116
 
-## add comments from the compliance crew (if already exist) ----
-# results_with_comments_path <-
-#   file.path(
-#     my_paths$outputs,
-#     current_project_name,
-#     r"(from_web\egregious violators for investigation - 06-26-2023.csv)"
-#   )
+result_path <- 
+  file.path(my_paths$outputs,
+            current_project_basename,
+            str_glue("egregious_violators_to_investigate_{today()}.csv"))
 
-# file.exists(results_with_comments_path)
-# T
+write_csv(compl_corr_to_investigation1_short_dup_marked,
+          result_path)
 
-# results_with_comments <-
-#   readr::read_csv(results_with_comments_path,
-#                   col_types = cols(.default = 'c'))
-#
-# dim(results_with_comments)
-# 134 13
-
-# all.equal(results_with_comments,
-#           compl_corr_to_investigation1_short_output)
-# F
-
-# setdiff(results_with_comments$vessel_official_number,
-#         compl_corr_to_investigation1_short_dup_marked$vessel_official_number) |>
-#   length()
-# 68
-# 35 (new filter)
-# 67
-# 71
-# in_the_new_res_only <-
-#   setdiff(
-#     compl_corr_to_investigation1_short_dup_marked$vessel_official_number,
-#     results_with_comments$vessel_official_number
-#   )
-# |> cat()
-# 1266718 602091 FL0435LD FL6279PH FL7282LE FL8725DA
-# length(in_the_new_res_only)
-# 47
-# 6
-# 1061382 1069364 1168496 1209015 1224219 1259129 1266718 1296710 1308401 1318467 1331794 523112 602091 678141 970286 996263 FL0435LD FL2447TL FL2453TE FL3159TK FL3697PB FL3979EA FL4801NV FL6279PH FL6680JK FL6954LD FL7772SV FL8090RU FL8666CH FL8725DA FL9131RJ FL9446TH FL9793RU FL9914GX GA8847NJ MD9128BD MS8535ZG NC2851DH NC4246DP NC9819DF VA1460CJ
-# 34
-
-### join comments
-
-# by = join_by(
-#   vessel_official_number,
-#   name,
-#   permit_expired,
-#   permitgroup,
-#   permit_groupexpiration,
-#   contactrecipientname,
-#   contactphone_number,
-#   contactemailaddress,
-#   date__contacttypes
-# )
-
-# compl_corr_to_investigation1_short_output_w_comments <-
-#   left_join(compl_corr_to_investigation1_short_dup_marked,
-#             results_with_comments,
-#             by,
-#             # Override the default suffixes, c(".x", ".y") in not merged cols
-#     suffix = c(".my_output",
-#                ".commented_output")
-#             )
-# Joining with `by = join_by(vessel_official_number, name, permit_expired,
-# permitgroup, permit_groupexpiration, contactrecipientname,
-# contactphone_number, contactemailaddress, week_start, date__contacttypes)`
-
-# dim(compl_corr_to_investigation1_short_output_w_comments)
-# 38
-# 280
-# 0
-# [1] 105  14
-# 108
-# 97
-# [1] 110  14
-
-#### check no comments ----
-# no_comments_vsls <-
-#   compl_corr_to_investigation1_short_output_w_comments |>
-#   filter(is.na(
-#     `Confirmed Egregious? (missing past 6 months, 2 contacts with at least 1 call)`
-#   ))
-# # |>
-# View(no_comments_vsls)
-# Rows: 53
-# Columns: 14
-
-# in_the_new_res_only_df <-
-#   as.data.frame(in_the_new_res_only)
-# names(in_the_new_res_only_df) <- "vessel_official_number"
-
-# no_comments_vsls_ids <-
-#   no_comments_vsls |>
-#   dplyr::select(vessel_official_number)
-# dim(no_comments_vsls_ids)
-# 62
-
-# no_comments_vsls_ids |>
-#   filter(vessel_official_number == '1305207') |> dim()
-# 1
-# compl_corr_to_investigation1_short_output_w_comments |>
-#   filter(vessel_official_number == '1305207') |> dim()
-# [1]  1 21
-
-# setdiff(no_comments_vsls_ids$vessel_official_number, in_the_new_res_only_df) |>
-#   length()
-# 1305207
-# 62
-
-# setdiff(in_the_new_res_only_df, no_comments_vsls_ids$vessel_official_number)
-# 0
-
-# # temp 1 ----
-# fhier_addr <-
-#   read_csv(
-#     r"(C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\egregious_violators\For-hire Primary Physical Address List.csv)",
-#     col_types = cols(.default = 'c'),
-#     name_repair = fix_names
-#   )
-# 
-# # vessel_official_number, permits, effective_date, end_date, has_sa_permits_, has_gom_permits_, assigned_permit_region_grouping, permit_holder_names, physical_address_1, physical_address_2, physical_city, physical_county, physical_state, physical_zip_code, phone_number, primary_email
-# 
-# fhier_addr_short <-
-#   fhier_addr |>
-#   dplyr::select(
-#     vessel_official_number,
-#     permit_holder_names,
-#     physical_address_1,
-#     physical_address_2,
-#     physical_city,
-#     physical_county,
-#     physical_state,
-#     physical_zip_code,
-#     phone_number,
-#     primary_email
-#   ) |>
-#   mutate(
-#     fhier_address =
-#       paste(
-#         physical_address_1,
-#         physical_address_2,
-#         physical_city,
-#         physical_county,
-#         physical_state,
-#         physical_zip_code
-#       )
-#   ) |>
-#   dplyr::select(
-#     -c(
-#       physical_address_1,
-#       physical_address_2,
-#       physical_city,
-#       physical_county,
-#       physical_state,
-#       physical_zip_code
-#     )
-#   )
-# 
-# res1 <-
-#   right_join(
-#     fhier_addr_short,
-#     compl_corr_to_investigation1_short_dup_marked,
-#     join_by("vessel_official_number")
-#   )
-# 
-# # View(res1)
-# no_addr_vessl <-
-#   c("1305388",
-#     "949058",
-#     "FL2555TF",
-#     "MI9152BZ",
-#     "NC2851DH")
-# 
-# res1 |> 
-#   filter(vessel_official_number %in% no_addr_vessl) |> 
-#   dim()
-# 
-# fhier_addr_short |> 
-#   filter(vessel_official_number %in% no_addr_vessl) |> 
-#   dim()
-# # 0
-# 
-# no_addr1 <-
-#   c("1066100",
-#     "1069364",
-#     "1209015",
-#     "1266505",
-#     "1316879",
-#     "622813",
-#     "678141",
-#     "938364",
-#     "996263",
-#     "FL0061PZ",
-#     "FL0380JY",
-#     "FL0435LD",
-#     "FL2153SM",
-#     "FL2367PW",
-#     "FL2453TE",
-#     "FL3002LF",
-#     "FL3017ME",
-#     "FL3262PM",
-#     "FL5736GJ",
-#     "FL6954LD",
-#     "FL7772SV",
-#     "FL8077RA",
-#     "FL8666CH",
-#     "FL9131RJ",
-#     "FL9793RU",
-#     "NC9819DF")
-# 
-# fhier_addr_short |>
-#   # filter(vessel_official_number == "1308401") |>
-#   filter(vessel_official_number %in% no_addr1) |>
-#   dplyr::select(vessel_official_number,
-#          permit_holder_names, fhier_address) |>
-#   write_csv("fhier_addr_short.csv")
-# # 22
-# 
-# 
-# temp 2 ----
-prev_res <-
-  read_csv(r"(C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\egregious_violators\egregious violators for investigation - 2023-01-24_to_2023-08-01_comment.csv)",
-           col_types = cols(.default = 'c'))
-
-intersect(names(prev_res),
-          names(compl_corr_to_investigation1_short_dup_marked)) |> 
-  cat(sep = ", ")
-
-compl_corr_to_investigation1_short_dup_marked_ch <-
-  compl_corr_to_investigation1_short_dup_marked |>
-  mutate(across(everything(), as.character)) |>
-  dplyr::select(
-    -c(
-      name,
-      permit_expired,
-      permitgroup,
-      permit_groupexpiration,
-      contactrecipientname,
-      contactphone_number,
-      contactemailaddress,
-      date__contacttypes,
-      duplicate_w_last_time
-    )
-  )
-# View(compl_corr_to_investigation1_short_dup_marked_ch)
-
-new_join <-
-  left_join(
-    prev_res,
-    compl_corr_to_investigation1_short_dup_marked_ch,
-    join_by(
-      vessel_official_number
-    )
-  )
-
-# output ----
-result_file_path <- file.path(
-  my_paths$outputs,
-  current_project_name,
-  paste0(
-    "egregious_violators_for_investigation_from_",
-    half_year_ago,
-    "_to_",
-    data_file_date,
-    ".csv"
-  ))
-
-# View(new_join)
-readr::write_csv(
-  new_join,
-    # compl_corr_to_investigation1_short_output_w_comments,
-  result_file_path,
-  na = "")
-
-compl_corr_to_investigation1_short_dup_marked |>
-  check_new_vessels()
-# 2
-# FL4232JY
-# FL7549EJ
-
-## ---- who needs an email ----
-# source(file.path(current_project_path, "need_an_email.R"))
-
-# ## ---- no correspondence ----
-# source(
-#   file.path(
-#     current_project_path,
-#     "not_compliant_51_plus_weeks_and_no_correspondence.R"
-#   )
-# )
-#
-# ## ---- correspondence, no compliance information ----
-# no_compl_info <-
-#   setdiff(
-#     corresp_contact_cnts_clean$vessel_official_number,
-#     compl_clean$vessel_official_number
-#   )
-# length(no_compl_info)
-# # 398
-# # 136
-# # Not in compliance info!
-#
-# # grep("1131132", compl_clean$vessel_official_number)
-# # 0
-
-current_project_name <- "egregious_violators"
-current_project_path <-
-  file.path(my_paths$git_r, current_project_name)
-
-# make a flat file ----
-
-files_to_combine <-
-  c("~/R_code_github/useful_functions_module.r",
-    file.path(current_project_path, "db_functions.R"),
-    file.path(current_project_path, "get_data_egregious_violators.R"),
-    file.path(current_project_path, "egregious_violators.R")
-  )
-
-# run as needed
-make_a_flat_file(
-  file.path(current_project_path,   "egregious_violators_flat_file.R"),
-  files_to_combine
-)
-
+compl_corr_to_investigation1_short_dup_marked
