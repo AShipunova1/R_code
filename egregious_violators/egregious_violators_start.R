@@ -325,7 +325,6 @@ compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_ok <-
 dim(compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_ok)
 # [1] 319   6
 
-
 # ---- Preparing Correspondence ----
 
 ## ---- remove 999999 ----
@@ -377,17 +376,6 @@ n_distinct(corresp_contact_cnts_clean_direct_cnt_2atmps$vesselofficial_number)
 # vesselofficial_number 2968
 # 3620
 
-## ---- Combine compliance information with filtered correspondence info by vesselofficialnumber ----
-
-corresp_contact_cnts_clean_direct_cnt_2atmps |>
-  check_new_vessels()
-# 4
-
-compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c |>
-  check_new_vessels()
-# 2
-# 1
-
 ## fix dates ----
 head(corresp_contact_cnts_clean_direct_cnt_2atmps$contact_date, 1)
 # [1] "02/15/2024 03:15PM"
@@ -403,17 +391,14 @@ corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates <-
                                  c("mdY R"))
   )
 
-# str(corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates)
-# 
-
 str(corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates$contact_date_dttm)
 # POSIXct[1:29089], format: "2024-02-15 15:15:00" 
 
-# join with compliance ----
+# Join correspondence with compliance ----
 compl_corr_to_investigation1 <-
   inner_join(
     corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates,
-    compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c,
+    compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_ok,
     by = c("vessel_official_number"),
     multiple = "all",
     relationship = "many-to-many"
@@ -423,6 +408,7 @@ dim(compl_corr_to_investigation1)
 # [1] 486  30
 # [1] 522  30
 # [1] 940  27
+# [1] 2100   27
 
 # check
 n_distinct(compl_corr_to_investigation1$vesselofficial_number)
@@ -434,7 +420,7 @@ n_distinct(compl_corr_to_investigation1$vesselofficial_number)
 # 108
 # 97
 # vesselofficial_number 116
-# 133
+# 262
 
 # View(compl_corr_to_investigation1)
 
