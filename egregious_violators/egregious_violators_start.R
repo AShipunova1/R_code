@@ -704,62 +704,16 @@ vessels_permits_participants |>
          STATE,
          POSTAL_CODE) |>
   distinct() |>
-  dim()
+  s()
 # 7
 # $ ADDRESS_1   <chr> "160 SNUFF MILL RD", "160 SNUFF MILL ROAD", "P O BOX 625", "P…
 # $ ADDRESS_2   <chr> NA, NA, NA, NA, NA, NA, NA
 # $ STATE       <chr> "RI", "RI", "MD", "VA", "SC", "MD", NA
 # $ POSTAL_CODE <chr> "02874", "02874", "21041", "23183", "295822571", "21014", NA
 
-vessels_permits_participants_short_u_flat_sp1 <-
+vessels_permits_participants_short_u_flat_sp <-
   vessels_permits_participants_short_u_flat |>
   clean_names_and_addresses()
-
-diffdf::diffdf(vessels_permits_participants_short_u_flat_sp,
-               vessels_permits_participants_short_u_flat_sp1)
-
-  # # gdf %>% mutate(across(v1:v2, ~ .x + n))
-  # mutate(
-  #   across(
-  #   c(sero_home_port,
-  #     full_name,
-  #     full_address),
-  #   ~ str_trim(.x)
-  # ),
-  #   across(
-  #   c(sero_home_port,
-  #     full_name,
-  #     full_address),
-  #   ~ str_replace_all(.x, "\\s+,", ",")
-  # ),
-  # across(
-  #   c(sero_home_port,
-  #     full_name,
-  #     full_address),
-  #   ~ str_replace_all(.x, ",,+", ",")
-  # ),
-  # across(
-  #   c(sero_home_port,
-  #     full_name,
-  #     full_address),
-  #   ~ str_replace_all(.x, ",$", "")
-  # ),
-  #   across(
-  #   c(sero_home_port,
-  #     full_name,
-  #     full_address),
-  #   ~ str_replace_all(.x, "^,", "")
-  # )) |> 
-  # mutate(
-  #   across(where(is.character),
-  #          ~ str_replace_all(.x, ", ;", ";")),
-  #   across(where(is.character),
-  #          ~ str_replace_all(.x, ";;", ";")),
-  #   across(where(is.character),
-  #          ~ str_replace_all(.x, "^;", ";")),
-  #   across(where(is.character),
-  #          ~ str_replace_all(.x, ";$", ""))
-  # )
 
 # filter(vessels_permits_participants_short_u_flat_sp,
 #        P_VESSEL_ID == "1173297") |>
@@ -811,79 +765,89 @@ setdiff(
 # today()
 
 # [1] "2024-02-16"
-# 0 after adding from db
+# 0 after adding
 
 # We don't need to check the reverse, there will be more vessels in the permit info we are not interested in
 
-## add missing addresses ----
-no_addr_vessel_ids <-
-  vessels_permits_participants_short_u_flat_sp_full |> 
-  filter(is.na(full_address) | 
-           full_address == "" |
-           is.na(full_name) | 
-           full_name == "") |> 
-  select(P_VESSEL_ID) |> 
-  distinct()
-
-nrow(no_addr_vessel_ids)
-# 755
-# 1390 both addr and names
-
-fix_addresses_path <-
-  file.path(current_project_path,
-            str_glue("{current_project_basename}_fix_addresses.R"))
-
-file.exists(fix_addresses_path)
-
-source(fix_addresses_path)
-
-### add info from FHIER to the results ----
-intersect(names(vessels_permits_participants_short_u_flat_sp),
-        names(addr_name_in_fhier))
-# P_VESSEL_ID
-# print_df_names(fhier_addr__compl_corr)
-View(addr_name_in_fhier)
-
- # ;, UN
-
-vessels_permits_participants_short_u_flat_sp_join <-
-  left_join(vessels_permits_participants_short_u_flat_sp,
-            addr_name_in_fhier,
-            join_by(P_VESSEL_ID))
-# Joining with `by = join_by(P_VESSEL_ID, sero_home_port, full_name, full_address)`
-glimpse(vessels_permits_participants_short_u_flat_sp_join)
-print_df_names(vessels_permits_participants_short_u_flat_sp_join)
-
-vessels_permits_participants_short_u_flat_sp_add <- 
-  vessels_permits_participants_short_u_flat_sp_join |> 
-  mutate(
-    full_name =
-      dplyr::case_when(
-        is.na(full_name) | 
-          full_name %in% c("", "UN") ~
-          permit_holder_names,
-        .default = full_name
-      ),
-    full_address =
-      dplyr::case_when(
-        is.na(full_address) | 
-          full_address %in% c("", "UN") ~
-          fhier_address,
-        .default = full_address
-      )
-  ) |>
-  dplyr::select(P_VESSEL_ID, 
-                sero_home_port, 
-                full_name, 
-                full_address) |>
-  dplyr::distinct()
-
-diffdf::diffdf(vessels_permits_participants_short_u_flat_sp,
-       vessels_permits_participants_short_u_flat_sp_add)
-#    Variable    No of Differences 
-#   full_name          1008        
-#  full_address         747        
-
+# ## add missing addresses ----
+# no_addr_vessel_ids <-
+#   vessels_permits_participants_short_u_flat_sp_full |> 
+#   filter(is.na(full_address) | 
+#            full_address == "" |
+#            is.na(full_name) | 
+#            full_name == "") |> 
+#   select(P_VESSEL_ID) |> 
+#   distinct()
+# 
+# nrow(no_addr_vessel_ids)
+# # 755
+# # 1390 both addr and names
+# # 1957 after removing "," etc.
+# 
+# fix_addresses_path <-
+#   file.path(current_project_path,
+#             str_glue("{current_project_basename}_fix_addresses.R"))
+# 
+# file.exists(fix_addresses_path)
+# 
+# source(fix_addresses_path)
+# 
+# ### add info from FHIER to the results ----
+# intersect(names(vessels_permits_participants_short_u_flat_sp),
+#         names(addr_name_in_fhier))
+# # P_VESSEL_ID
+# # print_df_names(fhier_addr__compl_corr)
+# # glimpse(addr_name_in_fhier)
+# 
+# vessels_permits_participants_short_u_flat_sp_join <-
+#   left_join(vessels_permits_participants_short_u_flat_sp,
+#             addr_name_in_fhier,
+#             join_by(P_VESSEL_ID),
+#             suffix = c("__vsl_db",
+#                        "__vsl_fhier"))
+# 
+# # View(vessels_permits_participants_short_u_flat_sp_join)
+# 
+# # print_df_names(vessels_permits_participants_short_u_flat_sp_join)
+# 
+# vessels_permits_participants_short_u_flat_sp_join |>
+# # vessels_permits_participants_short_u_flat_sp |> 
+#   filter(P_VESSEL_ID == "FL1431JU") |> 
+#   # filter(!is.na(full_name__vsl_fhier) | 
+#   #          !is.na(full_address__vsl_fhier) |
+#   #          !is.na(fhier_address)) |> 
+#   View()
+# 
+# vessels_permits_participants_short_u_flat_sp_add <- 
+#   vessels_permits_participants_short_u_flat_sp_join |> 
+#   mutate(
+#     full_name =
+#       dplyr::case_when(
+#         is.na(full_name) | 
+#           full_name %in% c("", "UN") ~
+#           permit_holder_names,
+#         .default = full_name
+#       ),
+#     full_address =
+#       dplyr::case_when(
+#         is.na(full_address) | 
+#           full_address %in% c("", "UN") ~
+#           fhier_address,
+#         .default = full_address
+#       )
+#   ) |>
+#   dplyr::select(P_VESSEL_ID, 
+#                 sero_home_port, 
+#                 full_name, 
+#                 full_address) |>
+#   dplyr::distinct()
+# 
+# diffdf::diffdf(vessels_permits_participants_short_u_flat_sp,
+#        vessels_permits_participants_short_u_flat_sp_add)
+# #    Variable    No of Differences 
+# #   full_name          1008        
+# #  full_address         747        
+# 
 # combine vessels_permits and date__contacttype ----
 
 vessels_permits_participants_date__contacttype_per_id <-
