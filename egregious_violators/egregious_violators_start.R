@@ -220,7 +220,7 @@ n_distinct(compl_clean_w_permit_exp_last_half_year__sa$vessel_official_number)
 n_distinct(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__wide__long$vessel_official_number)
 # [1] 1917
 
-### get only all "compliant_ == "NO" for the past half year ----
+## get only all "compliant_ == "NO" for the past half year ----
 compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp <-
   compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__wide__long |>
   # not compliant
@@ -234,7 +234,7 @@ dim(compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp)
 # [1] 141   2
 # [1] 328   2
 
-### add back columns needed for the output ----
+## add back columns needed for the output ----
 need_cols_names <- c(
   "vessel_official_number",
   "name",
@@ -263,7 +263,7 @@ compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c <-
 # 121
 # [1] 328   6
 
-## check the last report date ----
+### check the last report date ----
 ### get ids only ----
 compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_short_vesl_ids <-
   compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c |>
@@ -286,21 +286,33 @@ compl_clean_w_permit_exp_last_half_year__sa |>
   filter(tolower(compliant_) == "yes" &
            # not the current month
            year_month < as.yearmon(data_file_date)) |>
-  View()
+  # dim()
 # [1] 11 22
-# 0
-  # get only the latest compliant weeks
-  # mutate(latest_compl = max(week_num)) |>
-  # filter(week_num == latest_compl) |> 
-  # dplyr::ungroup() |> 
-  # dplyr::select(
-  #   # vessel_official_number,
-  #   year_month,
-  #   latest_compl) |>
-  # dplyr::distinct() |> 
-  # glimpse()
-# $ year_month   <yearmon> Jul 2023
-# $ latest_compl <int> 31
+  glimpse()
+
+# get only the latest compliant weeks
+compl_clean_w_permit_exp_last_half_year__sa |>
+  filter(
+    vessel_official_number %in% compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_short_vesl_ids$vessel_official_number
+  ) |>
+  dplyr::group_by(vessel_official_number) |>
+  filter(tolower(compliant_) == "yes" &
+           # not the current month
+           year_month < as.yearmon(data_file_date)) |>
+  mutate(latest_compl = max(week_num)) |>
+  filter(week_num == latest_compl) |>
+  dplyr::ungroup() |>
+  dplyr::select(vessel_official_number,
+                year_month,
+                latest_compl) |>
+  dplyr::distinct() |>
+  glimpse()
+# Rows: 9
+# Columns: 3
+# $ vessel_official_number <chr> "1332041", "1284153", "FL9738SR", "FL7361TJ", "FL…
+# $ year_month             <yearmon> Aug 2023, Aug 2023, Aug 2023, Aug 2023, Aug 2…
+# $ latest_compl           <int> 33, 33, 32, 32, 32, 32, 32, 32, 32
+
 
 ## ---- Preparing Correspondence ----
 
