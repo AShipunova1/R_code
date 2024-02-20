@@ -26,6 +26,7 @@ curr_proj_input_path <- file.path(my_paths$inputs,
 current_project_name <- current_project_basename
 
 all_inputs <- my_paths$inputs
+
 my_year1 <- "2023"
 my_beginning1 <- str_glue("{my_year1}-01-01")
 my_end1 <- str_glue("{my_year1}-12-31")
@@ -80,10 +81,6 @@ check_new_vessels <-
 # ---- Preparing compliance info ----
 
 ## ---- add permit_expired column ----
-check_new_vessels(compl_clean)
-# 4
-
-# print_df_names(compl_clean)
 compl_clean_w_permit_exp <-
   compl_clean |>
   # if permit group expiration is today than "no"
@@ -110,9 +107,6 @@ dim(compl_clean_w_permit_exp)
 # [1] "2024-02-16"
 # [1] 168740     21
 
-check_new_vessels(compl_clean_w_permit_exp)
-# 4
-
 dim(compl_clean_w_permit_exp_last_half_year)
 # [1] 74809    23
 # [1] 70118    23
@@ -137,40 +131,8 @@ today()
 # [1] "2023-08-10"
 # [1] "2024-02-16"
 
-# ## Not "compliant_" only ----
-# TODO: what if no_yes?
-# compl_clean_w_permit_exp_last_half_year__sa_non_compl <-
-#   compl_clean_w_permit_exp_last_half_year__sa |>
-#   filter(compliant_ == 'NO')
-# 
-# check_new_vessels(compl_clean_w_permit_exp_last_half_year__sa_non_compl)
-# 4
-# 3
-
-# dim(compl_clean_w_permit_exp_last_half_year__sa_non_compl)
-# [1] 18205    23
-# [1] 11473    23
-# [1] 10597    23
-# [1] 12484    23
-# [1] 15549    23
-# [1] 13992    23
-# [1] 14204    23
-# [1] 12454    23
-# [1] 10291    22
-
-# n_distinct(compl_clean_w_permit_exp_last_half_year__sa_non_compl$vessel_official_number)
-# vesselofficialnumber 1785
-# today()
-# "2023-06-23"
-# vessel_official_number 1573
-# [1] "2023-07-10"
-# vessel_official_number 1403
-# vessel_official_number 1369
-# [1] "2023-08-01"
-# vessel_official_number 1370
-# vessel_official_number 1328
-# [1] "2024-02-16"
-# 1052
+dim(compl_clean_w_permit_exp_last_half_year__sa)
+# [1] 55194    22
 
 ## get only not expired last 27 weeks of data minus grace period ----
 compl_clean_w_permit_exp_last_half_year__sa__not_exp <-
@@ -195,7 +157,7 @@ max(compl_clean_w_permit_exp_last_half_year__sa__not_exp$week_start)
 max(compl_clean_w_permit_exp_last_half_year__sa__not_exp$week_end)
 # [1] "2024-02-04"
 
-# fewer columns ----
+## fewer columns ----
 remove_columns <- c(
   "name",
   "week",
@@ -212,59 +174,55 @@ remove_columns <- c(
   "permit_expired"
 )
 
-compl_clean_w_permit_exp_last_half_year__sa_short <-
-  compl_clean_w_permit_exp_last_half_year__sa |>
+compl_clean_w_permit_exp_last_half_year__sa__not_exp_short <-
+  compl_clean_w_permit_exp_last_half_year__sa__not_exp |>
   select(-any_of(remove_columns)) |> 
   distinct()
 
 dim(compl_clean_w_permit_exp_last_half_year__sa)
 # [1] 55194    22
-dim(compl_clean_w_permit_exp_last_half_year__sa_short)
-# [1] 55194    9
+dim(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short)
+# [1] 44756    9
 
-# work with the whole period ----
-compl_clean_w_permit_exp_last_half_year__sa_short_no_dates <- 
-  compl_clean_w_permit_exp_last_half_year__sa_short |>
+## work with the whole period ----
+compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates <- 
+  compl_clean_w_permit_exp_last_half_year__sa__not_exp_short |>
   select(vessel_official_number, compliant_) |>
   distinct()
 
-glimpse(compl_clean_w_permit_exp_last_half_year__sa_short_no_dates)
+glimpse(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates)
 # [1] 3668    2
 
-## filter for egregious ----
-### add no_yes compliant ----
-compl_clean_w_permit_exp_last_half_year__sa_short_no_dates__wide <-
-  get_compl_by(compl_clean_w_permit_exp_last_half_year__sa_short_no_dates)
+## add no_yes compliant ----
+compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__wide <-
+  get_compl_by(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates)
 
 cols_names <- c()
 
-compl_clean_w_permit_exp_last_half_year__sa_short_no_dates__wide__long <-
-  compl_clean_w_permit_exp_last_half_year__sa_short_no_dates__wide |>
+compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__wide__long <-
+  compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__wide |>
   compl__back_to_longer_format(cols_names) |>
   filter(stats::complete.cases(is_compl_or_both))
 # back_to_long: 21.31 sec elapsed with 22 cols
 # back_to_long: 0.87 sec elapsed with 6 cols
 
-compl_clean_w_permit_exp_last_half_year__sa_short_no_dates__wide__long$is_compl_or_both |> 
+compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__wide__long$is_compl_or_both |> 
   unique()
 # [1] "YES"    "NO"     "NO_YES"
 
-dim(compl_clean_w_permit_exp_last_half_year__sa_short_no_dates__wide__long)
+dim(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__wide__long)
 # [1] 2246    2
+# [1] 1917    2
 
 n_distinct(compl_clean_w_permit_exp_last_half_year__sa$vessel_official_number)
 # 2246
 
-n_distinct(compl_clean_w_permit_exp_last_half_year__sa_short_no_dates__wide__long$vessel_official_number)
-# [1] 2246
+n_distinct(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__wide__long$vessel_official_number)
+# [1] 1917
 
-compl_clean_w_permit_exp_last_half_year__sa_short_no_dates__wide__long |> 
-  check_new_vessels()
-# 4
-
-### get only all "compliant_ == "NO"for the past half year ----
+### get only all "compliant_ == "NO" for the past half year ----
 compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp <-
-  compl_clean_w_permit_exp_last_half_year__sa_short_no_dates__wide__long |>
+  compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__wide__long |>
   # not compliant
   filter(tolower(is_compl_or_both) == "no")
 
@@ -274,10 +232,7 @@ dim(compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp)
 # [1] 9315   23
 # [1] 7138   22
 # [1] 141   2
-
-compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp |> check_new_vessels()
-# 3
-# 1
+# [1] 328   2
 
 ### add back columns needed for the output ----
 need_cols_names <- c(
@@ -290,13 +245,10 @@ need_cols_names <- c(
   # "week_start"
 )
 
-compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp |> check_new_vessels()
-# 3
-# 1
-
 dim(compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp)
-# 141 2
+# [1] 328   2
 
+# View(compl_clean_w_permit_exp_last_half_year__sa)
 compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c <-
   compl_clean_w_permit_exp_last_half_year__sa |>
   select(all_of(need_cols_names)) |>
@@ -304,12 +256,12 @@ compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c <-
   # Joining with `by = join_by(vessel_official_number)`
   distinct()
 
-dim(compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c)
+# View(compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c)
 # [1] 130   8
 # 0
 # 127
 # 121
-# [1] 141   6
+# [1] 328   6
 
 ## check the last report date ----
 ### get ids only ----
@@ -320,7 +272,7 @@ compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_short_vesl_ids <-
 
 dim(compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_short_vesl_ids)
 # [1] 128   1
-# [1] 141   1
+# [1] 328   1
 
 ### check these ids in the full compliance information ----
 compl_clean_w_permit_exp_last_half_year__sa |>
@@ -334,7 +286,8 @@ compl_clean_w_permit_exp_last_half_year__sa |>
   filter(tolower(compliant_) == "yes" &
            # not the current month
            year_month < as.yearmon(data_file_date)) |>
-  dim()
+  View()
+# [1] 11 22
 # 0
   # get only the latest compliant weeks
   # mutate(latest_compl = max(week_num)) |>
