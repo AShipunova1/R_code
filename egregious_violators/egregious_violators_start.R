@@ -912,3 +912,25 @@ write_csv(compl_corr_to_investigation1_short_dup_marked,
           result_path)
 
 # how many are duals? ----
+compl_corr_to_investigation1_short_dup_marked__permit_region <-
+  compl_corr_to_investigation1_short_dup_marked |>
+  mutate(permit_region =
+           case_when(
+             grepl("RCG|HRCG|CHG|HCHG", permitgroup) ~ "dual",
+             !grepl("RCG|HRCG|CHG|HCHG", permitgroup) ~ "sa_only",
+             .default = "other"
+           ))
+
+compl_corr_to_investigation1_short_dup_marked__permit_region |> 
+  select(vessel_official_number, permit_region) |> 
+  distinct() |> 
+  count(permit_region)
+# 1 dual             56
+# 2 sa_only         206
+
+n_distinct(compl_corr_to_investigation1_short_dup_marked__permit_region$vessel_official_number)
+# 262
+
+## dual permitted ----
+56 / (206 + 56) * 100
+# 21.37405
