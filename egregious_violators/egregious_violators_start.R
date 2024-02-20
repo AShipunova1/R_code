@@ -598,7 +598,8 @@ vessels_from_pims_double |>
 # 3185
 
 clean_names_and_addresses <- function(my_df) {
-  # to_remove <- c("", "UN", " UN", "UN ", NA, "NA")
+  # to_remove <- c("", "UN", " UN", "UN ", ";, UN"
+  # NA, "NA")
   
   my_df_cleaned <- 
     my_df |>
@@ -606,35 +607,38 @@ clean_names_and_addresses <- function(my_df) {
       across(where(is.character),
              ~ str_trim(.x)),
       across(where(is.character),
-             ~ str_replace_all(., " *\bUN\b *", "")),
+             ~ str_replace_all(.x, "[,;]$", "")),
       across(where(is.character),
-             ~ str_replace_all(., ", *\bUN\b *", "")),
-      across(where(is.character),
-             ~ str_replace_all(., ",$", "")),
-      across(where(is.character),
-             ~ replace_na(., "")),
+             ~ replace_na(.x, "")),
       across(where(is.character),
              ~ str_replace_all(.x, ", ;", ";")),
       across(where(is.character),
              ~ str_replace_all(.x, "\\s+[,;]", ",")),
       across(where(is.character),
-             ~ str_replace_all(.x, "[,;]$", "")),
+             ~ str_replace_all(.x, "^[,;] *", "")),
       across(where(is.character),
-             ~ str_replace_all(.x, "^[,;]", "")),
+             ~ str_replace_all(.x, ";,+", ";")),
       across(where(is.character),
              ~ str_replace_all(.x, ";;+", ";")),
       across(where(is.character),
              ~ str_replace_all(.x, ",,+", ",")),
       across(where(is.character),
-             ~ str_trim(.))
+             ~ str_replace_all(.x, "[,;] *\\bUN\\b *", "")),
+      across(where(is.character),
+             ~ str_replace_all(.x, "\\bUN\\b", "")),
+      across(where(is.character),
+             ~ str_replace_all(.x, "\\s*\\bUN\\b\\s*", "")),
+      across(where(is.character),
+             ~ str_trim(.x))
     )
   
   return(my_df_cleaned)
 }
 
-clean_names_and_addresses(addr_name_in_fhier) |> View()
+clean_names_and_addresses(addr_name_in_fhier) |> 
+  View()
 
-
+# "15 INDUSTRIAL ST, ME, 04769; UN", ", UN", "UN"
 
 vessels_permits_participants_space <-
   vessels_permits_participants |>
