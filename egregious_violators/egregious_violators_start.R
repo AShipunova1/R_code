@@ -60,24 +60,6 @@ get_data_path <-
   file.path(current_project_path, "egregious_violators_get_data.R")
 source(get_data_path)
 
-## check ----
-check_new_vessels <-
-  function(my_df, list_to_check = NULL) {
-    if (is.null(list_to_check)) {
-      list_to_check <-
-        c("FL1848EY",
-          "FL4232JY",
-          "1246468",
-          "FL7549EJ")
-    }
-    my_df |>
-      filter(vessel_official_number %in% list_to_check) |>
-      dplyr::select(vessel_official_number) |>
-      dplyr::distinct() |>
-      dim() %>%
-      return()
-  }
-
 # ---- Preparing compliance info ----
 
 ## ---- add permit_expired column ----
@@ -115,9 +97,6 @@ dim(compl_clean_w_permit_exp_last_half_year)
 # [1] 87826    23
 # [1] 74169    23
 # [1] 80413    22
-
-check_new_vessels(compl_clean_w_permit_exp_last_half_year)
-# 4
 
 ## ---- Have only SA and dual permits ----
 
@@ -354,13 +333,6 @@ corresp_contact_cnts_clean_direct_cnt_2atmps <-
   corresp_contact_cnts_clean |>
   filter(!!two_attempts_filter)
 
-test_new_egr2 <-
-  corresp_contact_cnts_clean_direct_cnt_2atmps |>
-  check_new_vessels()
-
-test_new_egr2[1] == 4
-# T
-
 # dim(corresp_contact_cnts_clean)
 # [1] 18629    23
 # dim(corresp_contact_cnts_clean_direct_cnt_2atmps)
@@ -427,7 +399,7 @@ n_distinct(compl_corr_to_investigation1$vesselofficial_number)
 ## save number of vessels to investigate ----
 num_of_vsl_to_investigate <- 
   n_distinct(compl_corr_to_investigation1$vesselofficial_number)
-# 133
+# 262
 
 # ---- output needed investigation ----
 # 1) create additional columns
@@ -464,7 +436,6 @@ get_date_contacttype <-
                             contacttype)) |>
       # use 2 columns only
       dplyr::select(vessel_official_number, date__contacttype) |>
-      # [1] 49903     2
       # sort
       dplyr::arrange(vessel_official_number, date__contacttype) |>
       dplyr::distinct() |>
@@ -486,19 +457,9 @@ dim(date__contacttype_per_id)
 # 108
 # 97
 # [1] 116   2 (2 contact attempts)
-# [1] 133   2
+# [1] 262   2
 
 # glimpse(date__contacttype_per_id)
-
-compl_corr_to_investigation1 |>
-  check_new_vessels()
-# 2
-# 1
-
-date__contacttype_per_id |>
-  check_new_vessels()
-# 2
-# 1
 
 ## add permit and address info ----
 # print_df_names(vessels_permits_participants)
@@ -521,19 +482,15 @@ vessels_not_in_vessel_permit_from_db <-
   sort()
 
 length(vessels_not_in_vessel_permit_from_db)
-# 8
+# 32
 vessels_not_in_vessel_permit_from_db |>
   cat(sep = "\n")
 # cat(sep = "', '")
   # length()
-# 6
-# '1305388', '565041', 'FL0001TG', 'MI9152BZ', 'NC2851DH', 'VA1267CJ' 
+# 32
 # (wrong license_nbr in full_participants
 # or entity_id in permits,
 # check manually)
-
-# 8
-# 1285453', '1305388', '1319584', 'FL1431JU', 'FL2995SR', 'MI9152BZ', 'NC6160CM', 'SC8379DP
 
 vessels_from_pims_needed <-
   vessels_from_pims |>
@@ -542,8 +499,7 @@ vessels_from_pims_needed <-
 vessels_from_pims_needed |> 
   arrange(official__) |> 
   dim()
-# 9
-# 2 addresses for FL1431JU
+# [1] 30  8
 
 vessels_from_pims_double |>
   filter(
@@ -552,13 +508,7 @@ vessels_from_pims_double |>
   ) |>
   arrange(vessel_official_number1, vessel_official_number2) |>
   dim()
-# 0
-
-# setdiff(vessels_permits_participants_v_ids$P_VESSEL_ID,
-#         date__contacttype_per_id$vessel_official_number
-# ) |> 
-#   length()
-# 3185
+# 3
 
 clean_names_and_addresses <- function(my_df) {
   # to_remove <- c("", "UN", " UN", "UN ", ";, UN"
@@ -600,9 +550,6 @@ clean_names_and_addresses <- function(my_df) {
   
   return(my_df_cleaned)
 }
-
-# clean_names_and_addresses(addr_name_in_fhier) |> 
-  # View()
 
 vessels_permits_participants_space <-
   vessels_permits_participants |>
@@ -679,9 +626,9 @@ vessels_permits_participants_short_u_flat_sp <-
   vessels_permits_participants_short_u_flat |>
   clean_names_and_addresses()
 
-# filter(vessels_permits_participants_short_u_flat_sp,
-#        P_VESSEL_ID == "1173297") |>
-#   View()
+filter(vessels_permits_participants_short_u_flat_sp,
+       P_VESSEL_ID == "1173297") |>
+  glimpse()
 
 ## combine with info from PIMS when missing ----
 vessels_from_pims_needed_short <-
@@ -712,7 +659,7 @@ vessels_permits_participants_v_ids <-
 dim(vessels_permits_participants_v_ids)
 # [1] 3302    1
 # 3203
-# 3211
+# 3232    
 
 # how many vessels are missing from the db report
 setdiff(
@@ -721,15 +668,7 @@ setdiff(
 ) |> 
   # cat(sep = "', '")
   length()
-# 6
-# '1305388', '565041', 'FL0001TG', 'MI9152BZ', 'NC2851DH', 'VA1267CJ'
-# (wrong license_nbr in full_participants
-# or entity_id in permits,
-# check manually)
-# today()
-
-# [1] "2024-02-16"
-# 0 after adding
+# 3
 
 # We don't need to check the reverse, there will be more vessels in the permit info we are not interested in
 
@@ -823,16 +762,16 @@ vessels_permits_participants_date__contacttype_per_id <-
 
 # View(vessels_permits_participants_date__contacttype_per_id)
 n_distinct(date__contacttype_per_id$vessel_official_number)
-# 133
+# 262
 dim(vessels_permits_participants_date__contacttype_per_id)
 # 117
-# [1] 133   5
+# [1] 262   5
 
 # compare vsl numbers
 num_of_vsl_to_investigate == n_distinct(vessels_permits_participants_date__contacttype_per_id$vessel_official_number)
 # T
 
-## combine output ----
+# combine output ----
 
 compl_corr_to_investigation1__w_addr <-
   left_join(
@@ -841,12 +780,12 @@ compl_corr_to_investigation1__w_addr <-
   )
 
 dim(compl_corr_to_investigation1__w_addr)
-# [1] 940  31
+# [1] 2100   31
 
 # compare vsl numbers
 num_of_vsl_to_investigate == n_distinct(compl_corr_to_investigation1__w_addr$vessel_official_number)
 # T
-# 133
+# 262
 
 # compl_corr_to_investigation1_w_non_compliant_weeks_n_date__contacttype_per_id <-
 #   compl_corr_to_investigation1 |>
@@ -887,20 +826,16 @@ compl_corr_to_investigation1_short <-
   group_by(vessel_official_number) |>
   summarise_all(concat_unique)
 
-compl_corr_to_investigation1_short |> glimpse()
+# compl_corr_to_investigation1_short |> glimpse()
 
   # combine_rows_based_on_multiple_columns_and_keep_all_unique_values("vessel_official_number")
 
-# dim(compl_corr_to_investigation1_short)
+dim(compl_corr_to_investigation1_short)
 # [1] 107   9
 # 27: [1] 177  10
 # [1] 105   9
 # 108
-# [1] 133  12
-
-# str(compl_corr_to_investigation1_short)
-# 97
-# 116   9
+# [1] 262  12
 
 ## ---- 3) mark vessels already in the know list ----
 # The first column (report created) indicates the vessels that we have created a case for. My advice would be not to exclude those vessels. EOs may have provided compliance assistance and/or warnings already. If that is the case and they continue to be non-compliant after that, they will want to know and we may need to reopen those cases.
@@ -920,7 +855,8 @@ file.exists(previous_egr_data_path)
 # T
 
 vessels_to_mark <-
-  read_xlsx(previous_egr_data_path)
+  read_xlsx(previous_egr_data_path) |> 
+  remove_empty_cols()
 
 # data_overview(vessels_to_remove)
 
@@ -930,6 +866,7 @@ vessels_to_mark_ids <-
   dplyr::select(vessel_official_number)
 
 dim(vessels_to_mark_ids)
+# [1] 96  1
 
 # mark these vessels
 compl_corr_to_investigation1_short_dup_marked <-
@@ -950,11 +887,9 @@ dim(compl_corr_to_investigation1_short_dup_marked)
 # 97
 # [1] 110  10 2 atmpts
 # [1] 116  10
-# [1] 133  13
+# [1] 262  13
 
-#### check ----
-  # no applicable method for 'distinct' applied to an object of class "character"
-
+### check ----
 n_distinct(compl_corr_to_investigation1_short_dup_marked$vessel_official_number)
 # 107
 # 102
@@ -965,14 +900,8 @@ n_distinct(compl_corr_to_investigation1_short_dup_marked$vessel_official_number)
 # 97
 # 110
 # 116
-# 133
-
-# vessel_official_number
-# 177
-# 105
-# 108
-# 110
-# 116
+# 2024-02-20
+# 262
 
 result_path <- 
   file.path(my_paths$outputs,
@@ -982,4 +911,4 @@ result_path <-
 write_csv(compl_corr_to_investigation1_short_dup_marked,
           result_path)
 
-compl_corr_to_investigation1_short_dup_marked
+# how many are duals? ----
