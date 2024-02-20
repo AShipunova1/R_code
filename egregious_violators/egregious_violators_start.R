@@ -635,21 +635,12 @@ clean_names_and_addresses <- function(my_df) {
   return(my_df_cleaned)
 }
 
-clean_names_and_addresses(addr_name_in_fhier) |> 
-  View()
-
-# "15 INDUSTRIAL ST, ME, 04769; UN", ", UN", "UN"
+# clean_names_and_addresses(addr_name_in_fhier) |> 
+  # View()
 
 vessels_permits_participants_space <-
   vessels_permits_participants |>
-  mutate(across(where(is.character),
-                ~ str_replace(., "\bUN\b", ""))) |>
-  mutate(across(where(is.character),
-                ~ str_replace(., ",$", ""))) |>
-  mutate(across(where(is.character),
-                ~ replace_na(., ""))) |>
-  mutate(across(where(is.character),
-                ~ str_trim(.)))
+  clean_names_and_addresses()
 
 dim(vessels_permits_participants_space)
 # [1] 31942    38
