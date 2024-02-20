@@ -19,12 +19,7 @@ fhier_addr_short <-
 
 fhier_addr_short__comb_addr <- 
   fhier_addr_short |> 
-  # mutate(across(where(is.character),
-  #             ~ str_replace(., ",$", ""))) |>
-  mutate(across(where(is.character),
-                ~ replace_na(., ""))) |>
-  mutate(across(where(is.character),
-                ~ str_squish(.))) |>
+  clean_names_and_addresses() |> 
   mutate(
     fhier_address =
       str_glue(
@@ -43,18 +38,7 @@ fhier_addr_short__comb_addr <-
       physical_zip_code
     )
   ) |>
-  mutate(
-    across(fhier_address,
-           ~ str_trim(.x)),
-    across(fhier_address,
-           ~ str_replace_all(.x, "\\s+,", ",")),
-    across(fhier_address,
-           ~ str_replace_all(.x, ",,+", ",")),
-    across(fhier_address,
-           ~ str_replace_all(.x, ",$", "")),
-    across(fhier_address,
-           ~ str_replace_all(.x, "^,", ""))
-  ) |>
+  clean_names_and_addresses() |> 
   distinct()
 
 dim(fhier_addr_short__comb_addr)
@@ -66,7 +50,9 @@ fhier_addr_short__comb_addr_needed <-
   fhier_addr_short__comb_addr |>
   filter(vessel_official_number %in% no_addr_vessel_ids$P_VESSEL_ID)
 
-# View(fhier_addr_short__comb_addr_needed)
+dim(fhier_addr_short__comb_addr_needed)
+# 1218
+
 # intersect(names(vessels_permits_participants_short_u_flat_sp_full),
 #           names(fhier_addr_short__comb_addr_needed))
 # 0
@@ -78,9 +64,8 @@ vessels_permits_participants_short_u_flat_sp_full__more_addr <-
     join_by(P_VESSEL_ID == vessel_official_number)
   )
 
-# View(vessels_permits_participants_short_u_flat_sp_full__more_addr)
+# dim(vessels_permits_participants_short_u_flat_sp_full__more_addr)
 # [1] 3212    8
-# "UN"
 
 ### check if the address or name missing from the db is in FHIER ----
 addr_name_in_fhier <-
@@ -98,16 +83,17 @@ glimpse(addr_name_in_fhier)
 # 2 FL1431JU    MARATHON, FL   NA                   
 
 ### check if the address or name is a "UN" in the db is in FHIER ----
-addr_name_in_fhier <-
+addr_name_in_fhier_un <-
   vessels_permits_participants_short_u_flat_sp_full__more_addr |>
   filter((grepl("\\bUN\\b", full_name) &
             !is.na(permit_holder_names)) |
            grepl("\\bUN\\b", full_address) &
            !is.na(fhier_address))
 
-# View(addr_name_in_fhier)
+# dim(addr_name_in_fhier)
 # [1] 19 17
 # [1] 351   8
+# 0 after using clean_names_and_addresses()
 
 # addr_name_in_not_fhier <-
 #   fhier_addr__compl_corr |>
