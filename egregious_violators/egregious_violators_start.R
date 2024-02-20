@@ -63,14 +63,18 @@ source(get_data_path)
 # ---- Preparing compliance info ----
 
 ## ---- add permit_expired column ----
+# Explanations:
+# 1. Add a new column 'permit_expired' using 'mutate'.
+# 2. Use 'case_when' to determine if 'permit_groupexpiration' is greater than today's date.
+# 3. If true, set 'permit_expired' to "no", otherwise set it to "yes".
 compl_clean_w_permit_exp <-
   compl_clean |>
   # if permit group expiration is today than "no"
   mutate(permit_expired =
-                  dplyr::case_when(
-                    permit_groupexpiration > (permit_expired_check_date) ~ "no",
-                    .default = "yes"
-                  ))
+           dplyr::case_when(
+             permit_groupexpiration > (permit_expired_check_date) ~ "no",
+             .default = "yes"
+           ))
 
 # glimpse(compl_clean_w_permit_exp)
 
@@ -99,7 +103,7 @@ dim(compl_clean_w_permit_exp_last_half_year)
 # [1] 80413    22
 
 ## ---- Have only SA and dual permits ----
-
+# Use 'filter' to select rows where 'permitgroup' contains "CDW", "CHS", or "SC".
 compl_clean_w_permit_exp_last_half_year__sa <-
   compl_clean_w_permit_exp_last_half_year |>
   filter(grepl("CDW|CHS|SC", permitgroup))
@@ -153,6 +157,9 @@ remove_columns <- c(
   "permit_expired"
 )
 
+# Explanations:
+# 1. Use 'select' to remove columns specified in 'remove_columns'.
+# 2. Use 'distinct' to keep only unique rows in the resulting data frame.
 compl_clean_w_permit_exp_last_half_year__sa__not_exp_short <-
   compl_clean_w_permit_exp_last_half_year__sa__not_exp |>
   select(-any_of(remove_columns)) |> 
@@ -164,6 +171,8 @@ dim(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short)
 # [1] 44756    9
 
 ## work with the whole period ----
+
+# keep only 2 coulmns
 compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates <- 
   compl_clean_w_permit_exp_last_half_year__sa__not_exp_short |>
   select(vessel_official_number, compliant_) |>
@@ -176,6 +185,7 @@ glimpse(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates)
 compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__wide <-
   get_compl_by(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates)
 
+# an empty vector
 cols_names <- c()
 
 compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__wide__long <-
@@ -227,15 +237,19 @@ need_cols_names <- c(
 dim(compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp)
 # [1] 328   2
 
-# View(compl_clean_w_permit_exp_last_half_year__sa)
+# Explanations:
+# Create a new data frame 'compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c' by combining information from 'compl_clean_w_permit_exp_last_half_year__sa' and 'compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp'.
+# 1. Use 'select' to keep only the columns specified in 'need_cols_names' in 'compl_clean_w_permit_exp_last_half_year__sa'.
+# 2. Use 'inner_join' to perform an inner join with 'compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp' based on the common column 'vessel_official_number'.
+# 3. Use 'distinct' to keep only unique rows in the resulting data frame.
+
 compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c <-
   compl_clean_w_permit_exp_last_half_year__sa |>
   select(all_of(need_cols_names)) |>
   inner_join(compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp) |>
-  # Joining with `by = join_by(vessel_official_number)`
   distinct()
 
-# View(compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c)
+# dim(compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c)
 # [1] 130   8
 # 0
 # 127
@@ -269,8 +283,19 @@ compl_clean_w_permit_exp_last_half_year__sa |>
 # [1] 11 22
   glimpse()
 
-# get only the latest compliant weeks
-compliant_in_last_half_year <- 
+## get only the latest compliant weeks ----
+# Explanations:
+# Create a new data frame 'compliant_in_last_half_year' containing information about vessels that were compliant in the last half year.
+# 1. Use 'filter' to select rows where 'vessel_official_number' is in 'compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_short_vesl_ids'.
+# 2. Group the data by 'vessel_official_number'.
+# 3. Use 'filter' to select rows where 'compliant_' is "yes", 'year_month' is before the current month, and 'week_num' is the maximum value for each group.
+# 4. Calculate the 'latest_compl' as the maximum 'week_num'.
+# 5. Use another 'filter' to select rows where 'week_num' is equal to 'latest_compl'.
+# 6. Use 'ungroup' to remove grouping.
+# 7. Select specific columns ('vessel_official_number', 'year_month', 'week', 'latest_compl').
+# 8. Use 'distinct' to keep only unique rows.
+
+compliant_in_last_half_year <-
   compl_clean_w_permit_exp_last_half_year__sa |>
   filter(
     vessel_official_number %in% compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_short_vesl_ids$vessel_official_number
@@ -307,6 +332,9 @@ dim(compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_ok)
 # ---- Preparing Correspondence ----
 
 ## ---- remove 999999 ----
+# Explanations:
+# Create a new data frame 'corresp_contact_cnts_clean' by filtering 'corresp_contact_cnts_clean0' based on the condition.
+# 1. Use 'filter' to select rows where 'vessel_official_number' does not start with "99999".
 corresp_contact_cnts_clean <-
   corresp_contact_cnts_clean0 |>
   filter(!grepl("^99999", vessel_official_number))
@@ -317,7 +345,6 @@ n_distinct(corresp_contact_cnts_clean$vesselofficial_number)
 # vesselofficial_number 3434
 # 4118
 
-
 # "2023-08-09"
 # Michelle
 # It should be at least 2 contact "attempts". i.e., if they are ignoring our calls and emails then they cannot continue to go on in perpetuity without reporting and never be seen as egregious. So, at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough at this point and they need to be passed to OLE.
@@ -325,10 +352,15 @@ n_distinct(corresp_contact_cnts_clean$vesselofficial_number)
 ## new requirement 2023-08-09 ----
 # at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough
 
+# Explanations:
+# Create a quosure 'two_attempts_filter' with a condition to filter rows where 'contact_freq' is greater than 1
+# and at least one occurrence of 'contacttype' is "call".
+# 1. Use 'quo' to create a quosure with the specified condition.
 two_attempts_filter <-
   quo(contact_freq > 1 &
         any(tolower(contacttype) == "call"))
 
+# use the filter
 corresp_contact_cnts_clean_direct_cnt_2atmps <-
   corresp_contact_cnts_clean |>
   filter(!!two_attempts_filter)
@@ -352,6 +384,13 @@ n_distinct(corresp_contact_cnts_clean_direct_cnt_2atmps$vesselofficial_number)
 head(corresp_contact_cnts_clean_direct_cnt_2atmps$contact_date, 1)
 # [1] "02/15/2024 03:15PM"
 
+# Explanations:
+# Mutate new columns 'created_on_dttm' and 'contact_date_dttm' by parsing 'created_on' and 'contact_date' using lubridate package.
+# The date-time formats considered are "mdY R".
+# 1. Use the pipe operator to pass 'corresp_contact_cnts_clean_direct_cnt_2atmps' as the left-hand side of the next expression.
+# 2. Use 'mutate' to create new columns with parsed date-time values.
+# 3. Use 'lubridate::parse_date_time' to parse the date-time values using the specified formats.
+
 corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates <-
   corresp_contact_cnts_clean_direct_cnt_2atmps |>
   mutate(
@@ -367,6 +406,14 @@ str(corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates$contact_date_dttm)
 # POSIXct[1:29089], format: "2024-02-15 15:15:00" 
 
 # Join correspondence with compliance ----
+# Explanations:
+# Create a new dataframe 'compl_corr_to_investigation1' by performing an inner join between
+# 'corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates' and 'compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_ok'.
+# The join is performed on the column 'vessel_official_number'.
+# Use 'multiple = "all"' and 'relationship = "many-to-many"' to handle multiple matches during the join.
+# 1. Use the 'inner_join' function from the dplyr package to combine the two dataframes based on the specified columns.
+# 2. Pass the column names and other parameters to the 'by', 'multiple', and 'relationship' arguments.
+
 compl_corr_to_investigation1 <-
   inner_join(
     corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates,
@@ -427,6 +474,16 @@ contacttype_field_name <-
 #           row.names = FALSE)
 # # 435 dplyr::distinct ids
 
+# Explanations:
+# Define a function 'get_date_contacttype' that takes a dataframe 'compl_corr_to_investigation1' as input.
+# Perform several data manipulation steps to extract and organize relevant information.
+# 1. Add a new column 'date__contacttype' by concatenating the values from 'contactdate_field_name' and 'contacttype'.
+# 2. Select only the 'vessel_official_number' and 'date__contacttype' columns.
+# 3. Arrange the dataframe by 'vessel_official_number' and 'date__contacttype'.
+# 4. Keep distinct rows based on 'vessel_official_number' and 'date__contacttype'.
+# 5. Group the dataframe by 'vessel_official_number'.
+# 6. Summarize the data by creating a new column 'date__contacttypes' that concatenates all 'date__contacttype' values for each vessel separated by a comma.
+# 7. Return the resulting dataframe.
 get_date_contacttype <-
   function(compl_corr_to_investigation1) {
     compl_corr_to_investigation1 |>
@@ -446,8 +503,10 @@ get_date_contacttype <-
       return()
   }
 
+# use the function
 date__contacttype_per_id <-
   get_date_contacttype(compl_corr_to_investigation1)
+
 dim(date__contacttype_per_id)
 # [1] 110    2
 # 107
@@ -510,9 +569,44 @@ vessels_from_pims_double |>
   dim()
 # 3
 
+# to_remove <- c("", "UN", " UN", "UN ", ";, UN"
+# NA, "NA")
+
+# Explanations:
+# Define a function 'clean_names_and_addresses' that takes a dataframe 'my_df' as input.
+# Perform various cleaning operations on character columns to standardize names and addresses.
+# 1. Remove leading and trailing whitespaces from all character columns.
+# 2. Replace NA values with empty strings.
+# 3. Replace instances of ', ;' with ';'.
+# 4. Replace any whitespaces followed by ',' or ';' with ','.
+# 5. Replace multiple consecutive commas with a single comma.
+# 6. Replace multiple consecutive semicolons with a single semicolon.
+# 7. Remove any leading commas or semicolons.
+# 8. Remove trailing commas.
+# 9. Remove occurrences of the word 'UN' surrounded by word boundaries after a comma or semicolon.
+# 10. Remove occurrences of the word 'UN' surrounded by word boundaries.
+# 11. Remove spaces around the word 'UN'.
+# 12. Remove leading spaces after commas or semicolons.
+# 13. Remove trailing spaces before commas.
+# 14. Remove trailing commas.
+# 15. Remove leading and trailing spaces again.
+# Return the cleaned dataframe.
+
+# Note: The 'str_replace_all' and 'str_squish' functions are from the 'stringr' package.
+# The 'across', 'where', 'mutate', and 'replace_na' functions are from the 'dplyr' package.
+# Example:
+# Before:
+#   my_df:
+#     Name            Address
+#     John Doe        , 123 Main St; Apt 45, City
+#     Jane Smith      UN, 567 Park Ave
+# After applying 'clean_names_and_addresses':
+#   Result:
+#     Name         Address
+#     John Doe     123 Main St, Apt 45, City
+#     Jane Smith   567 Park Ave
+
 clean_names_and_addresses <- function(my_df) {
-  # to_remove <- c("", "UN", " UN", "UN ", ";, UN"
-  # NA, "NA")
   
   my_df_cleaned <- 
     my_df |>
@@ -534,7 +628,6 @@ clean_names_and_addresses <- function(my_df) {
       across(where(is.character),
              ~ str_replace_all(.x, "[,;] *\\bUN\\b *", "")),
       across(where(is.character),
-
                           ~ str_replace_all(.x, "\\bUN\\b", "")),
       across(where(is.character),
              ~ str_replace_all(.x, "\\s*\\bUN\\b\\s*", "")),
@@ -551,6 +644,7 @@ clean_names_and_addresses <- function(my_df) {
   return(my_df_cleaned)
 }
 
+# Use the function
 vessels_permits_participants_space <-
   vessels_permits_participants |>
   clean_names_and_addresses()
@@ -558,6 +652,19 @@ vessels_permits_participants_space <-
 dim(vessels_permits_participants_space)
 # [1] 31942    38
 # [1] 30511    38
+
+# Explanations:
+# Create a new dataframe 'vessels_permits_participants_short_u' by performing the following operations:
+# 1. Group the dataframe 'vessels_permits_participants_space' by the column 'P_VESSEL_ID'.
+# 2. For each group, create new columns 'sero_home_port', 'full_name', and 'full_address'.
+# 3. 'sero_home_port': Concatenate unique values of 'SERO_HOME_PORT_CITY', 'SERO_HOME_PORT_COUNTY', and 'SERO_HOME_PORT_STATE'.
+# 4. 'full_name': Concatenate unique values of 'FIRST_NAME', 'MIDDLE_NAME', 'LAST_NAME', and 'NAME_SUFFIX'.
+# 5. 'full_address': Concatenate unique values of 'ADDRESS_1', 'ADDRESS_2', 'STATE', and 'POSTAL_CODE'.
+# 6. Select the columns 'P_VESSEL_ID', 'sero_home_port', 'full_name', and 'full_address'.
+# 7. Ungroup the dataframe and keep only distinct rows.
+
+# Note: The 'str_glue' function is from the 'stringr' package.
+# The 'group_by', 'mutate', 'select', 'ungroup', and 'distinct' functions are from the 'dplyr' package.
 
 vessels_permits_participants_short_u <-
   vessels_permits_participants_space |>
@@ -598,10 +705,18 @@ dim(vessels_permits_participants_short_u)
 #   View()
  # cat()
 
+# Explanations:
+# Flatten the 'vessels_permits_participants_short_u' dataframe by converting list columns to character columns.
+# 1. Apply 'rowwise()' to perform row-wise operations.
+# 2. Use 'mutate_if' to apply a function to columns that meet a certain condition (is.list).
+# 3. Inside the function, use 'paste' to concatenate the elements of each list with a separator '; '.
+# 4. 'ungroup()' the dataframe after row-wise operations.
+
+# Note: The 'rowwise', 'mutate_if', and 'ungroup' functions are from the 'dplyr' package.
 vessels_permits_participants_short_u_flat <-
   vessels_permits_participants_short_u |>
   rowwise() |>
-  mutate_if(is.list, ~ paste(unlist(.), collapse = '; ')) %>%
+  mutate_if(is.list, ~ paste(unlist(.), collapse = '; ')) |> 
   dplyr::ungroup()
 
 n_distinct(vessels_permits_participants_short_u_flat$P_VESSEL_ID)
@@ -622,6 +737,7 @@ vessels_permits_participants |>
 # $ STATE       <chr> "RI", "RI", "MD", "VA", "SC", "MD", NA
 # $ POSTAL_CODE <chr> "02874", "02874", "21041", "23183", "295822571", "21014", NA
 
+# use the function definef earlier
 vessels_permits_participants_short_u_flat_sp <-
   vessels_permits_participants_short_u_flat |>
   clean_names_and_addresses()
@@ -631,6 +747,7 @@ filter(vessels_permits_participants_short_u_flat_sp,
   glimpse()
 
 ## combine with info from PIMS when missing ----
+# feser columns
 vessels_from_pims_needed_short <-
   vessels_from_pims_needed |>
   select(official__,
@@ -643,9 +760,13 @@ vessels_from_pims_needed_short <-
 vessels_from_pims_needed_short[ncol(vessels_from_pims_needed_short) + 1] <-
   c("")
 
+# make names the same
 names(vessels_from_pims_needed_short) <- 
   names(vessels_permits_participants_short_u_flat_sp)
 
+# Explanations:
+# Combine two dataframes 'vessels_permits_participants_short_u_flat_sp' and 'vessels_from_pims_needed_short' row-wise using 'rbind'.
+# This assumes that both dataframes have the same structure.
 vessels_permits_participants_short_u_flat_sp_full <-
   rbind(vessels_permits_participants_short_u_flat_sp,
         vessels_from_pims_needed_short)
@@ -750,9 +871,9 @@ setdiff(
 # #    Variable    No of Differences 
 # #   full_name          1008        
 # #  full_address         747        
-# 
-# combine vessels_permits and date__contacttype ----
+ 
 
+# combine vessels_permits and date__contacttype ----
 vessels_permits_participants_date__contacttype_per_id <-
   left_join(
     date__contacttype_per_id,
@@ -772,7 +893,7 @@ num_of_vsl_to_investigate == n_distinct(vessels_permits_participants_date__conta
 # T
 
 # combine output ----
-
+# join compliance, correspondence and vessel/permit/owner information
 compl_corr_to_investigation1__w_addr <-
   left_join(
     compl_corr_to_investigation1,
@@ -805,6 +926,12 @@ contactphonenumber_field_name <-
 
 # print_df_names(compl_corr_to_investigation1__w_addr)
 
+# Explanations:
+# Group the dataframe by the 'vessel_official_number' column and then apply the 'summarise_all' function.
+# The 'summarise_all' function applies the specified function (in this case, 'concat_unique') to each column.
+
+# Note: 'concat_unique' is not a standard R function, it is a custom function defined previously.
+
 compl_corr_to_investigation1_short <-
   compl_corr_to_investigation1__w_addr |>
   # compl_corr_to_investigation1_w_non_compliant_weeks_n_date__contacttype_per_id |>
@@ -824,11 +951,10 @@ compl_corr_to_investigation1_short <-
     "date__contacttypes"
   ) |>
   group_by(vessel_official_number) |>
-  summarise_all(concat_unique)
+  summarise_all(concat_unique) |> 
+  ungroup()
 
 # compl_corr_to_investigation1_short |> glimpse()
-
-  # combine_rows_based_on_multiple_columns_and_keep_all_unique_values("vessel_official_number")
 
 dim(compl_corr_to_investigation1_short)
 # [1] 107   9
@@ -837,7 +963,7 @@ dim(compl_corr_to_investigation1_short)
 # 108
 # [1] 262  12
 
-## ---- 3) mark vessels already in the know list ----
+## 3) mark vessels already in the know list ----
 # The first column (report created) indicates the vessels that we have created a case for. My advice would be not to exclude those vessels. EOs may have provided compliance assistance and/or warnings already. If that is the case and they continue to be non-compliant after that, they will want to know and we may need to reopen those cases.
 
 # today()
@@ -862,13 +988,16 @@ vessels_to_mark <-
 
 vessels_to_mark_ids <-
   vessels_to_mark |>
-  # filter(tolower(`Contacted 2x?`) == 'yes') |>
   dplyr::select(vessel_official_number)
 
 dim(vessels_to_mark_ids)
 # [1] 96  1
 
-# mark these vessels
+#### mark these vessels ----
+# Explanations:
+# Create a new column 'duplicate_w_last_time' in the dataframe 'compl_corr_to_investigation1_short'.
+# This column is marked with "duplicate" for rows where 'vessel_official_number' is present in the list of vessel IDs to mark as duplicates ('vessels_to_mark_ids').
+# For all other rows, it is marked as "new".
 compl_corr_to_investigation1_short_dup_marked <-
   compl_corr_to_investigation1_short |>
   mutate(
@@ -912,6 +1041,15 @@ write_csv(compl_corr_to_investigation1_short_dup_marked,
           result_path)
 
 # how many are duals? ----
+# Explanations:
+# Create a new dataframe 'compl_corr_to_investigation1_short_dup_marked__permit_region'.
+# Use the 'mutate' function to add a new column 'permit_region' based on conditions.
+# If 'permitgroup' contains any of the specified patterns ("RCG", "HRCG", "CHG", "HCHG"),
+# set 'permit_region' to "dual". Otherwise, set 'permit_region' to "sa_only".
+# If none of the conditions are met, set 'permit_region' to "other".
+# The resulting dataframe includes the original columns from 'compl_corr_to_investigation1_short_dup_marked'
+# along with the newly added 'permit_region' column.
+
 compl_corr_to_investigation1_short_dup_marked__permit_region <-
   compl_corr_to_investigation1_short_dup_marked |>
   mutate(permit_region =
@@ -921,6 +1059,12 @@ compl_corr_to_investigation1_short_dup_marked__permit_region <-
              .default = "other"
            ))
 
+# Explanations:
+# Use the 'select' function to extract the columns 'vessel_official_number' and 'permit_region'
+# from the dataframe 'compl_corr_to_investigation1_short_dup_marked__permit_region'.
+# Use the 'distinct' function to keep only unique combinations of 'vessel_official_number' and 'permit_region'.
+# Use the 'count' function to count the occurrences of each unique 'permit_region'.
+# The resulting count provides the frequency of each 'permit_region'.
 compl_corr_to_investigation1_short_dup_marked__permit_region |> 
   select(vessel_official_number, permit_region) |> 
   distinct() |> 
