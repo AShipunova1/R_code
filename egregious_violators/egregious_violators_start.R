@@ -948,14 +948,16 @@ compl_corr_to_investigation1_short |> glimpse()
 # Download first
 previous_egr_data_path <-
   file.path(
-    my_paths$outputs, current_project_name,
-    r"(from_web\egregious violators for investigation - 2023-01-24_to_2023-08-01.csv)"
+    my_paths$inputs,
+    current_project_name,
+    r"(egregious violators for investigation_2023-01-24_to_2023-08-01_OLEAction(green).xlsx)"
   )
 
 file.exists(previous_egr_data_path)
 # T
+
 vessels_to_mark <-
-  read_csv(previous_egr_data_path)
+  read_xlsx(previous_egr_data_path)
 
 # data_overview(vessels_to_remove)
 
