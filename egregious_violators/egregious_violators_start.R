@@ -607,15 +607,11 @@ clean_names_and_addresses <- function(my_df) {
       across(where(is.character),
              ~ str_trim(.x)),
       across(where(is.character),
-             ~ str_replace_all(.x, "[,;]$", "")),
-      across(where(is.character),
              ~ replace_na(.x, "")),
       across(where(is.character),
              ~ str_replace_all(.x, ", ;", ";")),
       across(where(is.character),
              ~ str_replace_all(.x, "\\s+[,;]", ",")),
-      across(where(is.character),
-             ~ str_replace_all(.x, "^[,;] *", "")),
       across(where(is.character),
              ~ str_replace_all(.x, ";,+", ";")),
       across(where(is.character),
@@ -628,6 +624,12 @@ clean_names_and_addresses <- function(my_df) {
              ~ str_replace_all(.x, "\\bUN\\b", "")),
       across(where(is.character),
              ~ str_replace_all(.x, "\\s*\\bUN\\b\\s*", "")),
+      across(where(is.character),
+             ~ str_replace_all(.x, "^[,;] ", "")),
+      across(where(is.character),
+             ~ str_replace_all(.x, "^[,;]$", "")),
+      across(where(is.character),
+             ~ str_replace_all(.x, "[,;]$", "")),
       across(where(is.character),
              ~ str_trim(.x))
     )
@@ -709,50 +711,55 @@ vessels_permits_participants |>
 # $ STATE       <chr> "RI", "RI", "MD", "VA", "SC", "MD", NA
 # $ POSTAL_CODE <chr> "02874", "02874", "21041", "23183", "295822571", "21014", NA
 
-vessels_permits_participants_short_u_flat_sp <-
+vessels_permits_participants_short_u_flat_sp1 <-
   vessels_permits_participants_short_u_flat |>
-  # gdf %>% mutate(across(v1:v2, ~ .x + n))
-  mutate(
-    across(
-    c(sero_home_port,
-      full_name,
-      full_address),
-    ~ str_trim(.x)
-  ),
-    across(
-    c(sero_home_port,
-      full_name,
-      full_address),
-    ~ str_replace_all(.x, "\\s+,", ",")
-  ),
-  across(
-    c(sero_home_port,
-      full_name,
-      full_address),
-    ~ str_replace_all(.x, ",,+", ",")
-  ),
-  across(
-    c(sero_home_port,
-      full_name,
-      full_address),
-    ~ str_replace_all(.x, ",$", "")
-  ),
-    across(
-    c(sero_home_port,
-      full_name,
-      full_address),
-    ~ str_replace_all(.x, "^,", "")
-  )) |> 
-  mutate(
-    across(where(is.character),
-           ~ str_replace_all(.x, ", ;", ";")),
-    across(where(is.character),
-           ~ str_replace_all(.x, ";;", ";")),
-    across(where(is.character),
-           ~ str_replace_all(.x, "^;", ";")),
-    across(where(is.character),
-           ~ str_replace_all(.x, ";$", ""))
-  )
+  clean_names_and_addresses()
+
+diffdf::diffdf(vessels_permits_participants_short_u_flat_sp,
+               vessels_permits_participants_short_u_flat_sp1)
+
+  # # gdf %>% mutate(across(v1:v2, ~ .x + n))
+  # mutate(
+  #   across(
+  #   c(sero_home_port,
+  #     full_name,
+  #     full_address),
+  #   ~ str_trim(.x)
+  # ),
+  #   across(
+  #   c(sero_home_port,
+  #     full_name,
+  #     full_address),
+  #   ~ str_replace_all(.x, "\\s+,", ",")
+  # ),
+  # across(
+  #   c(sero_home_port,
+  #     full_name,
+  #     full_address),
+  #   ~ str_replace_all(.x, ",,+", ",")
+  # ),
+  # across(
+  #   c(sero_home_port,
+  #     full_name,
+  #     full_address),
+  #   ~ str_replace_all(.x, ",$", "")
+  # ),
+  #   across(
+  #   c(sero_home_port,
+  #     full_name,
+  #     full_address),
+  #   ~ str_replace_all(.x, "^,", "")
+  # )) |> 
+  # mutate(
+  #   across(where(is.character),
+  #          ~ str_replace_all(.x, ", ;", ";")),
+  #   across(where(is.character),
+  #          ~ str_replace_all(.x, ";;", ";")),
+  #   across(where(is.character),
+  #          ~ str_replace_all(.x, "^;", ";")),
+  #   across(where(is.character),
+  #          ~ str_replace_all(.x, ";$", ""))
+  # )
 
 # filter(vessels_permits_participants_short_u_flat_sp,
 #        P_VESSEL_ID == "1173297") |>
