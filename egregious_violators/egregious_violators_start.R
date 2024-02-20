@@ -263,7 +263,7 @@ compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c <-
 # 121
 # [1] 328   6
 
-### check the last report date ----
+## check the last report date ----
 ### get ids only ----
 compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_short_vesl_ids <-
   compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c |>
@@ -291,7 +291,8 @@ compl_clean_w_permit_exp_last_half_year__sa |>
   glimpse()
 
 # get only the latest compliant weeks
-compl_clean_w_permit_exp_last_half_year__sa |>
+compliant_in_last_half_year <- 
+  compl_clean_w_permit_exp_last_half_year__sa |>
   filter(
     vessel_official_number %in% compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_short_vesl_ids$vessel_official_number
   ) |>
@@ -304,17 +305,28 @@ compl_clean_w_permit_exp_last_half_year__sa |>
   dplyr::ungroup() |>
   dplyr::select(vessel_official_number,
                 year_month,
+                week,
                 latest_compl) |>
-  dplyr::distinct() |>
-  glimpse()
+  dplyr::distinct()
+
+glimpse(compliant_in_last_half_year)
 # Rows: 9
 # Columns: 3
 # $ vessel_official_number <chr> "1332041", "1284153", "FL9738SR", "FL7361TJ", "FL…
 # $ year_month             <yearmon> Aug 2023, Aug 2023, Aug 2023, Aug 2023, Aug 2…
 # $ latest_compl           <int> 33, 33, 32, 32, 32, 32, 32, 32, 32
 
+## Remove the vessels with the last compliant weeks ----
 
-## ---- Preparing Correspondence ----
+compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_ok <-
+  compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c |>
+  filter(!vessel_official_number %in% compliant_in_last_half_year$vessel_official_number)
+
+dim(compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_ok)
+# [1] 319   6
+
+
+# ---- Preparing Correspondence ----
 
 ## ---- remove 999999 ----
 corresp_contact_cnts_clean <-
