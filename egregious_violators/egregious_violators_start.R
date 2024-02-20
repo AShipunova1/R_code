@@ -597,16 +597,55 @@ vessels_from_pims_double |>
 #   length()
 # 3185
 
+clean_names_and_addresses <- function(my_df) {
+  # to_remove <- c("", "UN", " UN", "UN ", NA, "NA")
+  
+  my_df_cleaned <- 
+    my_df |>
+    mutate(
+      across(where(is.character),
+             ~ str_trim(.x)),
+      across(where(is.character),
+             ~ str_replace_all(., " *\bUN\b *", "")),
+      across(where(is.character),
+             ~ str_replace_all(., ", *\bUN\b *", "")),
+      across(where(is.character),
+             ~ str_replace_all(., ",$", "")),
+      across(where(is.character),
+             ~ replace_na(., "")),
+      across(where(is.character),
+             ~ str_replace_all(.x, ", ;", ";")),
+      across(where(is.character),
+             ~ str_replace_all(.x, "\\s+[,;]", ",")),
+      across(where(is.character),
+             ~ str_replace_all(.x, "[,;]$", "")),
+      across(where(is.character),
+             ~ str_replace_all(.x, "^[,;]", "")),
+      across(where(is.character),
+             ~ str_replace_all(.x, ";;+", ";")),
+      across(where(is.character),
+             ~ str_replace_all(.x, ",,+", ",")),
+      across(where(is.character),
+             ~ str_trim(.))
+    )
+  
+  return(my_df_cleaned)
+}
+
+clean_names_and_addresses(addr_name_in_fhier) |> View()
+
+
+
 vessels_permits_participants_space <-
   vessels_permits_participants |>
+  mutate(across(where(is.character),
+                ~ str_replace(., "\bUN\b", ""))) |>
   mutate(across(where(is.character),
                 ~ str_replace(., ",$", ""))) |>
   mutate(across(where(is.character),
                 ~ replace_na(., ""))) |>
   mutate(across(where(is.character),
-                ~ str_trim(.))) |> 
-  mutate(across(where(is.character),
-                ~ str_replace(., "\bUN\b", "")))
+                ~ str_trim(.)))
 
 dim(vessels_permits_participants_space)
 # [1] 31942    38
@@ -721,7 +760,7 @@ vessels_permits_participants_short_u_flat_sp <-
   )
 
 # filter(vessels_permits_participants_short_u_flat_sp,
-#        P_VESSEL_ID == "1173297") |> 
+#        P_VESSEL_ID == "1173297") |>
 #   View()
 
 ## combine with info from PIMS when missing ----
@@ -768,6 +807,7 @@ setdiff(
 # or entity_id in permits,
 # check manually)
 # today()
+
 # [1] "2024-02-16"
 # 0 after adding from db
 
@@ -800,12 +840,17 @@ intersect(names(vessels_permits_participants_short_u_flat_sp),
         names(addr_name_in_fhier))
 # P_VESSEL_ID
 # print_df_names(fhier_addr__compl_corr)
+View(addr_name_in_fhier)
+
+ # ;, UN
 
 vessels_permits_participants_short_u_flat_sp_join <-
   left_join(vessels_permits_participants_short_u_flat_sp,
-            addr_name_in_fhier)
+            addr_name_in_fhier,
+            join_by(P_VESSEL_ID))
 # Joining with `by = join_by(P_VESSEL_ID, sero_home_port, full_name, full_address)`
-# glimpse(vessels_permits_participants_short_u_flat_sp_join)
+glimpse(vessels_permits_participants_short_u_flat_sp_join)
+print_df_names(vessels_permits_participants_short_u_flat_sp_join)
 
 vessels_permits_participants_short_u_flat_sp_add <- 
   vessels_permits_participants_short_u_flat_sp_join |> 
