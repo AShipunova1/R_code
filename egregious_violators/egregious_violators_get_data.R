@@ -269,7 +269,9 @@ vessels_permits_participants_file_path <-
 # dir.exists(file.path(all_inputs,
 #             current_project_name))
 
-con <- connect_to_secpr()
+# err msg if no connection, but keep running
+try(con <- connect_to_secpr())
+
 vessels_permits_participants_fun <-
   function(vessels_permits_participants) {
     # browser()
