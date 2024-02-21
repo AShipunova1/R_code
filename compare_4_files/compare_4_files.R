@@ -701,9 +701,9 @@ all_4_dfs3$permit_info_from_db |>
 # ℹ Row 9426 of `y` matches multiple rows in `x`.
 all_4_dfs3$db_logbooks |>
   filter(vessel_official_number ==
-    all_4_dfs3$permit_info[9426,][["vessel_official_number"]] |
+    all_4_dfs3$permit_info_from_db[9426,][["vessel_official_number"]] |
       vessel_official_number ==
-    all_4_dfs3$permit_info[9426,][["vessel_alt_num"]]) |>
+    all_4_dfs3$permit_info_from_db[9426,][["vessel_alt_num"]]) |>
   glimpse()
 # $ vessel_official_nbr      <chr> "FL6432SU", "FL6432SU"
 # $ notif_accsp_permit_id    <dbl> 584995, NA
@@ -725,20 +725,20 @@ nrow(db_logbooks_multi_notif_accsp_permit_id)
 #     )
 #   )
 
-vessel_in_db_logbooks_not_in_permit_info <-
+vessel_in_db_logbooks_not_in_permit_info_from_db <-
   setdiff(
     all_4_dfs3$db_logbooks$vessel_official_number,
-    all_4_dfs3$permit_info$vessel_official_number
+    all_4_dfs3$permit_info_from_db$vessel_official_number
   )
 
-length(vessel_in_db_logbooks_not_in_permit_info)
+length(vessel_in_db_logbooks_not_in_permit_info_from_db)
 # 1
 # 2 after 2022 and sep permits
 
 # 1292480
 # 1292480:NC0676EK........ SOUTHERN RUN - BENJAMIN AUGUSTUS MORRIS  (828) 4298076
 
-all_4_dfs3$permit_info |>
+all_4_dfs3$permit_info_from_db |>
   filter(vessel_official_number == "NC0676EK") |>
   nrow()
 # [1] 18
@@ -749,89 +749,89 @@ all_4_dfs3$db_logbooks |>
            vessel_official_number == "NC0676EK") |>
   glimpse()
 # In db_logbooks 1292480 only. (PIMS "No items available", Official Number From USCG Certificate Of Documentation)
-# In permit_info NC0676EK only.
+# In permit_info_from_db NC0676EK only.
 
-vessel_in_db_logbooks_not_in_permit_info_alt <-
+vessel_in_db_logbooks_not_in_permit_info_from_db_alt <-
   setdiff(
     all_4_dfs3$db_logbooks$vessel_official_number,
-    all_4_dfs3$permit_info$vessel_alt_num
+    all_4_dfs3$permit_info_from_db$vessel_alt_num
   )
 
-length(vessel_in_db_logbooks_not_in_permit_info_alt)
+length(vessel_in_db_logbooks_not_in_permit_info_from_db_alt)
 # 92
 # 91 after 2022 and sep permits
 
-vessel_in_permit_info_not_in_db_logbooks <-
+vessel_in_permit_info_from_db_not_in_db_logbooks <-
   setdiff(
-    all_4_dfs3$permit_info$vessel_official_number,
+    all_4_dfs3$permit_info_from_db$vessel_official_number,
     all_4_dfs3$db_logbooks$vessel_official_number
   )
 
-length(vessel_in_permit_info_not_in_db_logbooks)
+length(vessel_in_permit_info_from_db_not_in_db_logbooks)
 # 12176
 # 1988 after 2022 and sep permits
 
-vessel_in_permit_info_not_in_db_logbooks_alt <-
+vessel_in_permit_info_from_db_not_in_db_logbooks_alt <-
   setdiff(
-    all_4_dfs3$permit_info$vessel_alt_num,
+    all_4_dfs3$permit_info_from_db$vessel_alt_num,
     all_4_dfs3$db_logbooks$vessel_official_number
   )
 
-length(vessel_in_permit_info_not_in_db_logbooks_alt)
+length(vessel_in_permit_info_from_db_not_in_db_logbooks_alt)
 # 12247
 # 2074 after 2022 and sep permits
 
-## [6] "metrics_report" "permit_info" ----
+## [6] "metrics_report" "permit_info_from_db" ----
 file_name_combinations[,6]
 
 # print_df_names(all_4_dfs3$metrics_report)
-# print_df_names(all_4_dfs3$permit_info)
+# print_df_names(all_4_dfs3$permit_info_from_db)
 
-join_metrics_report__permit_info <-
+join_metrics_report__permit_info_from_db <-
   full_join(
     all_4_dfs3$metrics_report,
-    all_4_dfs3$permit_info,
+    all_4_dfs3$permit_info_from_db,
     join_by(vessel_official_number,
             permit_sep_u == top)
   )
 
-vessel_in_metrics_report_not_in_permit_info <-
+vessel_in_metrics_report_not_in_permit_info_from_db <-
   setdiff(
     all_4_dfs3$metrics_report$vessel_official_number,
-    all_4_dfs3$permit_info$vessel_official_number
+    all_4_dfs3$permit_info_from_db$vessel_official_number
   )
 
-length(vessel_in_metrics_report_not_in_permit_info)
+length(vessel_in_metrics_report_not_in_permit_info_from_db)
 # 5
 # 27 after 2022 and sep permits
 
-vessel_in_metrics_report_not_in_permit_info_alt <-
+vessel_in_metrics_report_not_in_permit_info_from_db_alt <-
   setdiff(
     all_4_dfs3$metrics_report$vessel_official_number,
-    all_4_dfs3$permit_info$vessel_alt_num
+    all_4_dfs3$permit_info_from_db$vessel_alt_num
   )
 
-length(vessel_in_metrics_report_not_in_permit_info_alt)
+length(vessel_in_metrics_report_not_in_permit_info_from_db_alt)
 # 161
 # 185 after 2022 and sep permits
 
-vessel_in_permit_info_not_in_metrics_report <-
+vessel_in_permit_info_from_db_not_in_metrics_report <-
   setdiff(
-    all_4_dfs3$permit_info$vessel_official_number,
+    all_4_dfs3$permit_info_from_db$vessel_official_number,
     all_4_dfs3$metrics_report$vessel_official_number
   )
 
-length(vessel_in_permit_info_not_in_metrics_report)
+length(vessel_in_permit_info_from_db_not_in_metrics_report)
 # 10460
 # 293 after 2022 and sep permits
 
-vessel_in_permit_info_not_in_metrics_report_alt <-
+vessel_in_permit_info_from_db_not_in_metrics_report_alt <-
   setdiff(
-    all_4_dfs3$permit_info$vessel_alt_num,
+    all_4_dfs3$permit_info_from_db$vessel_alt_num,
     all_4_dfs3$metrics_report$vessel_official_number
   )
 
-length(vessel_in_permit_info_not_in_metrics_report_alt)
+length(vessel_in_permit_info_from_db_not_in_metrics_report_alt)
 # 10596
 # 448 after 2022 and sep permits
 
