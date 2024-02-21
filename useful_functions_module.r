@@ -666,8 +666,8 @@ csv_names_list_22_23 = c("Correspondence.csv",
 # This function takes a vector of 'filenames' as input.
 prepare_csv_names <- function(filenames) {
   # Define subdirectory names for correspondence and compliance files.
-  add_path_corresp <- "Correspondence"
-  add_path_compl <- "FHIER Compliance"
+  add_path_corresp <- "from_Fhier/Correspondence"
+  add_path_compl <- "from_Fhier/FHIER Compliance"
 
   # Use 'sapply' to process each filename in the 'filenames' vector.
   my_list <- sapply(filenames, function(x) {
