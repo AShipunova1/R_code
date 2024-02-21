@@ -793,86 +793,6 @@ setdiff(
 
 # We don't need to check the reverse, there will be more vessels in the permit info we are not interested in
 
-# ## add missing addresses ----
-# no_addr_vessel_ids <-
-#   vessels_permits_participants_short_u_flat_sp_full |> 
-#   filter(is.na(full_address) | 
-#            full_address == "" |
-#            is.na(full_name) | 
-#            full_name == "") |> 
-#   select(P_VESSEL_ID) |> 
-#   distinct()
-# 
-# nrow(no_addr_vessel_ids)
-# # 755
-# # 1390 both addr and names
-# # 1957 after removing "," etc.
-# 
-# fix_addresses_path <-
-#   file.path(current_project_path,
-#             str_glue("{current_project_basename}_fix_addresses.R"))
-# 
-# file.exists(fix_addresses_path)
-# 
-# source(fix_addresses_path)
-# 
-# ### add info from FHIER to the results ----
-# intersect(names(vessels_permits_participants_short_u_flat_sp),
-#         names(addr_name_in_fhier))
-# # P_VESSEL_ID
-# # print_df_names(fhier_addr__compl_corr)
-# # glimpse(addr_name_in_fhier)
-# 
-# vessels_permits_participants_short_u_flat_sp_join <-
-#   left_join(vessels_permits_participants_short_u_flat_sp,
-#             addr_name_in_fhier,
-#             join_by(P_VESSEL_ID),
-#             suffix = c("__vsl_db",
-#                        "__vsl_fhier"))
-# 
-# # View(vessels_permits_participants_short_u_flat_sp_join)
-# 
-# # print_df_names(vessels_permits_participants_short_u_flat_sp_join)
-# 
-# vessels_permits_participants_short_u_flat_sp_join |>
-# # vessels_permits_participants_short_u_flat_sp |> 
-#   filter(P_VESSEL_ID == "FL1431JU") |> 
-#   # filter(!is.na(full_name__vsl_fhier) | 
-#   #          !is.na(full_address__vsl_fhier) |
-#   #          !is.na(fhier_address)) |> 
-#   View()
-# 
-# vessels_permits_participants_short_u_flat_sp_add <- 
-#   vessels_permits_participants_short_u_flat_sp_join |> 
-#   mutate(
-#     full_name =
-#       dplyr::case_when(
-#         is.na(full_name) | 
-#           full_name %in% c("", "UN") ~
-#           permit_holder_names,
-#         .default = full_name
-#       ),
-#     full_address =
-#       dplyr::case_when(
-#         is.na(full_address) | 
-#           full_address %in% c("", "UN") ~
-#           fhier_address,
-#         .default = full_address
-#       )
-#   ) |>
-#   dplyr::select(P_VESSEL_ID, 
-#                 sero_home_port, 
-#                 full_name, 
-#                 full_address) |>
-#   dplyr::distinct()
-# 
-# diffdf::diffdf(vessels_permits_participants_short_u_flat_sp,
-#        vessels_permits_participants_short_u_flat_sp_add)
-# #    Variable    No of Differences 
-# #   full_name          1008        
-# #  full_address         747        
- 
-
 # combine vessels_permits and date__contacttype ----
 vessels_permits_participants_date__contacttype_per_id <-
   left_join(
@@ -1032,12 +952,26 @@ n_distinct(compl_corr_to_investigation1_short_dup_marked$vessel_official_number)
 # 2024-02-20
 # 262
 
+# add info from FHIER to the results ----
+
+fix_addresses_path <-
+  file.path(current_project_path,
+            str_glue("{current_project_basename}_fix_addresses.R"))
+
+file.exists(fix_addresses_path)
+
+source(fix_addresses_path)
+
+# compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names__fhier_addr__mv_cols
+
+# Print out results ----
+
 result_path <- 
   file.path(my_paths$outputs,
             current_project_basename,
             str_glue("egregious_violators_to_investigate_{today()}.csv"))
 
-write_csv(compl_corr_to_investigation1_short_dup_marked,
+write_csv(compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names__fhier_addr__mv_cols,
           result_path)
 
 # how many are duals? ----
@@ -1051,7 +985,7 @@ write_csv(compl_corr_to_investigation1_short_dup_marked,
 # along with the newly added 'permit_region' column.
 
 compl_corr_to_investigation1_short_dup_marked__permit_region <-
-  compl_corr_to_investigation1_short_dup_marked |>
+  compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names__fhier_addr__mv_cols |>
   mutate(permit_region =
            case_when(
              grepl("RCG|HRCG|CHG|HCHG", permitgroup) ~ "dual",
@@ -1078,3 +1012,4 @@ n_distinct(compl_corr_to_investigation1_short_dup_marked__permit_region$vessel_o
 ## dual permitted ----
 56 / (206 + 56) * 100
 # 21.37405
+
