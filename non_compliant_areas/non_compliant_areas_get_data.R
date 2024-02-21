@@ -41,7 +41,7 @@ get_data_from_FHIER_csvs <- function() {
   csv_names_list <- prepare_csv_names(filenames)
   
   # read all csv files
-  csv_contents <- load_csv_names(my_paths, csv_names_list)
+  csv_contents <- load_csv_names(my_paths$inputs, csv_names_list)
 
   # unify headers, trim vesselofficialnumber, just in case
   csvs_clean1 <- clean_all_csvs(csv_contents)
