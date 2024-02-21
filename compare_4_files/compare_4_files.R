@@ -295,8 +295,10 @@ n_distinct(short_compliance_from_fhier_to_test$vessel_official_number)
 # Some vessels have > 1 permitgroup
 
 dim(all_4_dfs3$compliance_from_fhier)
-# [1] 3691   19
+# [1] 13442     3
+
 n_distinct(all_4_dfs3$compliance_from_fhier$vessel_official_number)
+# 3687
 
 # Explanation:
 # 1. The pipeline operator '|>' applies a sequence of operations to the 'short_compliance_from_fhier_to_test' data frame.
@@ -336,25 +338,6 @@ short_compliance_from_fhier_multi_permitgroups <-
 nrow(short_compliance_from_fhier_multi_permitgroups)
 # 10
 
-# short_compliance_from_fhier_multi_permitgroups |>
-#   diffdf::diffdf(short_compliance_from_fhier_multi_permitgroups1)
-# # No issues were found!
-
-# short_compliance_from_fhier_multi_permitgroups1 <-
-#   short_compliance_from_fhier_to_test |>
-#   group_by(vessel_official_number) |>
-#   mutate(multiple_permitgroups = +(n_distinct(permitgroup) > 1)) %>%
-#   ungroup() |>
-#   filter(multiple_permitgroups > 0)
-
-# short_compliance_from_fhier_multi_permitgroups |>
-# write_csv(
-#     file.path(
-#       curr_proj_output_path,
-#       "compliance_from_fhier__multiple_permitgroups.csv"
-#     )
-#   )
-
 ### metrics_report: split permit column ----
 all_4_dfs3$metrics_report <-
   all_4_dfs2$metrics_report |>
@@ -372,7 +355,7 @@ all_4_dfs3$metrics_report <-
             permits_sep_s,
             permits))
 
-# for the future use
+# for future use
 all_permits_in_metrics <-
   all_4_dfs3$metrics_report |>
   select(permit_sep_u) |>
@@ -426,6 +409,7 @@ filter(permit_group == 6) |>
   select(top) |>
            distinct()
 # GC
+# not used
 
 # permit_info_from_db |>
 # filter(PERMIT_GROUP == 6) |>
