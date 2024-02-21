@@ -78,6 +78,21 @@ fix_lat_lon_file_path <-
 
 source(fix_lat_lon_file_path)
 
+# print out cleaned home/hailing ports to a file ----
+
+home_ports_out_path <- 
+  file.path(my_paths$outputs,
+            current_project_basename,
+            "home_port_fixed_info.csv")
+  
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports |>
+  select(vessel_official_number,
+         year_permit_sa_gom_dual,
+         city_fixed,
+         state_fixed) |>
+  distinct() |> 
+  write_csv(home_ports_out_path)
+
 ## split by permit and year ----
 # Explanations:
 # Splitting the data frame based on the levels of the 'year_permit_sa_gom_dual' factor.
@@ -167,6 +182,7 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt[["2023 sa_only"
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt[["2023 sa_only"]]$state_fixed |> unique() |> length()
 # 21
 
+# View(vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt$`2023 sa_only`)
 # vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt[["2023 sa_only"]] |> 
 #   select(state_fixed) |> 
 #   distinct() |> 
