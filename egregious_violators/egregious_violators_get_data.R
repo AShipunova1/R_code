@@ -8,39 +8,23 @@
 # 2) correspondence data
 # Download files from FHIER / Home / Correspondence
 # Actions / Download
-# "~\my_inputs\from_Fhier\Correspondence\Correspondence_2023_02_15.csv"
+# "~\my_inputs\from_Fhier\Correspondence\Correspondence_2024_02_15.csv"
 
 # 3) Previous results (from google drive)
 # ~\R_files_local\my_inputs\egregious_violators\egregious violators for investigation_2023-01-24_to_2023-08-01_OLEAction(green).xlsx"
 
-# All other files are from Processed data google folder:
-# https://drive.google.com/drive/folders/1ZObq0pd7yr7caYGXjZfgRFa9BqN00OKv
+# 4) Physical Address List from FHIER
+# Downloaded from REPORTS / For-hire Primary Physical Address List
+# "For-hire Primary Physical Address List.csv"
 
-# 2) Processed metrics_tracking
-# SEFHIER_permitted_vessels_nonSRHS_2022.rds
-# SEFHIER_permitted_vessels_nonSRHS_2023.rds
-
-# 3) Processed Logbooks
-# SEFHIER_processed_Logbooks_2022.rds
-# SEFHIER_processed_Logbooks_2023.rds
-
-# 4) Vessels with no logbooks
-# vessels_with_zero_logbooks_2022.rds
-# vessels_with_zero_logbooks_2023.rds
-
-# library(lubridate)
-# library(tictoc)
-# library(stringr)
-
-# source(file.path(current_project_path,
-#                  "db_functions.R"))
+# 5) vessel and permit information from Oracle db
+# "vessels_permits_participants.rds"
 
 # Compliance
 # Correspondence
 # permit info from processed metrics tracking
 
 # Download from FHIER first
-# "~\R_files_local\my_inputs\from_Fhier\Correspondence\Correspondence_2023_02_15.csv"
 all_csv_names_list = c("Correspondence_2024_02_15.csv",
                          r"(2024_02_15\FHIER_Compliance_2023__02_15_2024.csv)",
                          r"(2024_02_15\FHIER_Compliance_2024__02_15_2024.csv)")
@@ -164,7 +148,7 @@ dim(vessels_from_pims_double)
 
 fhier_addresses_path <-
   file.path(
-    my_paths$outputs,
+    my_paths$inputs,
     current_project_basename,
     "For-hire Primary Physical Address List.csv"
   )
