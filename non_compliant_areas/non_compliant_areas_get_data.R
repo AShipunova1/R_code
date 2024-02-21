@@ -39,7 +39,7 @@ get_data_from_FHIER_csvs <- function() {
 
   ## ---- get csv data into variables ----
   csv_names_list <- prepare_csv_names(filenames)
-
+  
   # read all csv files
   csv_contents <- load_csv_names(my_paths, csv_names_list)
 
@@ -179,6 +179,14 @@ vessels_from_pims_short <-
 
 dim(vessels_from_pims_short)
 # 22842     
+
+# remove "NOVESID" vessels
+vessels_from_pims_short_ok <-
+  vessels_from_pims_short |>
+  filter(!grepl("^NOVESID", vessel_official_number))
+
+# dim(vessels_from_pims_short_ok)
+# [1] 22466     2
 
 # Get processed metrics tracking ----
 processed_input_data_path <- 
@@ -323,7 +331,7 @@ n_distinct(compl_err_db_data_metrics_2022_23_clean$vessel_official_number)
 
 compl_err_db_data_metrics_2022_23_clean__ports <-
   left_join(compl_err_db_data_metrics_2022_23_clean,
-            vessels_from_pims_short,
+            vessels_from_pims_short_ok,
             relationship =
               "many-to-many")
 
