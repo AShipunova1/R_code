@@ -1,6 +1,25 @@
 ## Manually check missing addresses ----
 ### From FHIER ----
 
+# View(fhier_addresses)
+
+is_empty <- c(NA, "NA", "", "UN")
+
+no_name_vsl_ids <- 
+  compl_corr_to_investigation1_short_dup_marked__permit_region |> 
+  filter(full_name %in% is_empty) |> 
+  select(vessel_official_number) |> 
+  distinct()
+  # glimpse()
+
+nrow(no_name_vsl_ids)
+# 109
+
+fhier_addresses |>
+  filter(vessel_official_number %in% no_name_vsl_ids$vessel_official_number) |>
+  filter(!vessel_official_number %in% is_empty) |> 
+  glimpse()
+
 # fewer fields
 fhier_addr_short <-
   fhier_addresses |>
