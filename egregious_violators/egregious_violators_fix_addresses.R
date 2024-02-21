@@ -1,38 +1,9 @@
-# Manually check missing addresses ----
+# Manually check missing addresses
 is_empty <- c(NA, "NA", "", "UN")
 
-## From FHIER ----
+# From FHIER ----
 
-### 1) add names ----
-# View(fhier_addresses)
-
-no_name_vsl_ids <- 
-  compl_corr_to_investigation1_short_dup_marked__permit_region |> 
-  filter(full_name %in% is_empty) |> 
-  select(vessel_official_number) |> 
-  distinct()
-
-nrow(no_name_vsl_ids)
-# 109
-
-compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names <- 
-  fhier_addresses |>
-  filter(vessel_official_number %in% no_name_vsl_ids$vessel_official_number) |>
-  filter(!permit_holder_names %in% is_empty) |>
-  select(vessel_official_number, permit_holder_names) |>
-  distinct() |>
-  right_join(
-    compl_corr_to_investigation1_short_dup_marked__permit_region,
-    join_by(vessel_official_number)
-  )
-
-compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names |> 
-  nrow()
-# 262
-
-# 2) add addresses ----
-
-# fewer fields ----
+## fewer fields ----
 fhier_addr_short <-
   fhier_addresses |>
   dplyr::select(
@@ -72,66 +43,75 @@ fhier_addr_short__comb_addr <-
   clean_names_and_addresses() |> 
   distinct()
 
-dim(fhier_addr_short__comb_addr)
-# [1] 3266    5
+# dim(fhier_addr_short__comb_addr)
+# [1] 2390    5
 
-# join with the previous results from the db
+## 1) add names ----
+# View(fhier_addresses)
 
-fhier_addr_short__comb_addr_needed <-
+no_name_vsl_ids <- 
+  compl_corr_to_investigation1_short_dup_marked__permit_region |> 
+  filter(full_name %in% is_empty) |> 
+  select(vessel_official_number) |> 
+  distinct()
+
+nrow(no_name_vsl_ids)
+# 109
+
+### add FHIER names to previous results ----
+compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names <-
   fhier_addr_short__comb_addr |>
-  filter(vessel_official_number %in% no_addr_vessel_ids$P_VESSEL_ID)
-
-dim(fhier_addr_short__comb_addr_needed)
-# 1218
-
-# intersect(names(vessels_permits_participants_short_u_flat_sp_full),
-#           names(fhier_addr_short__comb_addr_needed))
-# 0
-
-vessels_permits_participants_short_u_flat_sp_full__more_addr <- 
-  left_join(
-    vessels_permits_participants_short_u_flat_sp_full,
-    fhier_addr_short__comb_addr_needed,
-    join_by(P_VESSEL_ID == vessel_official_number)
+  filter(vessel_official_number %in% no_name_vsl_ids$vessel_official_number) |>
+  filter(!permit_holder_names %in% is_empty) |>
+  select(vessel_official_number, permit_holder_names) |>
+  distinct() |>
+  right_join(
+    compl_corr_to_investigation1_short_dup_marked__permit_region,
+    join_by(vessel_official_number)
   )
 
-# dim(vessels_permits_participants_short_u_flat_sp_full__more_addr)
-# [1] 3212    8
+compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names |> 
+  View()
+# 262
 
-### check if the address or name missing from the db is in FHIER ----
-addr_name_in_fhier <-
-  vessels_permits_participants_short_u_flat_sp_full__more_addr |>
-  filter((is.na(full_name) &
-            !is.na(permit_holder_names)) |
-           is.na(full_address) &
-           !is.na(fhier_address))
+## 2) add addresses ----
+no_addr_vsl_ids <- 
+  compl_corr_to_investigation1_short_dup_marked__permit_region |> 
+  filter(full_address %in% is_empty) |> 
+  select(vessel_official_number) |> 
+  distinct()
 
-glimpse(addr_name_in_fhier)
-# 1
-# vessels_permits_participants_short_u_flat_sp_full__more_addr |> 
-#   filter(P_VESSEL_ID == "FL1431JU")
-# FL1431JU    KEY WEST, FL   KODY GRIFFIN MICHAEL ""           KODY GRIFFIN MICHAEL
-# 2 FL1431JU    MARATHON, FL   NA                   
+nrow(no_addr_vsl_ids)
+# 183
 
-### check if the address or name is a "UN" in the db is in FHIER ----
-addr_name_in_fhier_un <-
-  vessels_permits_participants_short_u_flat_sp_full__more_addr |>
-  filter((grepl("\\bUN\\b", full_name) &
-            !is.na(permit_holder_names)) |
-           grepl("\\bUN\\b", full_address) &
-           !is.na(fhier_address))
+compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names__fhier_addr <-
+  fhier_addr_short__comb_addr |>
+  # filter(vessel_official_number %in% no_addr_vsl_ids$vessel_official_number) |>
+  filter(!fhier_address %in% is_empty) |>
+  # nrow()
+  # 99
+  select(vessel_official_number, fhier_address) |>
+  distinct() |>
+  right_join(
+    compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names,
+    join_by(vessel_official_number)
+  )
 
-# dim(addr_name_in_fhier)
-# [1] 19 17
-# [1] 351   8
-# 0 after using clean_names_and_addresses()
+compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names__fhier_addr |> 
+  dim()
+# [1] 262  16
 
-# addr_name_in_not_fhier <-
-#   fhier_addr__compl_corr |>
-#   filter(((!is.na(full_name) | !full_name == "UN") &
-#             is.na(permit_holder_names)) |
-#            (!is.na(full_address) | !full_address == "UN") &
-#            is.na(fhier_address))
-# 
-# dim(addr_name_in_not_fhier)
-# # 39
+#### move fileds ----
+compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names__fhier_addr__mv_cols <-
+  compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names__fhier_addr |>
+  relocate(permit_holder_names, .after = contactrecipientname) |>
+  relocate(full_name, .after = permit_holder_names) |>
+  relocate(fhier_address, .after = full_address) |>
+  add_column(
+    `Confirmed Egregious? (missing past 6 months, 2 contacts with at least 1 call to the current permit holder at anytime)` = "", 
+    .before = "vessel_official_number"
+  ) |>
+  add_column(Notes = "", .before = "vessel_official_number")
+
+# View(compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names__fhier_addr__mv_cols)
+
