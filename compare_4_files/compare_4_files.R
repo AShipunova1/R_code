@@ -180,7 +180,7 @@ all_4_df_names <- names(all_4_dfs)
 # prepare data for comparison ----
 ## clean_headers ----
 all_4_dfs1 <- map(all_4_dfs, clean_headers)
-View(all_4_dfs1)
+# View(all_4_dfs1)
 
 ## keep only vessel ids and permit columns ----
 
@@ -226,14 +226,15 @@ all_4_dfs2 <-
            select(-contains("trip"),
                   -any_of(c(
                     "gom_permitteddeclarations__",
-                    "vessel_name"
+                    "vessel_name",
+                    "set_permits_on_hold_"
                   ))) |>
            remove_empty_cols() |>
            distinct()
        }
   )
 
-# View(all_4_dfs2)
+# map(all_4_dfs2, print_df_names)
 
 # save the df
 all_4_dfs3 <- all_4_dfs2
