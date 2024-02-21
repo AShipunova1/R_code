@@ -1,26 +1,38 @@
-## Manually check missing addresses ----
-### From FHIER ----
-
-# View(fhier_addresses)
-
+# Manually check missing addresses ----
 is_empty <- c(NA, "NA", "", "UN")
+
+## From FHIER ----
+
+### 1) add names ----
+# View(fhier_addresses)
 
 no_name_vsl_ids <- 
   compl_corr_to_investigation1_short_dup_marked__permit_region |> 
   filter(full_name %in% is_empty) |> 
   select(vessel_official_number) |> 
   distinct()
-  # glimpse()
 
 nrow(no_name_vsl_ids)
 # 109
 
-fhier_addresses |>
+compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names <- 
+  fhier_addresses |>
   filter(vessel_official_number %in% no_name_vsl_ids$vessel_official_number) |>
-  filter(!vessel_official_number %in% is_empty) |> 
-  glimpse()
+  filter(!permit_holder_names %in% is_empty) |>
+  select(vessel_official_number, permit_holder_names) |>
+  distinct() |>
+  right_join(
+    compl_corr_to_investigation1_short_dup_marked__permit_region,
+    join_by(vessel_official_number)
+  )
 
-# fewer fields
+compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names |> 
+  nrow()
+# 262
+
+# 2) add addresses ----
+
+# fewer fields ----
 fhier_addr_short <-
   fhier_addresses |>
   dplyr::select(
