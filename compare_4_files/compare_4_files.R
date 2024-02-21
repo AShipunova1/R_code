@@ -131,10 +131,10 @@ get_permit_info <-
                     )
   }
 
-permit_info <- get_permit_info()
+permit_info_from_db <- get_permit_info()
 # File: permit_info_2022.rds modified 2024-01-23 12:43:12.146822
 
-nrow(permit_info)
+nrow(permit_info_from_db)
 # [1] 183855
 # [1] 20777    2022 only
 
@@ -144,32 +144,32 @@ nrow(permit_info)
 #   AND effective_date <= TO_DATE('01-JAN-23', 'dd-mon-yy')
 # "
 
-min(permit_info$EXPIRATION_DATE)
+min(permit_info_from_db$EXPIRATION_DATE)
 # [1] "2007-01-31 EST"
 
-permit_info |>
+permit_info_from_db |>
   filter(EXPIRATION_DATE == "2007-01-31 EST") |>
   glimpse()
 # $ VESSEL_ID            <chr> "514001"
 # END_DATE == 2022-02-24 !!!
 
 # TODO why min() doesn't work?
-permit_info$END_DATE |>
+permit_info_from_db$END_DATE |>
   sort() |>
   unique() |>
   head(1)
 # [1] "2021-01-19 EST"
 
-max(permit_info$EFFECTIVE_DATE)
+max(permit_info_from_db$EFFECTIVE_DATE)
 # [1] "2023-01-01 EST"
 
 ## all 4 dataframes ----
-# llist is like list except that it preserves the names or labels of the component variables in the variables label attribute.
+# "llist" is like list except that it preserves the names or labels of the component variables in the variables label attribute.
 all_4_dfs <-
   Hmisc::llist(compliance_from_fhier,
     db_logbooks,
     metrics_report,
-    permit_info)
+    permit_info_from_db)
 
 # View(all_4_dfs)
 
@@ -180,7 +180,7 @@ all_4_df_names <- names(all_4_dfs)
 # prepare data for comparison ----
 ## clean_headers ----
 all_4_dfs1 <- map(all_4_dfs, clean_headers)
-# View(all_4_dfs1)
+View(all_4_dfs1)
 
 ## keep only vessel ids and permit columns ----
 
@@ -395,67 +395,67 @@ all_4_dfs3$db_logbooks <-
   rename("vessel_official_number" = "vessel_official_nbr",
          "db_logbooks_vessel_id" = "vessel_id") # needed to see if NA in the full join
 
-### permit_info: unify vessel ids ----
+### permit_info_from_db: unify vessel ids ----
 
-# grep("vessel", names(all_4_dfs3$permit_info), value = T)
+# grep("vessel", names(all_4_dfs3$permit_info_from_db), value = T)
 # [1] "vessel_id"      "vessel_alt_num"
 
-nrow(all_4_dfs3$permit_info)
+nrow(all_4_dfs3$permit_info_from_db)
 # 20730
 
-all_4_dfs3$permit_info <-
-  all_4_dfs3$permit_info |>
-  mutate(permit_info_vessel_id = vessel_id) |> # want to keep it to see if NA in the full join
+all_4_dfs3$permit_info_from_db <-
+  all_4_dfs3$permit_info_from_db |>
+  mutate(permit_info_from_db_vessel_id = vessel_id) |> # want to keep it to see if NA in the full join
   rename("vessel_official_number" = "vessel_id")
 
-### permit_info groups to keep ----
-# permit_info |>
+### permit_info_from_db groups to keep ----
+# permit_info_from_db |>
 #   select(TOP, PERMIT_GROUP) |>
 #   distinct() |>
 #   View()
 
-all_4_dfs3$permit_info |>
+all_4_dfs3$permit_info_from_db |>
   filter(tolower(top) %in% tolower(all_permits_in_metrics$permit_sep_u)) |>
   select(permit_group) |> distinct()
 #   permit_group
 # 1            7
 
-all_4_dfs3$permit_info |>
+all_4_dfs3$permit_info_from_db |>
 filter(permit_group == 6) |>
   select(top) |>
            distinct()
 # GC
 
-# permit_info |>
+# permit_info_from_db |>
 # filter(PERMIT_GROUP == 6) |>
 #   select(starts_with("TOP")) |>
 #            distinct()
 #   TOP                   TOP_NAME
 # 1  GC SOUTH ATLANTIC GOLDEN CRAB
 
-all_4_dfs3$permit_info <-
-  all_4_dfs3$permit_info |>
+all_4_dfs3$permit_info_from_db <-
+  all_4_dfs3$permit_info_from_db |>
   filter(permit_group == 7)
 
-nrow(all_4_dfs3$permit_info)
+nrow(all_4_dfs3$permit_info_from_db)
 # 16073
 
 # stopped presenting here
 # check
 setdiff(all_permits_in_metrics$permit_sep_u,
-        all_4_dfs3$permit_info$top)
+        all_4_dfs3$permit_info_from_db$top)
 # 0 both ways, ok
 
-min(all_4_dfs3$permit_info$expiration_date)
+min(all_4_dfs3$permit_info_from_db$expiration_date)
 # [1] "2007-02-28 EST"
 
-all_4_dfs3$permit_info$end_date |>
+all_4_dfs3$permit_info_from_db$end_date |>
   sort() |>
   unique() |>
   head(1)
 # [1] "2021-01-21 EST"
 
-max(all_4_dfs3$permit_info$effective_date)
+max(all_4_dfs3$permit_info_from_db$effective_date)
 # [1] "2023-01-01 EST"
 
 # get pairs ----
@@ -549,20 +549,20 @@ vessel_in_metrics_not_in_compl <-
 length(vessel_in_metrics_not_in_compl)
 # 159
 
-## [3] "compliance_from_fhier" "permit_info" ----
+## [3] "compliance_from_fhier" "permit_info_from_db" ----
 file_name_combinations[,3]
 
 # print_df_names(all_4_dfs3$compliance_from_fhier)
-# print_df_names(all_4_dfs3$permit_info)
+# print_df_names(all_4_dfs3$permit_info_from_db)
 
-join_compliance_from_fhier__permit_info <-
+join_compliance_from_fhier__permit_info_from_db <-
   full_join(
     all_4_dfs3$compliance_from_fhier,
-    all_4_dfs3$permit_info,
+    all_4_dfs3$permit_info_from_db,
     join_by(vessel_official_number,
             permit_sep_u == top)
   )
-# View(join_compliance_from_fhier__permit_info)
+# View(join_compliance_from_fhier__permit_info_from_db)
 
 # no many-to-many after adding permit_sep_u == top!
 #   Detected an unexpected many-to-many relationship between `x` and `y`.
@@ -572,7 +572,7 @@ join_compliance_from_fhier__permit_info <-
 ### why multiple? ----
 # 1) x to y
 # ℹ Row 1 of `x` matches multiple rows in `y`.
-all_4_dfs3$permit_info |>
+all_4_dfs3$permit_info_from_db |>
   filter(vessel_official_number ==
     all_4_dfs3$compliance_from_fhier[1,][["vessel_official_number"]] |
       vessel_alt_num ==
@@ -584,7 +584,7 @@ all_4_dfs3$compliance_from_fhier |>
   nrow()
 # 0
 
-all_4_dfs3$permit_info |>
+all_4_dfs3$permit_info_from_db |>
   filter(vessel_official_number == "579608") |>
   nrow()
 # 27 (multiple permits, ok)
@@ -592,9 +592,9 @@ all_4_dfs3$permit_info |>
 
 # 2) y to x
 # ℹ Row 74282 of `y` matches multiple rows in `x`.
-all_4_dfs1$permit_info[74282,]
+all_4_dfs1$permit_info_from_db[74282,]
 
-all_4_dfs3$permit_info |>
+all_4_dfs3$permit_info_from_db |>
   filter(vessel_official_number ==
     all_4_dfs3$compliance_from_fhier[74282,][["vessel_official_number"]] |
       vessel_alt_num ==
@@ -602,34 +602,34 @@ all_4_dfs3$permit_info |>
   nrow()
 # 0
 
-vessel_in_compl_not_in_permit_info <-
+vessel_in_compl_not_in_permit_info_from_db <-
   setdiff(
     all_4_dfs3$compliance_from_fhier$vessel_official_number,
-    all_4_dfs3$permit_info$vessel_official_number
+    all_4_dfs3$permit_info_from_db$vessel_official_number
   )
 
-length(vessel_in_compl_not_in_permit_info)
+length(vessel_in_compl_not_in_permit_info_from_db)
 # 3687
 # 13 after +id
 # 10 after 2022 and permit group 7
 
-vessel_in_compl_not_in_permit_info_alt <-
+vessel_in_compl_not_in_permit_info_from_db_alt <-
   setdiff(
     all_4_dfs3$compliance_from_fhier$vessel_official_number,
-    all_4_dfs3$permit_info$vessel_alt_num
+    all_4_dfs3$permit_info_from_db$vessel_alt_num
   )
 
-length(vessel_in_compl_not_in_permit_info_alt)
+length(vessel_in_compl_not_in_permit_info_from_db_alt)
 # 171
 # 169 after 2022 and permit group 7
 
-vessel_in_permit_info_not_in_compl <-
+vessel_in_permit_info_from_db_not_in_compl <-
   setdiff(
-    all_4_dfs3$permit_info$vessel_official_number,
+    all_4_dfs3$permit_info_from_db$vessel_official_number,
     all_4_dfs3$compliance_from_fhier$vessel_official_number
   )
 
-length(vessel_in_permit_info_not_in_compl)
+length(vessel_in_permit_info_from_db_not_in_compl)
 # 0
 # 10387 after +id
 # 195 after 2022 and permit group 7
@@ -670,16 +670,16 @@ vessel_in_metrics_report_not_in_db_logbooks <-
 length(vessel_in_metrics_report_not_in_db_logbooks)
 # 1762
 
-## [5] "db_logbooks" "permit_info" ----
+## [5] "db_logbooks" "permit_info_from_db" ----
 file_name_combinations[,5]
 
 # print_df_names(all_4_dfs3$db_logbooks)
-# print_df_names(all_4_dfs3$permit_info)
+# print_df_names(all_4_dfs3$permit_info_from_db)
 
-join_db_logbooks__permit_info <-
+join_db_logbooks__permit_info_from_db <-
   full_join(
     all_4_dfs3$db_logbooks,
-    all_4_dfs3$permit_info,
+    all_4_dfs3$permit_info_from_db,
     join_by(vessel_official_number)
   )
 #   Detected an unexpected many-to-many relationship between `x` and `y`.
@@ -687,7 +687,7 @@ join_db_logbooks__permit_info <-
 ### why multiple? ----
 # 1) x to y
 # ℹ Row 1 of `x` matches multiple rows in `y`.
-all_4_dfs3$permit_info |>
+all_4_dfs3$permit_info_from_db |>
   filter(vessel_official_number ==
     all_4_dfs3$db_logbooks[1,][["vessel_official_number"]] |
       vessel_alt_num ==
