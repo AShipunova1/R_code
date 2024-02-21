@@ -28,6 +28,11 @@ curr_proj_output_path <- file.path(my_paths$outputs,
 curr_proj_input_path <- file.path(my_paths$inputs,
                          current_project_basename)
 
+my_year <- "2022"
+my_date_beg <- '01-JAN-2022'
+my_date_end <- '31-DEC-2022'
+
+
 # get data ----
 ## 1) compliance report downloaded from FHIER (= complaince module) ----
 
