@@ -71,7 +71,7 @@ compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names <-
   )
 
 compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names |> 
-  View()
+  nrow()
 # 262
 
 ## 2) add addresses ----
