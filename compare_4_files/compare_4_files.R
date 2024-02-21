@@ -32,7 +32,6 @@ my_year <- "2022"
 my_date_beg <- '01-JAN-2022'
 my_date_end <- '31-DEC-2022'
 
-
 # get data ----
 ## 1) compliance report downloaded from FHIER (= complaince module) ----
 
@@ -51,18 +50,18 @@ dim(compliance_from_fhier)
 ## 2) logbooks from the Oracle db all_logbooks... (has 3 or 4 letters coded permit types) ----
 
 db_logbooks_query <-
-  "SELECT
+  str_glue("SELECT
   *
 FROM
   srh.mv_safis_trip_download@secapxdv_dblk
 WHERE
-    trip_start_date >= '01-JAN-2022'
-  AND trip_start_date <= '31-DEC-2022'
-"
+    trip_start_date >= '{my_date_beg}'
+  AND trip_start_date <= '{my_date_end}'
+")
 
 db_logbooks_file_name <-
   file.path(curr_proj_input_path,
-                      "logbooks22.rds")
+                      str_glue("logbooks_{my_year}.rds"))
 
 db_logbooks_fun <-
   function(db_logbooks_query) {
@@ -80,11 +79,11 @@ get_db_logbooks <-
   }
 
 db_logbooks <- get_db_logbooks()
-# 2024-01-19 run for logbooks22.rds: 147.9 sec elapsed
-# File: logbooks22.rds modified 2024-01-19 17:14:31.881392
+# 2024-02-21 run for logbooks_2022.rds: 55.92 sec elapsed
+# File: logbooks_2022.rds modified Wed Feb 21 15:35:26 2024
 
 dim(db_logbooks)
-# [1] 327869    149
+# [1] 327987    149
 
 ## 3) Metrics tracking from FHIER ----
 metrics_report_file_name <-
@@ -103,13 +102,18 @@ dim(metrics_report)
 # [1] 3606   13
 
 ## 4) permit table from the Oracle db ----
-dates_filter <- " (end_date >= TO_DATE('01-JAN-22', 'dd-mon-yy')
-    OR expiration_date >= TO_DATE('01-JAN-22', 'dd-mon-yy') )
-  AND effective_date <= TO_DATE('01-JAN-23', 'dd-mon-yy')
+dates_filter <-
+  str_glue(
+    " (end_date >= TO_DATE('{my_date_beg}', 'dd-mon-yy')
+    OR expiration_date >= TO_DATE('{my_date_beg}', 'dd-mon-yy') )
+  AND effective_date <= TO_DATE('{my_date_end}', 'dd-mon-yy')
 "
+  )
 
 mv_sero_fh_permits_his_query_file_path <-
-  file.path(my_paths$inputs, "get_db_data", "permit_info_2022.rds")
+  file.path(my_paths$inputs,
+            "get_db_data",
+            str_glue("permit_info_{my_year}.rds"))
 
 # file.exists(mv_sero_fh_permits_his_query_file_path)
 # T
@@ -474,7 +478,7 @@ join_compliance_from_fhier__db_logbooks__perm <-
 ### vessel is in compliance_from_fhier, not in db_logbooks ----
 
 vessel_in_compl_not_in_logb <-
-  join_compliance_from_fhier__db_logbooks |>
+  join_compliance_from_fhier__db_logbooks__perm |>
   filter(is.na(db_logbooks_vessel_id)) |>
   select(vessel_official_number) |>
   distinct()
@@ -496,16 +500,16 @@ vessel_in_logb_not_in_compl <-
     all_4_dfs3$compliance_from_fhier$vessel_official_number
   )
 length(vessel_in_logb_not_in_compl)
-# 2
+# 5
 
 glimpse(vessel_in_logb_not_in_compl)
 # chr [1:2] "1038780" "1292480"
 # "1292480/NC0676EK"
+# chr [1:5] "1311397" "1038780" "1316517" "1292480" "1301119"
 
 # all_4_dfs3$db_logbooks |>
 #   filter(vessel_official_nbr == "NC0676EK")
 # 0
-#
 
 ## [2] "compliance_from_fhier" "metrics_report" ----
 file_name_combinations[,2]
@@ -649,7 +653,7 @@ vessel_in_db_logbooks_not_in_metrics_report <-
   )
 
 length(vessel_in_db_logbooks_not_in_metrics_report)
-# 42
+# 43
 
 vessel_in_metrics_report_not_in_db_logbooks <-
   setdiff(
@@ -658,7 +662,7 @@ vessel_in_metrics_report_not_in_db_logbooks <-
   )
 
 length(vessel_in_metrics_report_not_in_db_logbooks)
-# 1762
+# 1760
 
 ## [5] "db_logbooks" "permit_info_from_db" ----
 file_name_combinations[,5]
@@ -749,7 +753,7 @@ vessel_in_db_logbooks_not_in_permit_info_from_db_alt <-
 
 length(vessel_in_db_logbooks_not_in_permit_info_from_db_alt)
 # 92
-# 91 after 2022 and sep permits
+# 94 after 2022 and sep permits
 
 vessel_in_permit_info_from_db_not_in_db_logbooks <-
   setdiff(
@@ -759,7 +763,7 @@ vessel_in_permit_info_from_db_not_in_db_logbooks <-
 
 length(vessel_in_permit_info_from_db_not_in_db_logbooks)
 # 12176
-# 1988 after 2022 and sep permits
+# 1985 after 2022 and sep permits
 
 vessel_in_permit_info_from_db_not_in_db_logbooks_alt <-
   setdiff(
