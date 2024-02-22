@@ -516,7 +516,7 @@ sep_chr_column <-
     return(my_df_w_split_col)
   }
 
-### permits_from_pims get only 2022 ----
+### permits_from_pims get only new ----
 program_start_date <- lubridate::dmy("04-JAN-2021")
 in_my_date_range <-
   rlang::quo(
@@ -555,7 +555,7 @@ n_distinct(permits_from_pims_new$vessel_or_dealer)
 # check
 # n_distinct(permits_from_pims_2022$vessel_or_dealer)
 # 324
-n_distinct(all_4_dfs2$permits_from_pims$vessel_or_dealer)
+# n_distinct(all_4_dfs2$permits_from_pims$vessel_or_dealer)
 # 7417
 
 # permits_from_pims_2022 |>
@@ -568,13 +568,13 @@ n_distinct(all_4_dfs2$permits_from_pims$vessel_or_dealer)
 # $ permit__         <chr> "CHG-981", "CHG-120", "RCG-114", "CHG-1417", "RCG-1359"…
 
 permits_from_pims__permit_only <-
-  all_4_dfs3$permits_from_pims |>
+  permits_from_pims_new |>
   mutate(permit_clean =
            str_replace(permit__,
                        "-\\d+", ""))
 
 n_distinct(permits_from_pims__permit_only$vessel_or_dealer)
-# 7417
+# 3127
 
 ### permits_from_pims split vessel_or_dealer ----
 # $ vessel_or_dealer <chr> "287008 / DESTINY", "515431 / CAPT BUCK", "R15431 / CAP…
@@ -586,6 +586,9 @@ permits_from_pims__permit_only__vessel_id <-
            sep = " / ") |>
   mutate(across(c('vessel_official_number', 'dealer'),
                 str_squish))
+
+permits_from_pims__permit_only[8636,] |> glimpse()
+# Expected 2 pieces. Missing pieces filled with `NA` in 3 rows [8636, 8637, 8638].
 
 n_distinct(permits_from_pims__permit_only__vessel_id$vessel_official_number)
 # 7235
