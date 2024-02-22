@@ -516,9 +516,29 @@ sep_chr_column <-
     return(my_df_w_split_col)
   }
 
-### permits_from_pims split vessel_or_dealer ----
-# TODO:
-# $ vessel_or_dealer <chr> "287008 / DESTINY", "515431 / CAPT BUCK", "R15431 / CAP…
+### permits_from_pims get only 2022 ----
+in_my_date_range <-
+  rlang::quo(
+    (
+      end_date >=          lubridate::dmy(my_date_beg) |
+        expiration_date >= lubridate::dmy(my_date_beg)
+    ) &
+      effective_date <=    lubridate::dmy(my_date_end)
+  )
+
+permits_from_pims_2022 <-
+  all_4_dfs3$permits_from_pims |>
+  filter(!!in_my_date_range)
+
+dim(permits_from_pims_2022)
+# [1] 1036    8
+
+# check
+permits_from_pims_2022 |>
+  select(effective_date, end_date, expiration_date) |>
+  distinct() |>
+  arrange(effective_date) |>
+  glimpse()
 
 ### permits_from_pims split permit__ ----
 # TODO:
@@ -530,7 +550,16 @@ permits_from_pims__permit_only <-
            str_replace(permit__,
                        "-\\d+", ""))
 
-# View(permits_from_pims__permit_only)
+### permits_from_pims split vessel_or_dealer ----
+# $ vessel_or_dealer <chr> "287008 / DESTINY", "515431 / CAPT BUCK", "R15431 / CAP…
+
+permits_from_pims__permit_only__vessel_id <-
+  permits_from_pims__permit_only |>
+  sep_chr_column(
+           col_name_to_sep = "vessel_or_dealer",
+           split_chr = " / ")
+
+View(permits_from_pims__permit_only__vessel_id)
 
 
 # stopped presenting here
