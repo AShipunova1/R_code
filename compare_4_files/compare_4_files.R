@@ -517,38 +517,46 @@ sep_chr_column <-
   }
 
 ### permits_from_pims get only 2022 ----
-in_my_date_range <-
-  rlang::quo(
-    (
-      end_date >=          lubridate::dmy(my_date_beg) |
-        expiration_date >= lubridate::dmy(my_date_beg)
-    ) &
-      effective_date <=    lubridate::dmy(my_date_end)
-  )
-
-permits_from_pims_2022 <-
-  all_4_dfs3$permits_from_pims |>
-  filter(!!in_my_date_range)
-
-dim(permits_from_pims_2022)
-# [1] 1036    8
+# don't do that, too few vessels left
+# in_my_date_range <-
+#   rlang::quo(
+#     (
+#       end_date >=          lubridate::dmy(my_date_beg) |
+#         expiration_date >= lubridate::dmy(my_date_beg)
+#     ) &
+#       effective_date <=    lubridate::dmy(my_date_end)
+#   )
+#
+# permits_from_pims_2022 <-
+#   all_4_dfs3$permits_from_pims |>
+#   filter(!!in_my_date_range)
+#
+# dim(permits_from_pims_2022)
+# # [1] 1036    8
 
 # check
-permits_from_pims_2022 |>
-  select(effective_date, end_date, expiration_date) |>
-  distinct() |>
-  arrange(effective_date) |>
-  glimpse()
+# n_distinct(permits_from_pims_2022$vessel_or_dealer)
+# 324
+n_distinct(all_4_dfs2$permits_from_pims$vessel_or_dealer)
+# 7417
+
+# permits_from_pims_2022 |>
+#   select(effective_date, end_date, expiration_date) |>
+#   distinct() |>
+#   arrange(effective_date) |>
+#   glimpse()
 
 ### permits_from_pims split permit__ ----
-# TODO:
 # $ permit__         <chr> "CHG-981", "CHG-120", "RCG-114", "CHG-1417", "RCG-1359"…
 
 permits_from_pims__permit_only <-
-  permits_from_pims_2022 |>
+  all_4_dfs3$permits_from_pims |>
   mutate(permit_clean =
            str_replace(permit__,
                        "-\\d+", ""))
+
+n_distinct(permits_from_pims__permit_only$vessel_or_dealer)
+# 7417
 
 ### permits_from_pims split vessel_or_dealer ----
 # $ vessel_or_dealer <chr> "287008 / DESTINY", "515431 / CAPT BUCK", "R15431 / CAP…
@@ -560,6 +568,9 @@ permits_from_pims__permit_only__vessel_id <-
            sep = " / ") |>
   mutate(across(c('vessel_official_number', 'dealer'),
                 str_squish))
+
+n_distinct(permits_from_pims__permit_only__vessel_id$vessel_official_number)
+# 7235
 
 # View(permits_from_pims__permit_only__vessel_id)
 
@@ -593,12 +604,12 @@ file_name_combinations <-
 file_name_combinations[,1]
 
 print_df_names(all_4_dfs3$compliance_from_fhier)
-View(all_4_dfs3$permits_from_pims)
+print_df_names(all_4_dfs3$permits_from_pims)
 
 n_distinct(all_4_dfs3$compliance_from_fhier$vessel_official_number)
 # 3687
-# n_distinct(all_4_dfs3$permits_from_pims$vessel_official_number)
-# 317
+n_distinct(all_4_dfs3$permits_from_pims$vessel_official_number)
+# 7235
 
 join_compliance_from_fhier__permits_from_pims__perm <-
   full_join(
@@ -606,11 +617,11 @@ join_compliance_from_fhier__permits_from_pims__perm <-
     all_4_dfs3$permits_from_pims,
     join_by(vessel_official_number)
   )
-# ℹ Row 355 of `x` matches multiple rows in `y`.
-# ℹ Row 11 of `y` matches multiple rows in `x`.
+# ℹ Row 2 of `x` matches multiple rows in `y`.
+# ℹ Row 18369 of `y` matches multiple rows in `x`.
 # TODO check, this is a result of having sep permits
 
-# View(join_compliance_from_fhier__permits_from_pims__perm)
+View(join_compliance_from_fhier__permits_from_pims__perm)
 
 ### vessel is in compliance_from_fhier, not in permits_from_pims ----
 
