@@ -59,6 +59,10 @@ dim(compliance_from_fhier)
 # [1] 148375     17
 
 ## 2) logbooks from the Oracle db all_logbooks... (has 3 or 4 letters coded permit types) ----
+# check_processed_logbooks
+processed_logbooks <- read_rds(r"(~\R_files_local\my_inputs\processing_logbook_data\Outputs\SEFHIER_processed_Logbooks_2023.rds)")
+
+# has permits from metrics tracking
 
 db_logbooks_query <-
   str_glue("SELECT
