@@ -290,17 +290,36 @@ all_4_dfs2 <-
 
 map(all_4_dfs2, print_df_names)
 
-# save the df
-all_4_dfs3 <- all_4_dfs2
+# Convert dates to Date format
 
-# TODO: convert dates to Date format
+all_4_dfs_dates <-
+  map(all_4_dfs2,
+    \(current_df) {
+      current_df |>
+        mutate(
+          across(
+            where(is.character) &
+            (ends_with("_date") |
+               starts_with("permit_groupexpiration")),
+            ~ lubridate::parse_date_time(.x, orders = c("mdY"))
+          )
+        )
+    })
+
+# check
+map(all_4_dfs2, str)
+
+View(all_4_dfs_dates)
+
+# save the df
+all_4_dfs3 <- all_4_dfs_dates
 
 ## individual df preparations ----
 
 ### compliance_from_fhier: split permit column ----
 
 temp_compliance_from_fhier <-
-  all_4_dfs2$compliance_from_fhier |>
+  all_4_dfs_dates$compliance_from_fhier |>
   mutate(permitgroup_sep_0 =
            gsub("\\(([^)]+)\\)", "\\1,", permitgroup)) |>
   mutate(permitgroup_sep_1 =
@@ -337,7 +356,7 @@ all_4_dfs3$compliance_from_fhier <-
 
 #### check diff permitgroup for the same vessel ----
 short_compliance_from_fhier_to_test <-
-  all_4_dfs2$compliance_from_fhier |>
+  all_4_dfs_dates$compliance_from_fhier |>
   select(vessel_official_number,
          permit_groupexpiration,
          permitgroup) |>
@@ -396,7 +415,7 @@ nrow(short_compliance_from_fhier_multi_permitgroups)
 
 ### metrics_report: split permit column ----
 all_4_dfs3$metrics_report <-
-  all_4_dfs2$metrics_report |>
+  all_4_dfs_dates$metrics_report |>
   mutate(permits_trim =
            gsub(" ", "", permits)) |>
   mutate(permits_sep_s =
