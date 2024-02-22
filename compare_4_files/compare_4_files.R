@@ -230,6 +230,25 @@ all_4_dfs <-
 
 all_4_df_names <- names(all_4_dfs)
 
+# aux function ----
+sep_chr_column <-
+  function(my_df,
+           col_name_to_sep,
+           split_chr = ",") {
+    my_df_w_split_col <-
+      my_df |>
+      mutate(sep_s =
+               str_split(!!sym(col_name_to_sep), split_chr)) |>
+      rowwise() |>
+      mutate(sep_u =
+               list(sort(unique(sep_s)))) |>
+      ungroup() |>
+      unnest_longer(sep_u,
+                    values_to = "permit_sep_u")
+
+    return(my_df_w_split_col)
+  }
+
 # prepare data for comparison ----
 ## clean_headers ----
 all_4_dfs1 <- map(all_4_dfs, clean_headers)
@@ -389,6 +408,9 @@ dim(all_4_dfs3$compliance_from_fhier)
 n_distinct(all_4_dfs3$compliance_from_fhier$vessel_official_number)
 # 3687
 
+unique(all_4_dfs3$compliance_from_fhier$permit_sep_u)
+# [1] "CDW"  "CHS"  "SC"   "CHG"  "RCG"  "HCHG" "HRCG"
+
 # Explanation:
 # 1. The pipeline operator '|>' applies a sequence of operations to the 'short_compliance_from_fhier_to_test' data frame.
 # 2. 'group_by(vessel_official_number)' groups the data frame by the 'vessel_official_number' column.
@@ -513,24 +535,6 @@ unique(permit_info_from_db__no_digit_perm$permit)
 # [1] "CDW" "SC"  "CHS"
 # TODO: where are gulf permits?
 
-# aux function ----
-sep_chr_column <-
-  function(my_df,
-           col_name_to_sep,
-           split_chr = ",") {
-    my_df_w_split_col <-
-      my_df |>
-      mutate(sep_s =
-               str_split(!!sym(col_name_to_sep), split_chr)) |>
-      rowwise() |>
-      mutate(sep_u =
-               list(sort(unique(sep_s)))) |>
-      ungroup() |>
-      unnest_longer(sep_u,
-                    values_to = "permit_sep_u")
-
-    return(my_df_w_split_col)
-  }
 
 ### permits_from_pims get only new ----
 # TODO: don't include if all the dates before 2021 or after 2023?
@@ -618,14 +622,17 @@ permits_from_pims__permit_only__vessel_id_short <-
   select(-c(permit__, dealer)) |>
   distinct()
 
-View(permits_from_pims__permit_only__vessel_id_short)
+# View(permits_from_pims__permit_only__vessel_id_short)
 
 ### put it back ----
 all_4_dfs3$permits_from_pims <-
   permits_from_pims__permit_only__vessel_id_short
 
+unique(all_4_dfs3$permits_from_pims$permit_clean)
+# [1] "CDW"  "SC"   "CHS"  "CHG"  "RCG"  "HRCG" "HCHG"
+
 # stopped presenting here
-# check
+# check ----
 setdiff(all_permits_in_metrics$permit_sep_u,
         all_4_dfs3$permit_info_from_db$top)
 # 0 both ways, ok
@@ -708,7 +715,7 @@ join_compliance_from_fhier__permits_from_pims__vsl_perm <-
     join_by(vessel_official_number, permit_sep_u == permit_clean)
   )
 
-View(join_compliance_from_fhier__permits_from_pims__vsl_perm)
+# View(join_compliance_from_fhier__permits_from_pims__vsl_perm)
 
 ## [2] "compliance_from_fhier" "metrics_report" ----
 file_name_combinations[,2]
