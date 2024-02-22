@@ -517,6 +517,24 @@ sep_chr_column <-
   }
 
 ### permits_from_pims get only 2022 ----
+program_start_date <- lubridate::dmy("04-JAN-2021")
+in_my_date_range <-
+  rlang::quo(
+      end_date >= program_start_date |
+        expiration_date >= program_start_date
+  )
+
+permits_from_pims_new <-
+  all_4_dfs3$permits_from_pims |>
+  filter(!!in_my_date_range)
+
+# check
+dim(permits_from_pims_new)
+# [1] 8801   8
+
+n_distinct(permits_from_pims_new$vessel_or_dealer)
+# 3127
+
 # don't do that, too few vessels left
 # in_my_date_range <-
 #   rlang::quo(
@@ -573,7 +591,16 @@ n_distinct(permits_from_pims__permit_only__vessel_id$vessel_official_number)
 # 7235
 
 # View(permits_from_pims__permit_only__vessel_id)
+### permits_from_pims fewer cols ----
 
+permits_from_pims__permit_only__vessel_id_short <-
+  permits_from_pims__permit_only__vessel_id |>
+  select(-c(permit__, dealer)) |>
+  distinct()
+
+View(permits_from_pims__permit_only__vessel_id_short)
+
+### put it back ----
 all_4_dfs3$permits_from_pims <-
   permits_from_pims__permit_only__vessel_id
 
