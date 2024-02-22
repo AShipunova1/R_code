@@ -358,7 +358,7 @@ unique(temp_compliance_from_fhier__drop_permit_numbers$permit_sep_u)
 # [1] "CDW"  "CHS"  "SC"   "CHG"  "RCG"  "HCHG" "HRCG"
 
 all_4_dfs3$compliance_from_fhier <-
-  temp_compliance_from_fhier |>
+  temp_compliance_from_fhier__drop_permit_numbers |>
   select(
     vessel_official_number,
     permit_groupexpiration,
@@ -505,6 +505,15 @@ all_4_dfs3$permit_info_from_db <-
 nrow(all_4_dfs3$permit_info_from_db)
 # 16073
 
+permit_info_from_db__no_digit_perm <-
+  all_4_dfs3$permit_info_from_db |>
+  filter(!grepl("\\d", permit))
+
+unique(permit_info_from_db__no_digit_perm$permit)
+# [1] "CDW" "SC"  "CHS"
+# TODO: where are gulf permits?
+
+# aux function ----
 sep_chr_column <-
   function(my_df,
            col_name_to_sep,
