@@ -259,7 +259,7 @@ all_4_dfs1 <- map(all_4_dfs, clean_headers)
 # 2. For each data frame, use the 'add_column' function to add a new column with the name of the current data frame.
 # 3. The '!!' is the unquote operator, used to evaluate 'curr_name' dynamically.
 # 4. The result is a list of data frames with an additional column indicating the source data frame, stored in 'all_4_dfs2'.
-all_4_dfs2 <-
+all_4_dfs__name_col <-
   imap(all_4_dfs1,
       \(curr_df, curr_name) {
         curr_df |>
@@ -285,13 +285,13 @@ names_to_keep <-
          ignore.case = TRUE)
   }
 
-### Apply the names_to_keep function to each dataframe in all_4_dfs1 ----
-col_names_to_keep <- map(all_4_dfs1, names_to_keep)
+### Apply the names_to_keep function to each dataframe in all_4_dfs__name_col ----
+col_names_to_keep <- map(all_4_dfs__name_col, names_to_keep)
 
 # View(col_names_to_keep)
 
 # Explanation:
-# 1. The 'imap' function iterates over each element (data frame) in the 'all_4_dfs1' list along with its index.
+# 1. The 'imap' function iterates over each element (data frame) in the 'all_4_dfs__name_col' list along with its index.
 # 2. For each data frame, the function inside 'imap' is executed.
 # 3. The 'select' function is used to choose specific columns from the data frame 'x'.
 # 4. The column names to be kept are specified by 'col_names_to_keep[[idx]]'.
@@ -301,7 +301,7 @@ col_names_to_keep <- map(all_4_dfs1, names_to_keep)
 
 # View(col_names_to_keep)
 all_4_dfs2 <-
-  imap(all_4_dfs1,
+  imap(all_4_dfs__name_col,
        function(x, idx)
        {
          select(x,
@@ -804,7 +804,7 @@ all_4_dfs3$permit_info_from_db |>
 
 # 2) y to x
 # ℹ Row 74282 of `y` matches multiple rows in `x`.
-all_4_dfs1$permit_info_from_db[74282,]
+all_4_dfs__name_col$permit_info_from_db[74282,]
 
 all_4_dfs3$permit_info_from_db |>
   filter(vessel_official_number ==
