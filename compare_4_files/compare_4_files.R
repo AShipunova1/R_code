@@ -593,7 +593,12 @@ file_name_combinations <-
 file_name_combinations[,1]
 
 print_df_names(all_4_dfs3$compliance_from_fhier)
-print_df_names(all_4_dfs3$permits_from_pims)
+View(all_4_dfs3$permits_from_pims)
+
+n_distinct(all_4_dfs3$compliance_from_fhier$vessel_official_number)
+# 3687
+# n_distinct(all_4_dfs3$permits_from_pims$vessel_official_number)
+# 317
 
 join_compliance_from_fhier__permits_from_pims__perm <-
   full_join(
@@ -601,29 +606,29 @@ join_compliance_from_fhier__permits_from_pims__perm <-
     all_4_dfs3$permits_from_pims,
     join_by(vessel_official_number)
   )
-# ℹ Row 27 of `x` matches multiple rows in `y`.
-# ℹ Row 1735 of `y` matches multiple rows in `x`.
+# ℹ Row 355 of `x` matches multiple rows in `y`.
+# ℹ Row 11 of `y` matches multiple rows in `x`.
 # TODO check, this is a result of having sep permits
 
-# View(join_compliance_from_fhier__permits_from_pims)
+# View(join_compliance_from_fhier__permits_from_pims__perm)
 
 ### vessel is in compliance_from_fhier, not in permits_from_pims ----
 
-vessel_in_compl_not_in_logb <-
+vessel_in_compl_not_in_pims_perm <-
   join_compliance_from_fhier__permits_from_pims__perm |>
-  filter(is.na(permits_from_pims_vessel_id)) |>
+  filter(is.na(permit__)) |>
   select(vessel_official_number) |>
   distinct()
 
-nrow(vessel_in_compl_not_in_logb)
-# 1803
+nrow(vessel_in_compl_not_in_pims_perm)
+# 3395
 
-vessel_in_compl_not_in_logb <-
+vessel_in_compl_not_in_pims_perm <-
   setdiff(
     all_4_dfs3$compliance_from_fhier$vessel_official_number,
     all_4_dfs3$permits_from_pims$vessel_official_number
   )
-length(vessel_in_compl_not_in_logb)
+length(vessel_in_compl_not_in_pims_perm)
 # 1803
 
 vessel_in_logb_not_in_compl <-
