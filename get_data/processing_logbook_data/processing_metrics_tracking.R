@@ -1,4 +1,5 @@
 # remove SRHS vessels from the Metrics tracking data
+# add permit_region column
 
 # Creates
 # "SEFHIER_permitted_vessels_nonSRHS_{my_year}.rds"
