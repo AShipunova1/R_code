@@ -350,6 +350,13 @@ temp_compliance_from_fhier <-
 
 # View(temp_compliance_from_fhier)
 
+temp_compliance_from_fhier__drop_permit_numbers <-
+  temp_compliance_from_fhier |>
+  filter(!grepl("\\d", permit_sep_u))
+
+unique(temp_compliance_from_fhier__drop_permit_numbers$permit_sep_u)
+# [1] "CDW"  "CHS"  "SC"   "CHG"  "RCG"  "HCHG" "HRCG"
+
 all_4_dfs3$compliance_from_fhier <-
   temp_compliance_from_fhier |>
   select(
@@ -517,6 +524,7 @@ sep_chr_column <-
   }
 
 ### permits_from_pims get only new ----
+# TODO: don't include if all the dates before 2021 or after 2023?
 program_start_date <- lubridate::dmy("04-JAN-2021")
 in_my_date_range <-
   rlang::quo(
@@ -605,7 +613,7 @@ View(permits_from_pims__permit_only__vessel_id_short)
 
 ### put it back ----
 all_4_dfs3$permits_from_pims <-
-  permits_from_pims__permit_only__vessel_id
+  permits_from_pims__permit_only__vessel_id_short
 
 # stopped presenting here
 # check
@@ -639,7 +647,7 @@ print_df_names(all_4_dfs3$permits_from_pims)
 n_distinct(all_4_dfs3$compliance_from_fhier$vessel_official_number)
 # 3687
 n_distinct(all_4_dfs3$permits_from_pims$vessel_official_number)
-# 7235
+# 3069
 
 join_compliance_from_fhier__permits_from_pims__perm <-
   full_join(
@@ -647,47 +655,51 @@ join_compliance_from_fhier__permits_from_pims__perm <-
     all_4_dfs3$permits_from_pims,
     join_by(vessel_official_number)
   )
-# ℹ Row 2 of `x` matches multiple rows in `y`.
-# ℹ Row 18369 of `y` matches multiple rows in `x`.
+# ℹ Row 5 of `x` matches multiple rows in `y`.
+# ℹ Row 6405 of `y` matches multiple rows in `x`.
 # TODO check, this is a result of having sep permits
 
-View(join_compliance_from_fhier__permits_from_pims__perm)
+# View(join_compliance_from_fhier__permits_from_pims__perm)
 
 ### vessel is in compliance_from_fhier, not in permits_from_pims ----
 
 vessel_in_compl_not_in_pims_perm <-
   join_compliance_from_fhier__permits_from_pims__perm |>
-  filter(is.na(permit__)) |>
+  filter(is.na(permit_clean)) |>
   select(vessel_official_number) |>
   distinct()
 
 nrow(vessel_in_compl_not_in_pims_perm)
-# 3395
+# 1523
 
-vessel_in_compl_not_in_pims_perm <-
+vessel_in_compl_not_in_pims_perm1 <-
   setdiff(
     all_4_dfs3$compliance_from_fhier$vessel_official_number,
     all_4_dfs3$permits_from_pims$vessel_official_number
   )
-length(vessel_in_compl_not_in_pims_perm)
-# 1803
+length(vessel_in_compl_not_in_pims_perm1)
+# 1523 (the same)
 
-vessel_in_logb_not_in_compl <-
+vessel_in_pims_permits_not_in_compl <-
   setdiff(
     all_4_dfs3$permits_from_pims$vessel_official_number,
     all_4_dfs3$compliance_from_fhier$vessel_official_number
   )
-length(vessel_in_logb_not_in_compl)
-# 5
+length(vessel_in_pims_permits_not_in_compl)
+# 905
 
-glimpse(vessel_in_logb_not_in_compl)
-# chr [1:2] "1038780" "1292480"
-# "1292480/NC0676EK"
-# chr [1:5] "1311397" "1038780" "1316517" "1292480" "1301119"
+glimpse(vessel_in_pims_permits_not_in_compl)
+ # chr [1:905] "1074262" "644342" "296866" "1296642" "FL9104PX" "FL5102EJ" ...
 
-# all_4_dfs3$permits_from_pims |>
-#   filter(vessel_official_nbr == "NC0676EK")
-# 0
+### join by vessel and permit ----
+join_compliance_from_fhier__permits_from_pims__vsl_perm <-
+  full_join(
+    all_4_dfs3$compliance_from_fhier,
+    all_4_dfs3$permits_from_pims,
+    join_by(vessel_official_number, permit_sep_u == permit_clean)
+  )
+
+View(join_compliance_from_fhier__permits_from_pims__vsl_perm)
 
 ## [2] "compliance_from_fhier" "metrics_report" ----
 file_name_combinations[,2]
