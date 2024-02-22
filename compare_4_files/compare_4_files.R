@@ -252,7 +252,17 @@ sep_chr_column <-
 # prepare data for comparison ----
 ## clean_headers ----
 all_4_dfs1 <- map(all_4_dfs, clean_headers)
-# View(all_4_dfs1)
+
+## add a column with the df name, for future joins ----
+all_4_dfs2 <-
+  imap(all_4_dfs1,
+      \(curr_df, curr_name) {
+        browser()
+        curr_df |>
+        add_column(!!curr_name := curr_name)
+      })
+
+# df %>% add_column(z = -1:1, w = 0)
 
 ## keep only vessel ids and permit columns ----
 
