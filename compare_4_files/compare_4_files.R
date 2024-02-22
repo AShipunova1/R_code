@@ -561,12 +561,10 @@ permits_from_pims__permit_only__vessel_id <-
   mutate(across(c('vessel_official_name', 'dealer'),
                 str_squish))
 
-# diffdf::diffdf(permits_from_pims__permit_only__vessel_id,
-               # permits_from_pims__permit_only__vessel_id1)
-# T
+# View(permits_from_pims__permit_only__vessel_id)
 
-View(permits_from_pims__permit_only__vessel_id)
-
+all_4_dfs3$permits_from_pims <-
+  permits_from_pims__permit_only__vessel_id
 
 # stopped presenting here
 # check
@@ -597,23 +595,23 @@ file_name_combinations[,1]
 print_df_names(all_4_dfs3$compliance_from_fhier)
 print_df_names(all_4_dfs3$permits_from_pims)
 
-join_compliance_from_fhier__db_logbooks__perm <-
+join_compliance_from_fhier__permits_from_pims__perm <-
   full_join(
     all_4_dfs3$compliance_from_fhier,
-    all_4_dfs3$db_logbooks,
+    all_4_dfs3$permits_from_pims,
     join_by(vessel_official_number)
   )
 # ℹ Row 27 of `x` matches multiple rows in `y`.
 # ℹ Row 1735 of `y` matches multiple rows in `x`.
 # TODO check, this is a result of having sep permits
 
-# View(join_compliance_from_fhier__db_logbooks)
+# View(join_compliance_from_fhier__permits_from_pims)
 
-### vessel is in compliance_from_fhier, not in db_logbooks ----
+### vessel is in compliance_from_fhier, not in permits_from_pims ----
 
 vessel_in_compl_not_in_logb <-
-  join_compliance_from_fhier__db_logbooks__perm |>
-  filter(is.na(db_logbooks_vessel_id)) |>
+  join_compliance_from_fhier__permits_from_pims__perm |>
+  filter(is.na(permits_from_pims_vessel_id)) |>
   select(vessel_official_number) |>
   distinct()
 
@@ -623,14 +621,14 @@ nrow(vessel_in_compl_not_in_logb)
 vessel_in_compl_not_in_logb <-
   setdiff(
     all_4_dfs3$compliance_from_fhier$vessel_official_number,
-    all_4_dfs3$db_logbooks$vessel_official_number
+    all_4_dfs3$permits_from_pims$vessel_official_number
   )
 length(vessel_in_compl_not_in_logb)
 # 1803
 
 vessel_in_logb_not_in_compl <-
   setdiff(
-    all_4_dfs3$db_logbooks$vessel_official_number,
+    all_4_dfs3$permits_from_pims$vessel_official_number,
     all_4_dfs3$compliance_from_fhier$vessel_official_number
   )
 length(vessel_in_logb_not_in_compl)
@@ -641,7 +639,7 @@ glimpse(vessel_in_logb_not_in_compl)
 # "1292480/NC0676EK"
 # chr [1:5] "1311397" "1038780" "1316517" "1292480" "1301119"
 
-# all_4_dfs3$db_logbooks |>
+# all_4_dfs3$permits_from_pims |>
 #   filter(vessel_official_nbr == "NC0676EK")
 # 0
 
@@ -762,15 +760,15 @@ length(vessel_in_permit_info_from_db_not_in_compl)
 # 10387 after +id
 # 195 after 2022 and permit group 7
 
-## [4] "db_logbooks" "metrics_report" ----
+## [4] "permits_from_pims" "metrics_report" ----
 file_name_combinations[,4]
 
-# print_df_names(all_4_dfs3$db_logbooks)
+# print_df_names(all_4_dfs3$permits_from_pims)
 # print_df_names(all_4_dfs3$metrics_report)
 
-join_db_logbooks__metrics_report <-
+join_permits_from_pims__metrics_report <-
   full_join(
-    all_4_dfs3$db_logbooks,
+    all_4_dfs3$permits_from_pims,
     all_4_dfs3$metrics_report,
     join_by(vessel_official_number)
   )
@@ -780,33 +778,33 @@ join_db_logbooks__metrics_report <-
 # ℹ Row 2905 of `y` matches multiple rows in `x`.
 # TODO: check
 
-vessel_in_db_logbooks_not_in_metrics_report <-
+vessel_in_permits_from_pims_not_in_metrics_report <-
   setdiff(
-    all_4_dfs3$db_logbooks$vessel_official_number,
+    all_4_dfs3$permits_from_pims$vessel_official_number,
     all_4_dfs3$metrics_report$vessel_official_number
   )
 
-length(vessel_in_db_logbooks_not_in_metrics_report)
+length(vessel_in_permits_from_pims_not_in_metrics_report)
 # 43
 
-vessel_in_metrics_report_not_in_db_logbooks <-
+vessel_in_metrics_report_not_in_permits_from_pims <-
   setdiff(
     all_4_dfs3$metrics_report$vessel_official_number,
-    all_4_dfs3$db_logbooks$vessel_official_number
+    all_4_dfs3$permits_from_pims$vessel_official_number
   )
 
-length(vessel_in_metrics_report_not_in_db_logbooks)
+length(vessel_in_metrics_report_not_in_permits_from_pims)
 # 1760
 
-## [5] "db_logbooks" "permit_info_from_db" ----
+## [5] "permits_from_pims" "permit_info_from_db" ----
 file_name_combinations[,5]
 
-# print_df_names(all_4_dfs3$db_logbooks)
+# print_df_names(all_4_dfs3$permits_from_pims)
 # print_df_names(all_4_dfs3$permit_info_from_db)
 
-join_db_logbooks__permit_info_from_db <-
+join_permits_from_pims__permit_info_from_db <-
   full_join(
-    all_4_dfs3$db_logbooks,
+    all_4_dfs3$permits_from_pims,
     all_4_dfs3$permit_info_from_db,
     join_by(vessel_official_number)
   )
@@ -817,9 +815,9 @@ join_db_logbooks__permit_info_from_db <-
 # ℹ Row 1 of `x` matches multiple rows in `y`.
 all_4_dfs3$permit_info_from_db |>
   filter(vessel_official_number ==
-    all_4_dfs3$db_logbooks[1,][["vessel_official_number"]] |
+    all_4_dfs3$permits_from_pims[1,][["vessel_official_number"]] |
       vessel_alt_num ==
-    all_4_dfs3$db_logbooks[1,][["vessel_official_number"]]) |>
+    all_4_dfs3$permits_from_pims[1,][["vessel_official_number"]]) |>
   glimpse()
 # multiple permits, OK
 # $ permit               <chr> "1066", "1013", "1066", "1013"
@@ -827,7 +825,7 @@ all_4_dfs3$permit_info_from_db |>
 
 # 2) y to x
 # ℹ Row 9426 of `y` matches multiple rows in `x`.
-all_4_dfs3$db_logbooks |>
+all_4_dfs3$permits_from_pims |>
   filter(vessel_official_number ==
     all_4_dfs3$permit_info_from_db[9426,][["vessel_official_number"]] |
       vessel_official_number ==
@@ -836,30 +834,30 @@ all_4_dfs3$db_logbooks |>
 # $ vessel_official_nbr      <chr> "FL6432SU", "FL6432SU"
 # $ notif_accsp_permit_id    <dbl> 584995, NA
 
-db_logbooks_multi_notif_accsp_permit_id <-
-  get_multiple_entries_per_vessel(all_4_dfs3$db_logbooks,
+permits_from_pims_multi_notif_accsp_permit_id <-
+  get_multiple_entries_per_vessel(all_4_dfs3$permits_from_pims,
                                   "vessel_official_number",
                                   "notif_accsp_permit_id")
 
-nrow(db_logbooks_multi_notif_accsp_permit_id)
+nrow(permits_from_pims_multi_notif_accsp_permit_id)
 # [1] 714
 
 # uncomment to run
-# db_logbooks_multi_notif_accsp_permit_id |>
+# permits_from_pims_multi_notif_accsp_permit_id |>
 #   write_csv(
 #     file.path(
 #       curr_proj_output_path,
-#       "db_logbooks__multiple_notif_accsp_permit_id.csv"
+#       "permits_from_pims__multiple_notif_accsp_permit_id.csv"
 #     )
 #   )
 
-vessel_in_db_logbooks_not_in_permit_info_from_db <-
+vessel_in_permits_from_pims_not_in_permit_info_from_db <-
   setdiff(
-    all_4_dfs3$db_logbooks$vessel_official_number,
+    all_4_dfs3$permits_from_pims$vessel_official_number,
     all_4_dfs3$permit_info_from_db$vessel_official_number
   )
 
-length(vessel_in_db_logbooks_not_in_permit_info_from_db)
+length(vessel_in_permits_from_pims_not_in_permit_info_from_db)
 # 1
 # 2 after 2022 and sep permits
 
@@ -872,40 +870,40 @@ all_4_dfs3$permit_info_from_db |>
 # [1] 18
 # 3 after 2022 and sep permits
 
-all_4_dfs3$db_logbooks |>
+all_4_dfs3$permits_from_pims |>
   filter(vessel_official_number == "1292480" |
            vessel_official_number == "NC0676EK") |>
   glimpse()
-# In db_logbooks 1292480 only. (PIMS "No items available", Official Number From USCG Certificate Of Documentation)
+# In permits_from_pims 1292480 only. (PIMS "No items available", Official Number From USCG Certificate Of Documentation)
 # In permit_info_from_db NC0676EK only.
 
-vessel_in_db_logbooks_not_in_permit_info_from_db_alt <-
+vessel_in_permits_from_pims_not_in_permit_info_from_db_alt <-
   setdiff(
-    all_4_dfs3$db_logbooks$vessel_official_number,
+    all_4_dfs3$permits_from_pims$vessel_official_number,
     all_4_dfs3$permit_info_from_db$vessel_alt_num
   )
 
-length(vessel_in_db_logbooks_not_in_permit_info_from_db_alt)
+length(vessel_in_permits_from_pims_not_in_permit_info_from_db_alt)
 # 92
 # 94 after 2022 and sep permits
 
-vessel_in_permit_info_from_db_not_in_db_logbooks <-
+vessel_in_permit_info_from_db_not_in_permits_from_pims <-
   setdiff(
     all_4_dfs3$permit_info_from_db$vessel_official_number,
-    all_4_dfs3$db_logbooks$vessel_official_number
+    all_4_dfs3$permits_from_pims$vessel_official_number
   )
 
-length(vessel_in_permit_info_from_db_not_in_db_logbooks)
+length(vessel_in_permit_info_from_db_not_in_permits_from_pims)
 # 12176
 # 1985 after 2022 and sep permits
 
-vessel_in_permit_info_from_db_not_in_db_logbooks_alt <-
+vessel_in_permit_info_from_db_not_in_permits_from_pims_alt <-
   setdiff(
     all_4_dfs3$permit_info_from_db$vessel_alt_num,
-    all_4_dfs3$db_logbooks$vessel_official_number
+    all_4_dfs3$permits_from_pims$vessel_official_number
   )
 
-length(vessel_in_permit_info_from_db_not_in_db_logbooks_alt)
+length(vessel_in_permit_info_from_db_not_in_permits_from_pims_alt)
 # 12247
 # 2074 after 2022 and sep permits
 
