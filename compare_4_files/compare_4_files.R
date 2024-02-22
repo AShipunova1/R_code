@@ -291,6 +291,15 @@ all_4_dfs2 <-
 map(all_4_dfs2, print_df_names)
 
 # Convert dates to Date format
+# Explanations:
+# 1. Use the 'map' function to iterate over each data frame in 'all_4_dfs2'.
+# 2. For each data frame, use the 'mutate' function along with 'across'.
+# 3. The 'across' function allows the application of a transformation to multiple columns.
+# 4. Use the 'where' condition to select columns that are of character type.
+# 5. Further filter the selected columns by those either ending with "_date" or starting with "permit_groupexpiration".
+# 6. Apply 'lubridate::parse_date_time' to convert the selected character columns to the date-time format.
+# 7. The 'orders' argument specifies the expected date formats, helping the parser identify the correct format.
+# 8. The result is a list of data frames with parsed date columns, stored in 'all_4_dfs_dates'.
 
 all_4_dfs_dates <-
   map(all_4_dfs2,
@@ -306,10 +315,7 @@ all_4_dfs_dates <-
         )
     })
 
-# check
-map(all_4_dfs2, str)
-
-View(all_4_dfs_dates)
+# View(all_4_dfs_dates)
 
 # save the df
 all_4_dfs3 <- all_4_dfs_dates
