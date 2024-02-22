@@ -254,15 +254,17 @@ sep_chr_column <-
 all_4_dfs1 <- map(all_4_dfs, clean_headers)
 
 ## add a column with the df name, for future joins ----
+# Explanations:
+# 1. Use the 'imap' function to iterate over each data frame in 'all_4_dfs1' along with its name.
+# 2. For each data frame, use the 'add_column' function to add a new column with the name of the current data frame.
+# 3. The '!!' is the unquote operator, used to evaluate 'curr_name' dynamically.
+# 4. The result is a list of data frames with an additional column indicating the source data frame, stored in 'all_4_dfs2'.
 all_4_dfs2 <-
   imap(all_4_dfs1,
       \(curr_df, curr_name) {
-        browser()
         curr_df |>
         add_column(!!curr_name := curr_name)
       })
-
-# df %>% add_column(z = -1:1, w = 0)
 
 ## keep only vessel ids and permit columns ----
 
