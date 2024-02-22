@@ -557,7 +557,13 @@ permits_from_pims__permit_only__vessel_id <-
   permits_from_pims__permit_only |>
   separate(vessel_or_dealer,
            c('vessel_official_name', 'dealer'),
-           sep = " / ")
+           sep = " / ") |>
+  mutate(across(c('vessel_official_name', 'dealer'),
+                str_squish))
+
+# diffdf::diffdf(permits_from_pims__permit_only__vessel_id,
+               # permits_from_pims__permit_only__vessel_id1)
+# T
 
 View(permits_from_pims__permit_only__vessel_id)
 
