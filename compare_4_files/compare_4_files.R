@@ -100,21 +100,30 @@ db_logbooks <- get_db_logbooks()
 dim(db_logbooks)
 # [1] 327987    149
 
-## 3) Metrics tracking from FHIER ----
-metrics_report_file_name <-
-  r"(Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source).csv)"
+## 3) Metrics tracking from FHIER, processed ----
+# removed SRHS vessels and added permit_region column
+
+metrics_report_dir_name <-
+  r"(processing_logbook_data\Outputs)"
+
+# was
+# r"(Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source).csv)"
 
 metrics_report_file_path <-
-  file.path(curr_proj_input_path,
-            metrics_report_file_name)
+  file.path(
+    my_paths$inputs,
+    metrics_report_dir_name,
+    str_glue("SEFHIER_permitted_vessels_nonSRHS_{my_year}.rds")
+  )
 
 file.exists(metrics_report_file_path)
 # T
 
-metrics_report <- read_csv(metrics_report_file_path)
+metrics_report <- read_rds(metrics_report_file_path)
 
 dim(metrics_report)
-# [1] 3606   13
+# [1] 3606   13 (csv from FHIER)
+# [1] 3443    9
 
 ## 4) permit table from the Oracle db ----
 dates_filter <-
@@ -130,7 +139,7 @@ mv_sero_fh_permits_his_query_file_path <-
             "get_db_data",
             str_glue("permit_info_{my_year}.rds"))
 
-# file.exists(mv_sero_fh_permits_his_query_file_path)
+file.exists(mv_sero_fh_permits_his_query_file_path)
 # T
 
 mv_sero_fh_permits_his_query <-
@@ -285,6 +294,7 @@ map(all_4_dfs2, print_df_names)
 all_4_dfs3 <- all_4_dfs2
 
 # TODO: convert dates to Date format
+
 ## individual df preparations ----
 
 ### compliance_from_fhier: split permit column ----
