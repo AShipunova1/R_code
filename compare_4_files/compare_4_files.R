@@ -744,7 +744,7 @@ join_compliance_from_fhier__permits_from_pims__vsl_perm <-
 
 # View(join_compliance_from_fhier__permits_from_pims__vsl_perm)
 
-# 3 groups:
+### 3 groups ----
 # 1) in both,
 # 2) in compl only,
 # 3) in pims only
@@ -780,6 +780,15 @@ join_compliance_from_fhier__permits_from_pims__vsl_perm__grps |>
 
 n_distinct(join_compliance_from_fhier__permits_from_pims__vsl_perm__grps$vessel_official_number)
 # 4592
+
+### check all 3 groups ----
+# TODO: save vessel id and look for them in other dfs
+vessels_only_in_compliance <-
+  join_compliance_from_fhier__permits_from_pims__vsl_perm__grps |>
+  filter(where_is_vessel_permit == "in_compl_fhier") |>
+  select(vessel_official_number) |>
+  distinct()
+
 
 ## [2] "compliance_from_fhier" "metrics_report" ----
 file_name_combinations[,2]
