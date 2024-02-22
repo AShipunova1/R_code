@@ -187,7 +187,7 @@ permit_info_from_db$END_DATE |>
 max(permit_info_from_db$EFFECTIVE_DATE)
 # [1] "2023-01-01 EST"
 
-# 5) permit info from the PIMS ----
+## 5) permit info from the PIMS ----
 # "~\from PIMS\Permits - 2024-01-25_0904.xlsx"
 
 permit_file_path <-
@@ -199,17 +199,12 @@ my_sheet <- "Sheet 1"
 
 file.exists(permit_file_path)
 
-permits_from_pims_raw <-
+permits_from_pims <-
   read_xlsx(permit_file_path,
             sheet = my_sheet,
             skip = to_skip)
 
 # glimpse(permits_from_pims_raw)
-
-# clean_headers
-permits_from_pims <-
-  permits_from_pims_raw %>%
-  clean_headers()
 
 dim(permits_from_pims)
 # [1] 23575    11
@@ -244,7 +239,7 @@ all_4_dfs1 <- map(all_4_dfs, clean_headers)
 names_to_keep <-
   function(my_df) {
     my_df_names <- names(my_df)
-    grep("vessel|permit|exp|effect|end_date",
+    grep("vessel|permit|_date",
          my_df_names,
          value = TRUE,
          ignore.case = TRUE)
@@ -276,18 +271,20 @@ all_4_dfs2 <-
                   -any_of(c(
                     "gom_permitteddeclarations__",
                     "vessel_name",
-                    "set_permits_on_hold_"
+                    "set_permits_on_hold_",
+                    "override_date"
                   ))) |>
            remove_empty_cols() |>
            distinct()
        }
   )
 
-# map(all_4_dfs2, print_df_names)
+map(all_4_dfs2, print_df_names)
 
 # save the df
 all_4_dfs3 <- all_4_dfs2
 
+# TODO: convert dates to Date format
 ## individual df preparations ----
 
 ### compliance_from_fhier: split permit column ----
