@@ -556,9 +556,9 @@ permits_from_pims__permit_only <-
 permits_from_pims__permit_only__vessel_id <-
   permits_from_pims__permit_only |>
   separate(vessel_or_dealer,
-           c('vessel_official_name', 'dealer'),
+           c('vessel_official_number', 'dealer'),
            sep = " / ") |>
-  mutate(across(c('vessel_official_name', 'dealer'),
+  mutate(across(c('vessel_official_number', 'dealer'),
                 str_squish))
 
 # View(permits_from_pims__permit_only__vessel_id)
