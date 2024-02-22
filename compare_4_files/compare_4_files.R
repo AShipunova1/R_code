@@ -309,7 +309,8 @@ all_4_dfs_dates <-
           across(
             where(is.character) &
             (ends_with("_date") |
-               starts_with("permit_groupexpiration")),
+               starts_with("permit_groupexpiration")
+             ),
             ~ lubridate::parse_date_time(.x, orders = c("mdY"))
           )
         )
@@ -418,6 +419,7 @@ short_compliance_from_fhier_multi_permitgroups <-
 
 nrow(short_compliance_from_fhier_multi_permitgroups)
 # 10
+# the same permits, diff format
 
 ### metrics_report: split permit column ----
 all_4_dfs3$metrics_report <-
@@ -496,6 +498,41 @@ all_4_dfs3$permit_info_from_db <-
 nrow(all_4_dfs3$permit_info_from_db)
 # 16073
 
+sep_chr_column <-
+  function(my_df,
+           col_name_to_sep,
+           split_chr = ",") {
+    my_df_w_split_col <-
+      my_df |>
+      mutate(sep_s =
+               str_split(!!sym(col_name_to_sep), split_chr)) |>
+      rowwise() |>
+      mutate(sep_u =
+               list(sort(unique(sep_s)))) |>
+      ungroup() |>
+      unnest_longer(sep_u,
+                    values_to = "permit_sep_u")
+
+    return(my_df_w_split_col)
+  }
+
+### permits_from_pims split vessel_or_dealer ----
+# TODO:
+# $ vessel_or_dealer <chr> "287008 / DESTINY", "515431 / CAPT BUCK", "R15431 / CAP…
+
+### permits_from_pims split permit__ ----
+# TODO:
+# $ permit__         <chr> "CHG-981", "CHG-120", "RCG-114", "CHG-1417", "RCG-1359"…
+
+permits_from_pims__permit_only <-
+  all_4_dfs3$permits_from_pims |>
+  mutate(permit_clean =
+           str_replace(permit__,
+                       "-\\d+", ""))
+
+# View(permits_from_pims__permit_only)
+
+
 # stopped presenting here
 # check
 setdiff(all_permits_in_metrics$permit_sep_u,
@@ -519,11 +556,11 @@ file_name_combinations <-
   combn(all_4_df_names, 2)
 
 # compare each pair ----
-## [1] "compliance_from_fhier" "db_logbooks" ----
+## [1] "compliance_from_fhier" "permits_from_pims" ----
 file_name_combinations[,1]
 
 print_df_names(all_4_dfs3$compliance_from_fhier)
-print_df_names(all_4_dfs3$db_logbooks)
+print_df_names(all_4_dfs3$permits_from_pims)
 
 join_compliance_from_fhier__db_logbooks__perm <-
   full_join(
