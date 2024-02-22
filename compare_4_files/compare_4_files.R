@@ -545,7 +545,7 @@ permits_from_pims_2022 |>
 # $ permit__         <chr> "CHG-981", "CHG-120", "RCG-114", "CHG-1417", "RCG-1359"…
 
 permits_from_pims__permit_only <-
-  all_4_dfs3$permits_from_pims |>
+  permits_from_pims_2022 |>
   mutate(permit_clean =
            str_replace(permit__,
                        "-\\d+", ""))
@@ -555,9 +555,9 @@ permits_from_pims__permit_only <-
 
 permits_from_pims__permit_only__vessel_id <-
   permits_from_pims__permit_only |>
-  sep_chr_column(
-           col_name_to_sep = "vessel_or_dealer",
-           split_chr = " / ")
+  separate(vessel_or_dealer,
+           c('vessel_official_name', 'dealer'),
+           sep = " / ")
 
 View(permits_from_pims__permit_only__vessel_id)
 
