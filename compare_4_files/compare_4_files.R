@@ -398,7 +398,8 @@ all_4_dfs3$compliance_from_fhier <-
   select(
     vessel_official_number,
     permit_groupexpiration,
-    permit_sep_u
+    permit_sep_u,
+    compliance_from_fhier
   ) |>
   distinct()
 
@@ -420,7 +421,7 @@ n_distinct(short_compliance_from_fhier_to_test$vessel_official_number)
 # Some vessels have > 1 permitgroup
 
 dim(all_4_dfs3$compliance_from_fhier)
-# [1] 13442     3
+# [1] 9965    3
 
 n_distinct(all_4_dfs3$compliance_from_fhier$vessel_official_number)
 # 3687
@@ -498,6 +499,8 @@ all_permits_in_metrics <-
 # 6 HCHG
 # 7 HRCG
 
+# all_4_dfs3$metrics_report |> glimpse()
+
 ### permit_info_from_db: unify vessel ids ----
 
 # grep("vessel", names(all_4_dfs3$permit_info_from_db), value = T)
@@ -552,6 +555,11 @@ unique(permit_info_from_db__no_digit_perm$permit)
 # [1] "CDW" "SC"  "CHS"
 # TODO: where are gulf permits?
 
+#### put it back ----
+all_4_dfs3$permit_info_from_db <-
+  permit_info_from_db__no_digit_perm
+
+# View(all_4_dfs3$permit_info_from_db)
 
 ### permits_from_pims get only new ----
 # TODO: don't include if all the dates before 2021 or after 2023?
@@ -625,13 +633,14 @@ permits_from_pims__permit_only__vessel_id <-
   mutate(across(c('vessel_official_number', 'dealer'),
                 str_squish))
 
-permits_from_pims__permit_only[8636,] |> glimpse()
+# permits_from_pims__permit_only[8636,] |> glimpse()
 # Expected 2 pieces. Missing pieces filled with `NA` in 3 rows [8636, 8637, 8638].
 
 n_distinct(permits_from_pims__permit_only__vessel_id$vessel_official_number)
-# 7235
+# 3069
 
 # View(permits_from_pims__permit_only__vessel_id)
+
 ### permits_from_pims fewer cols ----
 
 permits_from_pims__permit_only__vessel_id_short <-
@@ -639,7 +648,7 @@ permits_from_pims__permit_only__vessel_id_short <-
   select(-c(permit__, dealer)) |>
   distinct()
 
-# View(permits_from_pims__permit_only__vessel_id_short)
+# glimpse(permits_from_pims__permit_only__vessel_id_short)
 
 ### put it back ----
 all_4_dfs3$permits_from_pims <-
@@ -653,6 +662,7 @@ unique(all_4_dfs3$permits_from_pims$permit_clean)
 setdiff(all_permits_in_metrics$permit_sep_u,
         all_4_dfs3$permit_info_from_db$top)
 # 0 both ways, ok
+# TODO: [1] "CHG"  "RCG"  "HCHG" "HRCG"
 
 min(all_4_dfs3$permit_info_from_db$expiration_date)
 # [1] "2007-02-28 EST"
@@ -698,7 +708,7 @@ join_compliance_from_fhier__permits_from_pims__perm <-
 
 vessel_in_compl_not_in_pims_perm <-
   join_compliance_from_fhier__permits_from_pims__perm |>
-  filter(is.na(permit_clean)) |>
+  filter(is.na(permits_from_pims)) |>
   select(vessel_official_number) |>
   distinct()
 
@@ -733,6 +743,43 @@ join_compliance_from_fhier__permits_from_pims__vsl_perm <-
   )
 
 # View(join_compliance_from_fhier__permits_from_pims__vsl_perm)
+
+# 3 groups:
+# 1) in both,
+# 2) in compl only,
+# 3) in pims only
+
+join_compliance_from_fhier__permits_from_pims__vsl_perm__grps <-
+  join_compliance_from_fhier__permits_from_pims__vsl_perm |>
+  mutate(
+    where_is_vessel_permit =
+      case_when(
+        !is.na(compliance_from_fhier) & !is.na(permits_from_pims) ~
+          "in_both",
+        !is.na(compliance_from_fhier) & is.na(permits_from_pims) ~
+          "in_compl_fhier",
+        is.na(compliance_from_fhier) & !is.na(permits_from_pims) ~
+          "in_pims_permit",
+        .default = "unknown"
+      )
+  )
+
+unique(join_compliance_from_fhier__permits_from_pims__vsl_perm__grps$where_is_vessel_permit)
+# [1] "in_both"        "in_compl_fhier" "in_pims_permit"
+
+join_compliance_from_fhier__permits_from_pims__vsl_perm__grps |>
+  select(vessel_official_number, where_is_vessel_permit) |>
+  distinct() |>
+  count(where_is_vessel_permit) |>
+# 1 in_both                 2161
+# 2 in_compl_fhier          1653
+# 3 in_pims_permit           930
+  count(wt = n)
+# 4744, the same vessel in >1 group!
+# TODO
+
+n_distinct(join_compliance_from_fhier__permits_from_pims__vsl_perm__grps$vessel_official_number)
+# 4592
 
 ## [2] "compliance_from_fhier" "metrics_report" ----
 file_name_combinations[,2]
