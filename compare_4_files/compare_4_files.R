@@ -261,10 +261,12 @@ all_4_dfs1 <- map(all_4_dfs, clean_headers)
 # 4. The result is a list of data frames with an additional column indicating the source data frame, stored in 'all_4_dfs2'.
 all_4_dfs__name_col <-
   imap(all_4_dfs1,
-      \(curr_df, curr_name) {
-        curr_df |>
-        add_column(!!curr_name := curr_name)
-      })
+       \(curr_df, curr_name) {
+         curr_df |>
+           add_column(!!curr_name := str_glue("{curr_name}__df_name"))
+       })
+
+# View(all_4_dfs__name_col)
 
 ## keep only vessel ids and permit columns ----
 
@@ -300,20 +302,23 @@ col_names_to_keep <- map(all_4_dfs__name_col, names_to_keep)
 # 7. The result of this selective transformation is stored in the 'all_4_dfs2' list.
 
 # View(col_names_to_keep)
+
 all_4_dfs2 <-
   imap(all_4_dfs__name_col,
        function(x, idx)
        {
          select(x,
                 col_names_to_keep[[idx]],
-                any_of(c("top"))) |>
+                any_of(c("top", all_4_df_names))) |>
            select(-contains("trip"),
-                  -any_of(c(
-                    "gom_permitteddeclarations__",
-                    "vessel_name",
-                    "set_permits_on_hold_",
-                    "override_date"
-                  ))) |>
+                  -any_of(
+                    c(
+                      "gom_permitteddeclarations__",
+                      "vessel_name",
+                      "set_permits_on_hold_",
+                      "override_date"
+                    )
+                  )) |>
            remove_empty_cols() |>
            distinct()
        }
