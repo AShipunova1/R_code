@@ -1,8 +1,19 @@
-# compare this 4 files (permits)
+# compare this 4 files (permits) for 2022
 # 1) compliance report downloaded from FHIER (= complaince module)
-# 2) logbooks from the Oracle db all_logbooks... (has 3 or 4 letters coded permit types)
+# 2) logbooks from the Oracle db all_logbooks... (has 3 or 4 letters coded permit types) -- don't know how to get permit info,
 # 3) Metrics tracking from FHIER
 # 4) permit info from the Oracle db
+# 5) permit info from the PIMS
+# "~\from PIMS\Permits - 2024-01-25_0904.xlsx"
+# get it from PIMS
+# Menu: permits
+# Filter:
+# Fishery = RCG - Gulf Charter/headboat For Reef Fish, CHG - Gulf Charter/headboat For Coastal Migratory Pelagic Fish, SC - South Atlantic Charter/headboat For Snapper-grouper, CHS - Atlantic Charter/headboat For Coastal Migratory Pelagics, HCHG - Historical Captain Gulf Charter/headboat For Coastal Migratory Pelagic Fish, HRCG - Historical Captain Gulf Charter/headboat For Reef Fish, CDW - Atlantic Charter/headboat For Dolphin/wahoo
+#
+# download
+#
+# skip first 5 lines in R)
+
 # check transformed permits
 
 # setup ----
@@ -172,17 +183,42 @@ permit_info_from_db$END_DATE |>
 max(permit_info_from_db$EFFECTIVE_DATE)
 # [1] "2023-01-01 EST"
 
-## all 4 dataframes ----
+# 5) permit info from the PIMS ----
+# "~\from PIMS\Permits - 2024-01-25_0904.xlsx"
+
+permit_file_path <-
+  file.path(my_paths$inputs,
+            "from PIMS",
+            "Permits - 2024-01-25_0904.xlsx")
+to_skip <- 4
+my_sheet <- "Sheet 1"
+
+file.exists(permit_file_path)
+
+permits_from_pims_raw <-
+  read_xlsx(permit_file_path,
+            sheet = my_sheet,
+            skip = to_skip)
+
+# glimpse(permits_from_pims_raw)
+
+# clean_headers
+permits_from_pims <-
+  permits_from_pims_raw %>%
+  clean_headers()
+
+dim(permits_from_pims)
+# [1] 23575    11
+
+## combine 4 dataframes ----
 # "llist" is like list except that it preserves the names or labels of the component variables in the variables label attribute.
 all_4_dfs <-
   Hmisc::llist(compliance_from_fhier,
-    db_logbooks,
+    permits_from_pims,
     metrics_report,
     permit_info_from_db)
 
 # View(all_4_dfs)
-
-# str(all_4_dfs$db_logbooks)
 
 all_4_df_names <- names(all_4_dfs)
 
@@ -828,4 +864,5 @@ vessel_in_permit_info_from_db_not_in_metrics_report_alt <-
 length(vessel_in_permit_info_from_db_not_in_metrics_report_alt)
 # 10596
 # 448 after 2022 and sep permits
+
 
