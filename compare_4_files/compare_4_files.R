@@ -771,11 +771,22 @@ vessel_in_more_than_1_grp <- function(my_names_lists) {
   })
 }
 
-# intersect(
-#   vessel_ids_by_group$in_compliance_from_fhier$vessel_official_number,
-#   vessel_ids_by_group$in_both$vessel_official_number
-# ) |> head()
+# combine all functions to find intersections ----
 
+run_intersection_check <-
+  function(my_df) {
+    my_df__list <-
+      split_by_3_grps(my_df)
+
+    ### vessels in > 1 group ----
+    vessel_ids_by_group <-
+      vessel_ids_only_by_group(my_df__list)
+
+    curr_intersections <-
+      vessel_in_more_than_1_grp(vessel_ids_by_group)
+
+    return(curr_intersections)
+  }
 
 ## [1] "compliance_from_fhier" "permits_from_pims" ----
 file_name_combinations[,1]
@@ -880,17 +891,6 @@ vessels_only_in_compliance <-
 join_compliance_from_fhier__permits_from_pims__vsl_perm__grps__list <-
   split_by_3_grps(join_compliance_from_fhier__permits_from_pims__vsl_perm__grps)
 
-# diffdf::diffdf(join_compliance_from_fhier__permits_from_pims__vsl_perm__grps__list[[3]],
-#                join_compliance_from_fhier__permits_from_pims__vsl_perm__grps__list1[[3]])
-
-# join_compliance_from_fhier__permits_from_pims__vsl_perm__grps__list <-
-#   join_compliance_from_fhier__permits_from_pims__vsl_perm__grps |>
-#   split(
-#     as.factor(
-#       join_compliance_from_fhier__permits_from_pims__vsl_perm__grps$where_is_vessel_permit
-#     )
-#   )
-
 names(join_compliance_from_fhier__permits_from_pims__vsl_perm__grps__list)
 # [1] "in_both"                  "in_compliance_from_fhier"
 # [3] "in_permits_from_pims"
@@ -945,6 +945,12 @@ join_compliance_from_fhier__permits_from_pims__vsl_perm |>
   filter(vessel_official_number == "FL7549EJ") |>
   glimpse()
 # diff in compliance and in pims
+
+intersections_1_1 <-
+  run_intersection_check(join_compliance_from_fhier__permits_from_pims__vsl_perm__grps)
+
+all.equal(intersections_1,
+               intersections_1_1)
 
 ## [2] "compliance_from_fhier" "metrics_report" ----
 file_name_combinations[,2]
