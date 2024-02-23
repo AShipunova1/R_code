@@ -876,13 +876,20 @@ vessels_only_in_compliance <-
   select(vessel_official_number) |>
   distinct()
 
+
 join_compliance_from_fhier__permits_from_pims__vsl_perm__grps__list <-
-  join_compliance_from_fhier__permits_from_pims__vsl_perm__grps |>
-  split(
-    as.factor(
-      join_compliance_from_fhier__permits_from_pims__vsl_perm__grps$where_is_vessel_permit
-    )
-  )
+  split_by_3_grps(join_compliance_from_fhier__permits_from_pims__vsl_perm__grps)
+
+# diffdf::diffdf(join_compliance_from_fhier__permits_from_pims__vsl_perm__grps__list[[3]],
+#                join_compliance_from_fhier__permits_from_pims__vsl_perm__grps__list1[[3]])
+
+# join_compliance_from_fhier__permits_from_pims__vsl_perm__grps__list <-
+#   join_compliance_from_fhier__permits_from_pims__vsl_perm__grps |>
+#   split(
+#     as.factor(
+#       join_compliance_from_fhier__permits_from_pims__vsl_perm__grps$where_is_vessel_permit
+#     )
+#   )
 
 names(join_compliance_from_fhier__permits_from_pims__vsl_perm__grps__list)
 # [1] "in_both"                  "in_compliance_from_fhier"
@@ -936,7 +943,7 @@ join_compliance_from_fhier__permits_from_pims__vsl_perm |>
 
 join_compliance_from_fhier__permits_from_pims__vsl_perm |>
   filter(vessel_official_number == "FL7549EJ") |>
-  View()
+  glimpse()
 # diff in compliance and in pims
 
 ## [2] "compliance_from_fhier" "metrics_report" ----
