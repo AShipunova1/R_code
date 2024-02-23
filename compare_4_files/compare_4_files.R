@@ -800,6 +800,51 @@ join_compliance_from_fhier__permits_from_pims__vsl_perm__grps__list <-
 names(join_compliance_from_fhier__permits_from_pims__vsl_perm__grps__list)
 # [1] "in_both"        "in_compl_fhier" "in_pims_permit"
 
+### vessels in > 1 group ----
+vessel_ids_by_group <-
+  join_compliance_from_fhier__permits_from_pims__vsl_perm__grps__list |>
+  map(\(curr_df) {
+    curr_df |>
+      select(vessel_official_number) |>
+      distinct()
+  })
+
+# combn(names(vessel_ids_by_group), 2)
+# [1,] "in_both"        "in_both"        "in_compl_fhier"
+# [2,] "in_compl_fhier" "in_pims_permit" "in_pims_permit"
+intersect(
+  vessel_ids_by_group$in_compl_fhier$vessel_official_number,
+  vessel_ids_by_group$in_both$vessel_official_number
+) |> head()
+  # length()
+# 127
+join_compliance_from_fhier__permits_from_pims__vsl_perm |>
+  filter(vessel_official_number == "VA4480ZY") |>
+  glimpse()
+# only 1 permit in pims
+
+intersect(
+  vessel_ids_by_group$in_pims_permit$vessel_official_number,
+  vessel_ids_by_group$in_both$vessel_official_number
+) |> head()
+  # length()
+# 22
+
+join_compliance_from_fhier__permits_from_pims__vsl_perm |>
+  filter(vessel_official_number == "FL5811LU") |>
+  glimpse()
+# old SA in PIMS, ok
+
+intersect(
+  vessel_ids_by_group$in_pims_permit$vessel_official_number,
+  vessel_ids_by_group$in_compl_fhier$vessel_official_number
+) |> length()
+# 5
+
+join_compliance_from_fhier__permits_from_pims__vsl_perm |>
+  filter(vessel_official_number == "FL2597MN") |>
+  glimpse()
+# SA in compliance, GOM in pims
 
 ## [2] "compliance_from_fhier" "metrics_report" ----
 file_name_combinations[,2]
@@ -822,7 +867,7 @@ vessel_in_compl_not_in_metrics <-
   )
 
 length(vessel_in_compl_not_in_metrics)
-# 240
+# 255
 
 vessel_in_metrics_not_in_compl <-
   setdiff(
@@ -831,7 +876,7 @@ vessel_in_metrics_not_in_compl <-
   )
 
 length(vessel_in_metrics_not_in_compl)
-# 159
+# 11
 
 ## [3] "compliance_from_fhier" "permit_info_from_db" ----
 file_name_combinations[,3]
