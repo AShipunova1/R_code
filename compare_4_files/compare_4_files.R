@@ -682,7 +682,11 @@ file_name_combinations <-
 
 # compare each pair ----
 
-##
+## aux functions for comparison ----
+
+# Usage:
+# add_groups_by_where(my_joined_df, file_name_combinations[,1])
+
 add_groups_by_where <-
   function(my_df,
            df_name_cols_vector
@@ -711,6 +715,34 @@ add_groups_by_where <-
 
     return(my_df__vsl_perm__grps)
   }
+
+
+split_by_3_grps <-
+  function(my_df) {
+    my_df__list <-
+      my_df |>
+      split(as.factor(my_df$where_is_vessel_permit))
+
+    return(my_df__list)
+  }
+
+vessel_in_more_than_1_grp <- function(my_df) {
+  vessel_ids_by_group <-
+    my_df |>
+    map(\(curr_df) {
+      curr_df |>
+        select(vessel_official_number) |>
+        distinct()
+    })
+
+  return(vessel_ids_by_group)
+}
+
+# intersect(
+#   vessel_ids_by_group$in_compliance_from_fhier$vessel_official_number,
+#   vessel_ids_by_group$in_both$vessel_official_number
+# ) |> head()
+
 
 ## [1] "compliance_from_fhier" "permits_from_pims" ----
 file_name_combinations[,1]
@@ -877,7 +909,7 @@ file_name_combinations[,2]
 # print_df_names(all_4_dfs3$metrics_report)
 
 ### join by vessel and permit ----
-join_compliance_from_fhier__metrics_report <-
+join_compliance_from_fhier__metrics_report__vsl_permit <-
   full_join(
     all_4_dfs3$compliance_from_fhier,
     all_4_dfs3$metrics_report,
@@ -903,16 +935,12 @@ vessel_in_metrics_not_in_compl <-
 length(vessel_in_metrics_not_in_compl)
 # 11
 
-## join by vessel and permit
-join_compliance_from_fhier__metrics_report <-
-  full_join(
-    all_4_dfs3$compliance_from_fhier,
-    all_4_dfs3$metrics_report,
-    join_by(vessel_official_number,
-            permit_sep_u)
-  )
+# check
+join_compliance_from_fhier__metrics_report__vsl_permit__grps <-
+  add_groups_by_where(join_compliance_from_fhier__metrics_report__vsl_permit,
+                      file_name_combinations[, 2])
 
-
+View(join_compliance_from_fhier__metrics_report__vsl_permit__grps)
 
 ## [3] "compliance_from_fhier" "permit_info_from_db" ----
 file_name_combinations[,3]
