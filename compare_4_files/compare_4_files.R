@@ -789,6 +789,17 @@ vessels_only_in_compliance <-
   select(vessel_official_number) |>
   distinct()
 
+join_compliance_from_fhier__permits_from_pims__vsl_perm__grps__list <-
+  join_compliance_from_fhier__permits_from_pims__vsl_perm__grps |>
+  split(
+    as.factor(
+      join_compliance_from_fhier__permits_from_pims__vsl_perm__grps$where_is_vessel_permit
+    )
+  )
+
+names(join_compliance_from_fhier__permits_from_pims__vsl_perm__grps__list)
+# [1] "in_both"        "in_compl_fhier" "in_pims_permit"
+
 
 ## [2] "compliance_from_fhier" "metrics_report" ----
 file_name_combinations[,2]
