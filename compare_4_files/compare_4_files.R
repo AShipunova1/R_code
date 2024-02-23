@@ -1112,7 +1112,8 @@ join_compliance_from_fhier__permit_info_from_db__vsl_perm |>
   View()
 
 ## [4] "permits_from_pims" "metrics_report" ----
-file_name_combinations[,4]
+curr_file_name_combinations <-
+  file_name_combinations[,4]
 
 # print_df_names(all_4_dfs3$permits_from_pims)
 # print_df_names(all_4_dfs3$metrics_report)
@@ -1136,7 +1137,7 @@ vessel_in_permits_from_pims_not_in_metrics_report <-
   )
 
 length(vessel_in_permits_from_pims_not_in_metrics_report)
-# 43
+# 973
 
 vessel_in_metrics_report_not_in_permits_from_pims <-
   setdiff(
@@ -1145,7 +1146,18 @@ vessel_in_metrics_report_not_in_permits_from_pims <-
   )
 
 length(vessel_in_metrics_report_not_in_permits_from_pims)
-# 1760
+# 1347
+
+## join by vessel and permit ----
+join_permits_from_pims__metrics_report__vsl_perm <-
+  full_join(
+    all_4_dfs3$permits_from_pims,
+    all_4_dfs3$metrics_report,
+    join_by(vessel_official_number,
+            permit_clean == permit_sep_u)
+  )
+
+# View(join_permits_from_pims__metrics_report__vsl_perm)
 
 ## [5] "permits_from_pims" "permit_info_from_db" ----
 file_name_combinations[,5]
