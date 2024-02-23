@@ -681,6 +681,34 @@ file_name_combinations <-
   combn(all_4_df_names, 2)
 
 # compare each pair ----
+
+##
+add_groups_by_where <-
+  function(my_df,
+           df_name_col_1,
+           df_name_col_2) {
+
+    my_df__vsl_perm__grps <-
+      my_df |>
+      mutate(
+        where_is_vessel_permit =
+          case_when(
+            !is.na(!!sym(df_name_col_1)) &
+              !is.na(!!sym(df_name_col_2)) ~
+              "in_both",
+            !is.na(!!sym(df_name_col_1)) &
+              is.na(!!sym(df_name_col_2)) ~
+              str_glue("in_{df_name_col_1}"),
+            is.na(!!sym(df_name_col_1)) &
+              !is.na(!!sym(df_name_col_2)) ~
+              str_glue("in_{df_name_col_2}"),
+            .default = "unknown"
+          )
+      )
+
+    return(my_df__vsl_perm__grps)
+  }
+
 ## [1] "compliance_from_fhier" "permits_from_pims" ----
 file_name_combinations[,1]
 
@@ -748,6 +776,19 @@ join_compliance_from_fhier__permits_from_pims__vsl_perm <-
 # 1) in both,
 # 2) in compl only,
 # 3) in pims only
+
+join_compliance_from_fhier__permits_from_pims__vsl_perm__grps1 <-
+  add_groups_by_where(
+    join_compliance_from_fhier__permits_from_pims__vsl_perm,
+    "compliance_from_fhier",
+    "permits_from_pims"
+  )
+
+diffdf::diffdf(join_compliance_from_fhier__permits_from_pims__vsl_perm__grps,
+               join_compliance_from_fhier__permits_from_pims__vsl_perm__grps1)
+   # where_is_vessel_permit  character   c("glue", "character")
+
+file_name_combinations[,1]
 
 join_compliance_from_fhier__permits_from_pims__vsl_perm__grps <-
   join_compliance_from_fhier__permits_from_pims__vsl_perm |>
@@ -852,6 +893,7 @@ file_name_combinations[,2]
 # print_df_names(all_4_dfs3$compliance_from_fhier)
 # print_df_names(all_4_dfs3$metrics_report)
 
+### join by vessel and permit ----
 join_compliance_from_fhier__metrics_report <-
   full_join(
     all_4_dfs3$compliance_from_fhier,
@@ -877,6 +919,17 @@ vessel_in_metrics_not_in_compl <-
 
 length(vessel_in_metrics_not_in_compl)
 # 11
+
+## join by vessel and permit
+join_compliance_from_fhier__metrics_report <-
+  full_join(
+    all_4_dfs3$compliance_from_fhier,
+    all_4_dfs3$metrics_report,
+    join_by(vessel_official_number,
+            permit_sep_u)
+  )
+
+
 
 ## [3] "compliance_from_fhier" "permit_info_from_db" ----
 file_name_combinations[,3]
