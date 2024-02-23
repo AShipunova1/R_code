@@ -743,17 +743,31 @@ vessel_in_more_than_1_grp <- function(my_names_lists) {
   names_combns <- combn(names(my_names_lists), 2) |>
     as.data.frame()
 
+  # make_col names
+  my_col_names <-
+    names_combns |>
+    map(\(x) {
+      # browser()
+      name1 <- x[[1]]
+      name2 <- x[[2]]
+
+      comb_name <-
+        str_glue("inters_{name1}__{name2}")
+    })
+
+  names(names_combns) <- my_col_names
+
   names_combns |>
     map(\(x) {
       # browser()
       name1 <- x[[1]]
       name2 <- x[[2]]
 
-      curr_intersetion <-
+      curr_intersection <-
         intersect(my_names_lists[[name1]]$vessel_official_number,
                   my_names_lists[[name2]]$vessel_official_number)
 
-      return(curr_intersetion)
+      return(curr_intersection)
   })
 }
 
@@ -878,47 +892,52 @@ names(join_compliance_from_fhier__permits_from_pims__vsl_perm__grps__list)
 vessel_ids_by_group <-
   vessel_ids_only_by_group(join_compliance_from_fhier__permits_from_pims__vsl_perm__grps__list)
 
-rr <-
-vessel_in_more_than_1_grp(vessel_ids_by_group)
+intersections_1 <-
+  vessel_in_more_than_1_grp(vessel_ids_by_group)
 
-View(rr)
-# combn(names(vessel_ids_by_group), 2)
-# [1,] "in_both"        "in_both"        "in_compliance_from_fhier"
-# [2,] "in_compliance_from_fhier" "in_permits_from_pims" "in_permits_from_pims"
+# View(intersections_1)
 intersect(
   vessel_ids_by_group$in_compliance_from_fhier$vessel_official_number,
   vessel_ids_by_group$in_both$vessel_official_number
-) |> head()
-  # length()
+) |>
+  # head()
+  length()
 # 127
+
+map(intersections_1, length)
+# $inters_in_both__in_compliance_from_fhier
+# [1] 127
+#
+# $inters_in_both__in_permits_from_pims
+# [1] 22
+#
+# $inters_in_compliance_from_fhier__in_permits_from_pims
+# [1] 5
+
+map(intersections_1, head(1))
+# $inters_in_both__in_compliance_from_fhier
+# [1] "VA4480ZY"
+#
+# $inters_in_both__in_permits_from_pims
+# [1] "TX7674AT"
+#
+# $inters_in_compliance_from_fhier__in_permits_from_pims
+# [1] "FL7549EJ"
 
 join_compliance_from_fhier__permits_from_pims__vsl_perm |>
   filter(vessel_official_number == "VA4480ZY") |>
   glimpse()
 # only 1 permit in pims
 
-intersect(
-  vessel_ids_by_group$in_permits_from_pims$vessel_official_number,
-  vessel_ids_by_group$in_both$vessel_official_number
-) |> head()
-  # length()
-# 22
-
 join_compliance_from_fhier__permits_from_pims__vsl_perm |>
-  filter(vessel_official_number == "FL5811LU") |>
+  filter(vessel_official_number == "TX7674AT") |>
   glimpse()
 # old SA in PIMS, ok
 
-intersect(
-  vessel_ids_by_group$in_permits_from_pims$vessel_official_number,
-  vessel_ids_by_group$in_compliance_from_fhier$vessel_official_number
-) |> length()
-# 5
-
 join_compliance_from_fhier__permits_from_pims__vsl_perm |>
-  filter(vessel_official_number == "FL2597MN") |>
-  glimpse()
-# SA in compliance, GOM in pims
+  filter(vessel_official_number == "FL7549EJ") |>
+  View()
+# diff in compliance and in pims
 
 ## [2] "compliance_from_fhier" "metrics_report" ----
 file_name_combinations[,2]
