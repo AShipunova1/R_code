@@ -685,9 +685,12 @@ file_name_combinations <-
 ##
 add_groups_by_where <-
   function(my_df,
-           df_name_col_1,
-           df_name_col_2) {
+           df_name_cols_vector
+           ) {
+    df_name_col_1 <- df_name_cols_vector[[1]]
+    df_name_col_2 <- df_name_cols_vector[[2]]
 
+    # file_name_combinations[,1][[1]]
     my_df__vsl_perm__grps <-
       my_df |>
       mutate(
@@ -780,15 +783,13 @@ join_compliance_from_fhier__permits_from_pims__vsl_perm <-
 join_compliance_from_fhier__permits_from_pims__vsl_perm__grps1 <-
   add_groups_by_where(
     join_compliance_from_fhier__permits_from_pims__vsl_perm,
-    "compliance_from_fhier",
-    "permits_from_pims"
+    file_name_combinations[,1]
+    # "compliance_from_fhier",
+    # "permits_from_pims"
   )
 
 diffdf::diffdf(join_compliance_from_fhier__permits_from_pims__vsl_perm__grps,
                join_compliance_from_fhier__permits_from_pims__vsl_perm__grps1)
-   # where_is_vessel_permit  character   c("glue", "character")
-
-file_name_combinations[,1]
 
 join_compliance_from_fhier__permits_from_pims__vsl_perm__grps <-
   join_compliance_from_fhier__permits_from_pims__vsl_perm |>
