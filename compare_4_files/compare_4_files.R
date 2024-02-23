@@ -230,7 +230,7 @@ all_4_dfs <-
 
 all_4_df_names <- names(all_4_dfs)
 
-# aux function ----
+# aux functions ----
 sep_chr_column <-
   function(my_df,
            col_name_to_sep,
@@ -248,6 +248,18 @@ sep_chr_column <-
 
     return(my_df_w_split_col)
   }
+
+title_message_print <- function(title_msg) {
+  cat(crayon::blue(title_msg), sep = "\n")
+}
+
+pretty_print <- function(my_text, my_title,
+                         the_end = "---") {
+  # Print out to console
+  title_message_print(my_title)
+  cat(c(my_text, the_end),
+      sep = "\n")
+}
 
 # prepare data for comparison ----
 ## clean_headers ----
@@ -740,6 +752,8 @@ vessel_ids_only_by_group <- function(my_df) {
 
 group_vsls_and_count <-
   function(my_df, curr_file_name_combination) {
+
+    # browser()
     my_df__grps <-
       add_groups_by_where(my_df,
                           curr_file_name_combination)
@@ -753,14 +767,18 @@ group_vsls_and_count <-
       distinct() |>
       count(where_is_vessel_permit)
 
-    my_df__grps_short_cnt
+    title_message_print("Group counts")
+    print(my_df__grps_short_cnt)
+    # unlist(my_df__grps_short_cnt) |>
+    #   pretty_print("Group counts")
 
-    cat("Total cnt in groups")
     my_df__grps_short_cnt |>
-      count(wt = n)
+      count(wt = n) |>
+      unlist() |>
+      pretty_print("Total cnt in groups")
 
-    cat("Total vsl cnt")
-    n_distinct(my_df__grps$vessel_official_number)
+    n_distinct(my_df__grps$vessel_official_number) |>
+      pretty_print("Total vsl cnt")
 
     return(my_df__grps)
   }
@@ -888,6 +906,16 @@ join_compliance_from_fhier__permits_from_pims__vsl_perm__grps <-
     join_compliance_from_fhier__permits_from_pims__vsl_perm,
     file_name_combinations[,1]
   )
+
+join_compliance_from_fhier__permits_from_pims__vsl_perm__grps1 <-
+  group_vsls_and_count(
+    join_compliance_from_fhier__permits_from_pims__vsl_perm,
+    file_name_combinations[, 1]
+  )
+
+# diffdf::diffdf(join_compliance_from_fhier__permits_from_pims__vsl_perm__grps,
+#                join_compliance_from_fhier__permits_from_pims__vsl_perm__grps1)
+# T
 
 unique(join_compliance_from_fhier__permits_from_pims__vsl_perm__grps$where_is_vessel_permit)
 # [1] "in_both"                  "in_compliance_from_fhier"
