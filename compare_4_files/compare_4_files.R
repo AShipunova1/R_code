@@ -726,7 +726,7 @@ split_by_3_grps <-
     return(my_df__list)
   }
 
-vessel_in_more_than_1_grp <- function(my_df) {
+vessel_ids_only_by_group <- function(my_df) {
   vessel_ids_by_group <-
     my_df |>
     map(\(curr_df) {
@@ -738,6 +738,15 @@ vessel_in_more_than_1_grp <- function(my_df) {
   return(vessel_ids_by_group)
 }
 
+vessel_in_more_than_1_grp <- function(my_df) {
+  browser()
+# intersect(
+#   vessel_ids_by_group$in_compliance_from_fhier$vessel_official_number,
+#   vessel_ids_by_group$in_both$vessel_official_number
+# ) |> head()
+
+  my_df
+}
 # intersect(
 #   vessel_ids_by_group$in_compliance_from_fhier$vessel_official_number,
 #   vessel_ids_by_group$in_both$vessel_official_number
@@ -856,6 +865,13 @@ names(join_compliance_from_fhier__permits_from_pims__vsl_perm__grps__list)
 # [3] "in_permits_from_pims"
 
 ### vessels in > 1 group ----
+vessel_ids_by_group1 <-
+  vessel_ids_only_by_group(join_compliance_from_fhier__permits_from_pims__vsl_perm__grps__list)
+
+diffdf::diffdf(vessel_ids_by_group[[3]],
+               vessel_ids_by_group1[[3]])
+# T
+
 vessel_ids_by_group <-
   join_compliance_from_fhier__permits_from_pims__vsl_perm__grps__list |>
   map(\(curr_df) {
