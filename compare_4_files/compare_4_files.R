@@ -967,7 +967,51 @@ join_compliance_from_fhier__metrics_report__vsl_permit__grps <-
   add_groups_by_where(join_compliance_from_fhier__metrics_report__vsl_permit,
                       file_name_combinations[, 2])
 
-View(join_compliance_from_fhier__metrics_report__vsl_permit__grps)
+glimpse(join_compliance_from_fhier__metrics_report__vsl_permit__grps)
+
+join_compliance_from_fhier__metrics_report__vsl_permit__grps |>
+  select(vessel_official_number, where_is_vessel_permit) |>
+  distinct() |>
+  count(where_is_vessel_permit)
+# |>
+# 1 in_both                   3432
+# 2 in_compliance_from_fhier   397
+# 3 in_metrics_report           19
+  # count(wt = n)
+# 3848
+
+n_distinct(join_compliance_from_fhier__metrics_report__vsl_permit__grps$vessel_official_number)
+# 3698, the same vessel in >1 group!
+
+intersections_2 <-
+  run_intersection_check(join_compliance_from_fhier__metrics_report__vsl_permit__grps)
+
+map(intersections_2, length)
+# $inters_in_both__in_compliance_from_fhier
+# [1] 142
+#
+# $inters_in_both__in_metrics_report
+# [1] 8
+#
+# $inters_in_compliance_from_fhier__in_metrics_report
+# [1] 0
+
+map(intersections_2, head(1))
+# $inters_in_both__in_compliance_from_fhier
+# [1] "TX6291CS"
+#
+# $inters_in_both__in_metrics_report
+# [1] "MC7540US"
+
+join_compliance_from_fhier__metrics_report__vsl_permit |>
+  filter(vessel_official_number == "TX6291CS") |>
+  glimpse()
+# missing in compl metrics
+
+join_compliance_from_fhier__metrics_report__vsl_permit |>
+  filter(vessel_official_number == "MC7540US") |>
+  glimpse()
+# missing in compl
 
 ## [3] "compliance_from_fhier" "permit_info_from_db" ----
 file_name_combinations[,3]
