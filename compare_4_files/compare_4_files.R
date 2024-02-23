@@ -738,15 +738,25 @@ vessel_ids_only_by_group <- function(my_df) {
   return(vessel_ids_by_group)
 }
 
-vessel_in_more_than_1_grp <- function(my_df) {
-  browser()
-# intersect(
-#   vessel_ids_by_group$in_compliance_from_fhier$vessel_official_number,
-#   vessel_ids_by_group$in_both$vessel_official_number
-# ) |> head()
+vessel_in_more_than_1_grp <- function(my_names_lists) {
+  # browser()
+  names_combns <- combn(names(my_names_lists), 2) |>
+    as.data.frame()
 
-  my_df
+  names_combns |>
+    map(\(x) {
+      # browser()
+      name1 <- x[[1]]
+      name2 <- x[[2]]
+
+      curr_intersetion <-
+        intersect(my_names_lists[[name1]]$vessel_official_number,
+                  my_names_lists[[name2]]$vessel_official_number)
+
+      return(curr_intersetion)
+  })
 }
+
 # intersect(
 #   vessel_ids_by_group$in_compliance_from_fhier$vessel_official_number,
 #   vessel_ids_by_group$in_both$vessel_official_number
@@ -865,21 +875,13 @@ names(join_compliance_from_fhier__permits_from_pims__vsl_perm__grps__list)
 # [3] "in_permits_from_pims"
 
 ### vessels in > 1 group ----
-vessel_ids_by_group1 <-
+vessel_ids_by_group <-
   vessel_ids_only_by_group(join_compliance_from_fhier__permits_from_pims__vsl_perm__grps__list)
 
-diffdf::diffdf(vessel_ids_by_group[[3]],
-               vessel_ids_by_group1[[3]])
-# T
+rr <-
+vessel_in_more_than_1_grp(vessel_ids_by_group)
 
-vessel_ids_by_group <-
-  join_compliance_from_fhier__permits_from_pims__vsl_perm__grps__list |>
-  map(\(curr_df) {
-    curr_df |>
-      select(vessel_official_number) |>
-      distinct()
-  })
-
+View(rr)
 # combn(names(vessel_ids_by_group), 2)
 # [1,] "in_both"        "in_both"        "in_compliance_from_fhier"
 # [2,] "in_compliance_from_fhier" "in_permits_from_pims" "in_permits_from_pims"
