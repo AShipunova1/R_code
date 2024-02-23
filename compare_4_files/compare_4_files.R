@@ -754,15 +754,15 @@ vessel_in_compl_not_in_pims_perm1 <-
 length(vessel_in_compl_not_in_pims_perm1)
 # 1523 (the same)
 
-vessel_in_pims_permits_not_in_compl <-
+vessel_in_permits_from_pimss_not_in_compl <-
   setdiff(
     all_4_dfs3$permits_from_pims$vessel_official_number,
     all_4_dfs3$compliance_from_fhier$vessel_official_number
   )
-length(vessel_in_pims_permits_not_in_compl)
+length(vessel_in_permits_from_pimss_not_in_compl)
 # 905
 
-glimpse(vessel_in_pims_permits_not_in_compl)
+glimpse(vessel_in_permits_from_pimss_not_in_compl)
  # chr [1:905] "1074262" "644342" "296866" "1296642" "FL9104PX" "FL5102EJ" ...
 
 ### join by vessel and permit ----
@@ -780,45 +780,25 @@ join_compliance_from_fhier__permits_from_pims__vsl_perm <-
 # 2) in compl only,
 # 3) in pims only
 
-join_compliance_from_fhier__permits_from_pims__vsl_perm__grps1 <-
+join_compliance_from_fhier__permits_from_pims__vsl_perm__grps <-
   add_groups_by_where(
     join_compliance_from_fhier__permits_from_pims__vsl_perm,
     file_name_combinations[,1]
-    # "compliance_from_fhier",
-    # "permits_from_pims"
-  )
-
-diffdf::diffdf(join_compliance_from_fhier__permits_from_pims__vsl_perm__grps,
-               join_compliance_from_fhier__permits_from_pims__vsl_perm__grps1)
-
-join_compliance_from_fhier__permits_from_pims__vsl_perm__grps <-
-  join_compliance_from_fhier__permits_from_pims__vsl_perm |>
-  mutate(
-    where_is_vessel_permit =
-      case_when(
-        !is.na(compliance_from_fhier) & !is.na(permits_from_pims) ~
-          "in_both",
-        !is.na(compliance_from_fhier) & is.na(permits_from_pims) ~
-          "in_compl_fhier",
-        is.na(compliance_from_fhier) & !is.na(permits_from_pims) ~
-          "in_pims_permit",
-        .default = "unknown"
-      )
   )
 
 unique(join_compliance_from_fhier__permits_from_pims__vsl_perm__grps$where_is_vessel_permit)
-# [1] "in_both"        "in_compl_fhier" "in_pims_permit"
+# [1] "in_both"                  "in_compliance_from_fhier"
+# [3] "in_permits_from_pims"
 
 join_compliance_from_fhier__permits_from_pims__vsl_perm__grps |>
   select(vessel_official_number, where_is_vessel_permit) |>
   distinct() |>
   count(where_is_vessel_permit) |>
-# 1 in_both                 2161
-# 2 in_compl_fhier          1653
-# 3 in_pims_permit           930
+# 1 in_both                  2161
+# 2 in_compliance_from_fhier 1653
+# 3 in_permits_from_pims      930
   count(wt = n)
 # 4744, the same vessel in >1 group!
-# TODO
 
 n_distinct(join_compliance_from_fhier__permits_from_pims__vsl_perm__grps$vessel_official_number)
 # 4592
@@ -827,7 +807,7 @@ n_distinct(join_compliance_from_fhier__permits_from_pims__vsl_perm__grps$vessel_
 # TODO: save vessel id and look for them in other dfs
 vessels_only_in_compliance <-
   join_compliance_from_fhier__permits_from_pims__vsl_perm__grps |>
-  filter(where_is_vessel_permit == "in_compl_fhier") |>
+  filter(where_is_vessel_permit == "in_compliance_from_fhier") |>
   select(vessel_official_number) |>
   distinct()
 
@@ -840,7 +820,8 @@ join_compliance_from_fhier__permits_from_pims__vsl_perm__grps__list <-
   )
 
 names(join_compliance_from_fhier__permits_from_pims__vsl_perm__grps__list)
-# [1] "in_both"        "in_compl_fhier" "in_pims_permit"
+# [1] "in_both"                  "in_compliance_from_fhier"
+# [3] "in_permits_from_pims"
 
 ### vessels in > 1 group ----
 vessel_ids_by_group <-
@@ -852,21 +833,22 @@ vessel_ids_by_group <-
   })
 
 # combn(names(vessel_ids_by_group), 2)
-# [1,] "in_both"        "in_both"        "in_compl_fhier"
-# [2,] "in_compl_fhier" "in_pims_permit" "in_pims_permit"
+# [1,] "in_both"        "in_both"        "in_compliance_from_fhier"
+# [2,] "in_compliance_from_fhier" "in_permits_from_pims" "in_permits_from_pims"
 intersect(
-  vessel_ids_by_group$in_compl_fhier$vessel_official_number,
+  vessel_ids_by_group$in_compliance_from_fhier$vessel_official_number,
   vessel_ids_by_group$in_both$vessel_official_number
 ) |> head()
   # length()
 # 127
+
 join_compliance_from_fhier__permits_from_pims__vsl_perm |>
   filter(vessel_official_number == "VA4480ZY") |>
   glimpse()
 # only 1 permit in pims
 
 intersect(
-  vessel_ids_by_group$in_pims_permit$vessel_official_number,
+  vessel_ids_by_group$in_permits_from_pims$vessel_official_number,
   vessel_ids_by_group$in_both$vessel_official_number
 ) |> head()
   # length()
@@ -878,8 +860,8 @@ join_compliance_from_fhier__permits_from_pims__vsl_perm |>
 # old SA in PIMS, ok
 
 intersect(
-  vessel_ids_by_group$in_pims_permit$vessel_official_number,
-  vessel_ids_by_group$in_compl_fhier$vessel_official_number
+  vessel_ids_by_group$in_permits_from_pims$vessel_official_number,
+  vessel_ids_by_group$in_compliance_from_fhier$vessel_official_number
 ) |> length()
 # 5
 
