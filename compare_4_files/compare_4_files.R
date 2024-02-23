@@ -738,6 +738,33 @@ vessel_ids_only_by_group <- function(my_df) {
   return(vessel_ids_by_group)
 }
 
+group_vsls_and_count <-
+  function(my_df, curr_file_name_combination) {
+    my_df__grps <-
+      add_groups_by_where(my_df,
+                          curr_file_name_combination)
+
+    # to see group names
+    # unique(my_df__grps$where_is_vessel_permit)
+
+    my_df__grps_short_cnt <-
+      my_df__grps |>
+      select(vessel_official_number, where_is_vessel_permit) |>
+      distinct() |>
+      count(where_is_vessel_permit)
+
+    my_df__grps_short_cnt
+
+    cat("Total cnt in groups")
+    my_df__grps_short_cnt |>
+      count(wt = n)
+
+    cat("Total vsl cnt")
+    n_distinct(my_df__grps$vessel_official_number)
+
+    return(my_df__grps)
+  }
+
 vessel_in_more_than_1_grp <- function(my_names_lists) {
   # browser()
   names_combns <- combn(names(my_names_lists), 2) |>
@@ -1148,7 +1175,7 @@ vessel_in_metrics_report_not_in_permits_from_pims <-
 length(vessel_in_metrics_report_not_in_permits_from_pims)
 # 1347
 
-## join by vessel and permit ----
+### join by vessel and permit ----
 join_permits_from_pims__metrics_report__vsl_perm <-
   full_join(
     all_4_dfs3$permits_from_pims,
@@ -1156,6 +1183,9 @@ join_permits_from_pims__metrics_report__vsl_perm <-
     join_by(vessel_official_number,
             permit_clean == permit_sep_u)
   )
+
+### 3 grps ----
+join_permits_from_pims__metrics_report__vsl_perm
 
 # View(join_permits_from_pims__metrics_report__vsl_perm)
 
