@@ -361,6 +361,31 @@ corresp_contact_cnts_clean |>
   # select(calltype, voicemail, contacttype) |> 
   distinct() |> View()
 
+## Add count calls ----
+# Use for contacts in the setup function before combining with compliant dataframes
+add_count_calls <- function(my_df) {
+  # browser()
+  contactdate_field_name <-
+    find_col_name(all_data_df_clean, "contact", "date")[1]
+  contacttype_field_name <-
+    find_col_name(all_data_df_clean, "contact", "type")[1]
+  vessel_id_field_name <-
+    find_col_name(all_data_df_clean, "vessel", "number")[1]
+  
+  # browser()
+  # 2 Incoming No        Call
+  # 3 Outgoing Yes       Call
+  # 4 Outgoing No        Call
+  
+  my_df |> 
+    dplyr::mutate(a_valid_call = case_when()
+                    
+                    if_else(is.na(contactdate_field_name), "no", "yes")) |> 
+    dplyr::add_count(!!sym(vessel_id_field_name), was_contacted, name = "contact_freq") |> 
+    return()
+}
+
+
 call_once_filter <-
   quo(any(tolower(contacttype) == "call") &
         any(tolower(voicemail) == "no") &
