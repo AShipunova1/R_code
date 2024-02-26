@@ -21,7 +21,7 @@ jennys_path <-
   "//ser-fs1/sf/LAPP-DM Documents/Ostroff/SEFHIER/Rcode/ProcessingLogbookData/"
 
 annas_path <-
-  r"(C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\processing_logbook_data/)"
+  r"(~\R_files_local\my_inputs\processing_logbook_data/)"
 
 # Change to use another path instead:
 # Path <- michelles_path
