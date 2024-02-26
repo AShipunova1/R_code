@@ -36,7 +36,8 @@ my_year2 <- "2024"
 my_beginning2 <- str_glue("{my_year2}-01-01")
 my_end2 <- str_glue("{my_year2}-12-31")
 
-data_file_date <- today()
+data_file_date <- lubridate::ymd("2024-02-21")
+  # today()
 # [1] "2024-02-16"
 
 number_of_weeks_for_non_compliancy = 26
@@ -392,27 +393,23 @@ they_contacted_direct_filter <-
 corresp_filter <-
   quo(contact_freq > 1 &
         (
-    we_called_direct_filter |
-      they_contacted_direct_filter |
-      (we_called_indirect_filter &
-         we_emailed_once_filter)
+    !!we_called_direct_filter |
+      !!they_contacted_direct_filter |
+      (!!we_called_indirect_filter &
+         !!we_emailed_once_filter)
         )
   )
 
 # calltype voicemail contacttype
 
-# Explanations:
-# Create a quosure 'two_attempts_filter' with a condition to filter rows where 'contact_freq' is greater than 1
-# and at least one occurrence of 'contacttype' is "call".
-# 1. Use 'quo' to create a quosure with the specified condition.
-two_attempts_filter <-
-  quo(contact_freq > 1 &
-        any(tolower(contacttype) == "call"))
+# two_attempts_filter <-
+#   quo(contact_freq > 1 &
+#         any(tolower(contacttype) == "call"))
 
 # use the filter
 corresp_contact_cnts_clean_direct_cnt_2atmps <-
   corresp_contact_cnts_clean |>
-  filter(!!two_attempts_filter)
+  filter(!!corresp_filter)
 
 # dim(corresp_contact_cnts_clean)
 # [1] 18629    23
