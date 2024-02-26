@@ -998,28 +998,6 @@ n_distinct(compl_corr_to_investigation1_short_dup_marked$vessel_official_number)
 # 2024-02-20
 # 262
 
-# add info from FHIER to the results ----
-
-fix_addresses_path <-
-  file.path(current_project_path,
-            str_glue("{current_project_basename}_fix_addresses.R"))
-
-file.exists(fix_addresses_path)
-
-source(fix_addresses_path)
-
-# compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names__fhier_addr__mv_cols
-
-# Print out results ----
-
-result_path <- 
-  file.path(my_paths$outputs,
-            current_project_basename,
-            str_glue("egregious_violators_to_investigate_{today()}.csv"))
-
-write_csv(compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names__fhier_addr__mv_cols,
-          result_path)
-
 # how many are duals? ----
 # Explanations:
 # Create a new dataframe 'compl_corr_to_investigation1_short_dup_marked__permit_region'.
@@ -1031,7 +1009,8 @@ write_csv(compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_na
 # along with the newly added 'permit_region' column.
 
 compl_corr_to_investigation1_short_dup_marked__permit_region <-
-  compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names__fhier_addr__mv_cols |>
+  compl_corr_to_investigation1_short_dup_marked |> 
+  # compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names__fhier_addr__mv_cols |>
   mutate(permit_region =
            case_when(
              grepl("RCG|HRCG|CHG|HCHG", permitgroup) ~ "dual",
@@ -1058,4 +1037,26 @@ n_distinct(compl_corr_to_investigation1_short_dup_marked__permit_region$vessel_o
 ## dual permitted ----
 56 / (206 + 56) * 100
 # 21.37405
+
+# add info from FHIER to the results ----
+
+fix_addresses_path <-
+  file.path(current_project_path,
+            str_glue("{current_project_basename}_fix_addresses.R"))
+
+file.exists(fix_addresses_path)
+
+source(fix_addresses_path)
+
+# compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names__fhier_addr__mv_cols
+
+# Print out results ----
+
+result_path <- 
+  file.path(my_paths$outputs,
+            current_project_basename,
+            str_glue("egregious_violators_to_investigate_{today()}.csv"))
+
+write_csv(compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names__fhier_addr__mv_cols,
+          result_path)
 
