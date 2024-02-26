@@ -71,7 +71,8 @@ if (!class(srhs_vessels__renamed$vessel_official_number) == "character") {
     str_trim()
 }
 
-## 1) compliance report downloaded from FHIER (= complaince module) ----
+## 1) compliance report downloaded from FHIER----
+# (= complaince module)
 
 compliance_file_name <- "FHIER Compliance.csv"
 
@@ -85,7 +86,9 @@ compliance_from_fhier <-
 dim(compliance_from_fhier)
 # [1] 148375     17
 
-## 2) logbooks from the Oracle db all_logbooks... (has 3 or 4 letters coded permit types) ----
+## 2) logbooks from the Oracle db all_logbooks ----
+# (has 3 or 4 letters coded permit types)
+
 # check_processed_logbooks
 processed_logbooks <- read_rds(r"(~\R_files_local\my_inputs\processing_logbook_data\Outputs\SEFHIER_processed_Logbooks_2023.rds)")
 
@@ -223,7 +226,7 @@ permit_info_from_db$END_DATE |>
 max(permit_info_from_db$EFFECTIVE_DATE)
 # [1] "2023-01-01 EST"
 
-## 5) permit info from the PIMS ----
+## 5) permit info from PIMS ----
 # "~\from PIMS\Permits - 2024-01-25_0904.xlsx"
 
 permit_file_path <-
@@ -608,7 +611,7 @@ unique(permit_info_from_db__no_digit_perm$permit)
 # [1] "CDW" "SC"  "CHS"
 # TODO: where are gulf permits?
 
-#### put it back ----
+#### put permit_info_from_db back ----
 all_4_dfs3$permit_info_from_db <-
   permit_info_from_db__no_digit_perm
 
@@ -703,7 +706,7 @@ permits_from_pims__permit_only__vessel_id_short <-
 
 # glimpse(permits_from_pims__permit_only__vessel_id_short)
 
-### put it back ----
+### put permits_from_pims back ----
 all_4_dfs3$permits_from_pims <-
   permits_from_pims__permit_only__vessel_id_short
 
@@ -734,7 +737,7 @@ all_4_dfs_no_srhs <-
 # map(all_4_dfs3, dim)
 # map(all_4_dfs_no_srhs, dim)
 
-# check ----
+# check permit_sep_u & permit_info_from_db ----
 setdiff(all_permits_in_metrics$permit_sep_u,
         all_4_dfs_no_srhs$permit_info_from_db$top)
 # should be 0 both ways
@@ -891,7 +894,7 @@ run_intersection_check <-
     my_df__list <-
       split_by_3_grps(my_df)
 
-    ### vessels in > 1 group ----
+    # vessels in > 1 group
     vessel_ids_by_group <-
       vessel_ids_only_by_group(my_df__list)
 
@@ -935,7 +938,7 @@ vessel_in_compl_not_in_pims_perm <-
   distinct()
 
 nrow(vessel_in_compl_not_in_pims_perm)
-# 1523
+# 1520
 
 vessel_in_compl_not_in_pims_perm1 <-
   setdiff(
@@ -943,7 +946,7 @@ vessel_in_compl_not_in_pims_perm1 <-
     all_4_dfs_no_srhs$permits_from_pims$vessel_official_number
   )
 length(vessel_in_compl_not_in_pims_perm1)
-# 1523 (the same)
+# 1520 (the same)
 
 vessel_in_permits_from_pimss_not_in_compl <-
   setdiff(
@@ -952,11 +955,12 @@ vessel_in_permits_from_pimss_not_in_compl <-
   )
 length(vessel_in_permits_from_pimss_not_in_compl)
 # 905
+# 793 (no srhs)
 
 glimpse(vessel_in_permits_from_pimss_not_in_compl)
  # chr [1:905] "1074262" "644342" "296866" "1296642" "FL9104PX" "FL5102EJ" ...
 
-### join by vessel and permit ----
+### compliance_from_fhier & permits_from_pims join by vessel and permit ----
 join_compliance_from_fhier__permits_from_pims__vsl_perm <-
   full_join(
     all_4_dfs_no_srhs$compliance_from_fhier,
@@ -966,7 +970,7 @@ join_compliance_from_fhier__permits_from_pims__vsl_perm <-
 
 # View(join_compliance_from_fhier__permits_from_pims__vsl_perm)
 
-### 3 groups ----
+### 3 groups, join_compliance_from_fhier__permits_from_pims__vsl_perm__grps ----
 # 1) in both,
 # 2) in compl only,
 # 3) in pims only
@@ -994,7 +998,7 @@ join_compliance_from_fhier__permits_from_pims__vsl_perm__grps |>
 n_distinct(join_compliance_from_fhier__permits_from_pims__vsl_perm__grps$vessel_official_number)
 # 4592
 
-### check all 3 groups ----
+### check all 3 groups, join_compliance_from_fhier__permits_from_pims__vsl_perm__grps ----
 # TODO: save vessel id and look for them in other dfs
 vessels_only_in_compliance <-
   join_compliance_from_fhier__permits_from_pims__vsl_perm__grps |>
@@ -1002,7 +1006,7 @@ vessels_only_in_compliance <-
   select(vessel_official_number) |>
   distinct()
 
-### vessels in > 1 group ----
+### vessels in > 1 group, join_compliance_from_fhier__permits_from_pims__vsl_perm__grps ----
 intersections_1 <-
   run_intersection_check(join_compliance_from_fhier__permits_from_pims__vsl_perm__grps)
 
@@ -1050,7 +1054,7 @@ file_name_combinations[,2]
 # print_df_names(all_4_dfs_no_srhs$compliance_from_fhier)
 # print_df_names(all_4_dfs_no_srhs$metrics_report)
 
-### join by vessel and permit ----
+### join by vessel and permit, join_compliance_from_fhier__metrics_report__vsl_permit ----
 join_compliance_from_fhier__metrics_report__vsl_permit <-
   full_join(
     all_4_dfs_no_srhs$compliance_from_fhier,
@@ -1178,7 +1182,7 @@ length(vessel_in_permit_info_from_db_not_in_compl)
 # 195 after 2022 and permit group 7
 # 95
 
-### check ----
+### check join_compliance_from_fhier__permit_info_from_db__vsl_perm__grps ----
 join_compliance_from_fhier__permit_info_from_db__vsl_perm__grps <-
   add_groups_by_where(
     join_compliance_from_fhier__permit_info_from_db__vsl_perm,
@@ -1263,7 +1267,7 @@ vessel_in_metrics_report_not_in_permits_from_pims <-
 length(vessel_in_metrics_report_not_in_permits_from_pims)
 # 1347
 
-### join by vessel and permit ----
+### join by vessel and permit, join_permits_from_pims__metrics_report__vsl_perm ----
 join_permits_from_pims__metrics_report__vsl_perm <-
   full_join(
     all_4_dfs_no_srhs$permits_from_pims,
@@ -1274,7 +1278,7 @@ join_permits_from_pims__metrics_report__vsl_perm <-
                "__metrics_report")
   )
 
-### 3 grps ----
+### 3 grps, join_permits_from_pims__metrics_report__vsl_perm__grps ----
 join_permits_from_pims__metrics_report__vsl_perm__grps <-
   group_vsls_and_count(
     join_permits_from_pims__metrics_report__vsl_perm,
@@ -1283,7 +1287,7 @@ join_permits_from_pims__metrics_report__vsl_perm__grps <-
 
 # View(join_permits_from_pims__metrics_report__vsl_perm__grps)
 
-### vessels in > 1 group ----
+### vessels in > 1 group, join_permits_from_pims__metrics_report__vsl_perm__grps ----
 intersections_4 <-
   run_intersection_check(join_permits_from_pims__metrics_report__vsl_perm__grps)
 
@@ -1431,7 +1435,7 @@ length(vessel_in_permit_info_from_db_not_in_permits_from_pims_alt)
 # 12247
 # 2074 after 2022 and sep permits
 
-### join by vessel and permit ----
+### join by vessel and permit, permits_from_pims and permit_info_from_db ----
 intersect(names(all_4_dfs_no_srhs$permits_from_pims),
           names(all_4_dfs_no_srhs$permit_info_from_db))
 # [1] "vessel_official_number" "effective_date"         "expiration_date"
@@ -1461,7 +1465,7 @@ join_permits_from_pims__permit_info_from_db__vsl_perm <-
     relationship = "many-to-many"
   )
 
-#### check multiple ----
+#### check multiple, join_permits_from_pims__permit_info_from_db__vsl_perm ----
 #   Detected an unexpected many-to-many relationship between `x` and `y`.
 # ℹ Row 1 of `x` matches multiple rows in `y`.
 # ℹ Row 4016 of `y` matches multiple rows in `x`.
@@ -1476,7 +1480,7 @@ all_4_dfs_no_srhs$permit_info_from_db |>
   filter(vessel_official_number == in_x) |>
   View()
 
-### 3 grps ----
+### 3 grps, join_permits_from_pims__permit_info_from_db__vsl_perm__grps ----
 join_permits_from_pims__permit_info_from_db__vsl_perm__grps <-
   group_vsls_and_count(
     join_permits_from_pims__permit_info_from_db__vsl_perm,
@@ -1496,7 +1500,7 @@ join_permits_from_pims__permit_info_from_db__vsl_perm__grps <-
 # 4098
 # ---
 
-### vessels in > 1 group ----
+### vessels in > 1 group, join_permits_from_pims__permit_info_from_db__vsl_perm__grps ----
 intersections_5 <-
   run_intersection_check(join_permits_from_pims__permit_info_from_db__vsl_perm__grps)
 
@@ -1596,7 +1600,7 @@ length(vessel_in_permit_info_from_db_not_in_metrics_report_alt)
 # 448 after 2022 and sep permits
 # 239
 
-### 3 grps ----
+### 3 grps, join_metrics_report__permit_info_from_db__vsl_perm__grps ----
 # where_is_vessel_permit
 # View(join_metrics_report__permit_info_from_db__vsl_perm)
 join_metrics_report__permit_info_from_db__vsl_perm__grps <-
@@ -1616,7 +1620,7 @@ join_metrics_report__permit_info_from_db__vsl_perm__grps <-
 # Total vsl cnt
 # 3591
 
-### vessels in > 1 group ----
+### vessels in > 1 group, join_metrics_report__permit_info_from_db__vsl_perm__grps ----
 intersections_6 <-
   run_intersection_check(join_metrics_report__permit_info_from_db__vsl_perm__grps)
 
