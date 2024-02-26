@@ -357,52 +357,47 @@ n_distinct(corresp_contact_cnts_clean$vesselofficial_number)
 # Michelle
 # It needs to be that we called at least 1 time and emailed at least 1 time.
 
-corresp_contact_cnts_clean |>
-  # select(calltype, voicemail, contacttype) |> 
-  distinct() |> View()
+# corresp_contact_cnts_clean |>
+#   # select(calltype, voicemail, contacttype) |> 
+#   distinct() |> View()
 
-## Add count calls ----
-# Use for contacts in the setup function before combining with compliant dataframes
-add_count_calls <- function(my_df) {
-  # browser()
-  contactdate_field_name <-
-    find_col_name(all_data_df_clean, "contact", "date")[1]
-  contacttype_field_name <-
-    find_col_name(all_data_df_clean, "contact", "type")[1]
-  vessel_id_field_name <-
-    find_col_name(all_data_df_clean, "vessel", "number")[1]
-  
-  # browser()
-  # 2 Incoming No        Call
-  # 3 Outgoing Yes       Call
-  # 4 Outgoing No        Call
-  
-  my_df |> 
-    dplyr::mutate(a_valid_call = case_when()
-                    
-                    if_else(is.na(contactdate_field_name), "no", "yes")) |> 
-    dplyr::add_count(!!sym(vessel_id_field_name), was_contacted, name = "contact_freq") |> 
-    return()
-}
+we_called_direct_filter <-
+  quo(any(tolower(contacttype) == "call" &
+        tolower(voicemail) == "no" &
+        tolower(calltype) == "outgoing"))
 
+we_called_indirect_filter <-
+  quo(any(
+    tolower(contacttype) == "call" &
+      tolower(voicemail) == "yes" &
+      tolower(calltype) == "outgoing"
+  ))
 
-call_once_filter <-
-  quo(any(tolower(contacttype) == "call") &
-        any(tolower(voicemail) == "no") &
-        any(tolower(calltype) == "outgoing"))
+we_emailed_once_filter <-
+  quo(any(
+    tolower(contacttype) == "email" &
+      tolower(calltype) == "outcoming"
+  ))
 
-# call_twice_filter <-
-#   quo(any(tolower(contacttype) == "call") &
-#         any(tolower(voicemail) == "no") &
-#         any(tolower(calltype) == "outgoing"))
-
-email_once_filter <-
-  quo(any(tolower(contacttype) == "email") &
-        any(tolower(calltype) == "outgoing"))
+they_contacted_direct_filter <-
+  quo(
+    any(
+      (tolower(contacttype) == "email" |
+          tolower(contacttype) == "call"
+       ) &
+      tolower(calltype) == "incoming"
+      )
+  )
 
 corresp_filter <-
   quo(contact_freq > 1 &
-        call_once_filter)
+        (
+    we_called_direct_filter |
+      they_contacted_direct_filter |
+      (we_called_indirect_filter &
+         we_emailed_once_filter)
+        )
+  )
 
 # calltype voicemail contacttype
 
