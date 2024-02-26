@@ -710,6 +710,30 @@ all_4_dfs3$permits_from_pims <-
 unique(all_4_dfs3$permits_from_pims$permit_clean)
 # [1] "CDW"  "SC"   "CHS"  "CHG"  "RCG"  "HRCG" "HCHG"
 
+## remove SRHS vessels ----
+# map(all_4_dfs3, print_df_names)
+# $compliance_from_fhier
+# [1] "vessel_official_number, permit_groupexpiration, permit_sep_u, compliance_from_fhier"
+#
+# $permits_from_pims
+# [1] "vessel_official_number, status_date, issue_date, effective_date, expiration_date, end_date, term_date, permits_from_pims, permit_clean"
+#
+# $metrics_report
+# [1] "vessel_official_number, effective_date, end_date, sa_permits_, gom_permits_, permit_region, permit_sa_gom_dual, metrics_report, permit_sep_u"
+#
+# $permit_info_from_db
+# [1] "vessel_official_number, expiration_date, permit_group, permit, effective_date, end_date, initial_eff_date, grp_eff_date, last_expiration_date, permit_status, vessel_alt_num, permit_info_from_db, top, permit_info_from_db_vessel_id"
+
+all_4_dfs_no_srhs <-
+  all_4_dfs3 |>
+  map(\(x) {
+    x |>
+      filter(!vessel_official_number %in% srhs_vessels__renamed$vessel_official_number)
+  })
+
+# map(all_4_dfs3, dim)
+# map(all_4_dfs_no_srhs, dim)
+
 # stopped presenting here
 # check ----
 setdiff(all_permits_in_metrics$permit_sep_u,
