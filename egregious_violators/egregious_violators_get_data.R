@@ -31,7 +31,7 @@ all_csv_names_list = c("Correspondence_2024_02_15.csv",
 
 ## ---- get csv data into variables ----
 from_fhier_data_path <-
-  file.path(my_paths$inputs, "from_Fhier")
+  file.path(my_paths$inputs)
 
 temp_var <-
   get_compl_and_corresp_data(from_fhier_data_path, all_csv_names_list)
