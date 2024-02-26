@@ -84,11 +84,19 @@ dir.exists(processed_input_data_path)
 # T  
 
 # file names for all years
-processed_metrics_tracking_file_names <-
+processed_metrics_tracking_file_names_all <-
   list.files(path = processed_input_data_path,
              pattern = "SEFHIER_permitted_vessels_nonSRHS_*",
              recursive = TRUE,
              full.names = TRUE)
+
+processed_metrics_tracking_file_names <-
+  grep(
+    processed_metrics_tracking_file_names_all,
+    pattern = "Shortcut.lnk",
+    invert = TRUE,
+    value = TRUE
+  )
 
 processed_metrics_tracking_permits <-
   map_df(processed_metrics_tracking_file_names,
