@@ -44,6 +44,33 @@ my_date_beg <- '01-JAN-2022'
 my_date_end <- '31-DEC-2022'
 
 # get data ----
+## 0) import the list of SRHS vessels ----
+# this is a single spreadsheet with all vessels listed, as opposed to the version where they are separated by region (bothregions_asSheets)
+# Use it to remove SRHS vessels from all inputs.
+srhs_vessels_path <-
+  file.path(
+    my_paths$inputs,
+    "processing_logbook_data",
+    "inputs",
+    str_glue("{my_year}srhsvessels.csv")
+  )
+
+# file.exists(srhs_vessels_path)
+
+srhs_vessels <-
+  read_csv(srhs_vessels_path)
+
+# rename and reformat column
+srhs_vessels__renamed <-
+  rename(srhs_vessels,
+         vessel_official_number = "USCG #")
+
+if (!class(srhs_vessels__renamed$vessel_official_number) == "character") {
+  srhs_vessels__renamed$vessel_official_number <-
+    as.character(srhs_vessels__renamed$vessel_official_number) |>
+    str_trim()
+}
+
 ## 1) compliance report downloaded from FHIER (= complaince module) ----
 
 compliance_file_name <- "FHIER Compliance.csv"
@@ -264,6 +291,20 @@ pretty_print <- function(my_text, my_title,
 # prepare data for comparison ----
 ## clean_headers ----
 all_4_dfs1 <- map(all_4_dfs, clean_headers)
+
+# map(all_4_dfs1, print_df_names)
+# $compliance_from_fhier
+# [1] "vessel_official_number, name, permitgroup, permit_groupexpiration, year, week, gom_permitteddeclarations__, captainreports__, negativereports__, complianceerrors__, compliant_, set_permits_on_hold_, overridden_, override_date, override_by, contactedwithin_48_hours_, submittedpower_down_"
+#
+# $permits_from_pims
+# [1] "permit__, type, request_type, status, vessel_or_dealer, status_date, issue_date, effective_date, expiration_date, end_date, term_date"
+#
+# $metrics_report
+# [1] "vessel_official_number, vessel_name, effective_date, end_date, permits, sa_permits_, gom_permits_, permit_region, permit_sa_gom_dual"
+#
+# $permit_info_from_db
+# [1] "vessel_id, entity_id, expiration_date, permit_group, top, permit, effective_date, end_date, initial_eff_date, grp_eff_date, last_expiration_date, tm_order, tm_top_order, prior_owner, new_owner, grp_prior_owner, application_id, permit_status, vessel_alt_num, min_period, max_period, top_name"
+#
 
 ## add a column with the df name, for future joins ----
 # Explanations:
