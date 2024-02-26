@@ -1,6 +1,7 @@
 # 1) NO reports for all 26 weeks back from week ago today;
 # 2) permits have not expired as of today;
 # 3) the grace period is 7 days back from today.
+# 4) At least 2 contacts
 
 # Get common functions
 source("~/R_code_github/useful_functions_module.r")
@@ -351,6 +352,34 @@ n_distinct(corresp_contact_cnts_clean$vesselofficial_number)
 
 ## new requirement 2023-08-09 ----
 # at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough
+
+## new requirement 2024-02-26 ----
+# Michelle
+# It needs to be that we called at least 1 time and emailed at least 1 time.
+
+corresp_contact_cnts_clean |>
+  # select(calltype, voicemail, contacttype) |> 
+  distinct() |> View()
+
+call_once_filter <-
+  quo(any(tolower(contacttype) == "call") &
+        any(tolower(voicemail) == "no") &
+        any(tolower(calltype) == "outgoing"))
+
+# call_twice_filter <-
+#   quo(any(tolower(contacttype) == "call") &
+#         any(tolower(voicemail) == "no") &
+#         any(tolower(calltype) == "outgoing"))
+
+email_once_filter <-
+  quo(any(tolower(contacttype) == "email") &
+        any(tolower(calltype) == "outgoing"))
+
+corresp_filter <-
+  quo(contact_freq > 1 &
+        call_once_filter)
+
+# calltype voicemail contacttype
 
 # Explanations:
 # Create a quosure 'two_attempts_filter' with a condition to filter rows where 'contact_freq' is greater than 1
