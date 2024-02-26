@@ -408,7 +408,7 @@ all_4_dfs_dates <-
 # View(all_4_dfs_dates)
 
 # save the df
-all_4_dfs_no_srhs <- all_4_dfs_dates
+all_4_dfs3 <- all_4_dfs_dates
 
 ## individual df preparations ----
 
@@ -446,7 +446,7 @@ temp_compliance_from_fhier__drop_permit_numbers <-
 unique(temp_compliance_from_fhier__drop_permit_numbers$permit_sep_u)
 # [1] "CDW"  "CHS"  "SC"   "CHG"  "RCG"  "HCHG" "HRCG"
 
-all_4_dfs_no_srhs$compliance_from_fhier <-
+all_4_dfs3$compliance_from_fhier <-
   temp_compliance_from_fhier__drop_permit_numbers |>
   select(
     vessel_official_number,
@@ -456,7 +456,7 @@ all_4_dfs_no_srhs$compliance_from_fhier <-
   ) |>
   distinct()
 
-# View(all_4_dfs_no_srhs$compliance_from_fhier)
+# View(all_4_dfs3$compliance_from_fhier)
 
 #### check diff permitgroup for the same vessel ----
 short_compliance_from_fhier_to_test <-
@@ -473,13 +473,13 @@ n_distinct(short_compliance_from_fhier_to_test$vessel_official_number)
 # [1] 3687
 # Some vessels have > 1 permitgroup
 
-dim(all_4_dfs_no_srhs$compliance_from_fhier)
+dim(all_4_dfs3$compliance_from_fhier)
 # [1] 9965    3
 
-n_distinct(all_4_dfs_no_srhs$compliance_from_fhier$vessel_official_number)
+n_distinct(all_4_dfs3$compliance_from_fhier$vessel_official_number)
 # 3687
 
-unique(all_4_dfs_no_srhs$compliance_from_fhier$permit_sep_u)
+unique(all_4_dfs3$compliance_from_fhier$permit_sep_u)
 # [1] "CDW"  "CHS"  "SC"   "CHG"  "RCG"  "HCHG" "HRCG"
 
 # Explanation:
@@ -522,7 +522,7 @@ nrow(short_compliance_from_fhier_multi_permitgroups)
 # the same permits, diff format
 
 ### metrics_report: split permit column ----
-all_4_dfs_no_srhs$metrics_report <-
+all_4_dfs3$metrics_report <-
   all_4_dfs_dates$metrics_report |>
   mutate(permits_trim =
            gsub(" ", "", permits)) |>
@@ -540,7 +540,7 @@ all_4_dfs_no_srhs$metrics_report <-
 
 # for future use
 all_permits_in_metrics <-
-  all_4_dfs_no_srhs$metrics_report |>
+  all_4_dfs3$metrics_report |>
   select(permit_sep_u) |>
   distinct()
 
@@ -552,18 +552,18 @@ all_permits_in_metrics <-
 # 6 HCHG
 # 7 HRCG
 
-# all_4_dfs_no_srhs$metrics_report |> glimpse()
+# all_4_dfs3$metrics_report |> glimpse()
 
 ### permit_info_from_db: unify vessel ids ----
 
-# grep("vessel", names(all_4_dfs_no_srhs$permit_info_from_db), value = T)
+# grep("vessel", names(all_4_dfs3$permit_info_from_db), value = T)
 # [1] "vessel_id"      "vessel_alt_num"
 
-nrow(all_4_dfs_no_srhs$permit_info_from_db)
+nrow(all_4_dfs3$permit_info_from_db)
 # 20730
 
-all_4_dfs_no_srhs$permit_info_from_db <-
-  all_4_dfs_no_srhs$permit_info_from_db |>
+all_4_dfs3$permit_info_from_db <-
+  all_4_dfs3$permit_info_from_db |>
   mutate(permit_info_from_db_vessel_id = vessel_id) |> # want to keep it to see if NA in the full join
   rename("vessel_official_number" = "vessel_id")
 
@@ -573,13 +573,13 @@ all_4_dfs_no_srhs$permit_info_from_db <-
 #   distinct() |>
 #   View()
 
-all_4_dfs_no_srhs$permit_info_from_db |>
+all_4_dfs3$permit_info_from_db |>
   filter(tolower(top) %in% tolower(all_permits_in_metrics$permit_sep_u)) |>
   select(permit_group) |> distinct()
 #   permit_group
 # 1            7
 
-all_4_dfs_no_srhs$permit_info_from_db |>
+all_4_dfs3$permit_info_from_db |>
 filter(permit_group == 6) |>
   select(top) |>
            distinct()
@@ -593,15 +593,15 @@ filter(permit_group == 6) |>
 #   TOP                   TOP_NAME
 # 1  GC SOUTH ATLANTIC GOLDEN CRAB
 
-all_4_dfs_no_srhs$permit_info_from_db <-
-  all_4_dfs_no_srhs$permit_info_from_db |>
+all_4_dfs3$permit_info_from_db <-
+  all_4_dfs3$permit_info_from_db |>
   filter(permit_group == 7)
 
-nrow(all_4_dfs_no_srhs$permit_info_from_db)
+nrow(all_4_dfs3$permit_info_from_db)
 # 16073
 
 permit_info_from_db__no_digit_perm <-
-  all_4_dfs_no_srhs$permit_info_from_db |>
+  all_4_dfs3$permit_info_from_db |>
   filter(!grepl("\\d", permit))
 
 unique(permit_info_from_db__no_digit_perm$permit)
@@ -609,10 +609,10 @@ unique(permit_info_from_db__no_digit_perm$permit)
 # TODO: where are gulf permits?
 
 #### put it back ----
-all_4_dfs_no_srhs$permit_info_from_db <-
+all_4_dfs3$permit_info_from_db <-
   permit_info_from_db__no_digit_perm
 
-# View(all_4_dfs_no_srhs$permit_info_from_db)
+# View(all_4_dfs3$permit_info_from_db)
 
 ### permits_from_pims get only new ----
 # TODO: don't include if all the dates before 2021 or after 2023?
@@ -624,7 +624,7 @@ in_my_date_range <-
   )
 
 permits_from_pims_new <-
-  all_4_dfs_no_srhs$permits_from_pims |>
+  all_4_dfs3$permits_from_pims |>
   filter(!!in_my_date_range)
 
 # check
@@ -645,7 +645,7 @@ n_distinct(permits_from_pims_new$vessel_or_dealer)
 #   )
 #
 # permits_from_pims_2022 <-
-#   all_4_dfs_no_srhs$permits_from_pims |>
+#   all_4_dfs3$permits_from_pims |>
 #   filter(!!in_my_date_range)
 #
 # dim(permits_from_pims_2022)
@@ -704,14 +704,14 @@ permits_from_pims__permit_only__vessel_id_short <-
 # glimpse(permits_from_pims__permit_only__vessel_id_short)
 
 ### put it back ----
-all_4_dfs_no_srhs$permits_from_pims <-
+all_4_dfs3$permits_from_pims <-
   permits_from_pims__permit_only__vessel_id_short
 
-unique(all_4_dfs_no_srhs$permits_from_pims$permit_clean)
+unique(all_4_dfs3$permits_from_pims$permit_clean)
 # [1] "CDW"  "SC"   "CHS"  "CHG"  "RCG"  "HRCG" "HCHG"
 
 ## remove SRHS vessels ----
-# map(all_4_dfs_no_srhs, print_df_names)
+# map(all_4_dfs3, print_df_names)
 # $compliance_from_fhier
 # [1] "vessel_official_number, permit_groupexpiration, permit_sep_u, compliance_from_fhier"
 #
@@ -725,35 +725,35 @@ unique(all_4_dfs_no_srhs$permits_from_pims$permit_clean)
 # [1] "vessel_official_number, expiration_date, permit_group, permit, effective_date, end_date, initial_eff_date, grp_eff_date, last_expiration_date, permit_status, vessel_alt_num, permit_info_from_db, top, permit_info_from_db_vessel_id"
 
 all_4_dfs_no_srhs <-
-  all_4_dfs_no_srhs |>
+  all_4_dfs3  |>
   map(\(one_df) {
     one_df |>
       filter(!vessel_official_number %in% srhs_vessels__renamed$vessel_official_number)
   })
 
-# map(all_4_dfs_no_srhs, dim)
+# map(all_4_dfs_no_srhs , dim)
 # map(all_4_dfs_no_srhs, dim)
 
 # check ----
 setdiff(all_permits_in_metrics$permit_sep_u,
-        all_4_dfs_no_srhs$permit_info_from_db$top)
+        all_4_dfs_no_srhs $permit_info_from_db$top)
 # should be 0 both ways
 # TODO: [1] "CHG"  "RCG"  "HCHG" "HRCG"
 
-all_4_dfs_no_srhs$permit_info_from_db$top |>
+all_4_dfs_no_srhs $permit_info_from_db$top |>
   unique()
 # [1] "CDW" "SC"  "CHS"
 
-min(all_4_dfs_no_srhs$permit_info_from_db$expiration_date)
+min(all_4_dfs_no_srhs $permit_info_from_db$expiration_date)
 # [1] "2007-02-28 EST"
 
-all_4_dfs_no_srhs$permit_info_from_db$end_date |>
+all_4_dfs_no_srhs $permit_info_from_db$end_date |>
   sort() |>
   unique() |>
   head(1)
 # [1] "2021-01-21 EST"
 
-max(all_4_dfs_no_srhs$permit_info_from_db$effective_date)
+max(all_4_dfs_no_srhs $permit_info_from_db$effective_date)
 # [1] "2023-01-01 EST"
 
 # get pairs ----
@@ -904,18 +904,18 @@ run_intersection_check <-
 ## [1] "compliance_from_fhier" "permits_from_pims" ----
 file_name_combinations[,1]
 
-print_df_names(all_4_dfs_no_srhs$compliance_from_fhier)
-print_df_names(all_4_dfs_no_srhs$permits_from_pims)
+print_df_names(all_4_dfs_no_srhs $compliance_from_fhier)
+print_df_names(all_4_dfs_no_srhs $permits_from_pims)
 
-n_distinct(all_4_dfs_no_srhs$compliance_from_fhier$vessel_official_number)
+n_distinct(all_4_dfs_no_srhs $compliance_from_fhier$vessel_official_number)
 # 3687
-n_distinct(all_4_dfs_no_srhs$permits_from_pims$vessel_official_number)
+n_distinct(all_4_dfs_no_srhs $permits_from_pims$vessel_official_number)
 # 3069
 
 join_compliance_from_fhier__permits_from_pims__perm <-
   full_join(
-    all_4_dfs_no_srhs$compliance_from_fhier,
-    all_4_dfs_no_srhs$permits_from_pims,
+    all_4_dfs_no_srhs $compliance_from_fhier,
+    all_4_dfs_no_srhs $permits_from_pims,
     join_by(vessel_official_number)
   )
 # ℹ Row 5 of `x` matches multiple rows in `y`.
@@ -937,16 +937,16 @@ nrow(vessel_in_compl_not_in_pims_perm)
 
 vessel_in_compl_not_in_pims_perm1 <-
   setdiff(
-    all_4_dfs_no_srhs$compliance_from_fhier$vessel_official_number,
-    all_4_dfs_no_srhs$permits_from_pims$vessel_official_number
+    all_4_dfs_no_srhs $compliance_from_fhier$vessel_official_number,
+    all_4_dfs_no_srhs $permits_from_pims$vessel_official_number
   )
 length(vessel_in_compl_not_in_pims_perm1)
 # 1523 (the same)
 
 vessel_in_permits_from_pimss_not_in_compl <-
   setdiff(
-    all_4_dfs_no_srhs$permits_from_pims$vessel_official_number,
-    all_4_dfs_no_srhs$compliance_from_fhier$vessel_official_number
+    all_4_dfs_no_srhs $permits_from_pims$vessel_official_number,
+    all_4_dfs_no_srhs $compliance_from_fhier$vessel_official_number
   )
 length(vessel_in_permits_from_pimss_not_in_compl)
 # 905
@@ -957,8 +957,8 @@ glimpse(vessel_in_permits_from_pimss_not_in_compl)
 ### join by vessel and permit ----
 join_compliance_from_fhier__permits_from_pims__vsl_perm <-
   full_join(
-    all_4_dfs_no_srhs$compliance_from_fhier,
-    all_4_dfs_no_srhs$permits_from_pims,
+    all_4_dfs_no_srhs $compliance_from_fhier,
+    all_4_dfs_no_srhs $permits_from_pims,
     join_by(vessel_official_number, permit_sep_u == permit_clean)
   )
 
@@ -1045,22 +1045,22 @@ join_compliance_from_fhier__permits_from_pims__vsl_perm |>
 ## [2] "compliance_from_fhier" "metrics_report" ----
 file_name_combinations[,2]
 
-# print_df_names(all_4_dfs_no_srhs$compliance_from_fhier)
-# print_df_names(all_4_dfs_no_srhs$metrics_report)
+# print_df_names(all_4_dfs_no_srhs $compliance_from_fhier)
+# print_df_names(all_4_dfs_no_srhs $metrics_report)
 
 ### join by vessel and permit ----
 join_compliance_from_fhier__metrics_report__vsl_permit <-
   full_join(
-    all_4_dfs_no_srhs$compliance_from_fhier,
-    all_4_dfs_no_srhs$metrics_report,
+    all_4_dfs_no_srhs $compliance_from_fhier,
+    all_4_dfs_no_srhs $metrics_report,
     join_by(vessel_official_number,
             permit_sep_u)
   )
 
 vessel_in_compl_not_in_metrics <-
   setdiff(
-    all_4_dfs_no_srhs$compliance_from_fhier$vessel_official_number,
-    all_4_dfs_no_srhs$metrics_report$vessel_official_number
+    all_4_dfs_no_srhs $compliance_from_fhier$vessel_official_number,
+    all_4_dfs_no_srhs $metrics_report$vessel_official_number
   )
 
 length(vessel_in_compl_not_in_metrics)
@@ -1068,8 +1068,8 @@ length(vessel_in_compl_not_in_metrics)
 
 vessel_in_metrics_not_in_compl <-
   setdiff(
-    all_4_dfs_no_srhs$metrics_report$vessel_official_number,
-    all_4_dfs_no_srhs$compliance_from_fhier$vessel_official_number
+    all_4_dfs_no_srhs $metrics_report$vessel_official_number,
+    all_4_dfs_no_srhs $compliance_from_fhier$vessel_official_number
   )
 
 length(vessel_in_metrics_not_in_compl)
@@ -1130,21 +1130,21 @@ join_compliance_from_fhier__metrics_report__vsl_permit |>
 curr_file_name_combinations <-
   file_name_combinations[,3]
 
-# print_df_names(all_4_dfs_no_srhs$compliance_from_fhier)
-# print_df_names(all_4_dfs_no_srhs$permit_info_from_db)
+# print_df_names(all_4_dfs_no_srhs $compliance_from_fhier)
+# print_df_names(all_4_dfs_no_srhs $permit_info_from_db)
 
 join_compliance_from_fhier__permit_info_from_db__vsl_perm <-
   full_join(
-    all_4_dfs_no_srhs$compliance_from_fhier,
-    all_4_dfs_no_srhs$permit_info_from_db,
+    all_4_dfs_no_srhs $compliance_from_fhier,
+    all_4_dfs_no_srhs $permit_info_from_db,
     join_by(vessel_official_number,
             permit_sep_u == top)
   )
 
 vessel_in_compl_not_in_permit_info_from_db <-
   setdiff(
-    all_4_dfs_no_srhs$compliance_from_fhier$vessel_official_number,
-    all_4_dfs_no_srhs$permit_info_from_db$vessel_official_number
+    all_4_dfs_no_srhs $compliance_from_fhier$vessel_official_number,
+    all_4_dfs_no_srhs $permit_info_from_db$vessel_official_number
   )
 
 length(vessel_in_compl_not_in_permit_info_from_db)
@@ -1155,8 +1155,8 @@ length(vessel_in_compl_not_in_permit_info_from_db)
 
 vessel_in_compl_not_in_permit_info_from_db_alt <-
   setdiff(
-    all_4_dfs_no_srhs$compliance_from_fhier$vessel_official_number,
-    all_4_dfs_no_srhs$permit_info_from_db$vessel_alt_num
+    all_4_dfs_no_srhs $compliance_from_fhier$vessel_official_number,
+    all_4_dfs_no_srhs $permit_info_from_db$vessel_alt_num
   )
 
 length(vessel_in_compl_not_in_permit_info_from_db_alt)
@@ -1166,8 +1166,8 @@ length(vessel_in_compl_not_in_permit_info_from_db_alt)
 
 vessel_in_permit_info_from_db_not_in_compl <-
   setdiff(
-    all_4_dfs_no_srhs$permit_info_from_db$vessel_official_number,
-    all_4_dfs_no_srhs$compliance_from_fhier$vessel_official_number
+    all_4_dfs_no_srhs $permit_info_from_db$vessel_official_number,
+    all_4_dfs_no_srhs $compliance_from_fhier$vessel_official_number
   )
 
 length(vessel_in_permit_info_from_db_not_in_compl)
@@ -1228,13 +1228,13 @@ join_compliance_from_fhier__permit_info_from_db__vsl_perm |>
 curr_file_name_combinations <-
   file_name_combinations[,4]
 
-# print_df_names(all_4_dfs_no_srhs$permits_from_pims)
-# print_df_names(all_4_dfs_no_srhs$metrics_report)
+# print_df_names(all_4_dfs_no_srhs $permits_from_pims)
+# print_df_names(all_4_dfs_no_srhs $metrics_report)
 
 join_permits_from_pims__metrics_report <-
   full_join(
-    all_4_dfs_no_srhs$permits_from_pims,
-    all_4_dfs_no_srhs$metrics_report,
+    all_4_dfs_no_srhs $permits_from_pims,
+    all_4_dfs_no_srhs $metrics_report,
     join_by(vessel_official_number)
   )
 # after separating permits:
@@ -1245,8 +1245,8 @@ join_permits_from_pims__metrics_report <-
 
 vessel_in_permits_from_pims_not_in_metrics_report <-
   setdiff(
-    all_4_dfs_no_srhs$permits_from_pims$vessel_official_number,
-    all_4_dfs_no_srhs$metrics_report$vessel_official_number
+    all_4_dfs_no_srhs $permits_from_pims$vessel_official_number,
+    all_4_dfs_no_srhs $metrics_report$vessel_official_number
   )
 
 length(vessel_in_permits_from_pims_not_in_metrics_report)
@@ -1254,8 +1254,8 @@ length(vessel_in_permits_from_pims_not_in_metrics_report)
 
 vessel_in_metrics_report_not_in_permits_from_pims <-
   setdiff(
-    all_4_dfs_no_srhs$metrics_report$vessel_official_number,
-    all_4_dfs_no_srhs$permits_from_pims$vessel_official_number
+    all_4_dfs_no_srhs $metrics_report$vessel_official_number,
+    all_4_dfs_no_srhs $permits_from_pims$vessel_official_number
   )
 
 length(vessel_in_metrics_report_not_in_permits_from_pims)
@@ -1264,8 +1264,8 @@ length(vessel_in_metrics_report_not_in_permits_from_pims)
 ### join by vessel and permit ----
 join_permits_from_pims__metrics_report__vsl_perm <-
   full_join(
-    all_4_dfs_no_srhs$permits_from_pims,
-    all_4_dfs_no_srhs$metrics_report,
+    all_4_dfs_no_srhs $permits_from_pims,
+    all_4_dfs_no_srhs $metrics_report,
     join_by(vessel_official_number,
             permit_clean == permit_sep_u),
     suffix = c("__permits_from_pims",
@@ -1321,13 +1321,13 @@ join_permits_from_pims__metrics_report__vsl_perm |>
 curr_file_name_combinations <-
   file_name_combinations[, 5]
 
-# print_df_names(all_4_dfs_no_srhs$permits_from_pims)
-# print_df_names(all_4_dfs_no_srhs$permit_info_from_db)
+# print_df_names(all_4_dfs_no_srhs $permits_from_pims)
+# print_df_names(all_4_dfs_no_srhs $permit_info_from_db)
 
 join_permits_from_pims__permit_info_from_db <-
   full_join(
-    all_4_dfs_no_srhs$permits_from_pims,
-    all_4_dfs_no_srhs$permit_info_from_db,
+    all_4_dfs_no_srhs $permits_from_pims,
+    all_4_dfs_no_srhs $permit_info_from_db,
     join_by(vessel_official_number)
   )
 #   Detected an unexpected many-to-many relationship between `x` and `y`.
@@ -1335,11 +1335,11 @@ join_permits_from_pims__permit_info_from_db <-
 ### why multiple? ----
 # 1) x to y
 # ℹ Row 1 of `x` matches multiple rows in `y`.
-all_4_dfs_no_srhs$permit_info_from_db |>
+all_4_dfs_no_srhs $permit_info_from_db |>
   filter(vessel_official_number ==
-    all_4_dfs_no_srhs$permits_from_pims[1,][["vessel_official_number"]] |
+    all_4_dfs_no_srhs $permits_from_pims[1,][["vessel_official_number"]] |
       vessel_alt_num ==
-    all_4_dfs_no_srhs$permits_from_pims[1,][["vessel_official_number"]]) |>
+    all_4_dfs_no_srhs $permits_from_pims[1,][["vessel_official_number"]]) |>
   glimpse()
 # multiple permits, OK
 # $ permit               <chr> "1066", "1013", "1066", "1013"
@@ -1347,17 +1347,17 @@ all_4_dfs_no_srhs$permit_info_from_db |>
 
 # 2) y to x
 # ℹ Row 9426 of `y` matches multiple rows in `x`.
-all_4_dfs_no_srhs$permits_from_pims |>
+all_4_dfs_no_srhs $permits_from_pims |>
   filter(vessel_official_number ==
-    all_4_dfs_no_srhs$permit_info_from_db[9426,][["vessel_official_number"]] |
+    all_4_dfs_no_srhs $permit_info_from_db[9426,][["vessel_official_number"]] |
       vessel_official_number ==
-    all_4_dfs_no_srhs$permit_info_from_db[9426,][["vessel_alt_num"]]) |>
+    all_4_dfs_no_srhs $permit_info_from_db[9426,][["vessel_alt_num"]]) |>
   glimpse()
 # $ vessel_official_nbr      <chr> "FL6432SU", "FL6432SU"
 # $ notif_accsp_permit_id    <dbl> 584995, NA
 
 permits_from_pims_multi_notif_accsp_permit_id <-
-  get_multiple_entries_per_vessel(all_4_dfs_no_srhs$permits_from_pims,
+  get_multiple_entries_per_vessel(all_4_dfs_no_srhs $permits_from_pims,
                                   "vessel_official_number",
                                   "notif_accsp_permit_id")
 
@@ -1375,8 +1375,8 @@ nrow(permits_from_pims_multi_notif_accsp_permit_id)
 
 vessel_in_permits_from_pims_not_in_permit_info_from_db <-
   setdiff(
-    all_4_dfs_no_srhs$permits_from_pims$vessel_official_number,
-    all_4_dfs_no_srhs$permit_info_from_db$vessel_official_number
+    all_4_dfs_no_srhs $permits_from_pims$vessel_official_number,
+    all_4_dfs_no_srhs $permit_info_from_db$vessel_official_number
   )
 
 length(vessel_in_permits_from_pims_not_in_permit_info_from_db)
@@ -1386,13 +1386,13 @@ length(vessel_in_permits_from_pims_not_in_permit_info_from_db)
 # 1292480
 # 1292480:NC0676EK........ SOUTHERN RUN - BENJAMIN AUGUSTUS MORRIS  (828) 4298076
 
-all_4_dfs_no_srhs$permit_info_from_db |>
+all_4_dfs_no_srhs $permit_info_from_db |>
   filter(vessel_official_number == "NC0676EK") |>
   nrow()
 # [1] 18
 # 3 after 2022 and sep permits
 
-all_4_dfs_no_srhs$permits_from_pims |>
+all_4_dfs_no_srhs $permits_from_pims |>
   filter(vessel_official_number == "1292480" |
            vessel_official_number == "NC0676EK") |>
   glimpse()
@@ -1401,8 +1401,8 @@ all_4_dfs_no_srhs$permits_from_pims |>
 
 vessel_in_permits_from_pims_not_in_permit_info_from_db_alt <-
   setdiff(
-    all_4_dfs_no_srhs$permits_from_pims$vessel_official_number,
-    all_4_dfs_no_srhs$permit_info_from_db$vessel_alt_num
+    all_4_dfs_no_srhs $permits_from_pims$vessel_official_number,
+    all_4_dfs_no_srhs $permit_info_from_db$vessel_alt_num
   )
 
 length(vessel_in_permits_from_pims_not_in_permit_info_from_db_alt)
@@ -1411,8 +1411,8 @@ length(vessel_in_permits_from_pims_not_in_permit_info_from_db_alt)
 
 vessel_in_permit_info_from_db_not_in_permits_from_pims <-
   setdiff(
-    all_4_dfs_no_srhs$permit_info_from_db$vessel_official_number,
-    all_4_dfs_no_srhs$permits_from_pims$vessel_official_number
+    all_4_dfs_no_srhs $permit_info_from_db$vessel_official_number,
+    all_4_dfs_no_srhs $permits_from_pims$vessel_official_number
   )
 
 length(vessel_in_permit_info_from_db_not_in_permits_from_pims)
@@ -1421,8 +1421,8 @@ length(vessel_in_permit_info_from_db_not_in_permits_from_pims)
 
 vessel_in_permit_info_from_db_not_in_permits_from_pims_alt <-
   setdiff(
-    all_4_dfs_no_srhs$permit_info_from_db$vessel_alt_num,
-    all_4_dfs_no_srhs$permits_from_pims$vessel_official_number
+    all_4_dfs_no_srhs $permit_info_from_db$vessel_alt_num,
+    all_4_dfs_no_srhs $permits_from_pims$vessel_official_number
   )
 
 length(vessel_in_permit_info_from_db_not_in_permits_from_pims_alt)
@@ -1430,28 +1430,28 @@ length(vessel_in_permit_info_from_db_not_in_permits_from_pims_alt)
 # 2074 after 2022 and sep permits
 
 ### join by vessel and permit ----
-intersect(names(all_4_dfs_no_srhs$permits_from_pims),
-          names(all_4_dfs_no_srhs$permit_info_from_db))
+intersect(names(all_4_dfs_no_srhs $permits_from_pims),
+          names(all_4_dfs_no_srhs $permit_info_from_db))
 # [1] "vessel_official_number" "effective_date"         "expiration_date"
 # [4] "end_date"
 
-c(names(all_4_dfs_no_srhs$permits_from_pims),
-  names(all_4_dfs_no_srhs$permit_info_from_db)) |>
+c(names(all_4_dfs_no_srhs $permits_from_pims),
+  names(all_4_dfs_no_srhs $permit_info_from_db)) |>
   map(\(x) {
     grep("permit", x, value = T)
   })
 
-all_4_dfs_no_srhs$permit_info_from_db |>
+all_4_dfs_no_srhs $permit_info_from_db |>
   filter(!top == permit) |>
   glimpse()
 # 0, ok, all the same
 
-glimpse(all_4_dfs_no_srhs$permits_from_pims)
+glimpse(all_4_dfs_no_srhs $permits_from_pims)
 
 join_permits_from_pims__permit_info_from_db__vsl_perm <-
   full_join(
-    all_4_dfs_no_srhs$permits_from_pims,
-    all_4_dfs_no_srhs$permit_info_from_db,
+    all_4_dfs_no_srhs $permits_from_pims,
+    all_4_dfs_no_srhs $permit_info_from_db,
     join_by(vessel_official_number,
             permit_clean == top),
     suffix = c("__permits_from_pims",
@@ -1467,10 +1467,10 @@ join_permits_from_pims__permit_info_from_db__vsl_perm <-
 #   to silence this warning.
 
 in_x <-
-  all_4_dfs_no_srhs$permits_from_pims[1, ]$vessel_official_number
+  all_4_dfs_no_srhs $permits_from_pims[1, ]$vessel_official_number
 
 
-all_4_dfs_no_srhs$permit_info_from_db |>
+all_4_dfs_no_srhs $permit_info_from_db |>
   filter(vessel_official_number == in_x) |>
   View()
 
@@ -1537,13 +1537,13 @@ map(intersections_5, head(1))
 curr_file_name_combinations <-
   file_name_combinations[, 6]
 
-# print_df_names(all_4_dfs_no_srhs$metrics_report)
-# print_df_names(all_4_dfs_no_srhs$permit_info_from_db)
+# print_df_names(all_4_dfs_no_srhs $metrics_report)
+# print_df_names(all_4_dfs_no_srhs $permit_info_from_db)
 
 join_metrics_report__permit_info_from_db__vsl_perm <-
   full_join(
-    all_4_dfs_no_srhs$metrics_report,
-    all_4_dfs_no_srhs$permit_info_from_db,
+    all_4_dfs_no_srhs $metrics_report,
+    all_4_dfs_no_srhs $permit_info_from_db,
     join_by(vessel_official_number,
             permit_sep_u == top),
     suffix = c("__metrics_report",
@@ -1552,8 +1552,8 @@ join_metrics_report__permit_info_from_db__vsl_perm <-
 
 vessel_in_metrics_report_not_in_permit_info_from_db <-
   setdiff(
-    all_4_dfs_no_srhs$metrics_report$vessel_official_number,
-    all_4_dfs_no_srhs$permit_info_from_db$vessel_official_number
+    all_4_dfs_no_srhs $metrics_report$vessel_official_number,
+    all_4_dfs_no_srhs $permit_info_from_db$vessel_official_number
   )
 
 length(vessel_in_metrics_report_not_in_permit_info_from_db)
@@ -1563,8 +1563,8 @@ length(vessel_in_metrics_report_not_in_permit_info_from_db)
 
 vessel_in_metrics_report_not_in_permit_info_from_db_alt <-
   setdiff(
-    all_4_dfs_no_srhs$metrics_report$vessel_official_number,
-    all_4_dfs_no_srhs$permit_info_from_db$vessel_alt_num
+    all_4_dfs_no_srhs $metrics_report$vessel_official_number,
+    all_4_dfs_no_srhs $permit_info_from_db$vessel_alt_num
   )
 
 length(vessel_in_metrics_report_not_in_permit_info_from_db_alt)
@@ -1574,8 +1574,8 @@ length(vessel_in_metrics_report_not_in_permit_info_from_db_alt)
 
 vessel_in_permit_info_from_db_not_in_metrics_report <-
   setdiff(
-    all_4_dfs_no_srhs$permit_info_from_db$vessel_official_number,
-    all_4_dfs_no_srhs$metrics_report$vessel_official_number
+    all_4_dfs_no_srhs $permit_info_from_db$vessel_official_number,
+    all_4_dfs_no_srhs $metrics_report$vessel_official_number
   )
 
 length(vessel_in_permit_info_from_db_not_in_metrics_report)
@@ -1585,8 +1585,8 @@ length(vessel_in_permit_info_from_db_not_in_metrics_report)
 
 vessel_in_permit_info_from_db_not_in_metrics_report_alt <-
   setdiff(
-    all_4_dfs_no_srhs$permit_info_from_db$vessel_alt_num,
-    all_4_dfs_no_srhs$metrics_report$vessel_official_number
+    all_4_dfs_no_srhs $permit_info_from_db$vessel_alt_num,
+    all_4_dfs_no_srhs $metrics_report$vessel_official_number
   )
 
 length(vessel_in_permit_info_from_db_not_in_metrics_report_alt)
