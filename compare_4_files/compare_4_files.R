@@ -177,6 +177,7 @@ mv_sero_fh_permits_his_query <-
     "SELECT * FROM
 srh.mv_sero_fh_permits_his@secapxdv_dblk.sfsc.noaa.gov
 WHERE {dates_filter}
+AND permit_group = 7
 "
   )
 
@@ -189,8 +190,8 @@ get_permit_info <-
   function() {
     read_rds_or_run(mv_sero_fh_permits_his_query_file_path,
                     mv_sero_fh_permits_his_query,
-                    mv_sero_fh_permits_his_query_fun
-                    # force_from_db = TRUE
+                    mv_sero_fh_permits_his_query_fun,
+                    force_from_db = TRUE
                     )
   }
 
@@ -200,6 +201,7 @@ permit_info_from_db <- get_permit_info()
 nrow(permit_info_from_db)
 # [1] 183855
 # [1] 20777    2022 only
+# 15807 group 7
 
 ### check dates ----
 # dates_filter <- " (end_date >= TO_DATE('01-JAN-22', 'dd-mon-yy')
@@ -209,10 +211,11 @@ nrow(permit_info_from_db)
 
 min(permit_info_from_db$EXPIRATION_DATE)
 # [1] "2007-01-31 EST"
+# [1] "2007-02-28 EST"
 
-permit_info_from_db |>
-  filter(EXPIRATION_DATE == "2007-01-31 EST") |>
-  glimpse()
+# permit_info_from_db |>
+#   filter(EXPIRATION_DATE == "2007-01-31 EST") |>
+#   glimpse()
 # $ VESSEL_ID            <chr> "514001"
 # END_DATE == 2022-02-24 !!!
 
@@ -222,9 +225,11 @@ permit_info_from_db$END_DATE |>
   unique() |>
   head(1)
 # [1] "2021-01-19 EST"
+# [1] "2021-01-21 EST"
 
 max(permit_info_from_db$EFFECTIVE_DATE)
 # [1] "2023-01-01 EST"
+# [1] "2022-12-30 EST"
 
 ## 5) permit info from PIMS ----
 # "~\from PIMS\Permits - 2024-01-25_0904.xlsx"
@@ -887,7 +892,7 @@ vessel_in_more_than_1_grp <- function(my_names_lists) {
   })
 }
 
-# combine all functions to find intersections ----
+## combine all functions to find intersections ----
 
 run_intersection_check <-
   function(my_df) {
