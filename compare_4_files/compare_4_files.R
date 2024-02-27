@@ -297,11 +297,12 @@ all_dfs_list <-
   Hmisc::llist(compliance_from_fhier,
     permits_from_pims,
     metrics_report,
-    permit_info_from_db)
+    permit_info_from_db,
+    transfer_applications_from_pims)
 
 # View(all_dfs_list)
 
-all_4_df_names <- names(all_dfs_list)
+all_dfs_list_names <- names(all_dfs_list)
 
 # aux functions ----
 sep_chr_column <-
@@ -408,7 +409,7 @@ all_dfs_list2 <-
        {
          select(x,
                 col_names_to_keep[[idx]],
-                any_of(c("top", all_4_df_names))) |>
+                any_of(c("top", all_dfs_list_names))) |>
            select(-contains("trip"),
                   -any_of(
                     c(
@@ -805,7 +806,7 @@ max(all_dfs_list_no_srhs$permit_info_from_db$effective_date)
 
 # get pairs ----
 file_name_combinations <-
-  combn(all_4_df_names, 2)
+  combn(all_dfs_list_names, 2)
 
 # compare each pair ----
 
