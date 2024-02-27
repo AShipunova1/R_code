@@ -270,6 +270,27 @@ permits_from_pims <-
 dim(permits_from_pims)
 # [1] 23575    11
 
+## 7) From PIMS - permit applications for transfer ----
+# "~\from PIMS\Permit Applications - transfer - 2024-02-27_1555.xlsx"
+
+transfer_applications_file_path <-
+  file.path(my_paths$inputs,
+            "from PIMS",
+            "Permit Applications - transfer - 2024-02-27_1555.xlsx")
+
+to_skip <- 4
+my_sheet <- "Sheet 1"
+
+file.exists(transfer_applications_file_path)
+
+transfer_applications_from_pims <-
+  read_xlsx(transfer_applications_file_path,
+            sheet = my_sheet,
+            skip = to_skip)
+
+dim(transfer_applications_from_pims)
+# [1] 3214    9
+
 ## combine 4 dataframes ----
 # "llist" is like list except that it preserves the names or labels of the component variables in the variables label attribute.
 all_dfs_list <-
