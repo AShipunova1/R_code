@@ -190,18 +190,35 @@ get_permit_info <-
   function() {
     read_rds_or_run(mv_sero_fh_permits_his_query_file_path,
                     mv_sero_fh_permits_his_query,
-                    mv_sero_fh_permits_his_query_fun,
-                    force_from_db = TRUE
+                    mv_sero_fh_permits_his_query_fun
+                    # force_from_db = TRUE
                     )
   }
 
 permit_info_from_db <- get_permit_info()
 # File: permit_info_2022.rds modified 2024-01-23 12:43:12.146822
+# 2024-02-27 run for permit_info_2022.rds: 2.19 sec elapsed
 
 nrow(permit_info_from_db)
 # [1] 183855
 # [1] 20777    2022 only
 # 15807 group 7
+
+# permit_info_from_db |> select(TOP) |>
+#   distinct()
+# 1  CDW
+# 2  CHS
+# 3   SC
+# 4  CHG
+# 5  RCG
+# 6 HCHG
+# 7 HRCG
+
+# permit_info_from_db |>
+#   filter(!TOP == PERMIT) |>
+#   distinct() |>
+#   View()
+# Permit has ##
 
 ### check dates ----
 # dates_filter <- " (end_date >= TO_DATE('01-JAN-22', 'dd-mon-yy')
@@ -569,6 +586,7 @@ all_permits_in_metrics <-
 
 nrow(all_4_dfs3$permit_info_from_db)
 # 20730
+# 15763
 
 all_4_dfs3$permit_info_from_db <-
   all_4_dfs3$permit_info_from_db |>
@@ -576,21 +594,22 @@ all_4_dfs3$permit_info_from_db <-
   rename("vessel_official_number" = "vessel_id")
 
 ### permit_info_from_db groups to keep ----
+# now in the query
 # permit_info_from_db |>
 #   select(TOP, PERMIT_GROUP) |>
 #   distinct() |>
 #   View()
 
-all_4_dfs3$permit_info_from_db |>
-  filter(tolower(top) %in% tolower(all_permits_in_metrics$permit_sep_u)) |>
-  select(permit_group) |> distinct()
+# all_4_dfs3$permit_info_from_db |>
+#   filter(tolower(top) %in% tolower(all_permits_in_metrics$permit_sep_u)) |>
+#   select(permit_group) |> distinct()
 #   permit_group
 # 1            7
 
-all_4_dfs3$permit_info_from_db |>
-filter(permit_group == 6) |>
-  select(top) |>
-           distinct()
+# all_4_dfs3$permit_info_from_db |>
+# filter(permit_group == 6) |>
+#   select(top) |>
+#            distinct()
 # GC
 # not used
 
@@ -601,20 +620,20 @@ filter(permit_group == 6) |>
 #   TOP                   TOP_NAME
 # 1  GC SOUTH ATLANTIC GOLDEN CRAB
 
-all_4_dfs3$permit_info_from_db <-
-  all_4_dfs3$permit_info_from_db |>
-  filter(permit_group == 7)
+# all_4_dfs3$permit_info_from_db <-
+#   all_4_dfs3$permit_info_from_db |>
+#   filter(permit_group == 7)
 
-nrow(all_4_dfs3$permit_info_from_db)
+# nrow(all_4_dfs3$permit_info_from_db)
 # 16073
 
+# print_df_names(all_4_dfs3$permit_info_from_db)
 permit_info_from_db__no_digit_perm <-
   all_4_dfs3$permit_info_from_db |>
-  filter(!grepl("\\d", permit))
+  filter(!grepl("\\d", top))
 
-unique(permit_info_from_db__no_digit_perm$permit)
-# [1] "CDW" "SC"  "CHS"
-# TODO: where are gulf permits?
+unique(permit_info_from_db__no_digit_perm$top)
+# [1] "CDW"  "CHS"  "SC"   "CHG"  "RCG"  "HCHG" "HRCG"
 
 #### put permit_info_from_db back ----
 all_4_dfs3$permit_info_from_db <-
