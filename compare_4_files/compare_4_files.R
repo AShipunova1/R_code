@@ -758,18 +758,17 @@ all_4_dfs_no_srhs <-
       filter(!vessel_official_number %in% srhs_vessels__renamed$vessel_official_number)
   })
 
-# map(all_4_dfs3, dim)
-# map(all_4_dfs_no_srhs, dim)
+map(all_4_dfs3, dim)
+map(all_4_dfs_no_srhs, dim)
 
 # check permit_sep_u & permit_info_from_db ----
 setdiff(all_permits_in_metrics$permit_sep_u,
         all_4_dfs_no_srhs$permit_info_from_db$top)
-# should be 0 both ways
-# TODO: [1] "CHG"  "RCG"  "HCHG" "HRCG"
+# should be 0 both ways, ok
 
 all_4_dfs_no_srhs$permit_info_from_db$top |>
   unique()
-# [1] "CDW" "SC"  "CHS"
+# [1] "CDW"  "CHS"  "SC"   "CHG"  "RCG"  "HCHG" "HRCG"
 
 min(all_4_dfs_no_srhs$permit_info_from_db$expiration_date)
 # [1] "2007-02-28 EST"
@@ -781,7 +780,7 @@ all_4_dfs_no_srhs$permit_info_from_db$end_date |>
 # [1] "2021-01-21 EST"
 
 max(all_4_dfs_no_srhs$permit_info_from_db$effective_date)
-# [1] "2023-01-01 EST"
+# [1] "2022-12-30 EST"
 
 # get pairs ----
 file_name_combinations <-
@@ -972,16 +971,16 @@ vessel_in_compl_not_in_pims_perm1 <-
 length(vessel_in_compl_not_in_pims_perm1)
 # 1520 (the same)
 
-vessel_in_permits_from_pimss_not_in_compl <-
+vessel_in_permits_from_pims_not_in_compl <-
   setdiff(
     all_4_dfs_no_srhs$permits_from_pims$vessel_official_number,
     all_4_dfs_no_srhs$compliance_from_fhier$vessel_official_number
   )
-length(vessel_in_permits_from_pimss_not_in_compl)
+length(vessel_in_permits_from_pims_not_in_compl)
 # 905
 # 793 (no srhs)
 
-glimpse(vessel_in_permits_from_pimss_not_in_compl)
+glimpse(vessel_in_permits_from_pims_not_in_compl)
  # chr [1:905] "1074262" "644342" "296866" "1296642" "FL9104PX" "FL5102EJ" ...
 
 ### compliance_from_fhier & permits_from_pims join by vessel and permit ----
