@@ -759,7 +759,7 @@ all_dfs_list3$permits_from_pims <-
 unique(all_dfs_list3$permits_from_pims$permit_clean)
 # [1] "CDW"  "SC"   "CHS"  "CHG"  "RCG"  "HRCG" "HCHG"
 
-### transfer_applications_from_pims split vessel_or_dealer ----
+### transfer_applications_from_pims split vessel_or_dealer 1 ----
 
 all_dfs_list3$transfer_applications_from_pims$vessel_or_dealer |>
   head()
@@ -792,28 +792,37 @@ transfer_applications_from_pims__split1 |>
 #  9 532242 / FL4486LT
 # 10 FL0293RM / FLORIDA
 
-  # separate(vessel_or_dealer,
-  #          c('vessel_official_number', 'dealer'),
-  #          sep = " / ") |>
-  # mutate(across(c('vessel_official_number', 'dealer'),
-  #               str_squish))
-### permits_from_pims fewer cols ----
+### transfer_applications_from_pims split vessel_or_dealer 2 ----
+transfer_applications_from_pims__split2 <-
+  transfer_applications_from_pims__split1 |>
+  separate(
+    vessel_official_numbers,
+    c('vessel_official_number1', 'vessel_official_number2'),
+    sep = " / "
+  ) |>
+  mutate(across(starts_with('vessel_official_number'),
+                str_squish))
+# for those not havin a "/":
+# Expected 2 pieces. Missing pieces filled with `NA` in 3022 rows [1, 2, 3, 4, 5,
+# 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...].
 
-permits_from_pims__permit_only__vessel_id_short <-
-  permits_from_pims__permit_only__vessel_id |>
-  select(-c(permit__, dealer)) |>
+# transfer_applications_from_pims__split1[1,]
+
+# View(transfer_applications_from_pims__split2)
+
+### transfer_applications_from_pims__split2 fewer cols ----
+
+# transfer_applications_from_pims__split2 |> View()
+transfer_applications_from_pims__split2_short <-
+  transfer_applications_from_pims__split2 |>
+  select(-c(dealer, permitholder_name)) |>
   distinct()
 
-# glimpse(permits_from_pims__permit_only__vessel_id_short)
+# glimpse(transfer_applications_from_pims__split2_short)
 
-### put permits_from_pims back ----
-all_dfs_list3$permits_from_pims <-
-  permits_from_pims__permit_only__vessel_id_short
-
-unique(all_dfs_list3$permits_from_pims$permit_clean)
-# [1] "CDW"  "SC"   "CHS"  "CHG"  "RCG"  "HRCG" "HCHG"
-
-dealer
+### put transfer_applications_from_pims__split2_short back ----
+all_dfs_list3$transfer_applications_from_pims <-
+  transfer_applications_from_pims__split2_short
 
 ## remove SRHS vessels ----
 # map(all_dfs_list3, print_df_names)
