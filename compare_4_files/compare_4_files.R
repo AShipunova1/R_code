@@ -824,6 +824,8 @@ transfer_applications_from_pims__split2_short <-
 all_dfs_list3$transfer_applications_from_pims <-
   transfer_applications_from_pims__split2_short
 
+# TODO: how to deal with vessel_official_number 1 & 2 in here? Needed for further transformations
+
 ## remove SRHS vessels ----
 # map(all_dfs_list3, print_df_names)
 # $compliance_from_fhier
