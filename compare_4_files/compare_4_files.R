@@ -1353,45 +1353,46 @@ curr_file_name_combinations <-
 # print_df_names(all_4_dfs_no_srhs$permits_from_pims)
 # print_df_names(all_4_dfs_no_srhs$permit_info_from_db)
 
-join_permits_from_pims__permit_info_from_db <-
-  full_join(
-    all_4_dfs_no_srhs$permits_from_pims,
-    all_4_dfs_no_srhs$permit_info_from_db,
-    join_by(vessel_official_number)
-  )
-#   Detected an unexpected many-to-many relationship between `x` and `y`.
-
-### why multiple? ----
-# 1) x to y
-# ℹ Row 1 of `x` matches multiple rows in `y`.
-all_4_dfs_no_srhs$permit_info_from_db |>
-  filter(vessel_official_number ==
-    all_4_dfs_no_srhs$permits_from_pims[1,][["vessel_official_number"]] |
-      vessel_alt_num ==
-    all_4_dfs_no_srhs$permits_from_pims[1,][["vessel_official_number"]]) |>
-  glimpse()
-# multiple permits, OK
-# $ permit               <chr> "1066", "1013", "1066", "1013"
-# $ effective_date       <dttm> 2021-06-04, 2021-06-04, 2022-04-18, 2022-04-18
-
-# 2) y to x
-# ℹ Row 9426 of `y` matches multiple rows in `x`.
-all_4_dfs_no_srhs$permits_from_pims |>
-  filter(vessel_official_number ==
-    all_4_dfs_no_srhs$permit_info_from_db[9426,][["vessel_official_number"]] |
-      vessel_official_number ==
-    all_4_dfs_no_srhs$permit_info_from_db[9426,][["vessel_alt_num"]]) |>
-  glimpse()
-# $ vessel_official_nbr      <chr> "FL6432SU", "FL6432SU"
-# $ notif_accsp_permit_id    <dbl> 584995, NA
-
-permits_from_pims_multi_notif_accsp_permit_id <-
-  get_multiple_entries_per_vessel(all_4_dfs_no_srhs$permits_from_pims,
-                                  "vessel_official_number",
-                                  "notif_accsp_permit_id")
-
-nrow(permits_from_pims_multi_notif_accsp_permit_id)
-# [1] 714
+# not needed, count the vessel difference directly, join by vessel an permit
+# join_permits_from_pims__permit_info_from_db <-
+#   full_join(
+#     all_4_dfs_no_srhs$permits_from_pims,
+#     all_4_dfs_no_srhs$permit_info_from_db,
+#     join_by(vessel_official_number)
+#   )
+# #   Detected an unexpected many-to-many relationship between `x` and `y`.
+#
+# ### why multiple? ----
+# # 1) x to y
+# # ℹ Row 1 of `x` matches multiple rows in `y`.
+# all_4_dfs_no_srhs$permit_info_from_db |>
+#   filter(vessel_official_number ==
+#     all_4_dfs_no_srhs$permits_from_pims[1,][["vessel_official_number"]] |
+#       vessel_alt_num ==
+#     all_4_dfs_no_srhs$permits_from_pims[1,][["vessel_official_number"]]) |>
+#   glimpse()
+# # multiple permits, OK
+# # $ permit               <chr> "1066", "1013", "1066", "1013"
+# # $ effective_date       <dttm> 2021-06-04, 2021-06-04, 2022-04-18, 2022-04-18
+#
+# # 2) y to x
+# # ℹ Row 9426 of `y` matches multiple rows in `x`.
+# all_4_dfs_no_srhs$permits_from_pims |>
+#   filter(vessel_official_number ==
+#     all_4_dfs_no_srhs$permit_info_from_db[9426,][["vessel_official_number"]] |
+#       vessel_official_number ==
+#     all_4_dfs_no_srhs$permit_info_from_db[9426,][["vessel_alt_num"]]) |>
+#   glimpse()
+# # $ vessel_official_nbr      <chr> "FL6432SU", "FL6432SU"
+# # $ notif_accsp_permit_id    <dbl> 584995, NA
+#
+# permits_from_pims_multi_notif_accsp_permit_id <-
+#   get_multiple_entries_per_vessel(all_4_dfs_no_srhs$permits_from_pims,
+#                                   "vessel_official_number",
+#                                   "notif_accsp_permit_id")
+#
+# nrow(permits_from_pims_multi_notif_accsp_permit_id)
+# # [1] 714
 
 # uncomment to run
 # permits_from_pims_multi_notif_accsp_permit_id |>
@@ -1678,3 +1679,4 @@ map(intersections_6, head(1))
 # join_metrics_report__permit_info_from_db__vsl_perm__grps |>
 #   filter(vessel_official_number == "AL0600VR") |>
 #   View()
+
