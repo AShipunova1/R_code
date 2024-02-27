@@ -1251,7 +1251,7 @@ join_compliance_from_fhier__permit_info_from_db__vsl_perm |>
 
 join_compliance_from_fhier__permit_info_from_db__vsl_perm |>
   filter(vessel_official_number == "1024989") |>
-  View()
+  glimpse()
 
 ## [4] "permits_from_pims" "metrics_report" ----
 curr_file_name_combinations <-
@@ -1502,7 +1502,7 @@ in_x <-
 
 all_4_dfs_no_srhs$permit_info_from_db |>
   filter(vessel_official_number == in_x) |>
-  View()
+  glimpse()
 
 ### 3 grps, join_permits_from_pims__permit_info_from_db__vsl_perm__grps ----
 join_permits_from_pims__permit_info_from_db__vsl_perm__grps <-
@@ -1590,6 +1590,7 @@ length(vessel_in_metrics_report_not_in_permit_info_from_db)
 # 5
 # 27 after 2022 and sep permits
 # 952
+# 9
 
 vessel_in_metrics_report_not_in_permit_info_from_db_alt <-
   setdiff(
