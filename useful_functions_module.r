@@ -178,7 +178,7 @@ load_csv_names <- function(csv_files_paths, csv_names_list) {
  # Use 'lapply' to add the 'my_inputs' directory path in front of each file name in 'csv_names_list'
   # This creates a list of full file paths for the CSV files
   myfiles <- lapply(csv_names_list, function(x) file.path(csv_files_paths, x))
-  
+
   # browser()
   print(myfiles)
 
@@ -437,12 +437,12 @@ change_to_dates <- function(my_df, field_name, date_format = "") {
       "%Y/%m/%d"
     )
   }
-  
+
   new_field_name <- str_glue("{field_name}_dttm")
-  
+
   result_df <-
     my_df |>
-    mutate(!!new_field_name := as.POSIXct(!!field_name, 
+    mutate(!!new_field_name := as.POSIXct(!!field_name,
                                       tryFormats = my_tryFormats,
                                       format = date_format))
 
@@ -1259,7 +1259,7 @@ read_an_answer <- function(my_prompt) {
 # 6. Returns the modified data frame.
 get_compl_by <-
   function(my_df,
-           group_by_for_compl = 
+           group_by_for_compl =
                vars(-c("vessel_official_number", "compliant_")),
            names_from_list = c("vessel_official_number")) {
     my_df %>%
