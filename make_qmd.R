@@ -101,7 +101,7 @@ comment_out_sources <-
     return(flat_file_r_text)
   }
 
-flat_file_r_text <- comment_out_sources(flat_file_r_text)
+# flat_file_r_text <- comment_out_sources(flat_file_r_text)
 
 # It searches for lines starting with "#+" followed by a space and captures the content after that.
 # It captures a single quote or a slash.
