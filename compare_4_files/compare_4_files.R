@@ -759,6 +759,62 @@ all_dfs_list3$permits_from_pims <-
 unique(all_dfs_list3$permits_from_pims$permit_clean)
 # [1] "CDW"  "SC"   "CHS"  "CHG"  "RCG"  "HRCG" "HCHG"
 
+### transfer_applications_from_pims split vessel_or_dealer ----
+
+all_dfs_list3$transfer_applications_from_pims$vessel_or_dealer |>
+  head()
+# [1] "NC4086DF (UNNAMED)"     "910807 (DAT THINH)"     "1254225 (LEGAL LIMITS)"
+# [4] "NOVESID384 ()"          "NOVESID385 (UNNAMED)"   "651838 (RED EYE)"
+
+transfer_applications_from_pims__split1 <-
+  all_dfs_list3$transfer_applications_from_pims |>
+  separate(vessel_or_dealer,
+           c('vessel_official_numbers', 'dealer'),
+           sep = "\\(") |>
+  mutate(across(c('vessel_official_numbers', 'dealer'),
+                str_squish)) |>
+  mutate(dealer = str_replace(dealer, "\\)", ""))
+
+n_distinct(transfer_applications_from_pims__split1$vessel_official_numbers)
+# 2471
+
+# View(transfer_applications_from_pims__split1)
+
+#### check double vessel ids ----
+transfer_applications_from_pims__split1 |>
+  select(vessel_official_numbers) |>
+  distinct() |>
+  filter(grepl("/", vessel_official_numbers)) |>
+  head(15)
+#  6 617846 / NONE
+#  7 1056487 / FL6175NK
+#  8 1249495 / FL5083LN
+#  9 532242 / FL4486LT
+# 10 FL0293RM / FLORIDA
+
+  # separate(vessel_or_dealer,
+  #          c('vessel_official_number', 'dealer'),
+  #          sep = " / ") |>
+  # mutate(across(c('vessel_official_number', 'dealer'),
+  #               str_squish))
+### permits_from_pims fewer cols ----
+
+permits_from_pims__permit_only__vessel_id_short <-
+  permits_from_pims__permit_only__vessel_id |>
+  select(-c(permit__, dealer)) |>
+  distinct()
+
+# glimpse(permits_from_pims__permit_only__vessel_id_short)
+
+### put permits_from_pims back ----
+all_dfs_list3$permits_from_pims <-
+  permits_from_pims__permit_only__vessel_id_short
+
+unique(all_dfs_list3$permits_from_pims$permit_clean)
+# [1] "CDW"  "SC"   "CHS"  "CHG"  "RCG"  "HRCG" "HCHG"
+
+dealer
+
 ## remove SRHS vessels ----
 # map(all_dfs_list3, print_df_names)
 # $compliance_from_fhier
