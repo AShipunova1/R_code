@@ -1362,7 +1362,7 @@ curr_file_name_combinations <-
 #   )
 # #   Detected an unexpected many-to-many relationship between `x` and `y`.
 #
-# ### why multiple? ----
+# ### why multiple?
 # # 1) x to y
 # # ℹ Row 1 of `x` matches multiple rows in `y`.
 # all_4_dfs_no_srhs$permit_info_from_db |>
@@ -1658,7 +1658,8 @@ map(intersections_6, length)
 # $inters_in_metrics_report__in_permit_info_from_db
 # [1] 7
 
-map(intersections_6, head(1))
+vessels_to_check <-
+  map_df(intersections_6, head(1))
 # $inters_in_both__in_metrics_report
 # [1] "FL4770HY"
 #
@@ -1667,6 +1668,14 @@ map(intersections_6, head(1))
 #
 # $inters_in_metrics_report__in_permit_info_from_db
 # [1] "AL0600VR"
+
+vessels_to_check |>
+  map(\(x) {
+    # browser()
+    join_metrics_report__permit_info_from_db__vsl_perm__grps |>
+      filter(vessel_official_number == x) |>
+      glimpse()
+  })
 
 # join_metrics_report__permit_info_from_db__vsl_perm__grps |>
 #   filter(vessel_official_number == "FL4770HY") |>
