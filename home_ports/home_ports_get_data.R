@@ -20,29 +20,22 @@ library(crayon)
 # get vessel (home port) info from PIMS with 2 names ----
 # "~\R_files_local\my_inputs\non_compliant_areas\vessels_permit_hailng_port_double_name.xlsx"
 
-# Explanations:
-# The function 'get_vessel_data_pims' reads vessel data from an Excel file, performs some initial checks, and returns the cleaned vessel data:
-# 1. Reads the Excel file at 'vessel_names_file_path' skipping the specified number of rows.
-# 2. Displays the dimensions (number of rows and columns) of the raw vessel data.
-# 3. Cleans headers of the vessel data using the 'clean_headers' function.
-# 4. Returns the cleaned vessel data.
-get_vessel_data_pims <-
-  function(vessel_names_file_path,
+get_xlsx_data_pims <-
+  function(my_file_path,
            to_skip = 0,
            my_sheet = "Sheet 1") {
-    # file.exists(vessel_names_file_path)
     
-    vessels_from_pims_raw <-
-      read_xlsx(vessel_names_file_path,
+    data_from_pims_raw <-
+      read_xlsx(my_file_path,
                 sheet = my_sheet,
                 skip = to_skip)
     
     # clean_headers
-    vessels_from_pims <-
-      vessels_from_pims_raw %>%
+    data_from_pims <-
+      data_from_pims_raw %>%
       clean_headers()
     
-    return(vessels_from_pims)
+    return(data_from_pims)
   }
 
 vessel_data_pims_double_address <-
