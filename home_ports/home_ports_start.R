@@ -161,15 +161,15 @@ to_fix_list <-
       "WANCHESE#NC"),
     c("ALEXANDER CITY, AL#AL",
       "ALEXANDER CITY#AL"),
-    c("PEMBROKE, PINES, FL",
-      "PEMBROKE PINES, FL")
+    c("PEMBROKE#PINES, FL",
+      "PEMBROKE PINES#FL")
   )
 
 # ---
 # Explanations:
 # Creating a new column 'city_state' by concatenating trimmed 'city' and 'state' columns, separated by '#'.
-compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_1 <-
-  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr |>
+vessels_from_pims_split_addr__city_state <-
+  vessels_from_pims_split_addr |>
   mutate(city_state =
            paste(
              trimws(city),
@@ -177,6 +177,8 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_1 <-
              sep = "#"
            ))
 
+# vessels_from_pims_split_addr__city_state |> 
+#   filter(grepl("PEMBROKE", city_state))
 # ---
 
 # 1. **Column Extraction Using sapply:**
