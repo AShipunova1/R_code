@@ -61,6 +61,24 @@ vessels_from_pims_split_addr <-
                               too_many = "merge") |> 
     mutate(across(where(is.character), str_squish))
 
+vessels_from_pims_ok |>
+  filter(grepl("\\d", hailing_port))
+   # vessel_official_number hailing_port            
+#    <chr>                  <chr>                   
+#  1 574500                 HO0MASASSA, FL          
+#  2 1040384                2, AL                   
+#  3 NC6421AU               FIGURE 8 ISLAND, NC     
+#  4 FL3407ML               0,                      
+#  5 FL8939JR               00,                     
+#  6 925240                 0,                      
+#  7 FL5011MX               NAPLE4S, FL             
+#  8 SC8023DE               LITTLE RIVERNHV1N4WH, SC
+#  9 139403                 0,                      
+# 10 DO552832               0,                      
+# 11 1301930                22411 GENO LANE, AL     
+# 12 GA1769JL               117 HAWK LANDING LN, GA 
+
+
 # vessels_from_pims_ok |>
 #   filter(grepl(",.+,", hailing_port))
 # 1 945114                 REDINGTON SHORES, FL, FL
@@ -170,6 +188,7 @@ to_fix_list <-
     c("PEMBROKE#PINES, FL",
       "PEMBROKE PINES#FL")
   )
+# 22411 GENO LANE, BALDWIN, AL
 
 # ---
 # Explanations:
@@ -184,8 +203,21 @@ vessels_from_pims_split_addr__city_state <-
            ))
 
 # check
-# vessels_from_pims_split_addr__city_state |> 
-#   filter(grepl("PEMBROKE", city_state))
+# numbers
+vessels_from_pims_split_addr__city_state |>
+  filter(grepl("\\d", city_state)) |> 
+  select(city_state) |> 
+  distinct()
+# 1 HO0MASASSA#FL          
+# 2 2#AL                   
+# 3 FIGURE 8 ISLAND#NC     
+# 4 0#                     
+# 5 00#                    
+# 6 NAPLE4S#FL             
+  # 7 LITTLE RIVERNHV1N4WH#SC (fixed)
+# 8 22411 GENO LANE#AL     
+# 9 117 HAWK LANDING LN#GA 
+
 vessels_from_pims_split_addr__city_state |>
   filter(grepl(",", city_state)) |> 
   select(city_state)
