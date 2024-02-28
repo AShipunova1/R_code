@@ -69,6 +69,7 @@ source(get_data_path)
 # 1. Add a new column 'permit_expired' using 'mutate'.
 # 2. Use 'case_when' to determine if 'permit_groupexpiration' is greater than today's date.
 # 3. If true, set 'permit_expired' to "no", otherwise set it to "yes".
+
 compl_clean_w_permit_exp <-
   compl_clean |>
   # if permit group expiration is today than "no"
@@ -131,6 +132,7 @@ compl_clean_w_permit_exp_last_half_year__sa__not_exp <-
 
 # View(compl_clean_w_permit_exp_last_half_year__sa__not_exp)
 # print_df_names(compl_clean_w_permit_exp_last_half_year__sa__not_exp)
+
 min(compl_clean_w_permit_exp_last_half_year__sa__not_exp$permit_groupexpiration)
 # [1] "2024-02-29 EST"
 
@@ -141,6 +143,31 @@ max(compl_clean_w_permit_exp_last_half_year__sa__not_exp$week_start)
 
 max(compl_clean_w_permit_exp_last_half_year__sa__not_exp$week_end)
 # [1] "2024-02-04"
+
+## keep only vessels with info for all weeks in the period ----
+all_weeks_num <- 
+compl_clean_w_permit_exp_last_half_year__sa__not_exp |>
+  # filter(vessel_official_number == "NC5586WD") |> View()
+  select(week) |> 
+  distinct() |> 
+  nrow()
+
+compl_clean_w_permit_exp_last_half_year__sa__not_exp__all_weeks_present <-
+  compl_clean_w_permit_exp_last_half_year__sa__not_exp |>
+  group_by(vessel_official_number) |>
+  filter(n_distinct(week) >= all_weeks_num)
+
+compl_clean_w_permit_exp_last_half_year__sa__not_exp |> dim()
+# [1] 55194    22
+
+# > compl_clean_w_permit_exp_last_half_year__sa__not_exp |> dim()
+# [1] 44756    22
+# dim(compl_clean_w_permit_exp_last_half_year__sa__not_exp__all_weeks_present)
+# [1] 40275    22
+
+# compl_clean_w_permit_exp_last_half_year__sa__not_exp__all_weeks_present |>
+#   filter(vessel_official_number == "NC5586WD") |> dim()
+# 0
 
 ## fewer columns ----
 remove_columns <- c(
@@ -163,14 +190,14 @@ remove_columns <- c(
 # 1. Use 'select' to remove columns specified in 'remove_columns'.
 # 2. Use 'distinct' to keep only unique rows in the resulting data frame.
 compl_clean_w_permit_exp_last_half_year__sa__not_exp_short <-
-  compl_clean_w_permit_exp_last_half_year__sa__not_exp |>
+  compl_clean_w_permit_exp_last_half_year__sa__not_exp__all_weeks_present |>
   select(-any_of(remove_columns)) |> 
   distinct()
 
 dim(compl_clean_w_permit_exp_last_half_year__sa)
 # [1] 55194    22
 dim(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short)
-# [1] 44756    9
+# [1] 40275     9
 
 ## work with the whole period ----
 
@@ -182,6 +209,7 @@ compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates <-
 
 glimpse(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates)
 # [1] 3668    2
+# Rows: 2,481 (p active all time)
 
 ## add no_yes compliant ----
 compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__wide <-
