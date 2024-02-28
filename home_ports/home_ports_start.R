@@ -69,79 +69,7 @@ vessels_from_pims_split_addr <-
 # 4 FL0702JJ               MATLACHA, BOKKELIA, FL
 # 5 8811432134             PEMBROKE, PINES, FL     
    
-# add lat/lon ----
-# Uses 'tidygeocoder::geocode' to obtain latitude and longitude for the given city and state columns.
-
-get_lat_lon_no_county <-
-  function(my_df,
-           city_col_name = "city",
-           state_col_name = "state") {
-    result_coord <-
-      my_df |>
-      tidygeocoder::geocode(city = "city",
-                            state = "state",
-                            return_input = TRUE)
-    return(result_coord)
-  }
-
-my_file_path_lat_lon_1 <- 
-  file.path(my_paths$outputs, 
-            current_project_basename,
-            paste0(current_project_basename,
-                   "2024-02-09",
-                   "_lat_lon_2023.rds"))
-
-tic("compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord")
-compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_1 <-
-  read_rds_or_run(
-    my_file_path_lat_lon_1,
-    my_data =
-      as.data.frame(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr),
-    get_lat_lon_no_county
-  )
-toc()
-# Passing 552 addresses to the Nominatim single address geocoder
-# ~10 min
-
-# File: non_compliant_areas2024-02-09_lat_lon_2023.rds modified Fri Feb  9 15:43:14 2024
-# compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord: 633.06 sec elapsed
-
-# 2) check names without coordinates
-
-n_distinct(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr$vessel_official_number)
-# 4017
-
-n_distinct(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_1$vessel_official_number)
-# 4017 the same
-
-# Explanations:
-# Filtering rows from 'compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_1' where the latitude ('lat') is missing using 'filter(is.na(lat))'.
-
-compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coord <-
-  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_1 |>
-  filter(is.na(lat))
-
-## unique vessels_addr ----
-
-## fewer columns ----
-compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coord__u_vessels_addr <-
-  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coord |>
-  select(vessel_official_number, city, state, lat, long) |>
-  distinct()
-
-compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coord__u_vessels_addr |> 
-  nrow()
-# 288
-
-# check no city
-compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coord__has_city <-
-  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coord__u_vessels_addr |>
-  filter(!is.na(city))
-
-nrow(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coord__has_city)
-# 71
-
-# fix home port typos ----
+# fix known home port typos ----
 
 # this list is created manually
 to_fix_list <- 
@@ -467,6 +395,79 @@ nrow(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_no_addr)
 # vessels_from_pims |>
 #   filter(official__ == "504660")
 # not in pims vessels
+
+# add lat/lon ----
+# Uses 'tidygeocoder::geocode' to obtain latitude and longitude for the given city and state columns.
+
+get_lat_lon_no_county <-
+  function(my_df,
+           city_col_name = "city",
+           state_col_name = "state") {
+    result_coord <-
+      my_df |>
+      tidygeocoder::geocode(city = "city",
+                            state = "state",
+                            return_input = TRUE)
+    return(result_coord)
+  }
+
+my_file_path_lat_lon_1 <- 
+  file.path(my_paths$outputs, 
+            current_project_basename,
+            paste0(current_project_basename,
+                   "2024-02-09",
+                   "_lat_lon_2023.rds"))
+
+tic("compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord")
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_1 <-
+  read_rds_or_run(
+    my_file_path_lat_lon_1,
+    my_data =
+      as.data.frame(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr),
+    get_lat_lon_no_county
+  )
+toc()
+# Passing 552 addresses to the Nominatim single address geocoder
+# ~10 min
+
+# File: non_compliant_areas2024-02-09_lat_lon_2023.rds modified Fri Feb  9 15:43:14 2024
+# compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord: 633.06 sec elapsed
+
+# 2) check names without coordinates
+
+n_distinct(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr$vessel_official_number)
+# 4017
+
+n_distinct(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_1$vessel_official_number)
+# 4017 the same
+
+# Explanations:
+# Filtering rows from 'compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_1' where the latitude ('lat') is missing using 'filter(is.na(lat))'.
+
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coord <-
+  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_1 |>
+  filter(is.na(lat))
+
+## unique vessels_addr ----
+
+## fewer columns ----
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coord__u_vessels_addr <-
+  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coord |>
+  select(vessel_official_number, city, state, lat, long) |>
+  distinct()
+
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coord__u_vessels_addr |> 
+  nrow()
+# 288
+
+# check no city
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coord__has_city <-
+  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coord__u_vessels_addr |>
+  filter(!is.na(city))
+
+nrow(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coord__has_city)
+# 71
+
 
 # vessels with NA fixed state in vessels_from_pims_double ----
 
