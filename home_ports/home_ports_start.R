@@ -1,7 +1,8 @@
 # home_ports
 # today()
 # [1] "2024-02-28"
-# setup
+
+# setup ----
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 
@@ -24,11 +25,17 @@ my_year2 <- "2023"
 my_beginning2 <- str_glue("{my_year2}-01-01")
 my_end2 <- str_glue("{my_year2}-12-31")
 
+my_year3 <- "2024"
+my_beginning3 <- str_glue("{my_year3}-01-01")
+my_end3 <- str_glue("{my_year3}-12-31")
+
 # prepare data ----
 get_data_file_path <-
   file.path(my_paths$git_r,
             current_project_basename,
-            "non_compliant_areas_get_data.R")
+            "home_ports_get_data.R")
+
+# file.exists(get_data_file_path)
 
 source(get_data_file_path)
 
