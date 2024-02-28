@@ -88,8 +88,7 @@ permits_from_pims <-
   get_xlsx_data_pims(permits_names_file_path,
                      to_skip = 4)
 
-
-# split vessel_or_dealer ----
+# permits split vessel_or_dealer ----
 permits_from_pims__split1 <-
   permits_from_pims |>
   separate(vessel_or_dealer,
@@ -102,8 +101,22 @@ permits_from_pims__split1 <-
 
 permits_from_pims[229,] |> 
   glimpse()
+# $ vessel_or_dealer <chr> "BARNACLE SEAFOOD INC"
 
-## shorten info from PIMS ----
+## clean and shorten permits from PIMS ----
+program_start_date <- lubridate::dmy("04/01/2021")
+
+permits_from_pims__split1_short <-
+  permits_from_pims__split1 |>
+  convert_to_dates() |> 
+  filter(if_any(ends_with("_date"), 
+                ~ . > program_start_date))
+
+dim(permits_from_pims)
+# [1] 53365    11
+dim(permits_from_pims__split1_short)
+# [1] 31180    12
+
 vessels_from_pims_short <-
   vessels_from_pims |>
   select(vessel_official_number,
