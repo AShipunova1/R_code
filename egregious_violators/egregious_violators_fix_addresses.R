@@ -102,13 +102,18 @@ compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names__fhier
 # [1] 262  16
 
 #### move fileds ----
+a1_cell_text <-
+  str_glue(
+    "Confirmed Egregious? (permits must still be active as of {last_week_start}, missing past 6 months, and (1) they called/emailed us (incoming), or (2) at least 2 contacts (outgoing) with at least 1 call (voicemail counts) and at least 1 email)"
+  )
+
 compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names__fhier_addr__mv_cols <-
   compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names__fhier_addr |>
   relocate(permit_holder_names, .after = contactrecipientname) |>
   relocate(full_name, .after = permit_holder_names) |>
   relocate(fhier_address, .after = full_address) |>
   add_column(
-    `Confirmed Egregious? (missing past 6 months, 2 contacts with at least 1 call to the current permit holder at anytime)` = "", 
+    !!sym(a1_cell_text) := "", 
     .before = "vessel_official_number"
   ) |>
   add_column(Notes = "", .before = "vessel_official_number")
