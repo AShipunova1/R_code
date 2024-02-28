@@ -396,6 +396,25 @@ vessels_from_pims_split_addr__city_state__fix2_ok__no_state <-
 nrow(vessels_from_pims_split_addr__city_state__fix2_ok__no_state)
 # 0
 
+# remove extra cols ----
+vessels_from_pims_split_addr__city_state__fix2_ok_short <-
+  vessels_from_pims_split_addr__city_state__fix2_ok |>
+  select(vessel_official_number, ends_with("_fixed")) |> 
+  distinct()
+
+# check
+# vessels_from_pims_split_addr__city_state__fix2_ok |> 
+#   filter(!state == state_fixed) |> 
+#   View()
+
+vessels_from_pims_split_addr__city_state__fix2_ok |>
+  filter(!city == city_fixed) |>
+  select(-vessel_official_number) |> 
+  distinct() |> 
+  nrow()
+# 44  
+
+# print out ----
 out_dir <- file.path(my_paths$outputs,
             current_project_basename)
 
@@ -405,7 +424,7 @@ out_path <- file.path(out_dir,
             "vessels_from_pims_ports.csv")
 
 write_csv(
-  vessels_from_pims_split_addr__city_state__fix2_ok,
+  vessels_from_pims_split_addr__city_state__fix2_ok_short,
   out_path
 )
 
