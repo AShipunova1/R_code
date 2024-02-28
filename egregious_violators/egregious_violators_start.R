@@ -232,12 +232,14 @@ compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__wide__long$
 dim(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__wide__long)
 # [1] 2246    2
 # [1] 1917    2
+# [1] 1611    2
 
 n_distinct(compl_clean_w_permit_exp_last_half_year__sa$vessel_official_number)
 # 2246
 
 n_distinct(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__wide__long$vessel_official_number)
 # [1] 1917
+# [1] 1611    2
 
 ## get only all "compliant_ == "NO" for the past half year ----
 compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp <-
@@ -252,6 +254,7 @@ dim(compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp)
 # [1] 7138   22
 # [1] 141   2
 # [1] 328   2
+# [1] 228   2
 
 ## add back columns needed for the output ----
 need_cols_names <- c(
@@ -266,6 +269,7 @@ need_cols_names <- c(
 
 dim(compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp)
 # [1] 328   2
+# [1] 228   2
 
 # Explanations:
 # Create a new data frame 'compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c' by combining information from 'compl_clean_w_permit_exp_last_half_year__sa' and 'compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp'.
@@ -279,12 +283,13 @@ compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c <-
   inner_join(compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp) |>
   distinct()
 
-# dim(compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c)
+dim(compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c)
 # [1] 130   8
 # 0
 # 127
 # 121
 # [1] 328   6
+# [1] 228   6
 
 ## check the last report date ----
 ### get ids only ----
@@ -296,6 +301,7 @@ compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_short_vesl_ids <-
 dim(compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_short_vesl_ids)
 # [1] 128   1
 # [1] 328   1
+# [1] 228   1
 
 ### check these ids in the full compliance information ----
 compl_clean_w_permit_exp_last_half_year__sa |>
@@ -358,6 +364,7 @@ compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_ok <-
 
 dim(compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_ok)
 # [1] 319   6
+# [1] 219   6
 
 # ---- Preparing Correspondence ----
 
@@ -437,10 +444,12 @@ dim(corresp_contact_cnts_clean)
 # [1] 29587    20
 dim(corresp_contact_cnts_clean_direct_cnt_2atmps)
 # [1] 29089    20
+# [1] 29587    22
 
 n_distinct(corresp_contact_cnts_clean_direct_cnt_2atmps$vesselofficial_number)
 # vesselofficial_number 2968
 # 3620
+# 4118
 
 ## fix dates ----
 head(corresp_contact_cnts_clean_direct_cnt_2atmps$contact_date, 1)
@@ -490,6 +499,7 @@ dim(compl_corr_to_investigation1)
 # [1] 522  30
 # [1] 940  27
 # [1] 2100   27
+# [1] 1926   27
 
 # check
 n_distinct(compl_corr_to_investigation1$vesselofficial_number)
@@ -502,6 +512,7 @@ n_distinct(compl_corr_to_investigation1$vesselofficial_number)
 # 97
 # vesselofficial_number 116
 # 262
+# 217
 
 # View(compl_corr_to_investigation1)
 
@@ -509,6 +520,7 @@ n_distinct(compl_corr_to_investigation1$vesselofficial_number)
 num_of_vsl_to_investigate <- 
   n_distinct(compl_corr_to_investigation1$vesselofficial_number)
 # 262
+# 217
 
 # ---- output needed investigation ----
 # 1) create additional columns
@@ -579,6 +591,7 @@ dim(date__contacttype_per_id)
 # 97
 # [1] 116   2 (2 contact attempts)
 # [1] 262   2
+# 217
 
 # glimpse(date__contacttype_per_id)
 
@@ -604,6 +617,8 @@ vessels_not_in_vessel_permit_from_db <-
 
 length(vessels_not_in_vessel_permit_from_db)
 # 32
+# 22
+
 vessels_not_in_vessel_permit_from_db |>
   cat(sep = "\n")
 # cat(sep = "', '")
@@ -621,6 +636,7 @@ vessels_from_pims_needed |>
   arrange(official__) |> 
   dim()
 # [1] 30  8
+# [1] 22  8
 
 vessels_from_pims_double |>
   filter(
@@ -630,6 +646,7 @@ vessels_from_pims_double |>
   arrange(vessel_official_number1, vessel_official_number2) |>
   dim()
 # 3
+# [1] 1 3
 
 # to_remove <- c("", "UN", " UN", "UN ", ";, UN"
 # NA, "NA")
@@ -843,6 +860,7 @@ dim(vessels_permits_participants_v_ids)
 # [1] 3302    1
 # 3203
 # 3232    
+# [1] 3224    1
 
 # how many vessels are missing from the db report
 setdiff(
@@ -852,6 +870,8 @@ setdiff(
   # cat(sep = "', '")
   length()
 # 3
+# 1
+# 1039937
 
 # We don't need to check the reverse, there will be more vessels in the permit info we are not interested in
 
@@ -866,9 +886,12 @@ vessels_permits_participants_date__contacttype_per_id <-
 # View(vessels_permits_participants_date__contacttype_per_id)
 n_distinct(date__contacttype_per_id$vessel_official_number)
 # 262
+# 217
+
 dim(vessels_permits_participants_date__contacttype_per_id)
 # 117
 # [1] 262   5
+# 217
 
 # compare vsl numbers
 num_of_vsl_to_investigate == n_distinct(vessels_permits_participants_date__contacttype_per_id$vessel_official_number)
@@ -884,6 +907,7 @@ compl_corr_to_investigation1__w_addr <-
 
 dim(compl_corr_to_investigation1__w_addr)
 # [1] 2100   31
+# [1] 1926   31
 
 # compare vsl numbers
 num_of_vsl_to_investigate == n_distinct(compl_corr_to_investigation1__w_addr$vessel_official_number)
@@ -944,6 +968,7 @@ dim(compl_corr_to_investigation1_short)
 # [1] 105   9
 # 108
 # [1] 262  12
+# 217
 
 ## 3) mark vessels already in the know list ----
 # The first column (report created) indicates the vessels that we have created a case for. My advice would be not to exclude those vessels. EOs may have provided compliance assistance and/or warnings already. If that is the case and they continue to be non-compliant after that, they will want to know and we may need to reopen those cases.
@@ -999,6 +1024,7 @@ dim(compl_corr_to_investigation1_short_dup_marked)
 # [1] 110  10 2 atmpts
 # [1] 116  10
 # [1] 262  13
+# [1] 217  13
 
 ### check ----
 n_distinct(compl_corr_to_investigation1_short_dup_marked$vessel_official_number)
@@ -1013,6 +1039,7 @@ n_distinct(compl_corr_to_investigation1_short_dup_marked$vessel_official_number)
 # 116
 # 2024-02-20
 # 262
+# 217
 
 # how many are duals? ----
 # Explanations:
@@ -1040,19 +1067,29 @@ compl_corr_to_investigation1_short_dup_marked__permit_region <-
 # Use the 'distinct' function to keep only unique combinations of 'vessel_official_number' and 'permit_region'.
 # Use the 'count' function to count the occurrences of each unique 'permit_region'.
 # The resulting count provides the frequency of each 'permit_region'.
-compl_corr_to_investigation1_short_dup_marked__permit_region |> 
-  select(vessel_official_number, permit_region) |> 
-  distinct() |> 
+region_counts <-
+  compl_corr_to_investigation1_short_dup_marked__permit_region |>
+  select(vessel_official_number, permit_region) |>
+  distinct() |>
   count(permit_region)
 # 1 dual             56
 # 2 sa_only         206
+#   permit_region     n
+#   <chr>         <int>
+# 1 dual             51
+# 2 sa_only         166
 
 n_distinct(compl_corr_to_investigation1_short_dup_marked__permit_region$vessel_official_number)
 # 262
+# 217
 
 ## dual permitted ----
-56 / (206 + 56) * 100
+# 56 / (206 + 56) * 100
 # 21.37405
+
+region_counts$n[[1]] / (region_counts$n[[2]] + region_counts$n[[1]]) * 100
+# 51 / (166 + 51) * 100
+# 23.5023%
 
 # add info from FHIER to the results ----
 
