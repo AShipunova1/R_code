@@ -282,20 +282,13 @@ manual_fixes <-
     list("FL8252JK", "MIAMI", "FL")
   )
 
-# Explanations:
-# The variable 'compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_1' is created by:
-# 1. Applying mutations to the 'compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed' data frame for each set of manual fixes using 'map_df'.
-# - Creating new columns 'city_fixed1' and 'state_fixed1' using case_when for each manual fix.
-# 
-# 2. Returning the result of the mutations.
-# 3. Keeping only distinct rows in the final result.
 
-compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_1 <-
+vessels_from_pims_split_addr__city_state__fix2 <-
   map_df(manual_fixes,
          \(x) {
            # browser()
            res <-
-             compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed |>
+             vessels_from_pims_split_addr__city_state__fix1 |>
              mutate(
                city_fixed1 =
                  case_when(vessel_official_number == x[[1]] ~ x[[2]]),
@@ -306,10 +299,10 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_1 <-
          }) |>
   distinct()
 
-dim(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_1)
-# [1] 9382   12
+dim(vessels_from_pims_split_addr__city_state__fix2)
+# [1] 23110     8
 
-compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_1 |>
+vessels_from_pims_split_addr__city_state__fix2 |>
   filter(vessel_official_number == "FL1431JU") |>
   glimpse()
 # $ city_fixed             <chr> "KEY WEST", "MARATHON", "KEY WEST", "MARATHON"
@@ -324,28 +317,26 @@ new_f_vsl <-
 
 both <-
   intersect(
-    compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed$vessel_official_number,
+    vessels_from_pims_split_addr__city_state__fix1$vessel_official_number,
     new_f_vsl
   )
 length(both)
-# 5
-# [1] "FL1431JU" "FL3976FH" "FL0146BH" "FL7549PJ" "FL1553TM"
+# 16
+# 581260 531549 FL8252JK 646818 FL0146BH FL7549PJ 1185107 FL5011MX FL1431JU 139403 FL3976FH TX9606KA FL2615MT FL5029RM FL1553TM FL3119EE
 
-compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_1 |>
+vessels_from_pims_split_addr__city_state__fix2 |>
   filter(vessel_official_number %in% both) |>
   select(vessel_official_number,
-         permit_sa_gom_dual,
          city_fixed1,
          state_fixed1) |>
   filter(!is.na(city_fixed1) & !is.na(city_fixed1)) |>
   distinct() |>
   glimpse()
-# 5 ok
+# 16 ok
 
-compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_1 |>
+vessels_from_pims_split_addr__city_state__fix2 |>
   filter(vessel_official_number %in% both) |>
   select(vessel_official_number,
-         permit_sa_gom_dual,
          city_fixed,
          state_fixed,
          city_fixed1,
@@ -356,15 +347,14 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_1 |>
 
 ## replace duplicated values ----
 # Explanations:
-# The variable 'compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2' is created by:
 # 1. Updating 'city_fixed' and 'state_fixed' columns based on conditions using 'case_when':
 #     - If 'city_fixed1' is not NA, update 'city_fixed' with 'city_fixed1'; otherwise, keep the existing value in 'city_fixed'.
 #     - If 'state_fixed1' is not NA, update 'state_fixed' with 'state_fixed1'; otherwise, keep the existing value in 'state_fixed'.
 # 2. Filtering rows where 'vessel_official_number' is not in 'both' or 'state_fixed1' is not missing.
 # 3. Selecting all columns except "city_fixed1" and "state_fixed1".
 # 4. Keeping only distinct rows in the final result to avoid duplications.
-compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2 <-
-  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_1 |>
+vessels_from_pims_split_addr__city_state__fix2_ok <-
+  vessels_from_pims_split_addr__city_state__fix2 |>
   mutate(
     city_fixed =
       case_when(!is.na(city_fixed1) ~ city_fixed1,
@@ -378,42 +368,47 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2 <-
   select(-c("city_fixed1", "state_fixed1")) |> 
   distinct()
 
-dim(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2)
-# [1] 9362   10
+dim(vessels_from_pims_split_addr__city_state__fix2_ok)
+# [1] 23086     6
 
 # check
-compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2 |>
+vessels_from_pims_split_addr__city_state__fix2_ok |>
   filter(vessel_official_number %in% both) |>
   select(vessel_official_number,
-         permit_sa_gom_dual,
          city_fixed,
          state_fixed) |> 
-# ,
-#          # city_fixed1,
-#          state_fixed1) |>
-  # filter(!is.na(city_fixed1) & !is.na(city_fixed1)) |>
   distinct() |>
   glimpse()
-# 5
+# 16
 
 ## no address ----
-compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_no_addr <-
-  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2 |>
+vessels_from_pims_split_addr__city_state__fix2_ok__no_addr <-
+  vessels_from_pims_split_addr__city_state__fix2_ok |>
   filter(is.na(city))
 
-nrow(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_no_addr)
-# 467
+nrow(vessels_from_pims_split_addr__city_state__fix2_ok__no_addr)
+# 6
 
-# write_csv(
-#   compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_no_addr,
-#   file.path(my_paths$outputs,
-#             current_project_basename,
-#             "no_addr.csv")
-# )
+vessels_from_pims_split_addr__city_state__fix2_ok__no_state <-
+  vessels_from_pims_split_addr__city_state__fix2_ok |>
+  filter(is.na(state_fixed))
 
-# vessels_from_pims |>
-#   filter(official__ == "504660")
-# not in pims vessels
+nrow(vessels_from_pims_split_addr__city_state__fix2_ok__no_state)
+# 0
+
+out_dir <- file.path(my_paths$outputs,
+            current_project_basename)
+
+dir.create(out_dir)
+
+out_path <- file.path(out_dir,
+            "vessels_from_pims_ports.csv")
+
+write_csv(
+  vessels_from_pims_split_addr__city_state__fix2_ok,
+  out_path
+)
+
 
 # add lat/lon ----
 # Uses 'tidygeocoder::geocode' to obtain latitude and longitude for the given city and state columns.
@@ -528,7 +523,7 @@ dim(vessels_from_pims_double_bind)
 
 # vessels_from_pims_double_short__na_vessel_states <-
 #   vessels_from_pims_double_bind |>
-#   filter(vessel_official_number %in% compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_no_addr$vessel_official_number) |> 
+#   filter(vessel_official_number %in% vessels_from_pims_split_addr__city_state__fix2_ok__no_addr$vessel_official_number) |> 
 #   distinct()
 
 dim(vessels_from_pims_double_bind)
@@ -539,7 +534,7 @@ dim(vessels_from_pims_double_bind)
 #   filter(vessel_official_number == "1173297")
 # 1 1173297                CAROLINA BEACH, NC
 
-# compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2 |> 
+# vessels_from_pims_split_addr__city_state__fix2_ok |> 
 #     filter(vessel_official_number == "1173297") |> distinct() |> 
 #   glimpse()
 # $ year_permit_sa_gom_dual <chr> "2022 sa_only", "2023 sa_only"
@@ -589,11 +584,11 @@ nrow(vessels_from_pims_double_bind__city_state__fixed_1)
 
 ## add more home ports ----
 # Explanations:
-# 1. Joining two data frames ('compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2' and 'vessels_from_pims_double_bind__city_state__fixed_1') on 'vessel_official_number'.
+# 1. Joining two data frames ('vessels_from_pims_split_addr__city_state__fix2_ok' and 'vessels_from_pims_double_bind__city_state__fixed_1') on 'vessel_official_number'.
 # 2. Adding suffixes '.orig' and '.double_names' to the overlapping column names from the original and double names data frames.
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_3 <-
   left_join(
-    compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2,
+    vessels_from_pims_split_addr__city_state__fix2_ok,
     vessels_from_pims_double_bind__city_state__fixed_1,
     join_by(vessel_official_number),
     suffix = c(".orig", ".double_names")
@@ -613,7 +608,7 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_3 |>
 # 2. Creating a new column 'state_fixed1' based on conditions using 'case_when':
 #     - If 'state_fixed.orig' is NA or "NA" and 'state_fixed.double_names' is not NA, update 'state_fixed1' with 'state_fixed.double_names'.
 #     - Otherwise, keep the existing value in 'state_fixed.orig'.
-compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports1 <-
+vessels_from_pims_split_addr__city_state__fix2_ok_more_ports1 <-
   compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_3 |>
   mutate(across(where(is.character), str_trim)) |>
   mutate(state_fixed1 =
@@ -624,7 +619,7 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_mor
                      .default = state_fixed.orig
            ))
 
-compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports1 |> 
+vessels_from_pims_split_addr__city_state__fix2_ok_more_ports1 |> 
   filter(!state_fixed.orig == state_fixed1) |> 
   glimpse()
 # $ city_state               <chr> "NA#NA", "NA#NA", "NA#NA", "NA#NA", "NA#NA", …
@@ -635,8 +630,8 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_mor
 # $ state_fixed1             <chr> "TX", "TX", "DE", "DE", "DE", "MD", "MD", "MD…
 
 ### the same for cities ----
-compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports2 <-
-  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports1 |>
+vessels_from_pims_split_addr__city_state__fix2_ok_more_ports2 <-
+  vessels_from_pims_split_addr__city_state__fix2_ok_more_ports1 |>
   mutate(across(where(is.character), str_trim)) |>
   mutate(city_fixed1 =
            case_when((is.na(city_fixed.orig) |
@@ -646,29 +641,29 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_mor
                      .default = city_fixed.orig
            ))
 
-dim(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports2)
+dim(vessels_from_pims_split_addr__city_state__fix2_ok_more_ports2)
 # [1] 9362   14
 
 ### rename the state column ----
 # Explanations:
 # 1. Removing the 'state_fixed.orig' column using 'select(-state_fixed.orig)'.
 # 2. Renaming the 'state_fixed1' column to 'state_fixed' using 'rename("state_fixed" = state_fixed1)'.
-compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports1 <-
-  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports2 |>
+vessels_from_pims_split_addr__city_state__fix2_ok_more_ports_more_ports1 <-
+  vessels_from_pims_split_addr__city_state__fix2_ok_more_ports2 |>
   select(-state_fixed.orig) |>
   rename("state_fixed" = state_fixed1)
 
 ### the same for cities ----
-compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports <-
-  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports1 |>
+vessels_from_pims_split_addr__city_state__fix2_ok_more_ports_more_ports <-
+  vessels_from_pims_split_addr__city_state__fix2_ok_more_ports_more_ports1 |>
   select(-city_fixed.orig) |>
   rename("city_fixed" = city_fixed1)
 
 # check
-dim(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports)
+dim(vessels_from_pims_split_addr__city_state__fix2_ok_more_ports_more_ports)
 # 9362   12
 
-compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports |>
+vessels_from_pims_split_addr__city_state__fix2_ok_more_ports_more_ports |>
   filter(year_permit_sa_gom_dual == "2023 sa_only") |> 
   # filter(state_fixed == "NA" | is.na(state_fixed)) |> 
   filter(city_fixed == "NA" | is.na(city_fixed)) |> 
@@ -676,6 +671,6 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_mor
 # 0
 
 # Print results ----
-cat("compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports",
+cat("vessels_from_pims_split_addr__city_state__fix2_ok_more_ports_more_ports",
     sep = "\n")
 
