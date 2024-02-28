@@ -144,6 +144,21 @@ vessels_from_pims_short_ok <-
 dim(vessels_from_pims_short_ok)
 # [1] 22510     2
 
+# View(vessels_from_pims_short_ok)
+
+## vessel split double names ----
+vessels_from_pims_short_ok__split1 <-
+  vessels_from_pims_short_ok |>
+  separate(vessel_official_number,
+           c('vessel_official_number', 'vessel_official_number2'),
+           sep = " / ") |>
+  mutate(across(starts_with('vessel_official_number'),
+                str_squish))
+
+# Expected 2 pieces. Missing pieces filled with `NA` in 21895 rows [1, 2, 3, 4, 5,
+
+# View(vessels_from_pims_short_ok__split1)
+
 ## Clean vessel home port punctuation ----
 
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_1 <- 
