@@ -38,6 +38,18 @@ get_xlsx_data_pims <-
     return(data_from_pims)
   }
 
+convert_to_dates <-
+  function(my_df) {
+    my_df_w_dates <-
+      my_df |>
+      mutate(across(
+        where(is.character) &
+          (ends_with("_date")),
+        ~ lubridate::parse_date_time(.x, orders = c("mdY"))
+      ))
+    return(my_df_w_dates)
+  }
+
 # vessel_data_pims_double_address <-
 #     file.path(my_paths$inputs,
 #               r"(non_compliant_areas\vessels_permit_hailng_port_double_name.xlsx)")
