@@ -136,7 +136,7 @@ vessels_from_pims_short <-
 dim(vessels_from_pims_short)
 # [1] 22887     2
 
-## remove "NOVESID" vessels ----
+## vessels remove "NOVESID" ----
 vessels_from_pims_short_ok <-
   vessels_from_pims_short |>
   filter(!grepl("^NOVESID", vessel_official_number))
@@ -158,6 +158,32 @@ vessels_from_pims_short_ok__split1 <-
 # Expected 2 pieces. Missing pieces filled with `NA` in 21895 rows [1, 2, 3, 4, 5,
 
 # View(vessels_from_pims_short_ok__split1)
+
+## vessel make one column of double names ----
+### split into 2 dataframes and rename the id column ----
+
+# [1] "vessel_official_number, vessel_official_number2, hailing_port"
+
+vessels_from_pims_double_1 <-
+  vessels_from_pims_short_ok__split1 |> 
+  select(-vessel_official_number2)
+
+vessels_from_pims_double_2 <-
+  vessels_from_pims_short_ok__split1 |> 
+  select(-vessel_official_number) |>
+  rename("vessel_official_number" = vessel_official_number2)
+
+### combine in one df ----
+vessels_from_pims_double_bind <-
+  rbind(
+    vessels_from_pims_double_1,
+    vessels_from_pims_double_2
+  ) |> 
+  distinct() |> 
+  filter(!is.na(vessel_official_number))
+
+# View(vessels_from_pims_double_bind)
+# [1] 23086     2
 
 ## Clean vessel home port punctuation ----
 
