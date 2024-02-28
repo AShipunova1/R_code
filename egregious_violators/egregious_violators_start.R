@@ -1,7 +1,7 @@
 # 1) NO reports for all 26 weeks back from week ago today;
-# 2) permits have not expired as of today;
+# 2) permits have not expired as of today and were active for the same period as (1);
 # 3) the grace period is 7 days back from today.
-# 4) At least 2 contacts
+# 4) It needs to be that we called at least 1 time and emailed at least 1 time. Or they contacted us at least once.
 
 # Get common functions
 source("~/R_code_github/useful_functions_module.r")
@@ -356,7 +356,7 @@ n_distinct(corresp_contact_cnts_clean$vesselofficial_number)
 
 ## new requirement 2024-02-26 ----
 # Michelle
-# It needs to be that we called at least 1 time and emailed at least 1 time. Or they contacted us.
+# It needs to be that we called at least 1 time and emailed at least 1 time. Or they contacted us at least once.
 
 corresp_contact_cnts_clean |>
   select(calltype, voicemail, contacttype) |>
