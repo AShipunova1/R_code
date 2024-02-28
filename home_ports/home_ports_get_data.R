@@ -1,7 +1,7 @@
 # today()
 # [1] "2024-02-28"
 
-# 3) "Permits - 2024-01-25_0904.xlsx"
+# 1) "Permits - 2024-02-28_0930.xlsx"
 # get it from PIMS
 # Menu: permits
 # Filter:
@@ -11,13 +11,13 @@
 # 
 # skip first 5 lines in R)
 
-# 4) same for vessels, skip first 3 lines
-# Vessels - 2024-02-01_0909.xlsx
+# 2) same for vessels, skip first 3 lines
+# "Vessels - 2024-02-28_0930.xlsx"
 
 # Colored terminal output
 library(crayon)
 
-# get vessel (home port) info from PIMS with 2 names ----
+# TODO: get vessel (home port) info from PIMS with 2 names ----
 # "~\R_files_local\my_inputs\non_compliant_areas\vessels_permit_hailng_port_double_name.xlsx"
 
 get_xlsx_data_pims <-
@@ -38,30 +38,45 @@ get_xlsx_data_pims <-
     return(data_from_pims)
   }
 
-vessel_data_pims_double_address <-
-    file.path(my_paths$inputs,
-              r"(non_compliant_areas\vessels_permit_hailng_port_double_name.xlsx)")
+# vessel_data_pims_double_address <-
+#     file.path(my_paths$inputs,
+#               r"(non_compliant_areas\vessels_permit_hailng_port_double_name.xlsx)")
 
-vessel_names_file_path <- 
-    file.path(my_paths$inputs,
-              r"(non_compliant_areas\Vessels - 2024-02-12_1633.xlsx)")
+vessel_names_file_path <-
+  file.path(my_paths$inputs,
+            r"(from PIMS\Vessels - 2024-02-28_0930.xlsx)")
 
-vessels_from_pims <- get_vessel_data_pims(vessel_names_file_path)
+# file.exists(vessel_names_file_path)
+vessels_from_pims <- 
+  get_xlsx_data_pims(vessel_names_file_path,
+                     to_skip = 3)
 
 # print_df_names(vessels_from_pims)
 
-vessels_from_pims_double <- 
-  get_vessel_data_pims(vessel_data_pims_double_address,
-                       to_skip = 0)
+# vessels_from_pims_double <- 
+#   get_vessel_data_pims(vessel_data_pims_double_address,
+#                        to_skip = 0)
 
 dim(vessels_from_pims)
-# [1] 23059     8
+# [1] 23107     8
 
-dim(vessels_from_pims_double)
+# dim(vessels_from_pims_double)
 # [1] 652   3
 
-names(vessels_from_pims_double)
-# [1] "vessel_official_number1" "vessel_official_number2" "hailing_port"           
+# names(vessels_from_pims_double)
+# [1] "vessel_official_number1" "vessel_official_number2" "hailing_port"         
+
+# permits from pims ----
+permits_names_file_path <-
+  file.path(my_paths$inputs,
+            r"(from PIMS\Permits - 2024-02-28_0930.xlsx)")
+
+# file.exists(permits_names_file_path)
+permits_from_pims <- 
+  get_xlsx_data_pims(permits_names_file_path,
+                     to_skip = 4)
+
+
 
 ## shorten info from PIMS ----
 vessels_from_pims_short <-
