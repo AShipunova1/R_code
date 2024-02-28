@@ -117,11 +117,15 @@ dim(permits_from_pims)
 dim(permits_from_pims__split1_short)
 # [1] 31180    12
 
+## clean and shorten vessels from PIMS ----
 vessels_from_pims_short <-
   vessels_from_pims |>
+  convert_to_dates() |> 
   select(vessel_official_number,
          hailing_port) |>
   distinct()
+
+View(vessels_from_pims_short)
 
 dim(vessels_from_pims_short)
 # 22842     
