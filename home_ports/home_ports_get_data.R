@@ -187,19 +187,30 @@ vessels_from_pims_double_bind <-
 
 ## Clean vessel home port punctuation ----
 
-compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_1 <- 
-  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col |> 
+vessels_from_pims_ok <-
+  vessels_from_pims_double_bind |>
+  mutate(hailing_port =
+           str_replace(hailing_port,
+                       ",",
+                       ", ")) |>
   mutate(hailing_port =
            str_replace(hailing_port,
                        " ,",
-                       ",")) |> 
-    mutate(hailing_port =
-           str_replace_all(hailing_port,
-                       "  ",
-                       " "))
+                       ",")) |>
+  mutate(hailing_port =
+           str_squish(hailing_port)) |> 
+  distinct()
+
+dim(vessels_from_pims_ok)
+# [1] 23086     2
 
 # check
 grep(",[a-zA-Z]",
-     compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_1$hailing_port,
+     vessels_from_pims_ok$hailing_port,
+     value = T)
+# 0
+
+grep("  +",
+     vessels_from_pims_ok$hailing_port,
      value = T)
 # 0
