@@ -20,6 +20,7 @@ library(crayon)
 # TODO: get vessel (home port) info from PIMS with 2 names ----
 # "~\R_files_local\my_inputs\non_compliant_areas\vessels_permit_hailng_port_double_name.xlsx"
 
+# auxiliary functions ----
 get_xlsx_data_pims <-
   function(my_file_path,
            to_skip = 0,
@@ -49,6 +50,8 @@ convert_to_dates <-
       ))
     return(my_df_w_dates)
   }
+
+  # vessels from PIMS ----
 
 # vessel_data_pims_double_address <-
 #     file.path(my_paths$inputs,
