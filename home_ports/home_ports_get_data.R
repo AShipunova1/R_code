@@ -1,14 +1,5 @@
-today()
-# [1] "2024-02-14"
-# [1] "2024-02-08"
-# Now for processed data both years
-
-# 1) compliance information:
-# a) FHIER_Compliance_2023__01_24_2023.csv (from FHIER / compliance report)
-# b) FHIER_Compliance_2022__02_05_2024.csv (from FHIER / compliance report)
-
-# 2) Processed Metrics tracking
-# SEFHIER_permitted_vessels_nonSRHS_{my_year}
+# today()
+# [1] "2024-02-28"
 
 # 3) "Permits - 2024-01-25_0904.xlsx"
 # get it from PIMS
