@@ -159,6 +159,12 @@ to_fix_list <-
       "TAVERNIER#FL"),
     c("WANCHEESE#NC",
       "WANCHESE#NC"),
+    c("REDINGTON SHORES#FL, FL",
+      "REDINGTON SHORES#FL"),
+    c("CHAUVIN#LA, LA",
+      "CHAUVIN#LA"),
+    c("MATLACHA#BOKKELIA, FL",
+      "MATLACHA#FL"),
     c("ALEXANDER CITY, AL#AL",
       "ALEXANDER CITY#AL"),
     c("PEMBROKE#PINES, FL",
@@ -177,8 +183,19 @@ vessels_from_pims_split_addr__city_state <-
              sep = "#"
            ))
 
+# check
 # vessels_from_pims_split_addr__city_state |> 
 #   filter(grepl("PEMBROKE", city_state))
+vessels_from_pims_split_addr__city_state |>
+  filter(grepl(",", city_state)) |> 
+  select(city_state)
+# 1 REDINGTON SHORES#FL, FL
+# 2 CHAUVIN#LA, LA         
+# 3 ALEXANDER CITY#AL, AL  
+# 4 MATLACHA#BOKKELIA, FL  
+# 5 PEMBROKE#PINES, FL     
+
+
 # ---
 
 # 1. **Column Extraction Using sapply:**
@@ -195,6 +212,7 @@ vessels_from_pims_split_addr__city_state <-
 wrong_port_addr <-
   sapply(to_fix_list, "[", 1)
 
+# ---
 # Explanations:
 # The function 'get_correct_addr_by_wrong' takes a 'wrong_addr' as input and performs the following steps:
 # 1. Finds the index of 'wrong_addr' in the 'to_fix_list'.
@@ -222,8 +240,8 @@ get_correct_addr_by_wrong <-
 # The variable 'compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed' is created by:
 # 1. Creating a new column 'city_state_fixed' by replacing wrong addresses using 'get_correct_addr_by_wrong' for rows where 'city_state' is in 'wrong_port_addr'.
 # 2. Separating the 'city_state_fixed' column into two columns ('city_fixed' and 'state_fixed') using '#' as the delimiter.
-compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed <-
-  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_1 |>
+vessels_from_pims_split_addr__city_state__fix1 <-
+  vessels_from_pims_split_addr__city_state |>
   rowwise() |>
   mutate(city_state_fixed =
            if (city_state %in% wrong_port_addr)
@@ -234,15 +252,14 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed <-
   tidyr::separate_wider_delim(city_state_fixed,
                               delim = "#",
                               names = c("city_fixed",
-                                        "state_fixed"))
+                                        "state_fixed")) |> 
+  distinct()
 
-n_distinct(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed$vessel_official_number)
-# 4017
+n_distinct(vessels_from_pims_split_addr__city_state__fix1$vessel_official_number)
+# [1] 23045
 
-dim(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed)
-# [1] 9362   10
-
-# duplicated addr
+dim(vessels_from_pims_split_addr__city_state__fix1)
+# [1] 23086     6
 
 # add new fixes manually ----
 manual_fixes <-
