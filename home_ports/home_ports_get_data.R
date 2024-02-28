@@ -77,11 +77,23 @@ permits_from_pims <-
                      to_skip = 4)
 
 
+# split vessel_or_dealer ----
+permits_from_pims__split1 <-
+  permits_from_pims |>
+  separate(vessel_or_dealer,
+           c('vessel_official_number', 'dealer'),
+           sep = " / ") |>
+  mutate(across(c('vessel_official_number', 'dealer'),
+                str_squish))
+
+# Expected 2 pieces. Missing pieces filled with `NA` in 3038 rows [229, 244, 294,
+
+permits_from_pims[229,] |> 
+  glimpse()
 
 ## shorten info from PIMS ----
 vessels_from_pims_short <-
   vessels_from_pims |>
-  rename("vessel_official_number" = official__) |>
   select(vessel_official_number,
          hailing_port) |>
   distinct()
