@@ -20,6 +20,9 @@
 # 5) vessel and permit information from Oracle db
 # "vessels_permits_participants.rds"
 
+# 6) home port processed city and state
+# "~\R_files_local\my_outputs\home_ports\vessels_from_pims_ports.csv"
+
 # Compliance
 # Correspondence
 # permit info from processed metrics tracking
@@ -303,6 +306,17 @@ dim(vessels_permits_participants)
 # [1] "2024-02-16"
 # [1] 30511    38
 
+# get home port processed city and state ----
+
+processed_pims_home_ports_path <-
+  file.path(my_paths$outputs,
+              "home_ports",
+              "vessels_from_pims_ports.csv")
+
+processed_pims_home_ports <- 
+  read_csv(processed_pims_home_ports_path)
+
+# Results ----
 results <-
   c("vessels_permits_participants",
     "compl_clean",
