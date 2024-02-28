@@ -38,41 +38,37 @@ get_data_file_path <-
 # file.exists(get_data_file_path)
 
 source(get_data_file_path)
-
-# 
+# res:
+# vessels_from_pims_ok
 
 # run once to get lat lon and check names with no coords
 # 1) add lat/lon
 # 2) check names without coordinates
 # 3) fix names
 
-# print_df_names(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col)
-# [1] "vessel_official_number, permit_sa_gom_dual, compliant_, year, hailing_port, year_permit_sa_gom_dual"
-
 # separate hailing_port into city and state ----
 
 # Explanations:
-# The variable 'compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr' is created by:
+# The variable 'vessels_from_pims_split_addr' is created by:
 # 1. Separating the 'hailing_port' column into two columns ('city' and 'state') using a comma as the delimiter with 'tidyr::separate_wider_delim'.
 # 2. Dropping any additional columns created during the separation.
 # 3. Trimming leading and trailing whitespaces from all character columns using 'mutate(across(where(is.character), str_trim))'.
-compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr <-
-  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col |>
+vessels_from_pims_split_addr <-
+  vessels_from_pims_ok |>
   tidyr::separate_wider_delim(hailing_port,
                               delim = ",",
                               names = c("city", "state"),
-                              too_many = "drop") |> 
-    mutate(across(where(is.character), str_trim))
+                              too_many = "merge") |> 
+    mutate(across(where(is.character), str_squish))
 
-# compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col |>
+# vessels_from_pims_ok |>
 #   filter(grepl(",.+,", hailing_port))
-# 1 AL6468LL               ALEXANDER CITY, AL, AL gom_only          
-# Can do too_many = "drop", because it is the only case of double commas
-
-# compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr |> View()
-#   filter(vessel_official_number == "AL6468LL")
-# 1 AL6468LL               ALEXANDER CITY AL    gom_only  
-
+# 1 945114                 REDINGTON SHORES, FL, FL
+# 2 919225                 CHAUVIN, LA, LA         
+# 3 AL6468LL               ALEXANDER CITY, AL, AL  
+# 4 FL0702JJ               MATLACHA, BOKKELIA, FL
+# 5 8811432134             PEMBROKE, PINES, FL     
+   
 # add lat/lon ----
 # Uses 'tidygeocoder::geocode' to obtain latitude and longitude for the given city and state columns.
 
@@ -236,7 +232,9 @@ to_fix_list <-
     c("WANCHEESE#NC",
       "WANCHESE#NC"),
     c("ALEXANDER CITY, AL#AL",
-      "ALEXANDER CITY#AL")
+      "ALEXANDER CITY#AL"),
+    c("PEMBROKE, PINES, FL",
+      "PEMBROKE PINES, FL")
   )
 
 # ---
