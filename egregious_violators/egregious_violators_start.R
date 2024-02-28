@@ -356,49 +356,37 @@ n_distinct(corresp_contact_cnts_clean$vesselofficial_number)
 
 ## new requirement 2024-02-26 ----
 # Michelle
-# It needs to be that we called at least 1 time and emailed at least 1 time.
+# It needs to be that we called at least 1 time and emailed at least 1 time. Or they contacted us.
 
-# corresp_contact_cnts_clean |>
-#   # select(calltype, voicemail, contacttype) |> 
-#   distinct() |> View()
+corresp_contact_cnts_clean |>
+  select(calltype, voicemail, contacttype) |>
+  distinct() |> head(10)
 
-we_called_direct_filter <-
+we_called_filter <-
   quo(any(tolower(contacttype) == "call" &
-        tolower(voicemail) == "no" &
         tolower(calltype) == "outgoing"))
-
-we_called_indirect_filter <-
-  quo(any(
-    tolower(contacttype) == "call" &
-      tolower(voicemail) == "yes" &
-      tolower(calltype) == "outgoing"
-  ))
 
 we_emailed_once_filter <-
   quo(any(
-    tolower(contacttype) == "email" &
+    tolower(contacttype) %in% c("email", "other") &
       tolower(calltype) == "outcoming"
   ))
 
+# don't need a second contact
 they_contacted_direct_filter <-
   quo(
     any(
-      (tolower(contacttype) == "email" |
-          tolower(contacttype) == "call"
-       ) &
       tolower(calltype) == "incoming"
       )
   )
 
 corresp_filter <-
-  quo(contact_freq > 1 &
+  quo(!!they_contacted_direct_filter |
         (
-    !!we_called_direct_filter |
-      !!they_contacted_direct_filter |
-      (!!we_called_indirect_filter &
-         !!we_emailed_once_filter)
-        )
-  )
+          contact_freq > 1 &
+            (!!we_called_filter &
+               !!we_emailed_once_filter)
+        ))
 
 # calltype voicemail contacttype
 
