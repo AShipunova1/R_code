@@ -305,23 +305,26 @@ dim(vessels_from_pims_split_addr__city_state__fix1)
 # add more fixes manually ----
 manual_fixes <-
   list(
-    list("TX9606KA", "HOUSTON", "TX"),
-    list("FL5029RM", "KEY WEST", "FL"),
-    list("646818", "HOUSTON", "TX"),
+    list("1112053", "NEW BERN", "NC"),
     list("1185107", "KEY WEST", "FL"),
-    list("FL3119EE", "BOCA GRANDE", "FL"),
-    list("FL2615MT", "STUART", "FL"),
-    list("581260", "PONCE INLET", "FL"),
     list("531549", "TOWNSEND", "GA"),
+    list("581260", "PONCE INLET", "FL"),
+    list("596153", "NEW BERN", "NC"),
+    list("646818", "HOUSTON", "TX"),
+    list("671353", "SWANSBORO", "NC"),
     list("FL0146BH", "MIAMI", "FL"),
     list("FL1431JU", "MARATHON", "FL"),
     list("FL1553TM", "BILOXI", "MS"),
+    list("FL2615MT", "STUART", "FL"),
+    list("FL3119EE", "BOCA GRANDE", "FL"),
     list("FL3976FH", "PONCE INLET", "FL"),
-    list("FL7549PJ", "KEY LARGO", "FL"),
     list("FL5011MX", "NAPLES", "FL"),
-    list("FL8252JK", "MIAMI", "FL")
+    list("FL5029RM", "KEY WEST", "FL"),
+    list("FL7549PJ", "KEY LARGO", "FL"),
+    list("FL8252JK", "MIAMI", "FL"),
+    list("TX9606KA", "HOUSTON", "TX")
   )
-    # list("139403", "MIAMI", "FL"),
+    # list("139403", "MIAMI", "FL"), # no!
 
 
 vessels_from_pims_split_addr__city_state__fix2 <-
