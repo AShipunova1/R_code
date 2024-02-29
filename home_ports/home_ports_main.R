@@ -480,10 +480,16 @@ write_csv(
 ports_vsls_cnts <- 
   vessels_from_pims_split_addr__city_state__fix2_ok_short |> 
   select(vessel_official_number, state_fixed) |> 
+  distinct() |> 
   count(vessel_official_number)
 
-ports_vsls_cnts |> 
+double_ports <-
+  ports_vsls_cnts |>
   filter(n > 1)
+
+dim(double_ports)
+# 17 no uniqued
+# 5 uniqued
    # vessel_official_number     n
 #    <chr>                  <int>
 #  1 1112053                    2
@@ -503,3 +509,35 @@ ports_vsls_cnts |>
 # 15 NC6164CW                   2
 # 16 NO                         2
 # 17 NONE                       3
+
+# double_ports
+# 1 1112053                    2 NEW BERN, NC
+# 2 596153                     2 NEW BERN, NC
+# 3 671353                     2 SWANSBORO, NC
+# 4 N/A                        2
+# 5 NA                         5
+
+# vessels_from_pims_split_addr__city_state__fix2_ok_short |> 
+#   filter(vessel_official_number %in% double_ports$vessel_official_number) |> 
+#   View()
+
+# check empty vessel ids ----
+is_empty <- c(NA, "NA", "", "UN", "N/A")
+
+vessels_from_pims_split_addr__city_state__fix2_ok_short__good_ids <-
+  vessels_from_pims_split_addr__city_state__fix2_ok_short |>
+  filter(!vessel_official_number %in% is_empty)
+  
+dim(vessels_from_pims_split_addr__city_state__fix2_ok_short)
+# [1] 23073     3
+dim(vessels_from_pims_split_addr__city_state__fix2_ok_short__good_ids)
+# [1] 23062     3
+
+# vessels_from_pims |> 
+#   filter(grepl("LIGHTHOUSE", hailing_port)) |>
+#   filter(!grepl("NOVESID", official__)) |> 
+#   View()
+# LIGHTHOUSE
+
+# grep("NOVES", vessels_from_pims_split_addr__city_state__fix2_ok_short$vessel_official_number, value = T)
+# [1] "NOVESSEL"
