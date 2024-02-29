@@ -307,6 +307,7 @@ dim(vessels_from_pims_split_addr__city_state__fix1)
 manual_fixes <-
   list(
     list("1112053", "NEW BERN", "NC"),
+    list("1166732", "MIAMI", "FL"),
     list("1185107", "KEY WEST", "FL"),
     list("531549", "TOWNSEND", "GA"),
     list("581260", "PONCE INLET", "FL"),
@@ -316,13 +317,18 @@ manual_fixes <-
     list("FL0146BH", "MIAMI", "FL"),
     list("FL1431JU", "MARATHON", "FL"),
     list("FL1553TM", "BILOXI", "MS"),
+    list("FL1862SU", "MIAMI", "FL"),
     list("FL2615MT", "STUART", "FL"),
     list("FL3119EE", "BOCA GRANDE", "FL"),
     list("FL3976FH", "PONCE INLET", "FL"),
     list("FL5011MX", "NAPLES", "FL"),
     list("FL5029RM", "KEY WEST", "FL"),
+    list("FL5262LD", "LAUDERDALE BY THE SEA", "FL"),
     list("FL7549PJ", "KEY LARGO", "FL"),
+    list("FL8000NR", "ST PETERSBURG BEACH", "FL"),
     list("FL8252JK", "MIAMI", "FL"),
+    list("LA4017BH", "HACKBERRY", "LA"),
+    list("LA6968EP", "LAROSE", "LA"),
     list("NC6164CW", "MOREHEAD CITY", "NC"),
     list("TX9606KA", "HOUSTON", "TX")
   )
@@ -428,7 +434,8 @@ vessels_from_pims_split_addr__city_state__fix2_ok |>
   glimpse()
 # 15
 
-## remove empty vessel ids introduced by splitting doubles ----
+## remove empty and bad vessel ids ----
+# introduced by splitting doubles?
 is_empty <- c(NA, "NA", "", "UN", "N/A")
 wrong_vessel_ids <- c("FL", "FLORIDA", "MD", "NO", "NONE")
 
@@ -505,15 +512,11 @@ write_csv(
   out_path
 )
 
+# check for double ids/ports ----
 vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short |> 
   distinct() |>
   select(vessel_official_number) |>
   count(vessel_official_number) |>
   filter(n > 1) |>
-  View()
-
-  # filter(vessel_official_number == "NC6164CW")
-#   vessel_official_number city_fixed    state_fixed
-#   <chr>                  <chr>         <chr>      
-# 1 NC6164CW               SOUTHPORT     NC         
-# 2 NC6164CW               MOREHEAD CITY NC         
+  nrow()
+# 0, ok
