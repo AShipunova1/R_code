@@ -320,7 +320,8 @@ processed_pims_home_ports <-
 results <-
   c("vessels_permits_participants",
     "compl_clean",
-    "corresp_contact_cnts_clean0"
+    "corresp_contact_cnts_clean0",
+    "processed_pims_home_ports"
 )
 
 cat(c("Data are in:",
