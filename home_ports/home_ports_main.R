@@ -460,22 +460,25 @@ vessels_from_pims_split_addr__city_state__fix2_ok__good_ids <-
   filter(!vessel_official_number %in% wrong_vessel_ids) |>
   filter(!str_length(vessel_official_number) < normal_length)
 
-  
-vessels_from_pims_split_addr__city_state__fix2_ok__good_ids |> 
-  group_by(vessel_official_number) |> 
-  mutate(id_len = str_length(vessel_official_number)) |> 
-  ungroup() |> 
-  View()
-  filter(vessel_official_number == "0")
+# TODO:
+# check id_len != 6
+# chek ids with spaces
+vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__len <-
+  vessels_from_pims_split_addr__city_state__fix2_ok__good_ids |>
+  group_by(vessel_official_number) |>
+  mutate(id_len = str_length(vessel_official_number)) |>
+  ungroup()
 
-  filter(length(vessel_official_number) < 4) |> 
-  View()
+vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__len |> 
+  filter(!id_len == 6) |> 
+  arrange(id_len) |> 
+  glimpse()
 
 dim(vessels_from_pims_split_addr__city_state__fix2_ok)
 # [1] 23086     6
 
 dim(vessels_from_pims_split_addr__city_state__fix2_ok__good_ids)
-# [1] 23075     6
+# [1] 23050     6
 
 ## check no address ----
 vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__no_addr <-
