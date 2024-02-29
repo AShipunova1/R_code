@@ -541,3 +541,10 @@ dim(vessels_from_pims_split_addr__city_state__fix2_ok_short__good_ids)
 
 # grep("NOVES", vessels_from_pims_split_addr__city_state__fix2_ok_short$vessel_official_number, value = T)
 # [1] "NOVESSEL"
+
+vessels_from_pims_split_addr__city_state__fix2_ok_short__good_ids |> 
+  select(vessel_official_number, state_fixed) |> 
+  distinct() |> 
+  count(vessel_official_number) |> 
+  filter(n > 1)
+# 0! fixed
