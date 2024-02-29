@@ -91,105 +91,110 @@ vessels_from_pims_ok |>
 
 # this list is created manually
 to_fix_list <- 
-  list(
-    c(
-      "BAYOU LABATRE#AL",
-      "BAYOU LA BATRE#AL"),
-    c("CAROLINA BEACH#UN",
-      "CAROLINA BEACH#NC"),
-    c("CHALESTON#SC",
-      "CHARLESTON#SC"),
-    c("CHAUVIN, LA#LA",
-      "CHAUVIN#LA"),
-    c("FERNADINA BCH#FL",
-      "FERNANDINA BEACH#FL"),
-    c("FORT MORGAN MARINA#AL",
-      "FORT MORGAN#AL"),
-    c("GALLINANO#LA",
-      "GALLIANO#LA"),
-    c("GEORGRTOWN#SC",
-      "GEORGETOWN#SC"),
-    c("GULFSHORES#AL",
-      "GULF SHORES#AL"),
-    c("HILISBORO INLET#FL",
-      "HILLSBORO INLET#FL"),
-    c("HOMOASSA#FL",
-      "HOMOSASSA#FL"),
-    c("HOUMA LA#LA",
-      "HOUMA#LA"),
-    c("INTERCOASTAL CITY#LA",
-      "INTRACOASTAL CITY#LA"),
-    c("ISLAMORADA#UN",
-      "ISLAMORADA#FL"),
-    c("KEYWEST#FL",
-      "KEY WEST#FL"),
-    c("LITTLE RIVERNHV1N4WH#SC",
-      "LITTLE RIVER#SC"),
-    c("LOXLEY AL#AL",
-      "LOXLEY#AL"),
-    c("MADIERA BEACH#FL",
-      "MADEIRA BEACH#FL"),
-    c("MAYPPORT#FL",
-      "MAYPORT#FL"),
-    c("MCLELLANVILLE#SC",
-      "MCCLELLANVILLE#SC"),
-    c("MURELLS INLET#SC",
-      "MURRELLS INLET#SC"),
-    c("MURRELS INLET#SC",
-      "MURRELLS INLET#SC"),
-    c("NEW SMYMA BEACH#FL",
-      "NEW SMYRNA BEACH#FL"),
-    c("NEW SYMRNA BEACH#FL",
-      "NEW SMYRNA BEACH#FL"),
-    c("OCEEAN CITY#MD",
-      "OCEAN CITY#MD"),
-    c("POINT PLEASANT NJ#NJ",
-      "POINT PLEASANT#NJ"),
-    c("PORT AERANSAS#TX",
-      "PORT ARANSAS#TX"),
-    c("PORT CANVERAL#FL",
-      "PORT CANAVERAL#FL"),
-    c("PORT O CANNOR#TX",
-      "PORT O CONNOR#TX"),
-    c("PORT OCONNOR#TX",
-      "PORT O'CONNOR#TX"),
-    c("PORT ST.LUICE#FL",
-      "PORT ST LUCIE#FL"),
-    c("PUNTA GORGA#FL",
-      "PUNTA GORDA#FL"),
-    c("RIVERIA BEACH#FL",
-      "RIVIERA BEACH#FL"),
-    c("S PADRE ISLE#TX",
-      "S. PADRE ISLAND#TX"),
-    c("SEBASTAIN#FL",
-      "SEBASTIAN#FL"),
-    c("ST AUGUSTIN#FL",
-      "ST AUGUSTINE#FL"),
-    c("ST PETERSBURG BEACH#FL",
-      "ST PETERSBURG#FL"),
-    c("STEINAHTCHEE#FL",
-      "STEINHATCHEE#FL"),
-    c("SUMMRLND KEY#FL",
-      "SUMMERLAND KEY#FL"),
-    c("SWANQUARTER#FL",
-      "SWAN QUARTER#NC"),
-    c("TAVENIER#FL",
-      "TAVERNIER#FL"),
-    c("WANCHEESE#NC",
-      "WANCHESE#NC"),
-    c("REDINGTON SHORES#FL, FL",
-      "REDINGTON SHORES#FL"),
-    c("CHAUVIN#LA, LA",
-      "CHAUVIN#LA"),
-    c("MATLACHA#BOKKELIA, FL",
-      "MATLACHA#FL"),
-    c("ALEXANDER CITY, AL#AL",
-      "ALEXANDER CITY#AL"),
-    c("PEMBROKE#PINES, FL",
-      "PEMBROKE PINES#FL")
-  )
-# 22411 GENO LANE, BALDWIN, AL
-
+  list(c("117 HAWK LANDING LN#GA",
+         "BRUNSWICK#GA"),
+       c("22411 GENO LANE#AL",
+         "GULF SHORES#AL"),
+       c("ALEXANDER CITY, AL#AL",
+         "ALEXANDER CITY#AL"),
+       c("BAYOU LABATRE#AL",
+         "BAYOU LA BATRE#AL"),
+       c("CAROLINA BEACH#UN",
+         "CAROLINA BEACH#NC"),
+       c("CHALESTON#SC",
+         "CHARLESTON#SC"),
+       c("CHAUVIN, LA#LA",
+         "CHAUVIN#LA"),
+       c("CHAUVIN#LA, LA",
+         "CHAUVIN#LA"),
+       c("FERNADINA BCH#FL",
+         "FERNANDINA BEACH#FL"),
+       c("FIGURE 8 ISLAND#NC",
+         "FIGURE EIGHT ISLAND#NC"),
+       c("FORT MORGAN MARINA#AL",
+         "FORT MORGAN#AL"),
+       c("GALLINANO#LA",
+         "GALLIANO#LA"),
+       c("GEORGRTOWN#SC",
+         "GEORGETOWN#SC"),
+       c("GULFSHORES#AL",
+         "GULF SHORES#AL"),
+       c("HILISBORO INLET#FL",
+         "HILLSBORO INLET#FL"),
+       c("HO0MASASSA#FL",
+         "HOMOSASSA#FL"),
+       c("HOMOASSA#FL",
+         "HOMOSASSA#FL"),
+       c("HOUMA LA#LA",
+         "HOUMA#LA"),
+       c("INTERCOASTAL CITY#LA",
+         "INTRACOASTAL CITY#LA"),
+       c("ISLAMORADA#UN",
+         "ISLAMORADA#FL"),
+       c("KEYWEST#FL",
+         "KEY WEST#FL"),
+       c("LITTLE RIVERNHV1N4WH#SC",
+         "LITTLE RIVER#SC"),
+       c("LOXLEY AL#AL",
+         "LOXLEY#AL"),
+       c("MADIERA BEACH#FL",
+         "MADEIRA BEACH#FL"),
+       c("MATLACHA#BOKKELIA, FL",
+         "MATLACHA#FL"),
+       c("MAYPPORT#FL",
+         "MAYPORT#FL"),
+       c("MCLELLANVILLE#SC",
+         "MCCLELLANVILLE#SC"),
+       c("MURELLS INLET#SC",
+         "MURRELLS INLET#SC"),
+       c("MURRELS INLET#SC",
+         "MURRELLS INLET#SC"),
+       c("NAPLE4S#FL",
+         "NAPLES#FL"),
+       c("NEW SMYMA BEACH#FL",
+         "NEW SMYRNA BEACH#FL"),
+       c("NEW SYMRNA BEACH#FL",
+         "NEW SMYRNA BEACH#FL"),
+       c("OCEEAN CITY#MD",
+         "OCEAN CITY#MD"),
+       c("PEMBROKE#PINES, FL",
+         "PEMBROKE PINES#FL"),
+       c("POINT PLEASANT NJ#NJ",
+         "POINT PLEASANT#NJ"),
+       c("PORT AERANSAS#TX",
+         "PORT ARANSAS#TX"),
+       c("PORT CANVERAL#FL",
+         "PORT CANAVERAL#FL"),
+       c("PORT O CANNOR#TX",
+         "PORT O CONNOR#TX"),
+       c("PORT OCONNOR#TX",
+         "PORT O'CONNOR#TX"),
+       c("PORT ST.LUICE#FL",
+         "PORT ST LUCIE#FL"),
+       c("PUNTA GORGA#FL",
+         "PUNTA GORDA#FL"),
+       c("REDINGTON SHORES#FL, FL",
+         "REDINGTON SHORES#FL"),
+       c("RIVERIA BEACH#FL",
+         "RIVIERA BEACH#FL"),
+       c("S PADRE ISLE#TX",
+         "S. PADRE ISLAND#TX"),
+       c("SEBASTAIN#FL",
+         "SEBASTIAN#FL"),
+       c("ST AUGUSTIN#FL",
+         "ST AUGUSTINE#FL"),
+       c("ST PETERSBURG BEACH#FL",
+         "ST PETERSBURG#FL"),
+       c("STEINAHTCHEE#FL",
+         "STEINHATCHEE#FL"),
+       c("SUMMRLND KEY#FL",
+         "SUMMERLAND KEY#FL"),
+       c("SWANQUARTER#FL",
+         "SWAN QUARTER#NC"),
+       c("TAVENIER#FL",
+         "TAVERNIER#FL"),
+       c("WANCHEESE#NC",
+         "WANCHESE#NC"))
 # ---
 # Explanations:
 # Creating a new column 'city_state' by concatenating trimmed 'city' and 'state' columns, separated by '#'.
@@ -202,8 +207,12 @@ vessels_from_pims_split_addr__city_state <-
              sep = "#"
            ))
 
-# check
-# numbers
+## check numbers in an address ----
+# vessels_from_pims |> 
+#   filter(official__ %in% c("1301930",
+# "GA1769JL")) |> 
+#   View()
+
 vessels_from_pims_split_addr__city_state |>
   filter(grepl("\\d", city_state)) |> 
   select(city_state) |> 
@@ -293,7 +302,7 @@ n_distinct(vessels_from_pims_split_addr__city_state__fix1$vessel_official_number
 dim(vessels_from_pims_split_addr__city_state__fix1)
 # [1] 23086     6
 
-# add new fixes manually ----
+# add more fixes manually ----
 manual_fixes <-
   list(
     list("TX9606KA", "HOUSTON", "TX"),
@@ -310,9 +319,9 @@ manual_fixes <-
     list("FL3976FH", "PONCE INLET", "FL"),
     list("FL7549PJ", "KEY LARGO", "FL"),
     list("FL5011MX", "NAPLES", "FL"),
-    list("139403", "MIAMI", "FL"),
     list("FL8252JK", "MIAMI", "FL")
   )
+    # list("139403", "MIAMI", "FL"),
 
 
 vessels_from_pims_split_addr__city_state__fix2 <-
@@ -333,6 +342,7 @@ vessels_from_pims_split_addr__city_state__fix2 <-
 
 dim(vessels_from_pims_split_addr__city_state__fix2)
 # [1] 23110     8
+# [1] 23109     8
 
 vessels_from_pims_split_addr__city_state__fix2 |>
   filter(vessel_official_number == "FL1431JU") |>
@@ -352,9 +362,9 @@ both <-
     vessels_from_pims_split_addr__city_state__fix1$vessel_official_number,
     new_f_vsl
   )
-length(both)
-# 16
-# 581260 531549 FL8252JK 646818 FL0146BH FL7549PJ 1185107 FL5011MX FL1431JU 139403 FL3976FH TX9606KA FL2615MT FL5029RM FL1553TM FL3119EE
+cat(both)
+# 15
+# 581260 531549 FL8252JK 646818 FL0146BH FL7549PJ 1185107 FL5011MX FL1431JU FL3976FH TX9606KA FL2615MT FL5029RM FL1553TM FL3119EE
 
 vessels_from_pims_split_addr__city_state__fix2 |>
   filter(vessel_official_number %in% both) |>
@@ -411,7 +421,7 @@ vessels_from_pims_split_addr__city_state__fix2_ok |>
          state_fixed) |> 
   distinct() |>
   glimpse()
-# 16
+# 15
 
 ## no address ----
 vessels_from_pims_split_addr__city_state__fix2_ok__no_addr <-
@@ -444,7 +454,7 @@ vessels_from_pims_split_addr__city_state__fix2_ok |>
   select(-vessel_official_number) |> 
   distinct() |> 
   nrow()
-# 44  
+# 47
 
 # print out ----
 out_dir <- file.path(my_paths$outputs,
