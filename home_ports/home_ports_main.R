@@ -439,19 +439,6 @@ vessels_from_pims_split_addr__city_state__fix2_ok |>
 is_empty <- c(NA, "NA", "", "UN", "N/A")
 wrong_vessel_ids <- c("FL", "FLORIDA", "MD", "NO", "NONE")
 
-#    vessel_official_number     n
-#    <chr>                  <int>
-#  1 1166732                    2
-#  2 FL                         8
-#  3 FL1862SU                   2
-#  4 FL5262LD                   2
-#  5 FL8000NR                   2
-#  6 FLORIDA                    2
-#  7 LA4017BH                   2
-#  8 LA6968EP                   2
-#  9 MD                         2
-# 10 NO                         2
-# 11 NONE                       3
 normal_length = 4
 
 vessels_from_pims_split_addr__city_state__fix2_ok__good_ids <-
@@ -461,8 +448,8 @@ vessels_from_pims_split_addr__city_state__fix2_ok__good_ids <-
   filter(!str_length(vessel_official_number) < normal_length)
 
 # TODO:
-# check id_len != 6
-# chek ids with spaces
+## check id_len != 6 ----
+# check ids with spaces
 vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__len <-
   vessels_from_pims_split_addr__city_state__fix2_ok__good_ids |>
   group_by(vessel_official_number) |>
@@ -494,6 +481,15 @@ vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__no_state <-
 
 nrow(vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__no_state)
 # 0
+
+## check for double ids/ports ----
+vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short |> 
+  distinct() |>
+  select(vessel_official_number) |>
+  count(vessel_official_number) |>
+  filter(n > 1) |>
+  nrow()
+# 0, ok
 
 # remove extra cols ----
 vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short <-
@@ -528,11 +524,3 @@ write_csv(
   out_path
 )
 
-# check for double ids/ports ----
-vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short |> 
-  distinct() |>
-  select(vessel_official_number) |>
-  count(vessel_official_number) |>
-  filter(n > 1) |>
-  nrow()
-# 0, ok
