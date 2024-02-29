@@ -106,12 +106,14 @@ a1_cell_text <-
   str_glue(
     "Confirmed Egregious? (permits must still be active as of {last_week_start}, missing past 6 months, and (1) they called/emailed us (incoming), or (2) at least 2 contacts (outgoing) with at least 1 call (voicemail counts) and at least 1 email)"
   )
-
+# print_df_names(compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names__fhier_addr)
 compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names__fhier_addr__mv_cols <-
   compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names__fhier_addr |>
   relocate(permit_holder_names, .after = contactrecipientname) |>
   relocate(full_name, .after = permit_holder_names) |>
   relocate(fhier_address, .after = full_address) |>
+  relocate(hailing_port_city, .after = sero_home_port) |>
+  relocate(hailing_port_state, .after = hailing_port_city) |>
   add_column(
     !!sym(a1_cell_text) := "", 
     .before = "vessel_official_number"
