@@ -1,5 +1,5 @@
 # Manually check missing addresses
-is_empty <- c(NA, "NA", "", "UN")
+is_empty <- c(NA, "NA", "", "UN", "N/A")
 
 # From FHIER ----
 
