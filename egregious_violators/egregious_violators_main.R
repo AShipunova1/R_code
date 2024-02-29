@@ -1051,10 +1051,10 @@ compl_corr_to_investigation1_short_dup_marked__hailing_port <-
   rename("hailing_port_city" = city_fixed,
          "hailing_port_state" = state_fixed)
 
-compl_corr_to_investigation1_short_dup_marked__hailing_port |> 
-  select(sero_home_port, starts_with("hailing")) |> 
-  distinct() |> 
-  View()
+# compl_corr_to_investigation1_short_dup_marked__hailing_port |> 
+#   select(sero_home_port, starts_with("hailing")) |> 
+#   distinct() |> 
+#   View()
 
 # compl_corr_to_investigation1_short_dup_marked__hailing_port
 # how many are duals? ----
@@ -1068,7 +1068,7 @@ compl_corr_to_investigation1_short_dup_marked__hailing_port |>
 # along with the newly added 'permit_region' column.
 
 compl_corr_to_investigation1_short_dup_marked__permit_region <-
-  compl_corr_to_investigation1_short_dup_marked |> 
+  compl_corr_to_investigation1_short_dup_marked__hailing_port |> 
   # compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names__fhier_addr__mv_cols |>
   mutate(permit_region =
            case_when(
@@ -1117,7 +1117,7 @@ file.exists(fix_addresses_path)
 
 source(fix_addresses_path)
 
-# compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names__fhier_addr__mv_cols
+# View(compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names__fhier_addr__mv_cols)
 
 # Print out results ----
 
