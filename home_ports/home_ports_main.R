@@ -470,3 +470,33 @@ write_csv(
   out_path
 )
 
+# View(vessels_from_pims_split_addr__city_state__fix2_ok_short)
+
+# Jenny's check ----
+#just keep vessel official number and state
+ports_vsls_cnts <- 
+  vessels_from_pims_split_addr__city_state__fix2_ok_short |> 
+  select(vessel_official_number, state_fixed) |> 
+  count(vessel_official_number)
+
+ports_vsls_cnts |> 
+  filter(n > 1)
+   # vessel_official_number     n
+#    <chr>                  <int>
+#  1 1112053                    2
+#  2 1166732                    2
+#  3 596153                     2
+#  4 671353                     2
+#  5 FL                         8
+#  6 FL1862SU                   2
+#  7 FL5262LD                   2
+#  8 FL8000NR                   2
+#  9 FLORIDA                    2
+# 10 LA4017BH                   2
+# 11 LA6968EP                   2
+# 12 MD                         2
+# 13 N/A                        2
+# 14 NA                         9
+# 15 NC6164CW                   2
+# 16 NO                         2
+# 17 NONE                       3
