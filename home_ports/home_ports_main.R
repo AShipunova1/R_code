@@ -452,11 +452,24 @@ wrong_vessel_ids <- c("FL", "FLORIDA", "MD", "NO", "NONE")
 #  9 MD                         2
 # 10 NO                         2
 # 11 NONE                       3
-
+normal_length = 4
 
 vessels_from_pims_split_addr__city_state__fix2_ok__good_ids <-
   vessels_from_pims_split_addr__city_state__fix2_ok |>
-  filter(!vessel_official_number %in% is_empty)
+  filter(!vessel_official_number %in% is_empty) |>
+  filter(!vessel_official_number %in% wrong_vessel_ids) |>
+  filter(!str_length(vessel_official_number) < normal_length)
+
+  
+vessels_from_pims_split_addr__city_state__fix2_ok__good_ids |> 
+  group_by(vessel_official_number) |> 
+  mutate(id_len = str_length(vessel_official_number)) |> 
+  ungroup() |> 
+  View()
+  filter(vessel_official_number == "0")
+
+  filter(length(vessel_official_number) < 4) |> 
+  View()
 
 dim(vessels_from_pims_split_addr__city_state__fix2_ok)
 # [1] 23086     6
