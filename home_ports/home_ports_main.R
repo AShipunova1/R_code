@@ -303,6 +303,7 @@ dim(vessels_from_pims_split_addr__city_state__fix1)
 # [1] 23086     6
 
 # add more fixes manually ----
+## list of double ports ----
 manual_fixes <-
   list(
     list("1112053", "NEW BERN", "NC"),
@@ -322,6 +323,7 @@ manual_fixes <-
     list("FL5029RM", "KEY WEST", "FL"),
     list("FL7549PJ", "KEY LARGO", "FL"),
     list("FL8252JK", "MIAMI", "FL"),
+    list("NC6164CW", "MOREHEAD CITY", "NC"),
     list("TX9606KA", "HOUSTON", "TX")
   )
     # list("139403", "MIAMI", "FL"), # no!
@@ -426,38 +428,68 @@ vessels_from_pims_split_addr__city_state__fix2_ok |>
   glimpse()
 # 15
 
-## no address ----
-vessels_from_pims_split_addr__city_state__fix2_ok__no_addr <-
+## remove empty vessel ids introduced by splitting doubles ----
+is_empty <- c(NA, "NA", "", "UN", "N/A")
+wrong_vessel_ids <- c("FL", "FLORIDA", "MD", "NO", "NONE")
+
+#    vessel_official_number     n
+#    <chr>                  <int>
+#  1 1166732                    2
+#  2 FL                         8
+#  3 FL1862SU                   2
+#  4 FL5262LD                   2
+#  5 FL8000NR                   2
+#  6 FLORIDA                    2
+#  7 LA4017BH                   2
+#  8 LA6968EP                   2
+#  9 MD                         2
+# 10 NO                         2
+# 11 NONE                       3
+
+
+vessels_from_pims_split_addr__city_state__fix2_ok__good_ids <-
   vessels_from_pims_split_addr__city_state__fix2_ok |>
+  filter(!vessel_official_number %in% is_empty)
+
+dim(vessels_from_pims_split_addr__city_state__fix2_ok)
+# [1] 23086     6
+
+dim(vessels_from_pims_split_addr__city_state__fix2_ok__good_ids)
+# [1] 23075     6
+
+## check no address ----
+vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__no_addr <-
+  vessels_from_pims_split_addr__city_state__fix2_ok__good_ids |>
   filter(is.na(city))
 
-nrow(vessels_from_pims_split_addr__city_state__fix2_ok__no_addr)
+nrow(vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__no_addr)
 # 6
 
-vessels_from_pims_split_addr__city_state__fix2_ok__no_state <-
-  vessels_from_pims_split_addr__city_state__fix2_ok |>
+vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__no_state <-
+  vessels_from_pims_split_addr__city_state__fix2_ok__good_ids |>
   filter(is.na(state_fixed))
 
-nrow(vessels_from_pims_split_addr__city_state__fix2_ok__no_state)
+nrow(vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__no_state)
 # 0
 
 # remove extra cols ----
-vessels_from_pims_split_addr__city_state__fix2_ok_short <-
-  vessels_from_pims_split_addr__city_state__fix2_ok |>
+vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short <-
+  vessels_from_pims_split_addr__city_state__fix2_ok__good_ids |>
   select(vessel_official_number, ends_with("_fixed")) |> 
   distinct()
 
 # check
-# vessels_from_pims_split_addr__city_state__fix2_ok |> 
+# vessels_from_pims_split_addr__city_state__fix2_ok__good_ids |> 
 #   filter(!state == state_fixed) |> 
 #   View()
 
-vessels_from_pims_split_addr__city_state__fix2_ok |>
+vessels_from_pims_split_addr__city_state__fix2_ok__good_ids |>
   filter(!city == city_fixed) |>
   select(-vessel_official_number) |> 
   distinct() |> 
   nrow()
 # 47
+# 50
 
 # print out ----
 out_dir <- file.path(my_paths$outputs,
@@ -469,82 +501,19 @@ out_path <- file.path(out_dir,
             "vessels_from_pims_ports.csv")
 
 write_csv(
-  vessels_from_pims_split_addr__city_state__fix2_ok_short,
+  vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short,
   out_path
 )
 
-# View(vessels_from_pims_split_addr__city_state__fix2_ok_short)
+vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short |> 
+  distinct() |>
+  select(vessel_official_number) |>
+  count(vessel_official_number) |>
+  filter(n > 1) |>
+  View()
 
-# Jenny's check ----
-#just keep vessel official number and state
-ports_vsls_cnts <- 
-  vessels_from_pims_split_addr__city_state__fix2_ok_short |> 
-  select(vessel_official_number, state_fixed) |> 
-  distinct() |> 
-  count(vessel_official_number)
-
-double_ports <-
-  ports_vsls_cnts |>
-  filter(n > 1)
-
-dim(double_ports)
-# 17 no uniqued
-# 5 uniqued
-   # vessel_official_number     n
-#    <chr>                  <int>
-#  1 1112053                    2
-#  2 1166732                    2
-#  3 596153                     2
-#  4 671353                     2
-#  5 FL                         8
-#  6 FL1862SU                   2
-#  7 FL5262LD                   2
-#  8 FL8000NR                   2
-#  9 FLORIDA                    2
-# 10 LA4017BH                   2
-# 11 LA6968EP                   2
-# 12 MD                         2
-# 13 N/A                        2
-# 14 NA                         9
-# 15 NC6164CW                   2
-# 16 NO                         2
-# 17 NONE                       3
-
-# double_ports
-# 1 1112053                    2 NEW BERN, NC
-# 2 596153                     2 NEW BERN, NC
-# 3 671353                     2 SWANSBORO, NC
-# 4 N/A                        2
-# 5 NA                         5
-
-# vessels_from_pims_split_addr__city_state__fix2_ok_short |> 
-#   filter(vessel_official_number %in% double_ports$vessel_official_number) |> 
-#   View()
-
-# check empty vessel ids ----
-is_empty <- c(NA, "NA", "", "UN", "N/A")
-
-vessels_from_pims_split_addr__city_state__fix2_ok_short__good_ids <-
-  vessels_from_pims_split_addr__city_state__fix2_ok_short |>
-  filter(!vessel_official_number %in% is_empty)
-  
-dim(vessels_from_pims_split_addr__city_state__fix2_ok_short)
-# [1] 23073     3
-dim(vessels_from_pims_split_addr__city_state__fix2_ok_short__good_ids)
-# [1] 23062     3
-
-# vessels_from_pims |> 
-#   filter(grepl("LIGHTHOUSE", hailing_port)) |>
-#   filter(!grepl("NOVESID", official__)) |> 
-#   View()
-# LIGHTHOUSE
-
-# grep("NOVES", vessels_from_pims_split_addr__city_state__fix2_ok_short$vessel_official_number, value = T)
-# [1] "NOVESSEL"
-
-vessels_from_pims_split_addr__city_state__fix2_ok_short__good_ids |> 
-  select(vessel_official_number, state_fixed) |> 
-  distinct() |> 
-  count(vessel_official_number) |> 
-  filter(n > 1)
-# 0! fixed
+  # filter(vessel_official_number == "NC6164CW")
+#   vessel_official_number city_fixed    state_fixed
+#   <chr>                  <chr>         <chr>      
+# 1 NC6164CW               SOUTHPORT     NC         
+# 2 NC6164CW               MOREHEAD CITY NC         
