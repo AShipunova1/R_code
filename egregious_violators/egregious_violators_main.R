@@ -1129,3 +1129,76 @@ result_path <-
 write_csv(compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names__fhier_addr__mv_cols,
           result_path)
 
+# temp ----
+# add new columns to confirmed file ----
+# compare results with the new code ----
+## download from Google drive ----
+downloaded_file_path <- 
+  file.path(my_paths$inputs,
+            current_project_basename,
+            "egregious violators for investigation_2023-08-15_to_2024-02-13_OLE - egregious_violators_to_investigate_2024-02-21.csv")
+
+downloaded_result <- 
+  read_csv(downloaded_file_path)
+
+downloaded_result
+
+same_name <-
+  intersect(
+    names(
+      compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names__fhier_addr__mv_cols
+    ),
+    names(downloaded_result)
+  )
+
+same_name |>
+  cat(sep = ', ')
+
+suffixes = c("__new", "__old")
+
+old_n_new <-
+  full_join(
+    compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names__fhier_addr__mv_cols,
+    downloaded_result,
+    join_by(vessel_official_number),
+    suffix = suffixes
+  )
+
+dim(compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names__fhier_addr__mv_cols)
+# [1] 217  20
+dim(downloaded_result)
+# [1] 262  18
+dim(old_n_new)
+# [1] 263  37
+
+# View(old_n_new)
+exclude <- c("Notes", "vessel_official_number")
+
+same_name_to_look_up <- 
+  same_name |> 
+  as.data.frame() |>
+  filter(!same_name %in% exclude)
+
+diff_vals <-
+  same_name_to_look_up$same_name |>
+  map(\(curr_name) {
+    # browser()
+    curr_fields <- lapply(suffixes,
+                          function(x) {
+                            paste0(curr_name, x) |> sym()
+                          })
+    old_n_new |>
+      group_by(vessel_official_number) |>
+      filter(!(!!curr_fields[[1]] == !!curr_fields[[2]])) |>
+      select(vessel_official_number, curr_fields[[1]], curr_fields[[2]]) |>
+      distinct() %>%
+      return()
+    
+  })
+
+# View(diff_vals)
+is_diff <-
+  diff_vals[map(diff_vals, ~ nrow(.)) > 0]
+
+View(is_diff[[1]])
+View(is_diff[[2]])
