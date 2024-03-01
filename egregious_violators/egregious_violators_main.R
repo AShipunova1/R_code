@@ -342,7 +342,7 @@ compliant_in_last_half_year <-
            year_month < as.yearmon(data_file_date)) |>
   mutate(latest_compl = max(week_num)) |>
   filter(week_num == latest_compl) |>
-  ungroup()() |>
+  ungroup() |>
   select(vessel_official_number,
                 year_month,
                 week,
@@ -796,7 +796,7 @@ vessels_permits_participants_short_u_flat <-
   vessels_permits_participants_short_u |>
   rowwise() |>
   mutate_if(is.list, ~ paste(unlist(.), collapse = '; ')) |> 
-  ungroup()()
+  ungroup()
 
 n_distinct(vessels_permits_participants_short_u_flat$P_VESSEL_ID)
 # P_VESSEL_ID 3302
