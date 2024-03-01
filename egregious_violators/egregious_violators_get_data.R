@@ -175,6 +175,47 @@ fhier_addresses <-
 # View(fhier_addresses)
 
 # get info from the db ----
+# get addresses ----
+db_participants_asddress_query <-
+  "select * from
+SRH.MV_SERO_VESSEL_ENTITY@Secapxdv_Dblk.sfsc.noaa.gov
+"
+
+db_participants_asddress_file_path <-
+  file.path(all_inputs,
+            current_project_name,
+            "db_participants_asddress.rds")
+ 
+# dir.exists(file.path(all_inputs,
+#             current_project_name))
+
+# err msg if no connection, but keep running
+if (!exists("con")) {
+  try(con <- connect_to_secpr())
+}
+
+db_participants_asddress_fun <-
+  function(db_participants_asddress) {
+    # browser()
+    return(dbGetQuery(con,
+                      db_participants_asddress))
+  }
+
+db_participants_asddress <-
+  read_rds_or_run(
+    db_participants_asddress_file_path,
+    db_participants_asddress_query,
+    db_participants_asddress_fun
+    # force_from_db = "yes"
+  ) |>
+  remove_empty_cols() |>
+  clean_headers()
+
+dim(db_participants_asddress)
+# [1] 55113    41
+# [1] 55113    37 remove_empty_cols
+
+# 2024-03-01 run for db_participants_asddress.rds: 35.25 sec elapsed
 
 # get_vessels with permits and participants ----
 vessel_permit_where_part <-
@@ -280,9 +321,6 @@ vessels_permits_participants_file_path <-
 # dir.exists(file.path(all_inputs,
 #             current_project_name))
 
-# err msg if no connection, but keep running
-try(con <- connect_to_secpr())
-
 vessels_permits_participants_fun <-
   function(vessels_permits_participants) {
     # browser()
@@ -318,7 +356,8 @@ processed_pims_home_ports <-
 
 # Results ----
 results <-
-  c("vessels_permits_participants",
+  c("db_participants_asddress",
+    "vessels_permits_participants",
     "compl_clean",
     "corresp_contact_cnts_clean0",
     "processed_pims_home_ports"
