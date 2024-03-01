@@ -1234,3 +1234,22 @@ old_n_new_ren <-
 names(old_n_new_ren)
 
 ## check marked with "no ----
+marked_no <-
+  old_n_new_ren |>
+  filter(tolower(new_conf_mark__old) == "no") |> 
+  filter(if_any(ends_with("__new"), ~ is.na(.)))
+
+nrow(marked_no)
+# 83
+# 76 not na
+
+# View(marked_no)
+marked_no |> 
+    select(ends_with("__old")) |> 
+    mutate(resons = case_when(grepl("submitted.+24", Notes__old) ~
+                                  "report_submitted_in_feb",
+                              grepl("permit", Notes__old) ~
+                                  "no_permit",
+                              .default = "other"
+                              )) 
+
