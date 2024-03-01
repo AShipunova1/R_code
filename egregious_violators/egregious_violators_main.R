@@ -1289,7 +1289,7 @@ marked_no__old |>
   distinct() |>
   View()
 
-# combine confirmed with hailng port info ----
+# combine confirmed with hailing port info ----
 confirmed_w_hailing_port <- 
   old_n_new |> 
   select(vessel_official_number,
