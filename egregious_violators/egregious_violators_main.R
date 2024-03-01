@@ -1244,12 +1244,48 @@ nrow(marked_no)
 # 76 not na
 
 # View(marked_no)
-marked_no |> 
-    select(ends_with("__old")) |> 
-    mutate(resons = case_when(grepl("submitted.+24", Notes__old) ~
-                                  "report_submitted_in_feb",
-                              grepl("permit", Notes__old) ~
-                                  "no_permit",
-                              .default = "other"
-                              )) 
 
+marked_no |> 
+    select(Notes__old) |> 
+    distinct() |> 
+    print(n = 50)
+
+marked_no__old <-
+  marked_no |>
+  select(vessel_official_number, ends_with("__old")) |>
+  mutate(
+    resons = case_when(
+      grepl("submitted.+24", 
+            Notes__old, 
+            ignore.case = TRUE) ~
+        "report_submitted_in_feb",
+      grepl("compliance not applicable back", 
+            Notes__old, 
+            ignore.case = TRUE) ~
+        "not_all_time_permit",
+      grepl("expire.+24", 
+            Notes__old, 
+            ignore.case = TRUE) ~
+        "permit_expired",
+      .default = "other"
+    )
+  )
+
+marked_no__old |> 
+  select(Notes__old, resons) |> 
+  distinct() |> 
+  glimpse()
+  # View()
+
+marked_no__old |>
+  select(Notes__old, resons) |>
+  filter(resons == "other") |>
+  distinct() |>
+  # View()
+  glimpse()
+
+marked_no__old |>
+  select(vessel_official_number, Notes__old, resons) |>
+  filter(resons == "other") |>
+  distinct() |>
+  View()
