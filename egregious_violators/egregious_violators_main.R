@@ -1222,7 +1222,6 @@ downloaded_result |>
 old_n_new_ren <-
   # old_n_new |>
   old_n_new[3:ncol(old_n_new)] |> 
-  # rename_with(iris, ~ tolower(gsub(".", "_", .x, fixed = TRUE)))
   rename_with(
     stringr::str_replace,
     pattern = "^Confirmed Egregious.+$",
@@ -1289,3 +1288,32 @@ marked_no__old |>
   filter(resons == "other") |>
   distinct() |>
   View()
+
+# combine confirmed with hailng port info ----
+confirmed_w_hailing_port <- 
+  old_n_new |> 
+  select(vessel_official_number,
+         `Confirmed Egregious? (permits must still be active as of 2/13/24, missing past 6 months, and (1) they called/emailed us (incoming), or (2) at least 2 contacts (outgoing) with at least 1 call (voicemail counts) and at least 1 email)`,
+         ends_with("__old"), starts_with("hailing")) |> 
+  rename_with(
+    stringr::str_replace,
+    pattern = "__old$",
+    replacement = ""
+  )
+
+# names(old_n_new)[[21]] == names(old_n_new)[[1]]
+# # F
+# 
+# names(old_n_new)[[21]]
+
+new_result_path <-
+  file.path(
+    my_paths$outputs,
+    current_project_basename,
+    str_glue(
+      "egregious_violators_to_investigate_confirmed_{today()}.csv"
+    )
+  )
+
+write_csv(confirmed_w_hailing_port,
+          new_result_path)
