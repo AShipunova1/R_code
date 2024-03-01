@@ -2,15 +2,14 @@ source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 
 # Download Maintenance / SC Vessels Reporting via VESL
-# from FHIER 
+# from FHIER
 # https://grunt.sefsc.noaa.gov/apex/f?p=162:386:5458401387184:::RP,386::&cs=3lR5MlDRVs7tWDLbTPOrYh-j00HYH4yeXtQKl8Dqltvjuxmt6sBAwnah0ltdU_dBPQRSNZ21KX_NR4YGfsjtJOA
 
-# csv_names_list = list("sc_mismatches/sc_report_Aug_2023.csv")
-csv_names_list = list(r"(sc_mismatches\2024_02\fhier_report_02_14_2024.csv)")
+csv_names_list = list(r"(sc_mismatches\2024_03\fhier_report_03_01_2024.csv)")
 
-xsl_names_list = list(r"(sc_mismatches\2024_02\scdnrFedVessels_01312024.xlsx)")
+xsl_names_list = list(r"(sc_mismatches\2024_03\scdnrFedVessels_03012024.xlsx)")
 
-SC_vessels_FHIERData_0 <- load_csv_names(my_paths, csv_names_list)[[1]]
+SC_vessels_FHIERData_0 <- load_csv_names(my_paths$inputs, csv_names_list)[[1]]
 
 SC_vessels_FHIERData <- clean_headers(SC_vessels_FHIERData_0)
 
@@ -24,8 +23,8 @@ SC_vessels_FHIERData_enabled <-
 dim(SC_vessels_FHIERData_enabled)
 # 199 8
 # [1] 187   8
-# 189   
-
+# 189
+# 188
 # SC_vessels_FHIERData_enabled %>% names()
 #   filter(vessel_official_number   == "1225219")
 
@@ -38,6 +37,7 @@ dim(FHIER_vessel_officialnumber)
 # 88
 # [1] 187   1
 # [1] 189   1
+# 188
 
 #---
 SC_permittedVessels  <- load_xls_names(my_paths, xsl_names_list, 1)
@@ -45,6 +45,7 @@ SC_permittedVessels  <- load_xls_names(my_paths, xsl_names_list, 1)
 glimpse(SC_permittedVessels)
 # 213
 # 188
+# 200
 
 # SC_permittedVessels1 <- read_excel(paste(my_paths$inputs, xsl_names_list[[1]], sep = "/"), 1)
 
@@ -100,6 +101,7 @@ length(not_it_fhier_sc_report)
 # 4
 # 1
 # 0
+# 11
 
 #create output files - use these to update FHIER maintenance list ----
 ## make output file names ----
