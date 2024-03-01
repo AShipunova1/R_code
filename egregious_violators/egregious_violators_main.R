@@ -597,20 +597,70 @@ dim(date__contacttype_per_id)
 
 ## add permit and address info ----
 # print_df_names(vessels_permits_participants)
-print_df_names(db_participants_asddress)
-
+# print_df_names(db_participants_asddress)
+# print_df_names(fhier_addr_short)
 # intersect(names(db_participants_asddress),
 #           names(fhier_addr_short))
 # 0
 
 db_fhier_addr <-
   full_join(
-    db_participants_asddress,
     fhier_addr_short,
-    join_by(official_number == vessel_official_number)
+    db_participants_asddress,
+    join_by(vessel_official_number == official_number)
   )
 
-View(db_fhier_addr)
+dim(db_fhier_addr)
+# [1] 55114    46
+
+db_fhier_addr |>
+  filter(!paste0(erv_ph_area, erv_ph_number) == phone_number) |>
+  select(erv_ph_area, erv_ph_number, phone_number) |>
+  dim()
+# [1] 2125    3
+
+## compare addresses from fhier and db ----
+db_fhier_addr_1 <-
+  db_fhier_addr |>
+  mutate(erv_ph_area__erv_ph_number =
+           paste0(erv_ph_area, erv_ph_number))
+
+compare_colnames_list <-
+  list(
+    c("permit_holder_names",
+      "erv_entity_name"),
+    c("phone_number",
+      "erv_ph_area__erv_ph_number"),
+    c("primary_email",
+      "erv_primary_email"),
+    c("physical_address_1",
+      "erv_physical_address1"),
+    c("physical_address_2",
+      "erv_physical_address2"),
+    c("physical_city",
+      "erv_physical_city"),
+    c("physical_county",
+      "erv_physical_county"),
+    c("physical_state",
+      "erv_physical_state"),
+    c("physical_zip_code",
+      "erv_physical_zip_code")
+  )
+
+compare_colnames_list__db_fhier_addr_1 <-
+  compare_colnames_list |>
+  map(\(curr_pair) {
+    # browser()
+    db_fhier_addr_1 |>
+      group_by(vessel_official_number) |> 
+      filter(!curr_pair[[1]] == curr_pair[[2]]) |>
+      ungroup() |> 
+      select(all_of(curr_pair)) |>
+      distinct() %>%
+      return()
+  })
+
+View(compare_colnames_list__db_fhier_addr_1)
 
 ### check ----
 vessels_permits_participants_v_ids <-
