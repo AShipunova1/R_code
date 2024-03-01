@@ -1200,5 +1200,37 @@ diff_vals <-
 is_diff <-
   diff_vals[map(diff_vals, ~ nrow(.)) > 0]
 
-View(is_diff[[1]])
-View(is_diff[[2]])
+# View(is_diff[[1]])
+# View(is_diff[[2]])
+
+compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names__fhier_addr__mv_cols |> 
+    filter(vessel_official_number %in% is_diff[[2]]$vessel_official_number) |> 
+    arrange(vessel_official_number) |> 
+    select(vessel_official_number, hailing_port_city, hailing_port_state) |> 
+    distinct()
+# 8 FL5193RE               MADEIRA BEACH     FL                
+# ok
+
+downloaded_result |> 
+    filter(vessel_official_number %in% is_diff[[2]]$vessel_official_number) |> 
+    arrange(vessel_official_number) |> 
+    select(vessel_official_number, contains("port")) |> 
+    distinct()
+# ok
+
+## drop first two columns (empty in new) and rename long colnames ----
+old_n_new_ren <-
+  # old_n_new |>
+  old_n_new[3:ncol(old_n_new)] |> 
+  # rename_with(iris, ~ tolower(gsub(".", "_", .x, fixed = TRUE)))
+  rename_with(
+    stringr::str_replace,
+    pattern = "^Confirmed Egregious.+$",
+    replacement = "new_conf_mark__old"
+    # ,
+    # matches("Length")
+  )
+
+names(old_n_new_ren)
+
+## check marked with "no ----
