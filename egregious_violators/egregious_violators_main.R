@@ -682,6 +682,7 @@ db_participants_asddress_short_2 <-
 db_participants_asddress_short <-
   db_participants_asddress_short_2 |>
   filter(vessel_official_number %in% fhier_addr_short$vessel_official_number) |> 
+  mutate(across(where(is.character), str_squish)) |> 
   arrange(vessel_official_number)
 
 # View(db_participants_asddress_short)
@@ -689,6 +690,7 @@ db_participants_asddress_short <-
 
 fhier_addr_short_arr <- 
   fhier_addr_short |>
+  mutate(across(where(is.character), str_squish)) |> 
   arrange(vessel_official_number)
 
 
@@ -706,7 +708,7 @@ address_compare <-
   )
 
 # all.equal(address_compare,
-#                address_compare1)
+#                address_compare2)
 
 aa <-
   address_compare$diffs.table |>
@@ -714,6 +716,7 @@ aa <-
   select(values.x, values.y)
 
 setdiff(aa[[1]], aa[[2]])
+# 0
 setdiff(aa[[2]], aa[[1]])
 # [1] "JUDY LYNN HELMEY"
 # 
@@ -721,10 +724,9 @@ setdiff(aa[[2]], aa[[1]])
 # [[1]]
 # [1] "JUDY LYNN HELMEY "
 
-
 # View(address_compare)
-# write_csv(address_compare$diffs.table,
-          # r"(compare\address_compare__fhier_vs_db.csv)")
+write_csv(address_compare$diffs.table,
+r"(compare\address_compare__fhier_vs_db.csv)")
 
 ## compare by join ----
 db_fhier_addr_1 <-
