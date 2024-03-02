@@ -603,6 +603,7 @@ dim(date__contacttype_per_id)
 #           names(fhier_addr_short))
 # 0
 
+## join db_participant and fhier info ----
 db_fhier_addr <-
   full_join(
     fhier_addr_short,
@@ -620,6 +621,98 @@ db_fhier_addr |>
 # [1] 2125    3
 
 ## compare addresses from fhier and db ----
+
+names(fhier_addr_short) |> 
+  cat(sep = '", "')
+
+col_to <-
+  c(
+    "vessel_official_number",
+    "permit_holder_names",
+    "physical_address_1",
+    "physical_address_2",
+    "physical_city",
+    "physical_county",
+    "physical_state",
+    "physical_zip_code",
+    "primary_email",
+    "phone_number"
+  )
+
+# print_df_names(db_participants_asddress)
+col_from <- c(
+  "official_number",
+  "erv_entity_name",
+  "erv_physical_address1",
+  "erv_physical_address2",
+  "erv_physical_city",
+  "erv_physical_county",
+  "erv_physical_state",
+  "erv_physical_zip_code",
+  "erv_primary_email",
+  "erv_full_ph_number"
+)
+
+dim(db_participants_asddress)
+# [1] 55113    37
+
+db_participants_asddress_short_0 <-
+  db_participants_asddress |>
+  select(any_of(col_from),
+         "erv_ph_area",
+         "erv_ph_number") |>
+  distinct()
+
+dim(db_participants_asddress_short_0)
+# [1] 30287    11
+
+db_participants_asddress_short_1 <-
+  db_participants_asddress_short_0 |>
+  mutate(erv_full_ph_number = paste0(erv_ph_area,
+                                     erv_ph_number)) |>
+  select(-c(erv_ph_area,
+            erv_ph_number)) |> 
+  distinct()
+
+db_participants_asddress_short_2 <-
+  db_participants_asddress_short_1 |>
+  rename_with( ~ col_to, .cols = all_of(col_from))
+
+
+db_participants_asddress_short <-
+  db_participants_asddress_short_2 |>
+  filter(vessel_official_number %in% fhier_addr_short$vessel_official_number) |> 
+  arrange(vessel_official_number)
+
+# View(db_participants_asddress_short)
+# View(fhier_addr_short)
+
+fhier_addr_short_arr <- 
+  fhier_addr_short |>
+  arrange(vessel_official_number)
+
+
+# diffdf::diffdf(fhier_addr_short_arr, db_participants_asddress_short)
+library(arsenal)
+
+address_compare <-
+  summary(
+    comparedf(fhier_addr_short_arr,
+              db_participants_asddress_short,
+              by = "vessel_official_number"),
+    max.print.diffs.per.var = NA,
+    max.print.diffs	= NA,
+    tol.char = "both"
+  )
+
+# all.equal(address_compare,
+#                address_compare1)
+
+# View(address_compare)
+# write_csv(address_compare$diffs.table,
+#           r"(compare\address_compare__fhier_vs_db.csv)")
+
+## compare by join ----
 db_fhier_addr_1 <-
   db_fhier_addr |>
   mutate(erv_ph_area__erv_ph_number =
