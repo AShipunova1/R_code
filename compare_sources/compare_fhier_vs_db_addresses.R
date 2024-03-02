@@ -1,34 +1,3 @@
-# compare erv and erb addresses in db ----
-
-# print_df_names(db_participants_asddress)
-# ser_id, official_number, uscg_documentation, state_registration, vchar_hull_id_number, vchar_vessel_name, is_primary, is_mail_rec, erv_ser_id, erv_entity_type, erv_entity_name, erv_ph_is_primary, erv_ph_area, erv_ph_number, erv_primary_email, erv_physical_address1, erv_physical_address2, erv_physical_city, erv_physical_county, erv_physical_state, erv_physical_zip_code, erv_mailing_address1, erv_mailing_address2, erv_mailing_city, erv_mailing_county, erv_mailing_country, erv_mailing_state, erv_mailing_zip_code, association_start_dt, relationship, erb_ser_id, erb_entity_type, erb_entity_name, erb_ph_is_primary, erb_ph_area, erb_ph_number, erb_primary_email
-
-# official_number
-erv_entity_type	
-erv_entity_name	
-erv_ph_area	
-erv_ph_number	
-erv_primary_email	
-erv_physical_address1	
-erv_physical_address2	
-erv_physical_city	
-erv_physical_county	
-erv_physical_state	
-erv_physical_zip_code
-
-#  erv_entity_type	 erb_entity_type
-#  erv_entity_name	 erb_entity_name
-#  erv_ph_area	 erb_ph_area
-#  erv_ph_number	 erb_ph_number
-#  erv_primary_email	 erb_primary_email
-#  erv_physical_address1	 erv_mailing_address1
-#  erv_physical_address2	 erv_mailing_address2
-#  erv_physical_city	 erv_mailing_city
-#  erv_physical_county	 erv_mailing_county
-#  erv_physical_state	 erv_mailing_state
-#  erv_physical_zip_code	 erv_mailing_zip_code
-
-
 # compare addresses from fhier and db ----
 # get_data from from egregious violators
 names(fhier_addr_short) |> 
@@ -87,7 +56,6 @@ db_participants_asddress_short_2 <-
   db_participants_asddress_short_1 |>
   rename_with( ~ col_to, .cols = all_of(col_from))
 
-
 db_participants_asddress_short <-
   db_participants_asddress_short_2 |>
   filter(vessel_official_number %in% fhier_addr_short$vessel_official_number) |> 
@@ -136,3 +104,65 @@ setdiff(aa[[2]], aa[[1]])
 # View(address_compare)
 # write_csv(address_compare$diffs.table,
 # r"(compare\address_compare__fhier_vs_db.csv)")
+
+# compare erv and erb addresses in db ----
+
+# print_df_names(db_participants_asddress)
+# ser_id, official_number, uscg_documentation, state_registration, vchar_hull_id_number, vchar_vessel_name, is_primary, is_mail_rec, erv_ser_id, erv_entity_type, erv_entity_name, erv_ph_is_primary, erv_ph_area, erv_ph_number, erv_primary_email, erv_physical_address1, erv_physical_address2, erv_physical_city, erv_physical_county, erv_physical_state, erv_physical_zip_code, erv_mailing_address1, erv_mailing_address2, erv_mailing_city, erv_mailing_county, erv_mailing_country, erv_mailing_state, erv_mailing_zip_code, association_start_dt, relationship, erb_ser_id, erb_entity_type, erb_entity_name, erb_ph_is_primary, erb_ph_area, erb_ph_number, erb_primary_email
+
+# official_number
+erv_fields <-
+  c(
+    "official_number",
+    "erv_entity_type",
+    "erv_entity_name",
+    "erv_ph_area",
+    "erv_ph_number",
+    "erv_primary_email",
+    "erv_physical_address1",
+    "erv_physical_address2",
+    "erv_physical_city",
+    "erv_physical_county",
+    "erv_physical_state",
+    "erv_physical_zip_code"
+  )
+
+second_field_set <-
+  c(
+    "official_number",
+    "erb_entity_type",
+    "erb_entity_name",
+    "erb_ph_area",
+    "erb_ph_number",
+    "erb_primary_email",
+    "erv_mailing_address1",
+    "erv_mailing_address2",
+    "erv_mailing_city",
+    "erv_mailing_county",
+    "erv_mailing_state",
+    "erv_mailing_zip_code"
+  )
+
+db_participants_asddress_erv <-
+  db_participants_asddress |>
+  select(any_of(erv_fields)) |>
+  distinct()
+
+db_participants_asddress_2 <-
+  db_participants_asddress |>
+  select(any_of(second_field_set)) |>
+  distinct()
+
+dim(db_participants_asddress_erv)
+# [1] 30287    12
+dim(db_participants_asddress_2)
+# [1] 35462    12
+
+db_participants_asddress_2_renamed <-
+  db_participants_asddress_2 |>
+  rename_with(~ erv_fields,
+              .cols = all_of(second_field_set))
+
+identical(names(db_participants_asddress_erv),
+          names(db_participants_asddress_2_renamed))
+# T
