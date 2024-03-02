@@ -708,9 +708,23 @@ address_compare <-
 # all.equal(address_compare,
 #                address_compare1)
 
+aa <-
+  address_compare$diffs.table |>
+  filter(vessel_official_number == "1020822") |>
+  select(values.x, values.y)
+
+setdiff(aa[[1]], aa[[2]])
+setdiff(aa[[2]], aa[[1]])
+# [1] "JUDY LYNN HELMEY"
+# 
+# > setdiff(aa[[2]], aa[[1]])
+# [[1]]
+# [1] "JUDY LYNN HELMEY "
+
+
 # View(address_compare)
 # write_csv(address_compare$diffs.table,
-#           r"(compare\address_compare__fhier_vs_db.csv)")
+          # r"(compare\address_compare__fhier_vs_db.csv)")
 
 ## compare by join ----
 db_fhier_addr_1 <-
