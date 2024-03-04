@@ -135,6 +135,31 @@ subdf_prep <-
     return(my_df_renamed_cleaned_sorted)
   }
 
+## prepare sub fhier
+fhier_addr_short <-
+  fhier_addresses |>
+  dplyr::select(any_of(fhier_fields)) |>
+  distinct()
+
+dim(fhier_addresses)
+dim(fhier_addr_short)
+# 2390
+
+fhier_addr_short__comb_addr <-
+  fhier_addr_short |>
+  clean_names_and_addresses() |>
+  # mutate(
+  #   fhier_address =
+  #     str_glue(
+  #       "
+  #       {physical_address_1}, {physical_address_2}, {physical_city}, {physical_county}, {physical_state}, {physical_zip_code}
+  #     "
+  #     )
+  # ) |>
+  clean_names_and_addresses() |>
+  distinct()
+
+## prepare sub dfs to have the same columns ----
 dim(db_participants_asddress)
 # [1] 55113    37
 
