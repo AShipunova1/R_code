@@ -572,9 +572,10 @@ data_overview <- function(my_df) {
 # concat_unique <- function(x){paste(unique(x),  collapse=', ')}
 
 # Define a function 'concat_unique' to concatenate unique non-NA values from a vector x into a single character string.
+# Use 'unique' to extract unique values, '!is.na(x)' to remove NA values, and 'collapse = ", "' to concatenate with a comma and space.
+# Finally, paste0 is used to concatenate the unique non-NA values with a comma and space separator (", ").
+
 concat_unique <- function(x) {
-  # Use 'unique' to extract unique values, '!is.na(x)' to remove NA values, and 'collapse = ", "' to concatenate with a comma and space.
-  # Finally, paste0 is used to concatenate the unique non-NA values with a comma and space separator (", ").
   paste0(unique(x[!is.na(x)]), collapse = ", ")
 }
 
