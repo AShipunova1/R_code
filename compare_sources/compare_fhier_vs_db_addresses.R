@@ -56,6 +56,69 @@ db_fields <- c(
   "erv_full_ph_number"
 )
 
+# get_data ----
+# Physical Address List from FHIER ----
+# REPORTS / For-hire Primary Physical Address List
+
+fhier_addresses_path <-
+  file.path(
+    my_paths$inputs,
+    r"(from PIMS\address\For-hire Primary Physical Address List_02_21_2024.csv)"
+  )
+
+# file.exists(fhier_addresses_path)
+
+fhier_addresses <-
+  read_csv(fhier_addresses_path,
+           # read all as characters
+           col_types = cols(.default = 'c'),
+           name_repair = fix_names)
+
+# View(fhier_addresses)
+
+# get info from the db ----
+# get addresses ----
+db_participants_asddress_query <-
+  "select * from
+SRH.MV_SERO_VESSEL_ENTITY@Secapxdv_Dblk.sfsc.noaa.gov
+"
+
+db_participants_asddress_file_path <-
+  file.path(my_paths$inputs,
+            r"(from_db\safis\mv_sero_vessel_entity.rds)")
+
+# err msg if no connection, but keep running
+if (!exists("con")) {
+  try(con <- connect_to_secpr())
+}
+
+db_participants_asddress_fun <-
+  function(db_participants_asddress) {
+    # browser()
+    return(dbGetQuery(con,
+                      db_participants_asddress))
+  }
+
+db_participants_asddress <-
+  read_rds_or_run(
+    db_participants_asddress_file_path,
+    db_participants_asddress_query,
+    db_participants_asddress_fun
+    # force_from_db = "yes"
+  ) |>
+  remove_empty_cols() |>
+  clean_headers()
+
+dim(db_participants_asddress)
+# [1] 55113    41
+# [1] 55113    37 remove_empty_cols
+# [1] 55145    37
+
+# 2024-03-04 run for mv_sero_vessel_entity.rds: 40.65 sec elapsed
+
+# aux functions ----
+subdf_prep <-
+  function(my_df,
 dim(db_participants_asddress)
 # [1] 55113    37
 
