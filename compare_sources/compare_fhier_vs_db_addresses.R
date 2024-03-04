@@ -119,6 +119,22 @@ dim(db_participants_asddress)
 # aux functions ----
 subdf_prep <-
   function(my_df,
+           field_names_from,
+           field_names_to,
+           sort_by = "vessel_official_number") {
+    my_df_renamed <-
+      my_df |>
+      rename_with( ~ field_names_to,
+                   .cols = all_of(field_names_from))
+
+    my_df_renamed_cleaned_sorted <-
+      my_df_renamed |>
+      mutate(across(where(is.character), str_squish)) |>
+      arrange(sort_by)
+
+    return(my_df_renamed_cleaned_sorted)
+  }
+
 dim(db_participants_asddress)
 # [1] 55113    37
 
