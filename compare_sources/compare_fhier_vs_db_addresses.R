@@ -1,31 +1,34 @@
+# ----set up----
+
+# Get common functions
+source("~/R_code_github/useful_functions_module.r")
+
 library(arsenal)
-# get_data from from egregious violators
 
-# aux functions ----
-subdf_prep <-
-  function(my_df,
-           field_names_from,
-           field_names_to,
-           sort_by = "vessel_official_number") {
-    my_df_renamed <-
-      my_df |>
-      rename_with( ~ field_names_to,
-                   .cols = all_of(field_names_from))
-    
-    my_df_renamed_cleaned_sorted <-
-      my_df_renamed |>
-      mutate(across(where(is.character), str_squish)) |>
-      arrange(sort_by)
-    
-    return(my_df_renamed_cleaned_sorted)
-  }
+my_paths <- set_work_dir()
 
-# compare addresses from fhier and db ----
-## prepare sub dfs to have the same columns ----
-names(fhier_addr_short) |> 
-  cat(sep = '", "')
+current_project_path <- this.path::this.dir()
 
-col_to <-
+current_project_basename <-
+  basename(current_project_path)
+
+curr_proj_output_path <- file.path(my_paths$outputs,
+                         current_project_basename)
+
+curr_proj_input_path <- file.path(my_paths$inputs,
+                         current_project_basename)
+
+current_project_name <- current_project_basename
+
+all_inputs <- my_paths$inputs
+
+my_year <- "2022"
+my_beginning1 <- str_glue("{my_year}-01-01")
+my_end1 <- str_glue("{my_year}-12-31")
+
+data_file_date <- today()
+
+fhier_fields <-
   c(
     "vessel_official_number",
     "permit_holder_names",
@@ -40,7 +43,7 @@ col_to <-
   )
 
 # print_df_names(db_participants_asddress)
-col_from <- c(
+db_fields <- c(
   "official_number",
   "erv_entity_name",
   "erv_physical_address1",
