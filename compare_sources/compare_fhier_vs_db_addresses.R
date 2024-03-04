@@ -135,6 +135,7 @@ subdf_prep <-
     return(my_df_renamed_cleaned_sorted)
   }
 
+# compare addresses from fhier and db ----
 ## prepare sub fhier
 fhier_addr_short <-
   fhier_addresses |>
@@ -160,43 +161,46 @@ fhier_addr_short__comb_addr <-
   distinct()
 
 ## prepare sub dfs to have the same columns ----
+# names(fhier_addr_short) |>
+#   cat(sep = '", "')
+
 dim(db_participants_asddress)
-# [1] 55113    37
+# [1] 55145    37
 
 db_participants_asddress_short_0 <-
   db_participants_asddress |>
-  select(any_of(col_from),
-         "erv_ph_area",
-         "erv_ph_number") |>
+  select(any_of(db_fields),
+         ends_with("ph_area"),
+         ends_with("ph_number")) |>
   distinct()
 
 dim(db_participants_asddress_short_0)
-# [1] 30287    11
+# [1] 30301    13
 
 db_participants_asddress_short_1 <-
   db_participants_asddress_short_0 |>
   mutate(erv_full_ph_number = paste0(erv_ph_area,
                                      erv_ph_number)) |>
   select(-c(erv_ph_area,
-            erv_ph_number)) |> 
+            erv_ph_number)) |>
   distinct()
 
 db_participants_asddress_short_2 <-
   db_participants_asddress_short_1 |>
-  rename_with( ~ col_to, .cols = all_of(col_from))
+  rename_with( ~ fhier_fields, .cols = all_of(db_fields))
 
-db_participants_asddress_short <-
+db_participants_asddress_short_sorted <-
   db_participants_asddress_short_2 |>
-  filter(vessel_official_number %in% fhier_addr_short$vessel_official_number) |> 
-  mutate(across(where(is.character), str_squish)) |> 
+  filter(vessel_official_number %in% fhier_addr_short$vessel_official_number) |>
+  mutate(across(where(is.character), str_squish)) |>
   arrange(vessel_official_number)
 
 # View(db_participants_asddress_short)
 # View(fhier_addr_short)
 
-fhier_addr_short_arr <- 
+fhier_addr_short_sorted <-
   fhier_addr_short |>
-  mutate(across(where(is.character), str_squish)) |> 
+  mutate(across(where(is.character), str_squish)) |>
   arrange(vessel_official_number)
 
 ## actual compare fhier and erv ----
@@ -205,8 +209,8 @@ fhier_addr_short_arr <-
 
 address_compare <-
   summary(
-    comparedf(fhier_addr_short_arr,
-              db_participants_asddress_short,
+    comparedf(fhier_addr_short_sorted,
+              db_participants_asddress_short_sorted,
               by = "vessel_official_number"),
     max.print.diffs.per.var = NA,
     max.print.diffs	= NA,
@@ -218,21 +222,25 @@ address_compare <-
 
 res_fhier__db_erv <-
   address_compare$diffs.table |>
-  filter(vessel_official_number == "1020822") |>
+  # filter(vessel_official_number == "1020822") |>
   select(values.x, values.y)
 
+View(res_fhier__db_erv)
 # setdiff(aa[[1]], aa[[2]])
 # 0
-setdiff(aa[[2]], aa[[1]])
+setdiff(res_fhier__db_erv[[2]], res_fhier__db_erv[[1]])
 # [1] "JUDY LYNN HELMEY"
-# 
+#  ok 0
+#
 # > setdiff(aa[[2]], aa[[1]])
 # [[1]]
 # [1] "JUDY LYNN HELMEY "
 
 # View(address_compare)
-# write_csv(address_compare$diffs.table,
-# r"(compare\address_compare__fhier_vs_db.csv)")
+write_csv(
+  address_compare$diffs.table,
+  str_glue("compare/address_compare__fhier_vs_db_{today()}.csv")
+)
 
 # compare erv and erb addresses in db ----
 ## prepare sub dfs to have the same col names ----
@@ -287,13 +295,13 @@ dim(db_participants_asddress_erv)
 dim(db_participants_asddress_2)
 # [1] 35462    12
 
-db_participants_asddress_erv_cleaned <- 
+db_participants_asddress_erv_cleaned <-
   subdf_prep(db_participants_asddress_erv,
              erv_fields,
              erv_fields,
              sort_by = "official_number")
 
-db_participants_asddress_2_cleaned <- 
+db_participants_asddress_2_cleaned <-
   subdf_prep(db_participants_asddress_2,
              second_field_set,
              erv_fields,
