@@ -116,6 +116,8 @@ dim(db_participants_asddress)
 
 # 2024-03-04 run for mv_sero_vessel_entity.rds: 40.65 sec elapsed
 
+# db_participants_asddress |> print_df_names()
+
 # aux functions ----
 subdf_prep <-
   function(my_df,
@@ -135,7 +137,6 @@ subdf_prep <-
     return(my_df_renamed_cleaned_sorted)
   }
 
-# compare addresses from fhier and db ----
 ## prepare sub fhier
 fhier_addr_short <-
   fhier_addresses |>
@@ -167,6 +168,8 @@ fhier_addr_short__comb_addr <-
 dim(db_participants_asddress)
 # [1] 55145    37
 
+print_df_names(db_participants_asddress)
+
 db_participants_asddress_short_0 <-
   db_participants_asddress |>
   select(any_of(db_fields),
@@ -174,13 +177,15 @@ db_participants_asddress_short_0 <-
          ends_with("ph_number")) |>
   distinct()
 
+# print_df_names(db_participants_asddress_short_0)
 dim(db_participants_asddress_short_0)
 # [1] 30301    13
 
 db_participants_asddress_short_1 <-
   db_participants_asddress_short_0 |>
-  mutate(erv_full_ph_number = paste0(erv_ph_area,
-                                     erv_ph_number)) |>
+  mutate(erv_full_ph_number =
+           paste0(erv_ph_area,
+                  erv_ph_number)) |>
   select(-c(erv_ph_area,
             erv_ph_number)) |>
   distinct()
@@ -202,6 +207,58 @@ fhier_addr_short_sorted <-
   fhier_addr_short |>
   mutate(across(where(is.character), str_squish)) |>
   arrange(vessel_official_number)
+
+# combine erv and erb ----
+# db_participants_asddress |>
+#   print_df_names()
+#
+# fhier_addr_short_sorted |>
+#   print_df_names()
+
+paste_uniq <- function(field_names) {
+
+  browser()
+  na_field_names <-
+    field_names
+  map(\(x) {
+    f_name <- sym(!!x[!is.na(!!x)])
+  })
+
+  res <-
+    paste(na_field_names[[1]],
+          na_field_names[[2]],
+          collapse = ", ",
+          sep = ", ")
+}
+
+paste_uniq(c("erv_entity_name", "erb_entity_name"))
+
+grouped_df1 <-
+  db_participants_asddress |>
+  group_by(official_number) |>
+  mutate(entity_names =
+           paste(
+             unique(erv_entity_name[!is.na(erv_entity_name)]),
+             unique(erb_entity_name[!is.na(erb_entity_name)]),
+             collapse = ", ",
+             sep = ", "
+           )) |>
+  ungroup()
+View(grouped_df1)
+
+# erb_entity_name, erb_ph_is_primary, erb_ph_area, erb_ph_number, erb_primary_email
+  # dplyr::summarise_all(concat_unique_sorted) |>
+  # View()
+
+"ser_id, official_number, uscg_documentation, state_registration, vchar_hull_id_number, vchar_vessel_name, is_primary, is_mail_rec, erv_ser_id, erv_entity_type, erv_entity_name, erv_ph_is_primary, erv_ph_area, erv_ph_number, erv_primary_email, erv_physical_address1, erv_physical_address2, erv_physical_city, erv_physical_county, erv_physical_state, erv_physical_zip_code, erv_mailing_address1, erv_mailing_address2, erv_mailing_city, erv_mailing_county, erv_mailing_country, erv_mailing_state, erv_mailing_zip_code, association_start_dt, relationship, erb_ser_id, erb_entity_type, erb_entity_name, erb_ph_is_primary, erb_ph_area, erb_ph_number, erb_primary_email"
+
+"vessel_official_number, permit_holder_names, physical_address_1, physical_address_2, physical_city, physical_county, physical_state, physical_zip_code, primary_email, phone_number"
+
+
+# View(fhier_addr_short)
+
+# compare addresses from fhier and db ----
+# A PIRATES CHOICE CHARTERS LLC (LAWRENCE A WREN)
 
 ## actual compare fhier and erv ----
 
@@ -225,7 +282,7 @@ res_fhier__db_erv <-
   # filter(vessel_official_number == "1020822") |>
   select(values.x, values.y)
 
-View(res_fhier__db_erv)
+# View(res_fhier__db_erv)
 # setdiff(aa[[1]], aa[[2]])
 # 0
 setdiff(res_fhier__db_erv[[2]], res_fhier__db_erv[[1]])
@@ -237,10 +294,10 @@ setdiff(res_fhier__db_erv[[2]], res_fhier__db_erv[[1]])
 # [1] "JUDY LYNN HELMEY "
 
 # View(address_compare)
-write_csv(
-  address_compare$diffs.table,
-  str_glue("compare/address_compare__fhier_vs_db_{today()}.csv")
-)
+# write_csv(
+#   address_compare$diffs.table,
+#   str_glue("compare/address_compare__fhier_vs_db_{today()}.csv")
+# )
 
 # compare erv and erb addresses in db ----
 ## prepare sub dfs to have the same col names ----
@@ -315,10 +372,6 @@ db_participants_asddress_2_cleaned <-
 #           db_participants_asddress_2_renamed__1)
 # F (trimmed)
 
-identical(names(db_participants_asddress_erv),
-          names(db_participants_asddress_2_renamed))
-# T
-
 ## compare w arsenal ----
 
 address_compare__in_db <-
@@ -333,9 +386,8 @@ address_compare__in_db <-
     tol.char = "both"
   )
 
-address_compare__in_db$diffs.table |>
-  filter(!grepl("entity_type", var.x)) |>
-  write_csv(r"(compare\address_compare__db_erv_vs_db_other.csv)")
+# address_compare__in_db$diffs.table |>
+#   filter(!grepl("entity_type", var.x)) |>
+#   write_csv(r"(compare\address_compare__db_erv_vs_db_other.csv)")
 
-
-# entity_type - buisness vs. individual
+# entity_type - business vs. individual
