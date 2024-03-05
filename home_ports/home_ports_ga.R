@@ -142,4 +142,13 @@ vessel__permit__join__mine_ga <-
   vessel__permit__join |>
   filter(official__ %in% in_mine)
 
-View(vessel__permit__join__mine_ga)
+# View(vessel__permit__join__mine_ga)
+
+write_csv(
+  vessel__permit__join__mine_ga,
+  file.path(
+    my_paths$outputs,
+    "home_ports",
+    "vessel__permit__join__mine_ga.csv"
+  )
+)
