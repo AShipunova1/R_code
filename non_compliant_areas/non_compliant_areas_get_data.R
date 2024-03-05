@@ -188,6 +188,14 @@ vessels_from_pims_short_ok <-
 # dim(vessels_from_pims_short_ok)
 # [1] 22466     2
 
+vessels_from_pims_short_ok_ga <- 
+vessels_from_pims_short_ok |>
+  filter(grepl(", GA", hailing_port)) |> 
+  select(vessel_official_number) |> 
+  distinct()
+  nrow()
+# 411
+
 # Get processed metrics tracking ----
 processed_input_data_path <- 
   file.path(my_paths$inputs,
