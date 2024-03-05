@@ -75,7 +75,7 @@ ga_xlsx1 <-
       "skip",
       "skip",
       "skip",
-      "skip",
+      "text",
       "date",
       "date",
       "date",
@@ -86,10 +86,11 @@ ga_xlsx1 <-
 
 # OFFICIAL_NUMBER	VESSEL_NAME	HAILING_PORT_CITY	VESSEL_STATE	ENTITY_NAME	ADDRESS	CITY	POSTAL_CODE	ADDRESS_STATE	FISHERY_NAME_ABBR	PERMIT_EFFECTIVE_DATE	PERMIT_EXPIRATION_DATE	PERMIT_TERMINATION_DATE	PERMIT_END_DATE
 
-View(ga_xlsx1)
+# View(ga_xlsx1)
+
 ga_xlsx1_ga_only_short <- 
   ga_xlsx1 |>
-  select(OFFICIAL_NUMBER, VESSEL_STATE, starts_with("PERMIT")) |> 
+  select(OFFICIAL_NUMBER, VESSEL_STATE, FISHERY_NAME_ABBR, starts_with("PERMIT")) |> 
   filter(VESSEL_STATE == "GA")
 
 View(ga_xlsx1_ga_only_short)
