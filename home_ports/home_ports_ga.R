@@ -88,9 +88,18 @@ ga_xlsx1 <-
 
 # View(ga_xlsx1)
 
-ga_xlsx1_ga_only_short <- 
+ga_xlsx1_ga_only_short_23 <-
   ga_xlsx1 |>
-  select(OFFICIAL_NUMBER, VESSEL_STATE, FISHERY_NAME_ABBR, starts_with("PERMIT")) |> 
-  filter(VESSEL_STATE == "GA")
+  select(OFFICIAL_NUMBER,
+         VESSEL_STATE,
+         FISHERY_NAME_ABBR,
+         starts_with("PERMIT")) |>
+  filter(VESSEL_STATE == "GA") |>
+  filter(FISHERY_NAME_ABBR %in% c("CDW", "CHS", "SC")) |>
+  filter(PERMIT_EFFECTIVE_DATE <= my_end2 &
+           PERMIT_EXPIRATION_DATE >= my_beginning2)
+  
+n_distinct(ga_xlsx1_ga_only_short_23$OFFICIAL_NUMBER)
+# 43
 
-View(ga_xlsx1_ga_only_short)
+# View(ga_xlsx1_ga_only_short_23)
