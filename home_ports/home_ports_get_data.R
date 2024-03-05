@@ -122,6 +122,17 @@ dim(permits_from_pims)
 dim(permits_from_pims__split1_short)
 # [1] 31180    12
 
+## permits split permit number ----
+permits_from_pims__split1_short__split2 <- 
+  permits_from_pims__split1_short |> 
+  separate(permit__,
+           c('permit', 'permit_number'),
+           sep = "-") |>
+  mutate(across(starts_with('permit'),
+                str_squish))
+View(permits_from_pims__split1_short__split2)
+
+
 ## vessels clean and shorten  ----
 vessels_from_pims_short <-
   vessels_from_pims |>
