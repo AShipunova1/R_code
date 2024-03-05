@@ -389,6 +389,21 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide
   # ..$ non_compl_proportion_per_st: num [1:35] 0.636 0.364 0.583 0.417 0.386 ...
   # ..$ non_compl_percent_per_st   : num [1:35] 63.6 36.4 58.3 41.7 38.6 ...
 
+# GA only ----
+# vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt |> 
+#   glimpse()
+
+ga_vessel_permits_state_fixed_23_vessel_ids <-
+  vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt$`2023 sa_only` |>
+  filter(state_fixed == "GA") |>
+  select(vessel_official_number) |>
+  distinct()
+
+write_csv(ga_vessel_permits_state_fixed_23_vessel_ids,
+          "ga_vessel_permits_state_fixed_23_vessel_ids.csv")
+# nrow()
+# 62
+
 # Maps ----
 ## map specific columns ----
 
