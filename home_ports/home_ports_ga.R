@@ -2,7 +2,7 @@
 # 63 federally permitted vessels home ported in Georgia for 2024 (us)
 # I redownloaded that FOIA spreadsheet (attached) just now, and when I filter it down to just the three South Atlantic charter permits (CDW, CHS and SC) for the “vessel state” field limited to “GA” and deleted duplicate vessel names, I get 44 unique vessels. (GA)
 
-# select by year ----
+# select by year, port and permit ----
 vessels_from_pims__ga_vessel_ids <-
   vessels_from_pims |>
   filter(grepl(", GA", hailing_port)) |>
@@ -103,3 +103,43 @@ n_distinct(ga_xlsx1_ga_only_short_23$OFFICIAL_NUMBER)
 # 43
 
 # View(ga_xlsx1_ga_only_short_23)
+
+from_non_compl_areas <- 
+  read_csv(r"(my_outputs\home_ports\ga_vessel_permits_state_fixed_23_vessel_ids.csv)")
+
+in_ga_xlsx <- 
+  setdiff(ga_xlsx1_ga_only_short_23$OFFICIAL_NUMBER,
+        from_non_compl_areas$vessel_official_number)
+  # [1] "639616"  "1178074" "1322973"
+
+in_mine <- 
+  setdiff(from_non_compl_areas$vessel_official_number,
+          ga_xlsx1_ga_only_short_23$OFFICIAL_NUMBER)
+
+glimpse(in_mine)
+ # chr [1:22] "1187937" "1307944" "1311002" "1323935" "542775" "906483" ...
+
+in_mine_only <-
+  permits_from_pims__split1_short__split2 |>
+  filter(vessel_official_number %in% in_mine)
+
+in_mine_only |> 
+  select(permit) |> 
+  distinct()
+# 10
+
+n_distinct(in_mine_only$vessel_official_number)
+# 21
+
+in_mine_only |> 
+  filter(permit %in% c("CDW", "CHS", "SC")) |> 
+  select(vessel_official_number) |> 
+  distinct()
+# 21
+
+# check dates ----
+vessel__permit__join__mine_ga <-
+  vessel__permit__join |>
+  filter(official__ %in% in_mine)
+
+View(vessel__permit__join__mine_ga)
