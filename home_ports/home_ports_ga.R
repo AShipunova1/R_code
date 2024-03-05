@@ -112,11 +112,11 @@ in_ga_xlsx <-
         from_non_compl_areas$vessel_official_number)
   # [1] "639616"  "1178074" "1322973"
 
-in_mine <- 
-  setdiff(from_non_compl_areas$vessel_official_number,
-          ga_xlsx1_ga_only_short_23$OFFICIAL_NUMBER)
+in_mine_only <- 
+  setdiff(tolower(from_non_compl_areas$vessel_official_number),
+          tolower(ga_xlsx1_ga_only_short_23$OFFICIAL_NUMBER))
 
-glimpse(in_mine)
+glimpse(in_mine_only)
  # chr [1:22] "1187937" "1307944" "1311002" "1323935" "542775" "906483" ...
 
 in_mine_only <-
@@ -140,15 +140,17 @@ in_mine_only |>
 # check dates ----
 vessel__permit__join__mine_ga <-
   vessel__permit__join |>
-  filter(official__ %in% in_mine)
+  filter(official__ %in% in_mine) |> 
+  distinct()
 
-# View(vessel__permit__join__mine_ga)
+dim(vessel__permit__join__mine_ga)
+# 24
 
-write_csv(
-  vessel__permit__join__mine_ga,
-  file.path(
+vessel__permit__join__mine_ga |>
+  select(official__) |>
+  distinct() |>
+  write_csv(file.path(
     my_paths$outputs,
     "home_ports",
     "vessel__permit__join__mine_ga.csv"
-  )
-)
+  ))
