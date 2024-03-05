@@ -482,15 +482,6 @@ vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__no_state <-
 nrow(vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__no_state)
 # 0
 
-## check for double ids/ports ----
-vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short |> 
-  distinct() |>
-  select(vessel_official_number) |>
-  count(vessel_official_number) |>
-  filter(n > 1) |>
-  nrow()
-# 0, ok
-
 # remove extra cols ----
 vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short <-
   vessels_from_pims_split_addr__city_state__fix2_ok__good_ids |>
@@ -509,6 +500,15 @@ vessels_from_pims_split_addr__city_state__fix2_ok__good_ids |>
   nrow()
 # 47
 # 50
+
+## check for double ids/ports ----
+vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short |> 
+  distinct() |>
+  select(vessel_official_number) |>
+  count(vessel_official_number) |>
+  filter(n > 1) |>
+  nrow()
+# 0, ok
 
 # print out ----
 out_dir <- file.path(my_paths$outputs,
