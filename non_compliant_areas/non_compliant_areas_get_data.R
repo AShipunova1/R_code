@@ -206,7 +206,7 @@ dir.exists(processed_input_data_path)
 
 # [1] "~\\R_files_local\\my_inputs\\processing_logbook_data//Outputs//SEFHIER_permitted_vessels_nonSRHS_2023.rds"
 # file names for all years
-processed_metrics_tracking_file_names <-
+processed_metrics_tracking_file_names_all <-
   list.files(
     path = processed_input_data_path,
     pattern =
@@ -214,6 +214,15 @@ processed_metrics_tracking_file_names <-
     recursive = TRUE,
     full.names = TRUE
   )
+
+processed_metrics_tracking_file_names <-
+  grep(
+    processed_metrics_tracking_file_names_all,
+    pattern = "Shortcut.lnk",
+    invert = TRUE,
+    value = TRUE
+  )
+
 
 # Explanations:
 # The variable 'processed_metrics_tracking_permits' is created by applying the 'read_rds' function to each element in the 'processed_metrics_tracking_file_names' list using the 'map_df' function from the 'purrr' package. The result is a combined data frame.
