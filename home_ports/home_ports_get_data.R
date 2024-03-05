@@ -130,8 +130,7 @@ permits_from_pims__split1_short__split2 <-
            sep = "-") |>
   mutate(across(starts_with('permit'),
                 str_squish))
-View(permits_from_pims__split1_short__split2)
-
+# View(permits_from_pims__split1_short__split2)
 
 ## vessels clean and shorten  ----
 vessels_from_pims_short <-
