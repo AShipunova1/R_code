@@ -1,7 +1,9 @@
 # 1) NO reports for all 26 weeks back from week ago today;
-# 2) permits have not expired as of today and were active for the same period as (1);
+# 2) permits have not expired and were active for the same period as (1);
 # 3) the grace period is 7 days back from today.
 # 4) It needs to be that we called at least 1 time and emailed at least 1 time. Or they contacted us at least once.
+
+# ----set up----
 
 # Get common functions
 source("~/R_code_github/useful_functions_module.r")
@@ -10,7 +12,6 @@ library(zoo)
 library(diffdf)
 # library(RColorBrewer)
 
-# ----set up----
 my_paths <- set_work_dir()
 
 current_project_path <- this.path::this.dir()
