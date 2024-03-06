@@ -603,3 +603,196 @@ prep_addresses_path <-
 file.exists(prep_addresses_path)
 
 source(prep_addresses_path)
+
+## ---- 2) remove extra columns ----
+
+contactphonenumber_field_name <-
+  find_col_name(compl_corr_to_investigation1, ".*contact", "number.*")[1]
+
+# print_df_names(compl_corr_to_investigation1__w_addr)
+
+# Explanations:
+# Group the dataframe by the 'vessel_official_number' column and then apply the 'summarise_all' function.
+# The 'summarise_all' function applies the specified function (in this case, 'concat_unique') to each column.
+
+# Note: 'concat_unique' is not a standard R function, it is a custom function defined previously.
+
+compl_corr_to_investigation1_short <-
+  compl_corr_to_investigation1__w_addr |>
+  # compl_corr_to_investigation1_w_non_compliant_weeks_n_date__contacttype_per_id |>
+  select(
+    "vessel_official_number",
+    "name",
+    "permit_expired",
+    "permitgroup",
+    "permit_groupexpiration",
+    "contactrecipientname",
+    !!contactphonenumber_field_name,
+    "contactemailaddress",
+    sero_home_port,
+    full_name,
+    full_address,
+    # "week_start",
+    "date__contacttypes"
+  ) |>
+  group_by(vessel_official_number) |>
+  summarise_all(concat_unique) |> 
+  ungroup()
+
+# compl_corr_to_investigation1_short |> glimpse()
+
+dim(compl_corr_to_investigation1_short)
+# [1] 107   9
+# 27: [1] 177  10
+# [1] 105   9
+# 108
+# [1] 262  12
+# 217
+
+## 3) mark vessels already in the know list ----
+# The first column (report created) indicates the vessels that we have created a case for. My advice would be not to exclude those vessels. EOs may have provided compliance assistance and/or warnings already. If that is the case and they continue to be non-compliant after that, they will want to know and we may need to reopen those cases.
+
+# today()
+# [1] "2023-07-11"
+# Data from the previous tab of "egregious violators for investigation"
+# Download first
+previous_egr_data_path <-
+  file.path(
+    my_paths$inputs,
+    current_project_name,
+    r"(egregious violators for investigation_2023-01-24_to_2023-08-01_OLEAction(green).xlsx)"
+  )
+
+file.exists(previous_egr_data_path)
+# T
+
+vessels_to_mark <-
+  read_xlsx(previous_egr_data_path) |> 
+  remove_empty_cols()
+
+# data_overview(vessels_to_remove)
+
+vessels_to_mark_ids <-
+  vessels_to_mark |>
+  select(vessel_official_number)
+
+dim(vessels_to_mark_ids)
+# [1] 96  1
+
+#### mark these vessels ----
+# Explanations:
+# Create a new column 'duplicate_w_last_time' in the dataframe 'compl_corr_to_investigation1_short'.
+# This column is marked with "duplicate" for rows where 'vessel_official_number' is present in the list of vessel IDs to mark as duplicates ('vessels_to_mark_ids').
+# For all other rows, it is marked as "new".
+compl_corr_to_investigation1_short_dup_marked <-
+  compl_corr_to_investigation1_short |>
+  mutate(
+    duplicate_w_last_time =
+      case_when(
+        vessel_official_number %in%
+          vessels_to_mark_ids$vessel_official_number ~ "duplicate",
+        .default = "new"
+      )
+  )
+
+dim(compl_corr_to_investigation1_short_dup_marked)
+# [1] 177  11
+# [1] 105  10
+# 108
+# 97
+# [1] 110  10 2 atmpts
+# [1] 116  10
+# [1] 262  13
+# [1] 217  13
+
+### check ----
+n_distinct(compl_corr_to_investigation1_short_dup_marked$vessel_official_number)
+# 107
+# 102
+# 27: 164
+# 177
+# 105
+# 108
+# 97
+# 110
+# 116
+# 2024-02-20
+# 262
+# 217
+
+## 4) add pims home port info ----
+compl_corr_to_investigation1_short_dup_marked__hailing_port <-
+  left_join(
+    compl_corr_to_investigation1_short_dup_marked,
+    processed_pims_home_ports,
+    join_by(vessel_official_number)
+  ) |> 
+  rename("hailing_port_city" = city_fixed,
+         "hailing_port_state" = state_fixed)
+
+# compl_corr_to_investigation1_short_dup_marked__hailing_port |> 
+#   select(sero_home_port, starts_with("hailing")) |> 
+#   distinct() |> 
+#   View()
+
+# compl_corr_to_investigation1_short_dup_marked__hailing_port
+## 5) how many are duals? ----
+# Explanations:
+# Create a new dataframe 'compl_corr_to_investigation1_short_dup_marked__permit_region'.
+# Use the 'mutate' function to add a new column 'permit_region' based on conditions.
+# If 'permitgroup' contains any of the specified patterns ("RCG", "HRCG", "CHG", "HCHG"),
+# set 'permit_region' to "dual". Otherwise, set 'permit_region' to "sa_only".
+# If none of the conditions are met, set 'permit_region' to "other".
+# The resulting dataframe includes the original columns from 'compl_corr_to_investigation1_short_dup_marked'
+# along with the newly added 'permit_region' column.
+
+compl_corr_to_investigation1_short_dup_marked__permit_region <-
+  compl_corr_to_investigation1_short_dup_marked__hailing_port |> 
+  # compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names__fhier_addr__mv_cols |>
+  mutate(permit_region =
+           case_when(
+             grepl("RCG|HRCG|CHG|HCHG", permitgroup) ~ "dual",
+             !grepl("RCG|HRCG|CHG|HCHG", permitgroup) ~ "sa_only",
+             .default = "other"
+           ))
+
+# Explanations:
+# Use the 'select' function to extract the columns 'vessel_official_number' and 'permit_region'
+# from the dataframe 'compl_corr_to_investigation1_short_dup_marked__permit_region'.
+# Use the 'distinct' function to keep only unique combinations of 'vessel_official_number' and 'permit_region'.
+# Use the 'count' function to count the occurrences of each unique 'permit_region'.
+# The resulting count provides the frequency of each 'permit_region'.
+region_counts <-
+  compl_corr_to_investigation1_short_dup_marked__permit_region |>
+  select(vessel_official_number, permit_region) |>
+  distinct() |>
+  count(permit_region)
+# 1 dual             56
+# 2 sa_only         206
+#   permit_region     n
+#   <chr>         <int>
+# 1 dual             51
+# 2 sa_only         166
+
+n_distinct(compl_corr_to_investigation1_short_dup_marked__permit_region$vessel_official_number)
+# 262
+# 217
+
+### dual permitted cnts ----
+# 56 / (206 + 56) * 100
+# 21.37405
+
+region_counts$n[[1]] / (region_counts$n[[2]] + region_counts$n[[1]]) * 100
+# 51 / (166 + 51) * 100
+# 23.5023%
+
+# Print out results ----
+
+result_path <- 
+  file.path(my_paths$outputs,
+            current_project_basename,
+            str_glue("egregious_violators_to_investigate_{today()}.csv"))
+
+write_csv(compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names__fhier_addr__mv_cols,
+          result_path)
+
