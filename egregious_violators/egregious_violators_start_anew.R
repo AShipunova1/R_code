@@ -526,11 +526,11 @@ num_of_vsl_to_investigate <-
 # 2) remove duplicated columns
 # 3) mark vessels already in the know list (prev_result)
 
-## ---- 1) create additional columns ----
+## 1) create additional columns ----
 
-## ----- list of contact dates and contact type in parentheses  -----
+### list of contact dates and contact type in parentheses  -----
 
-# # put names into vars
+# put names into vars
 contactdate_field_name <-
   find_col_name(compl_corr_to_investigation1, "contact", "date")[1]
 contacttype_field_name <-
@@ -594,3 +594,12 @@ dim(date__contacttype_per_id)
 
 # glimpse(date__contacttype_per_id)
 
+### prepare addresses ----
+
+prep_addresses_path <-
+  file.path(current_project_path,
+            str_glue("{current_project_basename}_prep_addresses.R"))
+
+file.exists(prep_addresses_path)
+
+source(prep_addresses_path)
