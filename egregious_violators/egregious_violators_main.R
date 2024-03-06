@@ -51,7 +51,8 @@ half_year_ago <-
   data_file_date - days_in_non_compl_weeks - grace_period
 # [1] "2023-08-11"
 
-permit_expired_check_date <- data_file_date
+# 30 days from today
+permit_expired_check_date <- data_file_date + 30
 
 last_week_start <- data_file_date - grace_period
 # [1] "2024-02-10"
@@ -64,6 +65,7 @@ source(get_data_path)
 
 # ---- Preparing compliance info ----
 
+## Permit Expiration ----
 ## ---- add permit_expired column ----
 # Explanations:
 # 1. Add a new column 'permit_expired' using 'mutate'.
@@ -72,7 +74,7 @@ source(get_data_path)
 
 compl_clean_w_permit_exp <-
   compl_clean |>
-  # if permit group expiration is today than "no"
+  # if permit group expiration is before permit_expired_check_date than "no"
   mutate(permit_expired =
            case_when(
              permit_groupexpiration > (permit_expired_check_date) ~ "no",
@@ -603,6 +605,9 @@ dim(date__contacttype_per_id)
 #           names(fhier_addr_short))
 # 0
 
+# compare ----
+
+
 ## join db_participant and fhier info ----
 db_fhier_addr <-
   full_join(
@@ -614,10 +619,14 @@ db_fhier_addr <-
 dim(db_fhier_addr)
 # [1] 55114    46
 
-db_fhier_addr |>
-  filter(!paste0(erv_ph_area, erv_ph_number) == phone_number) |>
-  select(erv_ph_area, erv_ph_number, phone_number) |>
-  dim()
+# here
+# print_df_names(db_fhier_addr)
+# [1] "vessel_official_number, permit_holder_names, physical_address_1, physical_address_2, physical_city, physical_county, physical_state, physical_zip_code, phone_number, primary_email, ser_id, uscg_documentation, state_registration, vchar_hull_id_number, vchar_vessel_name, is_primary, is_mail_rec, erv_entity_type, erv_entity_name, erb_entity_type, erb_entity_name"
+
+# db_fhier_addr |>
+#   filter(!paste0(erv_ph_area, erv_ph_number) == phone_number) |>
+#   select(erv_ph_area, erv_ph_number, phone_number) |>
+#   dim()
 # [1] 2125    3
 
 ## compare by join ----
