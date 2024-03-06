@@ -36,10 +36,9 @@ my_year2 <- "2024"
 my_beginning2 <- str_glue("{my_year2}-01-01")
 my_end2 <- str_glue("{my_year2}-12-31")
 
-data_file_date <- lubridate::ymd("2024-02-21")
-  # today()
-# [1] "2024-02-16"
-
+data_file_date <- today()
+  lubridate::ymd("2024-02-21")
+  
 number_of_weeks_for_non_compliancy = 26
 days_in_non_compl_weeks <- 
   number_of_weeks_for_non_compliancy * 7
@@ -66,15 +65,15 @@ source(get_data_path)
 # ---- Preparing compliance info ----
 
 ## Permit Expiration ----
-## ---- add permit_expired column ----
+### ---- add permit_expired column ----
 # Explanations:
 # 1. Add a new column 'permit_expired' using 'mutate'.
-# 2. Use 'case_when' to determine if 'permit_groupexpiration' is greater than today's date.
+# 2. Use 'case_when' to determine if 'permit_groupexpiration' is greater than permit_expired_check_date.
 # 3. If true, set 'permit_expired' to "no", otherwise set it to "yes".
 
 compl_clean_w_permit_exp <-
   compl_clean |>
-  # if permit group expiration is before permit_expired_check_date than "no"
+  # if permit group expiration is after permit_expired_check_date than "not expired"
   mutate(permit_expired =
            case_when(
              permit_groupexpiration > (permit_expired_check_date) ~ "no",
@@ -83,10 +82,31 @@ compl_clean_w_permit_exp <-
 
 # glimpse(compl_clean_w_permit_exp)
 
+### get only not expired last 27 weeks of data minus grace period ----
+compl_clean_w_permit_exp__not_exp <-
+  compl_clean_w_permit_exp |>
+  # the last 27 week
+  filter(week_start > half_year_ago) |>
+  # before the last week (a report's grace period)
+  filter(week_end < last_week_start) |>
+  # not expired
+  filter(tolower(permit_expired) == "no")
+
+min(compl_clean_w_permit_exp__not_exp$permit_groupexpiration)
+# [1] "2024-02-29 EST"
+
+min(compl_clean_w_permit_exp__not_exp$week_start)
+# [1] "2023-08-14"
+max(compl_clean_w_permit_exp__not_exp$week_start)
+# [1] "2024-01-29"
+
+max(compl_clean_w_permit_exp__not_exp$week_end)
+# [1] "2024-02-04"
+
 ## ---- add year_month column ----
 
 compl_clean_w_permit_exp_last_half_year <-
-  compl_clean_w_permit_exp |>
+  compl_clean_w_permit_exp__not_exp |>
   mutate(year_month = as.yearmon(week_start)) |>
   # keep entries for the last check period
   filter(year_month >= as.yearmon(half_year_ago))
@@ -122,49 +142,25 @@ today()
 dim(compl_clean_w_permit_exp_last_half_year__sa)
 # [1] 55194    22
 
-## get only not expired last 27 weeks of data minus grace period ----
-compl_clean_w_permit_exp_last_half_year__sa__not_exp <-
-  compl_clean_w_permit_exp_last_half_year__sa |>
-  # the last 27 week
-  filter(week_start > half_year_ago) |>
-  # before the last week (a report's grace period)
-  filter(week_end < last_week_start) |>
-  # not expired
-  filter(tolower(permit_expired) == "no")
-
-# View(compl_clean_w_permit_exp_last_half_year__sa__not_exp)
-# print_df_names(compl_clean_w_permit_exp_last_half_year__sa__not_exp)
-
-min(compl_clean_w_permit_exp_last_half_year__sa__not_exp$permit_groupexpiration)
-# [1] "2024-02-29 EST"
-
-min(compl_clean_w_permit_exp_last_half_year__sa__not_exp$week_start)
-# [1] "2023-08-14"
-max(compl_clean_w_permit_exp_last_half_year__sa__not_exp$week_start)
-# [1] "2024-01-29"
-
-max(compl_clean_w_permit_exp_last_half_year__sa__not_exp$week_end)
-# [1] "2024-02-04"
-
 ## keep only vessels with info for all weeks in the period ----
 all_weeks_num <- 
-compl_clean_w_permit_exp_last_half_year__sa__not_exp |>
+compl_clean_w_permit_exp_last_half_year__sa |>
   # filter(vessel_official_number == "NC5586WD") |> View()
   select(week) |> 
   distinct() |> 
   nrow()
 
 compl_clean_w_permit_exp_last_half_year__sa__not_exp__all_weeks_present <-
-  compl_clean_w_permit_exp_last_half_year__sa__not_exp |>
+  compl_clean_w_permit_exp_last_half_year__sa |>
   group_by(vessel_official_number) |>
   filter(n_distinct(week) >= all_weeks_num)
 
-compl_clean_w_permit_exp_last_half_year__sa__not_exp |> dim()
+compl_clean_w_permit_exp_last_half_year__sa |> dim()
 # [1] 55194    22
 
 # > compl_clean_w_permit_exp_last_half_year__sa__not_exp |> dim()
 # [1] 44756    22
-# dim(compl_clean_w_permit_exp_last_half_year__sa__not_exp__all_weeks_present)
+dim(compl_clean_w_permit_exp_last_half_year__sa__not_exp__all_weeks_present)
 # [1] 40275    22
 
 # compl_clean_w_permit_exp_last_half_year__sa__not_exp__all_weeks_present |>
@@ -203,7 +199,7 @@ dim(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short)
 
 ## work with the whole period ----
 
-# keep only 2 coulmns
+### keep only 2 columns ----
 compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates <- 
   compl_clean_w_permit_exp_last_half_year__sa__not_exp_short |>
   select(vessel_official_number, compliant_) |>
