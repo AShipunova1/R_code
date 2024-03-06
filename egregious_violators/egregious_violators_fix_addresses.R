@@ -4,6 +4,7 @@ is_empty <- c(NA, "NA", "", "UN", "N/A")
 # From FHIER ----
 
 ## fewer fields ----
+# fhier_addresses are from get_data
 fhier_addr_short <-
   fhier_addresses |>
   dplyr::select(
