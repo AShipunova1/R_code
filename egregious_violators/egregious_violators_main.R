@@ -602,7 +602,7 @@ dim(date__contacttype_per_id)
 #           names(fhier_addr_short))
 # 0
 
-# compare ----
+## compare ----
 
 
 ## join db_participant and fhier info ----
