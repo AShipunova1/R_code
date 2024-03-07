@@ -613,7 +613,24 @@ dim(date__contacttype_per_id)
 
 # glimpse(date__contacttype_per_id)
 
-### prepare addresses ----
+### add pims home port info ----
+compl_corr_to_investigation1_short_dup_marked__hailing_port <-
+  left_join(
+    compl_corr_to_investigation1_short_dup_marked,
+    processed_pims_home_ports,
+    join_by(vessel_official_number)
+  ) |> 
+  rename("hailing_port_city" = city_fixed,
+         "hailing_port_state" = state_fixed)
+
+# compl_corr_to_investigation1_short_dup_marked__hailing_port |> 
+#   select(sero_home_port, starts_with("hailing")) |> 
+#   distinct() |> 
+#   View()
+
+# compl_corr_to_investigation1_short_dup_marked__hailing_port
+
+### add prepared addresses ----
 
 prep_addresses_path <-
   file.path(current_project_path,
@@ -739,22 +756,6 @@ n_distinct(compl_corr_to_investigation1_short_dup_marked$vessel_official_number)
 # 262
 # 217
 
-## 4) add pims home port info ----
-compl_corr_to_investigation1_short_dup_marked__hailing_port <-
-  left_join(
-    compl_corr_to_investigation1_short_dup_marked,
-    processed_pims_home_ports,
-    join_by(vessel_official_number)
-  ) |> 
-  rename("hailing_port_city" = city_fixed,
-         "hailing_port_state" = state_fixed)
-
-# compl_corr_to_investigation1_short_dup_marked__hailing_port |> 
-#   select(sero_home_port, starts_with("hailing")) |> 
-#   distinct() |> 
-#   View()
-
-# compl_corr_to_investigation1_short_dup_marked__hailing_port
 ## 5) how many are duals? ----
 # Explanations:
 # Create a new dataframe 'compl_corr_to_investigation1_short_dup_marked__permit_region'.
