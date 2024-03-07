@@ -34,7 +34,7 @@ all_csv_names_list = c("Correspondence_2024_02_15.csv",
                          r"(2024_02_15\FHIER_Compliance_2023__02_15_2024.csv)",
                          r"(2024_02_15\FHIER_Compliance_2024__02_15_2024.csv)")
 
-## ---- get csv data into variables ----
+## ---- get compliance and correspondence csv data into variables ----
 from_fhier_data_path <-
   file.path(my_paths$inputs)
 
@@ -64,7 +64,6 @@ dim(compl_clean)
 dim(corresp_contact_cnts_clean0)
 # [1] 31038    20
 
-
 # get previous results ---
 prev_result_path <- 
   file.path(my_paths$inputs,
@@ -80,7 +79,7 @@ prev_result <-
 glimpse(prev_result)
 # [1] 96 18
 
-## get permits from FHIER Metric Tracking ----
+## get Metric Tracking (permits from FHIER) ----
 processed_input_data_path <- 
   file.path(my_paths$inputs,
             "processing_logbook_data",
@@ -116,7 +115,7 @@ names(processed_metrics_tracking_permits) <-
 dim(processed_metrics_tracking_permits)
 # [1] 6822    9
 
-## Physical Address List from FHIER ----
+## get Physical Address List from FHIER ----
 # REPORTS / For-hire Primary Physical Address List
 
 fhier_addresses_path <-
@@ -136,7 +135,7 @@ fhier_addresses <-
 # View(fhier_addresses)
 
 # PIMS ----
-# ## Get vessels from PIMS ----
+# ## Get vessels from PIMS
 # # hailing port
 # get_vessel_data_pims <-
 #   function(vessel_names_file_path,
@@ -233,7 +232,7 @@ dim(db_participants_asddress)
 
 # 2024-03-01 run for db_participants_asddress.rds: 35.25 sec elapsed
 
-## get_vessels with permits and sero_home_port ----
+## get sero_home_port from vessels with permits and sero_home_port ----
 vessel_permit_where_part <-
   "
     p.permit_status <> 'REVOKED'
@@ -362,12 +361,16 @@ dim(vessels_permits_participants)
 
 # Results ----
 results <-
-  c("db_participants_asddress",
-    "vessels_permits_participants",
+  c(
     "compl_clean",
     "corresp_contact_cnts_clean0",
-    "processed_pims_home_ports"
-)
+    "prev_result",
+    "processed_metrics_tracking_permits",
+    "fhier_addresses",
+    "processed_pims_home_ports",
+    "db_participants_asddress",
+    "vessels_permits_participants"
+  )
 
 cat(c("Data are in:",
       results),
