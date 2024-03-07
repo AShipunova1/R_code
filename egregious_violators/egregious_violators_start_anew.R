@@ -554,11 +554,12 @@ num_of_vsl_to_investigate <-
 # compl_corr_to_investigation1
 
 # ---- output needed investigation ----
-# 1 remove unused columns
-# 2) create additional columns
-# 3) mark vessels already in the know list (prev_result)
+# 1. remove unused columns
+# 2. create additional columns
+# 3. mark vessels already in the know list (prev_result)
+# 4. duals vs. sa_only
 
-## ---- 1) remove extra columns ----
+## 1. remove extra columns ----
 
 # Explanations:
 # Group the dataframe by the 'vessel_official_number' column and then apply the 'summarise_all' function.
@@ -618,8 +619,7 @@ dim(compl_corr_to_investigation1_short)
 # [1] 262  12
 # 217
 
-
-## 2) create additional columns ----
+## 2. create additional columns ----
 ### add list of contact dates and contact type in parentheses  -----
 
 # put names into vars (needed, bc spaces and underscores placements vary from source to source)
@@ -684,6 +684,7 @@ compl_corr_to_investigation__corr_date <-
   left_join(compl_corr_to_investigation1_short,
             date__contacttype_per_id) |>
   # Joining with `by = join_by(vessel_official_number)`
+  # this columns are not longer needed
   select(-all_of(c(
     contactdate_field_name,
     contacttype_field_name
