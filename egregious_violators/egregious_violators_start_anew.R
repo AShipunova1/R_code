@@ -716,51 +716,6 @@ file.exists(prep_addresses_path)
 
 source(prep_addresses_path)
 
-## ---- 2) remove extra columns ----
-
-contactphonenumber_field_name <-
-  find_col_name(compl_corr_to_investigation1, ".*contact", "number.*")[1]
-
-# print_df_names(compl_corr_to_investigation1__w_addr)
-
-# Explanations:
-# Group the dataframe by the 'vessel_official_number' column and then apply the 'summarise_all' function.
-# The 'summarise_all' function applies the specified function (in this case, 'concat_unique') to each column.
-
-# Note: 'concat_unique' is not a standard R function, it is a custom function defined previously.
-
-compl_corr_to_investigation1_short <-
-  compl_corr_to_investigation1__w_addr |>
-  # compl_corr_to_investigation1_w_non_compliant_weeks_n_date__contacttype_per_id |>
-  select(
-    "vessel_official_number",
-    "name",
-    "permit_expired",
-    "permitgroup",
-    "permit_groupexpiration",
-    "contactrecipientname",
-    !!contactphonenumber_field_name,
-    "contactemailaddress",
-    sero_home_port,
-    full_name,
-    full_address,
-    # "week_start",
-    "date__contacttypes"
-  ) |>
-  group_by(vessel_official_number) |>
-  summarise_all(concat_unique) |> 
-  ungroup()
-
-# compl_corr_to_investigation1_short |> glimpse()
-
-dim(compl_corr_to_investigation1_short)
-# [1] 107   9
-# 27: [1] 177  10
-# [1] 105   9
-# 108
-# [1] 262  12
-# 217
-
 ## 3) mark vessels already in the know list ----
 # The first column (report created) indicates the vessels that we have created a case for. My advice would be not to exclude those vessels. EOs may have provided compliance assistance and/or warnings already. If that is the case and they continue to be non-compliant after that, they will want to know and we may need to reopen those cases.
 
