@@ -385,6 +385,9 @@ compl_clean_w_permit_exp_last_half_year__sa |>
 # # [1] 319   6
 # # [1] 219   6
 # 
+
+# prepared Compliance is in compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c
+
 # ---- Preparing Correspondence ----
 
 ## ---- remove 999999 ----
@@ -412,6 +415,7 @@ n_distinct(corresp_contact_cnts_clean$vesselofficial_number)
 # Michelle
 # It needs to be that we called at least 1 time and emailed at least 1 time. Or they contacted us at least once.
 
+# check
 corresp_contact_cnts_clean |>
   select(calltype, voicemail, contacttype) |>
   distinct() |> head(10)
@@ -471,8 +475,9 @@ n_distinct(corresp_contact_cnts_clean_direct_cnt_2atmps$vesselofficial_number)
 # 4118
 
 ## fix dates ----
-head(corresp_contact_cnts_clean_direct_cnt_2atmps$contact_date, 1)
-# [1] "02/15/2024 03:15PM"
+# check
+head(corresp_contact_cnts_clean_direct_cnt_2atmps$contact_date, 1) |> str()
+ # chr "02/15/2024 03:15PM"
 
 # Explanations:
 # Mutate new columns 'created_on_dttm' and 'contact_date_dttm' by parsing 'created_on' and 'contact_date' using lubridate package.
@@ -492,8 +497,12 @@ corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates <-
                                  c("mdY R"))
   )
 
+# check
 str(corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates$contact_date_dttm)
 # POSIXct[1:29089], format: "2024-02-15 15:15:00" 
+
+# preprared Correspondence is in 
+# corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates
 
 # Join correspondence with compliance ----
 # Explanations:
@@ -507,7 +516,7 @@ str(corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates$contact_date_dttm)
 compl_corr_to_investigation1 <-
   inner_join(
     corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates,
-    compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_ok,
+    compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c,
     by = c("vessel_official_number"),
     multiple = "all",
     relationship = "many-to-many"
@@ -535,7 +544,7 @@ n_distinct(compl_corr_to_investigation1$vesselofficial_number)
 
 # View(compl_corr_to_investigation1)
 
-## save number of vessels to investigate ----
+## save number of vessels to investigate for checks ----
 num_of_vsl_to_investigate <- 
   n_distinct(compl_corr_to_investigation1$vesselofficial_number)
 # 262
@@ -548,25 +557,15 @@ num_of_vsl_to_investigate <-
 
 ## 1) create additional columns ----
 
-### list of contact dates and contact type in parentheses  -----
+### add list of contact dates and contact type in parentheses  -----
 
-# put names into vars
+# put names into vars (needed, bc spaces and underscores placements vary from source to source)
 contactdate_field_name <-
   find_col_name(compl_corr_to_investigation1, "contact", "date")[1]
+
 contacttype_field_name <-
   find_col_name(compl_corr_to_investigation1, "contact", "type")[1]
  
-# write.csv(compl_corr_to_investigation1,
-#           file.path(
-#             my_paths$outputs,
-#             paste0(              "more_than_24_compl_corr_to_investigation1_22_23__",
-#               today(),
-#               ".csv"
-#             )
-#           ),
-#           row.names = FALSE)
-# # 435 distinct ids
-
 # Explanations:
 # Define a function 'get_date_contacttype' that takes a dataframe 'compl_corr_to_investigation1' as input.
 # Perform several data manipulation steps to extract and organize relevant information.
@@ -583,7 +582,7 @@ get_date_contacttype <-
       # add a new column date__contacttype with contactdate and contacttype
       mutate(date__contacttype =
                       paste(!!sym(contactdate_field_name),
-                            contacttype)) |>
+                            !!sym(contacttype_field_name))) |>
       # use 2 columns only
       select(vessel_official_number, date__contacttype) |>
       # sort
