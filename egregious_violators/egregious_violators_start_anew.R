@@ -560,6 +560,64 @@ num_of_vsl_to_investigate <-
 
 ## ---- 1) remove extra columns ----
 
+# Explanations:
+# Group the dataframe by the 'vessel_official_number' column and then apply the 'summarise_all' function.
+# The 'summarise_all' function applies the specified function (in this case, 'concat_unique') to each column.
+
+# Note: 'concat_unique' is not a standard R function, it is a custom function defined previously.
+
+colnames(compl_corr_to_investigation1) |> 
+  cat(sep = '",\n"')
+
+unused_fields <- c(
+  "vesselofficial_number",
+  "primary",
+  # "contact_date",
+  "follow_up",
+  "log_group",
+  "calltype",
+  "voicemail",
+  # "contacttype",
+  "contact_reason",
+  # "contactrecipientname",
+  # "contactphone_number",
+  # "contactemailaddress",
+  "contactcomments",
+  "srfhuser",
+  "created_on",
+  "follow_up_nbr",
+  "srhs_vessel",
+  # "vessel_official_number",
+  "was_contacted",
+  "contact_freq",
+  "created_on_dttm",
+  # "contact_date_dttm",
+  # "name",
+  # "permit_expired",
+  # "permitgroup",
+  # "permit_groupexpiration",
+  "is_compl_or_both")
+
+compl_corr_to_investigation1_short <-
+  compl_corr_to_investigation1 |>
+  # compl_corr_to_investigation1_w_non_compliant_weeks_n_date__contacttype_per_id |>
+  select(-any_of(unused_fields)) |>
+  group_by(vessel_official_number) |>
+  summarise_all(concat_unique) |>
+  ungroup()
+
+# print_df_names(compl_corr_to_investigation1_short)
+
+# compl_corr_to_investigation1_short |> glimpse()
+
+dim(compl_corr_to_investigation1_short)
+# [1] 107   9
+# 27: [1] 177  10
+# [1] 105   9
+# 108
+# [1] 262  12
+# 217
+
 ### add list of contact dates and contact type in parentheses  -----
 
 # put names into vars (needed, bc spaces and underscores placements vary from source to source)
