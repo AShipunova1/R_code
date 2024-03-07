@@ -65,7 +65,16 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr <-
 
 # View(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
 
-### combine fhier addresses from correspondence and the physical addr.
+# check if no name, phone or email
+compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>
+  filter(
+    is.na(contactrecipientname) |
+      is.na(contactphone_number) |
+      is.na(contactemailaddress)
+  ) |> nrow()
+0
+
+### combine fhier info from correspondence and the physical addr.
 
 coacross <- function(...) {
   coalesce(!!!across(...))
