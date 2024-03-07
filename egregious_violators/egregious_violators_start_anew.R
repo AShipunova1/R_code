@@ -63,6 +63,15 @@ get_data_path <-
   file.path(current_project_path, "egregious_violators_get_data.R")
 source(get_data_path)
 
+# compl_clean
+# corresp_contact_cnts_clean0
+# prev_result
+# processed_metrics_tracking_permits
+# fhier_addresses
+# processed_pims_home_ports
+# db_participants_asddress
+# vessels_permits_participants
+
 # ---- Preparing compliance info ----
 
 ## Permit Expiration ----
@@ -77,7 +86,7 @@ compl_clean_w_permit_exp <-
   # if permit group expiration is after permit_expired_check_date than "not expired"
   mutate(permit_expired =
            case_when(
-             permit_groupexpiration > (permit_expired_check_date) ~ "no",
+             permit_groupexpiration > permit_expired_check_date ~ "no",
              .default = "yes"
            ))
 
@@ -155,7 +164,8 @@ all_weeks_num <-
 compl_clean_w_permit_exp_last_half_year__sa__not_exp__all_weeks_present <-
   compl_clean_w_permit_exp_last_half_year__sa |>
   group_by(vessel_official_number) |>
-  filter(n_distinct(week) >= all_weeks_num)
+  filter(n_distinct(week) >= all_weeks_num) |> 
+  ungroup()
 
 compl_clean_w_permit_exp_last_half_year__sa |> dim()
 # [1] 55194    22
@@ -164,10 +174,6 @@ compl_clean_w_permit_exp_last_half_year__sa |> dim()
 # [1] 44756    22
 dim(compl_clean_w_permit_exp_last_half_year__sa__not_exp__all_weeks_present)
 # [1] 40275    22
-
-# compl_clean_w_permit_exp_last_half_year__sa__not_exp__all_weeks_present |>
-#   filter(vessel_official_number == "NC5586WD") |> dim()
-# 0
 
 ## fewer columns ----
 remove_columns <- c(
@@ -194,8 +200,6 @@ compl_clean_w_permit_exp_last_half_year__sa__not_exp_short <-
   select(-any_of(remove_columns)) |> 
   distinct()
 
-dim(compl_clean_w_permit_exp_last_half_year__sa)
-# [1] 55194    22
 dim(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short)
 # [1] 40275     9
 
@@ -225,9 +229,15 @@ compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__wide__long 
 # back_to_long: 21.31 sec elapsed with 22 cols
 # back_to_long: 0.87 sec elapsed with 6 cols
 
+# compl_clean_w_permit_exp |> 
+#   filter(vessel_official_number == "VA8261ZY") |> 
+#   View()
+
 compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__wide__long$is_compl_or_both |> 
   unique()
 # [1] "YES"    "NO"     "NO_YES"
+
+# TODO: No egregious violators if only "YES" and "NO_YES". Stop here.
 
 dim(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__wide__long)
 # [1] 2246    2
@@ -243,6 +253,11 @@ n_distinct(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__
 
 ## get only all "compliant_ == "NO" for the past half year ----
 # View(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__wide__long)
+# compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp <-
+#   compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__wide__long |> 
+#   filter(tolower(is_compl_or_both) == "no_yes")
+
+# Commented out for test purposes, uncomment in production!
 compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp <-
   compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__wide__long |>
   # not compliant
@@ -318,8 +333,8 @@ compl_clean_w_permit_exp_last_half_year__sa |>
            year_month < as.yearmon(data_file_date)) |>
   # dim()
 # [1] 11 22
-  glimpse()
-# 0
+  nrow()
+# 0 OK!
 
 ## get only the latest compliant weeks ----
 # Explanations:
