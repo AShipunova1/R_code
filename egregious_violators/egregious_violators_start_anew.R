@@ -618,15 +618,20 @@ dim(compl_corr_to_investigation1_short)
 # [1] 262  12
 # 217
 
+
+## 2) create additional columns ----
 ### add list of contact dates and contact type in parentheses  -----
 
 # put names into vars (needed, bc spaces and underscores placements vary from source to source)
 contactdate_field_name <-
-  find_col_name(compl_corr_to_investigation1, "contact", "date")[1]
+  find_col_name(compl_corr_to_investigation1_short, "contact", "date")[1]
 
 contacttype_field_name <-
-  find_col_name(compl_corr_to_investigation1, "contact", "type")[1]
- 
+  find_col_name(compl_corr_to_investigation1_short, "contact", "type")[1]
+
+contactphonenumber_field_name <-
+  find_col_name(compl_corr_to_investigation1_short, ".*contact", "number.*")[1]
+
 # Explanations:
 # Define a function 'get_date_contacttype' that takes a dataframe 'compl_corr_to_investigation1' as input.
 # Perform several data manipulation steps to extract and organize relevant information.
@@ -638,8 +643,8 @@ contacttype_field_name <-
 # 6. Summarize the data by creating a new column 'date__contacttypes' that concatenates all 'date__contacttype' values for each vessel separated by a comma.
 # 7. Return the resulting dataframe.
 get_date_contacttype <-
-  function(compl_corr_to_investigation1) {
-    compl_corr_to_investigation1 |>
+  function(my_df) {
+    my_df |>
       # add a new column date__contacttype with contactdate and contacttype
       mutate(date__contacttype =
                       paste(!!sym(contactdate_field_name),
@@ -658,7 +663,7 @@ get_date_contacttype <-
 
 # use the function
 date__contacttype_per_id <-
-  get_date_contacttype(compl_corr_to_investigation1)
+  get_date_contacttype(compl_corr_to_investigation1_short)
 
 dim(date__contacttype_per_id)
 # [1] 110    2
@@ -673,32 +678,33 @@ dim(date__contacttype_per_id)
 # 217
 
 # glimpse(date__contacttype_per_id)
-#### add the new column back ----
-compl_corr_to_investigation2 <- 
-  left_join(compl_corr_to_investigation1,
-            date__contacttype_per_id)
-# Joining with `by = join_by(vessel_official_number)`
 
+#### add the new column back ----
+compl_corr_to_investigation__corr_date <-
+  left_join(compl_corr_to_investigation1_short,
+            date__contacttype_per_id) |>
+  # Joining with `by = join_by(vessel_official_number)`
+  select(-all_of(c(
+    contactdate_field_name,
+    contacttype_field_name
+  )))
+  
 # check
-compl_corr_to_investigation2 |> 
+compl_corr_to_investigation__corr_date |> 
   glimpse()
 
 ### add pims home port info ----
-compl_corr_to_investigation1_short_dup_marked__hailing_port <-
+# compl_corr_to_investigation1_short_dup_marked__hailing_port <-
+compl_corr_to_investigation__corr_date__hailing_port <- 
   left_join(
-    compl_corr_to_investigation1_short_dup_marked,
+    compl_corr_to_investigation__corr_date,
     processed_pims_home_ports,
     join_by(vessel_official_number)
   ) |> 
   rename("hailing_port_city" = city_fixed,
          "hailing_port_state" = state_fixed)
 
-# compl_corr_to_investigation1_short_dup_marked__hailing_port |> 
-#   select(sero_home_port, starts_with("hailing")) |> 
-#   distinct() |> 
-#   View()
-
-# compl_corr_to_investigation1_short_dup_marked__hailing_port
+# stopped here with compl_corr_to_investigation__corr_date__hailing_port
 
 ### add prepared addresses ----
 
