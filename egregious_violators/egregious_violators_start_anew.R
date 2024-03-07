@@ -550,6 +550,9 @@ num_of_vsl_to_investigate <-
 # 262
 # 217
 
+# Compl & corresondence together are in
+# compl_corr_to_investigation1
+
 # ---- output needed investigation ----
 # 1) create additional columns
 # 2) remove duplicated columns
@@ -612,6 +615,15 @@ dim(date__contacttype_per_id)
 # 217
 
 # glimpse(date__contacttype_per_id)
+#### add the new column back ----
+compl_corr_to_investigation2 <- 
+  left_join(compl_corr_to_investigation1,
+            date__contacttype_per_id)
+# Joining with `by = join_by(vessel_official_number)`
+
+# check
+compl_corr_to_investigation2 |> 
+  glimpse()
 
 ### add pims home port info ----
 compl_corr_to_investigation1_short_dup_marked__hailing_port <-
