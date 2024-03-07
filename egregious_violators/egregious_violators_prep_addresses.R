@@ -52,14 +52,18 @@ fhier_addr_short__comb_addr <-
   clean_names_and_addresses() |> 
   distinct()
 
-# dim(fhier_addr_short__comb_addr)
+dim(fhier_addr_short__comb_addr)
 # [1] 2390    5
+
+print_df_names(fhier_addr_short__comb_addr)
+
 
 ## 1) add names ----
 # View(fhier_addresses)
+View(compl_corr_to_investigation__corr_date__hailing_port)
 
 no_name_vsl_ids <- 
-  compl_corr_to_investigation1_short_dup_marked__permit_region |>
+  compl_corr_to_investigation__corr_date__hailing_port |>
   filter(full_name %in% is_empty) |> 
   select(vessel_official_number) |> 
   distinct()
