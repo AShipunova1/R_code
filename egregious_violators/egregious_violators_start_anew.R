@@ -336,53 +336,55 @@ compl_clean_w_permit_exp_last_half_year__sa |>
   nrow()
 # 0 OK!
 
-## get only the latest compliant weeks ----
-# Explanations:
-# Create a new data frame 'compliant_in_last_half_year' containing information about vessels that were compliant in the last half year.
-# 1. Use 'filter' to select rows where 'vessel_official_number' is in 'compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_short_vesl_ids'.
-# 2. Group the data by 'vessel_official_number'.
-# 3. Use 'filter' to select rows where 'compliant_' is "yes", 'year_month' is before the current month, and 'week_num' is the maximum value for each group.
-# 4. Calculate the 'latest_compl' as the maximum 'week_num'.
-# 5. Use another 'filter' to select rows where 'week_num' is equal to 'latest_compl'.
-# 6. Use 'ungroup' to remove grouping.
-# 7. Select specific columns ('vessel_official_number', 'year_month', 'week', 'latest_compl').
-# 8. Use 'distinct' to keep only unique rows.
+# not needed, taken care of in "## get only all "compliant_ == "NO" for the past half year"
 
-compliant_in_last_half_year <-
-  compl_clean_w_permit_exp_last_half_year__sa |>
-  filter(
-    vessel_official_number %in% compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_short_vesl_ids$vessel_official_number
-  ) |>
-  group_by(vessel_official_number) |>
-  filter(tolower(compliant_) == "yes" &
-           # not the current month
-           year_month < as.yearmon(data_file_date)) |>
-  mutate(latest_compl = max(week_num)) |>
-  filter(week_num == latest_compl) |>
-  ungroup() |>
-  select(vessel_official_number,
-                year_month,
-                week,
-                latest_compl) |>
-  distinct()
-
-glimpse(compliant_in_last_half_year)
-# Rows: 9
-# Columns: 3
-# $ vessel_official_number <chr> "1332041", "1284153", "FL9738SR", "FL7361TJ", "FL…
-# $ year_month             <yearmon> Aug 2023, Aug 2023, Aug 2023, Aug 2023, Aug 2…
-# $ latest_compl           <int> 33, 33, 32, 32, 32, 32, 32, 32, 32
-
-## Remove the vessels with the last compliant weeks ----
-
-compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_ok <-
-  compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c |>
-  filter(!vessel_official_number %in% compliant_in_last_half_year$vessel_official_number)
-
-dim(compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_ok)
-# [1] 319   6
-# [1] 219   6
-
+# ## get only the latest compliant weeks
+# # Explanations:
+# # Create a new data frame 'compliant_in_last_half_year' containing information about vessels that were compliant in the last half year.
+# # 1. Use 'filter' to select rows where 'vessel_official_number' is in 'compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_short_vesl_ids'.
+# # 2. Group the data by 'vessel_official_number'.
+# # 3. Use 'filter' to select rows where 'compliant_' is "yes", 'year_month' is before the current month, and 'week_num' is the maximum value for each group.
+# # 4. Calculate the 'latest_compl' as the maximum 'week_num'.
+# # 5. Use another 'filter' to select rows where 'week_num' is equal to 'latest_compl'.
+# # 6. Use 'ungroup' to remove grouping.
+# # 7. Select specific columns ('vessel_official_number', 'year_month', 'week', 'latest_compl').
+# # 8. Use 'distinct' to keep only unique rows.
+# 
+# compliant_in_last_half_year <-
+#   compl_clean_w_permit_exp_last_half_year__sa |>
+#   filter(
+#     vessel_official_number %in% compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_short_vesl_ids$vessel_official_number
+#   ) |>
+#   group_by(vessel_official_number) |>
+#   filter(tolower(compliant_) == "yes" &
+#            # not the current month
+#            year_month < as.yearmon(data_file_date)) |>
+#   mutate(latest_compl = max(week_num)) |>
+#   filter(week_num == latest_compl) |>
+#   ungroup() |>
+#   select(vessel_official_number,
+#                 year_month,
+#                 week,
+#                 latest_compl) |>
+#   distinct()
+# 
+# glimpse(compliant_in_last_half_year)
+# # Rows: 9
+# # Columns: 3
+# # $ vessel_official_number <chr> "1332041", "1284153", "FL9738SR", "FL7361TJ", "FL…
+# # $ year_month             <yearmon> Aug 2023, Aug 2023, Aug 2023, Aug 2023, Aug 2…
+# # $ latest_compl           <int> 33, 33, 32, 32, 32, 32, 32, 32, 32
+# 
+# ## Remove the vessels with the last compliant weeks
+# 
+# compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_ok <-
+#   compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c |>
+#   filter(!vessel_official_number %in% compliant_in_last_half_year$vessel_official_number)
+# 
+# dim(compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_ok)
+# # [1] 319   6
+# # [1] 219   6
+# 
 # ---- Preparing Correspondence ----
 
 ## ---- remove 999999 ----
