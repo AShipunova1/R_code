@@ -20,8 +20,10 @@
 # 5) vessel and permit information from Oracle db
 # "vessels_permits_participants.rds"
 
-# 6) home port processed city and state
+# 6) home port processed city and state from PIMS
 # "~\R_files_local\my_outputs\home_ports\vessels_from_pims_ports.csv"
+
+# FHIER ----
 
 # Compliance
 # Correspondence
@@ -78,7 +80,7 @@ prev_result <-
 glimpse(prev_result)
 # [1] 96 18
 
-# get permits from FHIER Metric Tracking ----
+## get permits from FHIER Metric Tracking ----
 processed_input_data_path <- 
   file.path(my_paths$inputs,
             "processing_logbook_data",
@@ -114,47 +116,7 @@ names(processed_metrics_tracking_permits) <-
 dim(processed_metrics_tracking_permits)
 # [1] 6822    9
 
-# Get vessels from PIMS ----
-get_vessel_data_pims <-
-  function(vessel_names_file_path,
-           to_skip = 0,
-           my_sheet = "Sheet 1") {
-    # file.exists(vessel_names_file_path)
-    
-    vessels_from_pims_raw <-
-      read_xlsx(vessel_names_file_path,
-                sheet = my_sheet,
-                skip = to_skip)
-    
-    # clean_headers
-    vessels_from_pims <-
-      vessels_from_pims_raw %>%
-      clean_headers()
-    
-    return(vessels_from_pims)
-  }
-
-vessel_data_pims_double_address <-
-    file.path(my_paths$inputs,
-              r"(non_compliant_areas\vessels_permit_hailng_port_double_name.xlsx)")
-
-vessel_names_file_path <- 
-    file.path(my_paths$inputs,
-              r"(non_compliant_areas\Vessels - 2024-02-12_1633.xlsx)")
-
-vessels_from_pims <- get_vessel_data_pims(vessel_names_file_path)
-
-dim(vessels_from_pims)
-# [1] 23059     8
-
-vessels_from_pims_double <- 
-  get_vessel_data_pims(vessel_data_pims_double_address,
-                       to_skip = 0)
-
-dim(vessels_from_pims_double)
-# [1] 652   3
-
-# Physical Address List from FHIER ----
+## Physical Address List from FHIER ----
 # REPORTS / For-hire Primary Physical Address List
 
 fhier_addresses_path <-
@@ -173,8 +135,63 @@ fhier_addresses <-
 
 # View(fhier_addresses)
 
-# get info from the db ----
-# get addresses ----
+# PIMS ----
+# ## Get vessels from PIMS ----
+# # hailing port
+# get_vessel_data_pims <-
+#   function(vessel_names_file_path,
+#            to_skip = 0,
+#            my_sheet = "Sheet 1") {
+#     # file.exists(vessel_names_file_path)
+#     
+#     vessels_from_pims_raw <-
+#       read_xlsx(vessel_names_file_path,
+#                 sheet = my_sheet,
+#                 skip = to_skip)
+#     
+#     # clean_headers
+#     vessels_from_pims <-
+#       vessels_from_pims_raw %>%
+#       clean_headers()
+#     
+#     return(vessels_from_pims)
+#   }
+# 
+# vessel_data_pims_double_address <-
+#     file.path(my_paths$inputs,
+#               r"(non_compliant_areas\vessels_permit_hailng_port_double_name.xlsx)")
+# 
+# vessel_names_file_path <- 
+#     file.path(my_paths$inputs,
+#               r"(non_compliant_areas\Vessels - 2024-02-12_1633.xlsx)")
+# 
+# vessels_from_pims <- get_vessel_data_pims(vessel_names_file_path)
+# 
+# dim(vessels_from_pims)
+# # [1] 23059     8
+# 
+# vessels_from_pims_double <- 
+#   get_vessel_data_pims(vessel_data_pims_double_address,
+#                        to_skip = 0)
+# 
+# dim(vessels_from_pims_double)
+# # [1] 652   3
+# 
+## get home port processed city and state ----
+
+processed_pims_home_ports_path <-
+  file.path(my_paths$outputs,
+              "home_ports",
+              "vessels_from_pims_ports.csv")
+
+processed_pims_home_ports <- 
+  read_csv(processed_pims_home_ports_path)
+
+# View(processed_pims_home_ports)
+# View(vessels_from_pims) - more fields
+
+# Oracle db ----
+## get owners addresses ----
 db_participants_asddress_query <-
   "select * from
 SRH.MV_SERO_VESSEL_ENTITY@Secapxdv_Dblk.sfsc.noaa.gov
@@ -216,7 +233,7 @@ dim(db_participants_asddress)
 
 # 2024-03-01 run for db_participants_asddress.rds: 35.25 sec elapsed
 
-# get_vessels with permits and participants ----
+## get_vessels with permits and sero_home_port ----
 vessel_permit_where_part <-
   "
     p.permit_status <> 'REVOKED'
@@ -342,16 +359,6 @@ dim(vessels_permits_participants)
 # [1] 31942    38
 # [1] "2024-02-16"
 # [1] 30511    38
-
-# get home port processed city and state ----
-
-processed_pims_home_ports_path <-
-  file.path(my_paths$outputs,
-              "home_ports",
-              "vessels_from_pims_ports.csv")
-
-processed_pims_home_ports <- 
-  read_csv(processed_pims_home_ports_path)
 
 # Results ----
 results <-
