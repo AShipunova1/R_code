@@ -37,7 +37,8 @@ my_year2 <- "2024"
 my_beginning2 <- str_glue("{my_year2}-01-01")
 my_end2 <- str_glue("{my_year2}-12-31")
 
-data_file_date <- today()
+data_file_date <- 
+  # today()
   lubridate::ymd("2024-02-21")
   
 number_of_weeks_for_non_compliancy = 26
@@ -55,8 +56,7 @@ half_year_ago <-
 permit_expired_check_date <- data_file_date + 30
 
 last_week_start <- data_file_date - grace_period
-# [1] "2024-02-10"
-  
+
 # get_data ----
 
 get_data_path <- 
@@ -98,6 +98,7 @@ min(compl_clean_w_permit_exp__not_exp$permit_groupexpiration)
 
 min(compl_clean_w_permit_exp__not_exp$week_start)
 # [1] "2023-08-14"
+
 max(compl_clean_w_permit_exp__not_exp$week_start)
 # [1] "2024-01-29"
 
@@ -144,11 +145,11 @@ dim(compl_clean_w_permit_exp_last_half_year__sa)
 # [1] 55194    22
 
 ## keep only vessels with info for all weeks in the period ----
-all_weeks_num <- 
-compl_clean_w_permit_exp_last_half_year__sa |>
+all_weeks_num <-
+  compl_clean_w_permit_exp_last_half_year__sa |>
   # filter(vessel_official_number == "NC5586WD") |> View()
-  select(week) |> 
-  distinct() |> 
+  select(week) |>
+  distinct() |>
   nrow()
 
 compl_clean_w_permit_exp_last_half_year__sa__not_exp__all_weeks_present <-
@@ -241,6 +242,7 @@ n_distinct(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__
 # [1] 1611    2
 
 ## get only all "compliant_ == "NO" for the past half year ----
+# View(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__wide__long)
 compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp <-
   compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__wide__long |>
   # not compliant
@@ -317,6 +319,7 @@ compl_clean_w_permit_exp_last_half_year__sa |>
   # dim()
 # [1] 11 22
   glimpse()
+# 0
 
 ## get only the latest compliant weeks ----
 # Explanations:
