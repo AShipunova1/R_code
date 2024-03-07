@@ -121,10 +121,10 @@ dim(processed_metrics_tracking_permits)
 fhier_addresses_path <-
   file.path(
     my_paths$inputs,
-    r"(from PIMS\address\For-hire Primary Physical Address List_02_21_2024.csv)"
+    r"(from_Fhier\address\For-hire Primary Physical Address List_02_21_2024.csv)"
   )
 
-# file.exists(fhier_addresses_path)
+file.exists(fhier_addresses_path)
 
 fhier_addresses <-
   read_csv(fhier_addresses_path,
