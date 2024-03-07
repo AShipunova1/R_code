@@ -74,7 +74,7 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>
   ) |> nrow()
 0
 
-### vessels with no addresses ----
+## vessels with no addresses ----
 
 # print_df_names(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
 no_addr_vsl_ids <- 
@@ -88,3 +88,4 @@ n_distinct(no_addr_vsl_ids$vessel_official_number)
 # 71
 # [1] "656222"   "FL0450JN"
 
+# From PIMS ----
