@@ -4,7 +4,7 @@ is_empty <- c(NA, "NA", "", "UN", "N/A")
 # From FHIER ----
 
 ## fewer fields ----
-# fhier_addresses are from get_data
+# fhier_addresses are from get_data (For-hire Primary Physical Address List)
 fhier_addr_short <-
   fhier_addresses |>
   dplyr::select(
@@ -20,47 +20,83 @@ fhier_addr_short <-
     primary_email
   )
 
-# Explanations:
-# 1. Use 'fhier_addr_short' as the base DataFrame.
-# 2. Clean names and addresses using the 'clean_names_and_addresses' function.
-# 3. Create a new column 'fhier_address' by combining multiple address-related columns using 'str_glue'.
-# 4. Drop the individual address-related columns.
-# 5. Clean names and addresses again.
-# 6. Remove duplicate rows.
-# 7. The result is stored in 'fhier_addr_short__comb_addr'.
-fhier_addr_short__comb_addr <- 
-  fhier_addr_short |> 
-  clean_names_and_addresses() |> 
-  mutate(
-    fhier_address =
-      str_glue(
-        "
-        {physical_address_1}, {physical_address_2}, {physical_city}, {physical_county}, {physical_state}, {physical_zip_code}
-      "
-      )
-  ) |>
-  dplyr::select(
-    -c(
-      physical_address_1,
-      physical_address_2,
-      physical_city,
-      physical_county,
-      physical_state,
-      physical_zip_code
-    )
-  ) |>
+fhier_addr_short_clean <-
+  fhier_addr_short |>
   clean_names_and_addresses() |> 
   distinct()
+
+# nrow(fhier_addr_short_clean)
+
+# don't combine address
+# fhier_addr_short__comb_addr <- 
+#   fhier_addr_short |> 
+#   clean_names_and_addresses() |> 
+#   mutate(
+#     fhier_address =
+#       str_glue(
+#         "
+#         {physical_address_1}, {physical_address_2}, {physical_city}, {physical_county}, {physical_state}, {physical_zip_code}
+#       "
+#       )
+#   ) |>
+#   dplyr::select(
+#     -c(
+#       physical_address_1,
+#       physical_address_2,
+#       physical_city,
+#       physical_county,
+#       physical_state,
+#       physical_zip_code
+#     )
+#   ) |>
+#   clean_names_and_addresses() |> 
+#   distinct()
 
 # dim(fhier_addr_short__comb_addr)
 # [1] 2390    5
 
-## 1) add names ----
-# View(fhier_addresses)
+# dim(fhier_addr_short_clean)
 
+## 1. add addresses from FHIER ----
+compl_corr_to_investigation__corr_date__hailing_port__fhier_addr <-
+  left_join(compl_corr_to_investigation__corr_date__hailing_port,
+            fhier_addr_short_clean)
+# Joining with `by = join_by(vessel_official_number)`
+
+# View(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
+
+### combine fhier addresses from correspondence and the physical addr.
+
+# my_coalesce <- function(field_names) {
+#   browser()
+#   coalesce(!!!select(
+#     .x, c("contactrecipientname",
+#          "permit_holder_names")
+# }
+
+coacross <- function(...) {
+  coalesce(!!!across(...))
+}
+
+compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__comb <-
+  compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>
+  mutate(fhier_name = coacross(c(
+    "contactrecipientname",
+    "permit_holder_names"
+  )))
+
+View(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__comb)
+
+df %>% mutate(xyz = coalesce(!!!select(., everything())))
+
+
+print_df_names(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
+### vessels with no addresses ----
+
+# print_df_names(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
 no_name_vsl_ids <- 
-  compl_corr_to_investigation1_short_dup_marked__permit_region |>
-  filter(full_name %in% is_empty) |> 
+  compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |> 
+  filter(physical_address_1 %in% is_empty) |> 
   select(vessel_official_number) |> 
   distinct()
 
