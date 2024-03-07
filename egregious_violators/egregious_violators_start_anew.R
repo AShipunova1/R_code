@@ -554,11 +554,11 @@ num_of_vsl_to_investigate <-
 # compl_corr_to_investigation1
 
 # ---- output needed investigation ----
-# 1) create additional columns
-# 2) remove duplicated columns
+# 1 remove unused columns
+# 2) create additional columns
 # 3) mark vessels already in the know list (prev_result)
 
-## 1) create additional columns ----
+## ---- 1) remove extra columns ----
 
 ### add list of contact dates and contact type in parentheses  -----
 
