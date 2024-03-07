@@ -67,28 +67,27 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr <-
 
 ### combine fhier addresses from correspondence and the physical addr.
 
-# my_coalesce <- function(field_names) {
-#   browser()
-#   coalesce(!!!select(
-#     .x, c("contactrecipientname",
-#          "permit_holder_names")
-# }
-
 coacross <- function(...) {
   coalesce(!!!across(...))
 }
 
+col_pairs__correspond__physical__list <-
+  list(
+    c("contactrecipientname", "permit_holder_names"),
+    c("contactphone_number", "phone_number"),
+    c("contactemailaddress", "primary_email")
+  )
+
 compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__comb <-
   compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>
-  mutate(fhier_name = coacross(c(
-    "contactrecipientname",
-    "permit_holder_names"
-  )))
+  mutate(fhier_owner_name = coacross(col_pairs__correspond__physical__list[[1]]),
+         fhier_phone = coacross(col_pairs__correspond__physical__list[[2]]),
+         fhier_email = coacross(col_pairs__correspond__physical__list[[3]]))
 
-View(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__comb)
+compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__comb |> 
+  filter(is.na(contactphone_number)) |> View()
 
-df %>% mutate(xyz = coalesce(!!!select(., everything())))
-
+# print_df_names(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__comb)
 
 print_df_names(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
 ### vessels with no addresses ----
