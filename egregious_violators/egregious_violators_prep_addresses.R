@@ -101,35 +101,30 @@ n_distinct(db_participants_address__needed$official_number)
 # 71
 
 ## keep fewer columns ----
-db_participants_address__needed_short <- 
+db_participants_address__needed_short <-
   db_participants_address__needed |>
   select(
     official_number,
-    erv_entity_name,
-    erv_ph_area,
-    erv_ph_number,
-    erv_primary_email,
-    erv_physical_address1,
-    erv_physical_address2,
-    erv_physical_city,
-    erv_physical_county,
-    erv_physical_state,
-    erv_physical_zip_code,
-    erv_mailing_address1,
-    erv_mailing_address2,
-    erv_mailing_city,
-    erv_mailing_county,
-    erv_mailing_country,
-    erv_mailing_state,
-    erv_mailing_zip_code,
-    erb_entity_name,
-    erb_ph_is_primary,
-    erb_ph_area,
-    erb_ph_number,
-    erb_primary_email
-  ) |> 
+    all_of(ends_with("entity_name")),
+    all_of(ends_with("primary_email")),
+    all_of(ends_with("is_primary")),
+    all_of(ends_with("ph_area")),
+    all_of(ends_with("ph_number")),
+    all_of(ends_with("entity_name")),
+    all_of(ends_with("physical_city")),
+    all_of(ends_with("physical_county")),
+    all_of(ends_with("physical_state")),
+    all_of(ends_with("physical_zip_code")),
+    all_of(ends_with("mailing_address1")),
+    all_of(ends_with("mailing_address2")),
+    all_of(ends_with("mailing_city")),
+    all_of(ends_with("mailing_county")),
+    all_of(ends_with("mailing_country")),
+    all_of(ends_with("mailing_state")),
+    all_of(ends_with("mailing_zip_code"))
+  ) |>
   distinct()
-       
+
 # ser_id, official_number, uscg_documentation, state_registration, vchar_hull_id_number, vchar_vessel_name, is_primary, is_mail_rec, erv_ser_id, erv_entity_type, erv_entity_name, erv_ph_is_primary, erv_ph_area, erv_ph_number, erv_primary_email, erv_physical_address1, erv_physical_address2, erv_physical_city, erv_physical_county, erv_physical_state, erv_physical_zip_code, erv_mailing_address1, erv_mailing_address2, erv_mailing_city, erv_mailing_county, erv_mailing_country, erv_mailing_state, erv_mailing_zip_code, association_start_dt, relationship, erb_ser_id, erb_entity_type, erb_entity_name, erb_ph_is_primary, erb_ph_area, erb_ph_number, erb_primary_email
 
 nrow(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
@@ -166,13 +161,25 @@ db_participants_address__needed_short__phone1 <-
   ungroup() |> 
   as.data.frame()
 
-# x |> map(\(x) f(x, 1, 2, collapse = ","))
 list_sort_uniq <- function(my_lists) {
   # browser()
   list(sort(unique(my_lists))) |> 
     flatten() %>%
     return()
 }
+
+print_df_names(db_participants_address__needed_short__phone0)
+
+cols_to_merge <- 
+erb_entity_name
+erb_primary_email
+erv_mailing_address1
+erv_mailing_address2
+erv_mailing_city
+erv_mailing_county
+erv_mailing_state
+erv_mailing_zip_code
+
 
 # db_participants_address__needed_short__phone2 <- 
 db_participants_address__needed_short__phone1 |>
