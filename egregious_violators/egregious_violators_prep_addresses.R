@@ -213,56 +213,62 @@ db_participants_address__needed_short__phone2 <-
 
 # View(db_participants_address__needed_short__phone1)
 
-res1 <-
-  db_participants_address__needed_short__phone0 |>
-  group_by(official_number) |>
-  mutate(across())
 
-db_participants_address__needed_short__phone__res <- 
-  db_participants_address__needed_short__phone0 |> 
-  select(official_number) |> 
-  distinct()
+# rr2 <- 
+  # col_part_names |>
+#      map_df(~ df %>%
+#            transmute(!! str_c(.x, '3') :=  !! rlang::sym(str_c(.x, '1'))  + 
+#          !! rlang::sym(str_c(.x, 2)))) %>%
+#      bind_cols(df, .)
+# list_cbind
+
+col_pre %>%
+     map_dfc(~ df %>%
+           transmute(!! str_c(.x, '3') :=  !! rlang::sym(str_c(.x, '1'))  + 
+         !! rlang::sym(str_c(.x, 2)))) %>%
+     bind_cols(df, .)
+
+
+df <- db_participants_address__needed_short__phone0
+res3 <-   
+col_part_names |>
+     map_dfc(~ df %>%
+      # group_by(official_number) |>
+      mutate(pmap(across(ends_with(.x)),
+                                                    ~ list_sort_uniq(.)),
+             .keep = "none",
+             )) |>
+      # ungroup()) |>
+         #                  transmute(!! str_c(.x, '3') :=  !! rlang::sym(str_c(.x, '1'))  + 
+         # !! rlang::sym(str_c(.x, 2)))) %>%
+     bind_cols(df, .)
+
+new_df <- db_participants_address__needed_short__phone0 |>
+  select(official_number)
 
 tic("map all pairs")
 rr2 <- 
   col_part_names |>
   map(\(curr_col_part) {
-    browser()
+    # browser()
     
     new_col_name <- str_glue("db_{curr_col_part}")
+    cat(new_col_name, sep = "\n")
     res <-
       db_participants_address__needed_short__phone0 |>
       group_by(official_number) |>
       mutate(!!new_col_name := pmap(across(ends_with(curr_col_part)),
-                                                    ~ list_sort_uniq(.))) |>
-      ungroup() |>
-      as.data.frame() |> 
-      select(official_number, !!new_col_name) |> 
-      right_join(db_participants_address__needed_short__phone__res)
+                                                    ~ list_sort_uniq(.)),
+             .keep = "none",
+             ) |>
+      ungroup() 
+    new_df <- cbind(new_df, res)
+        
+    # return(new_df)
     
-    
-    return(res)
-    
-  })
-
-# rr <- 
-#   col_part_names |>
-#   map(\(curr_col_part) {
-#     # browser()
-#     
-#     new_col_name <- str_glue("db_{curr_col_part}")
-#     res <-
-#       db_participants_address__needed_short__phone0 |>
-#       group_by(official_number) |>
-#       mutate(!!new_col_name := pmap(across(ends_with(curr_col_part)),
-#                                                     ~ list_sort_uniq(.))) |>
-#       ungroup() |>
-#       as.data.frame()
-#     
-#     return(res)
-#     
-#   })
+  }) 
 toc()
+
 # map all pairs: 19.57 sec elapsed
 
 View(rr)
