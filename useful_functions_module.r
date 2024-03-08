@@ -1402,3 +1402,24 @@ list_sort_uniq <- function(my_lists) {
     flatten() %>%
     return()
 }
+
+# ---
+# another usage example
+# also uses mutate within a loop to create multiple new columns and binds each one back to the original df.
+# db_participants_address__needed_short__erv_erb_combined <-
+#   col_part_names |>
+#   map(\(curr_col_part)  {
+#     new_col_name <- str_glue("db_{curr_col_part}")
+#     # cat(new_col_name, sep = "\n")
+#     
+#     db_participants_address__needed_short__phone0 |>
+#       group_by(official_number) |>
+#       mutate(!!new_col_name :=
+#                pmap(across(ends_with(curr_col_part)),
+#                     ~ list_sort_uniq(.)),
+#              .keep = "none") |>
+#       ungroup() |>
+#       select(-official_number)
+#     
+#   }) |> 
+#   bind_cols(db_participants_address__needed_short__phone0, .)
