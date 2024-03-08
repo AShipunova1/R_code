@@ -69,7 +69,7 @@ source(get_data_path)
 # processed_metrics_tracking_permits
 # fhier_addresses
 # processed_pims_home_ports
-# db_participants_asddress
+# db_participants_address
 # vessels_permits_participants
 
 # ---- Preparing compliance info ----
