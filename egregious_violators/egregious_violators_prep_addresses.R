@@ -163,9 +163,26 @@ db_participants_address__needed_short__phone1 <-
   db_participants_address__needed_short__phone0 |>
   group_by(official_number) |>
   summarise(across(ends_with("_phone"), ~list(sort(unique(.x))))) |> 
+  ungroup() |> 
   as.data.frame()
 
-View(db_participants_address__needed_short__phone1)
+# x |> map(\(x) f(x, 1, 2, collapse = ","))
+list_sort_uniq <- function(my_lists) {
+  # browser()
+  list(sort(unique(my_lists))) |> 
+    flatten() %>%
+    return()
+}
+
+# db_participants_address__needed_short__phone2 <- 
+db_participants_address__needed_short__phone1 |>
+  group_by(official_number) |>
+  mutate(db_phone = pmap(across(ends_with("_phone")),
+                         ~list_sort_uniq(.))) |>
+  ungroup() |>
+  View()
+
+head(db_participants_address__needed_short__phone1)
 # c("3364239470", 
 #   "3365282062", 
 #   "3367239470")
