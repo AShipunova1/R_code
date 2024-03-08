@@ -631,7 +631,8 @@ concat_unique_sorted <- function(x) {
 # unique values sorted within each group.
 # This function takes a data frame 'my_df' and a vector of column names
 # 'group_by_arr' as input.
-combine_rows_based_on_multiple_columns_and_keep_all_unique_sorted_values <- function(my_df, group_by_arr) {
+combine_rows_based_on_multiple_columns_and_keep_all_unique_sorted_values <- 
+  function(my_df, group_by_arr) {
   # Group the data frame 'my_df' by the columns specified in 'group_by_arr'.
   # This step ensures that we create groups based on unique combinations of
   # values in the specified columns.
