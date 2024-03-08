@@ -91,7 +91,7 @@ n_distinct(no_addr_vsl_ids$vessel_official_number)
 # From Oracle db ----
 db_participants_address__needed <-
   db_participants_address |>
-  filter(official_number %in% no_addr_vsl_ids$vessel_official_number) |> 
+  filter(official_number %in% no_addr_vsl_ids$vessel_official_number) |>
   distinct()
 
 dim(db_participants_address__needed)
@@ -101,26 +101,6 @@ n_distinct(db_participants_address__needed$official_number)
 # 71
 
 ## keep fewer columns ----
-col_part_names <-
-  c(
-    "entity_name",
-    "primary_email",
-    "ph_is_primary",
-    "ph_area",
-    "ph_number",
-    "physical_city",
-    "physical_county",
-    "physical_state",
-    "physical_zip_code",
-    "mailing_address1",
-    "mailing_address2",
-    "mailing_city",
-    "mailing_county",
-    "mailing_country",
-    "mailing_state",
-    "mailing_zip_code"
-  )
-
 db_participants_address__needed_short <-
   db_participants_address__needed |>
   select(
@@ -164,54 +144,58 @@ db_participants_address__needed_short__phone0 <-
          erb_phone = paste0(erb_ph_area, erb_ph_number))
 
 ## make erv and erb combinations ----
-
-tic("map all pairs 3")
+col_part_names <-
+  c(
+    "entity_name",
+    "primary_email",
+    "ph_is_primary",
+    # "ph_area",
+    # "ph_number",
+    "physical_city",
+    "physical_county",
+    "physical_state",
+    "physical_zip_code",
+    "mailing_address1",
+    "mailing_address2",
+    "mailing_city",
+    "mailing_county",
+    # "mailing_country",
+    "mailing_state",
+    "mailing_zip_code"
+  )
+tic("map all pairs")
 db_participants_address__needed_short__erv_erb_combined <-
   col_part_names |>
   map(\(curr_col_part)  {
     new_col_name <- str_glue("db_{curr_col_part}")
     # cat(new_col_name, sep = "\n")
     
-      db_participants_address__needed_short__phone0 |>
+    db_participants_address__needed_short__phone0 |>
       group_by(official_number) |>
       mutate(!!new_col_name := pmap(across(ends_with(curr_col_part)),
                                     ~ list_sort_uniq(.)),
-             .keep = "none",) |>
+             .keep = "none" ) |>
       ungroup() |>
       select(-official_number)
     
   }) %>%
   bind_cols(db_participants_address__needed_short__phone0, .)
 toc()
+# map all pairs: 14.31 sec elapsed
 
-View(rr3)
-  
-  col_part_names |>
-  map_df(\(curr_col_part) {
-    # browser()
-    
-    new_col_name <- str_glue("db_{curr_col_part}")
-    cat(new_col_name, sep = "\n")
-    
-    res <-
-      db_participants_address__needed_short__phone0 |>
-      group_by(official_number) |>
-      mutate(!!new_col_name := pmap(across(ends_with(curr_col_part)),
-                                                    ~ list_sort_uniq(.)),
-             .keep = "none",
-             ) |>
-      ungroup() 
-    new_df <- left_join(new_df, res)
-        
-    # return(new_df)
-    
-  }) 
-toc()
-# map all pairs: 19.57 sec elapsed
-# map all pairs: 24.42 sec elapsed
+db_participants_address__needed_short__erv_erb_combined_short <-
+  db_participants_address__needed_short__erv_erb_combined |>
+  select(official_number,
+         all_of(starts_with("db_"))) |> 
+  distinct()
 
-View(rr2)
-  # group_by(official_number) |>
-  # mutate(db_phone = pmap(across(ends_with("_phone")),
-  #                        ~ list_sort_uniq(.))) |>
-  # ungroup()
+dim(db_participants_address__needed_short__erv_erb_combined_short)
+# 94 17
+
+n_distinct(db_participants_address__needed_short__erv_erb_combined_short$official_number)
+# 71
+
+db_participants_address__needed_short__erv_erb_combined_short |> 
+  filter(official_number == "1235397") |> 
+  View()
+
