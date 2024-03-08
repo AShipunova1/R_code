@@ -249,7 +249,7 @@ new_df <- db_participants_address__needed_short__phone0 |>
 tic("map all pairs")
 rr2 <- 
   col_part_names |>
-  map(\(curr_col_part) {
+  map_df(\(curr_col_part) {
     # browser()
     
     new_col_name <- str_glue("db_{curr_col_part}")
@@ -262,16 +262,16 @@ rr2 <-
              .keep = "none",
              ) |>
       ungroup() 
-    new_df <- cbind(new_df, res)
+    new_df <- left_join(new_df, res)
         
     # return(new_df)
     
   }) 
 toc()
-
 # map all pairs: 19.57 sec elapsed
+# map all pairs: 24.42 sec elapsed
 
-View(rr)
+View(rr2)
   # group_by(official_number) |>
   # mutate(db_phone = pmap(across(ends_with("_phone")),
   #                        ~ list_sort_uniq(.))) |>
