@@ -191,15 +191,15 @@ processed_pims_home_ports <-
 
 # Oracle db ----
 ## get owners addresses ----
-db_participants_asddress_query <-
+db_participants_address_query <-
   "select * from
-SRH.MV_SERO_VESSEL_ENTITY@Secapxdv_Dblk.sfsc.noaa.gov
+SRH.MV_SERO_VESSEL_ENTITY@secapxdv_dblk
 "
 
-db_participants_asddress_file_path <-
+db_participants_address_file_path <-
   file.path(all_inputs,
             current_project_name,
-            "db_participants_asddress.rds")
+            "db_participants_address1.rds")
  
 # dir.exists(file.path(all_inputs,
 #             current_project_name))
@@ -209,28 +209,27 @@ if (!exists("con")) {
   try(con <- connect_to_secpr())
 }
 
-db_participants_asddress_fun <-
-  function(db_participants_asddress) {
+db_participants_address_fun <-
+  function(db_participants_address) {
     # browser()
     return(dbGetQuery(con,
-                      db_participants_asddress))
+                      db_participants_address))
   }
 
-db_participants_asddress <-
+db_participants_address <-
   read_rds_or_run(
-    db_participants_asddress_file_path,
-    db_participants_asddress_query,
-    db_participants_asddress_fun
+    db_participants_address_file_path,
+    db_participants_address_query,
+    db_participants_address_fun
     # force_from_db = "yes"
   ) |>
   remove_empty_cols() |>
   clean_headers()
+# 2024-03-07 run for db_participants_address1.rds: 30.14 sec elapsed
 
-dim(db_participants_asddress)
+dim(db_participants_address)
 # [1] 55113    41
 # [1] 55113    37 remove_empty_cols
-
-# 2024-03-01 run for db_participants_asddress.rds: 35.25 sec elapsed
 
 ## get sero_home_port from vessels with permits and sero_home_port ----
 vessel_permit_where_part <-
@@ -368,7 +367,7 @@ results <-
     "processed_metrics_tracking_permits",
     "fhier_addresses",
     "processed_pims_home_ports",
-    "db_participants_asddress",
+    "db_participants_address",
     "vessels_permits_participants"
   )
 
