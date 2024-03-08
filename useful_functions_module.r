@@ -1386,3 +1386,19 @@ clean_names_and_addresses <- function(my_df) {
   return(my_df_cleaned)
 }
 
+# ---
+# combine columns into one
+# Usage:
+# db_participants_address__needed_short__phone2 <-
+#   db_participants_address__needed_short__phone0 |>
+#   group_by(official_number) |>
+#   mutate(db_phone = pmap(across(ends_with("_phone")),
+#                          ~ list_sort_uniq(.))) |>
+#   ungroup()
+
+list_sort_uniq <- function(my_lists) {
+  # browser()
+  list(sort(unique(str_trim(my_lists)))) |> 
+    flatten() %>%
+    return()
+}
