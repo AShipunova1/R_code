@@ -213,11 +213,21 @@ db_participants_address__needed_short__phone2 <-
 
 # View(db_participants_address__needed_short__phone1)
 
+res1 <-
+  db_participants_address__needed_short__phone0 |>
+  group_by(official_number) |>
+  mutate(across())
+
+db_participants_address__needed_short__phone__res <- 
+  db_participants_address__needed_short__phone0 |> 
+  select(official_number) |> 
+  distinct()
+
 tic("map all pairs")
-rr <- 
+rr2 <- 
   col_part_names |>
   map(\(curr_col_part) {
-    # browser()
+    browser()
     
     new_col_name <- str_glue("db_{curr_col_part}")
     res <-
@@ -226,11 +236,32 @@ rr <-
       mutate(!!new_col_name := pmap(across(ends_with(curr_col_part)),
                                                     ~ list_sort_uniq(.))) |>
       ungroup() |>
-      as.data.frame()
+      as.data.frame() |> 
+      select(official_number, !!new_col_name) |> 
+      right_join(db_participants_address__needed_short__phone__res)
+    
     
     return(res)
     
   })
+
+# rr <- 
+#   col_part_names |>
+#   map(\(curr_col_part) {
+#     # browser()
+#     
+#     new_col_name <- str_glue("db_{curr_col_part}")
+#     res <-
+#       db_participants_address__needed_short__phone0 |>
+#       group_by(official_number) |>
+#       mutate(!!new_col_name := pmap(across(ends_with(curr_col_part)),
+#                                                     ~ list_sort_uniq(.))) |>
+#       ungroup() |>
+#       as.data.frame()
+#     
+#     return(res)
+#     
+#   })
 toc()
 # map all pairs: 19.57 sec elapsed
 
