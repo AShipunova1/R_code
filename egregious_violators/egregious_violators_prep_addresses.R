@@ -105,7 +105,7 @@ col_part_names <-
   c(
     "entity_name",
     "primary_email",
-    "is_primary",
+    "ph_is_primary",
     "ph_area",
     "ph_number",
     "entity_name",
@@ -185,7 +185,7 @@ db_participants_address__needed_short__phone0 <-
 
 list_sort_uniq <- function(my_lists) {
   # browser()
-  list(sort(unique(my_lists))) |> 
+  list(sort(unique(str_trim(my_lists)))) |> 
     flatten() %>%
     return()
 }
@@ -199,7 +199,7 @@ db_participants_address__needed_short__phone2 <-
                          ~ list_sort_uniq(.))) |>
   ungroup()
 
-View(db_participants_address__needed_short__phone2)
+# View(db_participants_address__needed_short__phone2)
 # c("3364239470", 
 #   "3365282062", 
 #   "3367239470")
@@ -213,10 +213,29 @@ View(db_participants_address__needed_short__phone2)
 
 # View(db_participants_address__needed_short__phone1)
 
-col_part_names |> 
-  map_df()
+tic("map all pairs")
+rr <- 
+  col_part_names |>
+  map(\(curr_col_part) {
+    # browser()
+    
+    new_col_name <- str_glue("db_{curr_col_part}")
+    res <-
+      db_participants_address__needed_short__phone0 |>
+      group_by(official_number) |>
+      mutate(!!new_col_name := pmap(across(ends_with(curr_col_part)),
+                                                    ~ list_sort_uniq(.))) |>
+      ungroup() |>
+      as.data.frame()
+    
+    return(res)
+    
+  })
+toc()
+# map all pairs: 19.57 sec elapsed
 
-  group_by(official_number) |>
-  mutate(db_phone = pmap(across(ends_with("_phone")),
-                         ~ list_sort_uniq(.))) |>
-  ungroup()
+View(rr)
+  # group_by(official_number) |>
+  # mutate(db_phone = pmap(across(ends_with("_phone")),
+  #                        ~ list_sort_uniq(.))) |>
+  # ungroup()
