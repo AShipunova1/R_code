@@ -132,7 +132,49 @@ db_participants_address__needed_short <-
        
 # ser_id, official_number, uscg_documentation, state_registration, vchar_hull_id_number, vchar_vessel_name, is_primary, is_mail_rec, erv_ser_id, erv_entity_type, erv_entity_name, erv_ph_is_primary, erv_ph_area, erv_ph_number, erv_primary_email, erv_physical_address1, erv_physical_address2, erv_physical_city, erv_physical_county, erv_physical_state, erv_physical_zip_code, erv_mailing_address1, erv_mailing_address2, erv_mailing_city, erv_mailing_county, erv_mailing_country, erv_mailing_state, erv_mailing_zip_code, association_start_dt, relationship, erb_ser_id, erb_entity_type, erb_entity_name, erb_ph_is_primary, erb_ph_area, erb_ph_number, erb_primary_email
 
+nrow(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
+# 199
+n_distinct(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr$vessel_official_number)
+# 199
+# one vessel per row
+
+# have to combine rows
 dim(db_participants_address__needed_short)
 # 106
+n_distinct(db_participants_address__needed_short$official_number)
+# 71
 
-View(db_participants_address__needed_short)
+# compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |> 
+#   print_df_names()
+
+# db_participants_address__needed_short |> 
+  # filter(!erv_ph_number == erb_ph_number)
+# 0
+# erv_ph_area	erb_ph_area
+# erv_ph_number	erb_ph_number
+
+## make erv and erb combinations ----
+db_participants_address__needed_short__phone0 <- 
+  db_participants_address__needed_short |> 
+  mutate(erv_phone = paste0(erv_ph_area, erv_ph_number),
+         erb_phone = paste0(erb_ph_area, erb_ph_number))
+
+db_participants_address__needed_short__phone1 <-
+  db_participants_address__needed_short__phone0 |>
+  group_by(official_number) |>
+  summarise(across(ends_with("_phone"), ~list(sort(unique(.x))))) |> 
+  as.data.frame()
+
+View(db_participants_address__needed_short__phone1)
+# c("3364239470", 
+#   "3365282062", 
+#   "3367239470")
+
+  # mutate(db_phone = paste(sort(unique(
+  #   erv_phone, erb_phone
+  # )),
+  # collapse = ", "))
+#   filter(grepl("&", active_or_expired)) |>
+  
+
+View(db_participants_address__needed_short__phone1)
