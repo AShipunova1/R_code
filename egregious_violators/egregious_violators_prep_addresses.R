@@ -246,14 +246,36 @@ col_part_names |>
 new_df <- db_participants_address__needed_short__phone0 |>
   select(official_number)
 
-tic("map all pairs")
-rr2 <- 
+tic("map all pairs 3")
+rr3 <-
+  col_part_names |>
+  map(\(curr_col_part)  {
+    new_col_name <- str_glue("db_{curr_col_part}")
+    cat(new_col_name, sep = "\n")
+    
+    res <-
+      db_participants_address__needed_short__phone0 |>
+      group_by(official_number) |>
+      mutate(!!new_col_name := pmap(across(ends_with(curr_col_part)),
+                                    ~ list_sort_uniq(.)),
+             .keep = "none",) |>
+      ungroup() |>
+      select(-official_number)
+    
+  }) %>%
+  # set_names(paste0("sum_", nm1)) %>%
+  bind_cols(db_participants_address__needed_short__phone0, .)
+toc()
+
+View(rr3)
+  
   col_part_names |>
   map_df(\(curr_col_part) {
     # browser()
     
     new_col_name <- str_glue("db_{curr_col_part}")
     cat(new_col_name, sep = "\n")
+    
     res <-
       db_participants_address__needed_short__phone0 |>
       group_by(official_number) |>
