@@ -89,8 +89,50 @@ n_distinct(no_addr_vsl_ids$vessel_official_number)
 # [1] "656222"   "FL0450JN"
 
 # From Oracle db ----
-db_participants_asddress__needed <-
-  db_participants_asddress |>
-  filter(official_number %in% no_addr_vsl_ids$vessel_official_number)
+db_participants_address__needed <-
+  db_participants_address |>
+  filter(official_number %in% no_addr_vsl_ids$vessel_official_number) |> 
+  distinct()
 
-dim(db_participants_asddress__needed)
+dim(db_participants_address__needed)
+# [1] 139  37
+
+n_distinct(db_participants_address__needed$official_number)
+# 71
+
+## keep fewer columns ----
+db_participants_address__needed_short <- 
+  db_participants_address__needed |>
+  select(
+    official_number,
+    erv_entity_name,
+    erv_ph_area,
+    erv_ph_number,
+    erv_primary_email,
+    erv_physical_address1,
+    erv_physical_address2,
+    erv_physical_city,
+    erv_physical_county,
+    erv_physical_state,
+    erv_physical_zip_code,
+    erv_mailing_address1,
+    erv_mailing_address2,
+    erv_mailing_city,
+    erv_mailing_county,
+    erv_mailing_country,
+    erv_mailing_state,
+    erv_mailing_zip_code,
+    erb_entity_name,
+    erb_ph_is_primary,
+    erb_ph_area,
+    erb_ph_number,
+    erb_primary_email
+  ) |> 
+  distinct()
+       
+# ser_id, official_number, uscg_documentation, state_registration, vchar_hull_id_number, vchar_vessel_name, is_primary, is_mail_rec, erv_ser_id, erv_entity_type, erv_entity_name, erv_ph_is_primary, erv_ph_area, erv_ph_number, erv_primary_email, erv_physical_address1, erv_physical_address2, erv_physical_city, erv_physical_county, erv_physical_state, erv_physical_zip_code, erv_mailing_address1, erv_mailing_address2, erv_mailing_city, erv_mailing_county, erv_mailing_country, erv_mailing_state, erv_mailing_zip_code, association_start_dt, relationship, erb_ser_id, erb_entity_type, erb_entity_name, erb_ph_is_primary, erb_ph_area, erb_ph_number, erb_primary_email
+
+dim(db_participants_address__needed_short)
+# 106
+
+View(db_participants_address__needed_short)
