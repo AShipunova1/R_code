@@ -101,6 +101,27 @@ n_distinct(db_participants_address__needed$official_number)
 # 71
 
 ## keep fewer columns ----
+col_part_names <-
+  c(
+    "entity_name",
+    "primary_email",
+    "is_primary",
+    "ph_area",
+    "ph_number",
+    "entity_name",
+    "physical_city",
+    "physical_county",
+    "physical_state",
+    "physical_zip_code",
+    "mailing_address1",
+    "mailing_address2",
+    "mailing_city",
+    "mailing_county",
+    "mailing_country",
+    "mailing_state",
+    "mailing_zip_code"
+  )
+
 db_participants_address__needed_short <-
   db_participants_address__needed |>
   select(
@@ -148,18 +169,19 @@ n_distinct(db_participants_address__needed_short$official_number)
 # erv_ph_area	erb_ph_area
 # erv_ph_number	erb_ph_number
 
-## make erv and erb combinations ----
 db_participants_address__needed_short__phone0 <- 
   db_participants_address__needed_short |> 
   mutate(erv_phone = paste0(erv_ph_area, erv_ph_number),
          erb_phone = paste0(erb_ph_area, erb_ph_number))
 
-db_participants_address__needed_short__phone1 <-
-  db_participants_address__needed_short__phone0 |>
-  group_by(official_number) |>
-  summarise(across(ends_with("_phone"), ~list(sort(unique(.x))))) |> 
-  ungroup() |> 
-  as.data.frame()
+# db_participants_address__needed_short__phone1 <-
+#   db_participants_address__needed_short__phone0 |>
+#   group_by(official_number) |>
+#   summarise(across(ends_with("_phone"), ~list(sort(unique(.x))))) |> 
+#   ungroup() |> 
+#   as.data.frame()
+
+## make erv and erb combinations ----
 
 list_sort_uniq <- function(my_lists) {
   # browser()
@@ -168,28 +190,16 @@ list_sort_uniq <- function(my_lists) {
     return()
 }
 
-print_df_names(db_participants_address__needed_short__phone0)
+# print_df_names(db_participants_address__needed_short__phone0)
 
-cols_to_merge <- 
-erb_entity_name
-erb_primary_email
-erv_mailing_address1
-erv_mailing_address2
-erv_mailing_city
-erv_mailing_county
-erv_mailing_state
-erv_mailing_zip_code
-
-
-# db_participants_address__needed_short__phone2 <- 
-db_participants_address__needed_short__phone1 |>
+db_participants_address__needed_short__phone2 <-
+  db_participants_address__needed_short__phone0 |>
   group_by(official_number) |>
   mutate(db_phone = pmap(across(ends_with("_phone")),
-                         ~list_sort_uniq(.))) |>
-  ungroup() |>
-  View()
+                         ~ list_sort_uniq(.))) |>
+  ungroup()
 
-head(db_participants_address__needed_short__phone1)
+View(db_participants_address__needed_short__phone2)
 # c("3364239470", 
 #   "3365282062", 
 #   "3367239470")
@@ -201,4 +211,12 @@ head(db_participants_address__needed_short__phone1)
 #   filter(grepl("&", active_or_expired)) |>
   
 
-View(db_participants_address__needed_short__phone1)
+# View(db_participants_address__needed_short__phone1)
+
+col_part_names |> 
+  map_df()
+
+  group_by(official_number) |>
+  mutate(db_phone = pmap(across(ends_with("_phone")),
+                         ~ list_sort_uniq(.))) |>
+  ungroup()
