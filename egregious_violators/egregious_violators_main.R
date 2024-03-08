@@ -596,9 +596,9 @@ dim(date__contacttype_per_id)
 
 ## add permit and address info ----
 # print_df_names(vessels_permits_participants)
-# print_df_names(db_participants_asddress)
+# print_df_names(db_participants_address)
 # print_df_names(fhier_addr_short)
-# intersect(names(db_participants_asddress),
+# intersect(names(db_participants_address),
 #           names(fhier_addr_short))
 # 0
 
@@ -609,7 +609,7 @@ dim(date__contacttype_per_id)
 db_fhier_addr <-
   full_join(
     fhier_addr_short,
-    db_participants_asddress,
+    db_participants_address,
     join_by(vessel_official_number == official_number)
   )
 
