@@ -236,7 +236,7 @@ db_participants_address__needed_short__erv_erb_combined_short |>
   # summarise(db_mailing_zip_code1 =
   #             paste(unique(flatten(db_mailing_zip_code)), collapse = ", ")) |>
   summarise(db_mailing_state1 =
-              paste(unique(str_trim(flatten(db_mailing_state))), collapse = ", ")) |>
+              paste(sort(unique(str_trim(flatten(db_mailing_state)))), collapse = ", ")) |>
   # mutate(ee = flatten(list(sort(unique(str_trim(db_entity_name)))))) |>
   ungroup() |> 
   glimpse()
