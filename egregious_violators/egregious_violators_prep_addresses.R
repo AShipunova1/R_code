@@ -214,7 +214,7 @@ db_participants_address__needed_short__erv_erb_combined_short_u <-
 dim(db_participants_address__needed_short__erv_erb_combined_short_u)
 
 tic("combine by vessel")
-db_participants_address__needed_short__erv_erb_combined_short__u1 <-
+db_participants_address__needed_short__erv_erb_combined_short__u2 <-
   col_part_names |>
   map(\(curr_col_part)  {
     # browser()
@@ -224,21 +224,31 @@ db_participants_address__needed_short__erv_erb_combined_short__u1 <-
     
     db_participants_address__needed_short__erv_erb_combined_short |>
       group_by(official_number) |>
-      summarise(!!new_col_name :=
-              paste(sort(unique(str_trim(flatten(!!sym(old_col_name))))), collapse = ", ")) |>
-      # mutate(!!new_col_name := list_sort_uniq(!!sym(old_col_name)),
-      #        .keep = "none" ) |>
+      # summarise(!!new_col_name :=
+      #         paste(sort(unique(str_trim(flatten(!!sym(old_col_name))))), collapse = ", ")) |>
+      mutate(!!new_col_name := list(paste(sort(unique(str_trim(flatten(!!sym(old_col_name))))))),
+             .keep = "none" ) |>
       ungroup() |>
       select(-official_number)
   }) %>%
-  bind_cols(db_participants_address__needed_short__erv_erb_combined_short_u, .)
+  bind_cols(db_participants_address__needed_short__erv_erb_combined_short, .)
 toc()
 # combine by vessel: 12.06 sec elapsed
 # combine by vessel: 8.83 sec elapsed
 
-db_participants_address__needed_short__erv_erb_combined_short__u1 |> 
+db_participants_address__needed_short__erv_erb_combined_short |>
+  filter(official_number == "1139674") |> 
+  group_by(official_number) |>
+  mutate(db_entity_name_1 =
+           list(paste(sort(unique(str_trim(
+             flatten(db_entity_name))
+           ))))) |> 
+  ungroup() |> 
+  glimpse()
+
+db_participants_address__needed_short__erv_erb_combined_short__u2 |> 
    filter(official_number == "1235397") |>
-  View()
+  glimpse()
 
 db_participants_address__needed_short__erv_erb_combined_short |>
   filter(official_number == "1235397") |>
