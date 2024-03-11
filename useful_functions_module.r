@@ -1395,9 +1395,13 @@ clean_names_and_addresses <- function(my_df) {
 #   mutate(db_phone = pmap(across(ends_with("_phone")),
 #                          ~ list_sort_uniq(.))) |>
 #   ungroup()
+# ---
+# back to chr
+# summarise(db_mailing_state1 =
+              # paste(sort(unique(str_trim(flatten(db_mailing_state)))), collapse = ", ")) |>
 
+# flatten(list(sort(unique(str_trim(my_lists)))))
 list_sort_uniq <- function(my_lists) {
-  
   # browser()
   res <-
     my_lists |>
