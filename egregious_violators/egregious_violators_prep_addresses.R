@@ -234,7 +234,10 @@ db_participants_address__needed_short__erv_erb_combined_short__u |>
   filter(official_number == "1235397") |>
   glimpse()
 
-db_participants_address__needed_short__erv_erb_combined_short |>
+db_participants_address__needed_short__erv_erb_combined_short__u_ok <- 
+  db_participants_address__needed_short__erv_erb_combined_short__u |>
+  mutate_if(is.list, paste)
+
 db_participants_address__needed_short__erv_erb_combined_short__u_ok |>
   filter(official_number == "1235397") |>
   glimpse()
