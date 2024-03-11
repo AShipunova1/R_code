@@ -163,6 +163,7 @@ col_part_names <-
     "mailing_state",
     "mailing_zip_code"
   )
+
 tic("map all pairs")
 db_participants_address__needed_short__erv_erb_combined <-
   col_part_names |>
@@ -183,6 +184,7 @@ db_participants_address__needed_short__erv_erb_combined <-
 toc()
 # map all pairs: 14.31 sec elapsed
 
+### shorten ----
 db_participants_address__needed_short__erv_erb_combined_short <-
   db_participants_address__needed_short__erv_erb_combined |>
   select(official_number,
@@ -196,6 +198,38 @@ n_distinct(db_participants_address__needed_short__erv_erb_combined_short$officia
 # 71
 
 db_participants_address__needed_short__erv_erb_combined_short |> 
-  filter(official_number == "1235397") |> 
-  View()
+  filter(official_number == "1235397") |>
+  glimpse()
+# $ official_number      <chr> "1235397", "1235397"
+# $ db_entity_name       <list> ["DC SERVICE AND MAINTENANCE"], ["DAVID A RUBINO"]
+# $ db_primary_email     <list> ["Acemechanicalcd@aol.com"], ["Acemechanicalcd@aol.…
+# $ db_ph_is_primary     <list> ["1"], ["1"]
+# $ db_physical_city     <list> ["SOUTH ISLANDIA"], ["ISLANDIA"]
 
+## combine similar fields ----
+tic("combine by vessel")
+db_participants_address__needed_short__erv_erb_combined_short__u <-
+  col_part_names |>
+  map(\(curr_col_part)  {
+    browser()
+    old_col_name <- str_glue("db_{curr_col_part}")
+    new_col_name <- str_glue("db_{curr_col_part}_1")
+    cat(new_col_name, sep = "\n")
+    
+    db_participants_address__needed_short__erv_erb_combined_short |>
+      group_by(official_number) |>
+      mutate(!!new_col_name := list_sort_uniq(!!sym(old_col_name)),
+             .keep = "none" ) |>
+      ungroup() |>
+      select(-official_number)
+    
+  }) %>%
+  bind_cols(db_participants_address__needed_short__erv_erb_combined_short, .)
+toc()
+# combine by vessel: 12.06 sec elapsed
+# combine by vessel: 8.83 sec elapsed
+
+db_participants_address__needed_short__erv_erb_combined_short__u |> 
+  filter(official_number == "1235397") |> 
+  glimpse()
+  
