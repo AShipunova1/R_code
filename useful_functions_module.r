@@ -1397,10 +1397,16 @@ clean_names_and_addresses <- function(my_df) {
 #   ungroup()
 
 list_sort_uniq <- function(my_lists) {
+  
   # browser()
-  list(sort(unique(str_trim(my_lists)))) |> 
-    flatten() %>%
-    return()
+  res <-
+    my_lists |>
+    str_trim() |>
+    unique() |>
+    sort() |>
+    list() |>
+    flatten()
+  return(res)
 }
 
 # ---
