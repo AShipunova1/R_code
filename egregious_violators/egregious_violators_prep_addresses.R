@@ -165,7 +165,7 @@ col_part_names <-
   )
 
 tic("map all pairs")
-db_participants_address__needed_short__erv_erb_combined <-
+db_participants_address__needed_short__erv_erb_combined3 <-
   col_part_names |>
   map(\(curr_col_part)  {
     new_col_name <- str_glue("db_{curr_col_part}")
@@ -186,7 +186,7 @@ toc()
 
 ### shorten ----
 db_participants_address__needed_short__erv_erb_combined_short <-
-  db_participants_address__needed_short__erv_erb_combined |>
+  db_participants_address__needed_short__erv_erb_combined3 |>
   select(official_number,
          all_of(starts_with("db_"))) |> 
   distinct()
@@ -229,7 +229,16 @@ toc()
 # combine by vessel: 12.06 sec elapsed
 # combine by vessel: 8.83 sec elapsed
 
-db_participants_address__needed_short__erv_erb_combined_short__u |> 
-  filter(official_number == "1235397") |> 
+db_participants_address__needed_short__erv_erb_combined_short |>
+  filter(official_number == "1235397") |>
+  group_by(official_number) |>
+  # mutate(db_mailing_zip_code1 =
+  # summarise(db_mailing_zip_code1 =
+  #             paste(unique(flatten(db_mailing_zip_code)), collapse = ", ")) |>
+  summarise(db_mailing_state1 =
+              paste(unique(str_trim(flatten(db_mailing_state))), collapse = ", ")) |>
+  # mutate(ee = flatten(list(sort(unique(str_trim(db_entity_name)))))) |>
+  ungroup() |> 
   glimpse()
+
   
