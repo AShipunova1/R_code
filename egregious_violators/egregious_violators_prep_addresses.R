@@ -207,27 +207,38 @@ db_participants_address__needed_short__erv_erb_combined_short |>
 # $ db_physical_city     <list> ["SOUTH ISLANDIA"], ["ISLANDIA"]
 
 ## combine similar fields ----
+db_participants_address__needed_short__erv_erb_combined_short_u <- 
+  db_participants_address__needed_short__erv_erb_combined_short |> select(official_number) |> 
+  distinct()
+
+dim(db_participants_address__needed_short__erv_erb_combined_short_u)
+
 tic("combine by vessel")
-db_participants_address__needed_short__erv_erb_combined_short__u <-
+db_participants_address__needed_short__erv_erb_combined_short__u1 <-
   col_part_names |>
   map(\(curr_col_part)  {
-    browser()
+    # browser()
     old_col_name <- str_glue("db_{curr_col_part}")
     new_col_name <- str_glue("db_{curr_col_part}_1")
     cat(new_col_name, sep = "\n")
     
     db_participants_address__needed_short__erv_erb_combined_short |>
       group_by(official_number) |>
-      mutate(!!new_col_name := list_sort_uniq(!!sym(old_col_name)),
-             .keep = "none" ) |>
+      summarise(!!new_col_name :=
+              paste(sort(unique(str_trim(flatten(!!sym(old_col_name))))), collapse = ", ")) |>
+      # mutate(!!new_col_name := list_sort_uniq(!!sym(old_col_name)),
+      #        .keep = "none" ) |>
       ungroup() |>
       select(-official_number)
-    
   }) %>%
-  bind_cols(db_participants_address__needed_short__erv_erb_combined_short, .)
+  bind_cols(db_participants_address__needed_short__erv_erb_combined_short_u, .)
 toc()
 # combine by vessel: 12.06 sec elapsed
 # combine by vessel: 8.83 sec elapsed
+
+db_participants_address__needed_short__erv_erb_combined_short__u1 |> 
+   filter(official_number == "1235397") |>
+  View()
 
 db_participants_address__needed_short__erv_erb_combined_short |>
   filter(official_number == "1235397") |>
