@@ -1,3 +1,4 @@
+# aux file
 source("~/R_code_github/useful_functions_module.r")
 
 # get csvs ----
@@ -337,7 +338,7 @@ corrected_n_fhier_short_w_n_clean_short <-
 # https://www.fisheries.noaa.gov/southeast/resources-fishing/frequent-freedom-information-act-requests-southeast-region
 
 all_permits_url <- "https://noaa-sero.s3.amazonaws.com/drop-files/pims/FOIA+Vessels+All.csv"
-  
+
 all_permits_from_web <- read_csv(all_permits_url)
 
 glimpse(all_permits_from_web)
@@ -388,12 +389,12 @@ pims_n_corrected <-
              all_permits_from_web_short,
              join_by(vessel_official_number == OFFICIAL_NUMBER))
 
-pims_n_corrected |> 
+pims_n_corrected |>
   dim()
 # [1] 97 18
 
-pims_n_corrected |> 
- dplyr::filter(!is.na(HAILING_PORT_CITY)) |> 
+pims_n_corrected |>
+ dplyr::filter(!is.na(HAILING_PORT_CITY)) |>
  dim()
 # [1] 13 18
 # Not all vsls are in the pims csv
@@ -401,7 +402,7 @@ pims_n_corrected |>
 ## check if the port is the same ----
 pims_n_corrected |>
   dplyr::filter(!is.na(HAILING_PORT_CITY)) |>
-  rowwise() |> 
+  rowwise() |>
   dplyr::filter(grepl(HAILING_PORT_CITY,
                sero_home_port,
                ignore.case = TRUE)) |>
@@ -409,27 +410,27 @@ pims_n_corrected |>
   dim()
 # 13
 # all 13 ports are the same
-  
+
 ## check if the address is the same ----
 pims_n_corrected_addr <-
   pims_n_corrected |>
   dplyr::filter(!is.na(HAILING_PORT_CITY)) |>
-  rowwise() |> 
+  rowwise() |>
   dplyr::filter(grepl(ADDRESS,
                full_address,
                ignore.case = TRUE)) |>
   dplyr::ungroup()
-  
+
 dim(pims_n_corrected_addr)
 # 12 (one is the full address is.na)
 # out of 13
-  
+
 pims_n_corrected_addr |>
   dplyr::select(vessel_official_number,
          full_address,
-         ADDRESS, 
-         ADDRESS_STATE) |> 
-  dplyr::distinct() |> 
+         ADDRESS,
+         ADDRESS_STATE) |>
+  dplyr::distinct() |>
   View()
 
 ## check if the name is the same ----
@@ -437,7 +438,7 @@ include_name_filter <-
   rlang::quo(grepl(ENTITY_NAME,
                full_name,
                ignore.case = TRUE))
-  
+
 pims_n_corrected_name <-
   pims_n_corrected |>
   rowwise() |>
@@ -447,12 +448,12 @@ pims_n_corrected_name <-
 dim(pims_n_corrected_name)
 # 7
 # out of 13
-  
+
 pims_n_corrected_name |>
   dplyr::select(vessel_official_number,
          contactrecipientname,
          full_name,
-         ENTITY_NAME) |> 
+         ENTITY_NAME) |>
   View()
 
 pims_n_corrected |>
@@ -482,7 +483,7 @@ pims_n_corrected |>
          contactrecipientname,
          full_name,
          ENTITY_NAME) |>
-  dplyr::filter(!is.na(ENTITY_NAME)) |> 
+  dplyr::filter(!is.na(ENTITY_NAME)) |>
   rowwise() |>
   dplyr::filter(agrepl(ENTITY_NAME,
                 full_name,
