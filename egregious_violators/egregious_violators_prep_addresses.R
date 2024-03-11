@@ -207,11 +207,6 @@ db_participants_address__needed_short__erv_erb_combined_short |>
 # $ db_physical_city     <list> ["SOUTH ISLANDIA"], ["ISLANDIA"]
 
 ## combine similar fields ----
-db_participants_address__needed_short__erv_erb_combined_short_u <- 
-  db_participants_address__needed_short__erv_erb_combined_short |> select(official_number) |> 
-  distinct()
-
-dim(db_participants_address__needed_short__erv_erb_combined_short_u)
 
 tic("combine by vessel")
 db_participants_address__needed_short__erv_erb_combined_short__u <-
@@ -224,8 +219,6 @@ db_participants_address__needed_short__erv_erb_combined_short__u <-
     
     db_participants_address__needed_short__erv_erb_combined_short |>
       group_by(official_number) |>
-      # summarise(!!new_col_name :=
-      #         paste(sort(unique(str_trim(flatten(!!sym(old_col_name))))), collapse = ", ")) |>
       mutate(!!new_col_name := list(paste(sort(unique(str_trim(flatten(!!sym(old_col_name))))))),
              .keep = "none" ) |>
       ungroup() |>
@@ -235,35 +228,14 @@ db_participants_address__needed_short__erv_erb_combined_short__u <-
   select(official_number, all_of(ends_with("_u"))) |> 
   distinct()
 toc()
-# combine by vessel: 12.06 sec elapsed
 # combine by vessel: 8.83 sec elapsed
 
-# db_participants_address__needed_short__erv_erb_combined_short |>
-#   filter(official_number == "1139674") |> 
-#   group_by(official_number) |>
-#   mutate(db_entity_name_1 =
-#            list(paste(sort(unique(str_trim(
-#              flatten(db_entity_name))
-#            ))))) |> 
-#   ungroup() |> 
-#   glimpse()
-
-db_participants_address__needed_short__erv_erb_combined_short__u2 |> 
-   filter(official_number == "1235397") |>
-    # select(official_number, all_of(ends_with("_1"))) |> 
-  # distinct()
+db_participants_address__needed_short__erv_erb_combined_short__u |>
+  filter(official_number == "1235397") |>
   glimpse()
 
 db_participants_address__needed_short__erv_erb_combined_short |>
+db_participants_address__needed_short__erv_erb_combined_short__u_ok |>
   filter(official_number == "1235397") |>
-  group_by(official_number) |>
-  # mutate(db_mailing_zip_code1 =
-  # summarise(db_mailing_zip_code1 =
-  #             paste(unique(flatten(db_mailing_zip_code)), collapse = ", ")) |>
-  summarise(db_mailing_state1 =
-              paste(sort(unique(str_trim(flatten(db_mailing_state)))), collapse = ", ")) |>
-  # mutate(ee = flatten(list(sort(unique(str_trim(db_entity_name)))))) |>
-  ungroup() |> 
   glimpse()
 
-  
