@@ -257,3 +257,15 @@ db_participants_address__needed_short__erv_erb_combined_short__u_ok <-
 #   filter(official_number == "1235397") |>
 #   glimpse()
 
+
+# Join fhier and Oracle db addresses ----
+compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr <-
+  compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>
+  left_join(
+    db_participants_address__needed_short__erv_erb_combined_short__u_ok,
+    join_by(vessel_official_number == official_number)
+  )
+
+compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr |> 
+    filter(vessel_official_number == "1235397") |>
+  glimpse()
