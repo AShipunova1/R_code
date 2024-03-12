@@ -107,7 +107,7 @@ db_participants_address__needed_short <-
     official_number,
     all_of(ends_with("entity_name")),
     all_of(ends_with("primary_email")),
-    all_of(ends_with("is_primary")),
+    # all_of(ends_with("is_primary")),
     all_of(ends_with("ph_area")),
     all_of(ends_with("ph_number")),
     all_of(ends_with("entity_name")),
@@ -148,7 +148,7 @@ col_part_names <-
   c(
     "entity_name",
     "primary_email",
-    "ph_is_primary",
+    # "ph_is_primary",
     # "ph_area",
     # "ph_number",
     "physical_city",
