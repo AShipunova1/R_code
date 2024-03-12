@@ -717,6 +717,8 @@ file.exists(prep_addresses_path)
 
 source(prep_addresses_path)
 
+# result: compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr
+
 ## 3) mark vessels already in the know list ----
 # The first column (report created) indicates the vessels that we have created a case for. My advice would be not to exclude those vessels. EOs may have provided compliance assistance and/or warnings already. If that is the case and they continue to be non-compliant after that, they will want to know and we may need to reopen those cases.
 
@@ -752,8 +754,8 @@ dim(vessels_to_mark_ids)
 # Create a new column 'duplicate_w_last_time' in the dataframe 'compl_corr_to_investigation1_short'.
 # This column is marked with "duplicate" for rows where 'vessel_official_number' is present in the list of vessel IDs to mark as duplicates ('vessels_to_mark_ids').
 # For all other rows, it is marked as "new".
-compl_corr_to_investigation1_short_dup_marked <-
-  compl_corr_to_investigation1_short |>
+compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked <-
+  compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr |>
   mutate(
     duplicate_w_last_time =
       case_when(
@@ -763,7 +765,7 @@ compl_corr_to_investigation1_short_dup_marked <-
       )
   )
 
-dim(compl_corr_to_investigation1_short_dup_marked)
+dim(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked)
 # [1] 177  11
 # [1] 105  10
 # 108
@@ -774,7 +776,7 @@ dim(compl_corr_to_investigation1_short_dup_marked)
 # [1] 217  13
 
 ### check ----
-n_distinct(compl_corr_to_investigation1_short_dup_marked$vessel_official_number)
+n_distinct(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked$vessel_official_number)
 # 107
 # 102
 # 27: 164
@@ -790,7 +792,7 @@ n_distinct(compl_corr_to_investigation1_short_dup_marked$vessel_official_number)
 
 ## 5) how many are duals? ----
 # Explanations:
-# Create a new dataframe 'compl_corr_to_investigation1_short_dup_marked__permit_region'.
+# Create a new dataframe 
 # Use the 'mutate' function to add a new column 'permit_region' based on conditions.
 # If 'permitgroup' contains any of the specified patterns ("RCG", "HRCG", "CHG", "HCHG"),
 # set 'permit_region' to "dual". Otherwise, set 'permit_region' to "sa_only".
@@ -799,7 +801,7 @@ n_distinct(compl_corr_to_investigation1_short_dup_marked$vessel_official_number)
 # along with the newly added 'permit_region' column.
 
 compl_corr_to_investigation1_short_dup_marked__permit_region <-
-  compl_corr_to_investigation1_short_dup_marked__hailing_port |> 
+  compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked |> 
   # compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names__fhier_addr__mv_cols |>
   mutate(permit_region =
            case_when(
@@ -839,12 +841,11 @@ region_counts$n[[1]] / (region_counts$n[[2]] + region_counts$n[[1]]) * 100
 # 23.5023%
 
 # Print out results ----
-
 result_path <- 
   file.path(my_paths$outputs,
             current_project_basename,
             str_glue("egregious_violators_to_investigate_{today()}.csv"))
 
-write_csv(compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names__fhier_addr__mv_cols,
-          result_path)
+compl_corr_to_investigation1_short_dup_marked__permit_region |> 
+write_csv(result_path)
 
