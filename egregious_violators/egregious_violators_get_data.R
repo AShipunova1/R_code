@@ -5,6 +5,7 @@
 # FHIER_Compliance_2022__02_05_2024.csv
 # FHIER_Compliance_2023__01_24_2024.csv
 
+
 # 2) correspondence data
 # Download files from FHIER / Home / Correspondence
 # Actions / Download
@@ -30,9 +31,13 @@
 # permit info from processed metrics tracking
 
 # Download from FHIER first
-all_csv_names_list = c("Correspondence_2024_02_15.csv",
+# all_csv_names_list = c("Correspondence_2024_02_15.csv",
+#                          r"(2024_02_15\FHIER_Compliance_2023__02_15_2024.csv)",
+#                          r"(2024_02_15\FHIER_Compliance_2024__02_15_2024.csv)")
+
+all_csv_names_list = c("Correspondence_2024_03_12.csv",
                          r"(2024_02_15\FHIER_Compliance_2023__02_15_2024.csv)",
-                         r"(2024_02_15\FHIER_Compliance_2024__02_15_2024.csv)")
+                         r"(2024_03_12\FHIER_Compliance_2024__03_12_2024.csv)")
 
 ## ---- get compliance and correspondence csv data into variables ----
 from_fhier_data_path <-
