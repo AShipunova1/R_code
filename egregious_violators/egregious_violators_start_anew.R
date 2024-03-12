@@ -455,8 +455,15 @@ they_contacted_direct_filter <-
 #         any(tolower(contacttype) == "call"))
 
 # use the filter
-# corresp_contact_cnts_clean_direct_cnt_2atmps <-
-corresp_contact_cnts_clean |>
+corresp_contact_cnts_clean_direct_cnt_2atmps <-
+  corresp_contact_cnts_clean |>
+  # select(calltype) |> distinct()
+  filter(tolower(calltype) == "incoming" |
+           (
+             contact_freq > 1 &
+               (!!we_called_filter &
+                  !!we_emailed_once_filter)
+           ))
   # filter(tolower(calltype) == "incoming" |
   #          (contact_freq > 1 &
   #             (
@@ -467,22 +474,13 @@ corresp_contact_cnts_clean |>
   #                   tolower(calltype) == "outcoming"
   #               )
   #             ))) |>
-  filter(vesselofficial_number == '1149600') |>
-  glimpse()
+  # filter(vesselofficial_number == '1149600') |>
+  # glimpse()
 # filter(!!corresp_filter)
 
 corresp_contact_cnts_clean_direct_cnt_2atmps |> 
   filter(vesselofficial_number == '1149600') |> 
   glimpse()
-
-corresp_contact_cnts_clean |>
-  filter(vesselofficial_number == '1149600') |>
-  filter(!!they_contacted_direct_filter |
-  (contact_freq > 1 &
-            (!!we_called_filter &
-               !!we_emailed_once_filter))) |> 
-  glimpse()
-
 
 # dim(corresp_contact_cnts_clean)
 # [1] 18629    23
