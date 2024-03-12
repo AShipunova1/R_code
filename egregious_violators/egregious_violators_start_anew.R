@@ -479,8 +479,15 @@ corresp_contact_cnts_clean_direct_cnt_2atmps <-
 # filter(!!corresp_filter)
 
 corresp_contact_cnts_clean_direct_cnt_2atmps |> 
-  filter(vesselofficial_number == '1149600') |> 
+  filter(vesselofficial_number == '1168661') |> 
   glimpse()
+
+# corresp_contact_cnts_clean |>
+#   filter(!!they_contacted_direct_filter |
+#   (contact_freq > 1 &
+#             (!!we_called_filter &
+#                !!we_emailed_once_filter))) |> 
+#   glimpse()
 
 # dim(corresp_contact_cnts_clean)
 # [1] 18629    23
