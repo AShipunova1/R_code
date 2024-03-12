@@ -440,13 +440,13 @@ they_contacted_direct_filter <-
       )
   )
 
-corresp_filter <-
-  quo(!!they_contacted_direct_filter |
-        (
-          contact_freq > 1 &
-            (!!we_called_filter &
-               !!we_emailed_once_filter)
-        ))
+# corresp_filter <-
+#   quo(!!they_contacted_direct_filter |
+#         (
+#           contact_freq > 1 &
+#             (!!we_called_filter &
+#                !!we_emailed_once_filter)
+#         ))
 
 # calltype voicemail contacttype
 
@@ -455,9 +455,34 @@ corresp_filter <-
 #         any(tolower(contacttype) == "call"))
 
 # use the filter
-corresp_contact_cnts_clean_direct_cnt_2atmps <-
-  corresp_contact_cnts_clean |>
-  filter(!!corresp_filter)
+# corresp_contact_cnts_clean_direct_cnt_2atmps <-
+corresp_contact_cnts_clean |>
+  # filter(tolower(calltype) == "incoming" |
+  #          (contact_freq > 1 &
+  #             (
+  #               any(
+  #                 tolower(contacttype) == "call" &
+  #                   tolower(calltype) == "outgoing" &
+  #                   tolower(contacttype) %in% c("email", "other") &
+  #                   tolower(calltype) == "outcoming"
+  #               )
+  #             ))) |>
+  filter(vesselofficial_number == '1149600') |>
+  glimpse()
+# filter(!!corresp_filter)
+
+corresp_contact_cnts_clean_direct_cnt_2atmps |> 
+  filter(vesselofficial_number == '1149600') |> 
+  glimpse()
+
+corresp_contact_cnts_clean |>
+  filter(vesselofficial_number == '1149600') |>
+  filter(!!they_contacted_direct_filter |
+  (contact_freq > 1 &
+            (!!we_called_filter &
+               !!we_emailed_once_filter))) |> 
+  glimpse()
+
 
 # dim(corresp_contact_cnts_clean)
 # [1] 18629    23
@@ -721,7 +746,7 @@ source(prep_addresses_path)
 
 # result: compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr
 
-## 3) mark vessels already in the know list ----
+## 3. mark vessels already in the know list ----
 # The first column (report created) indicates the vessels that we have created a case for. My advice would be not to exclude those vessels. EOs may have provided compliance assistance and/or warnings already. If that is the case and they continue to be non-compliant after that, they will want to know and we may need to reopen those cases.
 
 # today()
@@ -792,7 +817,7 @@ n_distinct(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_
 # 262
 # 217
 
-## 5) how many are duals? ----
+## 4. how many are duals? ----
 # Explanations:
 # Create a new dataframe 
 # Use the 'mutate' function to add a new column 'permit_region' based on conditions.
