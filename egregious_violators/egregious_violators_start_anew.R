@@ -3,6 +3,8 @@
 # 3) the grace period is 7 days back from today.
 # 4) It needs to be that we called at least 1 time and emailed at least 1 time. Or they contacted us at least once.
 
+# NB. Update (download) all input files every time before run.
+
 # ----set up----
 
 # Get common functions
@@ -38,8 +40,8 @@ my_beginning2 <- str_glue("{my_year2}-01-01")
 my_end2 <- str_glue("{my_year2}-12-31")
 
 data_file_date <- 
-  # today()
-  lubridate::ymd("2024-02-21")
+  today()
+  # lubridate::ymd("2024-02-21")
   
 number_of_weeks_for_non_compliancy = 26
 days_in_non_compl_weeks <- 
