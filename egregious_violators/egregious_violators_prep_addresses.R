@@ -208,7 +208,23 @@ db_participants_address__needed_short__erv_erb_combined_short |>
 
 ## combine similar fields ----
 
-tic("combine by vessel")
+# Explanations:
+# 1. Iterate over each participant column using 'col_part_names'.
+#    - 'map' applies the provided function to each element of the list.
+# 2. Define the old and new column names based on the current participant column.
+#    - 'str_glue' is used for string interpolation to create column names.
+# 3. Group the DataFrame by 'official_number' using 'group_by'.
+# 4. For each group, create a new column with unique sorted values for the current participant.
+#    - 'list_sort_uniq' ensures unique values and sorts them.
+# 5. Ungroup the DataFrame and remove the 'official_number' column.
+#    - 'ungroup' removes grouping structure.
+#    - 'select' is used to exclude the 'official_number' column and keep only the new column.
+# 6. Bind the resulting columns to 'db_participants_address__needed_short__erv_erb_combined_short'.
+#    - 'bind_cols' combines columns horizontally.
+# 7. Select only the 'official_number' and columns ending with '_u'.
+# 8. Keep only distinct rows in the final DataFrame using 'distinct'.
+# 9. The resulting DataFrame is stored in 'db_participants_address__needed_short__erv_erb_combined_short__u'.
+
 db_participants_address__needed_short__erv_erb_combined_short__u <-
   col_part_names |>
   map(\(curr_col_part)  {
@@ -227,18 +243,17 @@ db_participants_address__needed_short__erv_erb_combined_short__u <-
   bind_cols(db_participants_address__needed_short__erv_erb_combined_short, .) |> 
   select(official_number, all_of(ends_with("_u"))) |> 
   distinct()
-toc()
-# combine by vessel: 8.83 sec elapsed
 
-db_participants_address__needed_short__erv_erb_combined_short__u |>
-  filter(official_number == "1235397") |>
-  glimpse()
+# db_participants_address__needed_short__erv_erb_combined_short__u |>
+#   filter(official_number == "1235397") |>
+#   glimpse()
 
+### convert to characters ----
 db_participants_address__needed_short__erv_erb_combined_short__u_ok <- 
   db_participants_address__needed_short__erv_erb_combined_short__u |>
   mutate_if(is.list, paste)
 
-db_participants_address__needed_short__erv_erb_combined_short__u_ok |>
-  filter(official_number == "1235397") |>
-  glimpse()
+# db_participants_address__needed_short__erv_erb_combined_short__u_ok |>
+#   filter(official_number == "1235397") |>
+#   glimpse()
 
