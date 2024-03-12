@@ -249,13 +249,17 @@ db_participants_address__needed_short__erv_erb_combined_short__u <-
 #   glimpse()
 
 ### convert to characters ----
-db_participants_address__needed_short__erv_erb_combined_short__u_ok <- 
+db_participants_address__needed_short__erv_erb_combined_short__u_no_c <-
   db_participants_address__needed_short__erv_erb_combined_short__u |>
-  mutate_if(is.list, paste)
+  rowwise() |>
+  mutate_if(is.list, ~ paste(unlist(.), collapse = '; ')) |>
+  ungroup()
 
-# db_participants_address__needed_short__erv_erb_combined_short__u_ok |>
+# db_participants_address__needed_short__erv_erb_combined_short__u_no_c |>
 #   filter(official_number == "1235397") |>
 #   glimpse()
+# $ db_mailing_state_u     <chr> "NY"
+# $ db_mailing_zip_code_u  <chr> "11749; 11749-5010"
 
 
 # Join fhier and Oracle db addresses ----
