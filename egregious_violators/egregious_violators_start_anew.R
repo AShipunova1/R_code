@@ -429,7 +429,7 @@ we_called_filter <-
 we_emailed_once_filter <-
   quo(any(
     tolower(contacttype) %in% c("email", "other") &
-      tolower(calltype) == "outcoming"
+      tolower(calltype) == "outgoing"
   ))
 
 # don't need a second contact
