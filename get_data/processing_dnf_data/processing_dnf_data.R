@@ -155,13 +155,13 @@ compl_override_data__renamed <-
                 OVERRIDDEN = "IS_COMP_OVERRIDE")
 
 # stats
-my_stats(compl_override_data)
+my_stats(compl_override_data__renamed)
 # rows: 460724
 # columns: 23
 # Unique vessels: 4390
 
 # stats
-min(compl_override_data$COMP_WEEK_START_DT)
+min(compl_override_data__renamed$COMP_WEEK_START_DT)
 # [1] "2021-01-04 EST"
 
 # keep only year of analysis, including the week 52 of the previous year
