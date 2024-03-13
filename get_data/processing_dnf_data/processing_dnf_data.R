@@ -127,7 +127,7 @@ compl_err_query <-
 FROM
   srh.srfh_vessel_comp@secapxdv_dblk.sfsc.noaa.gov
 WHERE
-  comp_year >= '2021'"
+  comp_year <= '2023' AND comp_year >= '2021'"
 
 # Check if the file path is correct, optional
 # file.exists(compl_override_data_file_path)
