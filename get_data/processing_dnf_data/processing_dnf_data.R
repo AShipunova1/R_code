@@ -73,6 +73,10 @@ my_year <- "2023"
 my_date_beg <- '01-JAN-2023'
 my_date_end <- '31-DEC-2023'
 
+# years range for srfh_vessel_comp db download
+db_year_1 <- "2021"
+db_year_2 <- "2023"
+
 # Auxiliary methods ----
 annas_git_path <-
 r"(~\R_code_github\get_data)"
@@ -122,12 +126,13 @@ compl_override_data_file_path <-
 # 2) Create a variable with a table name to call data from, define year.
 # >= 2021 because of when the program started
 compl_err_query <-
+  str_glue(
   "SELECT
   *
 FROM
   srh.srfh_vessel_comp@secapxdv_dblk.sfsc.noaa.gov
 WHERE
-  comp_year <= '2023' AND comp_year >= '2021'"
+  comp_year >= '{db_year_1}' AND comp_year <= '{db_year_2}'")
 
 # Check if the file path is correct, optional
 # file.exists(compl_override_data_file_path)
