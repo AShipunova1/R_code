@@ -65,13 +65,10 @@ Outputs <- "Outputs/"
 
 # Set the date ranges for the DNF and compliance data you are pulling
 # this is the year to assign to the output file name
-# my_year <- "2022"
-# my_date_beg <- '01-JAN-2022'
-# my_date_end <- '31-DEC-2022'
-
-my_year <- "2023"
-my_date_beg <- '01-JAN-2023'
-my_date_end <- '31-DEC-2023'
+my_year <- "2022"
+# my_year <- "2023"
+my_date_beg <- str_glue('01-JAN-{my_year}')
+my_date_end <- str_glue('31-DEC-{my_year}')
 
 # years range for srfh_vessel_comp db download
 db_year_1 <- "2021"
