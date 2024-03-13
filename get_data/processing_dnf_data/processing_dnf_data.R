@@ -54,7 +54,7 @@ jennys_path <-
 
 # Input files are the same here
 annas_path <-
-  r"(C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\processing_logbook_data/)"
+  r"(~\R_files_local\my_inputs\processing_logbook_data/)"
 
 # Change to use another path instead:
 # Path <- michelles_path
@@ -109,7 +109,7 @@ my_tee(date(),
 tic("try_connection")
 try(con <- connect_to_secpr())
 toc()
-# try_connection: 21.7 sec elapsed if no connection
+# try_connection: 21.7 sec elapsed if no connection (i.e. not on VPN)
 # try_connection: 1.63 sec elapsed if works normally
 
 ## Import and prep compliance/override data ----
@@ -398,7 +398,7 @@ dnfs_join_overr <-
             relationship = "many-to-many"
   )
 
-#the below section of 25 lines is an example of the many to many relationship, using 2022 data
+# the below section of 25 lines is an example of the many to many relationship, using 2022 data
 # ℹ Row 104686 of `x` matches multiple rows in `y`.
 
 # dnfs_short_date__in_range__iso[104686, ] |> glimpse()
@@ -470,7 +470,7 @@ my_stats(dnfs_notoverridden)
 # Unique trips neg (dnfs): 369316
 
 dnfs_NA <-
-  filter(dnfs_join_overr, is.na(OVERRIDDEN)) #dnfs with an Overridden value of NA, because they were
+  filter(dnfs_join_overr, is.na(OVERRIDDEN)) # dnfs with an Overridden value of NA, because they were
 # 1) submitted by a vessel that is missing from the Compliance report and therefore has no associated override data, or
 # 2) submitted by a vessel during a period in which the permit was inactive, and the report was not required
 
