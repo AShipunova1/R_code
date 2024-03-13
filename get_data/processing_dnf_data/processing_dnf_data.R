@@ -635,7 +635,7 @@ late_submission_filter_stats <-
 
     late_submission <-
       my_df |>
-      filter(MORE_THAN_30_DAYS_LATE == FALSE)
+      filter(MORE_THAN_30_DAYS_LATE == TRUE)
 
     my_tee(n_distinct(late_submission$TRIP_ID),
            "Count late_submission (dnfs num)")
