@@ -151,7 +151,7 @@ compl_override_data <-
 ### prep the compliance/override data ----
 
 # Change column names for consistency with other datasets
-compl_override_data <-
+compl_override_data__renamed <-
   compl_override_data |>
   dplyr::rename(VESSEL_OFFICIAL_NUMBER =
                   "VESSEL_OFFICIAL_NBR",
@@ -169,7 +169,7 @@ min(compl_override_data$COMP_WEEK_START_DT)
 
 # keep only year of analysis, including the week 52 of the previous year
 compl_override_data_this_year <-
-  compl_override_data |>
+  compl_override_data__renamed |>
   filter(COMP_WEEK_END_DT >= as.Date(my_date_beg, "%d-%b-%Y") &
            COMP_WEEK_START_DT <= as.Date(my_date_end, "%d-%b-%Y"))
 
@@ -317,28 +317,28 @@ max(dnfs$TRIP_DATE)
 # [1] "2022-12-31"
 # [1] "2023-12-31"
 
-dnfs <-
+dnfs_short_date__in_range <-
   dnfs_short_date |>
   filter(TRIP_DATE >= as.Date(my_date_beg, "%d-%b-%Y") &
            TRIP_DATE <= as.Date(my_date_end, "%d-%b-%Y"))
 
 # stats, to compare with the end result
 dnfs_stat_correct_dates_before_filtering <-
-  c(dim(dnfs),
-    n_distinct(dnfs$VESSEL_OFFICIAL_NUMBER),
-    n_distinct(dnfs$TRIP_ID)
+  c(dim(dnfs_short_date__in_range),
+    n_distinct(dnfs_short_date__in_range$VESSEL_OFFICIAL_NUMBER),
+    n_distinct(dnfs_short_date__in_range$TRIP_ID)
   )
 
-my_stats(dnfs, "dnfs after filtering by dates")
+my_stats(dnfs_short_date__in_range, "dnfs after filtering by dates")
 # rows: 790839
 # columns: 5
 # Unique vessels: 2241
 # Unique trips neg (dnfs): 790839
 
 # check
-min(dnfs$TRIP_DATE)
+min(dnfs_short_date__in_range$TRIP_DATE)
 # [1] "2022-01-01"
-max(dnfs$TRIP_DATE)
+max(dnfs_short_date__in_range$TRIP_DATE)
 # [1] "2022-12-31"
 
 ### Prepare data to determine what weeks were overridden, so we can exclude dnfs from those weeks later ----
@@ -358,8 +358,8 @@ max(dnfs$TRIP_DATE)
 #
 
 # Needed to adjust for week 52 of the previous year
-dnfs <-
-  dnfs |>
+dnfs_short_date__in_range__iso <-
+  dnfs_short_date__in_range |>
   mutate(COMP_WEEK = isoweek(TRIP_DATE), # puts it in week num
          TRIP_END_YEAR = isoyear(TRIP_DATE)) # adds a year
 
@@ -389,9 +389,8 @@ my_stats(compl_override_data_this_year,
 # 2) 1 row of `y` matches multiple rows in `x`:
 # We need the many to many relationship because the DNFs represent a single day in a 7 day week, while the compliance represents a single week. So the relationship between DNFs to Compliance is 7 to 1.
 
-
 dnfs_join_overr <-
-  left_join(dnfs,
+  left_join(dnfs_short_date__in_range__iso,
             compl_override_data_this_year,
             join_by(TRIP_END_YEAR == COMP_YEAR,
                     VESSEL_OFFICIAL_NUMBER,
@@ -402,7 +401,7 @@ dnfs_join_overr <-
 #the below section of 25 lines is an example of the many to many relationship, using 2022 data
 # ℹ Row 104686 of `x` matches multiple rows in `y`.
 
-#dnfs[104686, ] |> glimpse()
+# dnfs_short_date__in_range__iso[104686, ] |> glimpse()
 # 1242820
 
 #compl_override_data_this_year |>
@@ -413,7 +412,7 @@ dnfs_join_overr <-
 
 # FL9558PU
 
-# dnfs |>
+# dnfs_short_date__in_range__iso |>
 #   filter(VESSEL_OFFICIAL_NUMBER == "FL9558PU")
 # 0
 
@@ -422,7 +421,7 @@ dnfs_join_overr <-
 #compl_override_data_this_year[43081, ] |> glimpse()
 # 1228073
 
-# dnfs |>
+# dnfs_short_date__in_range__iso |>
 #   filter(VESSEL_OFFICIAL_NUMBER == "1228073" &
 #            TRIP_END_YEAR == 2022 &
 #            COMP_WEEK == 20) |>
@@ -430,9 +429,9 @@ dnfs_join_overr <-
 
 
 # stats
-my_stats(dnfs)
+my_stats(dnfs_short_date__in_range__iso)
 my_stats(dnfs_join_overr)
-# dnfs
+# dnfs_short_date__in_range__iso
 # rows: 790839
 # columns: 7
 # Unique vessels: 2241
@@ -583,11 +582,11 @@ dnfs_notoverridden <-
 
 # stats, what was lost by excluding the overridden dnfs
 uniq_vessels_num_was <-
-  n_distinct(dnfs[["VESSEL_OFFICIAL_NUMBER"]])
+  n_distinct(dnfs_short_date__in_range__iso[["VESSEL_OFFICIAL_NUMBER"]])
 uniq_vessels_num_now <-
   n_distinct(dnfs_notoverridden[["VESSEL_OFFICIAL_NUMBER"]])
 
-uniq_trips_num_was <- n_distinct(dnfs[["TRIP_ID"]])
+uniq_trips_num_was <- n_distinct(dnfs_short_date__in_range__iso[["TRIP_ID"]])
 uniq_trips_num_now <-
   n_distinct(dnfs_notoverridden[["TRIP_ID"]])
 
@@ -707,7 +706,7 @@ SEFHIER_processed_dnfs <-
 my_stats(SEFHIER_processed_dnfs)
 
 dnfs_before_filtering <-
-  n_distinct(dnfs$TRIP_ID)
+  n_distinct(dnfs_short_date__in_range__iso$TRIP_ID)
 
 my_tee(dnfs_before_filtering,
         "dnfs before filtering")
@@ -729,7 +728,7 @@ percent_of_removed_dnfs <-
 
 # removed_vessels
 vessels_before_filtering <-
-  n_distinct(dnfs$VESSEL_OFFICIAL_NUMBER)
+  n_distinct(dnfs_short_date__in_range__iso$VESSEL_OFFICIAL_NUMBER)
  cat(vessels_before_filtering)
 # 1646 2023
 # 2241 2022
