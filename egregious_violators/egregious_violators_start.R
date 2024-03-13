@@ -756,21 +756,6 @@ source(prep_addresses_path)
 
 # today()
 # [1] "2023-07-11"
-# Data from the previous tab of "egregious violators for investigation"
-# Download first
-previous_egr_data_path <-
-  file.path(
-    my_paths$inputs,
-    current_project_name,
-    r"(egregious violators for investigation_2023-01-24_to_2023-08-01_OLEAction(green).xlsx)"
-  )
-
-file.exists(previous_egr_data_path)
-# T
-
-vessels_to_mark <-
-  read_xlsx(previous_egr_data_path) |> 
-  remove_empty_cols()
 
 # data_overview(vessels_to_remove)
 
