@@ -656,14 +656,15 @@ late_submission_filter_stats <-
     # [1] "2022-12-31"
   }
 
-# glimpse(SEFHIER_dnfs_notoverridden)
+# The logic should be that when the DE is less than the USABLE_DATE_TIME, the answer to the question MORE_THAN_30_DAYS_LATE should be No.
+
 late_submission_filter <-
   function() {
     SEFHIER_dnfs_notoverridden__temp <-
-       SEFHIER_dnfs_notoverridden |>
+      SEFHIER_dnfs_notoverridden |>
       mutate(MORE_THAN_30_DAYS_LATE =
-               ifelse(USABLE_DATE_TIME >= DE, TRUE, FALSE))
-
+               case_when(DE <= USABLE_DATE_TIME ~ FALSE,
+                         .default = TRUE))
     late_submission_filter_stats(SEFHIER_dnfs_notoverridden__temp)
 
     return(SEFHIER_dnfs_notoverridden__temp)
