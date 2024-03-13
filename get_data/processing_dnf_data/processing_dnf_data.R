@@ -1,25 +1,24 @@
 # processing_DNF_data
 
 # The result will be in
-# SEFHIER_processed_DNFs_{my_year}.rds
+# SEFHIER_processed_dnfs_{my_year}.rds
 
 # Files to read or create:
 # 1) Raw_Oracle_Downloaded_compliance_2021_plus.rds
-# 2) Raw_Oracle_Downloaded_logbook_{my_date_beg}__{my_date_end}.rds
+# 2) Raw_Oracle_Downloaded_dnf_{my_date_beg}__{my_date_end}.rds
 # 3) SEFHIER_permitted_vessels_nonSRHS_{my_year}.rds
+       # use processing_metrics_tracking.R to create file #3 before running this script
+#4) processing_auxiliary_methods.R
+       # get from Google Drive R code folder, put in path directory with this script
 
 # This code processes DNF data from Oracle database ready for FHIER,
 # then cleans it up, so that we can use it in any DNF data analysis:
 # (1) (a) pull all DNF and compliance/override data from Oracle database
-#     (b) get Metrics Tracking from FHIER
-#     (c) get SRHS list from Ken Brennan (SRHS branch chief) and reformat to one sheet file
+#      (b) get Metrics Tracking from FHIER
 # (2) clean up DNF data set
-#   (a) remove records from SRHS vessels
-#   (b) remove records where start date/time is after end date/time
-#   (c) remove records for trips neg lasting more than 10 days
-# (3) remove all trips neg that were received > 30 days after trip end date, by using compliance data and time of submission
-#   (a) remove all overridden data, because the submission date is unknown
-# (4) Mark late submission data
+#      (a) remove records from SRHS vessels
+# (3) mark all trips neg that were received > 30 days after trip end date, by using time of #submission
+# (4) remove all overridden data, because the submission date is unknown
 # (5) Add permit region information (GOM, SA, or dual), using permit names (optional)
 
 # For 2022 we don't keep trips neg starting in 2021 and ending in 2022. We only keep trips neg starting in 2022.
@@ -51,6 +50,7 @@ michelles_path <- "C:/Users/michelle.masi/Documents/SEFHIER/R code/DNF related a
 
 jennys_path <-
   "//ser-fs1/sf/LAPP-DM Documents/Ostroff/SEFHIER/Rcode/ProcessingDNFData/"
+# r"(C:\Users\jenny.ostroff\Desktop\Backups\Rcode\ProcessingDNFData)"
 
 # Input files are the same here
 annas_path <-
@@ -171,9 +171,9 @@ compl_override_data_this_year <-
 # check
 # That's the week 52 of my_year-1:
 min(compl_override_data_this_year$COMP_WEEK_START_DT)
-# [1] "2021-12-27 EST" #this should be the last week in the year before my_year, to account for compliance week that overlaps last week of the year and first week of my_year
+# [1] "2021-12-27 EST" #this might contain the last week in the year before my_year, to account for a compliance week that overlaps last week of the year and first week of my_year
 min(compl_override_data_this_year$COMP_WEEK_END_DT)
-# [1] "2022-01-02 EST" #this should be the 1st date in my_year
+# [1] "2022-01-02 EST" #this should be the last day of the first week in my_year
 
 # change data type of this column if needed
 if (!class(compl_override_data_this_year$VESSEL_OFFICIAL_NUMBER) == "character") {
@@ -186,6 +186,8 @@ processed_metrics_tracking_path <-
   file.path(Path,
             Outputs,
             str_glue("SEFHIER_permitted_vessels_nonSRHS_{my_year}.rds"))
+#some may make this file path the Inputs file, because you are inputting this file into this script
+#it doesn’t matter as long as your file location on your computer matches what you say here
 
 # file.exists(processed_metrics_tracking_path)
 
@@ -392,16 +394,17 @@ dnfs_join_overr <-
             relationship = "many-to-many"
   )
 
+#the below section of 25 lines is an example of the many to many relationship, using 2022 data
 # ℹ Row 104686 of `x` matches multiple rows in `y`.
 
-dnfs[104686, ] |> glimpse()
+#dnfs[104686, ] |> glimpse()
 # 1242820
 
-compl_override_data_this_year |>
-  filter(VESSEL_OFFICIAL_NUMBER == "1242820" &
-           COMP_WEEK == 32 &
-           COMP_YEAR == 2022) |>
-  View()
+#compl_override_data_this_year |>
+#  filter(VESSEL_OFFICIAL_NUMBER == "1242820" &
+#           COMP_WEEK == 32 &
+#           COMP_YEAR == 2022) |>
+#  View()
 
 # FL9558PU
 
@@ -411,7 +414,7 @@ compl_override_data_this_year |>
 
 # ℹ Row 43081 of `y` matches multiple rows in `x`.
 
-compl_override_data_this_year[43081, ] |> glimpse()
+#compl_override_data_this_year[43081, ] |> glimpse()
 # 1228073
 
 # dnfs |>
@@ -573,7 +576,7 @@ dnfs_notoverridden <-
 # COMP_OVERRIDE_CMT
 # SRFH_ASSIGNMENT_ID
 
-# stats
+# stats, what was lost by excluding the overridden dnfs
 uniq_vessels_num_was <-
   n_distinct(dnfs[["VESSEL_OFFICIAL_NUMBER"]])
 uniq_vessels_num_now <-
@@ -675,10 +678,6 @@ SEFHIER_processed_dnfs__late_subm <- late_submission_filter()
 # 1904
 
 # Add all columns from processed metrics tracking to obtain the Permit region.
-
-SEFHIER_processed_dnfs_with_all_metrics_vessels <-
-  left_join(SEFHIER_permit_info_short_this_year,
-            SEFHIER_processed_dnfs__late_subm)
 
 SEFHIER_processed_dnfs <-
   left_join(SEFHIER_processed_dnfs__late_subm,
