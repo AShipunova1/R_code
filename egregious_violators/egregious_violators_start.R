@@ -866,3 +866,9 @@ result_path <-
 compl_corr_to_investigation1_short_dup_marked__permit_region |> 
 write_csv(result_path)
 
+cat("Result:",
+    "compl_corr_to_investigation1_short_dup_marked__permit_region",
+    "and",
+    str_glue("egregious_violators_to_investigate_{today()}.csv"),
+    sep = "\n")
+
