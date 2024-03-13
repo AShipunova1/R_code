@@ -5,24 +5,28 @@
 # FHIER_Compliance_2022__02_05_2024.csv
 # FHIER_Compliance_2023__01_24_2024.csv
 
-
 # 2) correspondence data
 # Download files from FHIER / Home / Correspondence
 # Actions / Download
 # "~\my_inputs\from_Fhier\Correspondence\Correspondence_2024_02_15.csv"
 
-# 3) Previous results (from google drive)
-# ~\R_files_local\my_inputs\egregious_violators\egregious violators for investigation_2023-01-24_to_2023-08-01_OLEAction(green).xlsx"
+# 3) processed Metrics tracking
+# SEFHIER_permitted_vessels_nonSRHS_YEAR.csv
 
 # 4) Physical Address List from FHIER
 # Downloaded from REPORTS / For-hire Primary Physical Address List
 # "For-hire Primary Physical Address List.csv"
 
-# 5) vessel and permit information from Oracle db
-# "vessels_permits_participants.rds"
-
-# 6) home port processed city and state from PIMS
+# 5) home port processed city and state from PIMS
 # "~\R_files_local\my_outputs\home_ports\vessels_from_pims_ports.csv"
+
+# 6) address information from Oracle db
+# "db_participants_address.rds"
+
+# 7) Previous results (from google drive)
+# ~\R_files_local\my_inputs\egregious_violators\egregious violators for investigation_2023-01-24_to_2023-08-01_OLEAction(green).xlsx"
+
+
 
 # FHIER ----
 
@@ -204,7 +208,7 @@ SRH.MV_SERO_VESSEL_ENTITY@secapxdv_dblk
 db_participants_address_file_path <-
   file.path(all_inputs,
             current_project_name,
-            "db_participants_address1.rds")
+            "db_participants_address.rds")
  
 # dir.exists(file.path(all_inputs,
 #             current_project_name))
@@ -230,139 +234,139 @@ db_participants_address <-
   ) |>
   remove_empty_cols() |>
   clean_headers()
-# 2024-03-07 run for db_participants_address1.rds: 30.14 sec elapsed
+# 2024-03-07 run for db_participants_address.rds: 30.14 sec elapsed
 
 dim(db_participants_address)
 # [1] 55113    41
 # [1] 55113    37 remove_empty_cols
 
-## get sero_home_port from vessels with permits and sero_home_port ----
-vessel_permit_where_part <-
-  "
-    p.permit_status <> 'REVOKED'
-      AND p.top IN ( 'CHG', 'HCHG', 'HRCG', 'RCG', 'CHS',
-                     'SC', 'CDW' )
-      AND ( p.expiration_date >= ( sysdate - ( 365 / 2 ) )
-            OR p.end_date >= ( sysdate - ( 365 / 2 ) ) )
-      AND nvl(p.end_date, p.expiration_date) IS NOT NULL
-"
-
-vessel_permit_fields_part <-
-  "   v.sero_home_port_city,
-      v.sero_home_port_county,
-      v.sero_home_port_state,
-      v.sero_official_number,
-      v.coast_guard_nbr,
-      v.event_id,
-      v.hull_id_nbr,
-      v.owner_id,
-      v.state_reg_nbr,
-      v.status v_status,
-      v.supplier_vessel_id,
-      v.ue,
-      v.vessel_id v_vessel_id,
-      v.vessel_name,
-      p.effective_date,
-      p.end_date,
-      p.entity_id,
-      p.expiration_date,
-      p.new_owner,
-      p.permit,
-      p.permit_status,
-      p.prior_owner,
-      p.vessel_alt_num,
-      p.vessel_id p_vessel_id
-"
-
-vessels_permits_from_part <-
-"FROM
-       srh.mv_sero_fh_permits_his@secapxdv_dblk.sfsc.noaa.gov p,
-  safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
-"
-
-vessels_permits_query <-
-  str_glue(
-  "SELECT
-  {vessel_permit_fields_part}
-  {vessels_permits_from_part}
-  WHERE
-    ( p.vessel_id = sero_official_number
-  OR
-    p.vessel_id = state_reg_nbr
-  OR 
-    p.vessel_id = coast_guard_nbr )
-  AND
-  {vessel_permit_where_part}
-  ")
-
-vessels_permits_participants_query <-
-  paste0(
-  "SELECT
-  v_p.*,
-
-  f_p.first_name,
-  f_p.middle_name,
-  f_p.last_name,
-  f_p.name_suffix,
-  f_p.address_1,
-  f_p.address_2,
-  f_p.state,
-  f_p.postal_code,
-  f_p.phone_nbr,
-  f_p.email,
-  f_p.license_nbr,
-  f_p.participant_id,
-  f_p.permit_id,
-  f_p.status f_p_status
-FROM
-       safis.full_participant@secapxdv_dblk.sfsc.noaa.gov f_p
-  JOIN (",
-  vessels_permits_query,
-  ") v_p
-  ON ( to_char(license_nbr) = to_char(entity_id) )"
-  )
-
-cat(
-  vessels_permits_participants_query,
-  file =
-    file.path(
-      all_inputs,
-      current_project_name,
-      "vessels_permits_participants_query.sql"
-    )
-)
-
-vessels_permits_participants_file_path <-
-  file.path(all_inputs,
-            current_project_name,
-            "vessels_permits_participants.rds")
- 
-# dir.exists(file.path(all_inputs,
-#             current_project_name))
-
-vessels_permits_participants_fun <-
-  function(vessels_permits_participants) {
-    # browser()
-    return(dbGetQuery(con,
-                      vessels_permits_participants))
-  }
-
-vessels_permits_participants <-
-  read_rds_or_run(
-    vessels_permits_participants_file_path,
-    vessels_permits_participants_query,
-    vessels_permits_participants_fun
-    # force_from_db = "yes"
-  )
-# 2023-08-14 run the function: 12.84 sec elapsed
-# 2024-02-16 run for vessels_permits_participants.rds: 5.81 sec elapsed
-
-dim(vessels_permits_participants)
-# [1] 63928    38
-# [1] 31942    38
-# [1] "2024-02-16"
-# [1] 30511    38
-
+# ## get sero_home_port from vessels with permits and sero_home_port ----
+# vessel_permit_where_part <-
+#   "
+#     p.permit_status <> 'REVOKED'
+#       AND p.top IN ( 'CHG', 'HCHG', 'HRCG', 'RCG', 'CHS',
+#                      'SC', 'CDW' )
+#       AND ( p.expiration_date >= ( sysdate - ( 365 / 2 ) )
+#             OR p.end_date >= ( sysdate - ( 365 / 2 ) ) )
+#       AND nvl(p.end_date, p.expiration_date) IS NOT NULL
+# "
+# 
+# vessel_permit_fields_part <-
+#   "   v.sero_home_port_city,
+#       v.sero_home_port_county,
+#       v.sero_home_port_state,
+#       v.sero_official_number,
+#       v.coast_guard_nbr,
+#       v.event_id,
+#       v.hull_id_nbr,
+#       v.owner_id,
+#       v.state_reg_nbr,
+#       v.status v_status,
+#       v.supplier_vessel_id,
+#       v.ue,
+#       v.vessel_id v_vessel_id,
+#       v.vessel_name,
+#       p.effective_date,
+#       p.end_date,
+#       p.entity_id,
+#       p.expiration_date,
+#       p.new_owner,
+#       p.permit,
+#       p.permit_status,
+#       p.prior_owner,
+#       p.vessel_alt_num,
+#       p.vessel_id p_vessel_id
+# "
+# 
+# vessels_permits_from_part <-
+# "FROM
+#        srh.mv_sero_fh_permits_his@secapxdv_dblk.sfsc.noaa.gov p,
+#   safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
+# "
+# 
+# vessels_permits_query <-
+#   str_glue(
+#   "SELECT
+#   {vessel_permit_fields_part}
+#   {vessels_permits_from_part}
+#   WHERE
+#     ( p.vessel_id = sero_official_number
+#   OR
+#     p.vessel_id = state_reg_nbr
+#   OR 
+#     p.vessel_id = coast_guard_nbr )
+#   AND
+#   {vessel_permit_where_part}
+#   ")
+# 
+# vessels_permits_participants_query <-
+#   paste0(
+#   "SELECT
+#   v_p.*,
+# 
+#   f_p.first_name,
+#   f_p.middle_name,
+#   f_p.last_name,
+#   f_p.name_suffix,
+#   f_p.address_1,
+#   f_p.address_2,
+#   f_p.state,
+#   f_p.postal_code,
+#   f_p.phone_nbr,
+#   f_p.email,
+#   f_p.license_nbr,
+#   f_p.participant_id,
+#   f_p.permit_id,
+#   f_p.status f_p_status
+# FROM
+#        safis.full_participant@secapxdv_dblk.sfsc.noaa.gov f_p
+#   JOIN (",
+#   vessels_permits_query,
+#   ") v_p
+#   ON ( to_char(license_nbr) = to_char(entity_id) )"
+#   )
+# 
+# cat(
+#   vessels_permits_participants_query,
+#   file =
+#     file.path(
+#       all_inputs,
+#       current_project_name,
+#       "vessels_permits_participants_query.sql"
+#     )
+# )
+# 
+# vessels_permits_participants_file_path <-
+#   file.path(all_inputs,
+#             current_project_name,
+#             "vessels_permits_participants.rds")
+#  
+# # dir.exists(file.path(all_inputs,
+# #             current_project_name))
+# 
+# vessels_permits_participants_fun <-
+#   function(vessels_permits_participants) {
+#     # browser()
+#     return(dbGetQuery(con,
+#                       vessels_permits_participants))
+#   }
+# 
+# vessels_permits_participants <-
+#   read_rds_or_run(
+#     vessels_permits_participants_file_path,
+#     vessels_permits_participants_query,
+#     vessels_permits_participants_fun
+#     # force_from_db = "yes"
+#   )
+# # 2023-08-14 run the function: 12.84 sec elapsed
+# # 2024-02-16 run for vessels_permits_participants.rds: 5.81 sec elapsed
+# 
+# dim(vessels_permits_participants)
+# # [1] 63928    38
+# # [1] 31942    38
+# # [1] "2024-02-16"
+# # [1] 30511    38
+# 
 # Results ----
 results <-
   c(
@@ -372,8 +376,7 @@ results <-
     "processed_metrics_tracking_permits",
     "fhier_addresses",
     "processed_pims_home_ports",
-    "db_participants_address",
-    "vessels_permits_participants"
+    "db_participants_address"
   )
 
 cat(c("Data are in:",
