@@ -26,8 +26,6 @@
 # 7) Previous results (from google drive)
 # ~\R_files_local\my_inputs\egregious_violators\egregious violators for investigation_2023-01-24_to_2023-08-01_OLEAction(green).xlsx"
 
-
-
 # FHIER ----
 
 # Compliance
@@ -240,6 +238,22 @@ dim(db_participants_address)
 # [1] 55113    41
 # [1] 55113    37 remove_empty_cols
 
+# Data from the previous results of "egregious violators for investigation" ----
+# Download first
+previous_egr_data_path <-
+  file.path(
+    my_paths$inputs,
+    current_project_name,
+    r"(egregious violators for investigation_2023-01-24_to_2023-08-01_OLEAction(green).xlsx)"
+  )
+
+file.exists(previous_egr_data_path)
+# T
+
+vessels_to_mark <-
+  read_xlsx(previous_egr_data_path) |> 
+  remove_empty_cols()
+
 # Results ----
 results <-
   c(
@@ -249,7 +263,8 @@ results <-
     "processed_metrics_tracking_permits",
     "fhier_addresses",
     "processed_pims_home_ports",
-    "db_participants_address"
+    "db_participants_address",
+    "vessels_to_mark"
   )
 
 cat(c("Data are in:",
