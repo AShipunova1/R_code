@@ -273,7 +273,7 @@ my_stats(dnfs_short, "dnfs from the db")
 # Explanation:
 #
 # 1. **Create New Dataframe:**
-#    - `dnfs <- dnfs |> ...`: Create a new dataframe 'dnfs' by using the pipe operator '|>' on the existing 'dnfs'.
+#    - `dnfs_short_date <- dnfs |> ...`: Create a new dataframe 'dnfs_short_date' by using the pipe operator '|>' on the existing 'dnfs'.
 #
 # 2. **Use 'mutate' to Convert Columns:**
 #    - `mutate(across(..., as.Date))`: Utilize the 'mutate' function with 'across' to apply a transformation to multiple columns.
@@ -504,12 +504,12 @@ vessels_missing_dnfs <-
   filter(VESSEL_OFFICIAL_NUMBER %in% vessels_missing)
 
 # add missing dnfs back to the not overridden data frame
-dnfs_notoverridden <-
+dnfs_notoverridden__w_missing <-
   rbind(dnfs_notoverridden,
         vessels_missing_dnfs) |>
   distinct()
 
-my_stats(dnfs_notoverridden)
+my_stats(dnfs_notoverridden__w_missing)
 # rows: 371755
 # columns: 27
 # Unique vessels: 2018
@@ -523,7 +523,8 @@ my_stats(dnfs_NA)
 
 # Subset the dnfs_NA dataframe by excluding rows with VESSEL_OFFICIAL_NUMBER
 # present in the vessels_missing vector.
-dnfs_NA__rm_missing_vsls <- dnfs_NA |>
+dnfs_NA__rm_missing_vsls <-
+  dnfs_NA |>
   filter(!VESSEL_OFFICIAL_NUMBER %in% vessels_missing)
 
 my_stats(dnfs_NA__rm_missing_vsls,
@@ -537,21 +538,21 @@ my_stats(dnfs_NA__rm_missing_vsls,
 # being we shouldn't include dnfs that weren't required in the first place. Alternatively,
 # deciding to keep in the NAs means we would be keeping reports that were submitted by a vessel
 # during a period in which the permit was inactive, and the report was not required.
-# rbind(dnfs_notoverridden, dnfs_NA) this is the alternative
+# rbind(dnfs_notoverridden__w_missing, dnfs_NA) this is the alternative
 
 # Use trip end date to calculate the usable date 30 days later
 
 # Add a correct timezone to TRIP_DATE (EST vs. EDT)
-dnfs_notoverridden <-
-  dnfs_notoverridden |>
+dnfs_notoverridden__w_missing__timezone <-
+  dnfs_notoverridden__w_missing |>
   mutate(TRIP_DATE_E =
            ymd_hms(TRIP_DATE,
                    truncated = 3,
                    tz = Sys.timezone()))
 
 # add a date 30 days later with a time
-dnfs_notoverridden <-
-  dnfs_notoverridden |>
+dnfs_notoverridden__w_missing__timezone__30 <-
+  dnfs_notoverridden__w_missing__timezone |>
   mutate(USABLE_DATE_TIME =
            TRIP_DATE_E +
            days(30) +
@@ -561,17 +562,15 @@ dnfs_notoverridden <-
 
 # format the submission date (DE)
 dnfs_notoverridden_all <-
-  dnfs_notoverridden |>
+  dnfs_notoverridden__w_missing__timezone__30 |>
   mutate(DE =
            as.POSIXct(DE, format = "%Y-%m-%d %H:%M:%S"))
 
 # Drop empty columns
-dnfs_notoverridden <-
+dnfs_notoverridden_ok <-
   dnfs_notoverridden_all |>
   select(where(not_all_na))
 
-# diffdf::diffdf(dnfs_notoverridden,
-#                dnfs_notoverridden_all)
 # dropped, bc they were all NAs:
 # SRH_VESSEL_ID
 # COMP_OVERRIDE_DT
@@ -583,11 +582,12 @@ dnfs_notoverridden <-
 uniq_vessels_num_was <-
   n_distinct(dnfs_short_date__in_range__iso[["VESSEL_OFFICIAL_NUMBER"]])
 uniq_vessels_num_now <-
-  n_distinct(dnfs_notoverridden[["VESSEL_OFFICIAL_NUMBER"]])
+  n_distinct(dnfs_notoverridden_ok[["VESSEL_OFFICIAL_NUMBER"]])
 
-uniq_trips_num_was <- n_distinct(dnfs_short_date__in_range__iso[["TRIP_ID"]])
+uniq_trips_num_was <-
+  n_distinct(dnfs_short_date__in_range__iso[["TRIP_ID"]])
 uniq_trips_num_now <-
-  n_distinct(dnfs_notoverridden[["TRIP_ID"]])
+  n_distinct(dnfs_notoverridden_ok[["TRIP_ID"]])
 
 uniq_vessels_lost_by_overr <-
   uniq_vessels_num_was - uniq_vessels_num_now
@@ -606,18 +606,18 @@ my_tee(uniq_trips_lost_by_overr,
 # 419233
 
 # Filtering dnf data ----
-# Use dnfs_notoverridden from the previous section
+# Use dnfs_notoverridden_ok from the previous section
 
 ## Filter out vessels not in Metrics tracking ----
 SEFHIER_dnfs_notoverridden <-
-  dnfs_notoverridden |>
+  dnfs_notoverridden_ok |>
   filter(VESSEL_OFFICIAL_NUMBER %in% SEFHIER_permit_info_short_this_year$VESSEL_OFFICIAL_NUMBER)
 
-my_stats(dnfs_notoverridden)
+my_stats(dnfs_notoverridden_ok)
 my_stats(SEFHIER_dnfs_notoverridden)
 
 vessels_not_in_metrics <-
-  n_distinct(dnfs_notoverridden$VESSEL_OFFICIAL_NUMBER) -
+  n_distinct(dnfs_notoverridden_ok$VESSEL_OFFICIAL_NUMBER) -
   n_distinct(SEFHIER_dnfs_notoverridden$VESSEL_OFFICIAL_NUMBER)
 
 my_tee(vessels_not_in_metrics,
