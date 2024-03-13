@@ -46,7 +46,8 @@ library(tictoc) # Functions for timing
 library(crayon) # Colored terminal output
 
 # set working and output directory - where do you keep the data and analysis folder on your computer?
-michelles_path <- "C:/Users/michelle.masi/Documents/SEFHIER/R code/DNF related analyses/DNF Processing (Do this before all DNF Analyses)/"
+michelles_path <-
+  "C:/Users/michelle.masi/Documents/SEFHIER/R code/DNF related analyses/DNF Processing (Do this before all DNF Analyses)/"
 
 jennys_path <-
   "//ser-fs1/sf/LAPP-DM Documents/Ostroff/SEFHIER/Rcode/ProcessingDNFData/"
@@ -76,7 +77,7 @@ db_year_2 <- "2023"
 
 # Auxiliary methods ----
 annas_git_path <-
-r"(~\R_code_github\get_data)"
+  r"(~\R_code_github\get_data)"
 
 if (Path == annas_path) {
   auxiliary_methods_file_path <-
@@ -188,8 +189,8 @@ processed_metrics_tracking_path <-
   file.path(Path,
             Outputs,
             str_glue("SEFHIER_permitted_vessels_nonSRHS_{my_year}.rds"))
-#some may make this file path the Inputs file, because you are inputting this file into this script
-#it doesn’t matter as long as your file location on your computer matches what you say here
+# some may make this file path the Inputs file, because you are inputting this file into this script
+# it doesn’t matter as long as your file location on your computer matches what you say here.
 
 # file.exists(processed_metrics_tracking_path)
 
@@ -251,7 +252,7 @@ get_dnfs_check_ids <- function(dnfs) {
 }
 
 # dnfs_check_ids <- get_dnfs_check_ids(dnfs)
-# View(dnfs_check_ids)
+# nrow(dnfs_check_ids)
 # 116
 
 ### Fewer columns ----
@@ -744,14 +745,15 @@ removed_vessels <-
 percent_of_removed_vessels <-
   (vessels_before_filtering - vessels_after_filtering) * 100 / vessels_before_filtering
 
-removed_dnfs_and_vessels_text <- c(
-  crayon::blue("percent_of_removed_dnfs"),
-  str_glue("{round(percent_of_removed_dnfs)}%"),
-  crayon::blue("removed_vessels"),
-  removed_vessels,
-  crayon::blue("percent_of_removed_vessels"),
-  str_glue("{round(percent_of_removed_vessels)}%")
-)
+removed_dnfs_and_vessels_text <-
+  c(
+    crayon::blue("percent_of_removed_dnfs"),
+    str_glue("{round(percent_of_removed_dnfs)}%"),
+    crayon::blue("removed_vessels"),
+    removed_vessels,
+    crayon::blue("percent_of_removed_vessels"),
+    str_glue("{round(percent_of_removed_vessels)}%")
+  )
 
 my_tee(removed_dnfs_and_vessels_text,
        "\nRemoved dnfs and vessels stats")
