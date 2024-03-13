@@ -287,7 +287,8 @@ my_stats(dnfs_short, "dnfs from the db")
 
 dnfs_short_date <-
   dnfs_short |>
-  mutate(TRIP_DATE = as.Date(TRIP_DATE))
+  mutate(TRIP_DATE = as.Date(TRIP_DATE),
+         DE = as.Date(DE))
 
 # Check
 # dnfs_short$TRIP_DATE |>
