@@ -269,27 +269,23 @@ my_stats(dnfs_short, "dnfs from the db")
 # Unique vessels: 2241
 # Unique trips neg (dnfs): 790839
 
-### reformat trip date ----
-# Explanation:
-#
-# 1. **Create New Dataframe:**
-#    - `dnfs_short_date <- dnfs |> ...`: Create a new dataframe 'dnfs_short_date' by using the pipe operator '|>' on the existing 'dnfs'.
-#
-# 2. **Use 'mutate' to Convert Columns:**
-#    - `mutate(across(..., as.Date))`: Utilize the 'mutate' function with 'across' to apply a transformation to multiple columns.
-#
-# 3. **Column Selection with 'across':**
-#    - `c(!where(is.Date) & ends_with("_DATE"))`: Select columns that meet the specified conditions:
-#      - `!where(is.Date)`: Columns that are not already of type 'Date'.
-#      - `ends_with("_DATE")`: Columns whose names end with "_DATE".
-#
-# 4. **Convert Columns to Date:**
-#    - `as.Date`: Use the 'as.Date' function to convert the selected columns to the 'Date' format.
-
+### drop time from dates ----
 dnfs_short_date <-
   dnfs_short |>
-  mutate(TRIP_DATE = as.Date(TRIP_DATE),
-         DE = as.Date(DE))
+  mutate(TRIP_DATE = as.Date(TRIP_DATE, format = "%FT"),
+         DE = as.Date(DE, format = "%FT"))
+
+# check
+dnfs_short |>
+  select(TRIP_DATE, DE) |>
+  distinct() |>
+  head()
+
+dnfs_short_date |>
+  select(TRIP_DATE, DE) |>
+  distinct() |>
+  head()
+
 
 # Check
 # dnfs_short$TRIP_DATE |>
