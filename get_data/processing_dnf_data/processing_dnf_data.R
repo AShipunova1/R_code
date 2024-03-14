@@ -680,6 +680,8 @@ SEFHIER_processed_dnfs__late_subm <- late_submission_filter()
 # ---
 # Count late_submission (vessels num)
 # 1904
+# 267298/366416*100
+# 72.94933%
 
 # Add all columns from processed metrics tracking to obtain the Permit region.
 
@@ -687,22 +689,13 @@ SEFHIER_processed_dnfs <-
   left_join(SEFHIER_processed_dnfs__late_subm,
             SEFHIER_permit_info_short_this_year)
 
-# > my_stats(SEFHIER_processed_dnfs)
+# stats
+my_stats(SEFHIER_processed_dnfs)
 # SEFHIER_processed_dnfs
 # rows: 366565
 # columns: 26
 # Unique vessels: 1971
 # Unique trips neg (dnfs): 366416
-# ---
-# > my_stats(SEFHIER_processed_dnfs_1)
-# SEFHIER_processed_dnfs_1
-# rows: 368037
-# columns: 33
-# Unique vessels: 3443
-# Unique trips neg (dnfs): 366417
-
-# stats
-my_stats(SEFHIER_processed_dnfs)
 
 dnfs_before_filtering <-
   n_distinct(dnfs_short_date__in_range__iso$TRIP_ID)
@@ -717,26 +710,29 @@ dnfs_after_filtering <-
 
 my_tee(dnfs_after_filtering,
         "dnfs after filtering")
-# 51340 2023
 # 366416 2022
+# 51340 2023
 
 percent_of_removed_dnfs <-
   (dnfs_before_filtering - dnfs_after_filtering) * 100 / dnfs_before_filtering
- cat(percent_of_removed_dnfs, sep = "\n")
+
+cat(percent_of_removed_dnfs, sep = "\n")
 # 53.66743 2022
 
 # removed_vessels
 vessels_before_filtering <-
   n_distinct(dnfs_short_date__in_range__iso$VESSEL_OFFICIAL_NUMBER)
- cat(vessels_before_filtering)
-# 1646 2023
+
+cat(vessels_before_filtering)
 # 2241 2022
+# 1646 2023
 
 vessels_after_filtering <-
   n_distinct(SEFHIER_processed_dnfs$VESSEL_OFFICIAL_NUMBER)
- cat(vessels_after_filtering)
-# 1597 2023
+
+cat(vessels_after_filtering)
 # 1971 2022
+# 1597 2023
 
 removed_vessels <-
   vessels_before_filtering - vessels_after_filtering
@@ -786,7 +782,7 @@ michelles_file_path <-
             Outputs,
             SEFHIER_processed_dnfs_file_name)
 
-# !! Change to the correct path !!
+# !! Change to your path !!
 output_file_path <-
   annas_file_path
 
