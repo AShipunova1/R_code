@@ -190,16 +190,7 @@ compl_override_data_this_year__no_time <-
   mutate(across(where(is.POSIXct),
                 ~ as.Date(.x, format = "%FT")))
 
-diffdf::diffdf(compl_override_data_this_year,
-               compl_override_data_this_year__no_time)
-#       VARIABLE             CLASS.BASE        CLASS.COMP
-#   COMP_OVERRIDE_DT   c("POSIXct", "POSIXt")     Date
-#   COMP_WEEK_END_DT   c("POSIXct", "POSIXt")     Date
-#  COMP_WEEK_START_DT  c("POSIXct", "POSIXt")     Date
-#      CREATED_DT      c("POSIXct", "POSIXt")     Date
-#        LU_DT         c("POSIXct", "POSIXt")     Date
-#   PRM_GRP_EXP_DATE   c("POSIXct", "POSIXt")     Date
-# ok
+# glimpse(compl_override_data_this_year__no_time)
 
 ## Import the permit data ----
 processed_metrics_tracking_path <-
