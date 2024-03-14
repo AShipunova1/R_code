@@ -445,6 +445,21 @@ dnfs_NA <-
 # 1) submitted by a vessel that is missing from the Compliance report and therefore has no associated override data, or
 # 2) submitted by a vessel during a period in which the permit was inactive, and the report was not required
 
+# View(dnfs_NA)
+
+n_distinct(dnfs_NA$TRIP_ID)
+# 404427
+
+dnfs_NA |>
+  filter(is.na(SRH_VESSEL_COMP_ID)) |>
+  nrow()
+# 404427
+# The same #, so it is "1) submitted by a vessel that is missing from the Compliance report and therefore has no associated override data"
+
+# dnfs_NA |>
+#   filter(!is.na(SRH_VESSEL_COMP_ID))
+# 0
+
 # stats
 my_stats(dnfs_NA)
 # rows: 404427
