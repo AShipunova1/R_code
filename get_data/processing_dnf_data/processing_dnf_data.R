@@ -184,6 +184,23 @@ if (!class(compl_override_data_this_year$VESSEL_OFFICIAL_NUMBER) == "character")
     as.character(compl_override_data_this_year$VESSEL_OFFICIAL_NUMBER)
 }
 
+# change data type to remove time from dttm columns
+compl_override_data_this_year__no_time <-
+  compl_override_data_this_year |>
+  mutate(across(where(is.POSIXct),
+                ~ as.Date(.x, format = "%FT")))
+
+diffdf::diffdf(compl_override_data_this_year,
+               compl_override_data_this_year__no_time)
+#       VARIABLE             CLASS.BASE        CLASS.COMP
+#   COMP_OVERRIDE_DT   c("POSIXct", "POSIXt")     Date
+#   COMP_WEEK_END_DT   c("POSIXct", "POSIXt")     Date
+#  COMP_WEEK_START_DT  c("POSIXct", "POSIXt")     Date
+#      CREATED_DT      c("POSIXct", "POSIXt")     Date
+#        LU_DT         c("POSIXct", "POSIXt")     Date
+#   PRM_GRP_EXP_DATE   c("POSIXct", "POSIXt")     Date
+# ok
+
 ## Import the permit data ----
 processed_metrics_tracking_path <-
   file.path(Path,
@@ -286,29 +303,12 @@ dnfs_short_date |>
   distinct() |>
   head()
 
-
-# Check
-# dnfs_short$TRIP_DATE |>
-#   class()
-# dnfs_short_date$TRIP_DATE |>
-#   class()
-# before
-# "POSIXct" "POSIXt"
-# after
-# "Date"
-
-# Now:
-# dnfs_short_date$TRIP_DATE |>
-#   head(1)
-# [1] "2022-09-19"
-
 # stats, to compare with the end result
 dnfs_stat_correct_dates_before_filtering <-
   c(dim(dnfs_short_date),
     n_distinct(dnfs_short_date$VESSEL_OFFICIAL_NUMBER),
     n_distinct(dnfs_short_date$TRIP_ID)
   )
-
 
 ### Prepare data to determine what weeks were overridden, so we can exclude dnfs from those weeks later ----
 
@@ -348,7 +348,7 @@ compl_override_data_this_year |>
 
 ## add override data to dnfs ----
 my_stats(compl_override_data_this_year,
-         "Compl/override data from the db")
+         "Compliance and override data from the db")
 # rows: 150029
 # columns: 23
 # Unique vessels: 3626
@@ -421,6 +421,7 @@ my_stats(dnfs_join_overr)
 dnfs_overridden <-
   filter(dnfs_join_overr, OVERRIDDEN == 1) #data frame of dnfs that were overridden
 
+glimpse(dnfs_join_overr)
 # stats
 my_stats(dnfs_overridden)
 # rows: 17642
