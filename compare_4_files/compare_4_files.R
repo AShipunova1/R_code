@@ -4,8 +4,8 @@
 # 3) Metrics tracking from FHIER
 # 4) permit info from the Oracle db
 # 5) permit info from the PIMS
-# "~\from PIMS\Permits - 2024-01-25_0904.xlsx"
-# get it from PIMS
+# "~\from_PIMS\Permits - 2024-01-25_0904.xlsx"
+# get it from_PIMS
 # Menu: permits
 # Filter:
 # Fishery = RCG - Gulf Charter/headboat For Reef Fish, CHG - Gulf Charter/headboat For Coastal Migratory Pelagic Fish, SC - South Atlantic Charter/headboat For Snapper-grouper, CHS - Atlantic Charter/headboat For Coastal Migratory Pelagics, HCHG - Historical Captain Gulf Charter/headboat For Coastal Migratory Pelagic Fish, HRCG - Historical Captain Gulf Charter/headboat For Reef Fish, CDW - Atlantic Charter/headboat For Dolphin/wahoo
@@ -248,13 +248,14 @@ max(permit_info_from_db$EFFECTIVE_DATE)
 # [1] "2023-01-01 EST"
 # [1] "2022-12-30 EST"
 
-## 6) permit info from PIMS ----
-# "~\from PIMS\Permits - 2024-01-25_0904.xlsx"
+## 6) from_PIMS permit info ----
+# "~\from_PIMS\Permits - 2024-01-25_0904.xlsx"
 
 permit_file_path <-
   file.path(my_paths$inputs,
-            "from PIMS",
-            "Permits - 2024-01-25_0904.xlsx")
+            "from_PIMS",
+            "Permits - 2024-02-28_0930.xlsx")
+
 to_skip <- 4
 my_sheet <- "Sheet 1"
 
@@ -270,12 +271,13 @@ permits_from_pims <-
 dim(permits_from_pims)
 # [1] 23575    11
 
-## 7) From PIMS - permit applications for transfer ----
-# "~\from PIMS\Permit Applications - transfer - 2024-02-27_1555.xlsx"
+## 7) from_PIMS - permit applications for transfer ----
+# "~\from_PIMS\Permit Applications - transfer - 2024-02-27_1555.xlsx"
 
 transfer_applications_file_path <-
   file.path(my_paths$inputs,
-            "from PIMS",
+            "from_PIMS",
+            "pims_appliications",
             "Permit Applications - transfer - 2024-02-27_1555.xlsx")
 
 to_skip <- 4
