@@ -185,6 +185,16 @@ if (!class(compl_override_data_this_year$VESSEL_OFFICIAL_NUMBER) == "character")
 }
 
 # change data type to remove time from dttm columns
+# Explanations:
+# 1. Use 'mutate' to apply a transformation across multiple columns that are of type POSIXct.
+#    - 'across' allows applying a function to multiple columns.
+#    - 'where' selects columns based on a predicate function, 'is.POSIXct' in this case.
+# 2. Convert each POSIXct column to Date format using 'as.Date'.
+#    - 'as.Date' converts the POSIXct object to a Date object.
+# 3. Specify the format of the date string using the 'format' argument as "%FT".
+#    - "%FT" represents the ISO 8601 date format with the time.
+# 4. The resulting DataFrame will have the POSIXct columns converted to Date format.
+
 compl_override_data_this_year__no_time <-
   compl_override_data_this_year |>
   mutate(across(where(is.POSIXct),
