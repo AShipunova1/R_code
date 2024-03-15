@@ -66,8 +66,8 @@ Outputs <- "Outputs/"
 
 # Set the date ranges for the DNF and compliance data you are pulling
 # this is the year to assign to the output file name
-my_year <- "2022"
-# my_year <- "2023"
+# my_year <- "2022"
+my_year <- "2023"
 my_date_beg <- str_glue('01-JAN-{my_year}')
 my_date_end <- str_glue('31-DEC-{my_year}')
 
@@ -410,10 +410,17 @@ compl_override_data_this_year |>
   distinct() |>
   arrange(COMP_WEEK_END_DT) |>
   head(3)
+# 2022
 #   COMP_YEAR COMP_WEEK_END_DT COMP_WEEK
 # 1      2021       2022-01-02        52
 # 2      2022       2022-01-09         1
 # 3      2022       2022-01-16         2
+# 2023
+#   COMP_YEAR COMP_WEEK_END_DT COMP_WEEK
+# 1      2022       2023-01-01        52
+# 2      2023       2023-01-08         1
+# 3      2023       2023-01-15         2
+
 
 ## add override data to dnfs ----
 my_stats(compl_override_data_this_year,
@@ -673,7 +680,7 @@ SEFHIER_dnfs_notoverridden <-
   dnfs_notoverridden_ok |>
   filter(VESSEL_OFFICIAL_NUMBER %in% SEFHIER_permit_info_short_this_year$VESSEL_OFFICIAL_NUMBER)
 
-# check dnf dates ----
+## check dnf dates ----
 # names(SEFHIER_dnfs_notoverridden) |>
 #   cat(sep = ", ")
 
@@ -696,6 +703,16 @@ SEFHIER_dnfs_notoverridden__time_only_23 <-
     .cols = ends_with("_time_only"),
     .fns = ~ grepl("^23", .x)
   ))
+
+SEFHIER_dnfs_notoverridden__time_only_23 |>
+  select(TRIP_ID,
+         VESSEL_OFFICIAL_NUMBER,
+         TRIP_DATE,
+         COMP_WEEK,
+         DE,
+         USABLE_DATE_TIME) |>
+  distinct() |>
+  head()
 
 # SEFHIER_dnfs_notoverridden__time_only |>
 #   filter(across(ends_with("time_only")))
@@ -755,7 +772,7 @@ late_submission_filter <-
     SEFHIER_dnfs_notoverridden__temp <-
       SEFHIER_dnfs_notoverridden |>
       mutate(MORE_THAN_30_DAYS_LATE =
-               case_when(DE_w_time <= USABLE_DATE_TIME ~ FALSE,
+               case_when(DE <= USABLE_DATE_TIME ~ FALSE,
                          .default = TRUE))
     late_submission_filter_stats(SEFHIER_dnfs_notoverridden__temp)
 
