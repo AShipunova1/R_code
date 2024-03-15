@@ -66,8 +66,8 @@ Outputs <- "Outputs/"
 
 # Set the date ranges for the DNF and compliance data you are pulling
 # this is the year to assign to the output file name
-my_year <- "2022"
-# my_year <- "2023"
+# my_year <- "2022"
+my_year <- "2023"
 my_date_beg <- str_glue('01-JAN-{my_year}')
 my_date_end <- str_glue('31-DEC-{my_year}')
 
@@ -290,19 +290,95 @@ my_stats(dnfs_short, "dnfs from the db")
 ### drop time from dates ----
 dnfs_short_date <-
   dnfs_short |>
-  mutate(TRIP_DATE = as.Date(TRIP_DATE, format = "%FT"),
-         DE = as.Date(DE, format = "%FT"))
+  mutate(
+    TRIP_DATE =
+      as.Date(
+        TRIP_DATE,
+        format = "%FT",
+        tz = Sys.timezone()
+      ),
+    DE = as.Date(DE, format = "%FT",
+                 tz = Sys.timezone())
+  )
 
-# check
-dnfs_short |>
-  select(TRIP_DATE, DE) |>
-  distinct() |>
-  head()
-
-dnfs_short_date |>
-  select(TRIP_DATE, DE) |>
-  distinct() |>
-  head()
+# check, not needed for processing
+# dnfs_short |>
+#   select(VESSEL_OFFICIAL_NUMBER, TRIP_DATE, DE) |>
+#   distinct() |>
+#   head()
+#
+# dnfs_short_date |>
+#   select(VESSEL_OFFICIAL_NUMBER, TRIP_DATE, DE) |>
+#   distinct() |>
+#   head()
+#
+# check the transformation, not needed for processing
+# dnfs_short |>
+#    select(TRIP_ID, VESSEL_OFFICIAL_NUMBER, DE) |>
+#    mutate(DE_time = format(DE, "%H%M%S")) |>
+#    filter(grepl("230000", DE_time)) |>
+#    distinct() |>
+#    head()
+# #    TRIP_ID VESSEL_OFFICIAL_NUMBER                  DE DE_time
+# # 1 68973182               FL7214BJ 2024-01-13 23:00:00  230000
+# # 2 68973183               FL7214BJ 2024-01-13 23:00:00  230000
+# # 3 68973184               FL7214BJ 2024-01-13 23:00:00  230000
+# # 4 68973185               FL7214BJ 2024-01-13 23:00:00  230000
+#
+# dnfs_short_date |>
+#   filter(VESSEL_OFFICIAL_NUMBER == "FL7214BJ" &
+#            TRIP_ID == "68973182") |>
+#   head()
+# #    TRIP_ID  TRIP_DATE VESSEL_ID         DE VESSEL_OFFICIAL_NUMBER
+# # 1 68973182 2023-07-27    399066 2024-01-14               FL7214BJ
+# # correct time zone:
+# # 1 68973182 2023-07-27    399066 2024-01-13               FL7214BJ
+#
+# grep("000000", dnfs_short_TRIP_DATE_time, value = T, invert = T) |>
+#   head()
+# # [1] "010000"
+#
+# grep("000000", dnfs_short_DE_time, value = T, invert = T) |>
+#   length()
+# # 42363
+#
+# grep("^23", dnfs_short_DE_time, value = T) |>
+#   sort() |>
+#   # head(1)
+# # 230000
+#   tail(1)
+# # 235959
+#
+# # check all dates (should be the same)
+# # dnfs_short_date <-
+# #   dnfs_short |>
+#
+# dnfs_short__dates_only <-
+#   dnfs_short |>
+#    select(TRIP_ID, VESSEL_OFFICIAL_NUMBER, DE, TRIP_DATE) |>
+#    mutate(DE_date_only = format(DE, "%Y%m%d"),
+#           TRIP_DATE_date_only = format(TRIP_DATE, "%Y%m%d"))
+#
+# dnfs_short_date__dates_only <-
+#   dnfs_short_date |>
+#    select(TRIP_ID, VESSEL_OFFICIAL_NUMBER, DE, TRIP_DATE) |>
+#    mutate(DE_date_only = format(DE, "%Y%m%d"),
+#           TRIP_DATE_date_only = format(TRIP_DATE, "%Y%m%d"))
+#
+# dates_only <-
+#   full_join(dnfs_short__dates_only,
+#             dnfs_short_date__dates_only,
+#             join_by(TRIP_ID),
+#             suffix = c("_w_time", "_no_time"))
+#
+# dates_only |>
+#   filter(
+#     !(DE_date_only_w_time == DE_date_only_no_time) |
+#       !(TRIP_DATE_date_only_w_time == TRIP_DATE_date_only_no_time)
+#   ) |>
+#   select(-starts_with("VESSEL_OFF")) |>
+#   nrow()
+# # 0, correct
 
 # stats, to compare with the end result
 dnfs_stat_correct_dates_before_filtering <-
