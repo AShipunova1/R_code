@@ -1405,9 +1405,10 @@ join_compliance_from_fhier__permit_info_from_db__vsl_perm |>
   glimpse()
 # GOM p. are missing from compl (TRANSFERRED)
 
-## [4] "permits_from_pims" "metrics_report" ----
+## [4] "compliance_from_fhier"           "transfer_applications_from_pims" ----
 curr_file_name_combinations <-
   file_name_combinations[,4]
+# TODO
 
 ## [5] "permits_from_pims" "metrics_report" ----
 curr_file_name_combinations <-
