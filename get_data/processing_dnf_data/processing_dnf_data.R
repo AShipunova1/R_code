@@ -66,8 +66,8 @@ Outputs <- "Outputs/"
 
 # Set the date ranges for the DNF and compliance data you are pulling
 # this is the year to assign to the output file name
-# my_year <- "2022"
-my_year <- "2023"
+my_year <- "2022"
+# my_year <- "2023"
 my_date_beg <- str_glue('01-JAN-{my_year}')
 my_date_end <- str_glue('31-DEC-{my_year}')
 
@@ -197,8 +197,12 @@ if (!class(compl_override_data_this_year$VESSEL_OFFICIAL_NUMBER) == "character")
 
 compl_override_data_this_year__no_time <-
   compl_override_data_this_year |>
-  mutate(across(where(is.POSIXct),
-                ~ as.Date(.x, format = "%FT")))
+  mutate(across(
+    where(is.POSIXct),
+    ~ as.Date(.x,
+              format = "%FT",
+              tz = Sys.timezone())
+  ))
 
 # glimpse(compl_override_data_this_year__no_time)
 
@@ -319,20 +323,6 @@ dnfs_short_date <-
 #    filter(grepl("230000", DE_time)) |>
 #    distinct() |>
 #    head()
-# #    TRIP_ID VESSEL_OFFICIAL_NUMBER                  DE DE_time
-# # 1 68973182               FL7214BJ 2024-01-13 23:00:00  230000
-# # 2 68973183               FL7214BJ 2024-01-13 23:00:00  230000
-# # 3 68973184               FL7214BJ 2024-01-13 23:00:00  230000
-# # 4 68973185               FL7214BJ 2024-01-13 23:00:00  230000
-#
-# dnfs_short_date |>
-#   filter(VESSEL_OFFICIAL_NUMBER == "FL7214BJ" &
-#            TRIP_ID == "68973182") |>
-#   head()
-# #    TRIP_ID  TRIP_DATE VESSEL_ID         DE VESSEL_OFFICIAL_NUMBER
-# # 1 68973182 2023-07-27    399066 2024-01-14               FL7214BJ
-# # correct time zone:
-# # 1 68973182 2023-07-27    399066 2024-01-13               FL7214BJ
 #
 # grep("000000", dnfs_short_TRIP_DATE_time, value = T, invert = T) |>
 #   head()
