@@ -719,12 +719,14 @@ n_distinct(permits_from_pims_new$vessel_or_dealer)
 
 ### permits_from_pims split permit__ ----
 # $ permit__         <chr> "CHG-981", "CHG-120", "RCG-114", "CHG-1417", "RCG-1359"…
-
+# print_df_names(permits_from_pims_new)
 permits_from_pims__permit_only <-
   permits_from_pims_new |>
   mutate(permit_clean =
            str_replace(permit__,
-                       "-\\d+", ""))
+                       "-\\d+", ""),
+         .before = permits_from_pims)
+
 
 n_distinct(permits_from_pims__permit_only$vessel_or_dealer)
 # 3127
@@ -1484,10 +1486,10 @@ join_permits_from_pims__metrics_report__vsl_perm__grps <-
 # View(join_permits_from_pims__metrics_report__vsl_perm__grps)
 
 ### check vessels in pims, but not in metrics ----
-join_permits_from_pims__metrics_report__vsl_perm__grps |>
-  filter(vessel_official_number %in%
-           vessel_in_permits_from_pims_not_in_metrics_report) |>
-  View()
+# join_permits_from_pims__metrics_report__vsl_perm__grps |>
+#   filter(vessel_official_number %in%
+#            vessel_in_permits_from_pims_not_in_metrics_report) |>
+#   View()
 
 ### vessels in > 1 group, join_permits_from_pims__metrics_report__vsl_perm__grps ----
 intersections_4 <-
@@ -1502,6 +1504,15 @@ map(intersections_4, length)
 #
 # $inters_in_metrics_report__in_permits_from_pims
 # [1] 15
+# today
+# $inters_in_both__in_metrics_report
+# [1] 104
+#
+# $inters_in_both__in_permits_from_pims
+# [1] 824
+#
+# $inters_in_metrics_report__in_permits_from_pims
+# [1] 143
 
 map(intersections_4, head(1))
 # inters_in_both__in_metrics_report
@@ -1512,6 +1523,16 @@ map(intersections_4, head(1))
 #
 # $inters_in_metrics_report__in_permits_from_pims
 # [1] "1197174"
+
+# today
+# $inters_in_both__in_metrics_report
+# [1] "TX2118FJ"
+#
+# $inters_in_both__in_permits_from_pims
+# [1] "1077813"
+#
+# $inters_in_metrics_report__in_permits_from_pims
+# [1] "FL5121MC"
 
 join_permits_from_pims__metrics_report__vsl_perm |>
   filter(vessel_official_number == "FL6706GE") |>
