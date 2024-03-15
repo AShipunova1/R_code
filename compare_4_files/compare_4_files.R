@@ -1078,7 +1078,8 @@ vessel_in_compl_not_in_pims_perm <-
   select(vessel_official_number) |>
   distinct()
 
-nrow(vessel_in_compl_not_in_pims_perm)
+num__vessel_in_compl_not_in_pims_perm <-
+  nrow(vessel_in_compl_not_in_pims_perm)
 # 1520
 # [1] 1433
 
@@ -1087,8 +1088,14 @@ vessel_in_compl_not_in_pims_perm1 <-
     all_dfs_list_no_srhs$compliance_from_fhier$vessel_official_number,
     all_dfs_list_no_srhs$permits_from_pims$vessel_official_number
   )
-length(vessel_in_compl_not_in_pims_perm1)
-# 1520 (the same)
+num__vessel_in_compl_not_in_pims_perm1 <-
+  length(vessel_in_compl_not_in_pims_perm1)
+# 1520
+# 1433
+
+# check: should be the same as above
+num__vessel_in_compl_not_in_pims_perm == num__vessel_in_compl_not_in_pims_perm1
+# T
 
 vessel_in_permits_from_pims_not_in_compl <-
   setdiff(
@@ -1098,9 +1105,11 @@ vessel_in_permits_from_pims_not_in_compl <-
 length(vessel_in_permits_from_pims_not_in_compl)
 # 905
 # 793 (no srhs)
+# 4651
 
 glimpse(vessel_in_permits_from_pims_not_in_compl)
  # chr [1:905] "1074262" "644342" "296866" "1296642" "FL9104PX" "FL5102EJ" ...
+ # chr [1:4651] "FL5150FR" "FL6923EA" "587877" "FL6174HJ" "688042" "1025535" ...
 
 ### compliance_from_fhier & permits_from_pims join by vessel and permit ----
 join_compliance_from_fhier__permits_from_pims__vsl_perm <-
@@ -1131,14 +1140,23 @@ join_compliance_from_fhier__permits_from_pims__vsl_perm__grps |>
   select(vessel_official_number, where_is_vessel_permit) |>
   distinct() |>
   count(where_is_vessel_permit) |>
+  # head()
 # 1 in_both                  2161
 # 2 in_compliance_from_fhier 1653
 # 3 in_permits_from_pims      930
+# today
+# 1 in_both                   2147
+# 2 in_compliance_from_fhier  1692
+# 3 in_permits_from_pims      5594
+
   count(wt = n)
 # 4744, the same vessel in >1 group!
+# 9433
 
 n_distinct(join_compliance_from_fhier__permits_from_pims__vsl_perm__grps$vessel_official_number)
 # 4592
+# [1] 8335
+# the same vessel in >1 group!
 
 ### check all 3 groups, join_compliance_from_fhier__permits_from_pims__vsl_perm__grps ----
 # TODO: save vessel id and look for them in other dfs
@@ -1170,9 +1188,11 @@ map(intersections_1, head(1))
 #
 # $inters_in_both__in_permits_from_pims
 # [1] "TX7674AT"
+# "VI5498TB"
 #
 # $inters_in_compliance_from_fhier__in_permits_from_pims
 # [1] "FL7549EJ"
+# "TX6211DM"
 
 join_compliance_from_fhier__permits_from_pims__vsl_perm |>
   filter(vessel_official_number == "VA4480ZY") |>
@@ -1188,7 +1208,6 @@ join_compliance_from_fhier__permits_from_pims__vsl_perm |>
   filter(vessel_official_number == "FL7549EJ") |>
   glimpse()
 # diff in compliance and in pims
-
 
 ## [2] "compliance_from_fhier" "metrics_report" ----
 file_name_combinations[,2]
@@ -1233,12 +1252,12 @@ glimpse(join_compliance_from_fhier__metrics_report__vsl_permit__grps)
 join_compliance_from_fhier__metrics_report__vsl_permit__grps |>
   select(vessel_official_number, where_is_vessel_permit) |>
   distinct() |>
-  count(where_is_vessel_permit)
-# |>
+  count(where_is_vessel_permit) |>
+  # head()
 # 1 in_both                   3432
 # 2 in_compliance_from_fhier   397
 # 3 in_metrics_report           19
-  # count(wt = n)
+  count(wt = n)
 # 3848
 
 n_distinct(join_compliance_from_fhier__metrics_report__vsl_permit__grps$vessel_official_number)
@@ -1267,12 +1286,12 @@ map(intersections_2, head(1))
 join_compliance_from_fhier__metrics_report__vsl_permit |>
   filter(vessel_official_number == "TX6291CS") |>
   glimpse()
-# missing in compl metrics
+# missing in metrics_report__df_name
 
 join_compliance_from_fhier__metrics_report__vsl_permit |>
   filter(vessel_official_number == "MC7540US") |>
   glimpse()
-# missing in compl
+#  "CHG", "RCG" are missing in compl
 
 ## [3] "compliance_from_fhier" "permit_info_from_db" ----
 curr_file_name_combinations <-
@@ -1300,6 +1319,7 @@ length(vessel_in_compl_not_in_permit_info_from_db)
 # 13 after +id
 # 10 after 2022 and permit group 7
 # 1143
+# 13
 
 vessel_in_compl_not_in_permit_info_from_db_alt <-
   setdiff(
@@ -1323,6 +1343,8 @@ length(vessel_in_permit_info_from_db_not_in_compl)
 # 10387 after +id
 # 195 after 2022 and permit group 7
 # 95
+# [1] "2024-03-15"
+# 74
 
 ### check join_compliance_from_fhier__permit_info_from_db__vsl_perm__grps ----
 join_compliance_from_fhier__permit_info_from_db__vsl_perm__grps <-
@@ -1331,20 +1353,23 @@ join_compliance_from_fhier__permit_info_from_db__vsl_perm__grps <-
     curr_file_name_combinations
   )
 
-glimpse(join_compliance_from_fhier__permit_info_from_db__vsl_perm__grps)
+# glimpse(join_compliance_from_fhier__permit_info_from_db__vsl_perm__grps)
 
 join_compliance_from_fhier__permit_info_from_db__vsl_perm__grps |>
   select(vessel_official_number, where_is_vessel_permit) |>
   distinct() |>
-  count(where_is_vessel_permit)
+  count(where_is_vessel_permit) |>
+  # head()
 # 1 in_both                   2544
 # 2 in_compliance_from_fhier  1536
 # 3 in_permit_info_from_db      96
-  # count(wt = n)
+  count(wt = n)
 # 4176
+# 3866
 
 n_distinct(join_compliance_from_fhier__permit_info_from_db__vsl_perm__grps$vessel_official_number)
 # 3782, the same vessel in >1 group!
+# 3758
 
 intersections_3 <-
   run_intersection_check(join_compliance_from_fhier__permit_info_from_db__vsl_perm__grps)
@@ -1352,29 +1377,41 @@ intersections_3 <-
 map(intersections_3, length)
 # $inters_in_both__in_compliance_from_fhier
 # [1] 393
-#
+# 100
+
 # $inters_in_both__in_permit_info_from_db
 # [1] 1
+# 8
 
 map(intersections_3, head(1))
 # $inters_in_both__in_compliance_from_fhier
 # [1] "VA2668BK"
+# SC5306EA
 #
 # $inters_in_both__in_permit_info_from_db
 # [1] "1024989"
+# MC7540US
 
 join_compliance_from_fhier__permit_info_from_db__vsl_perm |>
-  filter(vessel_official_number == "VA2668BK") |>
+# filter(vessel_official_number == "VA2668BK") |>
+  # gom permits are missing in compl
+  filter(vessel_official_number == "SC5306EA") |>
   glimpse()
-# gom permits are missing in compl
+# misssing in db
 
 join_compliance_from_fhier__permit_info_from_db__vsl_perm |>
-  filter(vessel_official_number == "1024989") |>
+  # filter(vessel_official_number == "1024989") |>
+  filter(vessel_official_number == "MC7540US") |>
   glimpse()
+# GOM p. are missing from compl (TRANSFERRED)
 
 ## [4] "permits_from_pims" "metrics_report" ----
 curr_file_name_combinations <-
   file_name_combinations[,4]
+
+## [5] "permits_from_pims" "metrics_report" ----
+curr_file_name_combinations <-
+  file_name_combinations[,5]
 
 # print_df_names(all_dfs_list_no_srhs$permits_from_pims)
 # print_df_names(all_dfs_list_no_srhs$metrics_report)
@@ -1389,6 +1426,8 @@ join_permits_from_pims__metrics_report <-
 #   Detected an unexpected many-to-many relationship between `x` and `y`.
 # ℹ Row 1 of `x` matches multiple rows in `y`.
 # ℹ Row 2905 of `y` matches multiple rows in `x`.
+# ℹ Row 7304 of `y` matches multiple rows in `x`.
+#
 # TODO: check
 
 vessel_in_permits_from_pims_not_in_metrics_report <-
@@ -1399,6 +1438,7 @@ vessel_in_permits_from_pims_not_in_metrics_report <-
 
 length(vessel_in_permits_from_pims_not_in_metrics_report)
 # 973
+# 4723
 
 vessel_in_metrics_report_not_in_permits_from_pims <-
   setdiff(
@@ -1408,6 +1448,7 @@ vessel_in_metrics_report_not_in_permits_from_pims <-
 
 length(vessel_in_metrics_report_not_in_permits_from_pims)
 # 1347
+# 1264
 
 ### join by vessel and permit, join_permits_from_pims__metrics_report__vsl_perm ----
 join_permits_from_pims__metrics_report__vsl_perm <-
@@ -1426,6 +1467,18 @@ join_permits_from_pims__metrics_report__vsl_perm__grps <-
     join_permits_from_pims__metrics_report__vsl_perm,
     curr_file_name_combinations
   )
+# Group counts
+# # A tibble: 3 × 2
+#   where_is_vessel_permit     n
+#   <glue>                 <int>
+# 1 in_both                 2071
+# 2 in_metrics_report       1476
+# 3 in_permits_from_pims    5655
+# Total cnt in groups
+# 9202
+# ---
+# Total vsl cnt
+# 8166
 
 # View(join_permits_from_pims__metrics_report__vsl_perm__grps)
 
