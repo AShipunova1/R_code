@@ -1,3 +1,5 @@
+# today()
+# [1] "2024-03-15"
 # compare this 4 files (permits) for 2022
 # 1) compliance report downloaded from FHIER (= complaince module)
 # 2) logbooks from the Oracle db all_logbooks... (has 3 or 4 letters coded permit types) -- don't know how to get permit info,
@@ -265,8 +267,6 @@ permits_from_pims <-
   read_xlsx(permit_file_path,
             sheet = my_sheet,
             skip = to_skip)
-
-# glimpse(permits_from_pims_raw)
 
 dim(permits_from_pims)
 # [1] 23575    11
@@ -668,6 +668,7 @@ all_dfs_list3$permit_info_from_db <-
 ### permits_from_pims get only new ----
 # TODO: don't include if all the dates before 2021 or after 2023?
 program_start_date <- lubridate::dmy("04-JAN-2021")
+
 in_my_date_range <-
   rlang::quo(
       end_date >= program_start_date |
@@ -681,9 +682,11 @@ permits_from_pims_new <-
 # check
 dim(permits_from_pims_new)
 # [1] 8801   8
+# [1] 20485     9
 
 n_distinct(permits_from_pims_new$vessel_or_dealer)
 # 3127
+# 7178
 
 # don't do that, too few vessels left
 # in_my_date_range <-
@@ -725,6 +728,7 @@ permits_from_pims__permit_only <-
 
 n_distinct(permits_from_pims__permit_only$vessel_or_dealer)
 # 3127
+# [1] 7178
 
 ### permits_from_pims split vessel_or_dealer ----
 # $ vessel_or_dealer <chr> "287008 / DESTINY", "515431 / CAPT BUCK", "R15431 / CAP…
@@ -739,9 +743,13 @@ permits_from_pims__permit_only__vessel_id <-
 
 # permits_from_pims__permit_only[8636,] |> glimpse()
 # Expected 2 pieces. Missing pieces filled with `NA` in 3 rows [8636, 8637, 8638].
+# Expected 2 pieces. Missing pieces filled with `NA` in 778 rows [393, 396, 478, 479,
+# 508, 514, 519, 546, 555, 766, 767, 768, 810, 811, 815, 828, 893, 910, 911, 912,
+# ...].
 
 n_distinct(permits_from_pims__permit_only__vessel_id$vessel_official_number)
 # 3069
+# [1] 7016
 
 # View(permits_from_pims__permit_only__vessel_id)
 
@@ -760,6 +768,9 @@ all_dfs_list3$permits_from_pims <-
 
 unique(all_dfs_list3$permits_from_pims$permit_clean)
 # [1] "CDW"  "SC"   "CHS"  "CHG"  "RCG"  "HRCG" "HCHG"
+# ...
+# [41] "GC"     "ALR
+# TODO: why permits are not cleaned?
 
 ### transfer_applications_from_pims split vessel_or_dealer 1 ----
 
@@ -799,7 +810,7 @@ transfer_applications_from_pims__split2 <-
   transfer_applications_from_pims__split1 |>
   separate(
     vessel_official_numbers,
-    c('vessel_official_number1', 'vessel_official_number2'),
+    c('vessel_official_number', 'vessel_official_number2'),
     sep = " / "
   ) |>
   mutate(across(starts_with('vessel_official_number'),
@@ -814,7 +825,6 @@ transfer_applications_from_pims__split2 <-
 
 ### transfer_applications_from_pims__split2 fewer cols ----
 
-# transfer_applications_from_pims__split2 |> View()
 transfer_applications_from_pims__split2_short <-
   transfer_applications_from_pims__split2 |>
   select(-c(dealer, permitholder_name)) |>
@@ -845,12 +855,28 @@ all_dfs_list3$transfer_applications_from_pims <-
 all_dfs_list_no_srhs <-
   all_dfs_list3 |>
   map(\(one_df) {
+    # browser()
     one_df |>
       filter(!vessel_official_number %in% srhs_vessels__renamed$vessel_official_number)
   })
 
 map(all_dfs_list3, dim)
-map(all_dfs_list_no_srhs, dim)
+# $compliance_from_fhier
+# [1] 9965    4
+#
+# $permits_from_pims
+# [1] 20483     9
+#
+# $metrics_report
+# [1] 9171    9
+#
+# $permit_info_from_db
+# [1] 15763    14
+#
+# $transfer_applications_from_pims
+# [1] 3168    4
+
+# map(all_dfs_list_no_srhs, dim)
 
 # check permit_sep_u & permit_info_from_db ----
 setdiff(all_permits_in_metrics$permit_sep_u,
@@ -1021,8 +1047,8 @@ run_intersection_check <-
 ## [1] "compliance_from_fhier" "permits_from_pims" ----
 file_name_combinations[,1]
 
-print_df_names(all_dfs_list_no_srhs$compliance_from_fhier)
-print_df_names(all_dfs_list_no_srhs$permits_from_pims)
+# print_df_names(all_dfs_list_no_srhs$compliance_from_fhier)
+# print_df_names(all_dfs_list_no_srhs$permits_from_pims)
 
 n_distinct(all_dfs_list_no_srhs$compliance_from_fhier$vessel_official_number)
 # 3687
@@ -1030,6 +1056,7 @@ n_distinct(all_dfs_list_no_srhs$compliance_from_fhier$vessel_official_number)
 n_distinct(all_dfs_list_no_srhs$permits_from_pims$vessel_official_number)
 # 3069
 # 2957 (no srhs)
+# 6902
 
 join_compliance_from_fhier__permits_from_pims__perm <-
   full_join(
@@ -1037,8 +1064,8 @@ join_compliance_from_fhier__permits_from_pims__perm <-
     all_dfs_list_no_srhs$permits_from_pims,
     join_by(vessel_official_number)
   )
-# ℹ Row 5 of `x` matches multiple rows in `y`.
-# ℹ Row 6165 of `y` matches multiple rows in `x`.
+# ℹ Row 1 of `x` matches multiple rows in `y`.
+# ℹ Row 12403 of `y` matches multiple rows in `x`.
 # TODO check, this is a result of having sep permits
 
 # View(join_compliance_from_fhier__permits_from_pims__perm)
@@ -1053,6 +1080,7 @@ vessel_in_compl_not_in_pims_perm <-
 
 nrow(vessel_in_compl_not_in_pims_perm)
 # 1520
+# [1] 1433
 
 vessel_in_compl_not_in_pims_perm1 <-
   setdiff(
