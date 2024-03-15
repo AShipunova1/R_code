@@ -168,8 +168,10 @@ min(compl_override_data__renamed$COMP_WEEK_START_DT)
 # keep only year of analysis, including the week 52 of the previous year if needed
 compl_override_data_this_year <-
   compl_override_data__renamed |>
-  filter(COMP_WEEK_END_DT >= as.Date(my_date_beg, "%d-%b-%Y") &
-           COMP_WEEK_START_DT <= as.Date(my_date_end, "%d-%b-%Y"))
+  filter(COMP_WEEK_END_DT >= as.Date(my_date_beg, "%d-%b-%Y",
+                                     tz = Sys.timezone()) &
+           COMP_WEEK_START_DT <= as.Date(my_date_end, "%d-%b-%Y",
+                                         tz = Sys.timezone()))
 
 # check
 # That's the week 52 of my_year-1:
