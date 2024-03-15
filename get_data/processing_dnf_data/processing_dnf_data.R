@@ -66,8 +66,8 @@ Outputs <- "Outputs/"
 
 # Set the date ranges for the DNF and compliance data you are pulling
 # this is the year to assign to the output file name
-my_year <- "2022"
-# my_year <- "2023"
+# my_year <- "2022"
+my_year <- "2023"
 my_date_beg <- str_glue('01-JAN-{my_year}')
 my_date_end <- str_glue('31-DEC-{my_year}')
 
@@ -197,14 +197,14 @@ if (!class(compl_override_data_this_year$VESSEL_OFFICIAL_NUMBER) == "character")
 #    - "%FT" represents the ISO 8601 date format with the time.
 # 4. The resulting DataFrame will have the POSIXct columns converted to Date format.
 
-compl_override_data_this_year__no_time <-
-  compl_override_data_this_year |>
-  mutate(across(
-    where(is.POSIXct),
-    ~ as.Date(.x,
-              format = "%FT",
-              tz = Sys.timezone())
-  ))
+# compl_override_data_this_year__no_time <-
+#   compl_override_data_this_year |>
+#   mutate(across(
+#     where(is.POSIXct),
+#     ~ as.Date(.x,
+#               format = "%FT",
+#               tz = Sys.timezone())
+#   ))
 
 # glimpse(compl_override_data_this_year__no_time)
 
@@ -597,6 +597,7 @@ my_stats(dnfs_NA__rm_missing_vsls,
 
 # Use trip end date to calculate the usable date 30 days later
 
+
 # Add a correct timezone to TRIP_DATE (EST vs. EDT)
 dnfs_notoverridden__w_missing__timezone <-
   dnfs_notoverridden__w_missing |>
@@ -604,6 +605,7 @@ dnfs_notoverridden__w_missing__timezone <-
            ymd_hms(TRIP_DATE,
                    truncated = 3,
                    tz = Sys.timezone()))
+
 
 # add a date 30 days later with a time
 dnfs_notoverridden__w_missing__timezone__30 <-
@@ -615,11 +617,13 @@ dnfs_notoverridden__w_missing__timezone__30 <-
            minutes(59) +
            seconds(59))
 
-# format the submission date (DE)
+# add time to the submission date (DE)
+# to compare with "usable_date_time"
 dnfs_notoverridden_all <-
   dnfs_notoverridden__w_missing__timezone__30 |>
-  mutate(DE =
-           as.POSIXct(DE, format = "%Y-%m-%d %H:%M:%S"))
+  mutate(DE_w_time =
+           as.POSIXct(DE, format = "%Y-%m-%d %H:%M:%S",
+                      tz = Sys.timezone()))
 
 # Drop empty columns
 dnfs_notoverridden_ok <-
@@ -716,7 +720,7 @@ late_submission_filter <-
     SEFHIER_dnfs_notoverridden__temp <-
       SEFHIER_dnfs_notoverridden |>
       mutate(MORE_THAN_30_DAYS_LATE =
-               case_when(DE <= USABLE_DATE_TIME ~ FALSE,
+               case_when(DE_w_time <= USABLE_DATE_TIME ~ FALSE,
                          .default = TRUE))
     late_submission_filter_stats(SEFHIER_dnfs_notoverridden__temp)
 
