@@ -40,8 +40,8 @@ curr_proj_input_path <- file.path(my_paths$inputs,
                          current_project_basename)
 
 my_year <- "2022"
-my_date_beg <- '01-JAN-2022'
-my_date_end <- '31-DEC-2022'
+my_date_beg <- str_glue('01-JAN-{my_year}')
+my_date_end <- str_glue('31-DEC-{my_year}')
 
 # get data ----
 ## 1) import the list of SRHS vessels ----
