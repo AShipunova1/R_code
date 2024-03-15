@@ -620,7 +620,8 @@ dnfs_notoverridden__w_missing__timezone__30 <-
 # add time to the submission date (DE)
 # to compare with "usable_date_time"
 dnfs_notoverridden_all <-
-  dnfs_notoverridden__w_missing__timezone__30 |>
+  dnfs_notoverridden__w_missing__timezone__30
+# |>
   # mutate(DE_w_time =
   #          as.POSIXct(DE, format = "%Y-%m-%d %H:%M:%S",
   #                     tz = Sys.timezone()))
@@ -687,13 +688,14 @@ SEFHIER_dnfs_notoverridden__time_only <-
     .names = "{.col}_time_only"
   ))
 
-SEFHIER_dnfs_notoverridden__time_only |>
+# DE_time_only
+SEFHIER_dnfs_notoverridden__time_only_23 <-
+  SEFHIER_dnfs_notoverridden__time_only |>
   select(-USABLE_DATE_TIME_time_only) |>
   filter(if_any(
     .cols = ends_with("_time_only"),
     .fns = ~ grepl("^23", .x)
-  )) |>
-  str()
+  ))
 
 # SEFHIER_dnfs_notoverridden__time_only |>
 #   filter(across(ends_with("time_only")))
