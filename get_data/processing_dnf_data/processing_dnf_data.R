@@ -66,8 +66,8 @@ Outputs <- "Outputs/"
 
 # Set the date ranges for the DNF and compliance data you are pulling
 # this is the year to assign to the output file name
-# my_year <- "2022"
-my_year <- "2023"
+my_year <- "2022"
+# my_year <- "2023"
 my_date_beg <- str_glue('01-JAN-{my_year}')
 my_date_end <- str_glue('31-DEC-{my_year}')
 
@@ -294,18 +294,18 @@ my_stats(dnfs_short, "dnfs from the db")
 # Unique trips neg (dnfs): 790839
 
 ### drop time from dates ----
-dnfs_short_date <-
-  dnfs_short |>
-  mutate(
-    TRIP_DATE =
-      as.Date(
-        TRIP_DATE,
-        format = "%FT",
-        tz = Sys.timezone()
-      ),
-    DE = as.Date(DE, format = "%FT",
-                 tz = Sys.timezone())
-  )
+# dnfs_short_date <-
+#   dnfs_short |>
+#   mutate(
+#     TRIP_DATE =
+#       as.Date(
+#         TRIP_DATE,
+#         format = "%FT",
+#         tz = Sys.timezone()
+#       ),
+#     DE = as.Date(DE, format = "%FT",
+#                  tz = Sys.timezone())
+#   )
 
 # check, not needed for processing
 # dnfs_short |>
@@ -374,9 +374,9 @@ dnfs_short_date <-
 
 # stats, to compare with the end result
 dnfs_stat_correct_dates_before_filtering <-
-  c(dim(dnfs_short_date),
-    n_distinct(dnfs_short_date$VESSEL_OFFICIAL_NUMBER),
-    n_distinct(dnfs_short_date$TRIP_ID)
+  c(dim(dnfs_short),
+    n_distinct(dnfs_short$VESSEL_OFFICIAL_NUMBER),
+    n_distinct(dnfs_short$TRIP_ID)
   )
 
 ### Prepare data to determine what weeks were overridden, so we can exclude dnfs from those weeks later ----
@@ -397,7 +397,7 @@ dnfs_stat_correct_dates_before_filtering <-
 
 # Needed to adjust for week 52 of the previous year
 dnfs_short_date__iso <-
-  dnfs_short_date |>
+  dnfs_short |>
   mutate(COMP_WEEK = isoweek(TRIP_DATE), # puts it in week num
          TRIP_END_YEAR = isoyear(TRIP_DATE)) # adds a year
 
@@ -621,9 +621,9 @@ dnfs_notoverridden__w_missing__timezone__30 <-
 # to compare with "usable_date_time"
 dnfs_notoverridden_all <-
   dnfs_notoverridden__w_missing__timezone__30 |>
-  mutate(DE_w_time =
-           as.POSIXct(DE, format = "%Y-%m-%d %H:%M:%S",
-                      tz = Sys.timezone()))
+  # mutate(DE_w_time =
+  #          as.POSIXct(DE, format = "%Y-%m-%d %H:%M:%S",
+  #                     tz = Sys.timezone()))
 
 # Drop empty columns
 dnfs_notoverridden_ok <-
@@ -671,6 +671,39 @@ my_tee(uniq_trips_lost_by_overr,
 SEFHIER_dnfs_notoverridden <-
   dnfs_notoverridden_ok |>
   filter(VESSEL_OFFICIAL_NUMBER %in% SEFHIER_permit_info_short_this_year$VESSEL_OFFICIAL_NUMBER)
+
+# check dnf dates ----
+# names(SEFHIER_dnfs_notoverridden) |>
+#   cat(sep = ", ")
+
+# time_only <-
+  # format(DE, "%H%M%S")
+
+SEFHIER_dnfs_notoverridden__time_only <-
+  SEFHIER_dnfs_notoverridden |>
+  mutate(across(
+    where(is.POSIXct),
+    .fns = ~ format(.x, "%H%M%S"),
+    .names = "{.col}_time_only"
+  ))
+
+SEFHIER_dnfs_notoverridden__time_only |>
+  select(-USABLE_DATE_TIME_time_only) |>
+  filter(if_any(
+    .cols = ends_with("_time_only"),
+    .fns = ~ grepl("^23", .x)
+  )) |>
+  str()
+
+# SEFHIER_dnfs_notoverridden__time_only |>
+#   filter(across(ends_with("time_only")))
+  # str()
+  # select(TRIP_ID, VESSEL_OFFICIAL_NUMBER)
+#    mutate(DE_time = format(DE, "%H%M%S")) |>
+#    filter(grepl("230000", DE_time)) |>
+
+# grep("^23", dnfs_short_DE_time, value = T) |>
+
 
 my_stats(dnfs_notoverridden_ok)
 my_stats(SEFHIER_dnfs_notoverridden)
