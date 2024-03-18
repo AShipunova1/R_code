@@ -845,15 +845,15 @@ cat(percent_of_removed_dnfs, sep = "\n")
 
 # removed_vessels
 vessels_before_filtering_out_overridden <-
-  n_distinct(dnfs_short_date__iso$VESSEL_OFFICIAL_NUMBER)
+  n_distinct(SEFHIER_dnfs_short_date__iso$VESSEL_OFFICIAL_NUMBER)
 
 cat(vessels_before_filtering_out_overridden)
 # 2241 2022
+# 2020 2022
 # 1646 2023
-# 3576 (2022)
 
 vessels_after_filtering_out_overridden <-
-  n_distinct(SEFHIER_processed_dnfs__late_subm__metrics$VESSEL_OFFICIAL_NUMBER)
+  n_distinct(dnfs_notoverridden_ok$VESSEL_OFFICIAL_NUMBER)
 
 cat(vessels_after_filtering_out_overridden)
 # 1971 2022
@@ -863,7 +863,7 @@ cat(vessels_after_filtering_out_overridden)
 removed_vessels <-
   vessels_before_filtering_out_overridden - vessels_after_filtering_out_overridden
 # 270
-# 1585
+# 29
 
 percent_of_removed_vessels <-
   (vessels_before_filtering_out_overridden - vessels_after_filtering_out_overridden) * 100 / vessels_before_filtering_out_overridden
