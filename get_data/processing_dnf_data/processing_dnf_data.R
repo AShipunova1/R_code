@@ -771,7 +771,8 @@ late_submission_filter <-
   }
 
 ### Filter (mark only): data frame of dnfs that were usable ----
-SEFHIER_processed_dnfs__late_subm <- late_submission_filter(dnfs_notoverridden_ok)
+SEFHIER_processed_dnfs__late_subm <-
+  late_submission_filter(dnfs_notoverridden_ok)
 # rows: 366565
 # columns: 25
 # Unique vessels: 1971
@@ -798,13 +799,13 @@ SEFHIER_processed_dnfs__late_subm <- late_submission_filter(dnfs_notoverridden_o
 
 # Add all columns from processed metrics tracking to obtain the Permit region.
 
-SEFHIER_processed_dnfs <-
+SEFHIER_processed_dnfs__late_subm__metrics <-
   left_join(SEFHIER_processed_dnfs__late_subm,
             processed_metrics_tracking)
 
 # stats
-my_stats(SEFHIER_processed_dnfs)
-# SEFHIER_processed_dnfs
+my_stats(SEFHIER_processed_dnfs__late_subm__metrics)
+# SEFHIER_processed_dnfs__late_subm__metrics
 # rows: 366565
 # columns: 26
 # Unique vessels: 1971
@@ -815,55 +816,57 @@ my_stats(SEFHIER_processed_dnfs)
 # Unique vessels: 1991
 # Unique trips (logbooks): 369667
 
-dnfs_before_filtering <-
-  n_distinct(dnfs_notoverridden_ok$TRIP_ID)
+# stats total ----
 
-my_tee(dnfs_before_filtering,
-        "dnfs before filtering")
+dnfs_before_filtering_out_overridden <-
+  n_distinct(SEFHIER_dnfs_short_date__iso$TRIP_ID)
+
+my_tee(dnfs_before_filtering_out_overridden,
+        "dnfs before filtering out overridden")
 # 790839 2022
-# 369667 2022
+# 440307 2022
 # 52393 2023
 
-dnfs_after_filtering <-
-  n_distinct(SEFHIER_processed_dnfs$TRIP_ID)
+dnfs_after_filtering_out_overridden <-
+  n_distinct(dnfs_notoverridden_ok$TRIP_ID)
 
-my_tee(dnfs_after_filtering,
-        "dnfs after filtering")
+my_tee(dnfs_after_filtering_out_overridden,
+        "dnfs after filtering out overridden")
 # 366416 2022
 # 369667 2022
 # 51340 2023
 
 percent_of_removed_dnfs <-
-  (dnfs_before_filtering - dnfs_after_filtering) * 100 / dnfs_before_filtering
+  (dnfs_before_filtering_out_overridden - dnfs_after_filtering_out_overridden) * 100 / dnfs_before_filtering_out_overridden
 
 cat(percent_of_removed_dnfs, sep = "\n")
 # 53.66743 2022
-# 0
+# 16.04335 2022
 
 # removed_vessels
-vessels_before_filtering <-
+vessels_before_filtering_out_overridden <-
   n_distinct(dnfs_short_date__iso$VESSEL_OFFICIAL_NUMBER)
 
-cat(vessels_before_filtering)
+cat(vessels_before_filtering_out_overridden)
 # 2241 2022
 # 1646 2023
 # 3576 (2022)
 
-vessels_after_filtering <-
-  n_distinct(SEFHIER_processed_dnfs$VESSEL_OFFICIAL_NUMBER)
+vessels_after_filtering_out_overridden <-
+  n_distinct(SEFHIER_processed_dnfs__late_subm__metrics$VESSEL_OFFICIAL_NUMBER)
 
-cat(vessels_after_filtering)
+cat(vessels_after_filtering_out_overridden)
 # 1971 2022
 # 1597 2023
 # 1991 2022
 
 removed_vessels <-
-  vessels_before_filtering - vessels_after_filtering
+  vessels_before_filtering_out_overridden - vessels_after_filtering_out_overridden
 # 270
 # 1585
 
 percent_of_removed_vessels <-
-  (vessels_before_filtering - vessels_after_filtering) * 100 / vessels_before_filtering
+  (vessels_before_filtering_out_overridden - vessels_after_filtering_out_overridden) * 100 / vessels_before_filtering_out_overridden
 
 removed_dnfs_and_vessels_text <-
   c(
@@ -911,7 +914,7 @@ output_file_path <-
   annas_file_path
 
 write_rds(
-  SEFHIER_processed_dnfs,
+  SEFHIER_processed_dnfs__late_subm__metrics,
   file = output_file_path
 )
 
