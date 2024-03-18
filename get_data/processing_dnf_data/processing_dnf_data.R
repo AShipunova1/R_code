@@ -231,7 +231,7 @@ SEFHIER_permit_info_short_this_year <-
 dnfs_file_path <-
   file.path(Path,
             Outputs,
-            str_glue("Raw_Oracle_Downloaded_dnf_{my_date_beg}__{my_date_end}_w_ue.rds"))
+            str_glue("Raw_Oracle_Downloaded_dnf_{my_date_beg}__{my_date_end}.rds"))
 # Was "SAFIS_TripsDownload_"
 
 # 2) create a variable with an SQL query to call data from the database
