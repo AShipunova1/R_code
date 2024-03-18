@@ -473,7 +473,7 @@ dnfs_join_overr <-
             relationship = "many-to-many"
   )
 
-# the below section of 25 lines is an example of the many to many relationship, using 2022 data (to check, remove 'relationship = "many-to-many"' from above.)
+# the below section is an example of the many to many relationship, using 2022 data (to check, remove 'relationship = "many-to-many"' from above.)
 # ℹ Row 5275 of `x` matches multiple rows in `y`.
 
 # dnfs_short_date__iso[52758, ] |> glimpse()
@@ -611,6 +611,7 @@ vessels_missing_dnfs <-
 # glimpse(dnfs_notoverridden)
 
 # add missing dnfs back to the not overridden data frame
+
 dnfs_notoverridden__w_missing <-
   rbind(dnfs_notoverridden,
         vessels_missing_dnfs) |>
@@ -661,6 +662,7 @@ my_stats(dnfs_NA__rm_missing_vsls,
 # Use trip end date to calculate the usable date 30 days later
 
 # Add a correct timezone to TRIP_DATE (EST vs. EDT)
+
 dnfs_notoverridden__w_missing__timezone <-
   dnfs_notoverridden__w_missing |>
   mutate(TRIP_DATE_E =
@@ -692,6 +694,7 @@ dnfs_notoverridden_ok <-
 
 ### Overridden stats ----
 # stats, what was lost by excluding the overridden dnfs
+
 uniq_vessels_num_was <-
   n_distinct(SEFHIER_dnfs_short_date__iso[["VESSEL_OFFICIAL_NUMBER"]])
 uniq_vessels_num_now <-
@@ -755,19 +758,20 @@ late_submission_filter_stats <-
 # The logic should be that when the DE is less than the USABLE_DATE_TIME, the answer to the question MORE_THAN_30_DAYS_LATE should be No.
 
 late_submission_filter <-
-  function() {
+  function(dnf_df) {
     SEFHIER_dnfs_notoverridden__temp <-
-      dnfs_notoverridden_ok |>
+      dnf_df |>
       mutate(MORE_THAN_30_DAYS_LATE =
                case_when(DE <= USABLE_DATE_TIME ~ FALSE,
                          .default = TRUE))
+
     late_submission_filter_stats(SEFHIER_dnfs_notoverridden__temp)
 
     return(SEFHIER_dnfs_notoverridden__temp)
   }
 
 ### Filter (mark only): data frame of dnfs that were usable ----
-SEFHIER_processed_dnfs__late_subm <- late_submission_filter()
+SEFHIER_processed_dnfs__late_subm <- late_submission_filter(dnfs_notoverridden_ok)
 # rows: 366565
 # columns: 25
 # Unique vessels: 1971
