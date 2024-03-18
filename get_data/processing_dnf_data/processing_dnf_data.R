@@ -292,10 +292,16 @@ dnfs_v_ids <-
 # get_dnfs_check_ids(dnfs_v_ids) |> nrow()
 # 124
 
+# dnfs_v_ids |>
+#   filter(is.na(VESSEL_OFFICIAL_NUMBER)) |>
+#   distinct() |>
+#   nrow()
+# 0
+
 ### Fewer columns ----
 # names(dnfs)
 dnfs_short <-
-  dnfs |>
+  dnfs_v_ids |>
   select(-c(STATE_REG_NBR, COAST_GUARD_NBR))
 
 # stats
