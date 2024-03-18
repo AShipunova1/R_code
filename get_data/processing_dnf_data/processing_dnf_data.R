@@ -275,9 +275,22 @@ get_dnfs_check_ids <- function(dnfs) {
     distinct()
 }
 
+### add COAST_GUARD_NBR or STATE_REG_NBR if no VESSEL_OFFICIAL_NUMBER ----
+dnfs_v_ids <-
+  dnfs |>
+  mutate(VESSEL_OFFICIAL_NUMBER =
+           case_when(
+             is.na(VESSEL_OFFICIAL_NUMBER) ~
+               coalesce(COAST_GUARD_NBR, STATE_REG_NBR),
+             .default = VESSEL_OFFICIAL_NUMBER
+           ))
+
 # dnfs_check_ids <- get_dnfs_check_ids(dnfs)
 # nrow(dnfs_check_ids)
 # 116
+
+# get_dnfs_check_ids(dnfs_v_ids) |> nrow()
+# 124
 
 ### Fewer columns ----
 # names(dnfs)
@@ -563,8 +576,8 @@ dnfs |>
   filter(!is.na(VESSEL_OFFICIAL_NUMBER)) |>
   filter(is.na(coalesce(COAST_GUARD_NBR, STATE_REG_NBR))) |>
   head()
-0
-# (either one is present)
+# 0
+# either one is present
 
 # stats
 my_stats(dnfs_NA)
