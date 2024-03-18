@@ -370,16 +370,16 @@ compl_override_data_this_year |>
 # Filtering dnf data ----
 
 ## Filter out vessels not in Metrics tracking ----
-SEFHIER_dnfs_dnfs_short_date__iso <-
+SEFHIER_dnfs_short_date__iso <-
   dnfs_short_date__iso |>
   filter(VESSEL_OFFICIAL_NUMBER %in% SEFHIER_permit_info_short_this_year$VESSEL_OFFICIAL_NUMBER)
 
 ## check dnf dates ----
-# names(SEFHIER_dnfs_dnfs_short_date__iso) |>
+# names(SEFHIER_dnfs_short_date__iso) |>
 #   cat(sep = ", ")
 
-# SEFHIER_dnfs_dnfs_short_date__iso__time_only <-
-#   SEFHIER_dnfs_dnfs_short_date__iso |>
+# SEFHIER_dnfs_short_date__iso__time_only <-
+#   SEFHIER_dnfs_short_date__iso |>
 #   mutate(across(
 #     where(is.POSIXct),
 #     .fns = ~ format(.x, "%H%M%S"),
@@ -387,15 +387,15 @@ SEFHIER_dnfs_dnfs_short_date__iso <-
 #   ))
 
 # DE_time_only
-# SEFHIER_dnfs_dnfs_short_date__iso__time_only_23 <-
-#   SEFHIER_dnfs_dnfs_short_date__iso__time_only |>
+# SEFHIER_dnfs_short_date__iso__time_only_23 <-
+#   SEFHIER_dnfs_short_date__iso__time_only |>
 #   select(-USABLE_DATE_TIME_time_only) |>
 #   filter(if_any(
 #     .cols = ends_with("_time_only"),
 #     .fns = ~ grepl("^23", .x)
 #   ))
 
-# SEFHIER_dnfs_dnfs_short_date__iso__time_only_23 |>
+# SEFHIER_dnfs_short_date__iso__time_only_23 |>
 #   select(TRIP_ID,
 #          VESSEL_OFFICIAL_NUMBER,
 #          TRIP_DATE,
@@ -405,7 +405,7 @@ SEFHIER_dnfs_dnfs_short_date__iso <-
 #   distinct() |>
 #   head()
 
-# SEFHIER_dnfs_dnfs_short_date__iso__time_only |>
+# SEFHIER_dnfs_short_date__iso__time_only |>
 #   filter(across(ends_with("time_only")))
   # str()
   # select(TRIP_ID, VESSEL_OFFICIAL_NUMBER)
@@ -414,7 +414,7 @@ SEFHIER_dnfs_dnfs_short_date__iso <-
 
 # grep("^23", dnfs_short_DE_time, value = T) |>
 
-my_stats(SEFHIER_dnfs_dnfs_short_date__iso)
+my_stats(SEFHIER_dnfs_short_date__iso)
 
 vessels_not_in_metrics <-
   n_distinct(dnfs_short_date__iso$VESSEL_OFFICIAL_NUMBER) -
