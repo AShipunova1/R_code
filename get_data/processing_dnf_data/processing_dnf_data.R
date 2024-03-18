@@ -414,15 +414,17 @@ SEFHIER_dnfs_short_date__iso <-
 
 # grep("^23", dnfs_short_DE_time, value = T) |>
 
+my_stats(dnfs_short_date__iso)
 my_stats(SEFHIER_dnfs_short_date__iso)
 
 vessels_not_in_metrics <-
   n_distinct(dnfs_short_date__iso$VESSEL_OFFICIAL_NUMBER) -
-  n_distinct(SEFHIER_dnfs_notoverridden$VESSEL_OFFICIAL_NUMBER)
+  n_distinct(SEFHIER_dnfs_short_date__iso$VESSEL_OFFICIAL_NUMBER)
 
 my_tee(vessels_not_in_metrics,
        "Removed if a vessel is not in Metrics tracking")
 # 47
+# 1556
 
 ## add override data to dnfs ----
 my_stats(compl_override_data_this_year,
