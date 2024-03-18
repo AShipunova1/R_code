@@ -218,7 +218,7 @@ processed_metrics_tracking_path <-
 
 # file.exists(processed_metrics_tracking_path)
 
-SEFHIER_permit_info_short_this_year <-
+processed_metrics_tracking <-
   read_rds(processed_metrics_tracking_path)
 
 ## Import and prep the dnf data ####
@@ -372,7 +372,7 @@ compl_override_data__renamed__this_year |>
 ## Filter out vessels not in Metrics tracking ----
 SEFHIER_dnfs_short_date__iso <-
   dnfs_short_date__iso |>
-  filter(VESSEL_OFFICIAL_NUMBER %in% SEFHIER_permit_info_short_this_year$VESSEL_OFFICIAL_NUMBER)
+  filter(VESSEL_OFFICIAL_NUMBER %in% processed_metrics_tracking$VESSEL_OFFICIAL_NUMBER)
 
 ## check dnf dates ----
 # names(SEFHIER_dnfs_short_date__iso) |>
@@ -593,7 +593,7 @@ my_stats(dnfs_NA)
 
 vessels_missing <-
   setdiff(
-    SEFHIER_permit_info_short_this_year$VESSEL_OFFICIAL_NUMBER,
+    processed_metrics_tracking$VESSEL_OFFICIAL_NUMBER,
     compl_override_data__renamed__this_year$VESSEL_OFFICIAL_NUMBER
   )
 
@@ -796,7 +796,7 @@ SEFHIER_processed_dnfs__late_subm <- late_submission_filter()
 
 SEFHIER_processed_dnfs <-
   left_join(SEFHIER_processed_dnfs__late_subm,
-            SEFHIER_permit_info_short_this_year)
+            processed_metrics_tracking)
 
 # stats
 my_stats(SEFHIER_processed_dnfs)
