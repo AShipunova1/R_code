@@ -678,15 +678,6 @@ dnfs_notoverridden_all <-
            minutes(59) +
            seconds(59))
 
-# add time to the submission date (DE)
-# to compare with "usable_date_time"
-dnfs_notoverridden_all <-
-  dnfs_notoverridden__w_missing__timezone__30
-# |>
-  # mutate(DE_w_time =
-  #          as.POSIXct(DE, format = "%Y-%m-%d %H:%M:%S",
-  #                     tz = Sys.timezone()))
-
 # Drop empty columns
 dnfs_notoverridden_ok <-
   dnfs_notoverridden_all |>
