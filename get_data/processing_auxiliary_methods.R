@@ -108,12 +108,21 @@ my_stats <- function(my_df, title_msg = NA) {
   uniq_trips_num <- n_distinct(my_df[["TRIP_ID"]])
 
   # Create a formatted text with statistics
+  # include trips, only if > 0
+  trip_cnts <-
+    if (uniq_trips_num > 0) {
+      str_glue("Unique trips: {uniq_trips_num}")
+    }
+  else {
+    ""
+  }
+
   stat_text <- str_glue(
     "
 rows: {rows_n_columns[[1]]}
 columns: {rows_n_columns[[2]]}
 Unique vessels: {uniq_vessels_num}
-Unique trips (logbooks): {uniq_trips_num}
+{trip_cnts}
 "
   )
 
