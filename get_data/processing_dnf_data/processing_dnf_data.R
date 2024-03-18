@@ -297,7 +297,7 @@ get_dnfs_check_ids(dnfs) |> nrow()
 # 0
 
 ### Fewer columns ----
-# names(dnfs)
+# names(dnfs_v_all_ids)
 dnfs_short <-
   dnfs_v_all_ids |>
   select(-c(STATE_REG_NBR, COAST_GUARD_NBR))
@@ -323,6 +323,15 @@ dnfs_stat_correct_dates_before_filtering <-
     n_distinct(dnfs_short$TRIP_ID)
   )
 
+### Add a week number ----
+dnfs_short__week <-
+  dnfs_short |>
+  mutate(dnf_week = lubridate::isoweek(TRIP_DATE),
+         dnf_year = lubridate::isoyear(TRIP_DATE))
+
+View(dnfs_short__week)
+
+
 ### Prepare data to determine what weeks were overridden, so we can exclude dnfs from those weeks later ----
 
 # assign each dnf a week designation (first day of the reporting week is a Monday)
@@ -342,8 +351,8 @@ dnfs_stat_correct_dates_before_filtering <-
 # Needed to adjust for week 52 of the previous year
 dnfs_short_date__iso <-
   dnfs_short |>
-  mutate(COMP_WEEK = isoweek(TRIP_DATE), # puts it in week num
-         TRIP_END_YEAR = isoyear(TRIP_DATE)) # adds a year
+  mutate(TRIP_DATE_WEEK = isoweek(TRIP_DATE), # puts it in week num
+         TRIP_DATE_YEAR = isoyear(TRIP_DATE)) # adds a year
 
 # to see the respective data in compl_override_data_this_year, note the last week of 2021
 # not needed for processing
