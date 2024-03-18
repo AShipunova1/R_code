@@ -374,6 +374,68 @@ compl_override_data_this_year |>
 # 2      2023       2023-01-08         1
 # 3      2023       2023-01-15         2
 
+# Filtering dnf data ----
+
+## Filter out vessels not in Metrics tracking ----
+SEFHIER_dnfs_notoverridden <-
+  dnfs_notoverridden_ok |>
+  filter(VESSEL_OFFICIAL_NUMBER %in% SEFHIER_permit_info_short_this_year$VESSEL_OFFICIAL_NUMBER)
+
+## check dnf dates ----
+# names(SEFHIER_dnfs_notoverridden) |>
+#   cat(sep = ", ")
+
+# time_only <-
+  # format(DE, "%H%M%S")
+
+SEFHIER_dnfs_notoverridden__time_only <-
+  SEFHIER_dnfs_notoverridden |>
+  mutate(across(
+    where(is.POSIXct),
+    .fns = ~ format(.x, "%H%M%S"),
+    .names = "{.col}_time_only"
+  ))
+
+# DE_time_only
+SEFHIER_dnfs_notoverridden__time_only_23 <-
+  SEFHIER_dnfs_notoverridden__time_only |>
+  select(-USABLE_DATE_TIME_time_only) |>
+  filter(if_any(
+    .cols = ends_with("_time_only"),
+    .fns = ~ grepl("^23", .x)
+  ))
+
+SEFHIER_dnfs_notoverridden__time_only_23 |>
+  select(TRIP_ID,
+         VESSEL_OFFICIAL_NUMBER,
+         TRIP_DATE,
+         COMP_WEEK,
+         DE,
+         USABLE_DATE_TIME) |>
+  distinct() |>
+  head()
+
+# SEFHIER_dnfs_notoverridden__time_only |>
+#   filter(across(ends_with("time_only")))
+  # str()
+  # select(TRIP_ID, VESSEL_OFFICIAL_NUMBER)
+#    mutate(DE_time = format(DE, "%H%M%S")) |>
+#    filter(grepl("230000", DE_time)) |>
+
+# grep("^23", dnfs_short_DE_time, value = T) |>
+
+
+my_stats(dnfs_notoverridden_ok)
+my_stats(SEFHIER_dnfs_notoverridden)
+
+vessels_not_in_metrics <-
+  n_distinct(dnfs_notoverridden_ok$VESSEL_OFFICIAL_NUMBER) -
+  n_distinct(SEFHIER_dnfs_notoverridden$VESSEL_OFFICIAL_NUMBER)
+
+my_tee(vessels_not_in_metrics,
+       "Removed if a vessel is not in Metrics tracking")
+# 47
+
 ## add override data to dnfs ----
 my_stats(compl_override_data_this_year,
          "Compliance and override data from the db")
@@ -389,16 +451,16 @@ my_stats(compl_override_data_this_year,
 dnfs_join_overr <-
   left_join(dnfs_short_date__iso,
             compl_override_data_this_year,
-            join_by(TRIP_END_YEAR == COMP_YEAR,
+            join_by(TRIP_DATE_YEAR == COMP_YEAR,
                     VESSEL_OFFICIAL_NUMBER,
-                    COMP_WEEK),
+                    TRIP_DATE_WEEK == COMP_WEEK),
             relationship = "many-to-many"
   )
 
 # the below section of 25 lines is an example of the many to many relationship, using 2022 data
-# ℹ Row 104686 of `x` matches multiple rows in `y`.
+# ℹ Row 100587 of `x` matches multiple rows in `y`.
 
-# dnfs_short_date__iso[104686, ] |> glimpse()
+# dnfs_short_date__iso[100587, ] |> glimpse()
 # 1242820
 
 #compl_override_data_this_year |>
@@ -413,17 +475,15 @@ dnfs_join_overr <-
 #   filter(VESSEL_OFFICIAL_NUMBER == "FL9558PU")
 # 0
 
-# ℹ Row 43081 of `y` matches multiple rows in `x`.
+# ℹ Row 20519  of `y` matches multiple rows in `x`.
 
-#compl_override_data_this_year[43081, ] |> glimpse()
-# 1228073
+compl_override_data_this_year[20519, ] |> glimpse()
 
 # dnfs_short_date__iso |>
-#   filter(VESSEL_OFFICIAL_NUMBER == "1228073" &
-#            TRIP_END_YEAR == 2022 &
-#            COMP_WEEK == 20) |>
-  # View()
-
+#   filter(VESSEL_OFFICIAL_NUMBER == "929500" &
+#            TRIP_DATE_YEAR == 2022 &
+#            TRIP_DATE_WEEK == 5) |>
+#   glimpse()
 
 # stats
 my_stats(dnfs_short_date__iso)
@@ -488,15 +548,28 @@ dnfs_NA |>
 ### Check why so many are NA ----
 dnfs_NA__ids <-
   dnfs_NA |>
+  select(VESSEL_ID) |>
+  distinct()
+
+n_distinct(dnfs_NA__ids$VESSEL_ID)
+# 2447
+
+dnfs_NA__von <-
+  dnfs_NA |>
   select(VESSEL_OFFICIAL_NUMBER) |>
   distinct()
 
-n_distinct(dnfs_NA__ids$VESSEL_OFFICIAL_NUMBER)
-# 2413 (2022)
+n_distinct(dnfs_NA__von$VESSEL_OFFICIAL_NUMBER)
+# 2447 (2022)
 
 # dnfs_v_all_ids |> View()
-dnfs_NA__v_ids |> View()
+dnfs_NA__ids |> head()
 
+dnfs_v_all_ids |>
+  filter(VESSEL_ID %in% dnfs_NA__ids$VESSEL_ID) |>
+  glimpse()
+
+FL8151TE
 
 # stats
 my_stats(dnfs_NA)
@@ -635,68 +708,6 @@ my_tee(uniq_trips_lost_by_overr,
        "Thrown away trips neg by overridden weeks")
 # 419233
 
-# Filtering dnf data ----
-# Use dnfs_notoverridden_ok from the previous section
-
-## Filter out vessels not in Metrics tracking ----
-SEFHIER_dnfs_notoverridden <-
-  dnfs_notoverridden_ok |>
-  filter(VESSEL_OFFICIAL_NUMBER %in% SEFHIER_permit_info_short_this_year$VESSEL_OFFICIAL_NUMBER)
-
-## check dnf dates ----
-# names(SEFHIER_dnfs_notoverridden) |>
-#   cat(sep = ", ")
-
-# time_only <-
-  # format(DE, "%H%M%S")
-
-SEFHIER_dnfs_notoverridden__time_only <-
-  SEFHIER_dnfs_notoverridden |>
-  mutate(across(
-    where(is.POSIXct),
-    .fns = ~ format(.x, "%H%M%S"),
-    .names = "{.col}_time_only"
-  ))
-
-# DE_time_only
-SEFHIER_dnfs_notoverridden__time_only_23 <-
-  SEFHIER_dnfs_notoverridden__time_only |>
-  select(-USABLE_DATE_TIME_time_only) |>
-  filter(if_any(
-    .cols = ends_with("_time_only"),
-    .fns = ~ grepl("^23", .x)
-  ))
-
-SEFHIER_dnfs_notoverridden__time_only_23 |>
-  select(TRIP_ID,
-         VESSEL_OFFICIAL_NUMBER,
-         TRIP_DATE,
-         COMP_WEEK,
-         DE,
-         USABLE_DATE_TIME) |>
-  distinct() |>
-  head()
-
-# SEFHIER_dnfs_notoverridden__time_only |>
-#   filter(across(ends_with("time_only")))
-  # str()
-  # select(TRIP_ID, VESSEL_OFFICIAL_NUMBER)
-#    mutate(DE_time = format(DE, "%H%M%S")) |>
-#    filter(grepl("230000", DE_time)) |>
-
-# grep("^23", dnfs_short_DE_time, value = T) |>
-
-
-my_stats(dnfs_notoverridden_ok)
-my_stats(SEFHIER_dnfs_notoverridden)
-
-vessels_not_in_metrics <-
-  n_distinct(dnfs_notoverridden_ok$VESSEL_OFFICIAL_NUMBER) -
-  n_distinct(SEFHIER_dnfs_notoverridden$VESSEL_OFFICIAL_NUMBER)
-
-my_tee(vessels_not_in_metrics,
-       "Removed if a vessel is not in Metrics tracking")
-# 47
 
 ## Mark all trips neg that were received > 30 days after the trip date, by using compliance data and time of submission ----
 
