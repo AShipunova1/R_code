@@ -438,6 +438,30 @@ my_stats(compl_override_data_this_year,
 # 2) 1 row of `y` matches multiple rows in `x`:
 # We need the many to many relationship because the DNFs represent a single day in a 7 day week, while the compliance represents a single week. So the relationship between DNFs to Compliance is 7 to 1.
 
+trip_date_1 <-
+  SEFHIER_dnfs_short_date__iso |>
+  filter(TRIP_DATE_WEEK == 1,
+         TRIP_DATE_YEAR == "2022") |>
+  select(TRIP_DATE)
+min(trip_date_1$TRIP_DATE)
+# [1] "2022-01-03 23:00:00 EST"
+max(trip_date_1$TRIP_DATE)
+# [1] "2022-01-09 23:00:00 EST"
+
+# glimpse(compl_override_data_this_year)
+trip_date_2 <-
+  compl_override_data_this_year |>
+  filter(COMP_WEEK == 1,
+         COMP_YEAR == "2022") |>
+  select(starts_with("COMP_WEEK_")) |>
+  distinct()
+
+min(trip_date_2$COMP_WEEK_START_DT)
+# [1] "2022-01-03 EST"
+max(trip_date_2$COMP_WEEK_END_DT)
+# [1] "2022-01-09 EST"
+# same as above, ok
+
 dnfs_join_overr <-
   left_join(SEFHIER_dnfs_short_date__iso,
             compl_override_data_this_year,
@@ -457,7 +481,7 @@ dnfs_join_overr <-
 # compl_override_data_this_year[20519, ] |> glimpse()
 
 # stats
-my_stats(dnfs_short_date__iso)
+my_stats(SEFHIER_dnfs_short_date__iso)
 my_stats(dnfs_join_overr)
 # dnfs_short_date__iso
 # rows: 790839
@@ -534,13 +558,27 @@ n_distinct(dnfs_NA__von$VESSEL_OFFICIAL_NUMBER)
 # 2447 (2022)
 
 # dnfs_v_all_ids |> View()
-dnfs_NA__ids |> head()
+# dnfs_NA__ids |> head()
 
-dnfs_v_all_ids |>
+na_compl <-
+  SEFHIER_dnfs_short_date__iso |>
   filter(VESSEL_ID %in% dnfs_NA__ids$VESSEL_ID) |>
+  select(VESSEL_OFFICIAL_NUMBER, UE, TRIP_DATE_WEEK, TRIP_DATE_YEAR) |>
+  distinct() |>
+  arrange(VESSEL_OFFICIAL_NUMBER, TRIP_DATE_YEAR, TRIP_DATE_WEEK)
+
+View(na_compl)
+
+dnfs_short_date__iso |>
+  filter(VESSEL_OFFICIAL_NUMBER == "1020057" &
+           TRIP_DATE_WEEK == 1) |>
   glimpse()
 
-FL8151TE
+compl_override_data |>
+  filter(VESSEL_OFFICIAL_NBR == "1020057" & COMP_YEAR == "2022") |>
+  View()
+
+
 
 # stats
 my_stats(dnfs_NA)
