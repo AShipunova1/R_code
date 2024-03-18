@@ -433,11 +433,7 @@ my_stats(compl_override_data_this_year,
 # columns: 23
 # Unique vessels: 3626
 
-# We need 'relationship = "many-to-many"' because
-# TODO: 1)
-# 2) 1 row of `y` matches multiple rows in `x`:
-# We need the many to many relationship because the DNFs represent a single day in a 7 day week, while the compliance represents a single week. So the relationship between DNFs to Compliance is 7 to 1.
-
+### check if dnfs and compliance data have the same week dates ----
 trip_date_1 <-
   SEFHIER_dnfs_short_date__iso |>
   filter(TRIP_DATE_WEEK == 1,
@@ -461,6 +457,12 @@ min(trip_date_2$COMP_WEEK_START_DT)
 max(trip_date_2$COMP_WEEK_END_DT)
 # [1] "2022-01-09 EST"
 # same as above, ok
+
+### join the dfs ----
+# We need 'relationship = "many-to-many"' because
+# TODO: 1)
+# 2) 1 row of `y` matches multiple rows in `x`:
+# We need the many to many relationship because the DNFs represent a single day in a 7 day week, while the compliance represents a single week. So the relationship between DNFs to Compliance is 7 to 1.
 
 dnfs_join_overr <-
   left_join(SEFHIER_dnfs_short_date__iso,
@@ -504,7 +506,7 @@ my_stats(dnfs_join_overr)
 dnfs_overridden <-
   filter(dnfs_join_overr, OVERRIDDEN == 1) #data frame of dnfs that were overridden
 
-glimpse(dnfs_join_overr)
+# glimpse(dnfs_join_overr)
 # stats
 my_stats(dnfs_overridden)
 # rows: 17642
@@ -529,11 +531,13 @@ dnfs_NA <-
 
 n_distinct(dnfs_NA$TRIP_ID)
 # 404427
+# 56205
 
 dnfs_NA |>
   filter(is.na(SRH_VESSEL_COMP_ID)) |>
   nrow()
 # 404427
+# 56205
 # The same #, so it is "1) submitted by a vessel that is missing from the Compliance report and therefore has no associated override data"
 
 # dnfs_NA |>
@@ -548,6 +552,7 @@ dnfs_NA__ids <-
 
 n_distinct(dnfs_NA__ids$VESSEL_ID)
 # 2447
+# 903
 
 dnfs_NA__von <-
   dnfs_NA |>
@@ -555,7 +560,7 @@ dnfs_NA__von <-
   distinct()
 
 n_distinct(dnfs_NA__von$VESSEL_OFFICIAL_NUMBER)
-# 2447 (2022)
+# 903 (2022)
 
 # dnfs_v_all_ids |> View()
 # dnfs_NA__ids |> head()
@@ -567,18 +572,7 @@ na_compl <-
   distinct() |>
   arrange(VESSEL_OFFICIAL_NUMBER, TRIP_DATE_YEAR, TRIP_DATE_WEEK)
 
-View(na_compl)
-
-dnfs_short_date__iso |>
-  filter(VESSEL_OFFICIAL_NUMBER == "1020057" &
-           TRIP_DATE_WEEK == 1) |>
-  glimpse()
-
-compl_override_data |>
-  filter(VESSEL_OFFICIAL_NBR == "1020057" & COMP_YEAR == "2022") |>
-  View()
-
-
+glimpse(na_compl)
 
 # stats
 my_stats(dnfs_NA)
