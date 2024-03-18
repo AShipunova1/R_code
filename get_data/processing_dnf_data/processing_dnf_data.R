@@ -421,7 +421,6 @@ compl_override_data_this_year |>
 # 2      2023       2023-01-08         1
 # 3      2023       2023-01-15         2
 
-
 ## add override data to dnfs ----
 my_stats(compl_override_data_this_year,
          "Compliance and override data from the db")
@@ -520,8 +519,6 @@ dnfs_NA <-
 # 1) submitted by a vessel that is missing from the Compliance report and therefore has no associated override data, or
 # 2) submitted by a vessel during a period in which the permit was inactive, and the report was not required
 
-# View(dnfs_NA)
-
 n_distinct(dnfs_NA$TRIP_ID)
 # 404427
 
@@ -534,6 +531,40 @@ dnfs_NA |>
 # dnfs_NA |>
 #   filter(!is.na(SRH_VESSEL_COMP_ID))
 # 0
+
+### Check why so many are NA ----
+dnfs_NA__v_ids__not_na <-
+  dnfs_NA |>
+  select(VESSEL_OFFICIAL_NUMBER) |>
+  distinct() |>
+  filter(!is.na(VESSEL_OFFICIAL_NUMBER))
+
+n_distinct(dnfs_NA__v_ids__not_na$VESSEL_OFFICIAL_NUMBER)
+# 810
+
+dnfs_NA__v_ids__na <-
+  dnfs_NA |>
+  filter(is.na(VESSEL_OFFICIAL_NUMBER)) |>
+  select(VESSEL_ID) |>
+  distinct()
+
+n_distinct(dnfs_NA__v_ids__na$VESSEL_ID)
+# 1519
+
+# dnfs_NA__v_ids__na |>
+
+dnfs |>
+  filter(!is.na(VESSEL_OFFICIAL_NUMBER)) |>
+  select(COAST_GUARD_NBR, STATE_REG_NBR) |>
+  distinct() |>
+  View()
+
+dnfs |>
+  filter(!is.na(VESSEL_OFFICIAL_NUMBER)) |>
+  filter(is.na(coalesce(COAST_GUARD_NBR, STATE_REG_NBR))) |>
+  head()
+0
+# (either one is present)
 
 # stats
 my_stats(dnfs_NA)
