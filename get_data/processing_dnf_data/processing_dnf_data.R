@@ -66,8 +66,8 @@ Outputs <- "Outputs/"
 
 # Set the date ranges for the DNF and compliance data you are pulling
 # this is the year to assign to the output file name
-# my_year <- "2022"
-my_year <- "2023"
+my_year <- "2022"
+# my_year <- "2023"
 my_date_beg <- str_glue('01-JAN-{my_year}')
 my_date_end <- str_glue('31-DEC-{my_year}')
 
@@ -231,7 +231,7 @@ SEFHIER_permit_info_short_this_year <-
 dnfs_file_path <-
   file.path(Path,
             Outputs,
-            str_glue("Raw_Oracle_Downloaded_dnf_{my_date_beg}__{my_date_end}.rds"))
+            str_glue("Raw_Oracle_Downloaded_dnf_{my_date_beg}__{my_date_end}_w_ue.rds"))
 # Was "SAFIS_TripsDownload_"
 
 # 2) create a variable with an SQL query to call data from the database
@@ -267,6 +267,7 @@ dnfs <-
   read_rds_or_run_query(dnfs_file_path,
                         dnfs_download_query)
 # 2024-02-05 run for Raw_Oracle_Downloaded_dnf_01-JAN-2022__31-DEC-2022.rds: 104.7 sec elapsed
+# 2024-03-18 run for Raw_Oracle_Downloaded_dnf_01-JAN-2023__31-DEC-2023.rds: 127.13 sec elapsed
 
 # check
 get_dnfs_check_ids <- function(dnfs) {
@@ -277,7 +278,7 @@ get_dnfs_check_ids <- function(dnfs) {
 }
 
 ### add COAST_GUARD_NBR or STATE_REG_NBR if no VESSEL_OFFICIAL_NUMBER ----
-dnfs_v_ids <-
+dnfs_v_all_ids <-
   dnfs |>
   mutate(VESSEL_OFFICIAL_NUMBER =
            case_when(
@@ -286,14 +287,10 @@ dnfs_v_ids <-
              .default = VESSEL_OFFICIAL_NUMBER
            ))
 
-# dnfs_check_ids <- get_dnfs_check_ids(dnfs)
-# nrow(dnfs_check_ids)
-# 116
+get_dnfs_check_ids(dnfs) |> nrow()
+# 120
 
-# get_dnfs_check_ids(dnfs_v_ids) |> nrow()
-# 124
-
-# dnfs_v_ids |>
+# dnfs_v_all_ids |>
 #   filter(is.na(VESSEL_OFFICIAL_NUMBER)) |>
 #   distinct() |>
 #   nrow()
@@ -302,7 +299,7 @@ dnfs_v_ids <-
 ### Fewer columns ----
 # names(dnfs)
 dnfs_short <-
-  dnfs_v_ids |>
+  dnfs_v_all_ids |>
   select(-c(STATE_REG_NBR, COAST_GUARD_NBR))
 
 # stats
@@ -313,84 +310,11 @@ my_stats(dnfs_short, "dnfs from the db")
 # Unique vessels: 2241
 # Unique trips neg (dnfs): 790839
 
-### drop time from dates ----
-# dnfs_short_date <-
-#   dnfs_short |>
-#   mutate(
-#     TRIP_DATE =
-#       as.Date(
-#         TRIP_DATE,
-#         format = "%FT",
-#         tz = Sys.timezone()
-#       ),
-#     DE = as.Date(DE, format = "%FT",
-#                  tz = Sys.timezone())
-#   )
-
-# check, not needed for processing
-# dnfs_short |>
-#   select(VESSEL_OFFICIAL_NUMBER, TRIP_DATE, DE) |>
-#   distinct() |>
-#   head()
-#
-# dnfs_short_date |>
-#   select(VESSEL_OFFICIAL_NUMBER, TRIP_DATE, DE) |>
-#   distinct() |>
-#   head()
-#
-# check the transformation, not needed for processing
-# dnfs_short |>
-#    select(TRIP_ID, VESSEL_OFFICIAL_NUMBER, DE) |>
-#    mutate(DE_time = format(DE, "%H%M%S")) |>
-#    filter(grepl("230000", DE_time)) |>
-#    distinct() |>
-#    head()
-#
-# grep("000000", dnfs_short_TRIP_DATE_time, value = T, invert = T) |>
-#   head()
-# # [1] "010000"
-#
-# grep("000000", dnfs_short_DE_time, value = T, invert = T) |>
-#   length()
-# # 42363
-#
-# grep("^23", dnfs_short_DE_time, value = T) |>
-#   sort() |>
-#   # head(1)
-# # 230000
-#   tail(1)
-# # 235959
-#
-# # check all dates (should be the same)
-# # dnfs_short_date <-
-# #   dnfs_short |>
-#
-# dnfs_short__dates_only <-
-#   dnfs_short |>
-#    select(TRIP_ID, VESSEL_OFFICIAL_NUMBER, DE, TRIP_DATE) |>
-#    mutate(DE_date_only = format(DE, "%Y%m%d"),
-#           TRIP_DATE_date_only = format(TRIP_DATE, "%Y%m%d"))
-#
-# dnfs_short_date__dates_only <-
-#   dnfs_short_date |>
-#    select(TRIP_ID, VESSEL_OFFICIAL_NUMBER, DE, TRIP_DATE) |>
-#    mutate(DE_date_only = format(DE, "%Y%m%d"),
-#           TRIP_DATE_date_only = format(TRIP_DATE, "%Y%m%d"))
-#
-# dates_only <-
-#   full_join(dnfs_short__dates_only,
-#             dnfs_short_date__dates_only,
-#             join_by(TRIP_ID),
-#             suffix = c("_w_time", "_no_time"))
-#
-# dates_only |>
-#   filter(
-#     !(DE_date_only_w_time == DE_date_only_no_time) |
-#       !(TRIP_DATE_date_only_w_time == TRIP_DATE_date_only_no_time)
-#   ) |>
-#   select(-starts_with("VESSEL_OFF")) |>
-#   nrow()
-# # 0, correct
+# 2023 with ue
+# rows: 948977
+# columns: 6
+# Unique vessels: 3860
+# Unique trips (logbooks): 948977
 
 # stats, to compare with the end result
 dnfs_stat_correct_dates_before_filtering <-
@@ -553,38 +477,17 @@ dnfs_NA |>
 # 0
 
 ### Check why so many are NA ----
-dnfs_NA__v_ids__not_na <-
+dnfs_NA__ids <-
   dnfs_NA |>
   select(VESSEL_OFFICIAL_NUMBER) |>
-  distinct() |>
-  filter(!is.na(VESSEL_OFFICIAL_NUMBER))
-
-n_distinct(dnfs_NA__v_ids__not_na$VESSEL_OFFICIAL_NUMBER)
-# 810
-
-dnfs_NA__v_ids__na <-
-  dnfs_NA |>
-  filter(is.na(VESSEL_OFFICIAL_NUMBER)) |>
-  select(VESSEL_ID) |>
   distinct()
 
-n_distinct(dnfs_NA__v_ids__na$VESSEL_ID)
-# 1519
+n_distinct(dnfs_NA__ids$VESSEL_OFFICIAL_NUMBER)
+# 2413 (2022)
 
-# dnfs_NA__v_ids__na |>
+# dnfs_v_all_ids |> View()
+dnfs_NA__v_ids |> View()
 
-dnfs |>
-  filter(!is.na(VESSEL_OFFICIAL_NUMBER)) |>
-  select(COAST_GUARD_NBR, STATE_REG_NBR) |>
-  distinct() |>
-  View()
-
-dnfs |>
-  filter(!is.na(VESSEL_OFFICIAL_NUMBER)) |>
-  filter(is.na(coalesce(COAST_GUARD_NBR, STATE_REG_NBR))) |>
-  head()
-# 0
-# either one is present
 
 # stats
 my_stats(dnfs_NA)
