@@ -378,35 +378,32 @@ SEFHIER_dnfs_dnfs_short_date__iso <-
 # names(SEFHIER_dnfs_dnfs_short_date__iso) |>
 #   cat(sep = ", ")
 
-# time_only <-
-  # format(DE, "%H%M%S")
-
-SEFHIER_dnfs_dnfs_short_date__iso__time_only <-
-  SEFHIER_dnfs_dnfs_short_date__iso |>
-  mutate(across(
-    where(is.POSIXct),
-    .fns = ~ format(.x, "%H%M%S"),
-    .names = "{.col}_time_only"
-  ))
+# SEFHIER_dnfs_dnfs_short_date__iso__time_only <-
+#   SEFHIER_dnfs_dnfs_short_date__iso |>
+#   mutate(across(
+#     where(is.POSIXct),
+#     .fns = ~ format(.x, "%H%M%S"),
+#     .names = "{.col}_time_only"
+#   ))
 
 # DE_time_only
-SEFHIER_dnfs_dnfs_short_date__iso__time_only_23 <-
-  SEFHIER_dnfs_dnfs_short_date__iso__time_only |>
-  select(-USABLE_DATE_TIME_time_only) |>
-  filter(if_any(
-    .cols = ends_with("_time_only"),
-    .fns = ~ grepl("^23", .x)
-  ))
+# SEFHIER_dnfs_dnfs_short_date__iso__time_only_23 <-
+#   SEFHIER_dnfs_dnfs_short_date__iso__time_only |>
+#   select(-USABLE_DATE_TIME_time_only) |>
+#   filter(if_any(
+#     .cols = ends_with("_time_only"),
+#     .fns = ~ grepl("^23", .x)
+#   ))
 
-SEFHIER_dnfs_dnfs_short_date__iso__time_only_23 |>
-  select(TRIP_ID,
-         VESSEL_OFFICIAL_NUMBER,
-         TRIP_DATE,
-         COMP_WEEK,
-         DE,
-         USABLE_DATE_TIME) |>
-  distinct() |>
-  head()
+# SEFHIER_dnfs_dnfs_short_date__iso__time_only_23 |>
+#   select(TRIP_ID,
+#          VESSEL_OFFICIAL_NUMBER,
+#          TRIP_DATE,
+#          COMP_WEEK,
+#          DE,
+#          USABLE_DATE_TIME) |>
+#   distinct() |>
+#   head()
 
 # SEFHIER_dnfs_dnfs_short_date__iso__time_only |>
 #   filter(across(ends_with("time_only")))
@@ -417,12 +414,10 @@ SEFHIER_dnfs_dnfs_short_date__iso__time_only_23 |>
 
 # grep("^23", dnfs_short_DE_time, value = T) |>
 
-
-my_stats(dnfs_notoverridden_ok)
 my_stats(SEFHIER_dnfs_dnfs_short_date__iso)
 
 vessels_not_in_metrics <-
-  n_distinct(dnfs_notoverridden_ok$VESSEL_OFFICIAL_NUMBER) -
+  n_distinct(dnfs_short_date__iso$VESSEL_OFFICIAL_NUMBER) -
   n_distinct(SEFHIER_dnfs_notoverridden$VESSEL_OFFICIAL_NUMBER)
 
 my_tee(vessels_not_in_metrics,
