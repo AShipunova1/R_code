@@ -248,6 +248,7 @@ dnfs_download_query <-
   trip_date,
   tn.vessel_id vessel_id,
   tn.de,
+  tn.ue,
   coast_guard_nbr,
   state_reg_nbr,
   sero_official_number vessel_official_number
