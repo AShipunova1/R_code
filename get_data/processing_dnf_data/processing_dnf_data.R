@@ -323,15 +323,6 @@ dnfs_stat_correct_dates_before_filtering <-
     n_distinct(dnfs_short$TRIP_ID)
   )
 
-### Add a week number ----
-dnfs_short__week <-
-  dnfs_short |>
-  mutate(dnf_week = lubridate::isoweek(TRIP_DATE),
-         dnf_year = lubridate::isoyear(TRIP_DATE))
-
-View(dnfs_short__week)
-
-
 ### Prepare data to determine what weeks were overridden, so we can exclude dnfs from those weeks later ----
 
 # assign each dnf a week designation (first day of the reporting week is a Monday)
