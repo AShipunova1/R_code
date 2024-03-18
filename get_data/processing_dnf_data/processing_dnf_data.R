@@ -439,7 +439,7 @@ my_stats(compl_override_data_this_year,
 # We need the many to many relationship because the DNFs represent a single day in a 7 day week, while the compliance represents a single week. So the relationship between DNFs to Compliance is 7 to 1.
 
 dnfs_join_overr <-
-  left_join(dnfs_short_date__iso,
+  left_join(SEFHIER_dnfs_short_date__iso,
             compl_override_data_this_year,
             join_by(TRIP_DATE_YEAR == COMP_YEAR,
                     VESSEL_OFFICIAL_NUMBER,
@@ -447,33 +447,14 @@ dnfs_join_overr <-
             relationship = "many-to-many"
   )
 
-# the below section of 25 lines is an example of the many to many relationship, using 2022 data
-# ℹ Row 100587 of `x` matches multiple rows in `y`.
+# the below section of 25 lines is an example of the many to many relationship, using 2022 data (to check, remove 'relationship = "many-to-many"' from above.)
+# ℹ Row 5275 of `x` matches multiple rows in `y`.
 
-# dnfs_short_date__iso[100587, ] |> glimpse()
-# 1242820
-
-#compl_override_data_this_year |>
-#  filter(VESSEL_OFFICIAL_NUMBER == "1242820" &
-#           COMP_WEEK == 32 &
-#           COMP_YEAR == 2022) |>
-#  View()
-
-# FL9558PU
-
-# dnfs_short_date__iso |>
-#   filter(VESSEL_OFFICIAL_NUMBER == "FL9558PU")
-# 0
+# dnfs_short_date__iso[52758, ] |> glimpse()
 
 # ℹ Row 20519  of `y` matches multiple rows in `x`.
 
-compl_override_data_this_year[20519, ] |> glimpse()
-
-# dnfs_short_date__iso |>
-#   filter(VESSEL_OFFICIAL_NUMBER == "929500" &
-#            TRIP_DATE_YEAR == 2022 &
-#            TRIP_DATE_WEEK == 5) |>
-#   glimpse()
+# compl_override_data_this_year[20519, ] |> glimpse()
 
 # stats
 my_stats(dnfs_short_date__iso)
