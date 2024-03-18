@@ -166,7 +166,7 @@ min(compl_override_data__renamed$COMP_WEEK_START_DT)
 # [1] "2021-01-04 EST"
 
 # keep only year of analysis, including the week 52 of the previous year if needed
-compl_override_data_this_year <-
+compl_override_data__renamed__this_year <-
   compl_override_data__renamed |>
   filter(COMP_WEEK_END_DT >= as.Date(my_date_beg, "%d-%b-%Y",
                                      tz = Sys.timezone()) &
@@ -175,15 +175,15 @@ compl_override_data_this_year <-
 
 # check
 # That's the week 52 of my_year-1:
-min(compl_override_data_this_year$COMP_WEEK_START_DT)
+min(compl_override_data__renamed__this_year$COMP_WEEK_START_DT)
 # [1] "2021-12-27 EST" #this might contain the last week in the year before my_year, to account for a compliance week that overlaps last week of the year and first week of my_year
-min(compl_override_data_this_year$COMP_WEEK_END_DT)
+min(compl_override_data__renamed__this_year$COMP_WEEK_END_DT)
 # [1] "2022-01-02 EST" #this should be the last day of the first week in my_year
 
 # change data type of this column if needed
-if (!class(compl_override_data_this_year$VESSEL_OFFICIAL_NUMBER) == "character") {
-  compl_override_data_this_year$VESSEL_OFFICIAL_NUMBER <-
-    as.character(compl_override_data_this_year$VESSEL_OFFICIAL_NUMBER)
+if (!class(compl_override_data__renamed__this_year$VESSEL_OFFICIAL_NUMBER) == "character") {
+  compl_override_data__renamed__this_year$VESSEL_OFFICIAL_NUMBER <-
+    as.character(compl_override_data__renamed__this_year$VESSEL_OFFICIAL_NUMBER)
 }
 
 # change data type to remove time from dttm columns
@@ -197,8 +197,8 @@ if (!class(compl_override_data_this_year$VESSEL_OFFICIAL_NUMBER) == "character")
 #    - "%FT" represents the ISO 8601 date format with the time.
 # 4. The resulting DataFrame will have the POSIXct columns converted to Date format.
 
-# compl_override_data_this_year__no_time <-
-#   compl_override_data_this_year |>
+# compl_override_data__renamed__this_year__no_time <-
+#   compl_override_data__renamed__this_year |>
 #   mutate(across(
 #     where(is.POSIXct),
 #     ~ as.Date(.x,
@@ -206,7 +206,7 @@ if (!class(compl_override_data_this_year$VESSEL_OFFICIAL_NUMBER) == "character")
 #               tz = Sys.timezone())
 #   ))
 
-# glimpse(compl_override_data_this_year__no_time)
+# glimpse(compl_override_data__renamed__this_year__no_time)
 
 ## Import the permit data ----
 processed_metrics_tracking_path <-
@@ -347,9 +347,9 @@ dnfs_short_date__iso <-
   mutate(TRIP_DATE_WEEK = isoweek(TRIP_DATE), # puts it in week num
          TRIP_DATE_YEAR = isoyear(TRIP_DATE)) # adds a year
 
-# to see the respective data in compl_override_data_this_year, note the last week of 2021
+# to see the respective data in compl_override_data__renamed__this_year, note the last week of 2021
 # not needed for processing
-compl_override_data_this_year |>
+compl_override_data__renamed__this_year |>
   select(COMP_YEAR,
          COMP_WEEK_END_DT,
          COMP_WEEK) |>
@@ -427,7 +427,7 @@ my_tee(vessels_not_in_metrics,
 # 1556
 
 ## add override data to dnfs ----
-my_stats(compl_override_data_this_year,
+my_stats(compl_override_data__renamed__this_year,
          "Compliance and override data from the db")
 # rows: 150029
 # columns: 23
@@ -444,9 +444,9 @@ min(trip_date_1$TRIP_DATE)
 max(trip_date_1$TRIP_DATE)
 # [1] "2022-01-09 23:00:00 EST"
 
-# glimpse(compl_override_data_this_year)
+# glimpse(compl_override_data__renamed__this_year)
 trip_date_2 <-
-  compl_override_data_this_year |>
+  compl_override_data__renamed__this_year |>
   filter(COMP_WEEK == 1,
          COMP_YEAR == "2022") |>
   select(starts_with("COMP_WEEK_")) |>
@@ -466,7 +466,7 @@ max(trip_date_2$COMP_WEEK_END_DT)
 
 dnfs_join_overr <-
   left_join(SEFHIER_dnfs_short_date__iso,
-            compl_override_data_this_year,
+            compl_override_data__renamed__this_year,
             join_by(TRIP_DATE_YEAR == COMP_YEAR,
                     VESSEL_OFFICIAL_NUMBER,
                     TRIP_DATE_WEEK == COMP_WEEK),
@@ -480,7 +480,7 @@ dnfs_join_overr <-
 
 # ℹ Row 20519  of `y` matches multiple rows in `x`.
 
-# compl_override_data_this_year[20519, ] |> glimpse()
+# compl_override_data__renamed__this_year[20519, ] |> glimpse()
 
 # stats
 my_stats(SEFHIER_dnfs_short_date__iso)
@@ -498,7 +498,7 @@ my_stats(dnfs_join_overr)
 # Unique trips neg (dnfs): 790839
 
 # Make lists of overridden or not vessels
-# If a week for a vessel was overridden (compl_override_data_this_year), remove the trip reports from the corresponding week in the dnf data
+# If a week for a vessel was overridden (compl_override_data__renamed__this_year), remove the trip reports from the corresponding week in the dnf data
 # We have to remove dnfs for weeks that were overridden because we don't have a timestamp for when the dnf was submitted to the app, only when it was submitted to Oracle/SAFIS, and we can't differentiate that time laps.
 # We can't differentiate between turning a dnf in on time in the app, and it taking two months to get it vs turning in a dnf two months late.
 # E.g. user submitted Jan 1, 2022, but SEFHIER team found it missing in FHIER (and SAFIS) in March, 2022 (At permit renewal)... user submitted on time in app (VESL) but we may not get that report in SAFIS for months later (when its found as a "missing report" and then requeued for transmission)
@@ -594,7 +594,7 @@ my_stats(dnfs_NA)
 vessels_missing <-
   setdiff(
     SEFHIER_permit_info_short_this_year$VESSEL_OFFICIAL_NUMBER,
-    compl_override_data_this_year$VESSEL_OFFICIAL_NUMBER
+    compl_override_data__renamed__this_year$VESSEL_OFFICIAL_NUMBER
   )
 
 # stats
@@ -690,33 +690,37 @@ dnfs_notoverridden_ok <-
 # COMP_OVERRIDE_CMT
 # SRFH_ASSIGNMENT_ID
 
+### Overridden stats ----
 # stats, what was lost by excluding the overridden dnfs
 uniq_vessels_num_was <-
-  n_distinct(dnfs_short_date__iso[["VESSEL_OFFICIAL_NUMBER"]])
+  n_distinct(SEFHIER_dnfs_short_date__iso[["VESSEL_OFFICIAL_NUMBER"]])
 uniq_vessels_num_now <-
   n_distinct(dnfs_notoverridden_ok[["VESSEL_OFFICIAL_NUMBER"]])
 
 uniq_trips_num_was <-
-  n_distinct(dnfs_short_date__iso[["TRIP_ID"]])
+  n_distinct(SEFHIER_dnfs_short_date__iso[["TRIP_ID"]])
 uniq_trips_num_now <-
   n_distinct(dnfs_notoverridden_ok[["TRIP_ID"]])
 
 uniq_vessels_lost_by_overr <-
   uniq_vessels_num_was - uniq_vessels_num_now
 # 12
+# 29
 
 uniq_trips_lost_by_overr <-
   uniq_trips_num_was - uniq_trips_num_now
 # 2981
+# 70640
 
 my_tee(uniq_vessels_lost_by_overr,
        "Thrown away vessels by overridden weeks")
 # 223
+# 29
 
 my_tee(uniq_trips_lost_by_overr,
        "Thrown away trips neg by overridden weeks")
 # 419233
-
+# 70640
 
 ## Mark all trips neg that were received > 30 days after the trip date, by using compliance data and time of submission ----
 
@@ -753,7 +757,7 @@ late_submission_filter_stats <-
 late_submission_filter <-
   function() {
     SEFHIER_dnfs_notoverridden__temp <-
-      SEFHIER_dnfs_notoverridden |>
+      dnfs_notoverridden_ok |>
       mutate(MORE_THAN_30_DAYS_LATE =
                case_when(DE <= USABLE_DATE_TIME ~ FALSE,
                          .default = TRUE))
@@ -777,6 +781,17 @@ SEFHIER_processed_dnfs__late_subm <- late_submission_filter()
 # 267298/366416*100
 # 72.94933%
 
+# rows: 369816
+# columns: 26
+# Unique vessels: 1991
+# Unique trips (logbooks): 369667
+# ---
+# Count late_submission (dnfs num)
+# 271703
+# ---
+# Count late_submission (vessels num)
+# 1926
+
 # Add all columns from processed metrics tracking to obtain the Permit region.
 
 SEFHIER_processed_dnfs <-
@@ -791,12 +806,18 @@ my_stats(SEFHIER_processed_dnfs)
 # Unique vessels: 1971
 # Unique trips neg (dnfs): 366416
 
+# rows: 369816
+# columns: 34
+# Unique vessels: 1991
+# Unique trips (logbooks): 369667
+
 dnfs_before_filtering <-
-  n_distinct(dnfs_short_date__iso$TRIP_ID)
+  n_distinct(dnfs_notoverridden_ok$TRIP_ID)
 
 my_tee(dnfs_before_filtering,
         "dnfs before filtering")
 # 790839 2022
+# 369667 2022
 # 52393 2023
 
 dnfs_after_filtering <-
@@ -805,6 +826,7 @@ dnfs_after_filtering <-
 my_tee(dnfs_after_filtering,
         "dnfs after filtering")
 # 366416 2022
+# 369667 2022
 # 51340 2023
 
 percent_of_removed_dnfs <-
@@ -812,6 +834,7 @@ percent_of_removed_dnfs <-
 
 cat(percent_of_removed_dnfs, sep = "\n")
 # 53.66743 2022
+# 0
 
 # removed_vessels
 vessels_before_filtering <-
@@ -820,6 +843,7 @@ vessels_before_filtering <-
 cat(vessels_before_filtering)
 # 2241 2022
 # 1646 2023
+# 3576 (2022)
 
 vessels_after_filtering <-
   n_distinct(SEFHIER_processed_dnfs$VESSEL_OFFICIAL_NUMBER)
@@ -827,10 +851,12 @@ vessels_after_filtering <-
 cat(vessels_after_filtering)
 # 1971 2022
 # 1597 2023
+# 1991 2022
 
 removed_vessels <-
   vessels_before_filtering - vessels_after_filtering
 # 270
+# 1585
 
 percent_of_removed_vessels <-
   (vessels_before_filtering - vessels_after_filtering) * 100 / vessels_before_filtering
