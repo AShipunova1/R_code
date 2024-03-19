@@ -97,3 +97,24 @@ FHIER_vessel_officialnumber <-
 
 dim(FHIER_vessel_officialnumber)
 # 188
+
+## read sc permitted data ----
+SC_permittedVessels  <-
+  load_xls_names(my_paths, xsl_names_list, 1)
+
+glimpse(SC_permittedVessels)
+# 200
+
+# for test purposes add random 0 and 1, change to real compliance data from SC
+SC_permittedVessels_compl <-
+  SC_permittedVessels |>
+  mutate(is_compl_sc =
+           sample(
+             0:1,
+             size = nrow(SC_permittedVessels),
+             replace = TRUE
+           )) |>
+  clean_headers()
+
+# View(SC_permittedVessels_compl)
+
