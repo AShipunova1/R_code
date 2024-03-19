@@ -63,8 +63,7 @@ if (!class(compl_override_data__renamed$vessel_official_number) == "character") 
     as.character(compl_override_data__renamed$vessel_official_number)
 }
 
-# Download Maintenance / SC Vessels Reporting via VESL
-# from FHIER
+## Download Maintenance / SC Vessels Reporting via VESL from FHIER ----
 # https://grunt.sefsc.noaa.gov/apex/f?p=162:386:5458401387184:::RP,386::&cs=3lR5MlDRVs7tWDLbTPOrYh-j00HYH4yeXtQKl8Dqltvjuxmt6sBAwnah0ltdU_dBPQRSNZ21KX_NR4YGfsjtJOA
 
 csv_names_list = list(r"(sc_mismatches\2024_03\fhier_report_03_01_2024.csv)")
@@ -118,6 +117,10 @@ SC_permittedVessels_compl <-
 
 # View(SC_permittedVessels_compl)
 
+# get logbooks ----
+
+# get dnfs ----
+
 # combine data ----
 print_df_names(SC_permittedVessels_compl)
 print_df_names(compl_override_data__renamed)
@@ -129,7 +132,6 @@ sc_fhier <-
     join_by(vessel_reg_uscg_ == vessel_official_number)
   )
 
-
 # 1. the list of those SC non-compliant vessels that are also non-compliant in FHIER ----
 
 non_compliant_vessels_in_sc_and_fhier <-
@@ -137,7 +139,8 @@ non_compliant_vessels_in_sc_and_fhier <-
   filter(is_compl_sc == 0 &
            is_comp == 0)
 
-# ---
+# dim(non_compliant_vessels_in_sc_and_fhier)
+
 # non compliant in SC and compliant in FHIER ----
 # 2. if they are compliant for that month in FHIER then list all the dates of DNFs and/or logbooks we have in FHIER by vessel (probably 3 columns needed: vessel ID, Logbook (list any dates for that month), DNF (list week date range for any for that month)
 non_compliant_vessels_in_sc_and_compl_in_fhier <-
@@ -147,3 +150,4 @@ non_compliant_vessels_in_sc_and_compl_in_fhier <-
 
 View(non_compliant_vessels_in_sc_and_compl_in_fhier)
 
+# 3. we also need a step that just grabs the compliant vessels (herein "SC compliant vessels list"), and then checks FHIER compliance to see if any that SC has as compliant are listed as non-compliant for any of the weeks in the given month. If any vessels are found to be compliant with SC but non-compliant with us/FHIER, then we need (on a 3rd sheet) to list those vessels and include what week (with date ranges) we are missing in FHIER. Eric will use this to more proactively alert us when a vessel is reporting only to SC, since we have so many recurring issues with this.
