@@ -118,6 +118,13 @@ SC_permittedVessels_compl <-
 # View(SC_permittedVessels_compl)
 
 # get logbooks ----
+logbooks_path <- file.path(
+  r"(~\R_files_local\my_inputs\processing_logbook_data\Outputs\SEFHIER_processed_Logbooks_2023.rds)"
+)
+
+logbooks <-
+  read_rds(logbooks_path) |>
+  clean_headers()
 
 # get dnfs ----
 
