@@ -305,7 +305,6 @@ my_stats(dnfs_short, "dnfs from the db")
 # isoweek() returns the week as it would appear in the ISO 8601 system, which uses a reoccurring leap week.
 #
 # epiweek() is the US CDC version of epidemiological week. It follows same rules as isoweek() but starts on Sunday. In other parts of the world the convention is to start epidemiological weeks on Monday, which is the same as isoweek.
-#
 
 # Needed to adjust for week 52 of the previous year
 dnfs_short_date__iso <-
@@ -327,6 +326,7 @@ compl_override_data__renamed__this_year |>
 # 1      2021       2022-01-02        52
 # 2      2022       2022-01-09         1
 # 3      2022       2022-01-16         2
+
 # 2023
 #   COMP_YEAR COMP_WEEK_END_DT COMP_WEEK
 # 1      2022       2023-01-01        52
@@ -339,46 +339,6 @@ compl_override_data__renamed__this_year |>
 SEFHIER_dnfs_short_date__iso <-
   dnfs_short_date__iso |>
   filter(VESSEL_OFFICIAL_NUMBER %in% processed_metrics_tracking$VESSEL_OFFICIAL_NUMBER)
-
-## check dnf dates ----
-# names(SEFHIER_dnfs_short_date__iso) |>
-#   cat(sep = ", ")
-
-# SEFHIER_dnfs_short_date__iso__time_only <-
-#   SEFHIER_dnfs_short_date__iso |>
-#   mutate(across(
-#     where(is.POSIXct),
-#     .fns = ~ format(.x, "%H%M%S"),
-#     .names = "{.col}_time_only"
-#   ))
-
-# DE_time_only
-# SEFHIER_dnfs_short_date__iso__time_only_23 <-
-#   SEFHIER_dnfs_short_date__iso__time_only |>
-#   select(-USABLE_DATE_TIME_time_only) |>
-#   filter(if_any(
-#     .cols = ends_with("_time_only"),
-#     .fns = ~ grepl("^23", .x)
-#   ))
-
-# SEFHIER_dnfs_short_date__iso__time_only_23 |>
-#   select(TRIP_ID,
-#          VESSEL_OFFICIAL_NUMBER,
-#          TRIP_DATE,
-#          COMP_WEEK,
-#          DE,
-#          USABLE_DATE_TIME) |>
-#   distinct() |>
-#   head()
-
-# SEFHIER_dnfs_short_date__iso__time_only |>
-#   filter(across(ends_with("time_only")))
-  # str()
-  # select(TRIP_ID, VESSEL_OFFICIAL_NUMBER)
-#    mutate(DE_time = format(DE, "%H%M%S")) |>
-#    filter(grepl("230000", DE_time)) |>
-
-# grep("^23", dnfs_short_DE_time, value = T) |>
 
 my_stats(dnfs_short_date__iso)
 my_stats(SEFHIER_dnfs_short_date__iso)
