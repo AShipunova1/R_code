@@ -372,12 +372,22 @@ trip_date_1 <-
   filter(TRIP_DATE_WEEK == 1,
          TRIP_DATE_YEAR == "2022") |>
   select(TRIP_DATE)
-min(trip_date_1$TRIP_DATE)
-# [1] "2022-01-03 23:00:00 EST"
-max(trip_date_1$TRIP_DATE)
-# [1] "2022-01-09 23:00:00 EST"
 
-# glimpse(compl_override_data__renamed__this_year)
+dnfs_first_week_2022 <-
+  tibble(min1 = as.Date(min(trip_date_1$TRIP_DATE),
+                        tz = Sys.timezone()),
+    # [1] "2022-01-03 23:00:00 EST"
+    max1 = as.Date(max(trip_date_1$TRIP_DATE),
+                   tz = Sys.timezone())
+    # [1] "2022-01-09 23:00:00 EST"
+    )
+
+# Explanations:
+# 1. Use 'filter' to select rows where 'COMP_WEEK' is equal to 1 and 'COMP_YEAR' is equal to "2022".
+# 2. Use the pipe operator ('|>') to pass the resulting DataFrame to the next operation.
+# 3. Use 'select' to keep only the columns that start with "COMP_WEEK_".
+# 4. Use 'distinct' to keep only unique rows after selecting columns.
+# 5. The resulting DataFrame will contain only the columns that start with "COMP_WEEK_" from the filtered rows.
 trip_date_2 <-
   compl_override_data__renamed__this_year |>
   filter(COMP_WEEK == 1,
@@ -385,10 +395,15 @@ trip_date_2 <-
   select(starts_with("COMP_WEEK_")) |>
   distinct()
 
-min(trip_date_2$COMP_WEEK_START_DT)
-# [1] "2022-01-03 EST"
-max(trip_date_2$COMP_WEEK_END_DT)
-# [1] "2022-01-09 EST"
+compl_first_week_2022 <-
+  tibble(min1 = as.Date(min(trip_date_2$COMP_WEEK_START_DT),
+                        tz = Sys.timezone()),
+    # [1] "2022-01-03 EST"
+    max1 = as.Date(max(trip_date_2$COMP_WEEK_END_DT),
+                   tz = Sys.timezone()))
+    # [1] "2022-01-09 EST"
+
+diffdf::diffdf(dnfs_first_week_2022, compl_first_week_2022)
 # same as above, ok
 
 ### join the dfs ----
