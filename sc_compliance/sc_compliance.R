@@ -47,3 +47,19 @@ compl_override_data <-
   read_rds_or_run(compl_override_data_file_path,
                   my_function = compl_err_query)
 
+### prep the compliance/override data ----
+
+# Change column names for consistency with other datasets
+compl_override_data__renamed <-
+  compl_override_data |>
+  dplyr::rename(vessel_official_number =
+                  "VESSEL_OFFICIAL_NBR",
+                overridden = "IS_COMP_OVERRIDE") |>
+  clean_headers()
+
+# change data type of this column if needed
+if (!class(compl_override_data__renamed$vessel_official_number) == "character") {
+  compl_override_data__renamed$vessel_official_number <-
+    as.character(compl_override_data__renamed$vessel_official_number)
+}
+
