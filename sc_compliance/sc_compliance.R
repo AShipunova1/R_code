@@ -63,3 +63,37 @@ if (!class(compl_override_data__renamed$vessel_official_number) == "character") 
     as.character(compl_override_data__renamed$vessel_official_number)
 }
 
+# Download Maintenance / SC Vessels Reporting via VESL
+# from FHIER
+# https://grunt.sefsc.noaa.gov/apex/f?p=162:386:5458401387184:::RP,386::&cs=3lR5MlDRVs7tWDLbTPOrYh-j00HYH4yeXtQKl8Dqltvjuxmt6sBAwnah0ltdU_dBPQRSNZ21KX_NR4YGfsjtJOA
+
+csv_names_list = list(r"(sc_mismatches\2024_03\fhier_report_03_01_2024.csv)")
+
+xsl_names_list = list(r"(sc_mismatches\2024_03\scdnrFedVessels_03012024.xlsx)")
+
+SC_vessels_FHIERData_0 <-
+  load_csv_names(my_paths$inputs, csv_names_list)[[1]]
+
+SC_vessels_FHIERData <- clean_headers(SC_vessels_FHIERData_0)
+
+# glimpse(SC_vessels_FHIERData)
+str(SC_vessels_FHIERData)
+
+# get enabled only
+SC_vessels_FHIERData_enabled <-
+  SC_vessels_FHIERData |>
+  filter(tolower(enabled) == "yes")
+# dim(SC_vessels_FHIERData_enabled)
+# 199 8
+# [1] 187   8
+# 189
+# 188
+# SC_vessels_FHIERData_enabled %>% names()
+#   filter(vessel_official_number   == "1225219")
+
+# create new dataframe with just enabled vessel official # for analysis
+FHIER_vessel_officialnumber <-
+  data.frame(Official_number = tolower(SC_vessels_FHIERData_enabled$vessel_official_number))
+
+dim(FHIER_vessel_officialnumber)
+# 188
