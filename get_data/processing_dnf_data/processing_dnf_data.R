@@ -495,14 +495,10 @@ dnfs_NA |>
 
 # stats
 my_stats(dnfs_NA)
-# rows: 404427
-# columns: 27
-# Unique vessels: 1103
-# Unique trips neg (dnfs): 404427
 # rows: 56205
 # columns: 28
 # Unique vessels: 903
-# Unique trips (logbooks): 56205
+# Unique trips: 56205
 
 ## Add vessels missing from the Compliance report ----
 # SEFHIER vessels missing from the Compliance report
@@ -519,7 +515,6 @@ vessels_missing <-
 # stats
 my_tee(n_distinct(vessels_missing),
        "vessels_missing")
-# vessels_missing 8
 # 61
 
 # SEFHIER dnfs from vessels missing from the Compliance report
@@ -527,33 +522,23 @@ vessels_missing_dnfs <-
   dnfs_NA |>
   filter(VESSEL_OFFICIAL_NUMBER %in% vessels_missing)
 
-# glimpse(dnfs_notoverridden)
-
 # add missing dnfs back to the not overridden data frame
-
 dnfs_notoverridden__w_missing <-
   rbind(dnfs_notoverridden,
         vessels_missing_dnfs) |>
   distinct()
 
 my_stats(dnfs_notoverridden__w_missing)
-# rows: 371755
-# columns: 27
-# Unique vessels: 2018
-# Unique trips neg (dnfs): 371606
 # rows: 369816
 # columns: 28
 # Unique vessels: 1991
-# Unique trips (logbooks): 369667
-
-# remove missing dnfs from NA dataset, the NA dataset is now only those that were submitted when not needed
+# Unique trips: 369667
 
 my_stats(dnfs_NA)
-# Unique vessels: 1103
-# Unique trips neg (dnfs): 404427
 # Unique vessels: 903
-# Unique trips (logbooks): 56205
+# Unique trips: 56205
 
+# remove missing vessels dnfs from NA dataset
 # Subset the dnfs_NA dataframe by excluding rows with VESSEL_OFFICIAL_NUMBER
 # present in the vessels_missing vector.
 dnfs_NA__rm_missing_vsls <-
@@ -562,16 +547,17 @@ dnfs_NA__rm_missing_vsls <-
 
 my_stats(dnfs_NA__rm_missing_vsls,
          "dnfs_NA after removing missing dnfs")
-# rows: 402137
-# columns: 27
-# Unique vessels: 1090
-# Unique trips neg (dnfs): 402137
-
 # rows: 53652
 # columns: 28
 # Unique vessels: 889
-# Unique trips (logbooks): 53652
+# Unique trips: 53652
 
+my_tee(n_distinct(dnfs_NA$TRIP_ID) -
+         n_distinct(dnfs_NA__rm_missing_vsls$TRIP_ID),
+       "DNFs with NA in overridden with missing vessels removed")
+# 2553
+
+# (? AS)
 # We have decided to throw out dnfs that were submitted when the permit was inactive, the logic
 # being we shouldn't include dnfs that weren't required in the first place. Alternatively,
 # deciding to keep in the NAs means we would be keeping reports that were submitted by a vessel
@@ -590,14 +576,20 @@ dnfs_notoverridden__w_missing__timezone <-
                    tz = Sys.timezone()))
 
 # add a date 30 days later with a time
+# lubridate::ceiling_date(parse_date_time("2022-03-06 23:00:00",
+#                                         orders = "YmdHMS",
+#                                         tz = Sys.timezone()))
+
 dnfs_notoverridden_all <-
   dnfs_notoverridden__w_missing__timezone |>
   mutate(USABLE_DATE_TIME =
-           TRIP_DATE_E +
-           days(30) +
-           hours(23) +
-           minutes(59) +
-           seconds(59))
+           TRIP_DATE_E + days(30)) |>
+  mutate(USABLE_DATE_TIME =
+           `hour<-`(USABLE_DATE_TIME, 23)) |>
+  mutate(USABLE_DATE_TIME =
+           `minute<-`(USABLE_DATE_TIME, 59)) |>
+  mutate(USABLE_DATE_TIME =
+           `second<-`(USABLE_DATE_TIME, 59))
 
 # Drop empty columns
 dnfs_notoverridden_ok <-
