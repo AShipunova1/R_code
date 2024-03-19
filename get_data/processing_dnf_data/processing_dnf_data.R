@@ -493,36 +493,6 @@ dnfs_NA |>
 #   filter(!is.na(SRH_VESSEL_COMP_ID))
 # 0
 
-### Check why so many are NA ----
-dnfs_NA__ids <-
-  dnfs_NA |>
-  select(VESSEL_ID) |>
-  distinct()
-
-n_distinct(dnfs_NA__ids$VESSEL_ID)
-# 2447
-# 903
-
-dnfs_NA__von <-
-  dnfs_NA |>
-  select(VESSEL_OFFICIAL_NUMBER) |>
-  distinct()
-
-n_distinct(dnfs_NA__von$VESSEL_OFFICIAL_NUMBER)
-# 903 (2022)
-
-# dnfs_v_all_ids |> View()
-# dnfs_NA__ids |> head()
-
-na_compl <-
-  SEFHIER_dnfs_short_date__iso |>
-  filter(VESSEL_ID %in% dnfs_NA__ids$VESSEL_ID) |>
-  select(VESSEL_OFFICIAL_NUMBER, UE, TRIP_DATE_WEEK, TRIP_DATE_YEAR) |>
-  distinct() |>
-  arrange(VESSEL_OFFICIAL_NUMBER, TRIP_DATE_YEAR, TRIP_DATE_WEEK)
-
-glimpse(na_compl)
-
 # stats
 my_stats(dnfs_NA)
 # rows: 404427
