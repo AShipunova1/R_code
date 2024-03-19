@@ -118,3 +118,15 @@ SC_permittedVessels_compl <-
 
 # View(SC_permittedVessels_compl)
 
+# combine data ----
+print_df_names(SC_permittedVessels_compl)
+print_df_names(compl_override_data__renamed)
+
+sc_fhier <-
+  left_join(
+    SC_permittedVessels_compl,
+    compl_override_data__renamed,
+    join_by(vessel_reg_uscg_ == vessel_official_number)
+  )
+
+
