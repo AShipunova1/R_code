@@ -471,8 +471,6 @@ temp_compliance_from_fhier <-
            gsub(",,+", ",", permitgroup_sep_0)) |>
   mutate(permitgroup_sep =
            gsub(",$", "", permitgroup_sep_1)) |>
-  # filter(vessel_official_number == 'FL6900MH') |> View()
-  # !!! 3
   mutate(permitgroup_sep_s =
            str_split(permitgroup_sep, ",")) |>
   rowwise() |>
@@ -733,7 +731,6 @@ n_distinct(permits_from_pims__permit_only$vessel_or_dealer)
 # [1] 7178
 
 ### permits_from_pims split vessel_or_dealer ----
-# $ vessel_or_dealer <chr> "287008 / DESTINY", "515431 / CAPT BUCK", "R15431 / CAP…
 
 permits_from_pims__permit_only__vessel_id <-
   permits_from_pims__permit_only |>
@@ -778,8 +775,6 @@ unique(all_dfs_list3$permits_from_pims$permit_clean)
 
 all_dfs_list3$transfer_applications_from_pims$vessel_or_dealer |>
   head()
-# [1] "NC4086DF (UNNAMED)"     "910807 (DAT THINH)"     "1254225 (LEGAL LIMITS)"
-# [4] "NOVESID384 ()"          "NOVESID385 (UNNAMED)"   "651838 (RED EYE)"
 
 transfer_applications_from_pims__split1 <-
   all_dfs_list3$transfer_applications_from_pims |>
@@ -801,11 +796,6 @@ transfer_applications_from_pims__split1 |>
   distinct() |>
   filter(grepl("/", vessel_official_numbers)) |>
   head(15)
-#  6 617846 / NONE
-#  7 1056487 / FL6175NK
-#  8 1249495 / FL5083LN
-#  9 532242 / FL4486LT
-# 10 FL0293RM / FLORIDA
 
 ### transfer_applications_from_pims split vessel_or_dealer 2 ----
 transfer_applications_from_pims__split2 <-
@@ -1110,8 +1100,6 @@ length(vessel_in_permits_from_pims_not_in_compl)
 # 4651
 
 glimpse(vessel_in_permits_from_pims_not_in_compl)
- # chr [1:905] "1074262" "644342" "296866" "1296642" "FL9104PX" "FL5102EJ" ...
- # chr [1:4651] "FL5150FR" "FL6923EA" "587877" "FL6174HJ" "688042" "1025535" ...
 
 ### compliance_from_fhier & permits_from_pims join by vessel and permit ----
 join_compliance_from_fhier__permits_from_pims__vsl_perm <-
@@ -1186,28 +1174,23 @@ map(intersections_1, length)
 
 map(intersections_1, head(1))
 # $inters_in_both__in_compliance_from_fhier
-# [1] "VA4480ZY"
-#
+
 # $inters_in_both__in_permits_from_pims
-# [1] "TX7674AT"
-# "VI5498TB"
-#
+
 # $inters_in_compliance_from_fhier__in_permits_from_pims
-# [1] "FL7549EJ"
-# "TX6211DM"
 
 join_compliance_from_fhier__permits_from_pims__vsl_perm |>
-  filter(vessel_official_number == "VA4480ZY") |>
+  filter(vessel_official_number == "") |>
   glimpse()
 # only 1 permit in pims
 
 join_compliance_from_fhier__permits_from_pims__vsl_perm |>
-  filter(vessel_official_number == "TX7674AT") |>
+  filter(vessel_official_number == "") |>
   glimpse()
 # old SA in PIMS, ok
 
 join_compliance_from_fhier__permits_from_pims__vsl_perm |>
-  filter(vessel_official_number == "FL7549EJ") |>
+  filter(vessel_official_number == "") |>
   glimpse()
 # diff in compliance and in pims
 
@@ -1280,18 +1263,16 @@ map(intersections_2, length)
 
 map(intersections_2, head(1))
 # $inters_in_both__in_compliance_from_fhier
-# [1] "TX6291CS"
-#
+
 # $inters_in_both__in_metrics_report
-# [1] "MC7540US"
 
 join_compliance_from_fhier__metrics_report__vsl_permit |>
-  filter(vessel_official_number == "TX6291CS") |>
+  filter(vessel_official_number == "") |>
   glimpse()
 # missing in metrics_report__df_name
 
 join_compliance_from_fhier__metrics_report__vsl_permit |>
-  filter(vessel_official_number == "MC7540US") |>
+  filter(vessel_official_number == "") |>
   glimpse()
 #  "CHG", "RCG" are missing in compl
 
@@ -1395,15 +1376,14 @@ map(intersections_3, head(1))
 # MC7540US
 
 join_compliance_from_fhier__permit_info_from_db__vsl_perm |>
-# filter(vessel_official_number == "VA2668BK") |>
+# filter(vessel_official_number == "") |>
   # gom permits are missing in compl
-  filter(vessel_official_number == "SC5306EA") |>
+  filter(vessel_official_number == "") |>
   glimpse()
 # misssing in db
 
 join_compliance_from_fhier__permit_info_from_db__vsl_perm |>
-  # filter(vessel_official_number == "1024989") |>
-  filter(vessel_official_number == "MC7540US") |>
+  filter(vessel_official_number == "") |>
   glimpse()
 # GOM p. are missing from compl (TRANSFERRED)
 
@@ -1516,34 +1496,30 @@ map(intersections_4, length)
 
 map(intersections_4, head(1))
 # inters_in_both__in_metrics_report
-# [1] "FL6706GE"
-#
+
 # $inters_in_both__in_permits_from_pims
-# [1] "1216608"
-#
+
 # $inters_in_metrics_report__in_permits_from_pims
-# [1] "1197174"
 
 # today
 # $inters_in_both__in_metrics_report
-# [1] "TX2118FJ"
-#
+
 # $inters_in_both__in_permits_from_pims
-# [1] "1077813"
-#
+
 # $inters_in_metrics_report__in_permits_from_pims
-# [1] "FL5121MC"
+
 
 join_permits_from_pims__metrics_report__vsl_perm |>
-  filter(vessel_official_number == "FL6706GE") |>
+  filter(vessel_official_number == "") |>
+  glimpse()
+# ok, pims exp date < 2021, but end_date is not
+
+join_permits_from_pims__metrics_report__vsl_perm |>
+  filter(vessel_official_number == "") |>
   glimpse()
 
 join_permits_from_pims__metrics_report__vsl_perm |>
-  filter(vessel_official_number == "1216608") |>
-  glimpse()
-
-join_permits_from_pims__metrics_report__vsl_perm |>
-  filter(vessel_official_number == "1197174") |>
+  filter(vessel_official_number == "") |>
   glimpse()
 
 ## [5] "permits_from_pims" "permit_info_from_db" ----
@@ -1583,8 +1559,6 @@ curr_file_name_combinations <-
 #       vessel_official_number ==
 #     all_dfs_list_no_srhs$permit_info_from_db[9426,][["vessel_alt_num"]]) |>
 #   glimpse()
-# # $ vessel_official_nbr      <chr> "FL6432SU", "FL6432SU"
-# # $ notif_accsp_permit_id    <dbl> 584995, NA
 #
 # permits_from_pims_multi_notif_accsp_permit_id <-
 #   get_multiple_entries_per_vessel(all_dfs_list_no_srhs$permits_from_pims,
@@ -1613,21 +1587,18 @@ length(vessel_in_permits_from_pims_not_in_permit_info_from_db)
 # 1
 # 2 after 2022 and sep permits
 
-# 1292480
-# 1292480:NC0676EK........ SOUTHERN RUN - BENJAMIN AUGUSTUS MORRIS  (828) 4298076
-
 all_dfs_list_no_srhs$permit_info_from_db |>
-  filter(vessel_official_number == "NC0676EK") |>
+  filter(vessel_official_number == "") |>
   nrow()
 # [1] 18
 # 3 after 2022 and sep permits
 
 all_dfs_list_no_srhs$permits_from_pims |>
-  filter(vessel_official_number == "1292480" |
-           vessel_official_number == "NC0676EK") |>
+  filter(vessel_official_number == "" |
+           vessel_official_number == "") |>
   glimpse()
-# In permits_from_pims 1292480 only. (PIMS "No items available", Official Number From USCG Certificate Of Documentation)
-# In permit_info_from_db NC0676EK only.
+# In permits_from_pims only. (PIMS "No items available", Official Number From USCG Certificate Of Documentation)
+# In permit_info_from_db only.
 
 vessel_in_permits_from_pims_not_in_permit_info_from_db_alt <-
   setdiff(
@@ -1740,26 +1711,23 @@ map(intersections_5, length)
 
 map(intersections_5, head(1))
 # $inters_in_both__in_permit_info_from_db
-# [1] "FL6706GE"
-#
+
 # $inters_in_both__in_permits_from_pims
-# [1] "TX2118FJ"
-#
+
 # $inters_in_permit_info_from_db__in_permits_from_pims
-# [1] "FL8845ML"
 
 # join_permits_from_pims__permit_info_from_db__vsl_perm__grps |>
-#   filter(vessel_official_number == "FL6706GE") |>
+#   filter(vessel_official_number == "") |>
 #   View()
 # duplicated entries?
 
 # join_permits_from_pims__permit_info_from_db__vsl_perm__grps |>
-#   filter(vessel_official_number == "TX2118FJ") |>
+#   filter(vessel_official_number == "") |>
 #   View()
 # ok, in pims 2024
 
 # join_permits_from_pims__permit_info_from_db__vsl_perm__grps |>
-#   filter(vessel_official_number == "FL8845ML") |>
+#   filter(vessel_official_number == "") |>
 #   View()
 # missing in PIMS?
 
@@ -1873,13 +1841,10 @@ map(intersections_6, length)
 vessels_to_check <-
   map_df(intersections_6, head(1))
 # $inters_in_both__in_metrics_report
-# [1] "FL4770HY"
-#
+
 # $inters_in_both__in_permit_info_from_db
-# [1] "FL7201PG"
-#
+
 # $inters_in_metrics_report__in_permit_info_from_db
-# [1] "AL0600VR"
 
 vessels_to_check |>
   map(\(x) {
@@ -1888,16 +1853,4 @@ vessels_to_check |>
       filter(vessel_official_number == x) |>
       glimpse()
   })
-
-# join_metrics_report__permit_info_from_db__vsl_perm__grps |>
-#   filter(vessel_official_number == "FL4770HY") |>
-#   View()
-
-# join_metrics_report__permit_info_from_db__vsl_perm__grps |>
-#   filter(vessel_official_number == "FL7201PG") |>
-#   View()
-
-# join_metrics_report__permit_info_from_db__vsl_perm__grps |>
-#   filter(vessel_official_number == "AL0600VR") |>
-#   View()
 
