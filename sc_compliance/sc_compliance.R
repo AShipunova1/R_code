@@ -127,6 +127,13 @@ logbooks <-
   clean_headers()
 
 # get dnfs ----
+dnfs_path <- file.path(
+  r"(~\R_files_local\my_inputs\processing_logbook_data\Outputs\SEFHIER_processed_dnfs_2023.rds)"
+)
+
+dnfs <-
+  read_rds(dnfs_path) |>
+  clean_headers()
 
 # combine data ----
 print_df_names(SC_permittedVessels_compl)
