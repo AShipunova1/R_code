@@ -69,8 +69,9 @@ Outputs <- "Outputs/"
 # this is the year to assign to the output file name
 my_year <- "2022"
 # my_year <- "2023"
-my_date_beg <- str_glue('01-JAN-{my_year}')
-my_date_end <- str_glue('31-DEC-{my_year}')
+
+my_date_beg <- str_glue("01-JAN-{my_year}")
+my_date_end <- str_glue("31-DEC-{my_year}")
 
 # years range for srfh_vessel_comp db download, see below
 db_year_1 <- "2021"
@@ -576,6 +577,15 @@ dnfs_notoverridden__w_missing__timezone <-
                    tz = Sys.timezone()))
 
 # add a date 30 days later and set time to 23:59:59
+
+# Explanations:
+# 1. Use 'mutate' to create a new column named 'USABLE_DATE_TIME' by adding 30 days to the 'TRIP_DATE_E' column.
+# 2. Use the `hour<-` function from lubridate package to set the hour component of 'USABLE_DATE_TIME' to 23.
+# 3. Use 'mutate' to update 'USABLE_DATE_TIME' with the hour modification.
+# 4. Use the `minute<-` function from lubridate package to set the minute component of 'USABLE_DATE_TIME' to 59.
+# 5. Use 'mutate' to update 'USABLE_DATE_TIME' with the minute modification.
+# 6. Use the `second<-` function from lubridate package to set the second component of 'USABLE_DATE_TIME' to 59.
+# 7. Use 'mutate' to update 'USABLE_DATE_TIME' with the second modification.
 dnfs_notoverridden_all <-
   dnfs_notoverridden__w_missing__timezone |>
   mutate(USABLE_DATE_TIME =
@@ -586,6 +596,10 @@ dnfs_notoverridden_all <-
            `minute<-`(USABLE_DATE_TIME, 59)) |>
   mutate(USABLE_DATE_TIME =
            `second<-`(USABLE_DATE_TIME, 59))
+
+# dnfs_notoverridden_all |> glimpse()
+# $ TRIP_DATE_E            <dttm> 2022-02-04 23:00:00
+# $ USABLE_DATE_TIME       <dttm> 2022-03-06 23:59:59
 
 # Drop empty columns
 dnfs_notoverridden_ok <-
@@ -614,22 +628,18 @@ uniq_trips_num_now <-
 
 uniq_vessels_lost_by_overr <-
   uniq_vessels_num_was - uniq_vessels_num_now
-# 12
 # 29
 
 uniq_trips_lost_by_overr <-
   uniq_trips_num_was - uniq_trips_num_now
-# 2981
 # 70640
 
 my_tee(uniq_vessels_lost_by_overr,
        "Thrown away vessels by overridden weeks")
-# 223
 # 29
 
 my_tee(uniq_trips_lost_by_overr,
        "Thrown away trips neg by overridden weeks")
-# 419233
 # 70640
 
 ## Mark all trips neg that were received > 30 days after the trip date, by using compliance data and time of submission ----
@@ -664,6 +674,12 @@ late_submission_filter_stats <-
 
 # The logic should be that when the DE is less than the USABLE_DATE_TIME, the answer to the question MORE_THAN_30_DAYS_LATE should be No.
 
+# Explanations:
+# 1. Use 'mutate' to create a new column named 'MORE_THAN_30_DAYS_LATE'.
+# 2. Use 'case_when' to conditionally assign values to the new column based on the comparison of 'DE' and 'USABLE_DATE_TIME'.
+# 3. If 'DE' is less than or equal to 'USABLE_DATE_TIME', assign FALSE to 'MORE_THAN_30_DAYS_LATE'.
+# 4. If the condition in step 3 is not met (i.e., 'DE' is greater than 'USABLE_DATE_TIME'), assign TRUE to 'MORE_THAN_30_DAYS_LATE'.
+
 late_submission_filter <-
   function(dnf_df) {
     SEFHIER_dnfs_notoverridden__temp <-
@@ -680,31 +696,18 @@ late_submission_filter <-
 ### Filter (mark only): data frame of dnfs that were usable ----
 SEFHIER_processed_dnfs__late_subm <-
   late_submission_filter(dnfs_notoverridden_ok)
-# rows: 366565
-# columns: 25
-# Unique vessels: 1971
-# Unique trips neg (dnfs): 366417
-# ---
-# Count late_submission (dnfs num)
-# 268497
-# ---
-# Count late_submission (vessels num)
-# 1904
-# 267298/366416*100
-# 72.94933%
-
 # rows: 369816
 # columns: 26
 # Unique vessels: 1991
 # Unique trips (logbooks): 369667
 # ---
 # Count late_submission (dnfs num)
-# 271703
+# 272217
 # ---
 # Count late_submission (vessels num)
 # 1926
 
-# Add all columns from processed metrics tracking to obtain the Permit region.
+# Add all columns from processed metrics tracking to obtain the Permit region ----
 
 SEFHIER_processed_dnfs__late_subm__metrics <-
   left_join(SEFHIER_processed_dnfs__late_subm,
@@ -712,16 +715,10 @@ SEFHIER_processed_dnfs__late_subm__metrics <-
 
 # stats
 my_stats(SEFHIER_processed_dnfs__late_subm__metrics)
-# SEFHIER_processed_dnfs__late_subm__metrics
-# rows: 366565
-# columns: 26
-# Unique vessels: 1971
-# Unique trips neg (dnfs): 366416
-
 # rows: 369816
 # columns: 34
 # Unique vessels: 1991
-# Unique trips (logbooks): 369667
+# Unique trips: 369667
 
 # stats total ----
 
@@ -730,7 +727,6 @@ dnfs_before_filtering_out_overridden <-
 
 my_tee(dnfs_before_filtering_out_overridden,
         "dnfs before filtering out overridden")
-# 790839 2022
 # 440307 2022
 # 52393 2023
 
@@ -739,7 +735,6 @@ dnfs_after_filtering_out_overridden <-
 
 my_tee(dnfs_after_filtering_out_overridden,
         "dnfs after filtering out overridden")
-# 366416 2022
 # 369667 2022
 # 51340 2023
 
@@ -747,7 +742,6 @@ percent_of_removed_dnfs <-
   (dnfs_before_filtering_out_overridden - dnfs_after_filtering_out_overridden) * 100 / dnfs_before_filtering_out_overridden
 
 cat(percent_of_removed_dnfs, sep = "\n")
-# 53.66743 2022
 # 16.04335 2022
 
 # removed_vessels
@@ -755,7 +749,6 @@ vessels_before_filtering_out_overridden <-
   n_distinct(SEFHIER_dnfs_short_date__iso$VESSEL_OFFICIAL_NUMBER)
 
 cat(vessels_before_filtering_out_overridden)
-# 2241 2022
 # 2020 2022
 # 1646 2023
 
@@ -763,13 +756,11 @@ vessels_after_filtering_out_overridden <-
   n_distinct(dnfs_notoverridden_ok$VESSEL_OFFICIAL_NUMBER)
 
 cat(vessels_after_filtering_out_overridden)
-# 1971 2022
-# 1597 2023
 # 1991 2022
+# 1597 2023
 
 removed_vessels <-
   vessels_before_filtering_out_overridden - vessels_after_filtering_out_overridden
-# 270
 # 29
 
 percent_of_removed_vessels <-
@@ -786,15 +777,31 @@ removed_dnfs_and_vessels_text <-
   )
 
 my_tee(removed_dnfs_and_vessels_text,
-       "\nRemoved dnfs and vessels stats")
+       "\nRemoved dnfs and vessels stats. For vessels in Metrics tracking only.")
+# 2022
+# dnfs before filtering out overridden
+# 440307
+# dnfs after filtering out overridden
+# 369667
 
-# Removed dnfs and vessels stats
+# Removed dnfs and vessels stats. For vessels in Metrics tracking only.
 # percent_of_removed_dnfs
-# 54%
+# 16%
 # removed_vessels
-# 270
+# 29
 # percent_of_removed_vessels
-# 12%
+# 1%
+
+# 2023
+# dnfs after filtering out overridden
+# 458906
+# Removed dnfs and vessels stats. For vessels in Metrics tracking only.
+# percent_of_removed_dnfs
+# 9%
+# removed_vessels
+# 12
+# percent_of_removed_vessels
+# 1%
 
 # Export usable dnfs ----
 
