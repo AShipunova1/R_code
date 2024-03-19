@@ -575,11 +575,7 @@ dnfs_notoverridden__w_missing__timezone <-
                    truncated = 3,
                    tz = Sys.timezone()))
 
-# add a date 30 days later with a time
-# lubridate::ceiling_date(parse_date_time("2022-03-06 23:00:00",
-#                                         orders = "YmdHMS",
-#                                         tz = Sys.timezone()))
-
+# add a date 30 days later and set time to 23:59:59
 dnfs_notoverridden_all <-
   dnfs_notoverridden__w_missing__timezone |>
   mutate(USABLE_DATE_TIME =
