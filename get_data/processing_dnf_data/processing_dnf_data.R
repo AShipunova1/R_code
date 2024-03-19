@@ -64,8 +64,8 @@ Outputs <- "Outputs/"
 
 # Set the date ranges for the DNF and compliance data you are pulling
 # this is the year to assign to the output file name
-# my_year <- "2022"
-my_year <- "2023"
+my_year <- "2022"
+# my_year <- "2023"
 my_date_beg <- str_glue('01-JAN-{my_year}')
 my_date_end <- str_glue('31-DEC-{my_year}')
 
@@ -118,9 +118,13 @@ compl_override_data_file_path <-
   file.path(Path,
             Outputs,
             str_glue("Raw_Oracle_Downloaded_compliance_2021_plus.rds"))
+# File: Raw_Oracle_Downloaded_compliance_2021_plus.rds modified 2024-02-05 09:52:06.996529
+
+# Check if the file path is correct, optional
+# file.exists(compl_override_data_file_path)
 
 # 2) Create a variable with a table name to call data from, define year.
-# >= 2021 because of when the program started
+# >= 2021 because of when the program started or between 2 years defined above
 compl_err_query <-
   str_glue(
   "SELECT
@@ -130,9 +134,6 @@ FROM
 WHERE
   comp_year >= '{db_year_1}' AND comp_year <= '{db_year_2}'")
 
-# Check if the file path is correct, optional
-# file.exists(compl_override_data_file_path)
-
 # Create the compliance/overridden data frame
 # using the function pre-defined above to check if there is a file saved already,
 # read it
@@ -141,8 +142,6 @@ WHERE
 compl_override_data <-
   read_rds_or_run_query(compl_override_data_file_path,
                         compl_err_query)
-# 2024-02-05 run for Compliance_raw_data_2021_plus.rds: 104.5 sec elapsed
-# File: Compliance_raw_data_2021_plus.rds modified Mon Feb  5 09:52:06 2024
 
 ### prep the compliance/override data ----
 
@@ -172,39 +171,17 @@ compl_override_data__renamed__this_year <-
                                          tz = Sys.timezone()))
 
 # check
-# That's the week 52 of my_year-1:
+# That's the week 52 of (my_year - 1):
 min(compl_override_data__renamed__this_year$COMP_WEEK_START_DT)
-# [1] "2021-12-27 EST" #this might contain the last week in the year before my_year, to account for a compliance week that overlaps last week of the year and first week of my_year
+# [1] "2021-12-27 EST" # this might contain the last week in the year before my_year, to account for a compliance week that overlaps last week of the year and first week of my_year
 min(compl_override_data__renamed__this_year$COMP_WEEK_END_DT)
-# [1] "2022-01-02 EST" #this should be the last day of the first week in my_year
+# [1] "2022-01-02 EST" # this should be the last day of the first week in my_year
 
 # change data type of this column if needed
 if (!class(compl_override_data__renamed__this_year$VESSEL_OFFICIAL_NUMBER) == "character") {
   compl_override_data__renamed__this_year$VESSEL_OFFICIAL_NUMBER <-
     as.character(compl_override_data__renamed__this_year$VESSEL_OFFICIAL_NUMBER)
 }
-
-# change data type to remove time from dttm columns
-# Explanations:
-# 1. Use 'mutate' to apply a transformation across multiple columns that are of type POSIXct.
-#    - 'across' allows applying a function to multiple columns.
-#    - 'where' selects columns based on a predicate function, 'is.POSIXct' in this case.
-# 2. Convert each POSIXct column to Date format using 'as.Date'.
-#    - 'as.Date' converts the POSIXct object to a Date object.
-# 3. Specify the format of the date string using the 'format' argument as "%FT".
-#    - "%FT" represents the ISO 8601 date format with the time.
-# 4. The resulting DataFrame will have the POSIXct columns converted to Date format.
-
-# compl_override_data__renamed__this_year__no_time <-
-#   compl_override_data__renamed__this_year |>
-#   mutate(across(
-#     where(is.POSIXct),
-#     ~ as.Date(.x,
-#               format = "%FT",
-#               tz = Sys.timezone())
-#   ))
-
-# glimpse(compl_override_data__renamed__this_year__no_time)
 
 ## Import the permit data ----
 processed_metrics_tracking_path <-
