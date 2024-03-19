@@ -9,17 +9,16 @@
 # 3) SEFHIER_permitted_vessels_nonSRHS_{my_year}.rds
        # use processing_metrics_tracking.R to create file #3 before running this script
 #4) processing_auxiliary_methods.R
-       # get from Google Drive R code folder, put in path directory with this script
+       # get from Google Drive R code folder (R code / Processed data, https://docs.google.com/document/d/1U5cYuEGITcHrwDLgkHtyMvoUsS7nZeONyHt2yelpbNA/edit?usp=drive_link), put in path directory with this script
 
 # This code processes DNF data from Oracle database ready for FHIER,
 # then cleans it up, so that we can use it in any DNF data analysis:
 # (1) (a) pull all DNF and compliance/override data from Oracle database
-#      (b) get Metrics Tracking from FHIER
+#     (b) get Metrics Tracking from FHIER
 # (2) clean up DNF data set
-#      (a) remove records from SRHS vessels
-# (3) mark all trips neg that were received > 30 days after trip end date, by using time of #submission
-# (4) remove all overridden data, because the submission date is unknown
-# (5) Add permit region information (GOM, SA, or dual), using permit names (optional)
+#     (a) remove records from SRHS vessels
+# (3) remove all overridden data, because the submission date is unknown
+# (4) mark all trips neg that were received > 30 days after trip end date, by using time of submission
 
 # For 2022 we don't keep trips neg starting in 2021 and ending in 2022. We only keep trips neg starting in 2022.
 
@@ -29,14 +28,13 @@
 # new data set, check your weeks to make sure it's calculating correctly.
 
 # Running the code
-# To run the file as a whole, you can type this in the console: source('Processing DNF Data.R') and hit enter.
+# To run the file as a whole, you can type this in the console: source('processing_dnf_data.R') and hit enter.
 # Pressing F2 when the custom function name is under the cursor will show the function definition.
-# Pressing F1 when the R function name is under the cursor will show the function definition
-# and examples in the help panel.
+# Pressing F1 when the R function name is under the cursor will show the function definition and examples in the help panel.
 
 # General set up ----
 
-# load required packages
+# load required packages (install first if needed)
 library(ROracle)
 library(xlsx)
 library(tidyverse)
@@ -66,20 +64,20 @@ Outputs <- "Outputs/"
 
 # Set the date ranges for the DNF and compliance data you are pulling
 # this is the year to assign to the output file name
-my_year <- "2022"
-# my_year <- "2023"
+# my_year <- "2022"
+my_year <- "2023"
 my_date_beg <- str_glue('01-JAN-{my_year}')
 my_date_end <- str_glue('31-DEC-{my_year}')
 
-# years range for srfh_vessel_comp db download
+# years range for srfh_vessel_comp db download, see below
 db_year_1 <- "2021"
 db_year_2 <- "2023"
 
 # Auxiliary methods ----
-annas_git_path <-
-  r"(~\R_code_github\get_data)"
-
 if (Path == annas_path) {
+  annas_git_path <-
+    r"(~\R_code_github\get_data)"
+
   auxiliary_methods_file_path <-
     file.path(annas_git_path,
               "processing_auxiliary_methods.R")
