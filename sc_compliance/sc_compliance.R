@@ -130,3 +130,11 @@ sc_fhier <-
   )
 
 
+# 1. the list of those SC non-compliant vessels that are also non-compliant in FHIER ----
+
+non_compliant_vessels_in_sc_and_fhier <-
+  sc_fhier |>
+  filter(is_compl_sc == 0 &
+           is_comp == 0)
+
+# ---
