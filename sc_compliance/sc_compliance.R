@@ -13,3 +13,37 @@ db_year_2 <- "2024"
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 
+# get data ----
+## Import and prep compliance/override data ----
+
+### Import compliance/override data ----
+# Prepare 2 variables to use as parameters for read_rds_or_run_query()
+
+# 1) Use file.path to construct the path to a file from components. It will add the correct slashes between path parts.
+compl_override_data_file_path <-
+  file.path(r"(~\R_files_local\my_inputs\processing_logbook_data\Outputs\Raw_Oracle_Downloaded_compliance_2021_plus.rds)")
+# File: Raw_Oracle_Downloaded_compliance_2021_plus.rds modified 2024-02-05 09:52:06.996529
+
+# Check if the file path is correct, optional
+# file.exists(compl_override_data_file_path)
+
+# 2) Create a variable with a table name to call data from, define year.
+# >= 2021 because of when the program started or between 2 years defined above
+compl_err_query <-
+  str_glue(
+  "SELECT
+  *
+FROM
+  srh.srfh_vessel_comp@secapxdv_dblk.sfsc.noaa.gov
+WHERE
+  comp_year >= '{db_year_1}' AND comp_year <= '{db_year_2}'")
+
+# Create the compliance/overridden data frame
+# using the function pre-defined above to check if there is a file saved already,
+# read it
+# or run the query and write the file for future use
+
+compl_override_data <-
+  read_rds_or_run(compl_override_data_file_path,
+                  my_function = compl_err_query)
+
