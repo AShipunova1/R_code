@@ -273,7 +273,6 @@ dnfs_v_all_ids <-
 # 0 - OK
 
 ### Fewer columns ----
-# names(dnfs_v_all_ids)
 dnfs_short <-
   dnfs_v_all_ids |>
   select(-c(STATE_REG_NBR, COAST_GUARD_NBR))
@@ -281,23 +280,16 @@ dnfs_short <-
 # stats
 my_stats(dnfs_short, "dnfs from the db")
 # 2022
-# rows: 790839
-# columns: 5
-# Unique vessels: 2241
-# Unique trips neg (dnfs): 790839
+# rows: 796804
+# columns: 6
+# Unique vessels: 3576
+# Unique trips: 796804
 
 # 2023 with ue
 # rows: 948977
 # columns: 6
 # Unique vessels: 3860
-# Unique trips (logbooks): 948977
-
-# stats, to compare with the end result
-dnfs_stat_correct_dates_before_filtering <-
-  c(dim(dnfs_short),
-    n_distinct(dnfs_short$VESSEL_OFFICIAL_NUMBER),
-    n_distinct(dnfs_short$TRIP_ID)
-  )
+# Unique trips: 948977
 
 ### Prepare data to determine what weeks were overridden, so we can exclude dnfs from those weeks later ----
 
