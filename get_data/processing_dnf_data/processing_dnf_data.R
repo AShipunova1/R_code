@@ -17,7 +17,10 @@
 #     (b) get Metrics Tracking from FHIER
 # (2) clean up DNF data set
 #     (a) remove records from SRHS vessels
-# (3) remove all overridden data, because the submission date is unknown
+# (3) remove all overridden data.
+# We have to remove dnfs for weeks that were overridden because we don't have a timestamp for when the dnf was submitted to the app, only when it was submitted to Oracle/SAFIS, and we can't differentiate that time laps.
+# We can't differentiate between turning a dnf in on time in the app, and it taking two months to get it vs turning in a dnf two months late.
+# E.g. user submitted Jan 1, 2022, but SEFHIER team found it missing in FHIER (and SAFIS) in March, 2022 (At permit renewal)... user submitted on time in app (VESL) but we may not get that report in SAFIS for months later (when its found as a "missing report" and then requeued for transmission)
 # (4) mark all trips neg that were received > 30 days after trip end date, by using time of submission
 
 # For 2022 we don't keep trips neg starting in 2021 and ending in 2022. We only keep trips neg starting in 2022.
@@ -432,18 +435,15 @@ dnfs_join_overr <-
 
 # stats
 my_stats(SEFHIER_dnfs_short_date__iso)
+# rows: 440307
+# columns: 8
+# Unique vessels: 2020
+# Unique trips: 440307
 my_stats(dnfs_join_overr)
-# dnfs_short_date__iso
-# rows: 790839
-# columns: 7
-# Unique vessels: 2241
-# Unique trips neg (dnfs): 790839
-# ---
-# dnfs_join_overr
-# rows: 791534
-# columns: 27
-# Unique vessels: 2241
-# Unique trips neg (dnfs): 790839
+# rows: 441000
+# columns: 28
+# Unique vessels: 2020
+# Unique trips: 440307
 
 # Make lists of overridden or not vessels
 # If a week for a vessel was overridden (compl_override_data__renamed__this_year), remove the trip reports from the corresponding week in the dnf data
@@ -451,40 +451,41 @@ my_stats(dnfs_join_overr)
 # We can't differentiate between turning a dnf in on time in the app, and it taking two months to get it vs turning in a dnf two months late.
 # E.g. user submitted Jan 1, 2022, but SEFHIER team found it missing in FHIER (and SAFIS) in March, 2022 (At permit renewal)... user submitted on time in app (VESL) but we may not get that report in SAFIS for months later (when its found as a "missing report" and then requeued for transmission)
 
+# data frame of dnfs that were overridden
 dnfs_overridden <-
-  filter(dnfs_join_overr, OVERRIDDEN == 1) #data frame of dnfs that were overridden
+  filter(dnfs_join_overr, OVERRIDDEN == 1)
 
 # glimpse(dnfs_join_overr)
 # stats
 my_stats(dnfs_overridden)
-# rows: 17642
-# columns: 27
-# Unique vessels: 379
-# Unique trips neg (dnfs): 17432
+# rows: 17532
+# columns: 28
+# Unique vessels: 397
+# Unique trips: 17323
 
+# data frame of dnfs that weren't overridden
 dnfs_notoverridden <-
-  filter(dnfs_join_overr, OVERRIDDEN == 0) #data frame of dnfs that weren't overridden
+  filter(dnfs_join_overr, OVERRIDDEN == 0)
 
 # stats
 my_stats(dnfs_notoverridden)
-# rows: 369465
-# columns: 27
-# Unique vessels: 2005
-# Unique trips neg (dnfs): 369316
+# rows: 367263
+# columns: 28
+# Unique vessels: 1977
+# Unique trips: 367114
 
-dnfs_NA <-
-  filter(dnfs_join_overr, is.na(OVERRIDDEN)) # dnfs with an Overridden value of NA, because they were
+# dnfs with an Overridden value of NA, because they were
 # 1) submitted by a vessel that is missing from the Compliance report and therefore has no associated override data, or
 # 2) submitted by a vessel during a period in which the permit was inactive, and the report was not required
+dnfs_NA <-
+  filter(dnfs_join_overr, is.na(OVERRIDDEN))
 
 n_distinct(dnfs_NA$TRIP_ID)
-# 404427
 # 56205
 
 dnfs_NA |>
   filter(is.na(SRH_VESSEL_COMP_ID)) |>
   nrow()
-# 404427
 # 56205
 # The same #, so it is "1) submitted by a vessel that is missing from the Compliance report and therefore has no associated override data"
 
