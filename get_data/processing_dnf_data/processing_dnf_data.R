@@ -191,12 +191,13 @@ processed_metrics_tracking_path <-
 # some may make this file path the Inputs file, because you are inputting this file into this script
 # it doesn’t matter as long as your file location on your computer matches what you say here.
 
+# optional
 # file.exists(processed_metrics_tracking_path)
 
 processed_metrics_tracking <-
   read_rds(processed_metrics_tracking_path)
 
-## Import and prep the dnf data ####
+## Import and prep the dnf data ----
 
 # Import the dnf data from file or database
 # Prepare 2 variables to use as parameters for read_rds_or_run_query()
@@ -242,18 +243,19 @@ dnfs <-
   read_rds_or_run_query(dnfs_file_path,
                         dnfs_download_query)
 
-# 2024-02-05 run for Raw_Oracle_Downloaded_dnf_01-JAN-2022__31-DEC-2022.rds: 104.7 sec elapsed
+# File created from scratch:
 # 2024-03-18 run for Raw_Oracle_Downloaded_dnf_01-JAN-2023__31-DEC-2023.rds: 127.13 sec elapsed
-
-# check
-get_dnfs_check_ids <- function(dnfs) {
-  dnfs_check_ids <-
-    dnfs |> filter(!is.na(COAST_GUARD_NBR) & !is.na(STATE_REG_NBR)) |>
-    select(COAST_GUARD_NBR, STATE_REG_NBR, VESSEL_OFFICIAL_NUMBER) |>
-    distinct()
-}
+# File read from a file:
+# File: Raw_Oracle_Downloaded_dnf_01-JAN-2022__31-DEC-2022.rds modified 2024-03-18 11:57:06.482199
 
 ### add COAST_GUARD_NBR or STATE_REG_NBR if no VESSEL_OFFICIAL_NUMBER ----
+# Explanations:
+# 1. Use 'mutate' to create or modify a column named 'VESSEL_OFFICIAL_NUMBER'.
+# 2. Use 'case_when' to conditionally assign values to the column based on conditions.
+# 3. Check if 'VESSEL_OFFICIAL_NUMBER' is NA (missing).
+#    - If true, use 'coalesce' to select the first non-missing value among 'COAST_GUARD_NBR' and 'STATE_REG_NBR'.
+#    - If 'VESSEL_OFFICIAL_NUMBER' is not missing, keep its original value.
+# 4. The resulting DataFrame will have the 'VESSEL_OFFICIAL_NUMBER' column filled with non-missing values from 'COAST_GUARD_NBR' or 'STATE_REG_NBR'.
 dnfs_v_all_ids <-
   dnfs |>
   mutate(VESSEL_OFFICIAL_NUMBER =
@@ -263,15 +265,12 @@ dnfs_v_all_ids <-
              .default = VESSEL_OFFICIAL_NUMBER
            ))
 
-
-get_dnfs_check_ids(dnfs) |> nrow()
-# 120
-
+# check if all vessels have ids now
 # dnfs_v_all_ids |>
 #   filter(is.na(VESSEL_OFFICIAL_NUMBER)) |>
 #   distinct() |>
 #   nrow()
-# 0
+# 0 - OK
 
 ### Fewer columns ----
 # names(dnfs_v_all_ids)
