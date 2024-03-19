@@ -348,9 +348,16 @@ vessels_not_in_metrics <-
   n_distinct(SEFHIER_dnfs_short_date__iso$VESSEL_OFFICIAL_NUMBER)
 
 my_tee(vessels_not_in_metrics,
-       "Removed if a vessel is not in Metrics tracking")
-# 47
+       "Vessels removed if a vessel is not in Metrics tracking")
 # 1556
+
+dnfs_not_in_metrics <-
+  n_distinct(dnfs_short_date__iso$TRIP_ID) -
+  n_distinct(SEFHIER_dnfs_short_date__iso$TRIP_ID)
+
+my_tee(dnfs_not_in_metrics,
+       "DNFs removed if a vessel is not in Metrics tracking")
+# 356497
 
 ## add override data to dnfs ----
 my_stats(compl_override_data__renamed__this_year,
