@@ -8,8 +8,10 @@
 
 # set up ----
 my_year <- "2024"
+my_month <- "2"
 db_year_1 <- "2023"
 db_year_2 <- "2024"
+
 
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
@@ -118,7 +120,7 @@ SC_permittedVessels_compl <-
 
 # View(SC_permittedVessels_compl)
 
-# get logbooks ----
+## get logbooks ----
 logbooks_path <- file.path(
   r"(~\R_files_local\my_inputs\processing_logbook_data\Outputs)",
   str_glue("SEFHIER_processed_Logbooks_{my_year}.rds")
@@ -130,7 +132,7 @@ logbooks <-
 
 # View(logbooks)
 
-# get dnfs ----
+## get dnfs ----
 dnfs_path <- file.path(
   r"(~\R_files_local\my_inputs\processing_logbook_data\Outputs)",
   str_glue("SEFHIER_processed_dnfs_{my_year}.rds")
@@ -139,6 +141,8 @@ dnfs_path <- file.path(
 dnfs <-
   read_rds(dnfs_path) |>
   clean_headers()
+
+# View(dnfs)
 
 # combine data ----
 print_df_names(SC_permittedVessels_compl)
@@ -172,9 +176,12 @@ non_compliant_vessels_in_sc_and_compl_in_fhier <-
 logbooks__sc_fhier <-
   logbooks |>
   filter(vessel_official_number %in%
-           non_compliant_vessels_in_sc_and_compl_in_fhier)
+           non_compliant_vessels_in_sc_and_compl_in_fhier$vessel_reg_uscg_)
 
-View(logbooks__sc_fhier)
+logbooks__sc_fhier |>
+  filter(month(trip_end_date) == my_month) |>
+  select(vessel_official_number, trip_start_date, trip_end_date)
+# vessel ID, Logbook (list any dates for that month), DNF (list week date range for any for that month)
 
 # 3. SC compliant vessels list ----
 # 3) we also need a step that just grabs the compliant vessels (herein "SC compliant vessels list"), and then checks FHIER compliance to see if any that SC has as compliant are listed as non-compliant for any of the weeks in the given month. If any vessels are found to be compliant with SC but non-compliant with us/FHIER, then we need (on a 3rd sheet) to list those vessels and include what week (with date ranges) we are missing in FHIER. Eric will use this to more proactively alert us when a vessel is reporting only to SC, since we have so many recurring issues with this.
