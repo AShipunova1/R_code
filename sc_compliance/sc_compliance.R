@@ -174,6 +174,7 @@ non_compliant_vessels_in_sc_and_compl_in_fhier <-
 # glimpse(non_compliant_vessels_in_sc_and_compl_in_fhier)
 
 ## add logbooks info ----
+# Logbook (list any dates for that month)
 logbooks__sc_fhier <-
   logbooks |>
   filter(vessel_official_number %in%
@@ -186,11 +187,18 @@ logbooks__sc_fhier_my_month <-
   distinct()
 
 ## add DNF info ----
+# DNF (list week date range for any for that month)
 dnfs__sc_fhier <-
   dnfs |>
   filter(vessel_official_number %in%
            non_compliant_vessels_in_sc_and_compl_in_fhier$vessel_reg_uscg_)
 
+# Explanations:
+# 1. Use 'filter' to keep only rows where the month component of 'trip_date' matches 'my_month'.
+# 2. Use 'mutate' to create a new column 'week_start_date_mon' by rounding down 'trip_date' to the start of the week (Monday) using 'floor_date' function.
+# 3. Use 'mutate' to create a new column 'week_end_date_mon' by rounding up 'trip_date' to the end of the week (Sunday) using 'ceiling_date' function.
+# 4. Use 'select' to keep only the columns 'vessel_official_number', 'week_start_date_mon', and 'week_end_date_mon'.
+# 5. Use 'distinct' to keep only unique rows based on the selected columns.
 dnfs__sc_fhier_my_month <-
   dnfs__sc_fhier |>
   filter(month(trip_date) == my_month) |>
@@ -205,9 +213,8 @@ dnfs__sc_fhier_my_month <-
          week_end_date_mon) |>
   distinct()
 
-View(dnfs__sc_fhier_my_month)
+# glimpse(dnfs__sc_fhier_my_month)
 
-# vessel ID, Logbook (list any dates for that month), DNF (list week date range for any for that month)
 
 # 3. SC compliant vessels list ----
 # 3) we also need a step that just grabs the compliant vessels (herein "SC compliant vessels list"), and then checks FHIER compliance to see if any that SC has as compliant are listed as non-compliant for any of the weeks in the given month. If any vessels are found to be compliant with SC but non-compliant with us/FHIER, then we need (on a 3rd sheet) to list those vessels and include what week (with date ranges) we are missing in FHIER. Eric will use this to more proactively alert us when a vessel is reporting only to SC, since we have so many recurring issues with this.
