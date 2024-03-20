@@ -3,6 +3,8 @@
 # The result will be in
 # SEFHIER_processed_dnfs_{my_year}.rds
 
+# For this analysis, a week starts on Monday and ends on Sunday.
+
 # Files to read or create:
 # 1) Raw_Oracle_Downloaded_compliance_2021_plus.rds
 # 2) Raw_Oracle_Downloaded_dnf_{my_date_beg}__{my_date_end}.rds
@@ -68,8 +70,8 @@ Outputs <- "Outputs/"
 # Set the date ranges for the DNF and compliance data you are pulling
 # this is the year to assign to the output file name
 # my_year <- "2022"
-# my_year <- "2023"
-my_year <- "2024"
+my_year <- "2023"
+# my_year <- "2024"
 
 my_date_beg <- str_glue("01-JAN-{my_year}")
 my_date_end <- str_glue("31-DEC-{my_year}")
@@ -107,6 +109,10 @@ my_tee(date(),
 # for me instructions: https://docs.google.com/document/d/1qSVoqKV0YPhNZAZA-XBi_c6BesnH_i2XcLDfNpG9InM/edit#
 
 # set up an Oracle connection
+# Sys.getenv("ORA_SDTZ")
+Sys.setenv(TZ = Sys.timezone())
+Sys.setenv(ORA_SDTZ = Sys.timezone())
+
 tic("try_connection")
 try(con <- connect_to_secpr())
 toc()
@@ -147,6 +153,14 @@ WHERE
 compl_override_data <-
   read_rds_or_run_query(compl_override_data_file_path,
                         compl_err_query)
+
+# check a week start day
+compl_override_data |>
+  filter(COMP_YEAR == '2023' &
+         COMP_WEEK == '50') |>
+  select(COMP_WEEK_START_DT) |>
+  distinct() |> str()
+# $ COMP_WEEK_START_DT: POSIXct, format: "2023-12-11" - correct
 
 ### prep the compliance/override data ----
 
