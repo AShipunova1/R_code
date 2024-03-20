@@ -225,7 +225,8 @@ WHERE
 # Use 'read_rds_or_run_query' defined above to either read logbook information from an RDS file or execute a query to obtain it and write a file for future use.
 Logbooks <-
   read_rds_or_run_query(logbooks_file_path,
-                        logbooks_download_query)
+                        logbooks_download_query
+                        )
 # 2024-02-05 run for Raw_Oracle_Downloaded_logbook_01-JAN-2022__31-DEC-2022.rds: 122.37 sec elapsed
 
 # Rename column to be consistent with other dataframes
@@ -557,12 +558,14 @@ logbooks_notoverridden <-
 # add a date 30 days later with a time
 logbooks_notoverridden <-
   logbooks_notoverridden |>
+    mutate(USABLE_DATE_TIME =
+           TRIP_END_DATE_E + days(30)) |>
   mutate(USABLE_DATE_TIME =
-           TRIP_END_DATE_E +
-           days(30) +
-           hours(23) +
-           minutes(59) +
-           seconds(59))
+           `hour<-`(USABLE_DATE_TIME, 23)) |>
+  mutate(USABLE_DATE_TIME =
+           `minute<-`(USABLE_DATE_TIME, 59)) |>
+  mutate(USABLE_DATE_TIME =
+           `second<-`(USABLE_DATE_TIME, 59))
 
 # format the submission date (TRIP_DE)
 logbooks_notoverridden <-
