@@ -389,10 +389,10 @@ my_stats(compl_override_data__renamed__this_year,
 trip_date_1 <-
   SEFHIER_dnfs_short_date__iso |>
   filter(TRIP_DATE_WEEK == 1,
-         TRIP_DATE_YEAR == "2022") |>
+         TRIP_DATE_YEAR == my_year) |>
   select(TRIP_DATE)
 
-dnfs_first_week_2022 <-
+dnfs_first_week_my_year <-
   tibble(min1 = as.Date(min(trip_date_1$TRIP_DATE),
                         tz = Sys.timezone()),
     # [1] "2022-01-03 23:00:00 EST"
@@ -410,11 +410,11 @@ dnfs_first_week_2022 <-
 trip_date_2 <-
   compl_override_data__renamed__this_year |>
   filter(COMP_WEEK == 1,
-         COMP_YEAR == "2022") |>
+         COMP_YEAR == my_year) |>
   select(starts_with("COMP_WEEK_")) |>
   distinct()
 
-compl_first_week_2022 <-
+compl_first_week_my_year <-
   tibble(min1 = as.Date(min(trip_date_2$COMP_WEEK_START_DT),
                         tz = Sys.timezone()),
     # [1] "2022-01-03 EST"
@@ -422,7 +422,7 @@ compl_first_week_2022 <-
                    tz = Sys.timezone()))
     # [1] "2022-01-09 EST"
 
-diffdf::diffdf(dnfs_first_week_2022, compl_first_week_2022)
+diffdf::diffdf(dnfs_first_week_my_year, compl_first_week_my_year)
 # same as above, ok
 
 ### join the dfs ----
