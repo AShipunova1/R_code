@@ -218,3 +218,14 @@ dnfs__sc_fhier_my_month <-
 
 # 3. SC compliant vessels list ----
 # 3) we also need a step that just grabs the compliant vessels (herein "SC compliant vessels list"), and then checks FHIER compliance to see if any that SC has as compliant are listed as non-compliant for any of the weeks in the given month. If any vessels are found to be compliant with SC but non-compliant with us/FHIER, then we need (on a 3rd sheet) to list those vessels and include what week (with date ranges) we are missing in FHIER. Eric will use this to more proactively alert us when a vessel is reporting only to SC, since we have so many recurring issues with this.
+
+compliant_vessels_in_sc_and_non_compl_fhier <-
+  sc_fhier |>
+  filter(is_compl_sc == 1 &
+           is_comp == 0)
+
+compliant_vessels_in_sc_and_non_compl_fhier__weeks_only <-
+  compliant_vessels_in_sc_and_fhier |>
+  select(vessel_reg_uscg_, comp_week_start_dt, comp_week_end_dt) |>
+  distinct() |>
+  glimpse()
