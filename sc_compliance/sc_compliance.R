@@ -7,6 +7,7 @@
 # If you have time or would like to attempt writing this code let me know ASAP. Ideally, I would like to have this operational by the next time Eric sends his list (which is usually the beginning of every month). I can start writing the code this week, if neither of you has time.
 
 # set up ----
+my_year <- "2024"
 db_year_1 <- "2023"
 db_year_2 <- "2024"
 
@@ -119,16 +120,20 @@ SC_permittedVessels_compl <-
 
 # get logbooks ----
 logbooks_path <- file.path(
-  r"(~\R_files_local\my_inputs\processing_logbook_data\Outputs\SEFHIER_processed_Logbooks_2023.rds)"
+  r"(~\R_files_local\my_inputs\processing_logbook_data\Outputs)",
+  str_glue("SEFHIER_processed_Logbooks_{my_year}.rds")
 )
 
 logbooks <-
   read_rds(logbooks_path) |>
   clean_headers()
 
+# View(logbooks)
+
 # get dnfs ----
 dnfs_path <- file.path(
-  r"(~\R_files_local\my_inputs\processing_logbook_data\Outputs\SEFHIER_processed_dnfs_2023.rds)"
+  r"(~\R_files_local\my_inputs\processing_logbook_data\Outputs)",
+  str_glue("SEFHIER_processed_dnfs_{my_year}.rds")
 )
 
 dnfs <-
@@ -162,12 +167,14 @@ non_compliant_vessels_in_sc_and_compl_in_fhier <-
   filter(is_compl_sc == 0 &
            is_comp == 1)
 
-# View(non_compliant_vessels_in_sc_and_compl_in_fhier)
+# glimpse(non_compliant_vessels_in_sc_and_compl_in_fhier)
+
 logbooks__sc_fhier <-
   logbooks |>
   filter(vessel_official_number %in%
            non_compliant_vessels_in_sc_and_compl_in_fhier)
 
+View(logbooks__sc_fhier)
 
 # 3. SC compliant vessels list ----
 # 3) we also need a step that just grabs the compliant vessels (herein "SC compliant vessels list"), and then checks FHIER compliance to see if any that SC has as compliant are listed as non-compliant for any of the weeks in the given month. If any vessels are found to be compliant with SC but non-compliant with us/FHIER, then we need (on a 3rd sheet) to list those vessels and include what week (with date ranges) we are missing in FHIER. Eric will use this to more proactively alert us when a vessel is reporting only to SC, since we have so many recurring issues with this.
