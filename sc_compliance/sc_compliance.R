@@ -7,6 +7,8 @@
 # If you have time or would like to attempt writing this code let me know ASAP. Ideally, I would like to have this operational by the next time Eric sends his list (which is usually the beginning of every month). I can start writing the code this week, if neither of you has time.
 
 # set up ----
+library(xlsx)
+
 my_year <- "2024"
 my_month <- "2"
 db_year_1 <- "2023"
@@ -235,7 +237,7 @@ compliant_vessels_in_sc_and_non_compl_fhier <-
            is_comp == 0)
 
 compliant_vessels_in_sc_and_non_compl_fhier__weeks_only <-
-  compliant_vessels_in_sc_and_fhier |>
+  compliant_vessels_in_sc_and_non_compl_fhier |>
   select(vessel_reg_uscg_, comp_week_start_dt, comp_week_end_dt) |>
   distinct()
 
@@ -244,12 +246,11 @@ compliant_vessels_in_sc_and_non_compl_fhier__weeks_only <-
 # (on sheet 2) if they are compliant for that month in FHIER then list all the dates of DNFs and/or logbooks we have in FHIER by vessel (probably 3 columns needed: vessel ID, Logbook (list any dates for that month), DNF (list week date range for any for that month)
 # we also need a step that just grabs the compliant vessels (herein "SC compliant vessels list"), and then checks FHIER
 
-
-
 output_file_name <-
   file.path(curr_proj_output_path,
             "sc_compliance.xlsx")
 
+# "llist" is like a list except that it preserves the names or labels of the component variables in the variables label attribute.
 result_list <-
   Hmisc::llist(non_compliant_vessels_in_sc_and_fhier,
        logbooks__sc_fhier_my_month,
@@ -257,15 +258,53 @@ result_list <-
        compliant_vessels_in_sc_and_non_compl_fhier__weeks_only
        )
 
-View(result_list)
+# View(result_list)
+
+map2(result_list,
+     names(result_list),
+     \(one_df, one_df_name) {
+       browser()
+       # one_df_name <- deparse(substitute(one_df))
+       write.xlsx(
+         one_df,
+         output_file_name,
+         sheetName = one_df_name,
+         col.names = TRUE,
+         row.names = FALSE,
+         append = TRUE,
+         showNA = TRUE,
+         password = NULL
+       )
+     })
+
+# write.xlsx(
+#   non_compliant_vessels_in_sc_and_fhier,
+#   output_file_name,
+#   sheetName = "non_compl_in_both",
+#   col.names = TRUE,
+#   row.names = FALSE,
+#   append = TRUE,
+#   showNA = TRUE,
+#   password = NULL
+# )
+View(result_list[[1]])
+
+write.xlsx(non_compliant_vessels_in_sc_and_fhier,
+           file = "filename.xlsx",
+           sheetName = "sheet1",
+           row.names = FALSE)
 
 write.xlsx(
-  non_compliant_vessels_in_sc_and_fhier,
-  output_file_name,
-  sheetName = "non_compl_in_both",
-  col.names = TRUE,
-  row.names = FALSE,
-  append = TRUE,
-  showNA = TRUE,
-  password = NULL
-)
+         result_list[[1]],
+         output_file_name,
+         sheetName = names(result_list)[[1]],
+         col.names = TRUE,
+         row.names = FALSE,
+         append = TRUE
+         # showNA = TRUE,
+         # password = NULL
+       )
+
+require(openxlsx)
+# list_of_datasets <- list("Name of DataSheet1" = dataframe1, "Name of Datasheet2" = dataframe2)
+openxlsx::write.xlsx(result_list, file = "writeXLSX2.xlsx")
