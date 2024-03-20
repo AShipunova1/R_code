@@ -237,3 +237,27 @@ compliant_vessels_in_sc_and_non_compl_fhier__weeks_only <-
   select(vessel_reg_uscg_, comp_week_start_dt, comp_week_end_dt) |>
   distinct() |>
   glimpse()
+
+# write results to xlsx ----
+# (sheet 1) the list of those SC non-compliant vessels that are also non-compliant in FHIER, or
+# (on sheet 2) if they are compliant for that month in FHIER then list all the dates of DNFs and/or logbooks we have in FHIER by vessel (probably 3 columns needed: vessel ID, Logbook (list any dates for that month), DNF (list week date range for any for that month)
+# we also need a step that just grabs the compliant vessels (herein "SC compliant vessels list"), and then checks FHIER
+
+
+
+output_file_name <-
+  file.path(
+
+  )
+
+
+write.xlsx(
+  x,
+  file,
+  sheetName = "non_compl_in_both",
+  col.names = TRUE,
+  row.names = FALSE,
+  append = TRUE,
+  showNA = TRUE,
+  password = NULL
+)
