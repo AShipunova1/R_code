@@ -168,7 +168,9 @@ sc_fhier <-
 non_compliant_vessels_in_sc_and_fhier <-
   sc_fhier |>
   filter(is_compl_sc == 0 &
-           is_comp == 0)
+           is_comp == 0) |>
+  select(vessel_reg_uscg_, vessel_name) |>
+  distinct()
 
 # dim(non_compliant_vessels_in_sc_and_fhier)
 
