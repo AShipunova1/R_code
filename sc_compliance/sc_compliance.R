@@ -16,6 +16,14 @@ db_year_2 <- "2024"
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 
+current_project_dir_name <- this.path::this.dir()
+
+current_project_basename <-
+  basename(current_project_dir_name)
+
+curr_proj_output_path <- file.path(my_paths$outputs,
+                         current_project_basename)
+
 # get data ----
 ## Import and prep compliance/override data ----
 
