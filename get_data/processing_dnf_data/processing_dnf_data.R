@@ -629,11 +629,9 @@ uniq_trips_num_now <-
 
 uniq_vessels_lost_by_overr <-
   uniq_vessels_num_was - uniq_vessels_num_now
-# 29
 
 uniq_trips_lost_by_overr <-
   uniq_trips_num_was - uniq_trips_num_now
-# 70640
 
 my_tee(uniq_vessels_lost_by_overr,
        "Thrown away vessels by overridden weeks")
