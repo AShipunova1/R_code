@@ -578,8 +578,6 @@ logbooks_notoverridden <-
   logbooks_notoverridden |>
   select(where(not_all_na))
 
-# diffdf::diffdf(logbooks_notoverridden,
-#                logbooks_notoverridden1)
 # 26 columns dropped, bc they were all NAs
 
 ### stats ----
