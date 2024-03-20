@@ -178,9 +178,14 @@ logbooks__sc_fhier <-
   filter(vessel_official_number %in%
            non_compliant_vessels_in_sc_and_compl_in_fhier$vessel_reg_uscg_)
 
-logbooks__sc_fhier |>
+logbooks__sc_fhier_my_month <-
+  logbooks__sc_fhier |>
   filter(month(trip_end_date) == my_month) |>
-  select(vessel_official_number, trip_start_date, trip_end_date)
+  select(vessel_official_number, trip_start_date, trip_end_date) |>
+  distinct()
+
+
+
 # vessel ID, Logbook (list any dates for that month), DNF (list week date range for any for that month)
 
 # 3. SC compliant vessels list ----
