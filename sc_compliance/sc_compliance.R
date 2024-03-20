@@ -173,6 +173,7 @@ non_compliant_vessels_in_sc_and_compl_in_fhier <-
 
 # glimpse(non_compliant_vessels_in_sc_and_compl_in_fhier)
 
+## add logbooks info ----
 logbooks__sc_fhier <-
   logbooks |>
   filter(vessel_official_number %in%
@@ -184,7 +185,27 @@ logbooks__sc_fhier_my_month <-
   select(vessel_official_number, trip_start_date, trip_end_date) |>
   distinct()
 
+## add DNF info ----
+dnfs__sc_fhier <-
+  dnfs |>
+  filter(vessel_official_number %in%
+           non_compliant_vessels_in_sc_and_compl_in_fhier$vessel_reg_uscg_)
 
+dnfs__sc_fhier_my_month <-
+  dnfs__sc_fhier |>
+  filter(month(trip_date) == my_month) |>
+  mutate(
+    week_start_date_mon =
+      floor_date(trip_date, unit = 'week', week_start = 1),
+    week_end_date_mon =
+      ceiling_date(trip_date, unit = 'week', week_start = 1)
+  ) |>
+  select(vessel_official_number,
+         week_start_date_mon,
+         week_end_date_mon) |>
+  distinct()
+
+View(dnfs__sc_fhier_my_month)
 
 # vessel ID, Logbook (list any dates for that month), DNF (list week date range for any for that month)
 
