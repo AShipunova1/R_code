@@ -235,8 +235,7 @@ compliant_vessels_in_sc_and_non_compl_fhier <-
 compliant_vessels_in_sc_and_non_compl_fhier__weeks_only <-
   compliant_vessels_in_sc_and_fhier |>
   select(vessel_reg_uscg_, comp_week_start_dt, comp_week_end_dt) |>
-  distinct() |>
-  glimpse()
+  distinct()
 
 # write results to xlsx ----
 # (sheet 1) the list of those SC non-compliant vessels that are also non-compliant in FHIER, or
@@ -246,14 +245,21 @@ compliant_vessels_in_sc_and_non_compl_fhier__weeks_only <-
 
 
 output_file_name <-
-  file.path(
+  file.path(curr_proj_output_path,
+            "sc_compliance.xlsx")
 
-  )
+result_list <-
+  Hmisc::llist(non_compliant_vessels_in_sc_and_fhier,
+       logbooks__sc_fhier_my_month,
+       dnfs__sc_fhier_my_month,
+       compliant_vessels_in_sc_and_non_compl_fhier__weeks_only
+       )
 
+View(result_list)
 
 write.xlsx(
-  x,
-  file,
+  non_compliant_vessels_in_sc_and_fhier,
+  output_file_name,
   sheetName = "non_compl_in_both",
   col.names = TRUE,
   row.names = FALSE,
