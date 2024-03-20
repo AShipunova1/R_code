@@ -7,7 +7,7 @@
 # If you have time or would like to attempt writing this code let me know ASAP. Ideally, I would like to have this operational by the next time Eric sends his list (which is usually the beginning of every month). I can start writing the code this week, if neither of you has time.
 
 # set up ----
-library(xlsx)
+require(openxlsx)
 
 my_year <- "2024"
 my_month <- "2"
@@ -252,59 +252,14 @@ output_file_name <-
 
 # "llist" is like a list except that it preserves the names or labels of the component variables in the variables label attribute.
 result_list <-
-  Hmisc::llist(non_compliant_vessels_in_sc_and_fhier,
-       logbooks__sc_fhier_my_month,
-       dnfs__sc_fhier_my_month,
-       compliant_vessels_in_sc_and_non_compl_fhier__weeks_only
-       )
+  list(
+    "non_compl_sc_and_fhier" =
+      non_compliant_vessels_in_sc_and_fhier,
+    "non_compl_sc__compl_fhier_lgb" =
+      logbooks__sc_fhier_my_month,
+    "non_compl_sc__compl_fhier_dnf" = dnfs__sc_fhier_my_month,
+    "compl_sc__non_compl_fhier" =
+      compliant_vessels_in_sc_and_non_compl_fhier__weeks_only
+  )
 
-# View(result_list)
-
-map2(result_list,
-     names(result_list),
-     \(one_df, one_df_name) {
-       browser()
-       # one_df_name <- deparse(substitute(one_df))
-       write.xlsx(
-         one_df,
-         output_file_name,
-         sheetName = one_df_name,
-         col.names = TRUE,
-         row.names = FALSE,
-         append = TRUE,
-         showNA = TRUE,
-         password = NULL
-       )
-     })
-
-# write.xlsx(
-#   non_compliant_vessels_in_sc_and_fhier,
-#   output_file_name,
-#   sheetName = "non_compl_in_both",
-#   col.names = TRUE,
-#   row.names = FALSE,
-#   append = TRUE,
-#   showNA = TRUE,
-#   password = NULL
-# )
-View(result_list[[1]])
-
-write.xlsx(non_compliant_vessels_in_sc_and_fhier,
-           file = "filename.xlsx",
-           sheetName = "sheet1",
-           row.names = FALSE)
-
-write.xlsx(
-         result_list[[1]],
-         output_file_name,
-         sheetName = names(result_list)[[1]],
-         col.names = TRUE,
-         row.names = FALSE,
-         append = TRUE
-         # showNA = TRUE,
-         # password = NULL
-       )
-
-require(openxlsx)
-# list_of_datasets <- list("Name of DataSheet1" = dataframe1, "Name of Datasheet2" = dataframe2)
-openxlsx::write.xlsx(result_list, file = "writeXLSX2.xlsx")
+openxlsx::write.xlsx(result_list, file = output_file_name)
