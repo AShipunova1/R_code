@@ -69,8 +69,8 @@ Outputs <- "Outputs/"
 
 # Set the date ranges for the DNF and compliance data you are pulling
 # this is the year to assign to the output file name
-my_year <- "2022"
-# my_year <- "2023"
+# my_year <- "2022"
+my_year <- "2023"
 # my_year <- "2024"
 
 my_date_beg <- str_glue("01-JAN-{my_year}")
@@ -160,7 +160,8 @@ compl_override_data |>
          COMP_WEEK == '50') |>
   select(COMP_WEEK_START_DT) |>
   distinct() |> str()
-# $ COMP_WEEK_START_DT: POSIXct, format: "2023-12-11" - correct
+# $ COMP_WEEK_START_DT: POSIXct, format: "2023-12-11".
+# Monday - correct (https://calendar.online/calendar-weeks/2023/50)
 
 ### prep the compliance/override data ----
 
@@ -190,6 +191,8 @@ compl_override_data__renamed__this_year <-
                                          tz = Sys.timezone()))
 
 # check
+compl_override_data__renamed__this_year |> View()
+
 # That's the week 52 of (my_year - 1):
 min(compl_override_data__renamed__this_year$COMP_WEEK_START_DT)
 # [1] "2021-12-27 EST" # this might contain the last week in the year before my_year, to account for a compliance week that overlaps last week of the year and first week of my_year
