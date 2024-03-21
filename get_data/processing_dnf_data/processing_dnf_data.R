@@ -268,9 +268,8 @@ dnfs <-
 # File: Raw_Oracle_Downloaded_dnf_01-JAN-2022__31-DEC-2022.rds modified 2024-03-18 11:57:06.482199
 
 ### find wrong COAST_GUARD_NBR or STATE_REG_NBR ----
-# *)  State reg numbers follow a specific format XX-####-XX.
-#   check all state reg #s
-# and coast g # has 7 digits
+# State reg numbers follow a specific format XX####XX.
+# Coast guard number has 7 digits.
 
 #### STATE_REG_NBR ----
 
@@ -314,8 +313,7 @@ COAST_GUARD_NBR_len |> count(coast_guard_nbr_len)
 # 6   617
 # 7   805
 
-
-head(COAST_GUARD_NBR_len)
+# head(COAST_GUARD_NBR_len)
 dnfs_coast_guard_nbr <-
   dnfs |>
   filter(!is.na(COAST_GUARD_NBR)) |>
@@ -331,7 +329,7 @@ not_6dig_coast_guard_nbr <-
   ) |>
   unique()
 
-not_6dig_coast_guard_nbr
+# not_6dig_coast_guard_nbr
 
 #### write out wrong ids ----
 not_standard_ids <-
