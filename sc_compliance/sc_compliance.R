@@ -14,7 +14,6 @@ my_month <- "2"
 db_year_1 <- "2023"
 db_year_2 <- "2024"
 
-
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 
@@ -100,8 +99,6 @@ SC_vessels_FHIERData_enabled <-
 # [1] 187   8
 # 189
 # 188
-# SC_vessels_FHIERData_enabled %>% names()
-#   filter(vessel_official_number   == "1225219")
 
 # create new dataframe with just enabled vessel official # for analysis
 FHIER_vessel_officialnumber <-
@@ -117,7 +114,7 @@ SC_permittedVessels  <-
 glimpse(SC_permittedVessels)
 # 200
 
-# for test purposes add random 0 and 1, change to real compliance data from SC
+# for test purposes add random 0 and 1, change to real compliance data from SC when avalable
 SC_permittedVessels_compl <-
   SC_permittedVessels |>
   mutate(is_compl_sc =
@@ -227,7 +224,6 @@ dnfs__sc_fhier_my_month <-
 
 # glimpse(dnfs__sc_fhier_my_month)
 
-
 # 3. SC compliant vessels list ----
 # 3) we also need a step that just grabs the compliant vessels (herein "SC compliant vessels list"), and then checks FHIER compliance to see if any that SC has as compliant are listed as non-compliant for any of the weeks in the given month. If any vessels are found to be compliant with SC but non-compliant with us/FHIER, then we need (on a 3rd sheet) to list those vessels and include what week (with date ranges) we are missing in FHIER. Eric will use this to more proactively alert us when a vessel is reporting only to SC, since we have so many recurring issues with this.
 
@@ -250,7 +246,6 @@ output_file_name <-
   file.path(curr_proj_output_path,
             "sc_compliance.xlsx")
 
-# "llist" is like a list except that it preserves the names or labels of the component variables in the variables label attribute.
 result_list <-
   list(
     "non_compl_sc_and_fhier" =
