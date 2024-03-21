@@ -41,7 +41,6 @@
 
 # load required packages (install first if needed)
 library(ROracle)
-library(xlsx)
 library(tidyverse)
 # see the list of packages: tidyverse_packages()
 
@@ -69,8 +68,8 @@ Outputs <- "Outputs/"
 
 # Set the date ranges for the DNF and compliance data you are pulling
 # this is the year to assign to the output file name
-# my_year <- "2022"
-my_year <- "2023"
+my_year <- "2022"
+# my_year <- "2023"
 # my_year <- "2024"
 
 my_date_beg <- str_glue("01-JAN-{my_year}")
@@ -191,8 +190,6 @@ compl_override_data__renamed__this_year <-
                                          tz = Sys.timezone()))
 
 # check
-compl_override_data__renamed__this_year |> View()
-
 # That's the week 52 of (my_year - 1):
 min(compl_override_data__renamed__this_year$COMP_WEEK_START_DT)
 # [1] "2021-12-27 EST" # this might contain the last week in the year before my_year, to account for a compliance week that overlaps last week of the year and first week of my_year
@@ -335,20 +332,38 @@ not_6dig_coast_guard_nbr <-
 # not_6dig_coast_guard_nbr
 
 #### write out wrong ids ----
-not_standard_ids <-
+not_na_not_standard_state_reg_nbr <-
   dnfs |>
-  filter(
-    STATE_REG_NBR %in% not_standard_state_reg_nbr |
-      COAST_GUARD_NBR %in% not_6dig_coast_guard_nbr
-  ) |>
+  filter((!is.na(STATE_REG_NBR)) &
+           STATE_REG_NBR %in% not_standard_state_reg_nbr) |>
   select(VESSEL_ID,
          COAST_GUARD_NBR,
          STATE_REG_NBR,
          VESSEL_OFFICIAL_NUMBER) |>
   distinct()
 
+# nrow(not_na_not_standard_state_reg_nbr)
+# 197
+
+not_na_not_standard_coast_guard_nbr <-
+  dnfs |>
+  filter((!is.na(COAST_GUARD_NBR)) &
+           COAST_GUARD_NBR %in% not_6dig_coast_guard_nbr) |>
+  select(VESSEL_ID,
+         COAST_GUARD_NBR,
+         STATE_REG_NBR,
+         VESSEL_OFFICIAL_NUMBER) |>
+  distinct()
+
+# nrow(not_na_not_standard_coast_guard_nbr)
+# 2
+
+not_standard_ids <-
+  rbind(not_na_not_standard_state_reg_nbr,
+        not_na_not_standard_coast_guard_nbr)
+
 write_csv(not_standard_ids,
-          file = r"(C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\id_errors\not_standard_ids.csv)")
+          file = r"(C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\id_errors\not_standard_ids_2022.csv)")
 
 ### add COAST_GUARD_NBR or STATE_REG_NBR if no VESSEL_OFFICIAL_NUMBER ----
 # Explanations:
