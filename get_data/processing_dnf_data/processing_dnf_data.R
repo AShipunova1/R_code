@@ -362,8 +362,13 @@ not_standard_ids <-
   rbind(not_na_not_standard_state_reg_nbr,
         not_na_not_standard_coast_guard_nbr)
 
+not_standard_ids_file_path <-
+  file.path(Path,
+            Outputs,
+            str_glue("not_standard_ids_{my_year}.csv"))
+
 write_csv(not_standard_ids,
-          file = r"(C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\id_errors\not_standard_ids_2022.csv)")
+          file = not_standard_ids_file_path)
 
 ### add COAST_GUARD_NBR or STATE_REG_NBR if no VESSEL_OFFICIAL_NUMBER ----
 # Explanations:
