@@ -271,23 +271,6 @@ dnfs <-
 # *)  State reg numbers follow a specific format XX-####-XX.
 #   check all state reg #s
 # and coast g # has 7 digits
-dnfs |>
-  filter(grepl("[[:alpha:]]{2}[[:digit:]]{4}[[:alpha:]]{2}", dnfs$STATE_REG_NBR)) |> head()
-
-grep("\\d{4}", dnfs$STATE_REG_NBR, value = T) |> head()
-grep("[[:digit:]]{4}", dnfs$STATE_REG_NBR, value = T) |>
-  head()
-grep("[[:alpha:]]{2}[[:digit:]]{4}[[:alpha:]]$",
-     dnfs$STATE_REG_NBR,
-     value = T) |>
-  unique() |>
-  head()
-grep("FL[[:digit:]]{4}[[:alpha:]]$",
-     dnfs$STATE_REG_NBR,
-     value = T) |>
-  unique() |>
-  head()
-# 1
 
 not_standard_state_reg_nbr <-
   grep(
