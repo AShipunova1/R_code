@@ -299,14 +299,55 @@ not_standard_coast_guard_nbr <-
 length(not_standard_coast_guard_nbr)
 # 620
 
-dnfs |>
+COAST_GUARD_NBR_len <-
+  dnfs |>
   filter(!is.na(COAST_GUARD_NBR)) |>
   rowwise() |>
   mutate(coast_guard_nbr_len = str_length(COAST_GUARD_NBR)) |>
   ungroup() |>
   select(COAST_GUARD_NBR, coast_guard_nbr_len) |>
-  count(coast_guard_nbr_len)
-  View()
+  distinct()
+
+COAST_GUARD_NBR_len |> count(coast_guard_nbr_len)
+# 4     1
+# 5     1
+# 6   617
+# 7   805
+
+
+head(COAST_GUARD_NBR_len)
+dnfs_coast_guard_nbr <-
+  dnfs |>
+  filter(!is.na(COAST_GUARD_NBR)) |>
+  select(COAST_GUARD_NBR) |>
+  distinct()
+
+not_6dig_coast_guard_nbr <-
+  grep(
+    "\\d{6}",
+    dnfs_coast_guard_nbr$COAST_GUARD_NBR,
+    invert = T,
+    value = T
+  ) |>
+  unique()
+
+not_6dig_coast_guard_nbr
+
+#### write out wrong ids ----
+not_standard_ids <-
+  dnfs |>
+  filter(
+    STATE_REG_NBR %in% not_standard_state_reg_nbr |
+      COAST_GUARD_NBR %in% not_6dig_coast_guard_nbr
+  ) |>
+  select(VESSEL_ID,
+         COAST_GUARD_NBR,
+         STATE_REG_NBR,
+         VESSEL_OFFICIAL_NUMBER) |>
+  distinct()
+
+write_csv(not_standard_ids,
+          file = r"(C:\Users\anna.shipunova\Documents\R_files_local\my_outputs\id_errors\not_standard_ids.csv)")
 
 ### add COAST_GUARD_NBR or STATE_REG_NBR if no VESSEL_OFFICIAL_NUMBER ----
 # Explanations:
