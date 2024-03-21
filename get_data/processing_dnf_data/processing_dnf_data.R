@@ -267,10 +267,12 @@ dnfs <-
 # File read from a file:
 # File: Raw_Oracle_Downloaded_dnf_01-JAN-2022__31-DEC-2022.rds modified 2024-03-18 11:57:06.482199
 
-# find wrong COAST_GUARD_NBR or STATE_REG_NBR
+### find wrong COAST_GUARD_NBR or STATE_REG_NBR ----
 # *)  State reg numbers follow a specific format XX-####-XX.
 #   check all state reg #s
 # and coast g # has 7 digits
+
+#### STATE_REG_NBR ----
 
 not_standard_state_reg_nbr <-
   grep(
@@ -284,15 +286,27 @@ not_standard_state_reg_nbr <-
 length(not_standard_state_reg_nbr)
 # 196
 
-not_standard_state_reg_nbr <-
+#### COAST_GUARD_NBR ----
+not_standard_coast_guard_nbr <-
   grep(
-    "[[:alpha:]]{2}\\d{4}[[:alpha:]]{2}",
-    dnfs$STATE_REG_NBR,
+    "^\\d{7}$",
+    dnfs$COAST_GUARD_NBR,
     invert = T,
     value = T
   ) |>
   unique()
 
+length(not_standard_coast_guard_nbr)
+# 620
+
+dnfs |>
+  filter(!is.na(COAST_GUARD_NBR)) |>
+  rowwise() |>
+  mutate(coast_guard_nbr_len = str_length(COAST_GUARD_NBR)) |>
+  ungroup() |>
+  select(COAST_GUARD_NBR, coast_guard_nbr_len) |>
+  count(coast_guard_nbr_len)
+  View()
 
 ### add COAST_GUARD_NBR or STATE_REG_NBR if no VESSEL_OFFICIAL_NUMBER ----
 # Explanations:
