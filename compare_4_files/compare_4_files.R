@@ -669,7 +669,7 @@ program_start_date <- lubridate::dmy("04-JAN-2021")
 
 in_my_date_range <-
   rlang::quo(
-      end_date >= program_start_date |
+      # end_date >= program_start_date |
         expiration_date >= program_start_date
   )
 
@@ -1408,11 +1408,35 @@ join_permits_from_pims__metrics_report <-
 # after separating permits:
 #   Detected an unexpected many-to-many relationship between `x` and `y`.
 # ℹ Row 1 of `x` matches multiple rows in `y`.
-# ℹ Row 2905 of `y` matches multiple rows in `x`.
-# ℹ Row 7304 of `y` matches multiple rows in `x`.
+# ℹ Row 1891 of `y` matches multiple rows in `x`.
 #
-# TODO: check
 
+#### check Row 1 of `x` matches multiple rows in `y` ----
+
+# join_permits_from_pims__metrics_report
+all_dfs_list_no_srhs$metrics_report |>
+  filter(
+    vessel_official_number ==
+      all_dfs_list_no_srhs$permits_from_pims[1, ]$vessel_official_number
+  ) |>
+  glimpse()
+# multiple permit_sep_u, ok.
+
+#### check Row 7304 of `y` matches multiple rows in `x`. ----
+
+all_dfs_list_no_srhs$permits_from_pims |>
+  filter(
+    vessel_official_number ==
+      all_dfs_list_no_srhs$metrics_report[1891, ]$vessel_official_number
+  ) |>
+  glimpse()
+# multiple permit_sep_u, ok.
+
+# $ effective_date         <dttm> 2007-03-24, 2007-03-24, 2008-04-23, 2011-07-01, 2011…
+# $ expiration_date        <dttm> 2008-02-29, 2008-02-29, 2009-02-28, 2012-06-30, 2012…
+# $ end_date               <dttm> 2023-04-27, 2023-04-27, 2023-04-27, 2023-04-27, 2023…
+
+### vessel diff ----
 vessel_in_permits_from_pims_not_in_metrics_report <-
   setdiff(
     all_dfs_list_no_srhs$permits_from_pims$vessel_official_number,
@@ -1420,8 +1444,7 @@ vessel_in_permits_from_pims_not_in_metrics_report <-
   )
 
 length(vessel_in_permits_from_pims_not_in_metrics_report)
-# 973
-# 4723
+# [1] 4706
 
 vessel_in_metrics_report_not_in_permits_from_pims <-
   setdiff(
