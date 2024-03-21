@@ -69,8 +69,8 @@ Outputs <- "Outputs/"
 
 # Set the date ranges for the DNF and compliance data you are pulling
 # this is the year to assign to the output file name
-# my_year <- "2022"
-my_year <- "2023"
+my_year <- "2022"
+# my_year <- "2023"
 # my_year <- "2024"
 
 my_date_beg <- str_glue("01-JAN-{my_year}")
@@ -266,6 +266,50 @@ dnfs <-
 # 2024-03-18 run for Raw_Oracle_Downloaded_dnf_01-JAN-2023__31-DEC-2023.rds: 127.13 sec elapsed
 # File read from a file:
 # File: Raw_Oracle_Downloaded_dnf_01-JAN-2022__31-DEC-2022.rds modified 2024-03-18 11:57:06.482199
+
+# find wrong COAST_GUARD_NBR or STATE_REG_NBR
+# *)  State reg numbers follow a specific format XX-####-XX.
+#   check all state reg #s
+# and coast g # has 7 digits
+dnfs |>
+  filter(grepl("[[:alpha:]]{2}[[:digit:]]{4}[[:alpha:]]{2}", dnfs$STATE_REG_NBR)) |> head()
+
+grep("\\d{4}", dnfs$STATE_REG_NBR, value = T) |> head()
+grep("[[:digit:]]{4}", dnfs$STATE_REG_NBR, value = T) |>
+  head()
+grep("[[:alpha:]]{2}[[:digit:]]{4}[[:alpha:]]$",
+     dnfs$STATE_REG_NBR,
+     value = T) |>
+  unique() |>
+  head()
+grep("FL[[:digit:]]{4}[[:alpha:]]$",
+     dnfs$STATE_REG_NBR,
+     value = T) |>
+  unique() |>
+  head()
+# 1
+
+not_standard_state_reg_nbr <-
+  grep(
+    "[[:alpha:]]{2}\\d{4}[[:alpha:]]{2}",
+    dnfs$STATE_REG_NBR,
+    invert = T,
+    value = T
+  ) |>
+  unique()
+
+length(not_standard_state_reg_nbr)
+# 196
+
+not_standard_state_reg_nbr <-
+  grep(
+    "[[:alpha:]]{2}\\d{4}[[:alpha:]]{2}",
+    dnfs$STATE_REG_NBR,
+    invert = T,
+    value = T
+  ) |>
+  unique()
+
 
 ### add COAST_GUARD_NBR or STATE_REG_NBR if no VESSEL_OFFICIAL_NUMBER ----
 # Explanations:
