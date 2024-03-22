@@ -785,6 +785,37 @@ n_distinct(permits_from_pims__permit_only__vessel_id_short__not_srhs$vessel_offi
 # 6865
 # lost to SRHS 114
 
+# 2022 only
+in_my_date_range <-
+  rlang::quo((expiration_date >= lubridate::dmy(my_date_beg) |
+                end_date >= lubridate::dmy(my_date_beg)) &
+               effective_date <= lubridate::dmy(my_date_end))
+
+permits_from_pims_2022 <-
+  all_dfs_list3$permits_from_pims |>
+  filter(!!in_my_date_range)
+
+dim(permits_from_pims_2022)
+# [1] 1500    9
+
+# print_df_names(permits_from_pims_2022)
+
+# check
+n_distinct(permits_from_pims_2022$vessel_official_number)
+# 734
+
+n_distinct(metrics_report$VESSEL_OFFICIAL_NUMBER)
+# 3443
+
+permits_from_pims_2022 |>
+  select(effective_date, end_date, expiration_date) |>
+  distinct() |>
+  arrange(effective_date) |>
+  # arrange(desc(effective_date)) |>
+  glimpse()
+# effective_date  2020-02-01 -- 2022-12-30
+# expiration_date 2022-01-31 -- 2024-05-31
+
 ### put permits_from_pims back ----
 all_dfs_list3$permits_from_pims <-
   permits_from_pims__permit_only__vessel_id_short__not_srhs
@@ -1516,6 +1547,8 @@ join_permits_from_pims__metrics_report__vsl_perm__grps |>
   filter(vessel_official_number %in%
            vessel_in_permits_from_pims_not_in_metrics_report) |>
   glimpse()
+# end_date__permits_from_pims       <dttm> 2021-03-31,
+
 ### vessels in > 1 group, join_permits_from_pims__metrics_report__vsl_perm__grps ----
 intersections_4 <-
   run_intersection_check(join_permits_from_pims__metrics_report__vsl_perm__grps)
