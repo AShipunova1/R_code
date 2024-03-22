@@ -46,6 +46,18 @@ my_date_beg <- str_glue('01-JAN-{my_year}')
 my_date_end <- str_glue('31-DEC-{my_year}')
 
 # get data ----
+## 0) srhs vessels ----
+srhs_vessels_file_path <-
+  file.path(my_paths$inputs,
+            r"(processing_logbook_data\Inputs)",
+            str_glue("{my_year}SRHSvessels.csv"))
+
+file.exists(srhs_vessels_file_path)
+
+srhs_vessels_my_year <-
+  read_csv(srhs_vessels_file_path) |>
+  clean_headers()
+
 ## 1) import the list of SRHS vessels ----
 # this is a single spreadsheet with all vessels listed, as opposed to the version where they are separated by region (bothregions_asSheets)
 # Use it to remove SRHS vessels from all inputs.
@@ -158,10 +170,11 @@ dim(metrics_report)
 # [1] 3443    9
 
 ## 5) permit table from the Oracle db ----
+# end_date >= TO_DATE('{my_date_beg}', 'dd-mon-yy')
+#     OR
 dates_filter <-
   str_glue(
-    " (end_date >= TO_DATE('{my_date_beg}', 'dd-mon-yy')
-    OR expiration_date >= TO_DATE('{my_date_beg}', 'dd-mon-yy') )
+    " (expiration_date >= TO_DATE('{my_date_beg}', 'dd-mon-yy') )
   AND effective_date <= TO_DATE('{my_date_end}', 'dd-mon-yy')
 "
   )
@@ -761,9 +774,20 @@ permits_from_pims__permit_only__vessel_id_short <-
 
 # glimpse(permits_from_pims__permit_only__vessel_id_short)
 
+### permits_from_pims: exclude srhs vessels ----
+permits_from_pims__permit_only__vessel_id_short__not_srhs <-
+  permits_from_pims__permit_only__vessel_id_short |>
+  filter(!vessel_official_number %in% srhs_vessels_my_year$uscg__)
+
+n_distinct(permits_from_pims__permit_only__vessel_id_short$vessel_official_number)
+# 6979
+n_distinct(permits_from_pims__permit_only__vessel_id_short__not_srhs$vessel_official_number)
+# 6865
+# lost to SRHS 114
+
 ### put permits_from_pims back ----
 all_dfs_list3$permits_from_pims <-
-  permits_from_pims__permit_only__vessel_id_short
+  permits_from_pims__permit_only__vessel_id_short__not_srhs
 
 unique(all_dfs_list3$permits_from_pims$permit_clean)
 # [1] "CDW"  "SC"   "CHS"  "CHG"  "RCG"  "HRCG" "HCHG"
@@ -1453,8 +1477,7 @@ vessel_in_metrics_report_not_in_permits_from_pims <-
   )
 
 length(vessel_in_metrics_report_not_in_permits_from_pims)
-# 1347
-# 1264
+# [1] 1284
 
 ### join by vessel and permit, join_permits_from_pims__metrics_report__vsl_perm ----
 join_permits_from_pims__metrics_report__vsl_perm <-
@@ -1489,11 +1512,10 @@ join_permits_from_pims__metrics_report__vsl_perm__grps <-
 # View(join_permits_from_pims__metrics_report__vsl_perm__grps)
 
 ### check vessels in pims, but not in metrics ----
-# join_permits_from_pims__metrics_report__vsl_perm__grps |>
-#   filter(vessel_official_number %in%
-#            vessel_in_permits_from_pims_not_in_metrics_report) |>
-#   View()
-
+join_permits_from_pims__metrics_report__vsl_perm__grps |>
+  filter(vessel_official_number %in%
+           vessel_in_permits_from_pims_not_in_metrics_report) |>
+  glimpse()
 ### vessels in > 1 group, join_permits_from_pims__metrics_report__vsl_perm__grps ----
 intersections_4 <-
   run_intersection_check(join_permits_from_pims__metrics_report__vsl_perm__grps)
