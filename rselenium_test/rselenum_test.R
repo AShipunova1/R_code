@@ -34,8 +34,15 @@ P101_USERNAME <- remote_driver$findElement(using = "id", "P101_USERNAME")
 P101_USERNAME$clearElement()
 P101_USERNAME$sendKeysToElement(list(fhier_username))
 
+P101_PASSWORD <- remote_driver$findElement(using = "id", "P101_PASSWORD")
+P101_PASSWORD$clearElement()
+P101_PASSWORD$sendKeysToElement(list(fhier_password))
 
-P101_USERNAME <- remote_driver$findElement(using = "id", "P101_USERNAME")
-P101_USERNAME$clearElement()
-P101_USERNAME$sendKeysToElement(list(fhier_username))
+login_button <-
+  remote_driver$findElement(using = "id",
+                            value = "B705187520008063447")
 
+login_button$clickElement()
+
+# //*[@id="B705187520008063447"]
+# <button class="t-Button t-Button--icon t-Button--iconLeft t-Button--hot" onclick="apex.submit({request:'LOGIN'});" type="button" id="B705187520008063447"><span class="t-Icon t-Icon--left fa fa-sign-in" aria-hidden="true"></span><span class="t-Button-label">Log In</span><span class="t-Icon t-Icon--right fa fa-sign-in" aria-hidden="true"></span></button>
