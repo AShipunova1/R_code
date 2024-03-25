@@ -68,8 +68,8 @@ Outputs <- "Outputs/"
 
 # Set the date ranges for the DNF and compliance data you are pulling
 # this is the year to assign to the output file name
-my_year <- "2022"
-# my_year <- "2023"
+# my_year <- "2022"
+my_year <- "2023"
 # my_year <- "2024"
 
 my_date_beg <- str_glue("01-JAN-{my_year}")
@@ -261,11 +261,9 @@ TO_DATE('{my_date_end}', 'dd-mon-yy')
 dnfs <-
   read_rds_or_run_query(dnfs_file_path,
                         dnfs_download_query)
-
-# File created from scratch:
-# 2024-03-18 run for Raw_Oracle_Downloaded_dnf_01-JAN-2023__31-DEC-2023.rds: 127.13 sec elapsed
-# File read from a file:
-# File: Raw_Oracle_Downloaded_dnf_01-JAN-2022__31-DEC-2022.rds modified 2024-03-18 11:57:06.482199
+# from scratch
+# 2024-03-25 run for Raw_Oracle_Downloaded_dnf_01-JAN-2022__31-DEC-2022.rds: 120.43 sec elapsed
+# 2024-03-25 run for Raw_Oracle_Downloaded_dnf_01-JAN-2023__31-DEC-2023.rds: 125.17 sec elapsed
 
 ### find wrong COAST_GUARD_NBR or STATE_REG_NBR ----
 # State reg numbers follow a specific format XX####XX.
