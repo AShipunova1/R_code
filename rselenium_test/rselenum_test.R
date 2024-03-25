@@ -46,3 +46,12 @@ login_button$clickElement()
 
 # download compliance ----
 
+# <a tabindex="0" role="treeitem" class="a-TreeView-label" href="f?p=162:6:15020351378971:::::" aria-level="1" aria-selected="true">Reports</a>
+
+menu_report <-
+  remote_driver$findElement(using = "link text",
+                            value = "Reports")
+
+menu_report$click()
+
+# <td class=" u-tL" headers="C706408587173859069 B706409315579859069_3">FHIER COMPLIANCE REPORT</td>
