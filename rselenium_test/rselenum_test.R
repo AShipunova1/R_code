@@ -34,5 +34,8 @@ P101_USERNAME <- remote_driver$findElement(using = "id", "P101_USERNAME")
 P101_USERNAME$clearElement()
 P101_USERNAME$sendKeysToElement(list(fhier_username))
 
-# click()
-# driver.findElement(By.id("auth_login_password")).sendKeys("MY-PASSWORD");
+
+P101_USERNAME <- remote_driver$findElement(using = "id", "P101_USERNAME")
+P101_USERNAME$clearElement()
+P101_USERNAME$sendKeysToElement(list(fhier_username))
+
