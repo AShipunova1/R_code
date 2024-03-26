@@ -94,12 +94,53 @@ class(all_trs)
 tag_name = "td"
 element_text = "FHIER COMPLIANCE REPORT"
 
-compl_report_element <- get_one_element(tag_name, element_text)
 
-compl_report_element$getElementValueOfCssProperty("id")
+# compl_report_element$getElementValueOfCssProperty("id")
 
-parent = element.find_element('xpath', './parent::*')
+# parent = compl_report_element$findElement(using = "xpath",
+                                          # value = "./parent::*")
 
+# tds = remote_driver$findElement(using = "xpath",
+#                                 value = "//table/body/tr/td")
+
+# /html/body/form/div[1]/div[2]/div[2]/div/div/div/div/div/div/div/div[2]/div[2]/div[6]/div[1]/table/tbody/tr[16]/td[1]
+# <td headers="LINK B706409315579859069_3"><a href="f?p=162:300:13568749866649:::RP,300,RIR::&amp;cs=3Fsanj_sz2sv87weceHdu2cw8slIPTBPXz1OEElwmHSh5d1Z-ug2CUJQgWys3QTYkzwmqM8nD-18rgfcQRge0aA"><img src="https://static.oracle.com/cdn/apex/20.2.0.00.20/magnifying_glass_white_bg.gif" alt=""></a></td>
+for (one_tr in all_trs) {
+  browser()
+
+  my_td <-
+    one_tr$findElement(using = "tag name",
+                       value = tag_name)
+  if (length(my_td) > 0) {
+    my_link <- one_tr$findElement(using = "xpath",
+                                  value = ".//td[1]/*")
+
+    # tds = driver.find_element_by_xpath("//table/tr/td")
+    # for td in tds:print(td.text)
+
+    my_link$getElementSize()
+    # my_link$click()
+    my_link$clickElement()
+  }
+  # print(one_td$ )
+}
+
+# session.find_element('xpath', './/a[contains(@href, "student")]').text
+
+# /html/body/form/div[1]/div[2]/div[2]/div/div/div/div/div/div/div/div[2]/div[2]/div[6]/div[1]/table/tbody/tr[16]/td[1]/a
+my_td = remote_driver$findElement(using = "xpath",
+                                value = "/html/body/form/div[1]/div[2]/div[2]/div/div/div/div/div/div/div/div[2]/div[2]/div[6]/div[1]/table/tbody/tr[16]/td[1]"
+)
+
+my_td$clickElement()
+
+# While (iterate over row)
+#      While(Iterate over column)
+#            if(column.Text=='YOUR_MATCH'){
+#              int voila=column.Index
+#            }
+#     }
+# }
 
 # <td class=" u-tL" headers="C706408587173859069 B706409315579859069_3">FHIER COMPLIANCE REPORT</td>
 #\37 06407713552859068 > tbody:nth-child(1) > tr:nth-child(16) > td:nth-child(2)
