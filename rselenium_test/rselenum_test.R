@@ -2,6 +2,7 @@
 library(RSelenium)
 require("rstudioapi")
 library(XML)
+require("tidyverse")
 
 # ?RSelenium
 # remDr <- remoteDriver(remoteServerAddr = "localhost", port = 4444L,
@@ -122,17 +123,15 @@ search_button[[1]]$clickElement()
 
 tables <- htmlParse(remote_driver$getPageSource()[[1]])
 table1 <- readHTMLTable(tables)
-# View(table1)
+dim(table1[[2]])
+# 101 18
 
-## click more pages ---- xpath=//div[@id='R717219435042513225_data_panel']/div[2]/ul/li[3]/button/span
-
-
-## action button
-action_button <-
-  remote_driver$findElement(using = "xpath",
-                             "//button[@id='R717219435042513225_actions_button']/span")
-
-action_button$clickElement()
+# ## action button
+# action_button <-
+#   remote_driver$findElement(using = "xpath",
+#                              "//button[@id='R717219435042513225_actions_button']/span")
+#
+# action_button$clickElement()
 
 ## download data
 
@@ -142,31 +141,56 @@ action_button$clickElement()
 #
 # download_button$clickElement()
 
-## show all rows ----
+## show all rows
 
 # actions_menu R717219435042513225_actions_menu
 
-pages_link <-
-  remote_driver$findElement(using = "id",
-                            "R717219435042513225_actions_menu_3_0_c9i")
+# pages_link <-
+#   remote_driver$findElement(using = "id",
+#                             "R717219435042513225_actions_menu_3_0_c9i")
 
 # pages_link$clickElement()
 
-pages_link$getElementText()
-
-pages_link_all <-
-  remote_driver$findElement(using = "xpath",
-                            "//button[@id='R717219435042513225_actions_button']/span")
+# pages_link$getElementText()
+#
+# pages_link_all <-
+#   remote_driver$findElement(using = "xpath",
+#                             "//button[@id='R717219435042513225_actions_button']/span")
 
 # pages_link_all$clickElement()
 
-pages_link_all$getElementText()
+# pages_link_all$getElementText()
 
 
 # html.js.flexboxlegacy.no-touch body#t_PageBody.t-PageBody.t-PageBody--hideLeft.t-PageBody--hideActions.apex-side-nav.apex-icons-fontapex.apex-theme-vita-copy.js-navExpanded.t-PageBody--leftNav div#R717219435042513225_actions_menu.a-Menu div.a-Menu-content ul li#R717219435042513225_actions_menu_3.a-Menu-item div#R717219435042513225_actions_menu_3im.a-Menu div.a-Menu-content ul li#R717219435042513225_actions_menu_3_0_c1.a-Menu-item div.a-Menu-inner span.a-Menu-labelContainer button#R717219435042513225_actions_menu_3_0_c1i.a-Menu-label
 # //*[@id="R717219435042513225_actions_menu_3_0_c1i"]
 # <button type="button" id="R717219435042513225_actions_menu_3_0_c1i" role="menuitemradio" class="a-Menu-label" aria-checked="true">5</button>
 
+## click more pages ----
 
-doc <- htmlParse(remote_driver$getPageSource()[[1]])
-readHTMLTable(doc)
+there_is_more <-
+  function() {
+    more_pages <-
+      remote_driver$findElement(using = "xpath",
+                                value = "//div[@id='R717219435042513225_data_panel']/div[2]/ul/li[3]/button/span")
+
+    more_pages$clickElement()
+  }
+
+# check the next page number ----
+get_page_numbers <- function() {
+  page_numbers <-
+    remote_driver$findElement(using = "xpath",
+                              value = "//div[@id='R717219435042513225_data_panel']/div[2]/ul/li[2]/span")
+
+  # str(page_numbers)
+
+  next_page_number <-
+    page_numbers$getElementText()[[1]] |> str_split_i(" - ", -1)
+
+  return(next_page_number)
+}
+
+
+# new_table <- rbind(my_table, table1[[2]])
+dim(new_table)
