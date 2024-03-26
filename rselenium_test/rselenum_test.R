@@ -91,18 +91,38 @@ my_td$clickElement()
 # /html/body/form/div[1]/div[2]/div[2]/div/div/div[1]/div/div/div[2]/div[2]/div[1]/div[2]/div[1]/div/div[2]/select/option[2]
 remote_driver$findElement("id", 'P300_COMP_YEAR')$clickElement()
 
-# /html/body/form/div[1]/div[2]/div[2]/div/div/div[1]/div/div/div[2]/div[2]/div[2]/div/div/div/div/div[2]/div/button/span[1]
-# html.js.flexboxlegacy.no-touch body#t_PageBody.t-PageBody.t-PageBody--hideLeft.t-PageBody--hideActions.apex-side-nav.apex-icons-fontapex.apex-theme-vita-copy.js-navExpanded.t-PageBody--leftNav form#wwvFlowForm div.t-Body div.t-Body-main div#t_Body_content.t-Body-content div.t-Body-contentInner div.container div.row div.col.col-12.apex-col-auto div#R717215418394513216.t-Region.t-Region--noPadding.t-Region--accent5.t-Region--scrollBody.t-Form--slimPadding div.t-Region-bodyWrap div.t-Region-body div.container div.row div.col.col-12.apex-col-auto div#R719635242264827707.t-ButtonRegion.t-Form--floatLeft.t-ButtonRegion--slimPadding.t-ButtonRegion--noUI.t-Form--slimPadding div.t-ButtonRegion-wrap div.t-ButtonRegion-col.t-ButtonRegion-col--content div.t-ButtonRegion-buttons button#B717215823519513218.t-Button.t-Button--icon.t-Button--iconLeft.t-Button--hot span.t-Button-label
 
 # $findElement("xpath", "./option[2]")$clickElement()
-remote_driver$findElement("link text", '')$clickElement()
+# remote_driver$findElement("class", '.t-Button-label')$clickElement()
 
 # remDr$findElement('xpath', "//li[. = 'Handel']") solves it.
 
-remote_driver$findElement("id", 'P300_COMP_YEAR')$findElement(xpat)
+# remote_driver$findElement("id", 'P300_COMP_YEAR')
 
 # select 2018
-remDr$findElement("xpath", '//*[@id="Body"]/div[1]/ul/li[3]/label')$clickElement() # in [3] is for 2018.
+# remDr$findElement("xpath", '//*[@id="Body"]/div[1]/ul/li[3]/label')$clickElement() # in [3] is for 2018.
 
 # next you need put cilck in update bottom in the page for load the new filter.
-remDr$findElement("xpath", '//*[@id="dnn_ctr633_Dispatch_Index_btnSubmit"]')$clickElement()
+# remDr$findElement("xpath", '//*[@id="dnn_ctr633_Dispatch_Index_btnSubmit"]')$clickElement()
+
+# genderElems <- remDrv$findElements("css", "#Gender option")
+# genderElems[[1]]$clickElement()
+
+## click search ----
+# /html/body/form/div[1]/div[2]/div[2]/div/div/div[1]/div/div/div[2]/div[2]/div[2]/div/div/div/div/div[2]/div/button/span[1]
+# html.js.flexboxlegacy.no-touch body#t_PageBody.t-PageBody.t-PageBody--hideLeft.t-PageBody--hideActions.apex-side-nav.apex-icons-fontapex.apex-theme-vita-copy.js-navExpanded.t-PageBody--leftNav form#wwvFlowForm div.t-Body div.t-Body-main div#t_Body_content.t-Body-content div.t-Body-contentInner div.container div.row div.col.col-12.apex-col-auto div#R717215418394513216.t-Region.t-Region--noPadding.t-Region--accent5.t-Region--scrollBody.t-Form--slimPadding div.t-Region-bodyWrap div.t-Region-body div.container div.row div.col.col-12.apex-col-auto div#R719635242264827707.t-ButtonRegion.t-Form--floatLeft.t-ButtonRegion--slimPadding.t-ButtonRegion--noUI.t-Form--slimPadding div.t-ButtonRegion-wrap div.t-ButtonRegion-col.t-ButtonRegion-col--content div.t-ButtonRegion-buttons button#B717215823519513218.t-Button.t-Button--icon.t-Button--iconLeft.t-Button--hot span.t-Button-label
+
+all_buttons <- remote_driver$findElements(using = "tag name", 'button')
+length(all_buttons)
+# 16
+
+search_button <-
+  remote_driver$findElements(using = "id",
+                             'B717215823519513218')
+search_button
+
+morereviews <-
+  remDr$findElement(using = 'css selector',
+                    "#BVRRContainer div.bv-content-pagination-container button")
+# click button
+morereviews$clickElement()
