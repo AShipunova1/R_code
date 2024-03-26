@@ -192,7 +192,7 @@ get_page_numbers <- function() {
 }
 
 # same in a loop ----
-next_page_number <- 100
+next_page_number <- 0
 new_table <- tibble()
 
 # x <- 1
@@ -203,23 +203,42 @@ new_table <- tibble()
 #     break
 #   }
 # }
+
+# <input type="checkbox" id="P300_IS_COMP_OVERRIDE_0" name="P300_IS_COMP_OVERRIDE" value="1">
+#
+check_if_loaded <- function() {
+  webElem <- NULL
+  while (is.null(webElem)) {
+    webElem <-
+      tryCatch({
+        remote_driver$findElement(using = 'name', value = "P300_IS_COMP_OVERRIDE")
+      },
+      error = function(e) {
+        NULL
+      })
+    #loop until element with name <value> is found in <webpage url>
+  }
+}
+
 repeat {
   # browser()
   new_page_number <- get_page_numbers()
   if (!new_page_number == next_page_number) {
 
     there_is_more()
+    check_if_loaded()
 
     tables <- htmlParse(remote_driver$getPageSource()[[1]])
     table1 <- readHTMLTable(tables, header = T)
     # dim(table1[[2]])
     new_table <- rbind(new_table, table1[[2]])
     # View(new_table)
-  }
-  else {
+  } else {
     break
   }
 }
 
 # new_table <- rbind(my_table, table1[[2]])
 dim(new_table)
+# [1] 600  18
+# brakes at 600
