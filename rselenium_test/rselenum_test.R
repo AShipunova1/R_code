@@ -34,20 +34,21 @@ get_one_element <- function(tag_name, element_text) {
 # remote_driver$setImplicitWaitTimeout(3000)
 # findElement(remDr, using = c("xpath", "css selector", "id", "name", "tag name", "class name", "link text", "partial link text"), value, ...)
 
-# fhier_username <- rstudioapi::askForSecret("fhier_username")
-# fhier_password <- rstudioapi::askForSecret("fhier_password")
+fhier_username <- rstudioapi::askForSecret("fhier_username")
+fhier_password <- rstudioapi::askForSecret("fhier_password")
 
 remote_driver$getTitle()
 
 # login ----
 P101_USERNAME <- remote_driver$findElement(using = "id", "P101_USERNAME")
 P101_USERNAME$clearElement()
-# P101_USERNAME$sendKeysToElement(list(fhier_username))
-P101_USERNAME$sendKeysToElement(list(rstudioapi::askForSecret("fhier_username")))
+P101_USERNAME$sendKeysToElement(list(fhier_username))
+# P101_USERNAME$sendKeysToElement(list(rstudioapi::askForSecret("fhier_username")))
 
 P101_PASSWORD <- remote_driver$findElement(using = "id", "P101_PASSWORD")
 P101_PASSWORD$clearElement()
-P101_PASSWORD$sendKeysToElement(list(rstudioapi::askForSecret("fhier_password")))
+P101_PASSWORD$sendKeysToElement(list(fhier_password))
+# P101_PASSWORD$sendKeysToElement(list(rstudioapi::askForSecret("fhier_password")))
 
 login_button <-
   remote_driver$findElement(using = "id",
@@ -71,7 +72,6 @@ for (element in menu_links) {
 menu_report$clickElement()
 
 # open FHIER COMPLIANCE REPORT ----
-
 
 tag_name = "td"
 element_text = "FHIER COMPLIANCE REPORT"
@@ -118,14 +118,23 @@ search_button <-
                              'B717215823519513218')
 search_button[[1]]$clickElement()
 
-## action button ----
+## read table ----
+
+tables <- htmlParse(remote_driver$getPageSource()[[1]])
+table1 <- readHTMLTable(tables)
+# View(table1)
+
+## click more pages ---- xpath=//div[@id='R717219435042513225_data_panel']/div[2]/ul/li[3]/button/span
+
+
+## action button
 action_button <-
   remote_driver$findElement(using = "xpath",
                              "//button[@id='R717219435042513225_actions_button']/span")
 
 action_button$clickElement()
 
-## download data ----
+## download data
 
 # download_button <-
 #   remote_driver$findElement(using = "xpath",
