@@ -112,21 +112,22 @@ remote_driver$findElement("id", 'P300_COMP_YEAR')$clickElement()
 # /html/body/form/div[1]/div[2]/div[2]/div/div/div[1]/div/div/div[2]/div[2]/div[2]/div/div/div/div/div[2]/div/button/span[1]
 # html.js.flexboxlegacy.no-touch body#t_PageBody.t-PageBody.t-PageBody--hideLeft.t-PageBody--hideActions.apex-side-nav.apex-icons-fontapex.apex-theme-vita-copy.js-navExpanded.t-PageBody--leftNav form#wwvFlowForm div.t-Body div.t-Body-main div#t_Body_content.t-Body-content div.t-Body-contentInner div.container div.row div.col.col-12.apex-col-auto div#R717215418394513216.t-Region.t-Region--noPadding.t-Region--accent5.t-Region--scrollBody.t-Form--slimPadding div.t-Region-bodyWrap div.t-Region-body div.container div.row div.col.col-12.apex-col-auto div#R719635242264827707.t-ButtonRegion.t-Form--floatLeft.t-ButtonRegion--slimPadding.t-ButtonRegion--noUI.t-Form--slimPadding div.t-ButtonRegion-wrap div.t-ButtonRegion-col.t-ButtonRegion-col--content div.t-ButtonRegion-buttons button#B717215823519513218.t-Button.t-Button--icon.t-Button--iconLeft.t-Button--hot span.t-Button-label
 
-search_buttons <- remote_driver$findElements(using = "xpath", "//span[contains(.,'Search')]")
-search_buttons
-
-search_button
-
-
-# search_button$getElementText()
-
 search_button <-
   remote_driver$findElements(using = "id",
                              'B717215823519513218')
-str(search_button)
+search_button[[1]]$clickElement()
 
-morereviews <-
-  remDr$findElement(using = 'css selector',
-                    "#BVRRContainer div.bv-content-pagination-container button")
-# click button
-morereviews$clickElement()
+## action button ----
+action_button <-
+  remote_driver$findElement(using = "xpath",
+                             "//button[@id='R717219435042513225_actions_button']/span")
+
+action_button$clickElement()
+
+## download data ----
+
+download_button <-
+  remote_driver$findElement(using = "xpath",
+                             "//span[contains(.,'Download')]")
+
+download_button$clickElement()
