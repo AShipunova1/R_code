@@ -191,6 +191,35 @@ get_page_numbers <- function() {
   return(next_page_number)
 }
 
+# same in a loop ----
+next_page_number <- 100
+new_table <- tibble()
+
+# x <- 1
+# repeat {
+#   print(x)
+#   x = x + 1
+#   if (x == 6) {
+#     break
+#   }
+# }
+repeat {
+  # browser()
+  new_page_number <- get_page_numbers()
+  if (!new_page_number == next_page_number) {
+
+    there_is_more()
+
+    tables <- htmlParse(remote_driver$getPageSource()[[1]])
+    table1 <- readHTMLTable(tables, header = T)
+    # dim(table1[[2]])
+    new_table <- rbind(new_table, table1[[2]])
+    # View(new_table)
+  }
+  else {
+    break
+  }
+}
 
 # new_table <- rbind(my_table, table1[[2]])
 dim(new_table)
