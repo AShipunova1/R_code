@@ -59,12 +59,16 @@ jennys_path <-
 annas_path <-
   r"(~\R_files_local\my_inputs\processing_logbook_data/)"
 
+# !! Change to your path !!
 # Change to use another path instead:
 # Path <- michelles_path
 Path <- annas_path
 
 Inputs <- "Inputs/"
 Outputs <- "Outputs/"
+
+output_file_path <-
+  Path
 
 # Set the date ranges for the DNF and compliance data you are pulling
 # this is the year to assign to the output file name
@@ -109,6 +113,8 @@ my_tee(date(),
 
 # set up an Oracle connection
 # Sys.getenv("ORA_SDTZ")
+
+# You have to set up the same timezones for ROracle and the system. Because by default they use different ones.
 Sys.setenv(TZ = Sys.timezone())
 Sys.setenv(ORA_SDTZ = Sys.timezone())
 
@@ -265,109 +271,6 @@ dnfs <-
 # 2024-03-25 run for Raw_Oracle_Downloaded_dnf_01-JAN-2022__31-DEC-2022.rds: 120.43 sec elapsed
 # 2024-03-25 run for Raw_Oracle_Downloaded_dnf_01-JAN-2023__31-DEC-2023.rds: 125.17 sec elapsed
 
-### find wrong COAST_GUARD_NBR or STATE_REG_NBR ----
-# State reg numbers follow a specific format XX####XX.
-# Coast guard number has 7 digits.
-
-#### STATE_REG_NBR ----
-
-not_standard_state_reg_nbr <-
-  grep(
-    "[[:alpha:]]{2}\\d{4}[[:alpha:]]{2}",
-    dnfs$STATE_REG_NBR,
-    invert = T,
-    value = T
-  ) |>
-  unique()
-
-length(not_standard_state_reg_nbr)
-# 196
-
-#### COAST_GUARD_NBR ----
-not_standard_coast_guard_nbr <-
-  grep(
-    "^\\d{7}$",
-    dnfs$COAST_GUARD_NBR,
-    invert = T,
-    value = T
-  ) |>
-  unique()
-
-length(not_standard_coast_guard_nbr)
-# 620
-
-COAST_GUARD_NBR_len <-
-  dnfs |>
-  filter(!is.na(COAST_GUARD_NBR)) |>
-  rowwise() |>
-  mutate(coast_guard_nbr_len = str_length(COAST_GUARD_NBR)) |>
-  ungroup() |>
-  select(COAST_GUARD_NBR, coast_guard_nbr_len) |>
-  distinct()
-
-COAST_GUARD_NBR_len |> count(coast_guard_nbr_len)
-# 4     1
-# 5     1
-# 6   617
-# 7   805
-
-# head(COAST_GUARD_NBR_len)
-dnfs_coast_guard_nbr <-
-  dnfs |>
-  filter(!is.na(COAST_GUARD_NBR)) |>
-  select(COAST_GUARD_NBR) |>
-  distinct()
-
-not_6dig_coast_guard_nbr <-
-  grep(
-    "\\d{6}",
-    dnfs_coast_guard_nbr$COAST_GUARD_NBR,
-    invert = T,
-    value = T
-  ) |>
-  unique()
-
-# not_6dig_coast_guard_nbr
-
-#### write out wrong ids ----
-not_na_not_standard_state_reg_nbr <-
-  dnfs |>
-  filter((!is.na(STATE_REG_NBR)) &
-           STATE_REG_NBR %in% not_standard_state_reg_nbr) |>
-  select(VESSEL_ID,
-         COAST_GUARD_NBR,
-         STATE_REG_NBR,
-         VESSEL_OFFICIAL_NUMBER) |>
-  distinct()
-
-# nrow(not_na_not_standard_state_reg_nbr)
-# 197
-
-not_na_not_standard_coast_guard_nbr <-
-  dnfs |>
-  filter((!is.na(COAST_GUARD_NBR)) &
-           COAST_GUARD_NBR %in% not_6dig_coast_guard_nbr) |>
-  select(VESSEL_ID,
-         COAST_GUARD_NBR,
-         STATE_REG_NBR,
-         VESSEL_OFFICIAL_NUMBER) |>
-  distinct()
-
-# nrow(not_na_not_standard_coast_guard_nbr)
-# 2
-
-not_standard_ids <-
-  rbind(not_na_not_standard_state_reg_nbr,
-        not_na_not_standard_coast_guard_nbr)
-
-not_standard_ids_file_path <-
-  file.path(Path,
-            Outputs,
-            str_glue("not_standard_ids_{my_year}.csv"))
-
-write_csv(not_standard_ids,
-          file = not_standard_ids_file_path)
-
 ### add COAST_GUARD_NBR or STATE_REG_NBR if no VESSEL_OFFICIAL_NUMBER ----
 # Explanations:
 # 1. Use 'mutate' to create or modify a column named 'VESSEL_OFFICIAL_NUMBER'.
@@ -376,6 +279,15 @@ write_csv(not_standard_ids,
 #    - If true, use 'coalesce' to select the first non-missing value among 'COAST_GUARD_NBR' and 'STATE_REG_NBR'.
 #    - If 'VESSEL_OFFICIAL_NUMBER' is not missing, keep its original value.
 # 4. The resulting DataFrame will have the 'VESSEL_OFFICIAL_NUMBER' column filled with non-missing values from 'COAST_GUARD_NBR' or 'STATE_REG_NBR'.
+
+# dnfs |>
+#   filter(is.na(VESSEL_OFFICIAL_NUMBER)) |>
+#   select(COAST_GUARD_NBR, STATE_REG_NBR) |>
+  # distinct() |>
+  # dim()
+
+# TODO: join with metrics tracking, get #s
+
 dnfs_v_all_ids <-
   dnfs |>
   mutate(VESSEL_OFFICIAL_NUMBER =
@@ -453,7 +365,7 @@ compl_override_data__renamed__this_year |>
 # 2      2023       2023-01-08         1
 # 3      2023       2023-01-15         2
 
-# Filtering dnf data ----
+# Adding flags to the dnf data ----
 
 ## Filter out vessels not in Metrics tracking ----
 SEFHIER_dnfs_short_date__iso <-
@@ -533,13 +445,32 @@ diffdf::diffdf(dnfs_first_week_my_year, compl_first_week_my_year)
 # We need the many to many relationship because the DNFs represent a single day in a 7 day week, while the compliance represents a single week. So the relationship between DNFs to Compliance is 7 to 1.
 
 dnfs_join_overr <-
-  left_join(SEFHIER_dnfs_short_date__iso,
+  full_join(SEFHIER_dnfs_short_date__iso,
             compl_override_data__renamed__this_year,
             join_by(TRIP_DATE_YEAR == COMP_YEAR,
                     VESSEL_OFFICIAL_NUMBER,
                     TRIP_DATE_WEEK == COMP_WEEK),
             relationship = "many-to-many"
   )
+
+in_compl_not_in_dnfs <-
+  dnfs_join_overr |>
+  filter(is.na(TRIP_ID)) |>
+  select(VESSEL_OFFICIAL_NUMBER) |>
+  distinct()
+
+in_dnfs_not_in_compl <-
+  dnfs_join_overr |>
+  filter(is.na(IS_COMP)) |>
+  select(VESSEL_OFFICIAL_NUMBER) |>
+  distinct()
+
+# TODO: validate in_compl_not_in_dnfs and in_dnfs_not_in_compl
+# my_year
+# View(in_dnfs_not_in_compl)
+
+# dnfs_join_overr |>
+#   filter(IS_COMP == 1 & OVERRIDDEN == 1) |> dim()
 
 # the below section is an example of the many to many relationship, using 2022 data (to check, remove 'relationship = "many-to-many"' from above.)
 # ℹ Row 5275 of `x` matches multiple rows in `y`.
@@ -617,6 +548,7 @@ my_stats(dnfs_NA)
 # Unique vessels: 903
 # Unique trips: 56205
 
+# TODO not needed any more
 ## Add vessels missing from the Compliance report ----
 # SEFHIER vessels missing from the Compliance report
 
@@ -756,7 +688,7 @@ my_tee(uniq_trips_lost_by_overr,
        "Thrown away trips neg by overridden weeks")
 # 70640
 
-## Mark all trips neg that were received > 30 days after the trip date, by using compliance data and time of submission ----
+## Flag trips neg that were received > 30 days after the trip date, by using compliance data and time of submission ----
 
 # subtract the usable date from the date of submission
 # value is true if the dnf was submitted within 30 days, false if the dnf was not
@@ -807,7 +739,7 @@ late_submission_filter <-
     return(SEFHIER_dnfs_notoverridden__temp)
   }
 
-### Filter (mark only): data frame of dnfs that were usable ----
+### Flag: data frame of dnfs that were usable ----
 SEFHIER_processed_dnfs__late_subm <-
   late_submission_filter(dnfs_notoverridden_ok)
 # rows: 369816
@@ -936,10 +868,6 @@ michelles_file_path <-
   file.path(Path,
             Outputs,
             SEFHIER_processed_dnfs_file_name)
-
-# !! Change to your path !!
-output_file_path <-
-  annas_file_path
 
 write_rds(
   SEFHIER_processed_dnfs__late_subm__metrics,
