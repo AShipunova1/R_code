@@ -534,9 +534,9 @@ dnfs_join_overr__compl <-
   ) |>
   ungroup()
 toc()
+# Add a compliant_after_override column: 108.74 sec elapsed
 
-
-dnfs_join_overr |>
+dnfs_join_overr__all_dnfs |>
   select(IS_COMP,
          OVERRIDDEN) |>
   distinct()
@@ -545,7 +545,12 @@ dnfs_join_overr |>
 # 2      NA         NA
 # 3       0          1
 # 4       0          0
-# 5       1          1
+
+dnfs_join_overr |>
+  filter(IS_COMP == 1 & OVERRIDDEN == 1) |>
+  select(TRIP_ID) |>
+  distinct()
+# NA
 
 dnfs_join_overr__compl |>
   select(compliant_after_override,
@@ -596,13 +601,6 @@ dnfs_join_overr__compl__timezone__usable |>
 dnfs_join_overr__compl__timezone__usable__not_empty <-
   dnfs_join_overr__compl__timezone__usable |>
   select(where(not_all_na))
-
-# dropped, bc they were all NAs:
-# SRH_VESSEL_ID
-# COMP_OVERRIDE_DT
-# COMP_OVERRIDE_USER_ID
-# COMP_OVERRIDE_CMT
-# SRFH_ASSIGNMENT_ID
 
 # subtract the usable date from the date of submission
 # value is true if the dnf was submitted within 30 days, false if the dnf was not
