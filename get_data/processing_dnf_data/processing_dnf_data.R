@@ -392,7 +392,7 @@ vessels_not_in_metrics <-
 
 my_tee(vessels_not_in_metrics,
        "Vessels removed if a vessel is not in Metrics tracking")
-# 1556
+# 1556 (2022)
 
 dnfs_not_in_metrics <-
   n_distinct(dnfs_short_date__iso$TRIP_ID) -
@@ -400,11 +400,13 @@ dnfs_not_in_metrics <-
 
 my_tee(dnfs_not_in_metrics,
        "DNFs removed if a vessel is not in Metrics tracking")
-# 356497
+# 356497 (2022)
+# 446859 (2023)
 
 ## add override data to dnfs ----
 my_stats(compl_override_data__renamed__this_year,
          "Compliance and override data from the db")
+# 2022
 # rows: 150029
 # columns: 23
 # Unique vessels: 3626
@@ -450,11 +452,6 @@ diffdf::diffdf(dnfs_first_week_my_year, compl_first_week_my_year)
 # same as above, ok
 
 ### join the dfs ----
-# We need 'relationship = "many-to-many"' because
-# TODO: 1)
-# 2) 1 row of `y` matches multiple rows in `x`:
-# We need the many to many relationship because the DNFs represent a single day in a 7 day week, while the compliance represents a single week. So the relationship between DNFs to Compliance is 7 to 1.
-
 dnfs_join_overr <-
   full_join(SEFHIER_dnfs_short_date__iso,
             compl_override_data__renamed__this_year,
@@ -463,6 +460,22 @@ dnfs_join_overr <-
                     TRIP_DATE_WEEK == COMP_WEEK),
             relationship = "many-to-many"
   )
+
+# The below section is an example of the many to many relationship, using 2023 data (to check, remove 'relationship = "many-to-many"' from above.)
+# We need 'relationship = "many-to-many"':
+# ℹ Row 46609 of `x` matches multiple rows in `y`.
+in_x <- SEFHIER_dnfs_short_date__iso[46609, ]
+
+compl_override_data__renamed__this_year |>
+  filter(VESSEL_OFFICIAL_NUMBER ==
+           in_x$VESSEL_OFFICIAL_NUMBER &
+           COMP_YEAR == in_x$TRIP_DATE_YEAR &
+           COMP_WEEK == in_x$TRIP_DATE_WEEK) |>
+  glimpse()
+# An error in the compliance report, duplicate records.
+
+# ℹ Row 22748 of `y` matches multiple rows in `x`.
+# We need the many to many relationship because the DNFs represent a single day in a 7 day week, while the compliance represents a single week. So the relationship between DNFs to Compliance is 7 to 1.
 
 in_compl_not_in_dnfs <-
   dnfs_join_overr |>
@@ -484,10 +497,6 @@ nrow(in_dnfs_not_in_compl)
 # my_year
 # View(in_dnfs_not_in_compl)
 
-# dnfs_join_overr |>
-#   filter(IS_COMP == 1 & OVERRIDDEN == 1) |> dim()
-
-# the below section is an example of the many to many relationship, using 2022 data (to check, remove 'relationship = "many-to-many"' from above.)
 # ℹ Row 5275 of `x` matches multiple rows in `y`.
 
 # dnfs_short_date__iso[52758, ] |> glimpse()
