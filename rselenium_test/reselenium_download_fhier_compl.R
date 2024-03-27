@@ -23,6 +23,7 @@ fhier_username <- rstudioapi::askForSecret("fhier_username")
 fhier_password <- rstudioapi::askForSecret("fhier_password")
 
 remote_driver$getTitle() == "South East For-hire Electronic Reporting program"
+# T
 
 # login ----
 P101_USERNAME <- remote_driver$findElement(using = "id", "P101_USERNAME")
@@ -84,32 +85,34 @@ remote_driver$findElement("xpath", "//option[2]")$clickElement()
 remote_driver$findElement("xpath", "//*[@id='B717215823519513218']")$clickElement()
 
 # download ----
+download_by_action_button <- function() {
+  action_button <-
+    remote_driver$findElement(using = "xpath",
+                              "//button[@id='B717215823519513218']")
 
-action_button <-
-  remote_driver$findElement(using = "xpath",
-                             "//button[@id='B717215823519513218']")
+  action_button$clickElement()
 
-action_button$clickElement()
+  action_button_menu <-
+    remote_driver$findElement(using = "xpath",
+                              "//button[@id='R717219435042513225_actions_button']/span")
 
-action_button_menu <-
-  remote_driver$findElement(using = "xpath",
-                            "//button[@id='R717219435042513225_actions_button']/span")
+  action_button_menu$clickElement()
 
-action_button_menu$clickElement()
+  action_menu_download <-
+    remote_driver$findElement(using = "xpath",
+                              value = "//*[@id='R717219435042513225_actions_menu_14i']")
 
-action_menu_download <-
-  remote_driver$findElement(using = "xpath",
-                            value = "//*[@id='R717219435042513225_actions_menu_14i']")
+  # to be sure it is loaded
+  action_menu_download$isElementDisplayed()
+  action_menu_download$clickElement()
 
-action_menu_download$isElementDisplayed()
-action_menu_download$clickElement()
-
-download_button <-
+  download_button <-
     remote_driver$findElement(using = "xpath",
                               value = "/html/body/div[5]/div[3]/div/button[2]")
 
-download_button$isElementDisplayed()
-download_button$clickElement()
+  download_button$isElementDisplayed()
+  download_button$clickElement()
+}
 
 # read_in ----
 ## find the downloaded file ----
@@ -120,7 +123,7 @@ downloaded_compl_files <-
              full.names = T,
              pattern = "^FHIER Compliance.*csv")
 
-glimpse(downloaded_compl_files)
+# glimpse(downloaded_compl_files)
 
 files_info <-
   file.info(downloaded_compl_files)
@@ -134,4 +137,3 @@ newest_file_path <-
 
 fhier_compl_downloaded <-
   read_csv(newest_file_path)
-
