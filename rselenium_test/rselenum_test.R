@@ -16,6 +16,20 @@ remDr <- rsDriver(browser = "firefox",
 
 remote_driver <- remDr[["client"]]
 
+# check the next page number ----
+get_page_numbers <- function() {
+  page_numbers <-
+    remote_driver$findElement(using = "xpath",
+                              value = "//div[@id='R717219435042513225_data_panel']/div[2]/ul/li[2]/span")
+
+  # str(page_numbers)
+
+  next_page_number <-
+    page_numbers$getElementText()[[1]] |> str_split_i(" - ", -1)
+
+  return(next_page_number)
+}
+
 # go to FHIER ----
 remote_driver$navigate("https://grunt.sefsc.noaa.gov/apex/f?p=162:LOGIN_DESKTOP:12001011577015:::::")
 
@@ -169,9 +183,10 @@ pages_num_el_1000 <-
 # <button type="button" id="R717219435042513225_actions_menu_3_0_c8i" role="menuitemradio" class="a-Menu-label">1000</button>
 
 pages_num_el_1000$getElementTagName()
-# pages_num_el$getElementText()
 pages_num_el_1000$clickElement()
 
+get_page_numbers() == "1,000"
+# T
 
 ## download data
 
@@ -216,20 +231,6 @@ there_is_more <-
 
     more_pages$clickElement()
   }
-
-# check the next page number ----
-get_page_numbers <- function() {
-  page_numbers <-
-    remote_driver$findElement(using = "xpath",
-                              value = "//div[@id='R717219435042513225_data_panel']/div[2]/ul/li[2]/span")
-
-  # str(page_numbers)
-
-  next_page_number <-
-    page_numbers$getElementText()[[1]] |> str_split_i(" - ", -1)
-
-  return(next_page_number)
-}
 
 # same in a loop ----
 next_page_number <- 0
