@@ -103,17 +103,16 @@ my_td$clickElement()
 # <option value="2023">2023</option>
 # <option value="2022">2022</option>
 # </select>
-# with xpath
-# /html/body/form/div[1]/div[2]/div[2]/div/div/div[1]/div/div/div[2]/div[2]/div[1]/div[2]/div[1]/div/div[2]/select/option[2]
 remote_driver$findElement("id", 'P300_COMP_YEAR')$clickElement()
 
+# /html/body/form/div[1]/div[2]/div[2]/div/div/div[1]/div/div/div[2]/div[2]/div[1]/div[2]/div[1]/div/div[2]/select/option[2]
+# 2023
+remote_driver$findElement("xpath", "//option[2]")$clickElement()
 
-# $findElement("xpath", "./option[2]")$clickElement()
-# remote_driver$findElement("class", '.t-Button-label')$clickElement()
+# search
+# //*[@id="B717215823519513218"]
 
-# remDr$findElement('xpath', "//li[. = 'Handel']") solves it.
-
-# remote_driver$findElement("id", 'P300_COMP_YEAR')
+remote_driver$findElement("xpath", "//*[@id='B717215823519513218']")$clickElement()
 
 # select 2018
 # remDr$findElement("xpath", '//*[@id="Body"]/div[1]/ul/li[3]/label')$clickElement() # in [3] is for 2018.
@@ -188,39 +187,6 @@ pages_num_el_1000$clickElement()
 get_page_numbers() == "1,000"
 # T
 
-## download data
-
-# download_button <-
-#   remote_driver$findElement(using = "xpath",
-#                              "//span[contains(.,'Download')]")
-#
-# download_button$clickElement()
-
-## show all rows
-
-# actions_menu R717219435042513225_actions_menu
-
-pages_link <-
-  remote_driver$findElement(using = "id",
-                            "R717219435042513225_actions_menu_3_0_c9i")
-
-pages_link$clickElement()
-
-# pages_link$getElementText()
-#
-# pages_link_all <-
-#   remote_driver$findElement(using = "xpath",
-#                             "//button[@id='R717219435042513225_actions_button']/span")
-
-# pages_link_all$clickElement()
-
-# pages_link_all$getElementText()
-
-
-# html.js.flexboxlegacy.no-touch body#t_PageBody.t-PageBody.t-PageBody--hideLeft.t-PageBody--hideActions.apex-side-nav.apex-icons-fontapex.apex-theme-vita-copy.js-navExpanded.t-PageBody--leftNav div#R717219435042513225_actions_menu.a-Menu div.a-Menu-content ul li#R717219435042513225_actions_menu_3.a-Menu-item div#R717219435042513225_actions_menu_3im.a-Menu div.a-Menu-content ul li#R717219435042513225_actions_menu_3_0_c1.a-Menu-item div.a-Menu-inner span.a-Menu-labelContainer button#R717219435042513225_actions_menu_3_0_c1i.a-Menu-label
-# //*[@id="R717219435042513225_actions_menu_3_0_c1i"]
-# <button type="button" id="R717219435042513225_actions_menu_3_0_c1i" role="menuitemradio" class="a-Menu-label" aria-checked="true">5</button>
-
 ## click more pages ----
 
 there_is_more <-
@@ -236,38 +202,31 @@ there_is_more <-
 next_page_number <- 0
 new_table <- tibble()
 
-# x <- 1
-# repeat {
-#   print(x)
-#   x = x + 1
-#   if (x == 6) {
-#     break
-#   }
-# }
+check_if_loaded <- function(curr_page_num) {
+  browser()
+  new_page_num <- there_is_more()
+  new_page_num == curr_page_num
 
-# <input type="checkbox" id="P300_IS_COMP_OVERRIDE_0" name="P300_IS_COMP_OVERRIDE" value="1">
-#
-check_if_loaded <- function() {
-  webElem <- NULL
-  while (is.null(webElem)) {
-    webElem <-
-      tryCatch({
-        remote_driver$findElement(using = 'name', value = "P300_IS_COMP_OVERRIDE")
-      },
-      error = function(e) {
-        NULL
-      })
-    #loop until element with name <value> is found in <webpage url>
-  }
+  # webElem <- NULL
+  # while (is.null(webElem)) {
+  #   webElem <-
+  #     tryCatch({
+  #       remote_driver$findElement(using = 'name', value = "P300_IS_COMP_OVERRIDE")
+  #     },
+  #     error = function(e) {
+  #       NULL
+  #     })
+  #   #loop until element with name <value> is found in <webpage url>
+  # }
 }
 
 repeat {
-  # browser()
   new_page_number <- get_page_numbers()
   if (!new_page_number == next_page_number) {
+  browser()
 
     there_is_more()
-    check_if_loaded()
+    # check_if_loaded()
 
     tables <- htmlParse(remote_driver$getPageSource()[[1]])
     table1 <- readHTMLTable(tables, header = T)
