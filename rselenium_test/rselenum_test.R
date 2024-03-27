@@ -153,6 +153,7 @@ there_is_more <-
 page_number <- 0
 new_table <- tibble()
 dim(new_table)
+
 # check_if_loaded <- function(curr_page_num) {
 #   browser()
 #   new_page_num <- there_is_more()
@@ -171,27 +172,43 @@ dim(new_table)
 #   # }
 # }
 
-old_page_number <- page_number
+# repeat {
+#   new_page_number <- get_page_numbers()
+#   if (!new_page_number == old_page_number) {
+#     # browser()
+#     there_is_more()
+#     # check_if_loaded()
+#
+#     tables <- htmlParse(remote_driver$getPageSource()[[1]])
+#     table1 <- readHTMLTable(tables, header = T)
+#     # dim(table1[[2]])
+#     new_table <- rbind(new_table, table1[[2]])
+#     # View(new_table)
+#     old_page_number <- new_page_number
+#   } else {
+#     break
+#   }
+# }
 
-repeat {
-  new_page_number <- get_page_numbers()
-  if (!new_page_number == old_page_number) {
-    browser()
+# new_table <- rbind(my_table, table1[[2]])
+dim(new_table)
+# [1] 600  18
+# brakes at 600
+
+old_page_number <- page_number
+# first run
+new_page_number <- get_page_numbers()
+while (new_page_number != old_page_number) {
+    # browser()
     there_is_more()
     # check_if_loaded()
-
+    Sys.sleep(5)
     tables <- htmlParse(remote_driver$getPageSource()[[1]])
     table1 <- readHTMLTable(tables, header = T)
     # dim(table1[[2]])
     new_table <- rbind(new_table, table1[[2]])
     # View(new_table)
     old_page_number <- new_page_number
-  } else {
-    break
-  }
+    new_page_number <- get_page_numbers()
 }
 
-# new_table <- rbind(my_table, table1[[2]])
-dim(new_table)
-# [1] 600  18
-# brakes at 600
