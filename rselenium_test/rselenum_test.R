@@ -247,3 +247,31 @@ write_csv(
 # test ----
 fhier_compl_downloaded <-
   read_csv(r"(C:\Users\anna.shipunova\Downloads\FHIER Compliance(1).csv)")
+
+# download try ----
+
+action_button <-
+  remote_driver$findElement(using = "xpath",
+                             "//button[@id='B717215823519513218']")
+
+action_button$clickElement()
+
+action_button_menu <-
+  remote_driver$findElement(using = "xpath",
+                            "//button[@id='R717219435042513225_actions_button']/span")
+
+action_button_menu$clickElement()
+
+action_menu_download <-
+  remote_driver$findElement(using = "xpath",
+                            value = "//*[@id='R717219435042513225_actions_menu_14i']")
+
+action_menu_download$isElementDisplayed()
+action_menu_download$clickElement()
+
+download_button <-
+    remote_driver$findElement(using = "xpath",
+                              value = "/html/body/div[5]/div[3]/div/button[2]")
+
+download_button$isElementDisplayed()
+download_button$clickElement()
