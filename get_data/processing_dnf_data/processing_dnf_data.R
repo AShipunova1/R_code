@@ -64,11 +64,11 @@ annas_path <-
 # Path <- michelles_path
 Path <- annas_path
 
-Inputs <- "Inputs/"
-Outputs <- "Outputs/"
+Inputs <- "Inputs"
+Outputs <- "Outputs"
 
 output_file_path <-
-  Path
+  file.path(Path, Outputs)
 
 # Set the date ranges for the DNF and compliance data you are pulling
 # this is the year to assign to the output file name
@@ -678,23 +678,8 @@ my_stats(SEFHIER_processed_dnfs__late_subm__metrics)
 SEFHIER_processed_dnfs_file_name <-
   str_glue("SEFHIER_processed_dnfs_{my_year}.rds")
 
-annas_file_path <-
-  file.path(Path,
-            "Outputs",
-            SEFHIER_processed_dnfs_file_name)
-
-jennys_file_path <-
-  file.path(Path,
-            Outputs,
-            SEFHIER_processed_dnfs_file_name)
-
-michelles_file_path <-
-  file.path(Path,
-            Outputs,
-            SEFHIER_processed_dnfs_file_name)
-
 write_rds(
   SEFHIER_processed_dnfs__late_subm__metrics,
-  file = output_file_path
+  file = file.path(output_file_path, SEFHIER_processed_dnfs_file_name)
 )
 
