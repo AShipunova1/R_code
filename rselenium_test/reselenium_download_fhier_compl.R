@@ -112,6 +112,26 @@ download_button$isElementDisplayed()
 download_button$clickElement()
 
 # read_in ----
+## find the downloaded file ----
+download_folder <- file.path(r"(C:\Users\anna.shipunova\Downloads)")
+
+downloaded_compl_files <-
+  list.files(download_folder,
+             full.names = T,
+             pattern = "^FHIER Compliance.*csv")
+
+glimpse(downloaded_compl_files)
+
+files_info <-
+  file.info(downloaded_compl_files)
+
+newest_time <- max(files_info$mtime)
+
+newest_file_path <-
+  files_info |>
+  filter(mtime == newest_time) |>
+  rownames()
+
 fhier_compl_downloaded <-
-  read_csv(r"(C:\Users\anna.shipunova\Downloads\FHIER Compliance(1).csv)")
+  read_csv(newest_file_path)
 
