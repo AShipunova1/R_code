@@ -81,75 +81,53 @@ go_button <-
 # go_button$isElementDisplayed()
 go_button$clickElement()
 
-download_by_action_button()
+# download_by_action_button(action_button_id)
 # Selenium message:Unable to locate element: //button[@id='B717215823519513218']
+# <button id="R728253330585395881_actions_button" class="a-Button a-IRR-button a-IRR-button--actions js-menuButton" type="button" data-menu="R728253330585395881_actions_menu" aria-haspopup="menu" aria-expanded="false">Actions<span class="a-Icon icon-menu-drop-down"></span></button>
+# //*[@id="R728253330585395881_actions_menu_14i"]
+# <button type="button" id="R728253330585395881_actions_menu_14i" role="menuitem" class="a-Menu-label">Download</button>
+#
 
-# ## choose year ----
-# # <select id="P300_COMP_YEAR" name="P300_COMP_YEAR" class="selectlist apex-item-select" style="font-family:monospace; font-size:12px" size="1"><option value="2024" selected="selected">2024</option>
-# # <option value="2023">2023</option>
-# # <option value="2022">2022</option>
-# # </select>
-# remote_driver$findElement("id", 'P300_COMP_YEAR')$clickElement()
-#
-# # /html/body/form/div[1]/div[2]/div[2]/div/div/div[1]/div/div/div[2]/div[2]/div[1]/div[2]/div[1]/div/div[2]/select/option[2]
-# # 2023
-# remote_driver$findElement("xpath", "//option[2]")$clickElement()
-#
-# # 2022
-# # remote_driver$findElement("xpath", "//option[3]")$clickElement()
-#
-# # click search to load the year
-# remote_driver$findElement("xpath", "//*[@id='B717215823519513218']")$clickElement()
-#
-# # download ----
-#
-# action_button <-
-#   remote_driver$findElement(using = "xpath",
-#                              "//button[@id='B717215823519513218']")
-#
-# action_button$clickElement()
-#
-# action_button_menu <-
-#   remote_driver$findElement(using = "xpath",
-#                             "//button[@id='R717219435042513225_actions_button']/span")
-#
-# action_button_menu$clickElement()
-#
-# action_menu_download <-
-#   remote_driver$findElement(using = "xpath",
-#                             value = "//*[@id='R717219435042513225_actions_menu_14i']")
-#
-# # to be sure it is loaded
-# action_menu_download$isElementDisplayed()
-# action_menu_download$clickElement()
-#
-# download_button <-
-#     remote_driver$findElement(using = "xpath",
-#                               value = "/html/body/div[5]/div[3]/div/button[2]")
-#
-# download_button$isElementDisplayed()
-# download_button$clickElement()
-#
-# # read_in ----
-# ## find the downloaded file ----
-# download_folder <- file.path(r"(C:\Users\anna.shipunova\Downloads)")
-#
-# downloaded_compl_files <-
-#   list.files(download_folder,
-#              full.names = T,
-#              pattern = "^FHIER Compliance.*csv")
-#
-# # glimpse(downloaded_compl_files)
-#
-# files_info <-
-#   file.info(downloaded_compl_files)
-#
-# newest_time <- max(files_info$mtime)
-#
-# newest_file_path <-
-#   files_info |>
-#   filter(mtime == newest_time) |>
-#   rownames()
-#
-# fhier_compl_downloaded <-
-#   read_csv(newest_file_path)
+# download ----
+buttons_elements <-
+  remote_driver$findElements(using = "tag name",
+                             value = "button")
+
+# View(buttons_elements)
+for (element in buttons_elements) {
+  if (element$getElementText() == "Download") {
+    download_button <- element
+  }
+}
+
+download_button$isElementDisplayed()
+
+download_button$clickElement()
+# /html/body/div[6]/div[3]/div/button[2]
+# <button type="button" class="ui-button--hot ui-button ui-corner-all ui-widget">Download</button>
+
+
+# read_in ----
+## find the downloaded file ----
+download_folder <- file.path(r"(C:\Users\anna.shipunova\Downloads)")
+
+downloaded_corresp_files <-
+  list.files(download_folder,
+             full.names = T,
+             pattern = "^Correspondence.*csv")
+
+# glimpse(downloaded_compl_files)
+
+files_info <-
+  file.info(downloaded_corresp_files)
+
+newest_time <- max(files_info$mtime)
+
+newest_file_path <-
+  files_info |>
+  filter(mtime == newest_time) |>
+  rownames()
+
+fhier_corresp_downloaded <-
+  read_csv(newest_file_path)
+
