@@ -115,9 +115,9 @@ remote_driver$findElement("id", 'P300_COMP_YEAR')$clickElement()
 # html.js.flexboxlegacy.no-touch body#t_PageBody.t-PageBody.t-PageBody--hideLeft.t-PageBody--hideActions.apex-side-nav.apex-icons-fontapex.apex-theme-vita-copy.js-navExpanded.t-PageBody--leftNav form#wwvFlowForm div.t-Body div.t-Body-main div#t_Body_content.t-Body-content div.t-Body-contentInner div.container div.row div.col.col-12.apex-col-auto div#R717215418394513216.t-Region.t-Region--noPadding.t-Region--accent5.t-Region--scrollBody.t-Form--slimPadding div.t-Region-bodyWrap div.t-Region-body div.container div.row div.col.col-12.apex-col-auto div#R719635242264827707.t-ButtonRegion.t-Form--floatLeft.t-ButtonRegion--slimPadding.t-ButtonRegion--noUI.t-Form--slimPadding div.t-ButtonRegion-wrap div.t-ButtonRegion-col.t-ButtonRegion-col--content div.t-ButtonRegion-buttons button#B717215823519513218.t-Button.t-Button--icon.t-Button--iconLeft.t-Button--hot span.t-Button-label
 
 search_button <-
-  remote_driver$findElements(using = "id",
+  remote_driver$findElement(using = "id",
                              'B717215823519513218')
-search_button[[1]]$clickElement()
+search_button$clickElement()
 
 ## read table ----
 
@@ -126,12 +126,52 @@ table1 <- readHTMLTable(tables)
 dim(table1[[2]])
 # 101 18
 
-# ## action button
-# action_button <-
-#   remote_driver$findElement(using = "xpath",
-#                              "//button[@id='R717219435042513225_actions_button']/span")
-#
-# action_button$clickElement()
+## action button ----
+action_button <-
+  remote_driver$findElement(using = "xpath",
+                             "//button[@id='B717215823519513218']")
+
+action_button$clickElement()
+
+# xpath=//button[@id='R717219435042513225_actions_button']/span
+
+# action_button_menu <-
+#   remote_driver$findElement(using = "id",
+#                             "R717219435042513225_actions_button")
+
+action_button_menu <-
+  remote_driver$findElement(using = "xpath",
+                            "//button[@id='R717219435042513225_actions_button']/span")
+
+action_button_menu$clickElement()
+
+# //*[@id="R717219435042513225_actions_menu_3_0_c8i"]
+# //*[@id="R717219435042513225_actions_menu_3_0_c7i"]
+
+# action_button_menu$sendKeysToElement(list(key = "down_arrow"))
+
+# //span[@class='text'][contains(text(),'2012')]/parent::a
+
+pages_num_el <-
+  remote_driver$findElement(using = "xpath",
+                            "//*[@id='R717219435042513225_actions_menu_3i']")
+
+pages_num_el$clickElement()
+
+pages_num_el_1000 <-
+  remote_driver$findElement(using = "xpath",
+                            "//*[@id='R717219435042513225_actions_menu_3_0_c8i']")
+
+# pages_num_el <-
+#   remote_driver$findElement(using = "link text",
+#                             "1000")
+
+# <button type="button" id="R717219435042513225_actions_menu_3_0_c8i" role="menuitemradio" class="a-Menu-label">1000</button>
+
+pages_num_el_1000$getElementTagName()
+# pages_num_el$getElementText()
+pages_num_el_1000$clickElement()
+
 
 ## download data
 
@@ -145,11 +185,11 @@ dim(table1[[2]])
 
 # actions_menu R717219435042513225_actions_menu
 
-# pages_link <-
-#   remote_driver$findElement(using = "id",
-#                             "R717219435042513225_actions_menu_3_0_c9i")
+pages_link <-
+  remote_driver$findElement(using = "id",
+                            "R717219435042513225_actions_menu_3_0_c9i")
 
-# pages_link$clickElement()
+pages_link$clickElement()
 
 # pages_link$getElementText()
 #
