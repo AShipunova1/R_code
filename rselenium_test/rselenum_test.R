@@ -112,13 +112,6 @@ remote_driver$findElement("xpath", "//option[2]")$clickElement()
 # click search
 remote_driver$findElement("xpath", "//*[@id='B717215823519513218']")$clickElement()
 
-## read table ----
-
-tables <- htmlParse(remote_driver$getPageSource()[[1]])
-table1 <- readHTMLTable(tables)
-dim(table1[[2]])
-# 101 18
-
 ## action button ----
 action_button <-
   remote_driver$findElement(using = "xpath",
@@ -126,24 +119,11 @@ action_button <-
 
 action_button$clickElement()
 
-# xpath=//button[@id='R717219435042513225_actions_button']/span
-
-# action_button_menu <-
-#   remote_driver$findElement(using = "id",
-#                             "R717219435042513225_actions_button")
-
 action_button_menu <-
   remote_driver$findElement(using = "xpath",
                             "//button[@id='R717219435042513225_actions_button']/span")
 
 action_button_menu$clickElement()
-
-# //*[@id="R717219435042513225_actions_menu_3_0_c8i"]
-# //*[@id="R717219435042513225_actions_menu_3_0_c7i"]
-
-# action_button_menu$sendKeysToElement(list(key = "down_arrow"))
-
-# //span[@class='text'][contains(text(),'2012')]/parent::a
 
 pages_num_el <-
   remote_driver$findElement(using = "xpath",
@@ -154,15 +134,6 @@ pages_num_el$clickElement()
 pages_num_el_1000 <-
   remote_driver$findElement(using = "xpath",
                             "//*[@id='R717219435042513225_actions_menu_3_0_c8i']")
-
-# pages_num_el <-
-#   remote_driver$findElement(using = "link text",
-#                             "1000")
-
-# <button type="button" id="R717219435042513225_actions_menu_3_0_c8i" role="menuitemradio" class="a-Menu-label">1000</button>
-
-pages_num_el_1000$getElementTagName()
-pages_num_el_1000$clickElement()
 
 get_page_numbers() == "1,000"
 # T
@@ -179,32 +150,33 @@ there_is_more <-
   }
 
 # same in a loop ----
-next_page_number <- 0
+page_number <- 0
 new_table <- tibble()
+dim(new_table)
+# check_if_loaded <- function(curr_page_num) {
+#   browser()
+#   new_page_num <- there_is_more()
+#   new_page_num == curr_page_num
+#
+#   # webElem <- NULL
+#   # while (is.null(webElem)) {
+#   #   webElem <-
+#   #     tryCatch({
+#   #       remote_driver$findElement(using = 'name', value = "P300_IS_COMP_OVERRIDE")
+#   #     },
+#   #     error = function(e) {
+#   #       NULL
+#   #     })
+#   #   #loop until element with name <value> is found in <webpage url>
+#   # }
+# }
 
-check_if_loaded <- function(curr_page_num) {
-  browser()
-  new_page_num <- there_is_more()
-  new_page_num == curr_page_num
-
-  # webElem <- NULL
-  # while (is.null(webElem)) {
-  #   webElem <-
-  #     tryCatch({
-  #       remote_driver$findElement(using = 'name', value = "P300_IS_COMP_OVERRIDE")
-  #     },
-  #     error = function(e) {
-  #       NULL
-  #     })
-  #   #loop until element with name <value> is found in <webpage url>
-  # }
-}
+old_page_number <- page_number
 
 repeat {
   new_page_number <- get_page_numbers()
-  if (!new_page_number == next_page_number) {
-  browser()
-
+  if (!new_page_number == old_page_number) {
+    browser()
     there_is_more()
     # check_if_loaded()
 
@@ -213,6 +185,7 @@ repeat {
     # dim(table1[[2]])
     new_table <- rbind(new_table, table1[[2]])
     # View(new_table)
+    old_page_number <- new_page_number
   } else {
     break
   }
