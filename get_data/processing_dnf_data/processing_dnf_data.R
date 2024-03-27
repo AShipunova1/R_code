@@ -511,7 +511,30 @@ my_stats(dnfs_join_overr)
 # Unique vessels: 2020
 # Unique trips: 440307
 
-### Add a compliance column dnfs_join_overr
+### Add a compliant_after_override column
+dnfs_join_overr__compl <-
+  dnfs_join_overr |>
+  rowwise() |>
+  mutate(
+    compliant_after_override =
+      case_when(IS_COMP == 1 ~ "yes",
+                IS_COMP == 0 ~ "no",
+                OVERRIDDEN == 1 ~ "yes",
+                is.na(IS_COMP) ~ NA,
+                .default = toString(IS_COMP))
+  ) |>
+  ungroup()
+
+dnfs_join_overr__compl |>
+  select(compliant_after_override,
+         IS_COMP,
+         OVERRIDDEN) |>
+  distinct()
+# compiant_after_overrride Yes/No:
+# override 1 == Yes
+# is_comp == 1
+# NA override, but is in Metricks tracking? - NA
+
 
 ## Flag trips neg that were received > 30 days after the trip date, by using compliance data and time of submission ----
 
