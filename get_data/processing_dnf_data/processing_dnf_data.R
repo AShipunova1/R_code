@@ -1,3 +1,4 @@
+
 # processing_DNF_data
 
 # The result will be in
@@ -280,11 +281,24 @@ dnfs <-
 #    - If 'VESSEL_OFFICIAL_NUMBER' is not missing, keep its original value.
 # 4. The resulting DataFrame will have the 'VESSEL_OFFICIAL_NUMBER' column filled with non-missing values from 'COAST_GUARD_NBR' or 'STATE_REG_NBR'.
 
-# dnfs |>
-#   filter(is.na(VESSEL_OFFICIAL_NUMBER)) |>
-#   select(COAST_GUARD_NBR, STATE_REG_NBR) |>
-  # distinct() |>
-  # dim()
+dnfs_na_vessel <-
+  dnfs |>
+  filter(is.na(VESSEL_OFFICIAL_NUMBER)) |>
+  select(COAST_GUARD_NBR, STATE_REG_NBR) |>
+  distinct()
+# dim()
+
+dnfs_na_vessel |>
+  left_join(processed_metrics_tracking,
+            join_by(COAST_GUARD_NBR == VESSEL_OFFICIAL_NUMBER)) |>
+  filter(!is.na(PERMITS)) |> dim()
+# 0
+
+dnfs_na_vessel |>
+  left_join(processed_metrics_tracking,
+            join_by(STATE_REG_NBR == VESSEL_OFFICIAL_NUMBER)) |>
+  filter(!is.na(PERMITS)) |> glimpse()
+# 2
 
 # TODO: join with metrics tracking, get #s
 
