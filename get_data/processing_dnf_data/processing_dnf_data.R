@@ -511,10 +511,18 @@ my_stats(dnfs_join_overr)
 # Unique vessels: 2020
 # Unique trips: 440307
 
+### Remove rows with NA DNFs and entries in Compiance ----
+dnfs_join_overr__all_dnfs <-
+  dnfs_join_overr |>
+  filter(is.na(TRIP_ID))
+
+# dim(dnfs_join_overr)
+# dim(dnfs_join_overr__all_dnfs)
+
 ### Add a compliant_after_override column ----
 tic("Add a compliant_after_override column")
 dnfs_join_overr__compl <-
-  dnfs_join_overr |>
+  dnfs_join_overr__all_dnfs |>
   rowwise() |>
   mutate(
     compliant_after_override =
