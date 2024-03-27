@@ -497,109 +497,25 @@ nrow(in_dnfs_not_in_compl)
 # my_year
 # View(in_dnfs_not_in_compl)
 
-# ℹ Row 5275 of `x` matches multiple rows in `y`.
-
-# dnfs_short_date__iso[52758, ] |> glimpse()
-
-# ℹ Row 20519  of `y` matches multiple rows in `x`.
-
-# compl_override_data__renamed__this_year[20519, ] |> glimpse()
-
 # stats
 my_stats(SEFHIER_dnfs_short_date__iso)
+# 2022
 # rows: 440307
 # columns: 8
 # Unique vessels: 2020
 # Unique trips: 440307
 my_stats(dnfs_join_overr)
+# 2022
 # rows: 441000
 # columns: 28
 # Unique vessels: 2020
 # Unique trips: 440307
 
-# Make lists of overridden or not vessels
-# If a week for a vessel was overridden (compl_override_data__renamed__this_year), remove the trip reports from the corresponding week in the dnf data
-# We have to remove dnfs for weeks that were overridden because we don't have a timestamp for when the dnf was submitted to the app, only when it was submitted to Oracle/SAFIS, and we can't differentiate that time laps.
-# We can't differentiate between turning a dnf in on time in the app, and it taking two months to get it vs turning in a dnf two months late.
-# E.g. user submitted Jan 1, 2022, but SEFHIER team found it missing in FHIER (and SAFIS) in March, 2022 (At permit renewal)... user submitted on time in app (VESL) but we may not get that report in SAFIS for months later (when its found as a "missing report" and then requeued for transmission)
+### Add a compliance column dnfs_join_overr
 
-# data frame of dnfs that were overridden
-dnfs_overridden <-
-  filter(dnfs_join_overr, OVERRIDDEN == 1)
+## Flag trips neg that were received > 30 days after the trip date, by using compliance data and time of submission ----
 
-# glimpse(dnfs_join_overr)
-# stats
-my_stats(dnfs_overridden)
-# rows: 17532
-# columns: 28
-# Unique vessels: 397
-# Unique trips: 17323
-
-# data frame of dnfs that weren't overridden
-dnfs_notoverridden <-
-  filter(dnfs_join_overr, OVERRIDDEN == 0)
-
-# stats
-my_stats(dnfs_notoverridden)
-# rows: 367263
-# columns: 28
-# Unique vessels: 1977
-# Unique trips: 367114
-
-# dnfs with an Overridden value of NA, because they were
-# 1) submitted by a vessel that is missing from the Compliance report and therefore has no associated override data, or
-# 2) submitted by a vessel during a period in which the permit was inactive, and the report was not required
-dnfs_NA <-
-  filter(dnfs_join_overr, is.na(OVERRIDDEN))
-
-n_distinct(dnfs_NA$TRIP_ID)
-# 56205
-
-dnfs_NA |>
-  filter(is.na(SRH_VESSEL_COMP_ID)) |>
-  nrow()
-# 56205
-# The same #, so it is "1) submitted by a vessel that is missing from the Compliance report and therefore has no associated override data"
-
-# dnfs_NA |>
-#   filter(!is.na(SRH_VESSEL_COMP_ID))
-# 0
-
-# stats
-my_stats(dnfs_NA)
-# rows: 56205
-# columns: 28
-# Unique vessels: 903
-# Unique trips: 56205
-
-# TODO not needed any more
-# remove missing vessels dnfs from NA dataset
-# Subset the dnfs_NA dataframe by excluding rows with VESSEL_OFFICIAL_NUMBER
-# present in the vessels_missing vector.
-dnfs_NA__rm_missing_vsls <-
-  dnfs_NA |>
-  filter(!VESSEL_OFFICIAL_NUMBER %in% vessels_missing)
-
-my_stats(dnfs_NA__rm_missing_vsls,
-         "dnfs_NA after removing missing dnfs")
-# rows: 53652
-# columns: 28
-# Unique vessels: 889
-# Unique trips: 53652
-
-my_tee(n_distinct(dnfs_NA$TRIP_ID) -
-         n_distinct(dnfs_NA__rm_missing_vsls$TRIP_ID),
-       "DNFs with NA in overridden with missing vessels removed")
-# 2553
-
-# (? AS)
-# We have decided to throw out dnfs that were submitted when the permit was inactive, the logic
-# being we shouldn't include dnfs that weren't required in the first place. Alternatively,
-# deciding to keep in the NAs means we would be keeping reports that were submitted by a vessel
-# during a period in which the permit was inactive, and the report was not required.
-# rbind(dnfs_notoverridden__w_missing, dnfs_NA) this is the alternative
-
-# Use trip end date to calculate the usable date 30 days later
+### Use trip end date to calculate the usable date 30 days later ----
 
 # Add a correct timezone to TRIP_DATE (EST vs. EDT)
 
@@ -646,35 +562,6 @@ dnfs_notoverridden_ok <-
 # COMP_OVERRIDE_USER_ID
 # COMP_OVERRIDE_CMT
 # SRFH_ASSIGNMENT_ID
-
-### Overridden stats ----
-# stats, what was lost by excluding the overridden dnfs
-
-uniq_vessels_num_was <-
-  n_distinct(SEFHIER_dnfs_short_date__iso[["VESSEL_OFFICIAL_NUMBER"]])
-uniq_vessels_num_now <-
-  n_distinct(dnfs_notoverridden_ok[["VESSEL_OFFICIAL_NUMBER"]])
-
-uniq_trips_num_was <-
-  n_distinct(SEFHIER_dnfs_short_date__iso[["TRIP_ID"]])
-uniq_trips_num_now <-
-  n_distinct(dnfs_notoverridden_ok[["TRIP_ID"]])
-
-uniq_vessels_lost_by_overr <-
-  uniq_vessels_num_was - uniq_vessels_num_now
-
-uniq_trips_lost_by_overr <-
-  uniq_trips_num_was - uniq_trips_num_now
-
-my_tee(uniq_vessels_lost_by_overr,
-       "Thrown away vessels by overridden weeks")
-# 29
-
-my_tee(uniq_trips_lost_by_overr,
-       "Thrown away trips neg by overridden weeks")
-# 70640
-
-## Flag trips neg that were received > 30 days after the trip date, by using compliance data and time of submission ----
 
 # subtract the usable date from the date of submission
 # value is true if the dnf was submitted within 30 days, false if the dnf was not
