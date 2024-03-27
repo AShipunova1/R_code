@@ -512,29 +512,45 @@ my_stats(dnfs_join_overr)
 # Unique trips: 440307
 
 ### Add a compliant_after_override column
+tic("Add a compliant_after_override column")
 dnfs_join_overr__compl <-
   dnfs_join_overr |>
   rowwise() |>
   mutate(
     compliant_after_override =
-      case_when(IS_COMP == 1 ~ "yes",
-                IS_COMP == 0 ~ "no",
+      case_when(IS_COMP == 0 & OVERRIDDEN == 0  ~ "no",
+                IS_COMP == 1 ~ "yes",
                 OVERRIDDEN == 1 ~ "yes",
                 is.na(IS_COMP) ~ NA,
                 .default = toString(IS_COMP))
   ) |>
   ungroup()
+toc()
+# Add a compliant_after_override column: 128.86 sec elapsed
+
+dnfs_join_overr |>
+  select(IS_COMP,
+         OVERRIDDEN) |>
+  distinct()
+#   IS_COMP OVERRIDDEN
+# 1       1          0
+# 2      NA         NA
+# 3       0          1
+# 4       0          0
+# 5       1          1
 
 dnfs_join_overr__compl |>
   select(compliant_after_override,
          IS_COMP,
          OVERRIDDEN) |>
   distinct()
-# compiant_after_overrride Yes/No:
-# override 1 == Yes
-# is_comp == 1
-# NA override, but is in Metricks tracking? - NA
-
+#   compliant_after_override IS_COMP OVERRIDDEN
+#   <chr>                      <int>      <int>
+# 1 yes                            1          0
+# 2 NA                            NA         NA
+# 3 yes                            0          1
+# 4 no                             0          0
+# 5 yes                            1          1
 
 ## Flag trips neg that were received > 30 days after the trip date, by using compliance data and time of submission ----
 
