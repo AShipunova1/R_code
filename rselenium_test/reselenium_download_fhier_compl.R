@@ -84,31 +84,48 @@ remote_driver$findElement("xpath", "//option[2]")$clickElement()
 # click search to load the year
 remote_driver$findElement("xpath", "//*[@id='B717215823519513218']")$clickElement()
 
+action_button_id <- "B717215823519513218"
+action_button_menu_id <- "R717219435042513225_actions_button"
+
 # download ----
-download_by_action_button <- function() {
+download_by_action_button <-
+  function(action_button_id,
+           action_button_menu_menu_id) {
   action_button <-
     remote_driver$findElement(using = "xpath",
-                              "//button[@id='B717215823519513218']")
+                              str_glue("//button[@id='{action_button_id}']"))
 
   action_button$clickElement()
 
   action_button_menu <-
     remote_driver$findElement(using = "xpath",
-                              "//button[@id='R717219435042513225_actions_button']/span")
+                              str_glue("//button[@id='{action_button_menu_id}']/span"))
 
   action_button_menu$clickElement()
 
   action_menu_download <-
     remote_driver$findElement(using = "xpath",
-                              value = "//*[@id='R717219435042513225_actions_menu_14i']")
+                              value = str_glue("//*[@id='{action_button_menu_id}_14i']"))
 
   # to be sure it is loaded
   action_menu_download$isElementDisplayed()
   action_menu_download$clickElement()
 
-  download_button <-
-    remote_driver$findElement(using = "xpath",
-                              value = "/html/body/div[5]/div[3]/div/button[2]")
+  buttons_elements <-
+    remote_driver$findElements(using = "tag name",
+                               value = "button")
+
+  # View(buttons_elements)
+  for (element in buttons_elements) {
+    if (element$getElementText() == "Download") {
+      download_button <- element
+    }
+  }
+
+#
+#   download_button <-
+#     remote_driver$findElement(using = "xpath",
+#                               value = "/html/body/div[5]/div[3]/div/button[2]")
 
   download_button$isElementDisplayed()
   download_button$clickElement()
