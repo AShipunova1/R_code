@@ -535,6 +535,8 @@ dnfs_join_overr__compl <-
   ungroup()
 toc()
 # Add a compliant_after_override column: 128.86 sec elapsed
+# Add a compliant_after_override column: 26.55 sec elapsed
+
 
 dnfs_join_overr |>
   select(IS_COMP,
