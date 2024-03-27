@@ -199,8 +199,6 @@ dim(new_table)
 #   }
 # }
 
-dim(new_table)
-
 tic("get_all_rows")
 old_page_number <- page_number
 # first run
@@ -229,3 +227,23 @@ toc()
 # 2022 get_all_rows: 946.72 sec elapsed
 # 15.77867 min
 
+# print out ----
+dim(new_table)
+# [1] 145048     18
+# why less than
+# > new_page_number
+# [1] "145,524"
+
+# getwd()
+
+write_csv(
+  new_table,
+  file.path(
+    r"(~\R_files_local\my_outputs\rselenium_test)",
+    "fhier_compliance_2022.csv"
+  )
+)
+
+# test ----
+fhier_compl_downloaded <-
+  read_csv(r"(C:\Users\anna.shipunova\Downloads\FHIER Compliance(1).csv)")
