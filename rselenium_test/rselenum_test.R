@@ -1,8 +1,9 @@
 # setup ----
-library(RSelenium)
+require("RSelenium")
 require("rstudioapi")
-library(XML)
+require("XML")
 require("tidyverse")
+require("tictoc")
 
 # ?RSelenium
 # remDr <- remoteDriver(remoteServerAddr = "localhost", port = 4444L,
