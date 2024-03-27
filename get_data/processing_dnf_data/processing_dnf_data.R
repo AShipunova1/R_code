@@ -514,7 +514,7 @@ my_stats(dnfs_join_overr)
 ### Remove rows with NA DNFs and entries in Compiance ----
 dnfs_join_overr__all_dnfs <-
   dnfs_join_overr |>
-  filter(is.na(TRIP_ID))
+  filter(!is.na(TRIP_ID))
 
 # dim(dnfs_join_overr)
 # dim(dnfs_join_overr__all_dnfs)
@@ -534,8 +534,6 @@ dnfs_join_overr__compl <-
   ) |>
   ungroup()
 toc()
-# Add a compliant_after_override column: 128.86 sec elapsed
-# Add a compliant_after_override column: 26.55 sec elapsed
 
 
 dnfs_join_overr |>
