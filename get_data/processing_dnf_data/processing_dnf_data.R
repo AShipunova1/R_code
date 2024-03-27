@@ -648,6 +648,7 @@ late_submission_filter <-
 ### Flag: data frame of dnfs that were usable ----
 SEFHIER_processed_dnfs__late_subm <-
   late_submission_filter(dnfs_join_overr__compl__timezone__usable__not_empty)
+# 2022
 # rows: 369816
 # columns: 26
 # Unique vessels: 1991
@@ -671,89 +672,6 @@ my_stats(SEFHIER_processed_dnfs__late_subm__metrics)
 # columns: 34
 # Unique vessels: 1991
 # Unique trips: 369667
-
-# stats total ----
-
-dnfs_before_filtering_out_overridden <-
-  n_distinct(SEFHIER_dnfs_short_date__iso$TRIP_ID)
-
-my_tee(dnfs_before_filtering_out_overridden,
-        "dnfs before filtering out overridden")
-# 440307 2022
-# 52393 2023
-
-dnfs_after_filtering_out_overridden <-
-  n_distinct(dnfs_join_overr__compl__timezone__usable__not_empty$TRIP_ID)
-
-my_tee(dnfs_after_filtering_out_overridden,
-        "dnfs after filtering out overridden")
-# 369667 2022
-# 51340 2023
-
-percent_of_removed_dnfs <-
-  (dnfs_before_filtering_out_overridden - dnfs_after_filtering_out_overridden) * 100 / dnfs_before_filtering_out_overridden
-
-cat(percent_of_removed_dnfs, sep = "\n")
-# 16.04335 2022
-
-# removed_vessels
-vessels_before_filtering_out_overridden <-
-  n_distinct(SEFHIER_dnfs_short_date__iso$VESSEL_OFFICIAL_NUMBER)
-
-cat(vessels_before_filtering_out_overridden)
-# 2020 2022
-# 1646 2023
-
-vessels_after_filtering_out_overridden <-
-  n_distinct(dnfs_join_overr__compl__timezone__usable__not_empty$VESSEL_OFFICIAL_NUMBER)
-
-cat(vessels_after_filtering_out_overridden)
-# 1991 2022
-# 1597 2023
-
-removed_vessels <-
-  vessels_before_filtering_out_overridden - vessels_after_filtering_out_overridden
-# 29
-
-percent_of_removed_vessels <-
-  (vessels_before_filtering_out_overridden - vessels_after_filtering_out_overridden) * 100 / vessels_before_filtering_out_overridden
-
-removed_dnfs_and_vessels_text <-
-  c(
-    crayon::blue("percent_of_removed_dnfs"),
-    str_glue("{round(percent_of_removed_dnfs)}%"),
-    crayon::blue("removed_vessels"),
-    removed_vessels,
-    crayon::blue("percent_of_removed_vessels"),
-    str_glue("{round(percent_of_removed_vessels)}%")
-  )
-
-my_tee(removed_dnfs_and_vessels_text,
-       "\nRemoved dnfs and vessels stats. For vessels in Metrics tracking only.")
-# 2022
-# dnfs before filtering out overridden
-# 440307
-# dnfs after filtering out overridden
-# 369667
-
-# Removed dnfs and vessels stats. For vessels in Metrics tracking only.
-# percent_of_removed_dnfs
-# 16%
-# removed_vessels
-# 29
-# percent_of_removed_vessels
-# 1%
-
-# 2023
-# dnfs after filtering out overridden
-# 458906
-# Removed dnfs and vessels stats. For vessels in Metrics tracking only.
-# percent_of_removed_dnfs
-# 9%
-# removed_vessels
-# 12
-# percent_of_removed_vessels
-# 1%
 
 # Export usable dnfs ----
 
