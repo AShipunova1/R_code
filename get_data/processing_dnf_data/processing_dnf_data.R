@@ -511,7 +511,7 @@ my_stats(dnfs_join_overr)
 # Unique vessels: 2020
 # Unique trips: 440307
 
-### Add a compliant_after_override column
+### Add a compliant_after_override column ----
 tic("Add a compliant_after_override column")
 dnfs_join_overr__compl <-
   dnfs_join_overr |>
@@ -558,12 +558,17 @@ dnfs_join_overr__compl |>
 
 # Add a correct timezone to TRIP_DATE (EST vs. EDT)
 
-dnfs_notoverridden__w_missing__timezone <-
-  dnfs_notoverridden__w_missing |>
+dnfs_join_overr__compl__timezone <-
+  dnfs_join_overr__compl |>
   mutate(TRIP_DATE_E =
            ymd_hms(TRIP_DATE,
                    truncated = 3,
                    tz = Sys.timezone()))
+
+dnfs_join_overr__compl__timezone |>
+  filter(!TRIP_DATE == TRIP_DATE_E) |>
+  glimpse()
+# 0
 
 # add a date 30 days later and set time to 23:59:59
 
@@ -576,7 +581,7 @@ dnfs_notoverridden__w_missing__timezone <-
 # 6. Use the `second<-` function from lubridate package to set the second component of 'USABLE_DATE_TIME' to 59.
 # 7. Use 'mutate' to update 'USABLE_DATE_TIME' with the second modification.
 dnfs_notoverridden_all <-
-  dnfs_notoverridden__w_missing__timezone |>
+  dnfs_join_overr__compl__timezone |>
   mutate(USABLE_DATE_TIME =
            TRIP_DATE_E + days(30)) |>
   mutate(USABLE_DATE_TIME =
@@ -586,9 +591,12 @@ dnfs_notoverridden_all <-
   mutate(USABLE_DATE_TIME =
            `second<-`(USABLE_DATE_TIME, 59))
 
-# dnfs_notoverridden_all |> glimpse()
-# $ TRIP_DATE_E            <dttm> 2022-02-04 23:00:00
-# $ USABLE_DATE_TIME       <dttm> 2022-03-06 23:59:59
+dnfs_notoverridden_all |>
+  select(TRIP_DATE_E, USABLE_DATE_TIME) |>
+  head(1) |>
+  glimpse()
+# $ TRIP_DATE_E      <dttm> 2023-03-27
+# $ USABLE_DATE_TIME <dttm> 2023-04-26 23:59:59
 
 # Drop empty columns
 dnfs_notoverridden_ok <-
