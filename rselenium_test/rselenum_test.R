@@ -148,6 +148,7 @@ there_is_more <-
                                 value = "//div[@id='R717219435042513225_data_panel']/div[2]/ul/li[3]/button/span")
 
     more_pages$clickElement()
+
   }
 
 # same in a loop ----
@@ -196,20 +197,32 @@ dim(new_table)
 # [1] 600  18
 # brakes at 600
 
+tic("get_all_rows")
 old_page_number <- page_number
 # first run
 new_page_number <- get_page_numbers()
 while (new_page_number != old_page_number) {
-    # browser()
+  # browser()
+  if (length(
+    remote_driver$findElements(using = "xpath",
+                               value = "//div[@id='R717219435042513225_data_panel']/div[2]/ul/li[3]/button/span")
+  ) == 0) {
+    Sys.sleep(10)
+  } else {
     there_is_more()
-    # check_if_loaded()
-    Sys.sleep(5)
-    tables <- htmlParse(remote_driver$getPageSource()[[1]])
-    table1 <- readHTMLTable(tables, header = T)
-    # dim(table1[[2]])
-    new_table <- rbind(new_table, table1[[2]])
-    # View(new_table)
-    old_page_number <- new_page_number
-    new_page_number <- get_page_numbers()
+  }
+  # check_if_loaded()
+  Sys.sleep(5)
+  tables <- htmlParse(remote_driver$getPageSource()[[1]])
+  table1 <- readHTMLTable(tables, header = T)
+  # dim(table1[[2]])
+  new_table <- rbind(new_table, table1[[2]])
+  # View(new_table)
+  old_page_number <- new_page_number
+  new_page_number <- get_page_numbers()
 }
+toc()
 
+remote_driver$findElement(using = "xpath",
+                              value = "//div[@id='R717219435042513225_data_panel']/div[2]/ul/li[2]/span")
+"//div[@id='R717219435042513225_data_panel']/div[2]/ul/li[3]/button/span"
