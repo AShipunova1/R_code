@@ -110,6 +110,9 @@ remote_driver$findElement("id", 'P300_COMP_YEAR')$clickElement()
 # 2023
 remote_driver$findElement("xpath", "//option[2]")$clickElement()
 
+# 2022
+remote_driver$findElement("xpath", "//option[3]")$clickElement()
+
 # click search
 remote_driver$findElement("xpath", "//*[@id='B717215823519513218']")$clickElement()
 
@@ -150,6 +153,10 @@ there_is_more <-
     more_pages$clickElement()
 
   }
+
+# new_table_2023 <- new_table
+# dim(new_table_2023)
+# 148502
 
 # same in a loop ----
 page_number <- 0
@@ -192,10 +199,7 @@ dim(new_table)
 #   }
 # }
 
-# new_table <- rbind(my_table, table1[[2]])
 dim(new_table)
-# [1] 600  18
-# brakes at 600
 
 tic("get_all_rows")
 old_page_number <- page_number
@@ -222,7 +226,6 @@ while (new_page_number != old_page_number) {
   new_page_number <- get_page_numbers()
 }
 toc()
+# 2022 get_all_rows: 946.72 sec elapsed
+# 15.77867 min
 
-remote_driver$findElement(using = "xpath",
-                              value = "//div[@id='R717219435042513225_data_panel']/div[2]/ul/li[2]/span")
-"//div[@id='R717219435042513225_data_panel']/div[2]/ul/li[3]/button/span"
