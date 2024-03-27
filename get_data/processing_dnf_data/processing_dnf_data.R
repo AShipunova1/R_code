@@ -1,4 +1,3 @@
-
 # processing_DNF_data
 
 # The result will be in
@@ -300,8 +299,6 @@ dnfs_na_vessel |>
   filter(!is.na(PERMITS)) |> glimpse()
 # 2
 
-# TODO: join with metrics tracking, get #s
-
 dnfs_v_all_ids <-
   dnfs |>
   mutate(VESSEL_OFFICIAL_NUMBER =
@@ -473,11 +470,15 @@ in_compl_not_in_dnfs <-
   select(VESSEL_OFFICIAL_NUMBER) |>
   distinct()
 
+nrow(in_compl_not_in_dnfs)
+
 in_dnfs_not_in_compl <-
   dnfs_join_overr |>
   filter(is.na(IS_COMP)) |>
   select(VESSEL_OFFICIAL_NUMBER) |>
   distinct()
+
+nrow(in_dnfs_not_in_compl)
 
 # TODO: validate in_compl_not_in_dnfs and in_dnfs_not_in_compl
 # my_year
@@ -563,44 +564,6 @@ my_stats(dnfs_NA)
 # Unique trips: 56205
 
 # TODO not needed any more
-## Add vessels missing from the Compliance report ----
-# SEFHIER vessels missing from the Compliance report
-
-# Finds vessels in the permit data that are missing from the compliance data
-# So if a vessel is in the Metrics tracking report, but not in the compliance report we want to add them back.
-
-vessels_missing <-
-  setdiff(
-    processed_metrics_tracking$VESSEL_OFFICIAL_NUMBER,
-    compl_override_data__renamed__this_year$VESSEL_OFFICIAL_NUMBER
-  )
-
-# stats
-my_tee(n_distinct(vessels_missing),
-       "vessels_missing")
-# 61
-
-# SEFHIER dnfs from vessels missing from the Compliance report
-vessels_missing_dnfs <-
-  dnfs_NA |>
-  filter(VESSEL_OFFICIAL_NUMBER %in% vessels_missing)
-
-# add missing dnfs back to the not overridden data frame
-dnfs_notoverridden__w_missing <-
-  rbind(dnfs_notoverridden,
-        vessels_missing_dnfs) |>
-  distinct()
-
-my_stats(dnfs_notoverridden__w_missing)
-# rows: 369816
-# columns: 28
-# Unique vessels: 1991
-# Unique trips: 369667
-
-my_stats(dnfs_NA)
-# Unique vessels: 903
-# Unique trips: 56205
-
 # remove missing vessels dnfs from NA dataset
 # Subset the dnfs_NA dataframe by excluding rows with VESSEL_OFFICIAL_NUMBER
 # present in the vessels_missing vector.
