@@ -556,34 +556,20 @@ dnfs_join_overr__compl |>
 
 ### Use trip end date to calculate the usable date 30 days later ----
 
-# Add a correct timezone to TRIP_DATE (EST vs. EDT)
-
-dnfs_join_overr__compl__timezone <-
-  dnfs_join_overr__compl |>
-  mutate(TRIP_DATE_E =
-           ymd_hms(TRIP_DATE,
-                   truncated = 3,
-                   tz = Sys.timezone()))
-
-dnfs_join_overr__compl__timezone |>
-  filter(!TRIP_DATE == TRIP_DATE_E) |>
-  glimpse()
-# 0
-
-# add a date 30 days later and set time to 23:59:59
+### add a date 30 days later and set time to 23:59:59 ----
 
 # Explanations:
-# 1. Use 'mutate' to create a new column named 'USABLE_DATE_TIME' by adding 30 days to the 'TRIP_DATE_E' column.
+# 1. Use 'mutate' to create a new column named 'USABLE_DATE_TIME' by adding 30 days to the 'TRIP_DATE' column.
 # 2. Use the `hour<-` function from lubridate package to set the hour component of 'USABLE_DATE_TIME' to 23.
 # 3. Use 'mutate' to update 'USABLE_DATE_TIME' with the hour modification.
 # 4. Use the `minute<-` function from lubridate package to set the minute component of 'USABLE_DATE_TIME' to 59.
 # 5. Use 'mutate' to update 'USABLE_DATE_TIME' with the minute modification.
 # 6. Use the `second<-` function from lubridate package to set the second component of 'USABLE_DATE_TIME' to 59.
 # 7. Use 'mutate' to update 'USABLE_DATE_TIME' with the second modification.
-dnfs_notoverridden_all <-
+dnfs_join_overr__compl__timezone__usable <-
   dnfs_join_overr__compl__timezone |>
   mutate(USABLE_DATE_TIME =
-           TRIP_DATE_E + days(30)) |>
+           TRIP_DATE + days(30)) |>
   mutate(USABLE_DATE_TIME =
            `hour<-`(USABLE_DATE_TIME, 23)) |>
   mutate(USABLE_DATE_TIME =
@@ -591,16 +577,16 @@ dnfs_notoverridden_all <-
   mutate(USABLE_DATE_TIME =
            `second<-`(USABLE_DATE_TIME, 59))
 
-dnfs_notoverridden_all |>
-  select(TRIP_DATE_E, USABLE_DATE_TIME) |>
+dnfs_join_overr__compl__timezone__usable |>
+  select(TRIP_DATE, USABLE_DATE_TIME) |>
   head(1) |>
   glimpse()
-# $ TRIP_DATE_E      <dttm> 2023-03-27
+# $ TRIP_DATE        <dttm> 2023-03-27
 # $ USABLE_DATE_TIME <dttm> 2023-04-26 23:59:59
 
-# Drop empty columns
-dnfs_notoverridden_ok <-
-  dnfs_notoverridden_all |>
+### Drop empty columns ----
+dnfs_join_overr__compl__timezone__usable__not_empty <-
+  dnfs_join_overr__compl__timezone__usable |>
   select(where(not_all_na))
 
 # dropped, bc they were all NAs:
@@ -648,20 +634,20 @@ late_submission_filter_stats <-
 
 late_submission_filter <-
   function(dnf_df) {
-    SEFHIER_dnfs_notoverridden__temp <-
+    dnf_df__temp <-
       dnf_df |>
       mutate(MORE_THAN_30_DAYS_LATE =
                case_when(DE <= USABLE_DATE_TIME ~ FALSE,
                          .default = TRUE))
 
-    late_submission_filter_stats(SEFHIER_dnfs_notoverridden__temp)
+    late_submission_filter_stats(dnf_df__temp)
 
-    return(SEFHIER_dnfs_notoverridden__temp)
+    return(dnf_df__temp)
   }
 
 ### Flag: data frame of dnfs that were usable ----
 SEFHIER_processed_dnfs__late_subm <-
-  late_submission_filter(dnfs_notoverridden_ok)
+  late_submission_filter(dnfs_join_overr__compl__timezone__usable__not_empty)
 # rows: 369816
 # columns: 26
 # Unique vessels: 1991
@@ -697,7 +683,7 @@ my_tee(dnfs_before_filtering_out_overridden,
 # 52393 2023
 
 dnfs_after_filtering_out_overridden <-
-  n_distinct(dnfs_notoverridden_ok$TRIP_ID)
+  n_distinct(dnfs_join_overr__compl__timezone__usable__not_empty$TRIP_ID)
 
 my_tee(dnfs_after_filtering_out_overridden,
         "dnfs after filtering out overridden")
@@ -719,7 +705,7 @@ cat(vessels_before_filtering_out_overridden)
 # 1646 2023
 
 vessels_after_filtering_out_overridden <-
-  n_distinct(dnfs_notoverridden_ok$VESSEL_OFFICIAL_NUMBER)
+  n_distinct(dnfs_join_overr__compl__timezone__usable__not_empty$VESSEL_OFFICIAL_NUMBER)
 
 cat(vessels_after_filtering_out_overridden)
 # 1991 2022
