@@ -161,7 +161,7 @@ find_the_downloaded_file <-
                  full.names = T,
                  pattern = file_name_pattern)
 
-    glimpse(downloaded_compl_files)
+    # glimpse(downloaded_compl_files)
 
     files_info <-
       file.info(downloaded_compl_files)
@@ -180,10 +180,12 @@ find_the_downloaded_file <-
       filter(mtime == newest_time) |>
       rownames()
 
-    fhier_file_downloaded <-
-      read_csv(newest_file_path)
-
-    return(fhier_file_downloaded)
+    return(newest_file_path)
   }
+
 file_name_pattern = "^FHIER Compliance.*csv"
 
+newest_file_path_compl <- find_the_downloaded_file(file_name_pattern)
+
+fhier_file_downloaded <-
+  read_csv(newest_file_path_compl)
