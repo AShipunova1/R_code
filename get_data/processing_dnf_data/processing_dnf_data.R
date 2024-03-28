@@ -579,8 +579,8 @@ dnfs_join_overr__compl |>
 # 5. Use 'mutate' to update 'USABLE_DATE_TIME' with the minute modification.
 # 6. Use the `second<-` function from lubridate package to set the second component of 'USABLE_DATE_TIME' to 59.
 # 7. Use 'mutate' to update 'USABLE_DATE_TIME' with the second modification.
-dnfs_join_overr__compl__timezone__usable <-
-  dnfs_join_overr__compl__timezone |>
+dnfs_join_overr__compl__usable <-
+  dnfs_join_overr__compl |>
   mutate(USABLE_DATE_TIME =
            TRIP_DATE + days(30)) |>
   mutate(USABLE_DATE_TIME =
@@ -590,7 +590,7 @@ dnfs_join_overr__compl__timezone__usable <-
   mutate(USABLE_DATE_TIME =
            `second<-`(USABLE_DATE_TIME, 59))
 
-dnfs_join_overr__compl__timezone__usable |>
+dnfs_join_overr__compl__usable |>
   select(TRIP_DATE, USABLE_DATE_TIME) |>
   head(1) |>
   glimpse()
@@ -598,8 +598,8 @@ dnfs_join_overr__compl__timezone__usable |>
 # $ USABLE_DATE_TIME <dttm> 2023-04-26 23:59:59
 
 ### Drop empty columns ----
-dnfs_join_overr__compl__timezone__usable__not_empty <-
-  dnfs_join_overr__compl__timezone__usable |>
+dnfs_join_overr__compl__usable__not_empty <-
+  dnfs_join_overr__compl__usable |>
   select(where(not_all_na))
 
 # subtract the usable date from the date of submission
@@ -651,14 +651,15 @@ late_submission_filter <-
     return(dnf_df__temp)
   }
 
-### Flag: data frame of dnfs that were usable ----
+### data frame of dnfs with late submission ----
+
 SEFHIER_processed_dnfs__late_subm <-
-  late_submission_filter(dnfs_join_overr__compl__timezone__usable__not_empty)
+  late_submission_filter(dnfs_join_overr__compl__usable__not_empty)
 # 2022
 # rows: 369816
 # columns: 26
 # Unique vessels: 1991
-# Unique trips (logbooks): 369667
+# Unique trips: 369667
 # ---
 # Count late_submission (dnfs num)
 # 272217
@@ -666,7 +667,7 @@ SEFHIER_processed_dnfs__late_subm <-
 # Count late_submission (vessels num)
 # 1926
 
-# Add all columns from processed metrics tracking to obtain the Permit region ----
+# Add more columns from processed metrics tracking to obtain the Permit region ----
 
 SEFHIER_processed_dnfs__late_subm__metrics <-
   left_join(SEFHIER_processed_dnfs__late_subm,
