@@ -72,8 +72,8 @@ output_file_path <-
 
 # Set the date ranges for the DNF and compliance data you are pulling
 # this is the year to assign to the output file name
-# my_year <- "2022"
-my_year <- "2023"
+my_year <- "2022"
+# my_year <- "2023"
 # my_year <- "2024"
 
 my_date_beg <- str_glue("01-JAN-{my_year}")
@@ -272,14 +272,8 @@ dnfs <-
 # 2024-03-25 run for Raw_Oracle_Downloaded_dnf_01-JAN-2023__31-DEC-2023.rds: 125.17 sec elapsed
 
 ### add COAST_GUARD_NBR or STATE_REG_NBR if no VESSEL_OFFICIAL_NUMBER ----
-# Explanations:
-# 1. Use 'mutate' to create or modify a column named 'VESSEL_OFFICIAL_NUMBER'.
-# 2. Use 'case_when' to conditionally assign values to the column based on conditions.
-# 3. Check if 'VESSEL_OFFICIAL_NUMBER' is NA (missing).
-#    - If true, use 'coalesce' to select the first non-missing value among 'COAST_GUARD_NBR' and 'STATE_REG_NBR'.
-#    - If 'VESSEL_OFFICIAL_NUMBER' is not missing, keep its original value.
-# 4. The resulting DataFrame will have the 'VESSEL_OFFICIAL_NUMBER' column filled with non-missing values from 'COAST_GUARD_NBR' or 'STATE_REG_NBR'.
 
+# Check
 dnfs_na_vessel <-
   dnfs |>
   filter(is.na(VESSEL_OFFICIAL_NUMBER)) |>
@@ -291,7 +285,7 @@ dnfs_na_vessel |>
   left_join(processed_metrics_tracking,
             join_by(COAST_GUARD_NBR == VESSEL_OFFICIAL_NUMBER)) |>
   filter(!is.na(PERMITS)) |> dim()
-# 0
+# 0 ok
 
 dnfs_na_vessel |>
   left_join(processed_metrics_tracking,
@@ -299,6 +293,13 @@ dnfs_na_vessel |>
   filter(!is.na(PERMITS)) |> glimpse()
 # 2
 
+# Explanations:
+# 1. Use 'mutate' to create or modify a column named 'VESSEL_OFFICIAL_NUMBER'.
+# 2. Use 'case_when' to conditionally assign values to the column based on conditions.
+# 3. Check if 'VESSEL_OFFICIAL_NUMBER' is NA (missing).
+#    - If true, use 'coalesce' to select the first non-missing value among 'COAST_GUARD_NBR' and 'STATE_REG_NBR'.
+#    - If 'VESSEL_OFFICIAL_NUMBER' is not missing, keep its original value.
+# 4. The resulting DataFrame will have the 'VESSEL_OFFICIAL_NUMBER' column filled with non-missing values from 'COAST_GUARD_NBR' or 'STATE_REG_NBR'.
 dnfs_v_all_ids <-
   dnfs |>
   mutate(VESSEL_OFFICIAL_NUMBER =
@@ -403,7 +404,7 @@ my_tee(dnfs_not_in_metrics,
 # 356497 (2022)
 # 446859 (2023)
 
-## add override data to dnfs ----
+## add compliance/override data to dnfs ----
 my_stats(compl_override_data__renamed__this_year,
          "Compliance and override data from the db")
 # 2022
@@ -457,15 +458,18 @@ dnfs_join_overr <-
             compl_override_data__renamed__this_year,
             join_by(TRIP_DATE_YEAR == COMP_YEAR,
                     VESSEL_OFFICIAL_NUMBER,
-                    TRIP_DATE_WEEK == COMP_WEEK),
-            relationship = "many-to-many"
+                    TRIP_DATE_WEEK == COMP_WEEK)
+            # ,
+            # relationship = "many-to-many"
   )
 
 # The below section is an example of the many to many relationship, using 2023 data (to check, remove 'relationship = "many-to-many"' from above.)
 # We need 'relationship = "many-to-many"':
 # ℹ Row 46609 of `x` matches multiple rows in `y`.
-in_x <- SEFHIER_dnfs_short_date__iso[46609, ]
+in_x_2023 <- SEFHIER_dnfs_short_date__iso[46609, ]
+in_x_2022 <- SEFHIER_dnfs_short_date__iso[47376, ]
 
+in_x <- in_x_2022
 compl_override_data__renamed__this_year |>
   filter(VESSEL_OFFICIAL_NUMBER ==
            in_x$VESSEL_OFFICIAL_NUMBER &
@@ -477,6 +481,34 @@ compl_override_data__renamed__this_year |>
 # ℹ Row 22748 of `y` matches multiple rows in `x`.
 # We need the many to many relationship because the DNFs represent a single day in a 7 day week, while the compliance represents a single week. So the relationship between DNFs to Compliance is 7 to 1.
 
+compl_override_data__renamed__this_year |>
+  select(VESSEL_OFFICIAL_NUMBER, COMP_YEAR, COMP_WEEK, SRH_VESSEL_COMP_ID) |>
+  group_by(VESSEL_OFFICIAL_NUMBER, COMP_YEAR, COMP_WEEK)  %>%
+  count() |>
+  filter(n > 1) %>%
+  ungroup() %>%
+  # select(-n) |>
+  head()
+
+
+dup_SRH_VESSEL_COMP_ID <-
+  compl_override_data__renamed__this_year |>
+  group_by(VESSEL_OFFICIAL_NUMBER, COMP_YEAR, COMP_WEEK) |>
+  mutate(dup_entries_in_compl = list(toString(unique(sort(SRH_VESSEL_COMP_ID))))) |>
+  # mutate(SRH_VESSEL_COMP_IDs = paste(SRH_VESSEL_COMP_ID)) |>
+  ungroup()
+# |>
+  # mutate_if(is.list, ~paste(unlist(.), collapse = ', ')) %>%
+
+# data[duplicated(data[,2:3]),]
+
+# str(dup_SRH_VESSEL_COMP_ID)
+dup_SRH_VESSEL_COMP_ID |>
+  mutate(dup_entries_in_compl_len =
+           length(dup_entries_in_compl)) |>
+  filter(dup_entries_in_compl_len > 1) |>
+  glimpse()
+
 in_compl_not_in_dnfs <-
   dnfs_join_overr |>
   filter(is.na(TRIP_ID)) |>
@@ -484,6 +516,7 @@ in_compl_not_in_dnfs <-
   distinct()
 
 nrow(in_compl_not_in_dnfs)
+
 
 in_dnfs_not_in_compl <-
   dnfs_join_overr |>
@@ -651,7 +684,7 @@ late_submission_filter <-
     return(dnf_df__temp)
   }
 
-### data frame of dnfs with late submission ----
+### Add a column with late submission ----
 
 SEFHIER_processed_dnfs__late_subm <-
   late_submission_filter(dnfs_join_overr__compl__usable__not_empty)
