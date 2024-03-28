@@ -98,22 +98,18 @@ choose_correspondence_dates <-
 
   }
 
-## choose year ----
-# <select id="P300_COMP_YEAR" name="P300_COMP_YEAR" class="selectlist apex-item-select" style="font-family:monospace; font-size:12px" size="1"><option value="2024" selected="selected">2024</option>
-# <option value="2023">2023</option>
-# <option value="2022">2022</option>
-# </select>
-remote_driver$findElement("id", 'P300_COMP_YEAR')$clickElement()
+choose_compliance_year <-
+  function(my_year) {
+    remote_driver$findElement("id", 'P300_COMP_YEAR')$clickElement()
 
-# /html/body/form/div[1]/div[2]/div[2]/div/div/div[1]/div/div/div[2]/div[2]/div[1]/div[2]/div[1]/div/div[2]/select/option[2]
-# 2023
-remote_driver$findElement("xpath", "//option[2]")$clickElement()
+    remote_driver$findElement("xpath", "//option[2]")$clickElement()
 
-# 2022
-# remote_driver$findElement("xpath", "//option[3]")$clickElement()
+    # 2022
+    # remote_driver$findElement("xpath", "//option[3]")$clickElement()
 
-# click search to load the year
-remote_driver$findElement("xpath", "//*[@id='B717215823519513218']")$clickElement()
+    # click search to load the year
+    remote_driver$findElement("xpath", "//*[@id='B717215823519513218']")$clickElement()
+  }
 
 # download ----
 get_all_buttons <-
@@ -124,8 +120,8 @@ get_all_buttons <-
     return(buttons_elements)
   }
 
-buttons_elements <- get_all_buttons()
-map(buttons_elements, ~ print(.x$getElementText()))
+# buttons_elements <- get_all_buttons()
+# map(buttons_elements, ~ print(.x$getElementText()))
 
 download_table <- function() {
   # there 3 layers, so we need to find buttons 3 time to load the last Download button
@@ -169,7 +165,6 @@ download_table <- function() {
   return(download_start_time)
 }
 
-# read_in ----
 ## find the downloaded file ----
 
 find_the_downloaded_file <-
@@ -204,21 +199,26 @@ find_the_downloaded_file <-
     return(newest_file_path)
   }
 
-file_name_pattern = "^Correspondence.*csv"
+# file_name_pattern = "^Correspondence.*csv"
+#
+# file_name_pattern = "^FHIER Compliance.*csv"
 
-file_name_pattern = "^FHIER Compliance.*csv"
+read_file <- function(file_name_pattern) {
+  newest_file_path_compl <-
+    find_the_downloaded_file(file_name_pattern)
 
-newest_file_path_compl <- find_the_downloaded_file(file_name_pattern)
-
-if (length(newest_file_path_compl) > 0) {
-  fhier_file_downloaded_compl <-
-    read_csv(newest_file_path_compl)
+  if (length(newest_file_path_compl) > 0) {
+    fhier_file_downloaded_compl <-
+      read_csv(newest_file_path_compl)
+  }
 }
 
-file_name_pattern_corr = "^Correspondence.*csv"
-newest_file_path_corr <- find_the_downloaded_file(file_name_pattern_corr)
+  # file_name_pattern_corr = "^Correspondence.*csv"
+  # newest_file_path_corr <-
+  #   find_the_downloaded_file(file_name_pattern_corr)
+  #
+  # if (length(newest_file_path_corr) > 0) {
+  #   fhier_file_downloaded_corr <-
+  #     read_csv(newest_file_path_corr)
+  # }
 
-if (length(newest_file_path_corr) > 0) {
-  fhier_file_downloaded_corr <-
-    read_csv(newest_file_path_corr)
-}
