@@ -8,13 +8,18 @@ require("tictoc")
 Sys.setenv(TZ = Sys.timezone())
 curr_tz <- Sys.timezone()
 
-remDr <- rsDriver(browser = "firefox",
-               chromever = NULL,
-               port = 4444L)
+start_browser <- function() {
+    remDr <- rsDriver(browser = "firefox",
+                      chromever = NULL,
+                      port = 4444L)
 
-remote_driver <- remDr[["client"]]
+    remote_driver <- remDr[["client"]]
 
-my_year <- "2022"
+    return(remote_driver)
+  }
+
+# remote_driver$close
+# my_year <- "2022"
 
 # remote_driver$setImplicitWaitTimeout(3000)
 # findElement(remDr, using = c("xpath", "css selector", "id", "name", "tag name", "class name", "link text", "partial link text"), value, ...)
@@ -24,7 +29,7 @@ login_into_fhier <- function() {
 
   remote_driver$navigate("https://grunt.sefsc.noaa.gov/apex/f?p=162:LOGIN_DESKTOP:12001011577015:::::")
 
-  print(remote_driver$getTitle() == "South East For-hire Electronic Reporting program")
+  # print(remote_driver$getTitle() == "South East For-hire Electronic Reporting program")
   # T
 
   # login ----
@@ -45,9 +50,8 @@ login_into_fhier <- function() {
   login_button$clickElement()
 }
 
-login_into_fhier()
+# login_into_fhier()
 
-# open compliance ----
 open_menu_item <- function(page_name) {
 
   menu_links <-
@@ -64,18 +68,35 @@ open_menu_item <- function(page_name) {
   menu_report$clickElement()
 }
 
-open_menu_item("Reports")
-
-# open FHIER COMPLIANCE REPORT ----
+# open_menu_item("Reports")
 
 # element_text = "FHIER COMPLIANCE REPORT"
 
-my_td = remote_driver$findElement(using = "xpath",
-                                  value = "/html/body/form/div[1]/div[2]/div[2]/div/div/div/div/div/div/div/div[2]/div[2]/div[6]/div[1]/table/tbody/tr[16]/td[1]")
+choose_correspondence_dates <-
+  function(start_date = "01/01/2023",
+           end_date = "12/31/2023") {
 
-# my_td$getElementAttribute("text")
+    start_date <-
+      remote_driver$findElement(using = "xpath",
+                                value = "//*[@id='P225_START_DT']")
 
-my_td$clickElement()
+    start_date$clickElement()
+    start_date$sendKeysToElement(list(start_date, key = "enter"))
+
+    end_date <-
+      remote_driver$findElement(using = "xpath",
+                                value = "//*[@id='P225_END_DT']")
+    end_date$clickElement()
+    end_date$sendKeysToElement(list(end_date, key = "enter"))
+
+    go_button <-
+      remote_driver$findElement(using = "xpath",
+                                value = "//*[@id='P225_GO']")
+
+    go_button$isElementDisplayed()
+    go_button$clickElement()
+
+  }
 
 ## choose year ----
 # <select id="P300_COMP_YEAR" name="P300_COMP_YEAR" class="selectlist apex-item-select" style="font-family:monospace; font-size:12px" size="1"><option value="2024" selected="selected">2024</option>
