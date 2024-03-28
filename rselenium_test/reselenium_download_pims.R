@@ -33,16 +33,16 @@ correct_page_title <-
 # T
 
 # choose applications
-
 my_text <- "Applications"
-appl_xpath <- str_glue("//*[contains(text(), '{my_text}')]")
+appl_xpath <- str_glue("//*p[contains(text(), '{my_text}')]")
 
-# tagName("body")).getText()
+appl_el <- remote_driver$findElement("xpath",
+                                     "//p[contains(text(), 'Applications')]")
 
-appl_el <- remote_driver$findElements("xpath", appl_xpath)
 
-appl_el[[1]]$getElementTagName()
-appl_el[[2]]$getElementTagName()
+# appl_el <- remote_driver$findElements("xpath", appl_xpath)
+
+appl_el$getElementTagName()
 
 
 # /html/body/div[1]/div[1]/main/div/div/div[1]/div/div/div[1]/div[1]/div/div/div/div[2]/div/p
