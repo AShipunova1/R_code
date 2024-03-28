@@ -5,6 +5,9 @@ require("RSelenium")
 require("tidyverse")
 require("tictoc")
 
+Sys.setenv(TZ = Sys.timezone())
+curr_tz <- Sys.timezone()
+
 remDr <- rsDriver(browser = "firefox",
                chromever = NULL,
                port = 4444L)
@@ -103,58 +106,84 @@ get_all_buttons <-
 buttons_elements <- get_all_buttons()
 map(buttons_elements, ~ print(.x$getElementText()))
 
-download_table <-
-  function() {
+download_table <- function() {
+  # there 3 layers, so we need to find buttons 3 time to load the last Download button
 
-for (element in buttons_elements) {
-  if (element$getElementText() == "Actions") {
-    action_button <- element
+  # 1
+  buttons_elements <- get_all_buttons()
+  for (element in buttons_elements) {
+    if (element$getElementText() == "Actions") {
+      action_button <- element
+    }
   }
-}
 
-action_button$clickElement()
+  action_button$clickElement()
 
-for (element in buttons_elements) {
-  print(element$getElementText())
-  if (element$getElementText() == "Download") {
-    download_button <- element
+  # 2
+  buttons_elements <- get_all_buttons()
+  # map(buttons_elements, ~ print(.x$getElementText()))
+  for (element in buttons_elements) {
+    if (element$getElementText() == "Download") {
+      download_button1 <- element
+    }
   }
-}
 
-download_button$isElementDisplayed()
+  download_button1$isElementDisplayed()
 
-download_button$clickElement()
+  download_button1$clickElement()
 
-
-#
-#   download_button <-
-#     remote_driver$findElement(using = "xpath",
-#                               value = "/html/body/div[5]/div[3]/div/button[2]")
+  # 3
+  buttons_elements <- get_all_buttons()
+  # map(buttons_elements, ~ print(.x$getElementText()))
+  for (element in buttons_elements) {
+    if (element$getElementText() == "Download") {
+      download_button <- element
+    }
+  }
 
   download_button$isElementDisplayed()
+
   download_button$clickElement()
+  download_start_time <- Sys.time()
+  return(download_start_time)
 }
 
 # read_in ----
 ## find the downloaded file ----
-download_folder <- file.path(r"(C:\Users\anna.shipunova\Downloads)")
 
-downloaded_compl_files <-
-  list.files(download_folder,
-             full.names = T,
-             pattern = "^FHIER Compliance.*csv")
+find_the_downloaded_file <-
+  function(file_name_pattern) {
+    download_folder <- file.path(r"(~\..\Downloads)")
+    # download_folder <- file.path(r"(C:\Users\anna.shipunova\Downloads)")
 
-# glimpse(downloaded_compl_files)
+    downloaded_compl_files <-
+      list.files(download_folder,
+                 full.names = T,
+                 pattern = file_name_pattern)
 
-files_info <-
-  file.info(downloaded_compl_files)
+    glimpse(downloaded_compl_files)
 
-newest_time <- max(files_info$mtime)
+    files_info <-
+      file.info(downloaded_compl_files)
 
-newest_file_path <-
-  files_info |>
-  filter(mtime == newest_time) |>
-  rownames()
+    # View(files_info)
 
-fhier_compl_downloaded <-
-  read_csv(newest_file_path)
+    # newest_time <- max(files_info$mtime) |> as.POSIXct(curr_tz)
+    # download_start_time |> as.POSIXct(curr_tz)
+
+    if (!newest_time > download_start_time) {
+      Sys.sleep(10)
+    }
+
+    newest_file_path <-
+      files_info |>
+      filter(mtime == newest_time) |>
+      rownames()
+
+    fhier_file_downloaded <-
+      read_csv(newest_file_path)
+
+    return(fhier_file_downloaded)
+  }
+file_name_pattern = "^FHIER Compliance.*csv"
+
