@@ -183,9 +183,21 @@ find_the_downloaded_file <-
     return(newest_file_path)
   }
 
+file_name_pattern = "^Correspondence.*csv"
+
 file_name_pattern = "^FHIER Compliance.*csv"
 
 newest_file_path_compl <- find_the_downloaded_file(file_name_pattern)
 
-fhier_file_downloaded <-
-  read_csv(newest_file_path_compl)
+if (length(newest_file_path_compl) > 0) {
+  fhier_file_downloaded_compl <-
+    read_csv(newest_file_path_compl)
+}
+
+file_name_pattern_corr = "^Correspondence.*csv"
+newest_file_path_corr <- find_the_downloaded_file(file_name_pattern_corr)
+
+if (length(newest_file_path_corr) > 0) {
+  fhier_file_downloaded_corr <-
+    read_csv(newest_file_path_corr)
+}
