@@ -4,6 +4,7 @@ require("rstudioapi")
 require("XML")
 require("tidyverse")
 require("tictoc")
+require("parallel")
 
 # ?RSelenium
 # remDr <- remoteDriver(remoteServerAddr = "localhost", port = 4444L,
@@ -275,3 +276,7 @@ download_button <-
 
 download_button$isElementDisplayed()
 download_button$clickElement()
+
+# ===
+n_cores <- detectCores()
+# 16
