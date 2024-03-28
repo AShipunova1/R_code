@@ -9,8 +9,8 @@ login_into_fhier()
 
 open_menu_item("Correspondence")
 
-start_date = "01/01/2023"
-end_date = "12/31/2023"
+start_date = str_glue("01/01/{my_year}")
+end_date = str_glue("12/31/{my_year}")
 
 choose_correspondence_dates(start_date,
                             end_date)
