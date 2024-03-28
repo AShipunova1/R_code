@@ -159,13 +159,16 @@ compl_override_data <-
   read_rds_or_run_query(compl_override_data_file_path,
                         compl_err_query)
 
-# check a week start day
+# check a week start day, should be Monday
 compl_override_data |>
   filter(COMP_YEAR == '2023' &
          COMP_WEEK == '50') |>
   select(COMP_WEEK_START_DT) |>
-  distinct() |> str()
+  distinct() |>
+  mutate(week_day = weekdays(COMP_WEEK_START_DT)) |>
+  str()
 # $ COMP_WEEK_START_DT: POSIXct, format: "2023-12-11".
+# $ week_day          : chr "Monday"
 # Monday - correct (https://calendar.online/calendar-weeks/2023/50)
 
 ### prep the compliance/override data ----
@@ -196,7 +199,7 @@ compl_override_data__renamed__this_year <-
                                          tz = Sys.timezone()))
 
 # check
-# That's the week 52 of (my_year - 1):
+# That's the week 52 of the previous year (my_year - 1):
 min(compl_override_data__renamed__this_year$COMP_WEEK_START_DT)
 # [1] "2021-12-27 EST" # this might contain the last week in the year before my_year, to account for a compliance week that overlaps last week of the year and first week of my_year
 min(compl_override_data__renamed__this_year$COMP_WEEK_END_DT)
@@ -267,7 +270,7 @@ TO_DATE('{my_date_end}', 'dd-mon-yy')
 dnfs <-
   read_rds_or_run_query(dnfs_file_path,
                         dnfs_download_query)
-# from scratch
+# from scratch (add parameter "force_from_db = TRUE")
 # 2024-03-25 run for Raw_Oracle_Downloaded_dnf_01-JAN-2022__31-DEC-2022.rds: 120.43 sec elapsed
 # 2024-03-25 run for Raw_Oracle_Downloaded_dnf_01-JAN-2023__31-DEC-2023.rds: 125.17 sec elapsed
 
@@ -291,7 +294,7 @@ dnfs_na_vessel |>
   left_join(processed_metrics_tracking,
             join_by(STATE_REG_NBR == VESSEL_OFFICIAL_NUMBER)) |>
   filter(!is.na(PERMITS)) |> glimpse()
-# 2
+# 2, that means this vessels will be lost from our results without the next step.
 
 # Explanations:
 # 1. Use 'mutate' to create or modify a column named 'VESSEL_OFFICIAL_NUMBER'.
@@ -454,13 +457,17 @@ diffdf::diffdf(dnfs_first_week_my_year, compl_first_week_my_year)
 
 ### join the dfs ----
 dnfs_join_overr <-
-  full_join(SEFHIER_dnfs_short_date__iso,
-            compl_override_data__renamed__this_year,
-            join_by(TRIP_DATE_YEAR == COMP_YEAR,
-                    VESSEL_OFFICIAL_NUMBER,
-                    TRIP_DATE_WEEK == COMP_WEEK),
-            relationship = "many-to-many"
+  full_join(
+    SEFHIER_dnfs_short_date__iso,
+    compl_override_data__renamed__this_year,
+    join_by(
+      TRIP_DATE_YEAR == COMP_YEAR,
+      VESSEL_OFFICIAL_NUMBER,
+      TRIP_DATE_WEEK == COMP_WEEK
+    ),
+    relationship = "many-to-many"
   )
+# to see the many-to-many relationship see find_duplicates_in_compl.R
 
 # check the difference
 in_compl_not_in_dnfs <-
@@ -470,7 +477,6 @@ in_compl_not_in_dnfs <-
   distinct()
 
 nrow(in_compl_not_in_dnfs)
-
 
 in_dnfs_not_in_compl <-
   dnfs_join_overr |>
