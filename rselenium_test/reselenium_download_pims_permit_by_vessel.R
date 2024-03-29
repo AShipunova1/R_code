@@ -127,17 +127,19 @@ my_table <- clean_names(my_table_0)
 in_dnfs_not_in_compl <-
 read_rds(r"(~\R_files_local\my_inputs\processing_logbook_data\Outputs\in_dnfs_not_in_compl.rds)")
 
+one_vsl_id <- "FL4858MB"
 res <-
   in_dnfs_not_in_compl$VESSEL_OFFICIAL_NUMBER |>
   map(\(one_vsl_id) {
     # browser()
     search_by_vessel_id(one_vsl_id)
-    Sys.sleep(15)
+    Sys.sleep(7)
     my_table_0 <- get_table_data()
-    if (nrow(my_table_0) > 0) {
-      my_table <- clean_names(my_table_0)
+
+    if (!my_table_0[1,1] == "No items available") {
+      my_table_0 <- clean_names(my_table_0)
     }
-    return(my_table)
+    return(my_table_0)
   })
 
 View(res)
