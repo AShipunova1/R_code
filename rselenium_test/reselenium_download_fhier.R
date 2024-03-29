@@ -8,18 +8,18 @@ require("tictoc")
 Sys.setenv(TZ = Sys.timezone())
 curr_tz <- Sys.timezone()
 
+# closes itself if ran from the function
 # start_browser <- function() {
-  extraCap = list("moz:firefoxOptions" = list(args = list('--headless')))
+extraCap = list("moz:firefoxOptions" = list(args = list('--headless')))
+# add bellow to rsDriver
+# , extraCapabilities = extraCap
 
-  remDr <- rsDriver(
-    browser = "firefox",
-    chromever = NULL,
-    port = 4444L
-    # ,
-    # extraCapabilities = extraCap
-  )
+remDr <- rsDriver(browser = "firefox",
+                  chromever = NULL,
+                  port = 4444L
+                  )
 
-  remote_driver <- remDr[["client"]]
+remote_driver <- remDr[["client"]]
 
   # return(remote_driver)
 # }
@@ -27,7 +27,6 @@ curr_tz <- Sys.timezone()
 # remote_driver$close
 # my_year <- "2022"
 
-# remote_driver$setImplicitWaitTimeout(3000)
 # findElement(remDr, using = c("xpath", "css selector", "id", "name", "tag name", "class name", "link text", "partial link text"), value, ...)
 
 # go to FHIER ----
@@ -183,7 +182,6 @@ download_table <- function() {
 find_the_downloaded_file <-
   function(file_name_pattern) {
     download_folder <- file.path(r"(~\..\Downloads)")
-    # download_folder <- file.path(r"(C:\Users\anna.shipunova\Downloads)")
 
     downloaded_compl_files <-
       list.files(download_folder,
@@ -195,10 +193,9 @@ find_the_downloaded_file <-
     files_info <-
       file.info(downloaded_compl_files)
 
-    # View(files_info)
+    # glimpse(files_info)
 
     newest_time <- max(files_info$mtime) |> as.POSIXct(curr_tz)
-    # download_start_time |> as.POSIXct(curr_tz)
 
     if (!newest_time > download_start_time) {
       Sys.sleep(10)
@@ -212,12 +209,6 @@ find_the_downloaded_file <-
     return(newest_file_path)
   }
 
-# file_name_pattern = "^Correspondence.*csv"
-# find_the_downloaded_file(file_name_pattern)
-
-#
-# file_name_pattern = "^FHIER Compliance.*csv"
-
 read_file <- function(file_name_pattern) {
   newest_file_path_compl <-
     find_the_downloaded_file(file_name_pattern)
@@ -226,14 +217,12 @@ read_file <- function(file_name_pattern) {
     fhier_file_downloaded_compl <-
       read_csv(newest_file_path_compl)
   }
+
+  return(fhier_file_downloaded_compl)
 }
 
-  # file_name_pattern_corr = "^Correspondence.*csv"
-  # newest_file_path_corr <-
-  #   find_the_downloaded_file(file_name_pattern_corr)
-  #
-  # if (length(newest_file_path_corr) > 0) {
-  #   fhier_file_downloaded_corr <-
-  #     read_csv(newest_file_path_corr)
-  # }
 
+# file_name_pattern = "^FHIER Compliance.*csv"
+
+# file_name_pattern = "^Correspondence.*csv"
+# correspondence_from_fhier <- read_file(file_name_pattern)
