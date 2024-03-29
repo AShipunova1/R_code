@@ -36,6 +36,9 @@ start_browser <- function() {
   }
 
 remote_driver <- start_browser()
+# rm(remote_driver)
+# gc(remote_driver)
+
 # remote_driver$close
 # my_year <- "2022"
 
@@ -45,20 +48,54 @@ remote_driver <- start_browser()
 # go to PIMS search ----
 remote_driver$navigate("https://appscloud.fisheries.noaa.gov/suite/sites/pims-search")
 
+# TODO: login
+# click ok
+# click accept
+# active_el <- remote_driver$getActiveElement()
+# active_el$getElementTagName()
+
 correct_page_title <-
   (remote_driver$getTitle() == "SEARCH - PIMS Search")
+correct_page_title
 # T
 
 # choose applications
-my_text <- "Applications"
-appl_xpath <- str_glue("//p[contains(text(), '{my_text}')]")
+# my_text <- "Applications"
+# appl_xpath <- str_glue("//p[contains(text(), '{my_text}')]")
+#
+# appl_el <- remote_driver$findElement("xpath",
+#                                      appl_xpath)
 
-appl_el <- remote_driver$findElement("xpath",
-                                     appl_xpath)
+# appl_el$getElementTagName()
+# p
+# appl_el$clickElement()
 
+# permits ----
+# <p class="ParagraphText---richtext_paragraph ParagraphText---default_direction ParagraphText---center elements---global_p" data-testid="ParagraphText-paragraph">Permits</p>
 
-appl_el$getElementTagName()
-appl_el$clickElement()
+permits_menu_item <-
+  remote_driver$findElement("xpath",
+                            "//p[contains(text(), 'Permits')]")
+
+length(permits_menu_item)
+
+permits_menu_item$clickElement()
+
+# class
+# "Button---accessibilityhidden")
+
+download_button <-
+  remote_driver$findElement(
+    "xpath",
+    "//span[contains(text(), 'Export to Excel - Exports the currently filtered list of records as an Excel file.')]"
+  )
+
+download_button$clickElement()
+
+# "C:\Users\anna.shipunova\Downloads\Permits - 2024-03-29_1112(1).xlsx"
+
+# download_permits <-
+#   <span class="Button---accessibilityhidden">Export to Excel - Exports the currently filtered list of records as an Excel file.</span></button>
 
 # application search ----
 # /html/body/div[1]/div[1]/main/div/div/div[1]/div/div/div[2]/div[2]/div/div[1]/div[2]/div[2]/div/div[1]/div/div/div[1]/div[1]/div/div[1]/div/div[2]/div/div/input
@@ -67,6 +104,47 @@ appl_el$clickElement()
 
 
 # applications status ----
+
+# <div
+# class="MultipleDropdownWidget---dropdown_value
+# MultipleDropdownWidget---inSideBySideItem
+# MultipleDropdownWidget---has_inline_label"
+# id="37099fe221b530cddc0f9d1b0260154d_value"
+# role="combobox"
+# aria-autocomplete="list"
+# tabindex="0"
+# aria-controls="37099fe221b530cddc0f9d1b0260154d_list"
+# aria-expanded="false"
+# aria-activedescendant=""
+# aria-labelledby="37099fe221b530cddc0f9d1b0260154d_inlineLabel">
+# <span>
+# <span
+# class="MultipleDropdownWidget---inline_label"
+# aria-hidden="true"
+# id="37099fe221b530cddc0f9d1b0260154d_inlineLabel">Application
+# Status
+# </span>
+# <span
+# id="37099fe221b530cddc0f9d1b0260154d_value_span"
+# class="MultipleDropdownWidget---value_display"
+# data-placeholder="Any">
+# </span>
+# <svg
+# focusable="false"
+# tabindex="-1"
+# class="MultipleDropdownWidget---dropdown_caret"
+# width="320"
+# height="512"
+# viewBox="0
+# 0
+# 320
+# 512"
+# xmlns="http://www.w3.org/2000/svg"
+# aria-hidden="true">
+# </svg>
+# </span>
+# </div>
+
 # <div class="MultipleDropdownWidget---dropdown_value MultipleDropdownWidget---inSideBySideItem MultipleDropdownWidget---has_inline_label" id="c0ef4b68cec0347a3f2ab5421f02fa7d_value" role="combobox" aria-autocomplete="list" tabindex="0" aria-controls="c0ef4b68cec0347a3f2ab5421f02fa7d_list" aria-expanded="false" aria-activedescendant="" aria-labelledby="c0ef4b68cec0347a3f2ab5421f02fa7d_inlineLabel" aria-describedby="c0ef4b68cec0347a3f2ab5421f02fa7d_placeholder"><span><span class="MultipleDropdownWidget---inline_label" aria-hidden="true" id="c0ef4b68cec0347a3f2ab5421f02fa7d_inlineLabel">Application Status</span><span id="c0ef4b68cec0347a3f2ab5421f02fa7d_placeholder" class="MultipleDropdownWidget---accessibilityhidden">Any</span><span id="c0ef4b68cec0347a3f2ab5421f02fa7d_value_span" class="MultipleDropdownWidget---value_display" data-placeholder="Any"></span><svg focusable="false" tabindex="-1" class="MultipleDropdownWidget---dropdown_caret" width="320" height="512" viewBox="0 0 320 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"></path></svg></span></div>
 
 # applications_status_menu <- remote_driver$findElement("xpath",
@@ -74,16 +152,45 @@ appl_el$clickElement()
 
 # robj$findElement(using = "class", "class name")
 
+# add wait and check
+# remote_driver$
+
 applications_status_menu <-
   remote_driver$findElements("class",
 "MultipleDropdownWidget---dropdown_caret")
 
-applications_status_menu |>
-  map(~.x$getElementTagName())
+# while (length(applications_status_menu) == 0) {
+#   Sys.sleep(5)
+#   applications_status_menu <-
+#     remote_driver$findElements("class",
+#                                "MultipleDropdownWidget---dropdown_caret")
+#
+# }
+
+# applications_status_menu |>
+  # map(~.x$getElementTagName())
+# svg
 
 # getAttribute("aria-expanded")
 applications_status_menu[[1]]$clickElement()
 # svg
+
+# menu elements from application status -----
+applications_status_menu_elements <-
+  remote_driver$findElements("class",
+"MultipleDropdownWidget---dropdown_value")
+
+applications_status_menu_elements |> length()
+# class="MultipleDropdownWidget---dropdown_value
+# aria-activedescendant=""
+
+applications_status_menu_elements[[1]]$getElementAttribute("aria-activedescendant")
+
+applications_status_menu_elements[[1]]$findElements("xpath",                                                         "aria-activedescendant")
+
+# aa <- remote_driver$screenshot()
+
+# glimpse(aa)
 
 # class="MultipleDropdownWidget---dropdown_caret"
 # element = driver.findElement(sectionheader);
@@ -91,16 +198,36 @@ applications_status_menu[[1]]$clickElement()
 #     element.click();
 # }
 
-# applications_status_menu <- remote_driver$findElement("xpath",
-# "//label[contains('Application Status')]")
+# applications_status_menu1 <- remote_driver$findElement("xpath",
+# "//*[contains('Application Status')]")
 
-applications_status_menu$getElementTagName()
-applications_status_menu$getElementValueOfCssProperty("id")
-applications_status_menu$getElementValueOfCssProperty("class")
+applications_status_menu[[1]]$getElementTagName()
+# svg
+# applications_status_menu[[1]]$getElementValueOfCssProperty("id")
+# applications_status_menu[[1]]$getElementValueOfCssProperty("class")
 # [1] "APPLICATION STATUS\nAny"
 
+applications_status_menu[[1]]$findChildElements("xpath",
+                                                "//*[@id='P225_START_DT']")
 
-# applications_status_menu[[1]]$highlightElement()
+outer_html1 <- applications_status_menu[[1]]$getElementAttribute("outerHTML")
+
+outer_html2 <- applications_status_menu[[2]]$getElementAttribute("outerHTML")
+
+outer_html2
+table <- read_html(applications_status_menu[[1]]$getElementAttribute("outerHTML")[[1]]) # get html
+# And use rvest to extract the lines of the table:
+
+meta_html <- table |> html_nodes(tag = "//tr[@class='base ng-scope']")
+
+table_text <- html_text(table)
+
+
+
+# table %>% html_elements()
+  # html_nodes(xpath = "//tr[@class='base ng-scope']")
+
+applications_status_menu[[1]]$highlightElement()
 
 # "aria-activedescendant"
 # read the page with menu ----
@@ -114,7 +241,7 @@ glimpse(doc)
 page_with_menu_1 <-
   page_with_menu |> str_split("><")
 
-View(page_with_menu_1)
+glimpse(page_with_menu_1)
 
 # bodyText = remote_driver('body').text
 
@@ -122,12 +249,12 @@ grep("Closed", page_with_menu, value = T) |> glimpse()
 
 # <div class="MultipleDropdownWidget---dropdown_value MultipleDropdownWidget---inSideBySideItem MultipleDropdownWidget---has_inline_label" id="c0ef4b68cec0347a3f2ab5421f02fa7d_value" role="combobox" aria-autocomplete="list" tabindex="0" aria-controls="c0ef4b68cec0347a3f2ab5421f02fa7d_list" aria-expanded="false" aria-activedescendant="" aria-labelledby="c0ef4b68cec0347a3f2ab5421f02fa7d_inlineLabel" aria-describedby="c0ef4b68cec0347a3f2ab5421f02fa7d_placeholder"><span><span class="MultipleDropdownWidget---inline_label" aria-hidden="true" id="c0ef4b68cec0347a3f2ab5421f02fa7d_inlineLabel">Application Status</span><span id="c0ef4b68cec0347a3f2ab5421f02fa7d_placeholder" class="MultipleDropdownWidget---accessibilityhidden">Any</span><span id="c0ef4b68cec0347a3f2ab5421f02fa7d_value_span" class="MultipleDropdownWidget---value_display" data-placeholder="Any"></span><svg focusable="false" tabindex="-1" class="MultipleDropdownWidget---dropdown_caret" width="320" height="512" viewBox="0 0 320 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"></path></svg></span></div>
 
-map(1:16,
-    \(curr_num) {
-      # setElementAttribute(attributeName, value)
-
-      applications_status_menu$setElementAttribute("aria-activedescendant", "37099fe221b530cddc0f9d1b0260154d_list_3")
-    })
+# map(1:16,
+#     \(curr_num) {
+#       # setElementAttribute(attributeName, value)
+#
+#       applications_status_menu$setElementAttribute("aria-activedescendant", "37099fe221b530cddc0f9d1b0260154d_list_3")
+#     })
 
 
 
