@@ -180,7 +180,7 @@ download_table <- function() {
 
 ## find the downloaded file ----
 
-file_name_pattern <- "Permit"
+# file_name_pattern <- "Permit"
 find_the_downloaded_file <-
   function(file_name_pattern) {
     download_folder <- file.path(r"(~\..\Downloads)")
