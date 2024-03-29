@@ -49,13 +49,9 @@ search_perm1[[1]]$sendKeysToElement(list(key = 'control',
 
 search_perm1[[1]]$sendKeysToElement(list(key = "delete"))
 
-search_perm1[[1]]$sendKeysToElement(list(key = "CONTROL",
-                                         key = "A"))
-
 search_perm1[[1]]$sendKeysToElement(list("NC9069EA", key = "enter"))
 
-search_perm1[[1]]$getActiveElement()
-  clearElement()
+search_perm1[[1]]$clickElement()
 
 l_length = search_perm1[[1]]$getElementAttribute('value') |> str_length()
 
