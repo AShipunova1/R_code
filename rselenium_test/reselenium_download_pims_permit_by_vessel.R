@@ -10,7 +10,7 @@ correct_page_title
 # T
 
 # go to Permits ----
-Sys.sleep(10)
+Sys.sleep(20)
 permits_menu_item <-
   remote_driver$findElement("xpath",
                             "//p[contains(text(), 'Permits')]")
@@ -69,21 +69,49 @@ search_perm1[[1]]$sendKeysToElement(list(key = "delete"))
 
 search_perm1[[1]]$sendKeysToElement(list("NC9069EA", key = "enter"))
 
+search_by_vessel_id <- function(vessel_official_number) {
+
+  search_perm1 <-
+    remote_driver$findElements("tag name",
+                               "input")
+
+  search_perm1[[1]]$getElementAttribute("placeholder") == "Search Permits"
+  # T
+
+  search_perm1[[1]]$clickElement()
+
+  search_perm1[[1]]$sendKeysToElement(list(key = 'control',
+                                           key = 'shift',
+                                           key = 'up_arrow'))
+
+  search_perm1[[1]]$sendKeysToElement(list(key = "delete"))
+
+  search_perm1[[1]]$sendKeysToElement(list(vessel_official_number,
+                                           key = "enter"))
+  # search_perm1[[1]]$sendKeysToElement(list("NC9069EA", key = "enter"))
+
+  }
+
 # get the table ----
 
-doc <- htmlParse(remote_driver$getPageSource()[[1]])
-my_table_list <- readHTMLTable(doc)
+get_table_data <- function() {
+  doc <- htmlParse(remote_driver$getPageSource()[[1]])
+  my_table_list <- readHTMLTable(doc)
 
-my_table_0 <- my_table_list[[1]]
-my_table_names <- my_table_0 |> names()
+  my_table_0 <- my_table_list[[1]]
+  return(my_table_0)
+}
+
+# my_table_names <- my_table_0 |> names()
 # View(tt[[1]])
-df <- my_table_0
+# df <- my_table_0
 clean_names <- function(df) {
   names(df) <-
     gsub(' Sortable column, activate to sort ascending', '', names(df))
   names(df) <- str_sub(names(df), 1, nchar(names(df))/2)
   names(df) <- tolower(names(df))
   names(df) <- gsub("\\W", "_", names(df))
+
   df <- rename(df, request_type = reques)
   df
 }
@@ -96,4 +124,20 @@ my_table <- clean_names(my_table_0)
 # use in dnfs validations
 # in the loop check expiration dates
 
+in_dnfs_not_in_compl <-
+read_rds(r"(~\R_files_local\my_inputs\processing_logbook_data\Outputs\in_dnfs_not_in_compl.rds)")
 
+res <-
+  in_dnfs_not_in_compl$VESSEL_OFFICIAL_NUMBER |>
+  map(\(one_vsl_id) {
+    # browser()
+    search_by_vessel_id(one_vsl_id)
+    Sys.sleep(15)
+    my_table_0 <- get_table_data()
+    if (nrow(my_table_0) > 0) {
+      my_table <- clean_names(my_table_0)
+    }
+    return(my_table)
+  })
+
+View(res)
