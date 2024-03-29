@@ -1,3 +1,5 @@
+source("reselenium_download_fhier.R")
+
 # pims search
 # go past warning
 # login
@@ -77,7 +79,7 @@ permits_menu_item <-
   remote_driver$findElement("xpath",
                             "//p[contains(text(), 'Permits')]")
 
-length(permits_menu_item)
+# length(permits_menu_item)
 
 permits_menu_item$clickElement()
 
@@ -92,7 +94,31 @@ download_button <-
 
 download_button$clickElement()
 
+download_start_time <- Sys.time()
+
+# download_start_time <- download_table()
+
+## read the downloaded file ----
+
 # "C:\Users\anna.shipunova\Downloads\Permits - 2024-03-29_1112(1).xlsx"
+file_name_pattern = "^Permits .*xlsx"
+permits_from_pims <- read_new_file(file_name_pattern)
+glimpse(permits_from_pims)
+# mv out first 3 rows,
+# rm first 3 columns
+# rename columns as in X4,
+
+permits_from_pims_3_r <-
+  permits_from_pims[1:3,]
+
+all_rows <- nrow(permits_from_pims)
+permits_from_pims_clean <-
+  permits_from_pims[4:all_rows,]
+
+names(permits_from_pims_clean) <- permits_from_pims_clean[1,]
+
+permits_from_pims_clean <-
+  tail(dat, -1)
 
 # download_permits <-
 #   <span class="Button---accessibilityhidden">Export to Excel - Exports the currently filtered list of records as an Excel file.</span></button>
