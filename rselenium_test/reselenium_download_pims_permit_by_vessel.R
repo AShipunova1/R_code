@@ -22,6 +22,14 @@ permits_menu_item$clickElement()
 # <input id="14a393859d6e0ef83ad3900b7b3b91fe" type="text" class="TextInput---text TextInput---align_start TextInput---inSideBySideItem TextInput---has_clear_link" placeholder="Search Permits" value="FL8151TE">
 
 # "//*[contains(text(), 'Any')]/../../..")
+
+search_perm1 <-
+  remote_driver$findElements("tag name",
+                             "input")
+
+search_perm1[[1]]$getElementAttribute("placeholder") == "Search Permits"
+# T
+
 search_perm <-
   remote_driver$findElements("xpath",
                              "//*[contains(text(), 'Search Permits')]")
