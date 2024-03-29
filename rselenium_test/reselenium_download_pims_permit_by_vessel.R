@@ -30,6 +30,41 @@ search_perm1 <-
 search_perm1[[1]]$getElementAttribute("placeholder") == "Search Permits"
 # T
 
+search_perm1[[1]]$clickElement()
+
+ # webElement.sendKeys(Keys.CONTROL + "a")
+ # webElement.sendKeys(Keys.DELETE)
+
+# webElem3 <- remDr$findElement(
+# using = "xpath",
+# value = '//input[@name = "q"]'
+# )
+# Enter some text in the search box
+
+search_perm1[[1]]$sendKeysToElement(list("NC9069EA", key = "enter"))
+
+search_perm1[[1]]$sendKeysToElement(list(key = 'control',
+                                         key = 'shift',
+                                         key = 'up_arrow'))
+
+search_perm1[[1]]$sendKeysToElement(list(key = "delete"))
+
+search_perm1[[1]]$sendKeysToElement(list(key = "CONTROL",
+                                         key = "A"))
+
+search_perm1[[1]]$sendKeysToElement(list("NC9069EA", key = "enter"))
+
+search_perm1[[1]]$getActiveElement()
+  clearElement()
+
+l_length = search_perm1[[1]]$getElementAttribute('value') |> str_length()
+
+    # element.send_keys(l_length * Keys.BACKSPACE)
+
+# length = len(element.get_attribute('value'))
+# element.send_keys(length * Keys.BACKSPACE)
+
+
 search_perm <-
   remote_driver$findElements("xpath",
                              "//*[contains(text(), 'Search Permits')]")
