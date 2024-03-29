@@ -212,7 +212,7 @@ find_the_downloaded_file <-
   }
 
 read_new_file <- function(file_name_pattern) {
-  browser()
+  # browser()
   newest_file_path <-
     find_the_downloaded_file(file_name_pattern)
 
