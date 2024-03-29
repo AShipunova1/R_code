@@ -4,6 +4,7 @@ require("RSelenium")
 # require("XML")
 require("tidyverse")
 require("tictoc")
+require("openxlsx")
 
 Sys.setenv(TZ = Sys.timezone())
 curr_tz <- Sys.timezone()
@@ -179,19 +180,20 @@ download_table <- function() {
 
 ## find the downloaded file ----
 
+file_name_pattern <- "Permit"
 find_the_downloaded_file <-
   function(file_name_pattern) {
     download_folder <- file.path(r"(~\..\Downloads)")
 
-    downloaded_compl_files <-
+    downloaded_files <-
       list.files(download_folder,
                  full.names = T,
                  pattern = file_name_pattern)
 
-    # glimpse(downloaded_compl_files)
+    # glimpse(downloaded_files)
 
     files_info <-
-      file.info(downloaded_compl_files)
+      file.info(downloaded_files)
 
     # glimpse(files_info)
 
@@ -209,20 +211,33 @@ find_the_downloaded_file <-
     return(newest_file_path)
   }
 
-read_file <- function(file_name_pattern) {
-  newest_file_path_compl <-
+read_new_file <- function(file_name_pattern) {
+  browser()
+  newest_file_path <-
     find_the_downloaded_file(file_name_pattern)
 
-  if (length(newest_file_path_compl) > 0) {
-    fhier_file_downloaded_compl <-
-      read_csv(newest_file_path_compl)
+  if (length(newest_file_path) > 0) {
+
+    if (grepl("xlsx$", file_name_pattern))
+    {
+      my_file_downloaded <-
+        read.xlsx(newest_file_path,
+                  colNames = TRUE)
+    }
+    else if (grepl("csv$", file_name_pattern))
+    {
+      my_file_downloaded <-
+        read_csv(newest_file_path)
+    }
+    else {
+      print(str_glue("Don't know how to read {file_name_pattern}"))
+    }
+
+    return(my_file_downloaded)
   }
-
-  return(fhier_file_downloaded_compl)
 }
-
 
 # file_name_pattern = "^FHIER Compliance.*csv"
 
 # file_name_pattern = "^Correspondence.*csv"
-# correspondence_from_fhier <- read_file(file_name_pattern)
+# correspondence_from_fhier <- read_new_file(file_name_pattern)
