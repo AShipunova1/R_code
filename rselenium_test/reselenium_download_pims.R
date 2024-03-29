@@ -109,16 +109,17 @@ glimpse(permits_from_pims)
 # rename columns as in X4,
 
 permits_from_pims_3_r <-
-  permits_from_pims[1:3,]
+  slice(permits_from_pims, 3)
 
-all_rows <- nrow(permits_from_pims)
+permits_from_pims_clean0 <-
+  tail(permits_from_pims, -3)
+
+names(permits_from_pims_clean0) <- permits_from_pims_clean0[1,]
+
 permits_from_pims_clean <-
-  permits_from_pims[4:all_rows,]
+  tail(permits_from_pims_clean0, -1)
 
-names(permits_from_pims_clean) <- permits_from_pims_clean[1,]
-
-permits_from_pims_clean <-
-  tail(dat, -1)
+# View(permits_from_pims_clean)
 
 # download_permits <-
 #   <span class="Button---accessibilityhidden">Export to Excel - Exports the currently filtered list of records as an Excel file.</span></button>
