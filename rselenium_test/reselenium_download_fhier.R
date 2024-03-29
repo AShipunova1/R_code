@@ -31,7 +31,7 @@ curr_tz <- Sys.timezone()
 # findElement(remDr, using = c("xpath", "css selector", "id", "name", "tag name", "class name", "link text", "partial link text"), value, ...)
 
 # go to FHIER ----
-# login_into_fhier <- function() {
+login_into_fhier <- function() {
 
   # remote_driver <- start_browser()
   remote_driver$navigate("https://grunt.sefsc.noaa.gov/apex/f?p=162:LOGIN_DESKTOP:12001011577015:::::")
@@ -57,7 +57,7 @@ curr_tz <- Sys.timezone()
   login_button$clickElement()
 
   # return(remote_driver)
-# }
+}
 
 # remote_driver <- login_into_fhier()
 
@@ -165,16 +165,18 @@ download_table <- function() {
   # map(buttons_elements, ~ print(.x$getElementText()))
   for (element in buttons_elements) {
     if (element$getElementText() == "Download") {
-      download_button <- element
+      download_button2 <- element
     }
   }
 
-  download_button$isElementDisplayed()
+  download_button2$isElementDisplayed()
 
-  download_button$clickElement()
+  download_button2$clickElement()
   download_start_time <- Sys.time()
   return(download_start_time)
 }
+
+# download_start_time <- download_table()
 
 ## find the downloaded file ----
 
@@ -195,7 +197,7 @@ find_the_downloaded_file <-
 
     # View(files_info)
 
-    # newest_time <- max(files_info$mtime) |> as.POSIXct(curr_tz)
+    newest_time <- max(files_info$mtime) |> as.POSIXct(curr_tz)
     # download_start_time |> as.POSIXct(curr_tz)
 
     if (!newest_time > download_start_time) {
@@ -211,6 +213,8 @@ find_the_downloaded_file <-
   }
 
 # file_name_pattern = "^Correspondence.*csv"
+# find_the_downloaded_file(file_name_pattern)
+
 #
 # file_name_pattern = "^FHIER Compliance.*csv"
 
