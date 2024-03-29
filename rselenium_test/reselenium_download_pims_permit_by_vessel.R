@@ -41,6 +41,14 @@ search_perm1[[1]]$clickElement()
 # )
 # Enter some text in the search box
 
+search_perm <-
+  remote_driver$findElements("xpath",
+                             "//*[contains(text(), 'Search Permits')]")
+
+search_perm[[1]]$clickElement()
+
+# search_perm[[1]]$getElementTagName()
+
 search_perm1[[1]]$sendKeysToElement(list("NC9069EA", key = "enter"))
 
 search_perm1[[1]]$sendKeysToElement(list(key = 'control',
@@ -49,29 +57,17 @@ search_perm1[[1]]$sendKeysToElement(list(key = 'control',
 
 search_perm1[[1]]$sendKeysToElement(list(key = "delete"))
 
-search_perm1[[1]]$sendKeysToElement(list("NC9069EA", key = "enter"))
+search_perm1[[1]]$sendKeysToElement(list("FL8151TE", key = "enter"))
 
 search_perm1[[1]]$clickElement()
 
-l_length = search_perm1[[1]]$getElementAttribute('value') |> str_length()
+search_perm1[[1]]$sendKeysToElement(list(key = 'control',
+                                         key = 'shift',
+                                         key = 'up_arrow'))
 
-    # element.send_keys(l_length * Keys.BACKSPACE)
+search_perm1[[1]]$sendKeysToElement(list(key = "delete"))
 
-# length = len(element.get_attribute('value'))
-# element.send_keys(length * Keys.BACKSPACE)
-
-
-search_perm <-
-  remote_driver$findElements("xpath",
-                             "//*[contains(text(), 'Search Permits')]")
-
-search_perm[[1]]$clickElement()
-
-search_perm[[1]]$getElementTagName()
-
-search_perm[[1]]$getElementAttribute("id")
-search_perm[[1]]$
-FL8151TE
+search_perm1[[1]]$sendKeysToElement(list("NC9069EA", key = "enter"))
 
 # get the table ----
 
@@ -95,3 +91,9 @@ clean_names <- function(df) {
 my_table <- clean_names(my_table_0)
 
 # View(my_table)
+
+# TODO:
+# use in dnfs validations
+# in the loop check expiration dates
+
+
