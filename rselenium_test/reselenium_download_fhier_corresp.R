@@ -2,19 +2,33 @@
 
 source("reselenium_download_fhier.R")
 
-remote_driver <- start_browser()
 my_year <- "2023"
 
+remote_driver$getStatus()
+# remDr$server$stop()
+# remote_driver$close()
+
 login_into_fhier()
+# open_menu_item("Reports")
 
 open_menu_item("Correspondence")
 
-start_date = str_glue("01/01/{my_year}")
-end_date = str_glue("12/31/{my_year}")
+curr_start_date = str_glue("01/01/{my_year}")
+curr_end_date = str_glue("12/31/{my_year}")
 
-choose_correspondence_dates(start_date,
-                            end_date)
+choose_correspondence_dates(curr_start_date,
+                            curr_end_date)
 
+# buttons_elements <- get_all_buttons()
+# map(buttons_elements, ~ print(.x$getElementText()))
+
+download_start_time <- download_table()
+
+file_name_pattern = "^Correspondence.*csv"
+# find_the_downloaded_file(file_name_pattern)
+correspondence_from_fhier <- read_file(file_name_pattern)
+
+glimpse(correspondence_from_fhier)
 
 # # setup ----
 # require("RSelenium")
