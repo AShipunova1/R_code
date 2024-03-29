@@ -8,15 +8,21 @@ require("tictoc")
 Sys.setenv(TZ = Sys.timezone())
 curr_tz <- Sys.timezone()
 
-start_browser <- function() {
-    remDr <- rsDriver(browser = "firefox",
-                      chromever = NULL,
-                      port = 4444L)
+# start_browser <- function() {
+  extraCap = list("moz:firefoxOptions" = list(args = list('--headless')))
 
-    remote_driver <- remDr[["client"]]
+  remDr <- rsDriver(
+    browser = "firefox",
+    chromever = NULL,
+    port = 4444L
+    # ,
+    # extraCapabilities = extraCap
+  )
 
-    return(remote_driver)
-  }
+  remote_driver <- remDr[["client"]]
+
+  # return(remote_driver)
+# }
 
 # remote_driver$close
 # my_year <- "2022"
@@ -25,8 +31,9 @@ start_browser <- function() {
 # findElement(remDr, using = c("xpath", "css selector", "id", "name", "tag name", "class name", "link text", "partial link text"), value, ...)
 
 # go to FHIER ----
-login_into_fhier <- function() {
+# login_into_fhier <- function() {
 
+  # remote_driver <- start_browser()
   remote_driver$navigate("https://grunt.sefsc.noaa.gov/apex/f?p=162:LOGIN_DESKTOP:12001011577015:::::")
 
   # print(remote_driver$getTitle() == "South East For-hire Electronic Reporting program")
@@ -48,10 +55,13 @@ login_into_fhier <- function() {
                               value = "B705187520008063447")
 
   login_button$clickElement()
-}
 
-# login_into_fhier()
+  # return(remote_driver)
+# }
 
+# remote_driver <- login_into_fhier()
+
+# glimpse(remote_driver)
 open_menu_item <- function(page_name) {
 
   menu_links <-
@@ -73,21 +83,22 @@ open_menu_item <- function(page_name) {
 # element_text = "FHIER COMPLIANCE REPORT"
 
 choose_correspondence_dates <-
-  function(start_date = "01/01/2023",
-           end_date = "12/31/2023") {
+  function(curr_start_date = "01/01/2023",
+           curr_end_date = "12/31/2023") {
 
     start_date <-
       remote_driver$findElement(using = "xpath",
                                 value = "//*[@id='P225_START_DT']")
 
     start_date$clickElement()
-    start_date$sendKeysToElement(list(start_date, key = "enter"))
+    # start_date$sendKeysToActiveElement(list(curr_start_date, key = "enter"))
+    start_date$sendKeysToElement(list(curr_start_date, key = "enter"))
 
     end_date <-
       remote_driver$findElement(using = "xpath",
                                 value = "//*[@id='P225_END_DT']")
     end_date$clickElement()
-    end_date$sendKeysToElement(list(end_date, key = "enter"))
+    end_date$sendKeysToElement(list(curr_end_date, key = "enter"))
 
     go_button <-
       remote_driver$findElement(using = "xpath",
