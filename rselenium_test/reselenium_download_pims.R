@@ -17,9 +17,10 @@
 # setup ----
 require("RSelenium")
 # require("rstudioapi")
-# require("XML")
+require("XML")
 require("tidyverse")
 require("tictoc")
+require("rvest")
 
 Sys.setenv(TZ = Sys.timezone())
 curr_tz <- Sys.timezone()
@@ -99,9 +100,25 @@ applications_status_menu$getElementValueOfCssProperty("class")
 # [1] "APPLICATION STATUS\nAny"
 
 
-applications_status_menu$highlightElement()
+# applications_status_menu[[1]]$highlightElement()
 
+# "aria-activedescendant"
+# read the page with menu ----
+page_with_menu <- remote_driver$getPageSource()[[1]]
+doc <- xml2::read_html(page_with_menu)
 
+# page_with_menu <- htmlParse(remote_driver$getPageSource()[[1]])
+
+glimpse(doc)
+
+page_with_menu_1 <-
+  page_with_menu |> str_split("><")
+
+View(page_with_menu_1)
+
+# bodyText = remote_driver('body').text
+
+grep("Closed", page_with_menu, value = T) |> glimpse()
 
 # <div class="MultipleDropdownWidget---dropdown_value MultipleDropdownWidget---inSideBySideItem MultipleDropdownWidget---has_inline_label" id="c0ef4b68cec0347a3f2ab5421f02fa7d_value" role="combobox" aria-autocomplete="list" tabindex="0" aria-controls="c0ef4b68cec0347a3f2ab5421f02fa7d_list" aria-expanded="false" aria-activedescendant="" aria-labelledby="c0ef4b68cec0347a3f2ab5421f02fa7d_inlineLabel" aria-describedby="c0ef4b68cec0347a3f2ab5421f02fa7d_placeholder"><span><span class="MultipleDropdownWidget---inline_label" aria-hidden="true" id="c0ef4b68cec0347a3f2ab5421f02fa7d_inlineLabel">Application Status</span><span id="c0ef4b68cec0347a3f2ab5421f02fa7d_placeholder" class="MultipleDropdownWidget---accessibilityhidden">Any</span><span id="c0ef4b68cec0347a3f2ab5421f02fa7d_value_span" class="MultipleDropdownWidget---value_display" data-placeholder="Any"></span><svg focusable="false" tabindex="-1" class="MultipleDropdownWidget---dropdown_caret" width="320" height="512" viewBox="0 0 320 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"></path></svg></span></div>
 
