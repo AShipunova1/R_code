@@ -488,7 +488,7 @@ nrow(in_dnfs_not_in_compl)
 
 # TODO: validate in_compl_not_in_dnfs and in_dnfs_not_in_compl
 # my_year
-# View(in_dnfs_not_in_compl)
+# glimpse(in_dnfs_not_in_compl)
 
 # stats
 my_stats(SEFHIER_dnfs_short_date__iso)
