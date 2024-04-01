@@ -60,7 +60,8 @@ get_row_idx <- function() {
 my_idx <- get_row_idx()
 
 all_table_rows[[my_idx]]$getElementAttribute('innerHTML')
-
+a_tag <- all_table_rows[[my_idx]]$findChildElement("tag name", "a")
+a_tag$clickElement()
 
 my_idx
 all_td <- my_tr$findChildElements("xpath",
