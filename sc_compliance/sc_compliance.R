@@ -120,45 +120,17 @@ SC_permittedVessels <- read_excel(
   guess_max = 21474836
 )
 
+# fix dates in headers
 date_names <- names(SC_permittedVessels)[7:18] |>
   convertToDate() |> format("%b-%y")
 
-
 names(SC_permittedVessels)[7:18] <-
   date_names
-# |> toString()
-# |> str_split(' ')
-
-
-date_names_list <-
-  date_names |>
-  str_split(' ')
-
 
 names(SC_permittedVessels)
 
-    # setNames(., c('id', format(as.Date(as.numeric(names(.)[-1]),
-                   # origin = '1899-12-30'), '%m/%d/%Y')))
-
-
-# SC_permittedVessels  <-
-#   load_xls_names(my_paths, xsl_names_list, 1)
-
-str(SC_permittedVessels)
+dim(SC_permittedVessels)
 # [1] 215  18
-
-# for test purposes add random 0 and 1, change to real compliance data from SC when avalable
-SC_permittedVessels_compl <-
-  SC_permittedVessels |>
-  mutate(is_compl_sc =
-           sample(
-             0:1,
-             size = nrow(SC_permittedVessels),
-             replace = TRUE
-           )) |>
-  clean_headers()
-
-# View(SC_permittedVessels_compl)
 
 ## get logbooks ----
 logbooks_path <- file.path(
@@ -182,15 +154,15 @@ dnfs <-
   read_rds(dnfs_path) |>
   clean_headers()
 
-# View(dnfs)
+# dim(dnfs)
 
 # combine data ----
-print_df_names(SC_permittedVessels_compl)
+print_df_names(SC_permittedVessels)
 print_df_names(compl_override_data__renamed)
 
 sc_fhier <-
   left_join(
-    SC_permittedVessels_compl,
+    SC_permittedVessels,
     compl_override_data__renamed,
     join_by(vessel_reg_uscg_ == vessel_official_number)
   )
@@ -199,12 +171,13 @@ sc_fhier <-
 
 non_compliant_vessels_in_sc_and_fhier <-
   sc_fhier |>
-  filter(is_compl_sc == 0 &
+  filter(delinquent == 1 &
            is_comp == 0) |>
   select(vessel_reg_uscg_, vessel_name) |>
   distinct()
 
-# dim(non_compliant_vessels_in_sc_and_fhier)
+dim(non_compliant_vessels_in_sc_and_fhier)
+# 6
 
 # 2. non compliant in SC and compliant in FHIER ----
 # 2) if they are compliant for that month in FHIER then list all the dates of DNFs and/or logbooks we have in FHIER by vessel (probably 3 columns needed: vessel ID, Logbook (list any dates for that month), DNF (list week date range for any for that month)
