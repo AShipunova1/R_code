@@ -78,11 +78,12 @@ if (!class(compl_override_data__renamed$vessel_official_number) == "character") 
 ## Download Maintenance / SC Vessels Reporting via VESL from FHIER ----
 # https://grunt.sefsc.noaa.gov/apex/f?p=162:386:5458401387184:::RP,386::&cs=3lR5MlDRVs7tWDLbTPOrYh-j00HYH4yeXtQKl8Dqltvjuxmt6sBAwnah0ltdU_dBPQRSNZ21KX_NR4YGfsjtJOA
 
+SC_vessels_FHIERData_0 <- read_csv("~\\..\\Downloads/Report 1(3).csv")
 
-xsl_names_list = list(r"(sc_mismatches\2024_04\scdnrFedVessels_04012024.xlsx)")
+xlsx_names_list = list(r"(sc_mismatches\2024_04\scdnrFedVessels_04012024.xlsx)")
 
-SC_vessels_FHIERData_0 <-
-  load_csv_names(my_paths$inputs, csv_names_list)[[1]]
+# SC_vessels_FHIERData_0 <-
+  # load_csv_names(my_paths$inputs, csv_names_list)[[1]]
 
 SC_vessels_FHIERData <- clean_headers(SC_vessels_FHIERData_0)
 
@@ -107,11 +108,44 @@ dim(FHIER_vessel_officialnumber)
 # 188
 
 ## read sc permitted data ----
-SC_permittedVessels  <-
-  load_xls_names(my_paths, xsl_names_list, 1)
+length(xlsx_names_list
+    )
+myfiles <- lapply(xlsx_names_list, function(x) file.path(my_paths$inputs, x))
 
-glimpse(SC_permittedVessels)
-# 200
+file.exists(myfiles[[1]])
+
+SC_permittedVessels <- read_excel(
+  myfiles[[1]],
+  .name_repair = fix_names,
+  guess_max = 21474836
+)
+
+date_names <- names(SC_permittedVessels)[7:18] |>
+  convertToDate() |> format("%b-%y")
+
+
+names(SC_permittedVessels)[7:18] <-
+  date_names
+# |> toString()
+# |> str_split(' ')
+
+
+date_names_list <-
+  date_names |>
+  str_split(' ')
+
+
+names(SC_permittedVessels)
+
+    # setNames(., c('id', format(as.Date(as.numeric(names(.)[-1]),
+                   # origin = '1899-12-30'), '%m/%d/%Y')))
+
+
+# SC_permittedVessels  <-
+#   load_xls_names(my_paths, xsl_names_list, 1)
+
+str(SC_permittedVessels)
+# [1] 215  18
 
 # for test purposes add random 0 and 1, change to real compliance data from SC when avalable
 SC_permittedVessels_compl <-
