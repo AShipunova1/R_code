@@ -58,6 +58,9 @@ choose_applications(my_text)
 
 # add wait and check
 
+open_applications_status_menu <- function() {
+
+
 applications_status_menu <-
   remote_driver$findElement("xpath",
 "//div[2]/div/div/div[2]/div[2]/div/div/div/div/div/div[2]/div/div/div")
