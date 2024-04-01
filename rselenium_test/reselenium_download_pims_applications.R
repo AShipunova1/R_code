@@ -97,8 +97,6 @@ ul_li_list <- applications_status_uls[[1]]$findChildElements("tag name", "li")
 length(ul_li_list)
 # 19
 
-ul_li_list[[2]]$clickElement()
-
 el_text <- ul_li_list[[3]]$getElementText()
 # [1] "Application Started"
 
@@ -108,16 +106,23 @@ all_li_texts <-
 
 glimpse(all_li_texts)
 
-applications_status_input$getElementText()
+# applications_status_input$getElementText()
 
 map(ul_li_list, \(el) {
   browser()
   el_text <- el$getElementText()
-  applications_status_input$sendKeysToElement(list(el_text[[1]], key = "enter"))
-  applications_status_input$clickElement()
+  el$clickElement()
+  applications_status_input$sendKeysToElement(list(key = 'escape'))
+  # check if loaded
+  app_status_cell1 <- remote_driver$findElement(
+    "xpath",
+    "/html/body/div[1]/div[1]/main/div/div/div[1]/div/div/div[2]/div[2]/div/div[2]/div[1]/table/tbody/tr[1]/td[3]/div/p"
+  )
+  trimws(app_status_cell1$getElementText()[[1]]) == el_text[[1]]
+    # "Application Ready"
 
-  applications_status_input$sendKeysToElement(list(key = "enter"))
-})
+
+  })
 
 # while (length(applications_status_menu) == 0) {
 #   Sys.sleep(5)
