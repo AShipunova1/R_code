@@ -27,16 +27,20 @@ correct_page_title
 
 # choose applications
 my_text <- "Applications"
-appl_xpath <- str_glue("//p[contains(text(), '{my_text}')]")
+choose_applications <- function(my_text) {
+  appl_xpath <- str_glue("//p[contains(text(), '{my_text}')]")
 
-Sys.sleep(5)
-appl_el <- remote_driver$findElement("xpath",
-                                     appl_xpath)
+  appl_el <- remote_driver$findElement("xpath",
+                                       appl_xpath)
+
+  appl_el$clickElement()
+  Sys.sleep(5)
+
+}
+choose_applications(my_text)
 
 # appl_el$getElementTagName()
 # p
-appl_el$clickElement()
-Sys.sleep(5)
 
 # download_button <-
 #   remote_driver$findElement(
@@ -86,25 +90,24 @@ applications_status_input <-
 
 # <li id="4867239fd45b39d95022a6b343ebac8c_list_0" role="option" class="MenuWidgetItem---active MenuWidgetItem---default_direction MenuWidgetItem---active_not_selected" tabindex="-1"><div>Application Expired</div></li>
 
-
 applications_status_uls <-
   remote_driver$findElements("tag name", "ul")
 
-# length(applications_status_uls)
+length(applications_status_uls)
 # 1
 
 ul_li_list <- applications_status_uls[[1]]$findChildElements("tag name", "li")
 length(ul_li_list)
 # 19
 
-el_text <- ul_li_list[[3]]$getElementText()
+# el_text <- ul_li_list[[3]]$getElementText()
 # [1] "Application Started"
 
 all_li_texts <-
   map(ul_li_list, \(el)
       el$getElementText())
 
-glimpse(all_li_texts)
+# glimpse(all_li_texts)
 
 # applications_status_input$getElementText()
 
