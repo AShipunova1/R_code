@@ -488,7 +488,10 @@ nrow(in_dnfs_not_in_compl)
 
 # TODO: validate in_compl_not_in_dnfs and in_dnfs_not_in_compl
 # my_year
-# glimpse(in_dnfs_not_in_compl)
+# getwd()
+write_rds(as_tibble(in_dnfs_not_in_compl),
+          file.path(output_file_path,
+            "in_dnfs_not_in_compl.rds"))
 
 # stats
 my_stats(SEFHIER_dnfs_short_date__iso)
