@@ -16,37 +16,37 @@ source("reselenium_download_fhier.R")
 # disabled
 # <button type="button" class="Button---btn Button---default_direction Button---secondary Button---small appian-context-first-in-list Button---inSideBySide Button---icon_only Button---no_label Button---icon_start" disabled=""><span><span><svg focusable="false" tabindex="-1" class="Button---icon" width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M216 0h80c13.3 0 24 10.7 24 24v168h87.7c17.8 0 26.7 21.5 14.1 34.1L269.7 378.3c-7.5 7.5-19.8 7.5-27.3 0L90.1 226.1c-12.6-12.6-3.7-34.1 14.1-34.1H192V24c0-13.3 10.7-24 24-24zm296 376v112c0 13.3-10.7 24-24 24H24c-13.3 0-24-10.7-24-24V376c0-13.3 10.7-24 24-24h146.7l49 49c20.1 20.1 52.5 20.1 72.6 0l49-49H488c13.3 0 24 10.7 24 24zm-124 88c0-11-9-20-20-20s-20 9-20 20 9 20 20 20 20-9 20-20zm64 0c0-11-9-20-20-20s-20 9-20 20 9 20 20 20 20-9 20-20z"></path></svg></span><span></span></span><span class="Button---accessibilityhidden">Export to Excel - Cannot export more than 100,000 rows or more than 50 columns. Filter your record list down to enable export.</span></button>
 
-# setup ----
-require("RSelenium")
-# require("rstudioapi")
-require("XML")
-require("tidyverse")
-require("tictoc")
-require("rvest")
-
-Sys.setenv(TZ = Sys.timezone())
-curr_tz <- Sys.timezone()
-
-start_browser <- function() {
-    remDr <- rsDriver(browser = "firefox",
-                      chromever = NULL,
-                      port = 4444L)
-
-    remote_driver <- remDr[["client"]]
-
-    return(remote_driver)
-  }
-
-remote_driver <- start_browser()
-# rm(remote_driver)
-# gc(remote_driver)
-
-# remote_driver$close
-# my_year <- "2022"
-
-# remote_driver$setImplicitWaitTimeout(3000)
-# findElement(remDr, using = c("xpath", "css selector", "id", "name", "tag name", "class name", "link text", "partial link text"), value, ...)
-
+# # setup ----
+# require("RSelenium")
+# # require("rstudioapi")
+# require("XML")
+# require("tidyverse")
+# require("tictoc")
+# require("rvest")
+#
+# Sys.setenv(TZ = Sys.timezone())
+# curr_tz <- Sys.timezone()
+#
+# start_browser <- function() {
+#     remDr <- rsDriver(browser = "firefox",
+#                       chromever = NULL,
+#                       port = 4444L)
+#
+#     remote_driver <- remDr[["client"]]
+#
+#     return(remote_driver)
+#   }
+#
+# remote_driver <- start_browser()
+# # rm(remote_driver)
+# # gc(remote_driver)
+#
+# # remote_driver$close
+# # my_year <- "2022"
+#
+# # remote_driver$setImplicitWaitTimeout(3000)
+# # findElement(remDr, using = c("xpath", "css selector", "id", "name", "tag name", "class name", "link text", "partial link text"), value, ...)
+#
 # go to PIMS search ----
 remote_driver$navigate("https://appscloud.fisheries.noaa.gov/suite/sites/pims-search")
 
