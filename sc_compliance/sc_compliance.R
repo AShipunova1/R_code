@@ -186,7 +186,8 @@ non_compliant_vessels_in_sc_and_compl_in_fhier <-
   filter(delinquent == 1 &
            is_comp == 1)
 
-# glimpse(non_compliant_vessels_in_sc_and_compl_in_fhier)
+dim(non_compliant_vessels_in_sc_and_compl_in_fhier)
+# [1] 519  40
 
 ## add logbooks info ----
 # Logbook (list any dates for that month)
@@ -195,11 +196,16 @@ logbooks__sc_fhier <-
   filter(vessel_official_number %in%
            non_compliant_vessels_in_sc_and_compl_in_fhier$vessel_reg_uscg_)
 
+dim(logbooks__sc_fhier)
+# 4
+
 logbooks__sc_fhier_my_month <-
   logbooks__sc_fhier |>
   filter(month(trip_end_date) == my_month) |>
   select(vessel_official_number, trip_start_date, trip_end_date) |>
   distinct()
+
+dim(logbooks__sc_fhier_my_month)
 
 ## add DNF info ----
 # DNF (list week date range for any for that month)
@@ -228,11 +234,35 @@ dnfs__sc_fhier_my_month <-
          week_end_date_mon) |>
   distinct()
 
-# glimpse(dnfs__sc_fhier_my_month)
+glimpse(dnfs__sc_fhier_my_month)
 
 # 3. SC compliant vessels list ----
 # 3) we also need a step that just grabs the compliant vessels (herein "SC compliant vessels list"), and then checks FHIER compliance to see if any that SC has as compliant are listed as non-compliant for any of the weeks in the given month. If any vessels are found to be compliant with SC but non-compliant with us/FHIER, then we need (on a 3rd sheet) to list those vessels and include what week (with date ranges) we are missing in FHIER. Eric will use this to more proactively alert us when a vessel is reporting only to SC, since we have so many recurring issues with this.
 
+sc_fhier <-
+  left_join(
+    SC_permittedVessels,
+    compl_override_data__renamed,
+    join_by(vessel_reg_uscg_ == vessel_official_number,
+            month(trip_end_date) == my_month)
+  )
+
+SC_permittedVessels_longer <-
+  SC_permittedVessels |>
+  pivot_longer(
+    !c(
+      "vessel_reg_uscg_",
+      "vessel_name",
+      "reports_to_srhs",
+      "federal_for_hire_permit_expiration",
+      "marked_as_federally_permitted_in_vesl",
+      "delinquent"
+    ),
+    names_to = "month_year",
+    values_to = "delinquent_month"
+  )
+
+View(SC_permittedVessels_longer)
 compliant_vessels_in_sc_and_non_compl_fhier <-
   sc_fhier |>
   filter(delinquent == 0 &
@@ -242,6 +272,8 @@ compliant_vessels_in_sc_and_non_compl_fhier__weeks_only <-
   compliant_vessels_in_sc_and_non_compl_fhier |>
   select(vessel_reg_uscg_, comp_week_start_dt, comp_week_end_dt) |>
   distinct()
+
+View(compliant_vessels_in_sc_and_non_compl_fhier__weeks_only)
 
 # write results to xlsx ----
 # (sheet 1) the list of those SC non-compliant vessels that are also non-compliant in FHIER, or
