@@ -1,4 +1,4 @@
-source("reselenium_download_fhier.R")
+source("reselenium_download.R")
 
 # go to PIMS search ----
 remote_driver$navigate("https://appscloud.fisheries.noaa.gov/suite/sites/pims-search")
