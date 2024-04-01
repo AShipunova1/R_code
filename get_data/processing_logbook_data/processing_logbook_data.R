@@ -225,7 +225,8 @@ WHERE
 # Use 'read_rds_or_run_query' defined above to either read logbook information from an RDS file or execute a query to obtain it and write a file for future use.
 Logbooks <-
   read_rds_or_run_query(logbooks_file_path,
-                        logbooks_download_query
+                        logbooks_download_query,
+                        force_from_db = NULL
                         )
 # 2024-02-05 run for Raw_Oracle_Downloaded_logbook_01-JAN-2022__31-DEC-2022.rds: 122.37 sec elapsed
 
@@ -388,45 +389,45 @@ Logbooks$ENDDATETIME <-
   as.POSIXct(paste(Logbooks$TRIP_END_DATE,                                         Logbooks$TRIP_END_TIME),
              format = "%Y-%m-%d %H%M")
 
-### Prepare data to determine what weeks were overridden, so we can exclude logbooks from those weeks later ----
-
-# assign each logbook a week designation (first day of the reporting week is a Monday)
-# use the end date to calculate this, it won't matter for most trips, but for some trips that
-# happen overnight on a Sunday, it might affect what week they are assigned to
-#https://stackoverflow.com/questions/60475358/convert-daily-data-into-weekly-data-in-r
-
-# Calculate the ISO week number for each date in the 'TRIP_END_DATE2' column.
-# lubridate package has following methods:
-# week() returns the number of complete seven day periods that have occurred between the date and January 1st, plus one.
+# ### Prepare data to determine what weeks were overridden, so we can exclude logbooks from those weeks later ----
 #
-# isoweek() returns the week as it would appear in the ISO 8601 system, which uses a reoccurring leap week.
+# # assign each logbook a week designation (first day of the reporting week is a Monday)
+# # use the end date to calculate this, it won't matter for most trips, but for some trips that
+# # happen overnight on a Sunday, it might affect what week they are assigned to
+# #https://stackoverflow.com/questions/60475358/convert-daily-data-into-weekly-data-in-r
 #
-# epiweek() is the US CDC version of epidemiological week. It follows same rules as isoweek() but starts on Sunday. In other parts of the world the convention is to start epidemiological weeks on Monday, which is the same as isoweek.
+# # Calculate the ISO week number for each date in the 'TRIP_END_DATE2' column.
+# # lubridate package has following methods:
+# # week() returns the number of complete seven day periods that have occurred between the date and January 1st, plus one.
+# #
+# # isoweek() returns the week as it would appear in the ISO 8601 system, which uses a reoccurring leap week.
+# #
+# # epiweek() is the US CDC version of epidemiological week. It follows same rules as isoweek() but starts on Sunday. In other parts of the world the convention is to start epidemiological weeks on Monday, which is the same as isoweek.
+# #
 #
-
-# Needed to adjust for week 52 of the previous year
-Logbooks <-
-  Logbooks |>
-  mutate(COMP_WEEK = isoweek(TRIP_END_DATE), # puts it in week num
-         TRIP_END_YEAR = isoyear(TRIP_END_DATE)) # adds a year
-
-# to see the respective data in compl_override_data_this_year, note the last week of 2021
-# not needed for processing
-compl_override_data_this_year |>
-  select(COMP_YEAR,
-         COMP_WEEK_END_DT,
-         COMP_WEEK) |>
-  distinct() |>
-  arrange(COMP_WEEK_END_DT) |>
-  head(3)
-#   COMP_YEAR COMP_WEEK_END_DT COMP_WEEK
-# 1      2021       2022-01-02        52
-# 2      2022       2022-01-09         1
-# 3      2022       2022-01-16         2
-
+# # Needed to adjust for week 52 of the previous year
+# Logbooks <-
+#   Logbooks |>
+#   mutate(COMP_WEEK = isoweek(TRIP_END_DATE), # puts it in week num
+#          TRIP_END_YEAR = isoyear(TRIP_END_DATE)) # adds a year
+#
+# # to see the respective data in compl_override_data_this_year, note the last week of 2021
+# # not needed for processing
+# compl_override_data_this_year |>
+#   select(COMP_YEAR,
+#          COMP_WEEK_END_DT,
+#          COMP_WEEK) |>
+#   distinct() |>
+#   arrange(COMP_WEEK_END_DT) |>
+#   head(3)
+# #   COMP_YEAR COMP_WEEK_END_DT COMP_WEEK
+# # 1      2021       2022-01-02        52
+# # 2      2022       2022-01-09         1
+# # 3      2022       2022-01-16         2
+#
 ## add override data to logbooks ----
-my_stats(compl_override_data_this_year,
-         "Compl/override data from the db")
+# my_stats(compl_override_data_this_year,
+#          "Compl/override data from the db")
 # rows: 151515
 # columns: 19
 # Unique vessels: 3740
@@ -457,33 +458,33 @@ my_stats(logbooks_join_overr)
 # We can't differentiate between turning a logbook in on time in the app, and it taking two months to get it vs turning in a logbook two months late.
 # E.g. user submitted Jan 1, 2022, but SEFHIER team found it missing in FHIER (and SAFIS) in March, 2022 (At permit renewal)... user submitted on time in app (VESL) but we may not get that report in SAFIS for months later (when its found as a "missing report" and then requeued for transmission)
 
-logbooks_overridden <-
-  filter(logbooks_join_overr, OVERRIDDEN == 1) #data frame of logbooks that were overridden
+# logbooks_overridden <-
+#   filter(logbooks_join_overr, OVERRIDDEN == 1) #data frame of logbooks that were overridden
 
 # stats
-my_stats(logbooks_overridden)
+# my_stats(logbooks_overridden)
 # rows: 10136
 # columns: 169
 # Unique vessels: 286
 # Unique trips (logbooks): 2905
 
-logbooks_notoverridden <-
-  filter(logbooks_join_overr, OVERRIDDEN == 0) #data frame of logbooks that weren't overridden
+# logbooks_notoverridden <-
+#   filter(logbooks_join_overr, OVERRIDDEN == 0) #data frame of logbooks that weren't overridden
 
 # stats
-my_stats(logbooks_notoverridden)
+# my_stats(logbooks_notoverridden)
 # rows: 317002
 # columns: 169
 # Unique vessels: 1869
 # Unique trips (logbooks): 91688
 
-logbooks_NA <-
-  filter(logbooks_join_overr, is.na(OVERRIDDEN)) #logbooks with an Overridden value of NA, because they were
+# logbooks_NA <-
+  # filter(logbooks_join_overr, is.na(OVERRIDDEN)) #logbooks with an Overridden value of NA, because they were
 # 1) submitted by a vessel that is missing from the Compliance report and therefore has no associated override data, or
 # 2) submitted by a vessel during a period in which the permit was inactive, and the report was not required
 
 # stats
-my_stats(logbooks_NA)
+# my_stats(logbooks_NA)
 # rows: 680
 # columns: 169
 # Unique vessels: 18
@@ -495,29 +496,29 @@ my_stats(logbooks_NA)
 # Finds vessels in the permit data that are missing from the compliance data
 # So if a vessel is in the Metrics tracking report, but not in the compliance report we want to add them back.
 
-vessels_missing <-
-  setdiff(
-    SEFHIER_permit_info_short_this_year$VESSEL_OFFICIAL_NUMBER,
-    compl_override_data_this_year$VESSEL_OFFICIAL_NUMBER
-  )
+# vessels_missing <-
+#   setdiff(
+#     SEFHIER_permit_info_short_this_year$VESSEL_OFFICIAL_NUMBER,
+#     compl_override_data_this_year$VESSEL_OFFICIAL_NUMBER
+#   )
 
 # stats
-my_tee(n_distinct(vessels_missing),
-       "vessels_missing")
+# my_tee(n_distinct(vessels_missing),
+#        "vessels_missing")
 # vessels_missing 8
 
 # SEFHIER logbooks from vessels missing from the Compliance report
-vessels_missing_logbooks <-
-  logbooks_NA |>
-  filter(VESSEL_OFFICIAL_NUMBER %in% vessels_missing)
+# vessels_missing_logbooks <-
+#   logbooks_NA |>
+#   filter(VESSEL_OFFICIAL_NUMBER %in% vessels_missing)
 
 # add missing logbooks back to the not overridden data frame
-logbooks_notoverridden <-
-  rbind(logbooks_notoverridden,
-        vessels_missing_logbooks) |>
-  distinct()
+# logbooks_notoverridden <-
+#   rbind(logbooks_notoverridden,
+#         vessels_missing_logbooks) |>
+#   distinct()
 
-my_stats(logbooks_notoverridden)
+# my_stats(logbooks_notoverridden)
 # rows: 317390
 # columns: 169
 # Unique vessels: 1870
@@ -525,17 +526,17 @@ my_stats(logbooks_notoverridden)
 
 # remove missing logbooks from NA dataset, the NA dataset is now only those that were submitted when not needed
 
-my_stats(logbooks_NA)
+# my_stats(logbooks_NA)
 # Unique vessels: 18
 # Unique trips (logbooks): 142
 
 # Subset the logbooks_NA dataframe by excluding rows with VESSEL_OFFICIAL_NUMBER
 # present in the vessels_missing vector.
-logbooks_NA__rm_missing_vsls <- logbooks_NA |>
-  filter(!VESSEL_OFFICIAL_NUMBER %in% vessels_missing)
-
-my_stats(logbooks_NA__rm_missing_vsls,
-         "logbooks_NA after removing missing logbooks")
+# logbooks_NA__rm_missing_vsls <- logbooks_NA |>
+#   filter(!VESSEL_OFFICIAL_NUMBER %in% vessels_missing)
+#
+# my_stats(logbooks_NA__rm_missing_vsls,
+#          "logbooks_NA after removing missing logbooks")
 # Unique vessels: 17
 # Unique trips (logbooks): 97
 
@@ -548,17 +549,21 @@ my_stats(logbooks_NA__rm_missing_vsls,
 # Use trip end date to calculate the usable date 30 days later
 
 # Add a correct timezone to TRIP_END_DATE (EST vs. EDT)
-logbooks_notoverridden <-
-  logbooks_notoverridden |>
+# logbooks_notoverridden <-
+#   logbooks_notoverridden |>
+logbooks_join_overr_e <-
+  logbooks_join_overr |>
   mutate(TRIP_END_DATE_E =
            ymd_hms(TRIP_END_DATE,
                    truncated = 3,
                    tz = Sys.timezone()))
 
 # add a date 30 days later with a time
-logbooks_notoverridden <-
-  logbooks_notoverridden |>
-    mutate(USABLE_DATE_TIME =
+# logbooks_notoverridden <-
+#   logbooks_notoverridden |>
+logbooks_join_overr_e_usable_date <-
+  logbooks_join_overr_e |>
+  mutate(USABLE_DATE_TIME =
            TRIP_END_DATE_E + days(30)) |>
   mutate(USABLE_DATE_TIME =
            `hour<-`(USABLE_DATE_TIME, 23)) |>
@@ -568,41 +573,45 @@ logbooks_notoverridden <-
            `second<-`(USABLE_DATE_TIME, 59))
 
 # format the submission date (TRIP_DE)
-logbooks_notoverridden <-
-  logbooks_notoverridden |>
+# logbooks_notoverridden <-
+#   logbooks_notoverridden |>
+logbooks_join_overr_e_usable_date_format <-
+  logbooks_join_overr_e_usable_date |>
   mutate(TRIP_DE =
            as.POSIXct(TRIP_DE, format = "%Y-%m-%d %H:%M:%S"))
 
 # Drop empty columns
-logbooks_notoverridden <-
-  logbooks_notoverridden |>
+# logbooks_notoverridden <-
+#   logbooks_notoverridden |>
+logbooks_join_overr_e_usable_date_format_ok <-
+  logbooks_join_overr_e_usable_date_format |>
   select(where(not_all_na))
 
 # 26 columns dropped, bc they were all NAs
 
 ### stats ----
-uniq_vessels_num_was <-
-  n_distinct(Logbooks[["VESSEL_OFFICIAL_NUMBER"]])
-uniq_vessels_num_now <-
-  n_distinct(logbooks_notoverridden[["VESSEL_OFFICIAL_NUMBER"]])
+# uniq_vessels_num_was <-
+#   n_distinct(Logbooks[["VESSEL_OFFICIAL_NUMBER"]])
+# uniq_vessels_num_now <-
+#   n_distinct(logbooks_notoverridden[["VESSEL_OFFICIAL_NUMBER"]])
 
-uniq_trips_num_was <- n_distinct(Logbooks[["TRIP_ID"]])
-uniq_trips_num_now <-
-  n_distinct(logbooks_notoverridden[["TRIP_ID"]])
+# uniq_trips_num_was <- n_distinct(Logbooks[["TRIP_ID"]])
+# uniq_trips_num_now <-
+#   n_distinct(logbooks_notoverridden[["TRIP_ID"]])
 
-uniq_vessels_lost_by_overr <-
-  uniq_vessels_num_was - uniq_vessels_num_now
+# uniq_vessels_lost_by_overr <-
+#   uniq_vessels_num_was - uniq_vessels_num_now
 # 12
 
-uniq_trips_lost_by_overr <-
-  uniq_trips_num_was - uniq_trips_num_now
+# uniq_trips_lost_by_overr <-
+#   uniq_trips_num_was - uniq_trips_num_now
 # 2981
 
-my_tee(uniq_vessels_lost_by_overr,
-       "Thrown away vessels by overridden weeks")
+# my_tee(uniq_vessels_lost_by_overr,
+#        "Thrown away vessels by overridden weeks")
 
-my_tee(uniq_trips_lost_by_overr,
-       "Thrown away trips by overridden weeks")
+# my_tee(uniq_trips_lost_by_overr,
+#        "Thrown away trips by overridden weeks")
 
 # Filtering logbook data ----
 # Use logbooks_notoverridden from the previous section
@@ -610,7 +619,7 @@ my_tee(uniq_trips_lost_by_overr,
 ## Filter out vessels not in Metrics tracking ----
 SEFHIER_logbooks_notoverridden <-
   left_join(SEFHIER_permit_info_short_this_year,
-            logbooks_notoverridden,
+            logbooks_join_overr_e_usable_date_format_ok,
             join_by(VESSEL_OFFICIAL_NUMBER),
             suffix = c("_metrics", "_logbooks"))
 
@@ -640,15 +649,15 @@ SEFHIER_logbooks_notoverridden |>
   nrow()
 # 48
 
-my_stats(logbooks_notoverridden)
-my_stats(SEFHIER_logbooks_notoverridden)
+# my_stats(logbooks_notoverridden)
+# my_stats(SEFHIER_logbooks_notoverridden)
 
-vessels_not_in_metrics <-
-  n_distinct(logbooks_notoverridden$VESSEL_OFFICIAL_NUMBER) -
-  n_distinct(SEFHIER_logbooks_notoverridden$VESSEL_OFFICIAL_NUMBER)
+# vessels_not_in_metrics <-
+#   n_distinct(logbooks_notoverridden$VESSEL_OFFICIAL_NUMBER) -
+#   n_distinct(SEFHIER_logbooks_notoverridden$VESSEL_OFFICIAL_NUMBER)
 
-my_tee(vessels_not_in_metrics,
-       "Removed if a vessel is not in Metrics tracking")
+# my_tee(vessels_not_in_metrics,
+       # "Removed if a vessel is not in Metrics tracking")
 
 ## Start date/time is after end date/time ----
 # check logbook records for cases where start date/time is after end date/time, delete these records
@@ -678,8 +687,8 @@ thrown_by_time_stamp_error <-
   SEFHIER_logbooks_notoverridden |>
   filter(time_stamp_error == TRUE)
 
-my_tee(n_distinct(thrown_by_time_stamp_error$TRIP_ID),
-       "Thrown away by time_stamp_error (logbooks num)")
+# my_tee(n_distinct(thrown_by_time_stamp_error$TRIP_ID),
+#        "Thrown away by time_stamp_error (logbooks num)")
 # 550
 
 ## Delete logbooks for trips lasting more than 10 days ----
@@ -713,8 +722,8 @@ logbooks_too_long <-
   SEFHIER_logbooks_notoverridden__start_end_ok |>
   filter(trip_length > 240)
 
-my_tee(n_distinct(logbooks_too_long$TRIP_ID),
-       "Thrown away by trip_more_10_days (logbooks num)")
+# my_tee(n_distinct(logbooks_too_long$TRIP_ID),
+#        "Thrown away by trip_more_10_days (logbooks num)")
 # trip_ids: 35
 
 my_tee(n_distinct(logbooks_too_long$VESSEL_ID),
@@ -763,6 +772,7 @@ late_submission_filter_stats <-
 
 late_submission_filter <-
   function() {
+
     SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok_temp <-
       SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok |>
       mutate(MORE_THAN_30_DAYS_LATE =
