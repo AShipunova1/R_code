@@ -1,7 +1,7 @@
 # using functions
 source("reselenium_download.R")
 
-my_year <- "2023"
+my_year <- "2024"
 
 remote_driver$getStatus()
 # remDr$server$stop()
