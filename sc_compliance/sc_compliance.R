@@ -183,7 +183,7 @@ dim(non_compliant_vessels_in_sc_and_fhier)
 # 2) if they are compliant for that month in FHIER then list all the dates of DNFs and/or logbooks we have in FHIER by vessel (probably 3 columns needed: vessel ID, Logbook (list any dates for that month), DNF (list week date range for any for that month)
 non_compliant_vessels_in_sc_and_compl_in_fhier <-
   sc_fhier |>
-  filter(is_compl_sc == 0 &
+  filter(delinquent == 1 &
            is_comp == 1)
 
 # glimpse(non_compliant_vessels_in_sc_and_compl_in_fhier)
@@ -235,7 +235,7 @@ dnfs__sc_fhier_my_month <-
 
 compliant_vessels_in_sc_and_non_compl_fhier <-
   sc_fhier |>
-  filter(is_compl_sc == 1 &
+  filter(delinquent == 0 &
            is_comp == 0)
 
 compliant_vessels_in_sc_and_non_compl_fhier__weeks_only <-
