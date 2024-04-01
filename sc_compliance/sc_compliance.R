@@ -37,7 +37,7 @@ compl_override_data_file_path <-
 # File: Raw_Oracle_Downloaded_compliance_2021_plus.rds modified 2024-02-05 09:52:06.996529
 
 # Check if the file path is correct, optional
-# file.exists(compl_override_data_file_path)
+file.exists(compl_override_data_file_path)
 
 # 2) Create a variable with a table name to call data from, define year.
 # >= 2021 because of when the program started or between 2 years defined above
@@ -78,9 +78,8 @@ if (!class(compl_override_data__renamed$vessel_official_number) == "character") 
 ## Download Maintenance / SC Vessels Reporting via VESL from FHIER ----
 # https://grunt.sefsc.noaa.gov/apex/f?p=162:386:5458401387184:::RP,386::&cs=3lR5MlDRVs7tWDLbTPOrYh-j00HYH4yeXtQKl8Dqltvjuxmt6sBAwnah0ltdU_dBPQRSNZ21KX_NR4YGfsjtJOA
 
-csv_names_list = list(r"(sc_mismatches\2024_03\fhier_report_03_01_2024.csv)")
 
-xsl_names_list = list(r"(sc_mismatches\2024_03\scdnrFedVessels_03012024.xlsx)")
+xsl_names_list = list(r"(sc_mismatches\2024_04\scdnrFedVessels_04012024.xlsx)")
 
 SC_vessels_FHIERData_0 <-
   load_csv_names(my_paths$inputs, csv_names_list)[[1]]
