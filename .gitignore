@@ -48,3 +48,4 @@ leaflet.css
 non_compliant_areas/.RDataTmp2
 quantify_compliance_2023/quantify_compliance_for_2022
 compare_4_files/compare_4_files.qmd
+*.rds
