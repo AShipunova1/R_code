@@ -26,73 +26,27 @@ correct_page_title
 # T
 
 # choose applications
-# my_text <- "Applications"
-# appl_xpath <- str_glue("//p[contains(text(), '{my_text}')]")
-#
-# appl_el <- remote_driver$findElement("xpath",
-#                                      appl_xpath)
+my_text <- "Applications"
+appl_xpath <- str_glue("//p[contains(text(), '{my_text}')]")
+
+appl_el <- remote_driver$findElement("xpath",
+                                     appl_xpath)
 
 # appl_el$getElementTagName()
 # p
-# appl_el$clickElement()
+appl_el$clickElement()
 
-# permits ----
-# <p class="ParagraphText---richtext_paragraph ParagraphText---default_direction ParagraphText---center elements---global_p" data-testid="ParagraphText-paragraph">Permits</p>
-
-permits_menu_item <-
-  remote_driver$findElement("xpath",
-                            "//p[contains(text(), 'Permits')]")
-
-# length(permits_menu_item)
-
-permits_menu_item$clickElement()
-
-# class
-# "Button---accessibilityhidden")
-
-download_button <-
-  remote_driver$findElement(
-    "xpath",
-    "//span[contains(text(), 'Export to Excel - Exports the currently filtered list of records as an Excel file.')]"
-  )
-
-download_button$clickElement()
-
-download_start_time <- Sys.time()
-
+# download_button <-
+#   remote_driver$findElement(
+#     "xpath",
+#     "//span[contains(text(), 'Export to Excel - Exports the currently filtered list of records as an Excel file.')]"
+#   )
+#
+# download_button$clickElement()
+#
+# download_start_time <- Sys.time()
+#
 # download_start_time <- download_table()
-
-## read the downloaded file ----
-
-# "C:\Users\anna.shipunova\Downloads\Permits - 2024-03-29_1112(1).xlsx"
-file_name_pattern = "^Permits .*xlsx"
-permits_from_pims <- read_new_file(file_name_pattern)
-glimpse(permits_from_pims)
-# mv out first 3 rows,
-# rm first 3 columns
-# rename columns as in X4,
-
-permits_from_pims_3_r <-
-  slice(permits_from_pims, 3)
-
-permits_from_pims_clean0 <-
-  tail(permits_from_pims, -3)
-
-names(permits_from_pims_clean0) <- permits_from_pims_clean0[1,]
-
-permits_from_pims_clean <-
-  tail(permits_from_pims_clean0, -1)
-
-# View(permits_from_pims_clean)
-
-# download_permits <-
-#   <span class="Button---accessibilityhidden">Export to Excel - Exports the currently filtered list of records as an Excel file.</span></button>
-
-# application search ----
-# /html/body/div[1]/div[1]/main/div/div/div[1]/div/div/div[2]/div[2]/div/div[1]/div[2]/div[2]/div/div[1]/div/div/div[1]/div[1]/div/div[1]/div/div[2]/div/div/input
-# //*[@id="fa6d6d69431b1c7cbd9b5b14252ee01c"]
-# <input id="fa6d6d69431b1c7cbd9b5b14252ee01c" type="text" class="TextInput---text TextInput---align_start TextInput---inSideBySideItem" placeholder="Search Permit Applications" value="">
-
 
 # applications status ----
 
@@ -147,8 +101,10 @@ permits_from_pims_clean <-
 # remote_driver$
 
 applications_status_menu <-
-  remote_driver$findElements("class",
-"MultipleDropdownWidget---dropdown_caret")
+  remote_driver$findElement("xpath",
+"//div[2]/div/div/div[2]/div[2]/div/div/div/div/div/div[2]/div/div/div")
+
+applications_status_menu$clickElement()
 
 # while (length(applications_status_menu) == 0) {
 #   Sys.sleep(5)
