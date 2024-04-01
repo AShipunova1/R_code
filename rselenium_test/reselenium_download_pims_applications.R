@@ -106,6 +106,35 @@ applications_status_menu <-
 
 applications_status_menu$clickElement()
 
+applications_status_input <-
+  remote_driver$findElement("xpath",
+                            "//div[6]/div/div/div/div/input")
+
+applications_status_input$sendKeysToElement(list(key = 'down_arrow'))
+applications_status_input$sendKeysToElement(list(key = 'enter'))
+applications_status_input$sendKeysToElement(list(key = 'escape'))
+
+applications_status_input$getClass()
+
+applications_status_input$getElementAttribute("text")
+applications_status_input$getElementTagName()
+# [1] "input"
+
+# applications_status_input$getElementText()
+# applications_status_input$getElementValueOfCssProperty("class")
+# applications_status_input$getWindowSize()
+# applications_status_input$getElementAttribute("text")
+rr <- remote_driver$getPageSource()
+glimpse(rr)
+XML::htmlParse(rr[[1]])
+
+# <li id="4867239fd45b39d95022a6b343ebac8c_list_0" role="option" class="MenuWidgetItem---active MenuWidgetItem---default_direction MenuWidgetItem---active_not_selected" tabindex="-1"><div>Application Expired</div></li>
+
+
+# applications_status_clear <-
+#   remote_driver$findElement("class", "TextInput---secondary_clear_icon")
+
+
 # while (length(applications_status_menu) == 0) {
 #   Sys.sleep(5)
 #   applications_status_menu <-
