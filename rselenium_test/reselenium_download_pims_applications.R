@@ -124,17 +124,33 @@ applications_status_input$getElementTagName()
 # applications_status_input$getElementValueOfCssProperty("class")
 # applications_status_input$getWindowSize()
 # applications_status_input$getElementAttribute("text")
-rr <- remote_driver$getPageSource()
-glimpse(rr)
-XML::htmlParse(rr[[1]])
+
+# see the page source
+# rr <- remote_driver$getPageSource()
+# glimpse(rr)
+# XML::htmlParse(rr[[1]])
 
 # <li id="4867239fd45b39d95022a6b343ebac8c_list_0" role="option" class="MenuWidgetItem---active MenuWidgetItem---default_direction MenuWidgetItem---active_not_selected" tabindex="-1"><div>Application Expired</div></li>
 
 
-# applications_status_clear <-
-#   remote_driver$findElement("class", "TextInput---secondary_clear_icon")
+applications_status_uls <-
+  remote_driver$findElements("tag name", "ul")
 
+# length(applications_status_uls)
+# 1
 
+ul_li_list <- applications_status_uls[[1]]$findChildElements("tag name", "li")
+length(ul_li_list)
+# 19
+
+ul_li_list[[3]]$getElementText()
+# [1] "Application Started"
+
+all_li_texts <-
+  map(ul_li_list, \(el)
+      el$getElementText())
+
+glimpse(all_li_texts)
 # while (length(applications_status_menu) == 0) {
 #   Sys.sleep(5)
 #   applications_status_menu <-
