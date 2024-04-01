@@ -29,12 +29,14 @@ correct_page_title
 my_text <- "Applications"
 appl_xpath <- str_glue("//p[contains(text(), '{my_text}')]")
 
+Sys.sleep(5)
 appl_el <- remote_driver$findElement("xpath",
                                      appl_xpath)
 
 # appl_el$getElementTagName()
 # p
 appl_el$clickElement()
+Sys.sleep(5)
 
 # download_button <-
 #   remote_driver$findElement(
@@ -50,55 +52,7 @@ appl_el$clickElement()
 
 # applications status ----
 
-# <div
-# class="MultipleDropdownWidget---dropdown_value
-# MultipleDropdownWidget---inSideBySideItem
-# MultipleDropdownWidget---has_inline_label"
-# id="37099fe221b530cddc0f9d1b0260154d_value"
-# role="combobox"
-# aria-autocomplete="list"
-# tabindex="0"
-# aria-controls="37099fe221b530cddc0f9d1b0260154d_list"
-# aria-expanded="false"
-# aria-activedescendant=""
-# aria-labelledby="37099fe221b530cddc0f9d1b0260154d_inlineLabel">
-# <span>
-# <span
-# class="MultipleDropdownWidget---inline_label"
-# aria-hidden="true"
-# id="37099fe221b530cddc0f9d1b0260154d_inlineLabel">Application
-# Status
-# </span>
-# <span
-# id="37099fe221b530cddc0f9d1b0260154d_value_span"
-# class="MultipleDropdownWidget---value_display"
-# data-placeholder="Any">
-# </span>
-# <svg
-# focusable="false"
-# tabindex="-1"
-# class="MultipleDropdownWidget---dropdown_caret"
-# width="320"
-# height="512"
-# viewBox="0
-# 0
-# 320
-# 512"
-# xmlns="http://www.w3.org/2000/svg"
-# aria-hidden="true">
-# </svg>
-# </span>
-# </div>
-
-# <div class="MultipleDropdownWidget---dropdown_value MultipleDropdownWidget---inSideBySideItem MultipleDropdownWidget---has_inline_label" id="c0ef4b68cec0347a3f2ab5421f02fa7d_value" role="combobox" aria-autocomplete="list" tabindex="0" aria-controls="c0ef4b68cec0347a3f2ab5421f02fa7d_list" aria-expanded="false" aria-activedescendant="" aria-labelledby="c0ef4b68cec0347a3f2ab5421f02fa7d_inlineLabel" aria-describedby="c0ef4b68cec0347a3f2ab5421f02fa7d_placeholder"><span><span class="MultipleDropdownWidget---inline_label" aria-hidden="true" id="c0ef4b68cec0347a3f2ab5421f02fa7d_inlineLabel">Application Status</span><span id="c0ef4b68cec0347a3f2ab5421f02fa7d_placeholder" class="MultipleDropdownWidget---accessibilityhidden">Any</span><span id="c0ef4b68cec0347a3f2ab5421f02fa7d_value_span" class="MultipleDropdownWidget---value_display" data-placeholder="Any"></span><svg focusable="false" tabindex="-1" class="MultipleDropdownWidget---dropdown_caret" width="320" height="512" viewBox="0 0 320 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"></path></svg></span></div>
-
-# applications_status_menu <- remote_driver$findElement("xpath",
-# "//*[contains(text(), 'Any')]/../../..")
-
-# robj$findElement(using = "class", "class name")
-
 # add wait and check
-# remote_driver$
 
 applications_status_menu <-
   remote_driver$findElement("xpath",
@@ -110,14 +64,14 @@ applications_status_input <-
   remote_driver$findElement("xpath",
                             "//div[6]/div/div/div/div/input")
 
-applications_status_input$sendKeysToElement(list(key = 'down_arrow'))
-applications_status_input$sendKeysToElement(list(key = 'enter'))
-applications_status_input$sendKeysToElement(list(key = 'escape'))
+# applications_status_input$sendKeysToElement(list(key = 'down_arrow'))
+# applications_status_input$sendKeysToElement(list(key = 'enter'))
+# applications_status_input$sendKeysToElement(list(key = 'escape'))
 
-applications_status_input$getClass()
-
-applications_status_input$getElementAttribute("text")
-applications_status_input$getElementTagName()
+# applications_status_input$getClass()
+#
+# applications_status_input$getElementAttribute("text")
+# applications_status_input$getElementTagName()
 # [1] "input"
 
 # applications_status_input$getElementText()
@@ -143,7 +97,9 @@ ul_li_list <- applications_status_uls[[1]]$findChildElements("tag name", "li")
 length(ul_li_list)
 # 19
 
-ul_li_list[[3]]$getElementText()
+ul_li_list[[2]]$clickElement()
+
+el_text <- ul_li_list[[3]]$getElementText()
 # [1] "Application Started"
 
 all_li_texts <-
@@ -151,6 +107,18 @@ all_li_texts <-
       el$getElementText())
 
 glimpse(all_li_texts)
+
+applications_status_input$getElementText()
+
+map(ul_li_list, \(el) {
+  browser()
+  el_text <- el$getElementText()
+  applications_status_input$sendKeysToElement(list(el_text[[1]], key = "enter"))
+  applications_status_input$clickElement()
+
+  applications_status_input$sendKeysToElement(list(key = "enter"))
+})
+
 # while (length(applications_status_menu) == 0) {
 #   Sys.sleep(5)
 #   applications_status_menu <-
