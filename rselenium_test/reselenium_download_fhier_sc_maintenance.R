@@ -63,33 +63,10 @@ all_table_rows[[my_idx]]$getElementAttribute('innerHTML')
 a_tag <- all_table_rows[[my_idx]]$findChildElement("tag name", "a")
 a_tag$clickElement()
 
-my_idx
-all_td <- my_tr$findChildElements("xpath",
-                            "//td[contains(text(), 'SC VESSELS REPORTING VIA VESL')]")
-  all_td[[1]]$getElementAttribute('outerHTML')
-  # [[1]]
-  # all_td$getElementAttribute('xpath')
-  # all_td$getElementAttribute('xpath')
-  rr <- all_td[[1]]$findElement('xpath', ".//parent::tr")
-  rr1 <- all_td[[1]]$findElement('xpath', ".//preceding::td")
-  rr1 <- all_td[[1]]$findElement('xpath', ".//preceding-sibling::td")
-  # "../..//child::td"
-  rr1$getElementText()
-  rr1$getElementTagName()
-  # find_elements_by_xpath(".//child::td")
+download_start_time <- download_table()
 
-  rr1 <- all_td[[1]]$findElement('xpath', ".//preceding-sibling::td")
+file_name_pattern = "^Report 1.*csv"
+my_path <- find_the_downloaded_file(file_name_pattern)
+sc_maintenance_from_fhier <- read_csv(my_path)
 
-
-
-  length(all_td)
-
-  # text_in
-
-
-# <td class=" u-tL" headers="C706403480424852838 B706404242604852839_3">SC VESSELS REPORTING VIA VESL</td>
-my_td = remote_driver$findElement(using = "xpath",
-                                  value = "/html/body/form/div[1]/div[2]/div[2]/div/div/div/div/div/div/div/div[2]/div[2]/div[6]/div[1]/table/tbody/tr[12]/td[1]/a/img")
-
-
-SC VESSELS REPORTING VIA VESL
+glimpse(sc_maintenance_from_fhier)
