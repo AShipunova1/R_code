@@ -72,9 +72,9 @@ output_file_path <-
 
 # Set the date ranges for the DNF and compliance data you are pulling
 # this is the year to assign to the output file name
-my_year <- "2022"
+# my_year <- "2022"
 # my_year <- "2023"
-# my_year <- "2024"
+my_year <- "2024"
 
 my_date_beg <- str_glue("01-JAN-{my_year}")
 my_date_end <- str_glue("31-DEC-{my_year}")
@@ -160,13 +160,13 @@ compl_override_data <-
                         compl_err_query)
 
 # check a week start day, should be Monday
-compl_override_data |>
-  filter(COMP_YEAR == '2023' &
-         COMP_WEEK == '50') |>
-  select(COMP_WEEK_START_DT) |>
-  distinct() |>
-  mutate(week_day = weekdays(COMP_WEEK_START_DT)) |>
-  str()
+# compl_override_data |>
+#   filter(COMP_YEAR == '2023' &
+#          COMP_WEEK == '50') |>
+#   select(COMP_WEEK_START_DT) |>
+#   distinct() |>
+#   mutate(week_day = weekdays(COMP_WEEK_START_DT)) |>
+#   str()
 # $ COMP_WEEK_START_DT: POSIXct, format: "2023-12-11".
 # $ week_day          : chr "Monday"
 # Monday - correct (https://calendar.online/calendar-weeks/2023/50)
