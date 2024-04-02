@@ -37,9 +37,9 @@ output_file_path <-
 
 # Set the date ranges for the DNF and compliance data you are pulling
 # this is the year to assign to the output file name
-my_year <- "2022"
+# my_year <- "2022"
 # my_year <- "2023"
-# my_year <- "2024"
+my_year <- "2024"
 
 my_date_beg <- str_glue("01-JAN-{my_year}")
 my_date_end <- str_glue("31-DEC-{my_year}")
@@ -67,7 +67,7 @@ if (Path == annas_path) {
 source(auxiliary_methods_file_path)
 
 # Start the log ----
-my_tee(timestamp(),
+my_tee(date(),
        my_title = str_glue("Start DNF processing for {my_year}"))
 
 # Get data ----
@@ -118,9 +118,13 @@ WHERE
 # read it
 # or run the query and write the file for future use
 
+# use to force the DB download
+# force_from_db = T
+
 compl_override_data <-
   read_rds_or_run_query(compl_override_data_file_path,
-                        compl_err_query)
+                        compl_err_query
+                        )
 
 ### prep the compliance/override data ----
 
@@ -144,11 +148,12 @@ min(compl_override_data__renamed$COMP_WEEK_START_DT)
 # keep only year of analysis, including the week 52 of the previous year if needed
 compl_override_data__renamed__this_year <-
   compl_override_data__renamed |>
-  filter(COMP_WEEK_END_DT >= as.Date(my_date_beg, "%d-%b-%Y",
-                                     tz = Sys.timezone()) &
-           COMP_WEEK_START_DT <= as.Date(my_date_end, "%d-%b-%Y",
-                                         tz = Sys.timezone()))
-
+  filter(
+    COMP_WEEK_END_DT >= as.Date(my_date_beg, "%d-%b-%Y",
+                                tz = Sys.timezone()) &
+      COMP_WEEK_START_DT <= as.Date(my_date_end, "%d-%b-%Y",
+                                    tz = Sys.timezone())
+  )
 # check
 # That's the week 52 of the previous year (my_year - 1):
 min(compl_override_data__renamed__this_year$COMP_WEEK_START_DT)
@@ -323,6 +328,7 @@ max(Logbooks$TRIP_START_DATE)
 # [1] "2022-12-31"
 # [1] "2023-12-31"
 
+# TODO: rename
 Logbooks <-
   Logbooks |>
   filter(TRIP_START_DATE >= as.Date(my_date_beg, "%d-%b-%Y") &
@@ -371,7 +377,7 @@ Logbooks$ENDDATETIME <-
              format = "%Y-%m-%d %H%M")
 
 Logbooks |> filter(is.na(VESSEL_OFFICIAL_NUMBER))
-# 0
+# 0 OK
 
 ### Prepare data to determine what weeks were overridden, so we can exclude logbooks from those weeks later ----
 
@@ -416,8 +422,8 @@ vessels_not_in_metrics <-
   n_distinct(compl_override_data__renamed__this_year$VESSEL_OFFICIAL_NUMBER) -
   n_distinct(SEFHIER_compl_override_data__renamed__this_year$VESSEL_OFFICIAL_NUMBER)
 
-# vessels_not_in_metrics
-# 289
+vessels_not_in_metrics
+# 289 2022
 
 # TODO: fix my_tee
 # my_tee(vessels_not_in_metrics,
@@ -782,21 +788,25 @@ my_tee(logbooks_after_filtering,
 
 percent_of_removed_logbooks <-
   (logbooks_before_filtering - logbooks_after_filtering) * 100 / logbooks_before_filtering
- cat(percent_of_removed_logbooks, sep = "\n")
+
+cat(percent_of_removed_logbooks, sep = "\n")
 # 22.59539
 # 2.00981 (with late submission)
 # 5.400213 2022
+# 0.7146099 if keep overridden
 
 # removed_vessels
 vessels_before_filtering <-
   n_distinct(Logbooks$VESSEL_OFFICIAL_NUMBER)
- cat(vessels_before_filtering)
+
+cat(vessels_before_filtering)
 # 1885 2022
 # 1646 2023
 
 vessels_after_filtering <-
   n_distinct(SEFHIER_logbooks_processed$VESSEL_OFFICIAL_NUMBER)
- cat(vessels_after_filtering)
+
+cat(vessels_after_filtering)
 # 1823 2022
 # 1597 2023
 
@@ -804,6 +814,7 @@ removed_vessels <-
   vessels_before_filtering - vessels_after_filtering
 # 253
 # 49
+# 3
 
 percent_of_removed_vessels <-
   (vessels_before_filtering - vessels_after_filtering) * 100 / vessels_before_filtering
@@ -849,3 +860,4 @@ write_rds(
   SEFHIER_logbooks_processed,
   file = output_file_path
 )
+
