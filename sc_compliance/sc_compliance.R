@@ -103,7 +103,7 @@ dim(compl_override_data__renamed_m)
 dim(compl_override_data__renamed_m_short)
 
 ### combine compliance by month ----
-
+# TODO: add overridden to compliance (in logbooks processing)
 # (?)
 compl_override_data__renamed_m_short__m_compl <-
   compl_override_data__renamed_m_short |>
@@ -239,7 +239,7 @@ glimpse(SC_permittedVessels_longer_m_y)
 sc__fhier_compl__join_w_month <-
   left_join(
     SC_permittedVessels_longer_m_y,
-    compl_override_data__renamed_m_short,
+    compl_override_data__renamed_m_short__m_compl,
     join_by(
       vessel_reg_uscg_ == vessel_official_number,
       month_sc == comp_month,
@@ -267,12 +267,14 @@ n_distinct(SC_permittedVessels) == n_distinct(sc__fhier_compl__join_w_month$vess
 
 sc__fhier_compl__join_w_month_no_weeks <-
   sc__fhier_compl__join_w_month |>
-  select(-c(comp_week, comp_week_start_dt, comp_week_end_dt)) |>
+  select(-c(comp_week, comp_week_start_dt, comp_week_end_dt, is_comp)) |>
   distinct()
 
 dim(sc__fhier_compl__join_w_month)
 dim(sc__fhier_compl__join_w_month_no_weeks)
-# View(sc__fhier_compl__join_w_month_no_weeks)
+# [1] 2588   14
+
+View(sc__fhier_compl__join_w_month_no_weeks)
 
 # 1. the list of those SC non-compliant vessels that are also non-compliant in FHIER ----
 
