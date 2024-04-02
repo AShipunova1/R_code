@@ -321,15 +321,16 @@ dnfs__sc_fhier <-
   filter(vessel_official_number %in%
            non_compliant_vessels_in_sc_and_compl_in_fhier$vessel_reg_uscg_)
 
+dim(dnfs__sc_fhier)
+# 94
+
 # Explanations:
-# 1. Use 'filter' to keep only rows where the month component of 'trip_date' matches 'my_month'.
 # 2. Use 'mutate' to create a new column 'week_start_date_mon' by rounding down 'trip_date' to the start of the week (Monday) using 'floor_date' function.
 # 3. Use 'mutate' to create a new column 'week_end_date_mon' by rounding up 'trip_date' to the end of the week (Sunday) using 'ceiling_date' function.
 # 4. Use 'select' to keep only the columns 'vessel_official_number', 'week_start_date_mon', and 'week_end_date_mon'.
 # 5. Use 'distinct' to keep only unique rows based on the selected columns.
 dnfs__sc_fhier_my_month <-
   dnfs__sc_fhier |>
-  filter(month(trip_date) == my_month) |>
   mutate(
     week_start_date_mon =
       floor_date(trip_date, unit = 'week', week_start = 1),
@@ -338,10 +339,12 @@ dnfs__sc_fhier_my_month <-
   ) |>
   select(vessel_official_number,
          week_start_date_mon,
-         week_end_date_mon) |>
+         week_end_date_mon,
+         compliant_after_override) |>
   distinct()
 
 glimpse(dnfs__sc_fhier_my_month)
+# 18
 
 # 3. SC compliant vessels list ----
 # 3) we also need a step that just grabs the compliant vessels (herein "SC compliant vessels list"), and then checks FHIER compliance to see if any that SC has as compliant are listed as non-compliant for any of the weeks in the given month. If any vessels are found to be compliant with SC but non-compliant with us/FHIER, then we need (on a 3rd sheet) to list those vessels and include what week (with date ranges) we are missing in FHIER. Eric will use this to more proactively alert us when a vessel is reporting only to SC, since we have so many recurring issues with this.
@@ -352,15 +355,16 @@ compliant_vessels_in_sc_and_non_compl_fhier <-
            month_comp == "non_compl")
 
 dim(compliant_vessels_in_sc_and_non_compl_fhier)
-# [1] 221  14
+# [1] 180  14
 
 # not needed?
-# compliant_vessels_in_sc_and_non_compl_fhier__weeks_only <-
-#   compliant_vessels_in_sc_and_non_compl_fhier |>
-#   select(vessel_reg_uscg_, comp_week_start_dt, comp_week_end_dt) |>
-#   distinct()
-#
-# View(compliant_vessels_in_sc_and_non_compl_fhier__weeks_only)
+compliant_vessels_in_sc_and_non_compl_fhier__months_only <-
+  compliant_vessels_in_sc_and_non_compl_fhier |>
+  select(vessel_reg_uscg_, month_sc, year_sc) |>
+  distinct()
+
+dim(compliant_vessels_in_sc_and_non_compl_fhier__months_only)
+# [1] 173   3
 
 # write results to xlsx ----
 # (sheet 1) the list of those SC non-compliant vessels that are also non-compliant in FHIER, or
@@ -379,7 +383,7 @@ result_list <-
       logbooks__sc_fhier_my_month,
     "non_compl_sc__compl_fhier_dnf" = dnfs__sc_fhier_my_month,
     "compl_sc__non_compl_fhier" =
-      compliant_vessels_in_sc_and_non_compl_fhier__weeks_only
+      compliant_vessels_in_sc_and_non_compl_fhier__months_only
   )
 
 openxlsx::write.xlsx(result_list, file = output_file_name)
