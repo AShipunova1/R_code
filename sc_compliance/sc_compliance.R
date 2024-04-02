@@ -79,6 +79,29 @@ compl_override_data__renamed_m <-
   compl_override_data__renamed |>
   mutate(comp_month = month(comp_week_end_dt))
 
+### keep fewer compl fields ----
+# names(compl_override_data__renamed_m) |> cat("\n")
+
+compl_override_data__renamed_m_short <-
+  compl_override_data__renamed_m |>
+  select(
+    vessel_official_number,
+    permit_group,
+    prm_grp_exp_date,
+    comp_year,
+    comp_week,
+    comp_week_start_dt,
+    comp_week_end_dt,
+    is_comp,
+    overridden,
+    comp_month
+  ) |>
+  distinct() |>
+  filter(comp_year %in% c(my_year, as.integer(my_year) - 1))
+
+dim(compl_override_data__renamed_m)
+dim(compl_override_data__renamed_m_short)
+
 ## Download Maintenance / SC Vessels Reporting via VESL from FHIER ----
 # https://grunt.sefsc.noaa.gov/apex/f?p=162:386:5458401387184:::RP,386::&cs=3lR5MlDRVs7tWDLbTPOrYh-j00HYH4yeXtQKl8Dqltvjuxmt6sBAwnah0ltdU_dBPQRSNZ21KX_NR4YGfsjtJOA
 
@@ -109,6 +132,30 @@ FHIER_vessel_officialnumber <-
 dim(FHIER_vessel_officialnumber)
 # 200
 
+## get logbooks ----
+logbooks_path <- file.path(
+  r"(~\R_files_local\my_inputs\processing_logbook_data\Outputs)",
+  str_glue("SEFHIER_processed_Logbooks_{my_year}.rds")
+)
+
+logbooks <-
+  read_rds(logbooks_path) |>
+  clean_headers()
+
+dim(logbooks)
+
+## get dnfs ----
+dnfs_path <- file.path(
+  r"(~\R_files_local\my_inputs\processing_logbook_data\Outputs)",
+  str_glue("SEFHIER_processed_dnfs_{my_year}.rds")
+)
+
+dnfs <-
+  read_rds(dnfs_path) |>
+  clean_headers()
+
+dim(dnfs)
+
 ## read sc permitted data ----
 xlsx_names_list = list(r"(sc_mismatches\2024_04\scdnrFedVessels_04012024.xlsx)")
 
@@ -136,31 +183,7 @@ names(SC_permittedVessels)
 dim(SC_permittedVessels)
 # [1] 215  18
 
-## get logbooks ----
-logbooks_path <- file.path(
-  r"(~\R_files_local\my_inputs\processing_logbook_data\Outputs)",
-  str_glue("SEFHIER_processed_Logbooks_{my_year}.rds")
-)
-
-logbooks <-
-  read_rds(logbooks_path) |>
-  clean_headers()
-
-dim(logbooks)
-
-## get dnfs ----
-dnfs_path <- file.path(
-  r"(~\R_files_local\my_inputs\processing_logbook_data\Outputs)",
-  str_glue("SEFHIER_processed_dnfs_{my_year}.rds")
-)
-
-dnfs <-
-  read_rds(dnfs_path) |>
-  clean_headers()
-
-dim(dnfs)
-
-## change sc data format ----
+### change sc data format ----
 
 # glimpse(SC_permittedVessels)
 SC_permittedVessels_longer <-
@@ -190,6 +213,7 @@ SC_permittedVessels_longer_m_y <-
 
 glimpse(SC_permittedVessels_longer_m_y)
 
+# combine data ----
 
 sc_fhier_w_month <-
   left_join(
@@ -203,16 +227,6 @@ sc_fhier_w_month <-
   )
 
 View(sc_fhier_w_month)
-
-# str(SC_permittedVessels_longer_non_compl)
-# SC_permittedVessels_longer_non_compl_y_m |>
-# SC_permittedVessels_longer_non_compl |>
-#   mutate()
-
-
-# combine data ----
-print_df_names(SC_permittedVessels)
-print_df_names(compl_override_data__renamed)
 
 sc_fhier <-
   left_join(
