@@ -37,8 +37,8 @@ output_file_path <-
 
 # Set the date ranges for the DNF and compliance data you are pulling
 # this is the year to assign to the output file name
-# my_year <- "2022"
-my_year <- "2023"
+my_year <- "2022"
+# my_year <- "2023"
 # my_year <- "2024"
 
 my_date_beg <- str_glue("01-JAN-{my_year}")
@@ -375,26 +375,6 @@ Logbooks |> filter(is.na(VESSEL_OFFICIAL_NUMBER))
 
 ### Prepare data to determine what weeks were overridden, so we can exclude logbooks from those weeks later ----
 
-# assign each dnf a week designation (first day of the reporting week is a Monday)
-# use the end date to calculate this, it won't matter for most trips, but for some trips neg that
-# happen overnight on a Sunday, it might affect what week they are assigned to
-#https://stackoverflow.com/questions/60475358/convert-daily-data-into-weekly-data-in-r
-
-# Calculate the ISO week number for each date in the 'TRIP_DATE2' column.
-# lubridate package has following methods:
-# week() returns the number of complete seven day periods that have occurred between the date and January 1st, plus one.
-#
-# isoweek() returns the week as it would appear in the ISO 8601 system, which uses a reoccurring leap week.
-#
-# epiweek() is the US CDC version of epidemiological week. It follows same rules as isoweek() but starts on Sunday. In other parts of the world the convention is to start epidemiological weeks on Monday, which is the same as isoweek.
-
-# Needed to adjust for week 52 of the previous year
-dnfs_short_date__iso <-
-  dnfs_short |>
-  mutate(TRIP_DATE_WEEK = isoweek(TRIP_DATE), # puts it in week num
-         TRIP_DATE_YEAR = isoyear(TRIP_DATE)) # adds a year
-
-# to see the respective data in compl_override_data__renamed__this_year, note the last week of 2021
 # not needed for processing
 compl_override_data__renamed__this_year |>
   select(COMP_YEAR,
@@ -415,30 +395,35 @@ compl_override_data__renamed__this_year |>
 # 2      2023       2023-01-08         1
 # 3      2023       2023-01-15         2
 
-# Adding flags to the dnf data ----
+# Adding flags to the logbook data ----
 
 ## Filter out vessels not in Metrics tracking ----
-SEFHIER_dnfs_short_date__iso <-
-  dnfs_short_date__iso |>
+SEFHIER_compl_override_data__renamed__this_year <-
+  compl_override_data__renamed__this_year |>
   filter(VESSEL_OFFICIAL_NUMBER %in% processed_metrics_tracking$VESSEL_OFFICIAL_NUMBER)
 
-my_stats(dnfs_short_date__iso)
-my_stats(SEFHIER_dnfs_short_date__iso)
+my_stats(compl_override_data__renamed__this_year)
+my_stats(SEFHIER_compl_override_data__renamed__this_year)
 
 vessels_not_in_metrics <-
-  n_distinct(dnfs_short_date__iso$VESSEL_OFFICIAL_NUMBER) -
-  n_distinct(SEFHIER_dnfs_short_date__iso$VESSEL_OFFICIAL_NUMBER)
+  n_distinct(compl_override_data__renamed__this_year$VESSEL_OFFICIAL_NUMBER) -
+  n_distinct(SEFHIER_compl_override_data__renamed__this_year$VESSEL_OFFICIAL_NUMBER)
 
-my_tee(vessels_not_in_metrics,
-       "Vessels removed if a vessel is not in Metrics tracking")
+# vessels_not_in_metrics
+# 289
+
+# TODO: fix my_tee
+# my_tee(vessels_not_in_metrics,
+#        "Vessels removed if a vessel is not in Metrics tracking")
 # 1556 (2022)
 
-dnfs_not_in_metrics <-
-  n_distinct(dnfs_short_date__iso$TRIP_ID) -
-  n_distinct(SEFHIER_dnfs_short_date__iso$TRIP_ID)
+logbooks_not_in_metrics <-
+  n_distinct(compl_override_data__renamed__this_year$TRIP_ID) -
+  n_distinct(SEFHIER_compl_override_data__renamed__this_year$TRIP_ID)
+# 0
 
-my_tee(dnfs_not_in_metrics,
-       "DNFs removed if a vessel is not in Metrics tracking")
+# my_tee(dnfs_not_in_metrics,
+#        "DNFs removed if a vessel is not in Metrics tracking")
 # 356497 (2022)
 # 446859 (2023)
 
@@ -450,9 +435,9 @@ my_stats(compl_override_data__renamed__this_year,
 # columns: 23
 # Unique vessels: 3626
 
-### check if dnfs and compliance data have the same week dates ----
+### check if logbooks and compliance data have the same week dates ----
 trip_date_1 <-
-  SEFHIER_dnfs_short_date__iso |>
+  SEFHIER_compl_override_data__renamed__this_year |>
   filter(TRIP_DATE_WEEK == 1,
          TRIP_DATE_YEAR == my_year) |>
   select(TRIP_DATE)
@@ -493,7 +478,7 @@ diffdf::diffdf(dnfs_first_week_my_year, compl_first_week_my_year)
 ### join the dfs ----
 dnfs_join_overr <-
   full_join(
-    SEFHIER_dnfs_short_date__iso,
+    SEFHIER_compl_override_data__renamed__this_year,
     compl_override_data__renamed__this_year,
     join_by(
       TRIP_DATE_YEAR == COMP_YEAR,
@@ -529,7 +514,7 @@ write_rds(as_tibble(in_dnfs_not_in_compl),
             "in_dnfs_not_in_compl.rds"))
 
 # stats
-my_stats(SEFHIER_dnfs_short_date__iso)
+my_stats(SEFHIER_compl_override_data__renamed__this_year)
 # 2022
 # rows: 440307
 # columns: 8
