@@ -75,6 +75,10 @@ if (!class(compl_override_data__renamed$vessel_official_number) == "character") 
     as.character(compl_override_data__renamed$vessel_official_number)
 }
 
+compl_override_data__renamed_m <-
+  compl_override_data__renamed |>
+  mutate(comp_month = month(comp_week_end_dt))
+
 ## Download Maintenance / SC Vessels Reporting via VESL from FHIER ----
 # https://grunt.sefsc.noaa.gov/apex/f?p=162:386:5458401387184:::RP,386::&cs=3lR5MlDRVs7tWDLbTPOrYh-j00HYH4yeXtQKl8Dqltvjuxmt6sBAwnah0ltdU_dBPQRSNZ21KX_NR4YGfsjtJOA
 
@@ -157,6 +161,53 @@ dnfs <-
 dim(dnfs)
 
 ## change sc data format ----
+
+# glimpse(SC_permittedVessels)
+SC_permittedVessels_longer <-
+  SC_permittedVessels |>
+  pivot_longer(
+    !c(
+      "vessel_reg_uscg_",
+      "vessel_name",
+      "reports_to_srhs",
+      "federal_for_hire_permit_expiration",
+      "marked_as_federally_permitted_in_vesl",
+      "delinquent"
+    ),
+    names_to = "month_year",
+    values_to = "delinquent_month"
+  )
+
+SC_permittedVessels_longer_m_y <-
+  SC_permittedVessels_longer |>
+  # filter(delinquent_month == 1) |>
+  separate_wider_delim(cols = month_year,
+                       delim = "-",
+                       names = c("month_sc", "year_sc")) |>
+  mutate(year_sc = paste0("20", year_sc)) |>
+  mutate(across(all_of(c("month_sc", "year_sc")), as.numeric)) |>
+  distinct()
+
+glimpse(SC_permittedVessels_longer_m_y)
+
+
+sc_fhier_w_month <-
+  left_join(
+    SC_permittedVessels_longer_m_y,
+    compl_override_data__renamed_m,
+    join_by(
+      vessel_reg_uscg_ == vessel_official_number,
+      month_sc == comp_month,
+      year_sc == comp_year,
+    )
+  )
+
+View(sc_fhier_w_month)
+
+# str(SC_permittedVessels_longer_non_compl)
+# SC_permittedVessels_longer_non_compl_y_m |>
+# SC_permittedVessels_longer_non_compl |>
+#   mutate()
 
 
 # combine data ----
@@ -242,54 +293,6 @@ glimpse(dnfs__sc_fhier_my_month)
 # 3. SC compliant vessels list ----
 # 3) we also need a step that just grabs the compliant vessels (herein "SC compliant vessels list"), and then checks FHIER compliance to see if any that SC has as compliant are listed as non-compliant for any of the weeks in the given month. If any vessels are found to be compliant with SC but non-compliant with us/FHIER, then we need (on a 3rd sheet) to list those vessels and include what week (with date ranges) we are missing in FHIER. Eric will use this to more proactively alert us when a vessel is reporting only to SC, since we have so many recurring issues with this.
 
-SC_permittedVessels_longer <-
-  SC_permittedVessels |>
-  pivot_longer(
-    !c(
-      "vessel_reg_uscg_",
-      "vessel_name",
-      "reports_to_srhs",
-      "federal_for_hire_permit_expiration",
-      "marked_as_federally_permitted_in_vesl",
-      "delinquent"
-    ),
-    names_to = "month_year",
-    values_to = "delinquent_month"
-  )
-
-SC_permittedVessels_longer_m_y <-
-  SC_permittedVessels_longer |>
-  # filter(delinquent_month == 1) |>
-  separate_wider_delim(cols = month_year,
-                       delim = "-",
-                       names = c("month_sc", "year_sc")) |>
-  mutate(year_sc = paste0("20", year_sc)) |>
-  mutate(across(all_of(c("month_sc", "year_sc")), as.numeric)) |>
-  distinct()
-
-glimpse(SC_permittedVessels_longer_m_y)
-
-compl_override_data__renamed_m <-
-  compl_override_data__renamed |>
-  mutate(comp_month = month(comp_week_end_dt))
-
-sc_fhier_w_month <-
-  left_join(
-    SC_permittedVessels_longer_m_y,
-    compl_override_data__renamed_m,
-    join_by(
-      vessel_reg_uscg_ == vessel_official_number,
-      month_sc == comp_month,
-      year_sc == comp_year,
-    )
-  )
-
-View(sc_fhier_w_month)
-
-# str(SC_permittedVessels_longer_non_compl)
-SC_permittedVessels_longer_non_compl_y_m |>
-SC_permittedVessels_longer_non_compl |>
-  mutate()
 
 compliant_vessels_in_sc_and_non_compl_fhier <-
   sc_fhier |>
