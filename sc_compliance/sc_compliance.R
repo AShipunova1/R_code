@@ -80,14 +80,12 @@ if (!class(compl_override_data__renamed$vessel_official_number) == "character") 
 
 SC_vessels_FHIERData_0 <- read_csv("~\\..\\Downloads/Report 1(3).csv")
 
-xlsx_names_list = list(r"(sc_mismatches\2024_04\scdnrFedVessels_04012024.xlsx)")
-
 # SC_vessels_FHIERData_0 <-
   # load_csv_names(my_paths$inputs, csv_names_list)[[1]]
 
 SC_vessels_FHIERData <- clean_headers(SC_vessels_FHIERData_0)
 
-# glimpse(SC_vessels_FHIERData)
+dim(SC_vessels_FHIERData)
 str(SC_vessels_FHIERData)
 
 # get enabled only
@@ -105,9 +103,11 @@ FHIER_vessel_officialnumber <-
   data.frame(Official_number = tolower(SC_vessels_FHIERData_enabled$vessel_official_number))
 
 dim(FHIER_vessel_officialnumber)
-# 188
+# 200
 
 ## read sc permitted data ----
+xlsx_names_list = list(r"(sc_mismatches\2024_04\scdnrFedVessels_04012024.xlsx)")
+
 length(xlsx_names_list)
 myfiles <- lapply(xlsx_names_list, function(x) file.path(my_paths$inputs, x))
 
@@ -119,7 +119,7 @@ SC_permittedVessels <- read_excel(
   guess_max = 21474836
 )
 
-# fix dates in headers
+### fix dates in headers ----
 date_names <- names(SC_permittedVessels)[7:18] |>
   convertToDate() |> format("%m-%y")
   # format("%b-%y")
@@ -142,7 +142,7 @@ logbooks <-
   read_rds(logbooks_path) |>
   clean_headers()
 
-# View(logbooks)
+dim(logbooks)
 
 ## get dnfs ----
 dnfs_path <- file.path(
@@ -154,7 +154,10 @@ dnfs <-
   read_rds(dnfs_path) |>
   clean_headers()
 
-# dim(dnfs)
+dim(dnfs)
+
+## change sc data format ----
+
 
 # combine data ----
 print_df_names(SC_permittedVessels)
