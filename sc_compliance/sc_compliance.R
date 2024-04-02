@@ -215,10 +215,10 @@ glimpse(SC_permittedVessels_longer_m_y)
 
 # combine data ----
 
-sc_fhier_w_month <-
+sc__fhier_compl__join_w_month <-
   left_join(
     SC_permittedVessels_longer_m_y,
-    compl_override_data__renamed_m,
+    compl_override_data__renamed_m_short,
     join_by(
       vessel_reg_uscg_ == vessel_official_number,
       month_sc == comp_month,
@@ -226,14 +226,32 @@ sc_fhier_w_month <-
     )
   )
 
-View(sc_fhier_w_month)
+dim(SC_permittedVessels)
+# 215
+dim(SC_permittedVessels_longer_m_y)
+# 2580
+dim(sc__fhier_compl__join_w_month)
+# 8013
+n_distinct(SC_permittedVessels) == n_distinct(sc__fhier_compl__join_w_month$vessel_reg_uscg_)
+# T
+# 215
+# View(sc__fhier_compl__join_w_month)
 
-sc_fhier <-
-  left_join(
-    SC_permittedVessels,
-    compl_override_data__renamed,
-    join_by(vessel_reg_uscg_ == vessel_official_number)
-  )
+# sc_fhier <-
+#   left_join(
+#     SC_permittedVessels,
+#     compl_override_data__renamed,
+#     join_by(vessel_reg_uscg_ == vessel_official_number)
+#   )
+
+sc__fhier_compl__join_w_month_no_weeks <-
+  sc__fhier_compl__join_w_month |>
+  select(-c(comp_week, comp_week_start_dt, comp_week_end_dt)) |>
+  distinct()
+
+dim(sc__fhier_compl__join_w_month)
+dim(sc__fhier_compl__join_w_month_no_weeks)
+# View(sc__fhier_compl__join_w_month_no_weeks)
 
 # 1. the list of those SC non-compliant vessels that are also non-compliant in FHIER ----
 
