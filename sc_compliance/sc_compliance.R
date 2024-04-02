@@ -34,7 +34,6 @@ curr_proj_output_path <- file.path(my_paths$outputs,
 # 1) Use file.path to construct the path to a file from components. It will add the correct slashes between path parts.
 compl_override_data_file_path <-
   file.path(r"(~\R_files_local\my_inputs\processing_logbook_data\Outputs\Raw_Oracle_Downloaded_compliance_2021_plus.rds)")
-# File: Raw_Oracle_Downloaded_compliance_2021_plus.rds modified 2024-02-05 09:52:06.996529
 
 # Check if the file path is correct, optional
 file.exists(compl_override_data_file_path)
@@ -58,7 +57,7 @@ WHERE
 compl_override_data <-
   read_rds_or_run(compl_override_data_file_path,
                   my_function = compl_err_query)
-
+# File: Raw_Oracle_Downloaded_compliance_2021_plus.rds modified 2024-04-02 12:18:54.299425
 ### prep the compliance/override data ----
 
 # Change column names for consistency with other datasets
@@ -103,8 +102,7 @@ dim(compl_override_data__renamed_m)
 dim(compl_override_data__renamed_m_short)
 
 ### combine compliance by month ----
-# TODO: add overridden to compliance (in logbooks processing)
-# (?)
+tic("get month_comp")
 compl_override_data__renamed_m_short__m_compl <-
   compl_override_data__renamed_m_short |>
   group_by(vessel_official_number, comp_year, comp_month) |>
@@ -113,6 +111,10 @@ compl_override_data__renamed_m_short__m_compl <-
            case_when(all_m_comp %in% c(c("0, 1"), "0") ~ "non_compl",
                      .default = "compl")) |>
   ungroup()
+toc()
+
+# check
+# compl_override_data__renamed_m_short__m_compl |>
 #   filter(vessel_official_number == "1000042",
 #          comp_year == 2024,
 #          comp_month == 2
@@ -140,11 +142,13 @@ str(SC_vessels_FHIERData)
 SC_vessels_FHIERData_enabled <-
   SC_vessels_FHIERData |>
   filter(tolower(enabled) == "yes")
-# dim(SC_vessels_FHIERData_enabled)
+
+dim(SC_vessels_FHIERData_enabled)
 # 199 8
 # [1] 187   8
 # 189
 # 188
+# 200
 
 # create new dataframe with just enabled vessel official # for analysis
 FHIER_vessel_officialnumber <-
@@ -181,6 +185,7 @@ dim(dnfs)
 xlsx_names_list = list(r"(sc_mismatches\2024_04\scdnrFedVessels_04012024.xlsx)")
 
 length(xlsx_names_list)
+
 myfiles <- lapply(xlsx_names_list, function(x) file.path(my_paths$inputs, x))
 
 file.exists(myfiles[[1]])
@@ -274,7 +279,7 @@ dim(sc__fhier_compl__join_w_month)
 dim(sc__fhier_compl__join_w_month_no_weeks)
 # [1] 2588   14
 
-print_df_names(sc__fhier_compl__join_w_month_no_weeks)
+# print_df_names(sc__fhier_compl__join_w_month_no_weeks)
 
 # 1. the list of those SC non-compliant vessels that are also non-compliant in FHIER ----
 
@@ -287,8 +292,7 @@ non_compliant_vessels_in_sc_and_fhier <-
   distinct()
 
 dim(non_compliant_vessels_in_sc_and_fhier)
-# 6
-# 4
+# 2
 
 # 2. non compliant in SC and compliant in FHIER ----
 # 2) if they are compliant for that month in FHIER then list all the dates of DNFs and/or logbooks we have in FHIER by vessel (probably 3 columns needed: vessel ID, Logbook (list any dates for that month), DNF (list week date range for any for that month)
@@ -298,8 +302,7 @@ non_compliant_vessels_in_sc_and_compl_in_fhier <-
            month_comp == "compl")
 
 dim(non_compliant_vessels_in_sc_and_compl_in_fhier)
-# [1] 519  40
-# 37 14
+# 40 14
 
 ## add logbooks info ----
 # Logbook (list any dates for that month)
@@ -310,14 +313,6 @@ logbooks__sc_fhier <-
 
 dim(logbooks__sc_fhier)
 # 4
-
-logbooks__sc_fhier_my_month <-
-  logbooks__sc_fhier |>
-  filter(month(trip_end_date) == my_month) |>
-  select(vessel_official_number, trip_start_date, trip_end_date) |>
-  distinct()
-
-dim(logbooks__sc_fhier_my_month)
 
 ## add DNF info ----
 # DNF (list week date range for any for that month)
