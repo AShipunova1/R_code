@@ -102,6 +102,27 @@ compl_override_data__renamed_m_short <-
 dim(compl_override_data__renamed_m)
 dim(compl_override_data__renamed_m_short)
 
+### combine compliance by month ----
+
+# (?)
+compl_override_data__renamed_m_short__m_compl <-
+  compl_override_data__renamed_m_short |>
+  group_by(vessel_official_number, comp_year, comp_month) |>
+  mutate(all_m_comp = toString(unique(sort(is_comp)))) |>
+  mutate(month_comp =
+           case_when(all_m_comp %in% c(c("0, 1"), "0") ~ "non_compl",
+                     .default = "compl")) |>
+  ungroup()
+#   filter(vessel_official_number == "1000042",
+#          comp_year == 2024,
+#          comp_month == 2
+# ) |>
+# filter(month_comp == "non_compl") |>
+#
+#     str()
+#
+#   glimpse()
+
 ## Download Maintenance / SC Vessels Reporting via VESL from FHIER ----
 # https://grunt.sefsc.noaa.gov/apex/f?p=162:386:5458401387184:::RP,386::&cs=3lR5MlDRVs7tWDLbTPOrYh-j00HYH4yeXtQKl8Dqltvjuxmt6sBAwnah0ltdU_dBPQRSNZ21KX_NR4YGfsjtJOA
 
@@ -256,10 +277,11 @@ dim(sc__fhier_compl__join_w_month_no_weeks)
 # 1. the list of those SC non-compliant vessels that are also non-compliant in FHIER ----
 
 non_compliant_vessels_in_sc_and_fhier <-
-  sc_fhier |>
+  sc__fhier_compl__join_w_month_no_weeks |>
   filter(delinquent == 1 &
            is_comp == 0) |>
-  select(vessel_reg_uscg_, vessel_name) |>
+  filter(delinquent_month == 1) |>
+  select(vessel_reg_uscg_, month_sc, year_sc) |>
   distinct()
 
 dim(non_compliant_vessels_in_sc_and_fhier)
