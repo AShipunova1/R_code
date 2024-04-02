@@ -451,43 +451,44 @@ my_stats(compl_override_data__renamed__this_year,
 #             SEFHIER_compl_override_data__renamed__this_year
 #           )))
 
-grep("year", names(Logbooks), ignore.case = T, value = T)
-grep("week", names(Logbooks), ignore.case = T, value = T)
+# grep("year", names(Logbooks), ignore.case = T, value = T)
+# grep("week", names(Logbooks), ignore.case = T, value = T)
 
-logbook_join_overr <-
+logbooks_join_overr <-
   full_join(
     Logbooks,
     SEFHIER_compl_override_data__renamed__this_year,
     join_by(TRIP_END_YEAR == COMP_YEAR,
             VESSEL_OFFICIAL_NUMBER,
-            COMP_WEEK),
+            TRIP_END_WEEK == COMP_WEEK),
     relationship = "many-to-many"
   )
-# to see the many-to-many relationship see find_duplicates_in_compl.R
 
 # check the difference
-in_compl_not_in_dnfs <-
-  dnfs_join_overr |>
+in_compl_not_in_logbooks <-
+  logbooks_join_overr |>
   filter(is.na(TRIP_ID)) |>
   select(VESSEL_OFFICIAL_NUMBER) |>
   distinct()
 
-nrow(in_compl_not_in_dnfs)
+nrow(in_compl_not_in_logbooks)
+# 3320
 
-in_dnfs_not_in_compl <-
-  dnfs_join_overr |>
+in_logbooks_not_in_compl <-
+  logbooks_join_overr |>
   filter(is.na(IS_COMP)) |>
   select(VESSEL_OFFICIAL_NUMBER) |>
   distinct()
 
-nrow(in_dnfs_not_in_compl)
+nrow(in_logbooks_not_in_compl)
+# 140
 
 # TODO: validate in_compl_not_in_dnfs and in_dnfs_not_in_compl
 # my_year
 # getwd()
-write_rds(as_tibble(in_dnfs_not_in_compl),
-          file.path(output_file_path,
-            "in_dnfs_not_in_compl.rds"))
+# write_rds(as_tibble(in_logbooks_not_in_compl),
+#           file.path(output_file_path,
+#             "in_dnfs_not_in_compl.rds"))
 
 # stats
 my_stats(SEFHIER_compl_override_data__renamed__this_year)
@@ -496,25 +497,25 @@ my_stats(SEFHIER_compl_override_data__renamed__this_year)
 # columns: 8
 # Unique vessels: 2020
 # Unique trips: 440307
-my_stats(dnfs_join_overr)
+my_stats(logbooks_join_overr)
 # 2022
 # rows: 441000
 # columns: 28
 # Unique vessels: 2020
 # Unique trips: 440307
 
-### Remove rows with NA DNFs and entries in Compiance ----
-dnfs_join_overr__all_dnfs <-
-  dnfs_join_overr |>
+### Remove rows with NA logbooks and entries in Compiance ----
+logbooks_join_overr__all_logbooks <-
+  logbooks_join_overr |>
   filter(!is.na(TRIP_ID))
 
-# dim(dnfs_join_overr)
-# dim(dnfs_join_overr__all_dnfs)
+dim(logbooks_join_overr)
+dim(logbooks_join_overr__all_logbooks)
 
 ### Add a compliant_after_override column ----
 tic("Add a compliant_after_override column")
-dnfs_join_overr__compl <-
-  dnfs_join_overr__all_dnfs |>
+logbooks_join_overr__compl <-
+  logbooks_join_overr__all_logbooks |>
   rowwise() |>
   mutate(
     compliant_after_override =
@@ -526,36 +527,37 @@ dnfs_join_overr__compl <-
   ) |>
   ungroup()
 toc()
-# Add a compliant_after_override column: 108.74 sec elapsed
+# Add a compliant_after_override column: 91.81 sec elapsed
 
-dnfs_join_overr__all_dnfs |>
+logbooks_join_overr__all_logbooks |>
   select(IS_COMP,
          OVERRIDDEN) |>
   distinct()
 #   IS_COMP OVERRIDDEN
 # 1       1          0
-# 2      NA         NA
-# 3       0          1
-# 4       0          0
+# 2       1          1
+# 3      NA         NA
+# 4       0          1
+# 5       0          0
 
-dnfs_join_overr |>
+logbooks_join_overr |>
   filter(IS_COMP == 1 & OVERRIDDEN == 1) |>
   select(TRIP_ID) |>
-  distinct()
-# NA
+  distinct() |>
+  dim()
+# 401
 
-dnfs_join_overr__compl |>
+logbooks_join_overr__compl |>
   select(compliant_after_override,
          IS_COMP,
          OVERRIDDEN) |>
   distinct()
 #   compliant_after_override IS_COMP OVERRIDDEN
-#   <chr>                      <int>      <int>
 # 1 yes                            1          0
-# 2 NA                            NA         NA
-# 3 yes                            0          1
-# 4 no                             0          0
-# 5 yes                            1          1
+# 2 yes                            1          1
+# 3 NA                            NA         NA
+# 4 yes                            0          1
+# 5 no                             0          0
 
 ## Flag trips neg that were received > 30 days after the trip date, by using compliance data and time of submission ----
 
