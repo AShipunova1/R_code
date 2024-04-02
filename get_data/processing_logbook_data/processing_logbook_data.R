@@ -631,6 +631,28 @@ my_tee(n_distinct(logbooks_too_long$VESSEL_ID),
 # 30
 
 ## Mark all trips that were received > 30 days after the trip end date, by using compliance data and time of submission ----
+### add the threshold date ----
+logbooks_join_overr_e <-
+  logbooks_join_overr__compl__start_end_ok |>
+  mutate(TRIP_END_DATE_E =
+           ymd_hms(TRIP_END_DATE,
+                   truncated = 3,
+                   tz = Sys.timezone()))
+
+# add a date 30 days later with a time
+# logbooks_notoverridden <-
+#   logbooks_notoverridden |>
+logbooks_join_overr_e_usable_date <-
+  logbooks_join_overr_e |>
+  mutate(USABLE_DATE_TIME =
+           TRIP_END_DATE_E + days(30)) |>
+  mutate(USABLE_DATE_TIME =
+           `hour<-`(USABLE_DATE_TIME, 23)) |>
+  mutate(USABLE_DATE_TIME =
+           `minute<-`(USABLE_DATE_TIME, 59)) |>
+  mutate(USABLE_DATE_TIME =
+           `second<-`(USABLE_DATE_TIME, 59))
+
 
 # subtract the usable date from the date of submission
 # value is true if the logbook was submitted within 30 days, false if the logbook was not
@@ -671,21 +693,22 @@ late_submission_filter_stats <-
   }
 
 late_submission_filter <-
-  function() {
+  function(my_df) {
 
-    SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok_temp <-
-      SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok |>
+    logbooks_join_overr__compl__start_end_ok__trip_len_ok_temp <-
+      my_df |>
       mutate(MORE_THAN_30_DAYS_LATE =
                ifelse(USABLE_DATE_TIME >= TRIP_DE, TRUE, FALSE))
 
-    late_submission_filter_stats(SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok_temp)
+    late_submission_filter_stats(logbooks_join_overr__compl__start_end_ok__trip_len_ok_temp)
 
     # late_submissions_flag = "_no_late_submissions"
-    return(SEFHIER_logbooks_notoverridden__start_end_ok__trip_len_ok_temp)
+    return(logbooks_join_overr__compl__start_end_ok__trip_len_ok_temp)
   }
 
 ### Filter (mark only): data frame of logbooks that were usable ----
-SEFHIER_logbooks_processed <- late_submission_filter()
+SEFHIER_logbooks_processed <-
+  late_submission_filter(logbooks_join_overr_e_usable_date)
 
 # Separate permit regions to GOM only, SA only or dual using PERMIT_GROUP ----
 # Revisit after
