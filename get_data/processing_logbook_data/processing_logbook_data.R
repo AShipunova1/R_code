@@ -395,6 +395,13 @@ compl_override_data__renamed__this_year |>
 # 2      2023       2023-01-08         1
 # 3      2023       2023-01-15         2
 
+# Needed to adjust for week 52 of the previous year and use in joins
+Logbooks <-
+  Logbooks |>
+  mutate(TRIP_END_WEEK = isoweek(TRIP_END_DATE), # puts it in week num
+         TRIP_END_YEAR = isoyear(TRIP_END_DATE)) # adds a year
+
+
 # Adding flags to the logbook data ----
 
 ## Filter out vessels not in Metrics tracking ----
@@ -427,7 +434,7 @@ logbooks_not_in_metrics <-
 # 356497 (2022)
 # 446859 (2023)
 
-## add compliance/override data to dnfs ----
+## add compliance/override data to logbooks ----
 my_stats(compl_override_data__renamed__this_year,
          "Compliance and override data from the db")
 # 2022
@@ -435,56 +442,25 @@ my_stats(compl_override_data__renamed__this_year,
 # columns: 23
 # Unique vessels: 3626
 
-### check if logbooks and compliance data have the same week dates ----
-trip_date_1 <-
-  SEFHIER_compl_override_data__renamed__this_year |>
-  filter(TRIP_DATE_WEEK == 1,
-         TRIP_DATE_YEAR == my_year) |>
-  select(TRIP_DATE)
+### TODO: check if logbooks and compliance data have the same week dates
 
-dnfs_first_week_my_year <-
-  tibble(min1 = as.Date(min(trip_date_1$TRIP_DATE),
-                        tz = Sys.timezone()),
-    # [1] "2022-01-03 23:00:00 EST"
-    max1 = as.Date(max(trip_date_1$TRIP_DATE),
-                   tz = Sys.timezone())
-    # [1] "2022-01-09 23:00:00 EST"
-    )
+### join the data frames ----
+# Logbooks |> names() |> cat('", "')
+# intersect(sort(names(Logbooks)),
+#           sort(names(
+#             SEFHIER_compl_override_data__renamed__this_year
+#           )))
 
-# Explanations:
-# 1. Use 'filter' to select rows where 'COMP_WEEK' is equal to 1 and 'COMP_YEAR' is equal to "2022".
-# 2. Use the pipe operator ('|>') to pass the resulting DataFrame to the next operation.
-# 3. Use 'select' to keep only the columns that start with "COMP_WEEK_".
-# 4. Use 'distinct' to keep only unique rows after selecting columns.
-# 5. The resulting DataFrame will contain only the columns that start with "COMP_WEEK_" from the filtered rows.
-trip_date_2 <-
-  compl_override_data__renamed__this_year |>
-  filter(COMP_WEEK == 1,
-         COMP_YEAR == my_year) |>
-  select(starts_with("COMP_WEEK_")) |>
-  distinct()
+grep("year", names(Logbooks), ignore.case = T, value = T)
+grep("week", names(Logbooks), ignore.case = T, value = T)
 
-compl_first_week_my_year <-
-  tibble(min1 = as.Date(min(trip_date_2$COMP_WEEK_START_DT),
-                        tz = Sys.timezone()),
-    # [1] "2022-01-03 EST"
-    max1 = as.Date(max(trip_date_2$COMP_WEEK_END_DT),
-                   tz = Sys.timezone()))
-    # [1] "2022-01-09 EST"
-
-diffdf::diffdf(dnfs_first_week_my_year, compl_first_week_my_year)
-# same as above, ok
-
-### join the dfs ----
-dnfs_join_overr <-
+logbook_join_overr <-
   full_join(
+    Logbooks,
     SEFHIER_compl_override_data__renamed__this_year,
-    compl_override_data__renamed__this_year,
-    join_by(
-      TRIP_DATE_YEAR == COMP_YEAR,
-      VESSEL_OFFICIAL_NUMBER,
-      TRIP_DATE_WEEK == COMP_WEEK
-    ),
+    join_by(TRIP_END_YEAR == COMP_YEAR,
+            VESSEL_OFFICIAL_NUMBER,
+            COMP_WEEK),
     relationship = "many-to-many"
   )
 # to see the many-to-many relationship see find_duplicates_in_compl.R
