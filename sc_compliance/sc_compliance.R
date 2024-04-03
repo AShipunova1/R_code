@@ -299,10 +299,9 @@ n_distinct(SC_permittedVessels) == n_distinct(sc__fhier_compl__join_w_month$vess
 #   distinct()
 
 dim(sc__fhier_compl__join_w_month)
-# dim(sc__fhier_compl__join_w_month_no_weeks)
 # [1] 2588   14
-
-# print_df_names(sc__fhier_compl__join_w_month_no_weeks)
+# [1] 8023   19 (w weeks)
+#
 
 # 1. the list of those SC non-compliant vessels that are also non-compliant in FHIER ----
 
@@ -322,12 +321,13 @@ non_compliant_vessels_in_sc_and_fhier <-
 # 2. non compliant in SC and compliant in FHIER ----
 # 2) if they are compliant for that month in FHIER then list all the dates of DNFs and/or logbooks we have in FHIER by vessel (probably 3 columns needed: vessel ID, Logbook (list any dates for that month), DNF (list week date range for any for that month)
 non_compliant_vessels_in_sc_and_compl_in_fhier <-
-  sc__fhier_compl__join_w_month_no_weeks |>
+  sc__fhier_compl__join_w_month |>
   filter(delinquent == 1 &
            month_comp == "compl")
 
 dim(non_compliant_vessels_in_sc_and_compl_in_fhier)
 # 40 14
+# [1] 172  19 w weeks
 
 ## add logbooks info ----
 # Logbook (list any dates for that month)
@@ -349,26 +349,15 @@ dnfs__sc_fhier <-
 dim(dnfs__sc_fhier)
 # 94
 
-# Explanations:
-# 2. Use 'mutate' to create a new column 'week_start_date_mon' by rounding down 'trip_date' to the start of the week (Monday) using 'floor_date' function.
-# 3. Use 'mutate' to create a new column 'week_end_date_mon' by rounding up 'trip_date' to the end of the week (Sunday) using 'ceiling_date' function.
-# 4. Use 'select' to keep only the columns 'vessel_official_number', 'week_start_date_mon', and 'week_end_date_mon'.
-# 5. Use 'distinct' to keep only unique rows based on the selected columns.
-dnfs__sc_fhier_my_month <-
+dnfs__sc_fhier_comp_weeks <-
   dnfs__sc_fhier |>
-  mutate(
-    week_start_date_mon =
-      floor_date(trip_date, unit = 'week', week_start = 1),
-    week_end_date_mon =
-      ceiling_date(trip_date, unit = 'week', week_start = 1)
-  ) |>
   select(vessel_official_number,
-         week_start_date_mon,
-         week_end_date_mon,
+         comp_week_start_dt,
+         comp_week_end_dt,
          compliant_after_override) |>
   distinct()
 
-glimpse(dnfs__sc_fhier_my_month)
+dim(dnfs__sc_fhier_my_month)
 # 18
 
 # 3. SC compliant vessels list ----
