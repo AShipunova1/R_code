@@ -384,17 +384,18 @@ dim(dnfs__sc_fhier)
 
 dnfs__sc_fhier_for_output <-
   dnfs__sc_fhier |>
-  # mutate(trip_date_month = month(trip_date)) |>
-  # group_by(vessel_official_number, trip_date_year, trip_date_month) |>
-  # mutate(all_m_comp = toString(unique(sort(compliant_after_override)))) |>
-  # mutate(month_comp =
-  #          case_when(all_m_comp %in% c(c("no, yes"), "no") ~ "non_compl",
-  #                    .default = "compl")) |>
-  # ungroup() |>
-  filter(compliant_after_override == "yes") |>
+  mutate(trip_date_month = month(trip_date)) |>
+  group_by(vessel_official_number, trip_date_year, trip_date_month) |>
+  mutate(all_m_comp = toString(unique(sort(compliant_after_override)))) |>
+  mutate(month_comp =
+           case_when(all_m_comp %in% c(c("no, yes"), "no") ~ "non_compl",
+                     .default = "compl")) |>
+  ungroup() |>
+  filter(month_comp == "compl" & compliant_after_override == "yes") |>
   select(
     vessel_official_number,
     vessel_name,
+    month_comp,
     comp_week_start_dt,
     comp_week_end_dt,
     is_comp,
