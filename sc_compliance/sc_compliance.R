@@ -74,13 +74,13 @@ if (!class(compl_override_data__renamed$vessel_official_number) == "character") 
     as.character(compl_override_data__renamed$vessel_official_number)
 }
 
-# TODO: check in the other code
+# TODO: change to the overlapping intervals (lubridate)
 compl_override_data__renamed_m <-
   compl_override_data__renamed |>
   mutate(comp_month = month(comp_week_end_dt))
 
 ### keep fewer compl fields ----
-print_df_names(compl_override_data__renamed_m)
+# print_df_names(compl_override_data__renamed_m)
 
 compl_override_data__renamed_m_short <-
   compl_override_data__renamed_m |>
@@ -99,10 +99,11 @@ compl_override_data__renamed_m_short <-
   distinct() |>
   filter(comp_year %in% c(my_year, as.integer(my_year) - 1))
 
-dim(compl_override_data__renamed_m)
-dim(compl_override_data__renamed_m_short)
+# dim(compl_override_data__renamed_m)
+# dim(compl_override_data__renamed_m_short)
 
 ### add compliance/overridden combinations by week ----
+# Copy the comment from dnf processing
 tic("get comp/overridden")
 compl_override_data__renamed_m_short__compl_overr_by_week <-
   add_compliant_after_override(compl_override_data__renamed_m_short)
@@ -130,23 +131,12 @@ compl_override_data__renamed_m_short__m_compl <-
   ungroup()
 toc()
 
-
 # View(compl_override_data__renamed_m_short__m_compl)
 
 # check
 # compl_override_data__renamed_m_short__m_compl |>
 #     select(compliant_after_override, is_comp, overridden, all_m_comp, month_comp) |>
 #     distinct()
-
-compl_override_data__renamed_m_short__m_compl |>
-  filter(vessel_official_number == "657358"
-         # comp_year == 2024,
-         # comp_month == 2
-         ) |>
-  filter(month_comp == "non_compl") |>
-  str()
-#
-#   glimpse()
 
 ## get logbooks ----
 logbooks_path <- file.path(
@@ -199,8 +189,14 @@ SC_permittedVessels <- read_excel(
   guess_max = 21474836
 )
 
+# print_df_names(SC_permittedVessels)
+
 ### fix dates in headers ----
-date_names <- names(SC_permittedVessels)[7:18] |>
+# TODO: grab just the month of interest
+# TODO: grep for numbers only in the names and convert them
+
+date_names <-
+  names(SC_permittedVessels)[7:18] |>
   convertToDate() |> format("%m-%y")
   # format("%b-%y")
 
@@ -230,9 +226,10 @@ SC_permittedVessels_longer <-
     values_to = "delinquent_month"
   )
 
+glimpse(SC_permittedVessels_longer)
+
 SC_permittedVessels_longer_m_y <-
   SC_permittedVessels_longer |>
-  # filter(delinquent_month == 1) |>
   separate_wider_delim(cols = month_year,
                        delim = "-",
                        names = c("month_sc", "year_sc")) |>
@@ -240,7 +237,7 @@ SC_permittedVessels_longer_m_y <-
   mutate(across(all_of(c("month_sc", "year_sc")), as.numeric)) |>
   distinct()
 
-glimpse(SC_permittedVessels_longer_m_y)
+# glimpse(SC_permittedVessels_longer_m_y)
 
 # SRHS: check and remove reports_to_srhs ----
 sc__srhs_join <-
@@ -248,13 +245,26 @@ sc__srhs_join <-
             srhs_2024,
             join_by(vessel_reg_uscg_ == uscg__))
 
+# View(sc__srhs_join)
 
+sc__srhs_join |>
+  select(reports_to_srhs, is_insurvey) |>
+  distinct()
+#   reports_to_srhs is_insurvey
+#             <dbl> <chr>
+# 1               0 NA
+# 2               1 Y
+# 3              NA Y
+
+SC_permittedVessels_longer_m_y_no_srhs <-
+  SC_permittedVessels_longer_m_y |>
+  filter(reports_to_srhs == 0)
 
 # combine data ----
 
 sc__fhier_compl__join_w_month <-
   left_join(
-    SC_permittedVessels_longer_m_y,
+    SC_permittedVessels_longer_m_y_no_srhs,
     compl_override_data__renamed_m_short__m_compl,
     join_by(
       vessel_reg_uscg_ == vessel_official_number,
@@ -265,13 +275,14 @@ sc__fhier_compl__join_w_month <-
 
 dim(SC_permittedVessels)
 # 215
-dim(SC_permittedVessels_longer_m_y)
-# 2580
+dim(SC_permittedVessels_longer_m_y_no_srhs)
+# SC_permittedVessels_longer_m_y_no_srhs
 dim(sc__fhier_compl__join_w_month)
-# 8013
-n_distinct(SC_permittedVessels) == n_distinct(sc__fhier_compl__join_w_month$vessel_reg_uscg_)
-# T
+# 7927
+n_distinct(SC_permittedVessels)
 # 215
+n_distinct(sc__fhier_compl__join_w_month$vessel_reg_uscg_)
+# 207 (rm SRHS)
 # View(sc__fhier_compl__join_w_month)
 
 # sc_fhier <-
@@ -288,10 +299,9 @@ n_distinct(SC_permittedVessels) == n_distinct(sc__fhier_compl__join_w_month$vess
 
 dim(sc__fhier_compl__join_w_month)
 # [1] 2588   14
-# [1] 8023   19 (w weeks)
-#
+# [1] 7927   19 (w weeks)
 
-# 1. the list of those SC non-compliant vessels that are also non-compliant in FHIER ----
+# 1. SC non-compliant vessels that are also non-compliant in FHIER ----
 
 non_compliant_vessels_in_sc_and_fhier <-
   sc__fhier_compl__join_w_month |>
@@ -301,9 +311,9 @@ non_compliant_vessels_in_sc_and_fhier <-
   # select(vessel_reg_uscg_, month_sc, year_sc) |>
   distinct()
 
-# View(non_compliant_vessels_in_sc_and_fhier)
+dim(non_compliant_vessels_in_sc_and_fhier)
 # 2
-# 8 18 with weeks
+# 8 19 with weeks
 # (?) which columns to the output?
 
 non_compliant_vessels_in_sc_and_fhier__for_output <-
@@ -320,7 +330,8 @@ non_compliant_vessels_in_sc_and_fhier__for_output <-
     overridden,
     compliant_after_override
   ) |>
-  distinct()
+  distinct() |>
+  arrange(vessel_reg_uscg_, year_sc, comp_week_start_dt)
 
 # View(non_compliant_vessels_in_sc_and_fhier__for_output)
 
@@ -356,7 +367,8 @@ logbooks__sc_fhier_for_output <-
     trip_de,
     trip_ue
   ) |>
-  distinct()
+  distinct() |>
+  arrange(vessel_official_number, trip_start_date)
 
 ## add DNF info ----
 # DNF (list week date range for any for that month)
@@ -388,12 +400,13 @@ dnfs__sc_fhier_for_output <-
     overridden,
     compliant_after_override
   ) |>
-  distinct()
+  distinct() |>
+  arrange(vessel_official_number, comp_week_start_dt)
 
-# View(dnfs__sc_fhier_for_output)
-# 18
+dim(dnfs__sc_fhier_for_output)
+# 10
 
-# 3. SC compliant vessels list ----
+# 3. SC compliant and not compliant in FHIER ----
 # 3) we also need a step that just grabs the compliant vessels (herein "SC compliant vessels list"), and then checks FHIER compliance to see if any that SC has as compliant are listed as non-compliant for any of the weeks in the given month. If any vessels are found to be compliant with SC but non-compliant with us/FHIER, then we need (on a 3rd sheet) to list those vessels and include what week (with date ranges) we are missing in FHIER. Eric will use this to more proactively alert us when a vessel is reporting only to SC, since we have so many recurring issues with this.
 
 compliant_vessels_in_sc_and_non_compl_fhier <-
@@ -420,10 +433,11 @@ compliant_vessels_in_sc_and_non_compl_fhier__for_output <-
     compliant_after_override
   ) |>
   filter(compliant_after_override == "no") |>
-  distinct()
+  distinct() |>
+  arrange(vessel_reg_uscg_, comp_week_start_dt)
 
-# View(compliant_vessels_in_sc_and_non_compl_fhier__for_output)
-# [1] 739   7
+dim(compliant_vessels_in_sc_and_non_compl_fhier__for_output)
+# [1] 394   9
 
 # write results to xlsx ----
 # (sheet 1) the list of those SC non-compliant vessels that are also non-compliant in FHIER, or
@@ -439,8 +453,26 @@ output_file_name <-
 # dnfs__sc_fhier_for_output
 # compliant_vessels_in_sc_and_non_compl_fhier__for_output
 
+# TODO include headers definitions
+readme_text <-
+  list(
+    today(),
+    "Sheet definition:",
+    "'non_compl_sc_and_fhier' - Non compliant South Carolina vessels and non compliant in FHIER",
+    "non_compl_sc__compl_fhier_lgb,",
+    "non_compl_sc__compl_fhier_dnf,",
+    "compl_sc__non_compl_fhier",
+    "non_compl_sc_and_fhier:",
+    "header 1 --"
+  ) |>
+  as.data.frame() |>
+  t()
+
+colnames(readme_text) <- "Read.me"
+
 result_list <-
   list(
+    "readme" = readme_text,
     "non_compl_sc_and_fhier" =
       non_compliant_vessels_in_sc_and_fhier__for_output,
     "non_compl_sc__compl_fhier_lgb" =
