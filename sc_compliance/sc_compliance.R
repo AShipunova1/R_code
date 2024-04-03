@@ -204,6 +204,18 @@ dnfs <-
 
 dim(dnfs)
 
+## get srhs vessels ----
+srhs_2024_file_path <-
+  file.path(my_paths$inputs,
+            r"(SRHS_headboat_survey\Vessel_List_2024.csv)")
+
+srhs_2024 <-
+  read_csv(srhs_2024_file_path,
+           col_types = cols(.default = 'c')) |>
+  clean_headers()
+
+# View(srhs_2024)
+
 ## read sc permitted data ----
 xlsx_names_list = list(r"(sc_mismatches\2024_04\scdnrFedVessels_04012024.xlsx)")
 
