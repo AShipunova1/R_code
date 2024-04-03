@@ -10,7 +10,6 @@
 require(openxlsx)
 
 my_year <- "2024"
-my_month <- "2"
 db_year_1 <- "2023"
 db_year_2 <- "2024"
 
@@ -58,6 +57,7 @@ compl_override_data <-
   read_rds_or_run(compl_override_data_file_path,
                   my_function = compl_err_query)
 # File: Raw_Oracle_Downloaded_compliance_2021_plus.rds modified 2024-04-02 12:18:54.299425
+
 ### prep the compliance/override data ----
 
 # Change column names for consistency with other datasets
@@ -74,12 +74,13 @@ if (!class(compl_override_data__renamed$vessel_official_number) == "character") 
     as.character(compl_override_data__renamed$vessel_official_number)
 }
 
+# TODO: check in the other code
 compl_override_data__renamed_m <-
   compl_override_data__renamed |>
   mutate(comp_month = month(comp_week_end_dt))
 
 ### keep fewer compl fields ----
-# names(compl_override_data__renamed_m) |> cat("\n")
+print_df_names(compl_override_data__renamed_m)
 
 compl_override_data__renamed_m_short <-
   compl_override_data__renamed_m |>
@@ -270,13 +271,13 @@ n_distinct(SC_permittedVessels) == n_distinct(sc__fhier_compl__join_w_month$vess
 #     join_by(vessel_reg_uscg_ == vessel_official_number)
 #   )
 
-sc__fhier_compl__join_w_month_no_weeks <-
-  sc__fhier_compl__join_w_month |>
-  select(-c(comp_week, comp_week_start_dt, comp_week_end_dt, is_comp)) |>
-  distinct()
+# sc__fhier_compl__join_w_month_no_weeks <-
+#   sc__fhier_compl__join_w_month |>
+#   select(-c(comp_week, comp_week_start_dt, comp_week_end_dt, is_comp)) |>
+#   distinct()
 
 dim(sc__fhier_compl__join_w_month)
-dim(sc__fhier_compl__join_w_month_no_weeks)
+# dim(sc__fhier_compl__join_w_month_no_weeks)
 # [1] 2588   14
 
 # print_df_names(sc__fhier_compl__join_w_month_no_weeks)
@@ -284,15 +285,17 @@ dim(sc__fhier_compl__join_w_month_no_weeks)
 # 1. the list of those SC non-compliant vessels that are also non-compliant in FHIER ----
 
 non_compliant_vessels_in_sc_and_fhier <-
-  sc__fhier_compl__join_w_month_no_weeks |>
+  sc__fhier_compl__join_w_month |>
   filter(delinquent == 1 &
            month_comp == "non_compl") |>
   filter(delinquent_month == 1) |>
-  select(vessel_reg_uscg_, month_sc, year_sc) |>
+  # select(vessel_reg_uscg_, month_sc, year_sc) |>
   distinct()
 
-dim(non_compliant_vessels_in_sc_and_fhier)
+# View(non_compliant_vessels_in_sc_and_fhier)
 # 2
+# 8 18 with weeks
+# (?) which columns to the output?
 
 # 2. non compliant in SC and compliant in FHIER ----
 # 2) if they are compliant for that month in FHIER then list all the dates of DNFs and/or logbooks we have in FHIER by vessel (probably 3 columns needed: vessel ID, Logbook (list any dates for that month), DNF (list week date range for any for that month)
@@ -380,8 +383,8 @@ result_list <-
     "non_compl_sc_and_fhier" =
       non_compliant_vessels_in_sc_and_fhier,
     "non_compl_sc__compl_fhier_lgb" =
-      logbooks__sc_fhier_my_month,
-    "non_compl_sc__compl_fhier_dnf" = dnfs__sc_fhier_my_month,
+      logbooks__sc_fhier,
+    "non_compl_sc__compl_fhier_dnf" = dnfs__sc_fhier,
     "compl_sc__non_compl_fhier" =
       compliant_vessels_in_sc_and_non_compl_fhier__months_only
   )
