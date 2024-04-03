@@ -357,6 +357,19 @@ logbooks__sc_fhier <-
 dim(logbooks__sc_fhier)
 # 4
 
+logbooks__sc_fhier_for_output <-
+  logbooks__sc_fhier |>
+  select(
+    vessel_official_number,
+    vessel_name,
+    trip_start_date,
+    trip_end_date,
+    vendor_app_name,
+    trip_de,
+    trip_ue
+  ) |>
+  distinct()
+
 ## add DNF info ----
 # DNF (list week date range for any for that month)
 dnfs__sc_fhier <-
