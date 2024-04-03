@@ -631,7 +631,7 @@ concat_unique_sorted <- function(x) {
 # unique values sorted within each group.
 # This function takes a data frame 'my_df' and a vector of column names
 # 'group_by_arr' as input.
-combine_rows_based_on_multiple_columns_and_keep_all_unique_sorted_values <- 
+combine_rows_based_on_multiple_columns_and_keep_all_unique_sorted_values <-
   function(my_df, group_by_arr) {
   # Group the data frame 'my_df' by the columns specified in 'group_by_arr'.
   # This step ensures that we create groups based on unique combinations of
@@ -1421,7 +1421,7 @@ list_sort_uniq <- function(my_lists) {
 #   map(\(curr_col_part)  {
 #     new_col_name <- str_glue("db_{curr_col_part}")
 #     # cat(new_col_name, sep = "\n")
-#     
+#
 #     db_participants_address__needed_short__phone0 |>
 #       group_by(official_number) |>
 #       mutate(!!new_col_name :=
@@ -1430,6 +1430,28 @@ list_sort_uniq <- function(my_lists) {
 #              .keep = "none") |>
 #       ungroup() |>
 #       select(-official_number)
-#     
-#   }) |> 
+#
+#   }) |>
 #   bind_cols(db_participants_address__needed_short__phone0, .)
+
+# ===
+
+add_compliant_after_override <- function(my_compl_df) {
+  # browser()
+  res <-
+    my_compl_df |>
+    rowwise() |>
+    mutate(
+      compliant_after_override =
+        case_when(
+          is_comp == 0 & overridden == 0  ~ "no",
+          is_comp == 1 ~ "yes",
+          overridden == 1 ~ "yes",
+          is.na(is_comp) ~ NA,
+          .default = toString(is_comp)
+        )
+    ) |>
+    ungroup()
+
+  return(res)
+}
