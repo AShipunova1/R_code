@@ -417,7 +417,7 @@ compliant_vessels_in_sc_and_non_compl_fhier <-
 dim(compliant_vessels_in_sc_and_non_compl_fhier)
 # [1] 180  14
 # [1] 739  19 with weeks
-View(compliant_vessels_in_sc_and_non_compl_fhier)
+# View(compliant_vessels_in_sc_and_non_compl_fhier)
 
 compliant_vessels_in_sc_and_non_compl_fhier__for_output <-
   compliant_vessels_in_sc_and_non_compl_fhier |>
@@ -447,15 +447,20 @@ output_file_name <-
   file.path(curr_proj_output_path,
             "sc_compliance.xlsx")
 
+# non_compliant_vessels_in_sc_and_fhier__for_output
+# logbooks__sc_fhier_for_output
+# dnfs__sc_fhier_for_output
+# compliant_vessels_in_sc_and_non_compl_fhier__for_output
+
 result_list <-
   list(
     "non_compl_sc_and_fhier" =
-      non_compliant_vessels_in_sc_and_fhier,
+      non_compliant_vessels_in_sc_and_fhier__for_output,
     "non_compl_sc__compl_fhier_lgb" =
-      logbooks__sc_fhier,
-    "non_compl_sc__compl_fhier_dnf" = dnfs__sc_fhier,
+      logbooks__sc_fhier_for_output,
+    "non_compl_sc__compl_fhier_dnf" = dnfs__sc_fhier_for_output,
     "compl_sc__non_compl_fhier" =
-      compliant_vessels_in_sc_and_non_compl_fhier__months_only
+      compliant_vessels_in_sc_and_non_compl_fhier__for_output
   )
 
 openxlsx::write.xlsx(result_list, file = output_file_name)
