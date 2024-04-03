@@ -401,18 +401,27 @@ compliant_vessels_in_sc_and_non_compl_fhier <-
 
 dim(compliant_vessels_in_sc_and_non_compl_fhier)
 # [1] 180  14
-# [1] 767  18 with weeks
+# [1] 739  19 with weeks
 View(compliant_vessels_in_sc_and_non_compl_fhier)
 
+compliant_vessels_in_sc_and_non_compl_fhier__for_output <-
+  compliant_vessels_in_sc_and_non_compl_fhier |>
+  select(
+    vessel_reg_uscg_,
+    month_sc,
+    year_sc,
+    delinquent,
+    comp_week_start_dt,
+    comp_week_end_dt,
+    is_comp,
+    overridden,
+    compliant_after_override
+  ) |>
+  filter(compliant_after_override == "no") |>
+  distinct()
 
-# not needed?
-# compliant_vessels_in_sc_and_non_compl_fhier__months_only <-
-#   compliant_vessels_in_sc_and_non_compl_fhier |>
-#   select(vessel_reg_uscg_, month_sc, year_sc) |>
-#   distinct()
-
-# dim(compliant_vessels_in_sc_and_non_compl_fhier__months_only)
-# [1] 173   3
+# View(compliant_vessels_in_sc_and_non_compl_fhier__for_output)
+# [1] 739   7
 
 # write results to xlsx ----
 # (sheet 1) the list of those SC non-compliant vessels that are also non-compliant in FHIER, or
