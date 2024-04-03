@@ -148,38 +148,6 @@ compl_override_data__renamed_m_short__m_compl |>
 #
 #   glimpse()
 
-## Download Maintenance / SC Vessels Reporting via VESL from FHIER ----
-# https://grunt.sefsc.noaa.gov/apex/f?p=162:386:5458401387184:::RP,386::&cs=3lR5MlDRVs7tWDLbTPOrYh-j00HYH4yeXtQKl8Dqltvjuxmt6sBAwnah0ltdU_dBPQRSNZ21KX_NR4YGfsjtJOA
-
-SC_vessels_FHIERData_0 <- read_csv("~\\..\\Downloads/Report 1(3).csv")
-
-# SC_vessels_FHIERData_0 <-
-  # load_csv_names(my_paths$inputs, csv_names_list)[[1]]
-
-SC_vessels_FHIERData <- clean_headers(SC_vessels_FHIERData_0)
-
-dim(SC_vessels_FHIERData)
-str(SC_vessels_FHIERData)
-
-# get enabled only
-SC_vessels_FHIERData_enabled <-
-  SC_vessels_FHIERData |>
-  filter(tolower(enabled) == "yes")
-
-dim(SC_vessels_FHIERData_enabled)
-# 199 8
-# [1] 187   8
-# 189
-# 188
-# 200
-
-# create new dataframe with just enabled vessel official # for analysis
-FHIER_vessel_officialnumber <-
-  data.frame(Official_number = tolower(SC_vessels_FHIERData_enabled$vessel_official_number))
-
-dim(FHIER_vessel_officialnumber)
-# 200
-
 ## get logbooks ----
 logbooks_path <- file.path(
   r"(~\R_files_local\my_inputs\processing_logbook_data\Outputs)",
