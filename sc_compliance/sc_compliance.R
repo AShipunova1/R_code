@@ -274,7 +274,13 @@ SC_permittedVessels_longer_m_y <-
 
 glimpse(SC_permittedVessels_longer_m_y)
 
-# TODO: check and remove SRHS reports_to_srhs
+# SRHS: check and remove reports_to_srhs ----
+sc__srhs_join <-
+  full_join(SC_permittedVessels_longer_m_y,
+            srhs_2024,
+            join_by(vessel_reg_uscg_ == uscg__))
+
+
 
 # combine data ----
 
