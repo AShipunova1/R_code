@@ -398,25 +398,33 @@ non_compliant_vessels_in_sc_and_fhier__for_output <-
 # 2. non compliant in SC and compliant in FHIER ----
 # 2) if they are compliant for that month in FHIER then list all the dates of DNFs and/or logbooks we have in FHIER by vessel (probably 3 columns needed: vessel ID, Logbook (list any dates for that month), DNF (list week date range for any for that month)
 
+# The second filter is to keep the non-compliant month only
 non_compliant_vessels_in_sc_and_compl_in_fhier <-
   sc__fhier_compl__join_w_month |>
   filter(delinquent == 1 &
-           month_comp == "compl")
+           month_comp == "compl") |>
+  filter(delinquent_month == 1)
 
 dim(non_compliant_vessels_in_sc_and_compl_in_fhier)
 # 40 14
 # [1] 172  19 w weeks
+# 8 19 with the second filter
 
 # Get month and weeks when the vessels are marked as non-compliant in SC, but are compliant in FHIER
 non_compliant_vessels_in_sc_and_compl_in_fhier__m_w <-
   non_compliant_vessels_in_sc_and_compl_in_fhier |>
-  filter(delinquent_month == 1) |>
   select(vessel_reg_uscg_,
          month_sc,
          comp_week,
          comp_week_start_dt,
-         comp_week_end_dt) |>
-  distinct()
+         comp_week_end_dt,
+         compliant_after_override) |>
+  distinct() |>
+  arrange(vessel_reg_uscg_, comp_week_start_dt)
+
+# View(non_compliant_vessels_in_sc_and_compl_in_fhier__m_w)
+
+# There are 2 vessels, one has a logbook and another one a DNF:
 
 ## add logbooks info ----
 # Logbook (list any dates for that month)
@@ -456,7 +464,7 @@ logbooks__sc_fhier_for_output <-
 ## add DNF info ----
 # DNF (list week date range for any for that month)
 
-dnfs__sc_fhier_1 <-
+dnfs__sc_fhier <-
   dnfs |>
   inner_join(
     non_compliant_vessels_in_sc_and_compl_in_fhier__m_w,
@@ -467,16 +475,34 @@ dnfs__sc_fhier_1 <-
     )
   )
 
-dnfs__sc_fhier <-
-  dnfs |>
-  filter(vessel_official_number %in%
-           non_compliant_vessels_in_sc_and_compl_in_fhier$vessel_reg_uscg_)
+# dnfs__sc_fhier <-
+#   dnfs |>
+#   filter(vessel_official_number %in%
+#            non_compliant_vessels_in_sc_and_compl_in_fhier$vessel_reg_uscg_)
+#
+# diffdf::diffdf(dnfs__sc_fhier, dnfs__sc_fhier_1)
+# glimpse(dnfs__sc_fhier$vessel_official_number)
 
-diffdf::diffdf(dnfs__sc_fhier, dnfs__sc_fhier_1)
-
-dim(dnfs__sc_fhier)
+# View(dnfs__sc_fhier)
 # 94
+# 2
+rr <-
+  dnfs__sc_fhier |>
+  select(
+    vessel_official_number,
+    vessel_name,
+    comp_week_start_dt,
+    comp_week_end_dt,
+    is_comp,
+    overridden,
+    compliant_after_override
+  ) |>
+  distinct() |>
+  arrange(vessel_official_number, comp_week_start_dt)
 
+View(rr)
+
+# diffdf::diffdf(dnfs__sc_fhier_for_output, rr)
 dnfs__sc_fhier_for_output <-
   dnfs__sc_fhier |>
   mutate(trip_date_month = month(trip_date)) |>
