@@ -363,7 +363,6 @@ dim(sc__fhier_compl__join_w_month)
 # 1. SC non-compliant vessels that are also non-compliant in FHIER ----
 
 # Keep vessels marked as non-compliant in both data sets
-# The second filter is to keep the non-compliant month only
 non_compliant_vessels_in_sc_and_fhier <-
   sc__fhier_compl__join_w_month |>
   filter(delinquent_month == 1 &
@@ -396,14 +395,12 @@ non_compliant_vessels_in_sc_and_fhier__for_output <-
 # 2. non compliant in SC and compliant in FHIER ----
 # 2) if they are compliant for that month in FHIER then list all the dates of DNFs and/or logbooks we have in FHIER by vessel (probably 3 columns needed: vessel ID, Logbook (list any dates for that month), DNF (list week date range for any for that month)
 
-# The second filter is to keep the non-compliant month only
 non_compliant_vessels_in_sc_and_compl_in_fhier_1 <-
   sc__fhier_compl__join_w_month |>
   filter(delinquent_month == 1 &
            month_comp == "compl")
 
-diffdf::diffdf(non_compliant_vessels_in_sc_and_compl_in_fhier,
-               non_compliant_vessels_in_sc_and_compl_in_fhier_1)
+dim(non_compliant_vessels_in_sc_and_compl_in_fhier)
 # 40 14
 # [1] 172  19 w weeks
 # 8 19 with the second filter
@@ -493,6 +490,7 @@ dnfs__sc_fhier_for_output <-
 # 1
 
 # 3. SC compliant and not compliant in FHIER ----
+
 # 3) we also need a step that just grabs the compliant vessels (herein "SC compliant vessels list"), and then checks FHIER compliance to see if any that SC has as compliant are listed as non-compliant for any of the weeks in the given month. If any vessels are found to be compliant with SC but non-compliant with us/FHIER, then we need (on a 3rd sheet) to list those vessels and include what week (with date ranges) we are missing in FHIER. Eric will use this to more proactively alert us when a vessel is reporting only to SC, since we have so many recurring issues with this.
 
 compliant_vessels_in_sc_and_non_compl_fhier <-
