@@ -295,12 +295,25 @@ SC_permittedVessels_longer_m_y <-
 # glimpse(SC_permittedVessels_longer_m_y)
 
 # SRHS: check and remove reports_to_srhs ----
+
+# Join the SC data with the SRHS list by vessel
 sc__srhs_join <-
   full_join(SC_permittedVessels_longer_m_y,
             srhs_2024,
             join_by(vessel_reg_uscg_ == uscg__))
 
 # View(sc__srhs_join)
+
+# Get all the combinations of SC and SRHS list.
+# In this results we have:
+# 1               0 NA
+# Both are not SRHS
+# 2               1 Y
+# Both are SRHS
+# 3              NA Y
+# The vessel is not in the SC list, which is expected.
+
+# For this SC entry file there are no discrepancies, so we can simply remove all the vessel marked as reports_to_srhs from the future analysis. We don't have compliance information for them.
 
 sc__srhs_join |>
   select(reports_to_srhs, is_insurvey) |>
@@ -311,12 +324,14 @@ sc__srhs_join |>
 # 2               1 Y
 # 3              NA Y
 
+# Kepp only non-SRHS vessels
 SC_permittedVessels_longer_m_y_no_srhs <-
   SC_permittedVessels_longer_m_y |>
   filter(reports_to_srhs == 0)
 
 # combine data ----
 
+# Join the SC data with the compliance data we prepared, by vessel, month and year.
 sc__fhier_compl__join_w_month <-
   left_join(
     SC_permittedVessels_longer_m_y_no_srhs,
@@ -339,18 +354,6 @@ n_distinct(SC_permittedVessels)
 n_distinct(sc__fhier_compl__join_w_month$vessel_reg_uscg_)
 # 207 (rm SRHS)
 # View(sc__fhier_compl__join_w_month)
-
-# sc_fhier <-
-#   left_join(
-#     SC_permittedVessels,
-#     compl_override_data__renamed,
-#     join_by(vessel_reg_uscg_ == vessel_official_number)
-#   )
-
-# sc__fhier_compl__join_w_month_no_weeks <-
-#   sc__fhier_compl__join_w_month |>
-#   select(-c(comp_week, comp_week_start_dt, comp_week_end_dt, is_comp)) |>
-#   distinct()
 
 dim(sc__fhier_compl__join_w_month)
 # [1] 2588   14
