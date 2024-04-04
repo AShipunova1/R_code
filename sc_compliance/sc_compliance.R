@@ -404,6 +404,17 @@ dim(non_compliant_vessels_in_sc_and_compl_in_fhier)
 # 40 14
 # [1] 172  19 w weeks
 
+# Get month and weeks when the vessels are marked as non-compliant in SC, but are compliant in FHIER
+non_compliant_vessels_in_sc_and_compl_in_fhier__m_w <-
+  non_compliant_vessels_in_sc_and_compl_in_fhier |>
+  filter(delinquent_month == 1) |>
+  select(vessel_reg_uscg_,
+         month_sc,
+         comp_week,
+         comp_week_start_dt,
+         comp_week_end_dt) |>
+  distinct()
+
 ## add logbooks info ----
 # Logbook (list any dates for that month)
 logbooks__sc_fhier <-
