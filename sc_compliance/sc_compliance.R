@@ -364,13 +364,12 @@ dim(sc__fhier_compl__join_w_month)
 
 # Keep vessels marked as non-compliant in both data sets
 # The second filter is to keep the non-compliant month only
-non_compliant_vessels_in_sc_and_fhier_1 <-
+non_compliant_vessels_in_sc_and_fhier <-
   sc__fhier_compl__join_w_month |>
   filter(delinquent_month == 1 &
            month_comp == "non_compl") |>
   distinct()
 
-diffdf::diffdf(non_compliant_vessels_in_sc_and_fhier, non_compliant_vessels_in_sc_and_fhier_1)
 # 2
 # 8 19 with weeks
 
@@ -398,13 +397,13 @@ non_compliant_vessels_in_sc_and_fhier__for_output <-
 # 2) if they are compliant for that month in FHIER then list all the dates of DNFs and/or logbooks we have in FHIER by vessel (probably 3 columns needed: vessel ID, Logbook (list any dates for that month), DNF (list week date range for any for that month)
 
 # The second filter is to keep the non-compliant month only
-non_compliant_vessels_in_sc_and_compl_in_fhier <-
+non_compliant_vessels_in_sc_and_compl_in_fhier_1 <-
   sc__fhier_compl__join_w_month |>
-  filter(delinquent == 1 &
-           month_comp == "compl") |>
-  filter(delinquent_month == 1)
+  filter(delinquent_month == 1 &
+           month_comp == "compl")
 
-dim(non_compliant_vessels_in_sc_and_compl_in_fhier)
+diffdf::diffdf(non_compliant_vessels_in_sc_and_compl_in_fhier,
+               non_compliant_vessels_in_sc_and_compl_in_fhier_1)
 # 40 14
 # [1] 172  19 w weeks
 # 8 19 with the second filter
