@@ -75,45 +75,39 @@ if (!class(compl_override_data__renamed$vessel_official_number) == "character") 
 }
 
 # TODO: change to the overlapping intervals (lubridate)
-tic("add intervals")
 compl_override_data__renamed_interv <-
   compl_override_data__renamed |>
-  # rowwise() |>
   group_by(comp_week_start_dt, comp_week_end_dt) |>
+  mutate(comp_month_min =
+           min(month(comp_week_start_dt),
+               month(comp_week_end_dt))) |>
+  mutate(comp_month_max =
+           max(month(comp_week_start_dt),
+               month(comp_week_end_dt))) |>
   # mutate(comp_month_interval =
-  #          lubridate::interval(comp_week_start_dt,
-  #                              comp_week_end_dt)) |>
-  mutate(comp_month1 = case_when(
-    month(comp_week_start_dt) == month(comp_week_end_dt) ~
-      month(comp_week_end_dt),
-    month(comp_week_start_dt) < month(comp_week_end_dt) ~
-      month(comp_week_start_dt),
-    month(comp_week_start_dt) > month(comp_week_end_dt) ~
-      month(comp_week_end_dt)
-  )) |>
-  mutate(comp_month2 = case_when(
-    month(comp_week_start_dt) == month(comp_week_end_dt) ~
-      month(comp_week_end_dt),
-    month(comp_week_start_dt) < month(comp_week_end_dt) ~
-      month(comp_week_end_dt),
-        month(comp_week_start_dt) > month(comp_week_end_dt) ~
-      month(comp_week_start_dt)
-  )) |>
-  mutate(comp_month3 = max(month(comp_week_start_dt),
-                             month(comp_week_end_dt))
-  ) |>
+  #          lubridate::interval(comp_month_min,
+  #                              comp_month_max)) |>
   ungroup()
 toc()
-# add intervals: 0.73 sec elapsed
-  # mutate(comp_month = month(comp_week_end_dt))
 
-View(compl_override_data__renamed_interv)
-
+# check
+compl_override_data__renamed_interv |>
+  filter(!comp_month_min == comp_month_max) |>
+  select(
+    comp_year,
+    comp_week,
+    comp_week_start_dt,
+    comp_week_end_dt,
+    comp_month_min,
+    comp_month_max
+  ) |>
+  distinct() |>
+  View()
 ### keep fewer compl fields ----
 # Keep only entries for "my_year" defined earlier and the previous year. COuld be changed depending on the data provided by SC.
 
 compl_override_data__renamed_m_short <-
-  compl_override_data__renamed_m |>
+  compl_override_data__renamed_interv |>
   select(
     vessel_official_number,
     permit_group,
@@ -124,7 +118,8 @@ compl_override_data__renamed_m_short <-
     comp_week_end_dt,
     is_comp,
     overridden,
-    comp_month
+    comp_month_min,
+    comp_month_max
   ) |>
   distinct() |>
   filter(comp_year %in% c(my_year, as.integer(my_year) - 1))
@@ -145,9 +140,9 @@ toc()
 # get comp/overridden: 72.5 sec elapsed
 
 # check all is_comp and overridden combinations
-# compl_override_data__renamed_m_short__compl_overr_by_week |>
-#     select(is_comp, overridden, compliant_after_override) |>
-#     distinct()
+compl_override_data__renamed_m_short__compl_overr_by_week |>
+    select(is_comp, overridden, compliant_after_override) |>
+    distinct()
 # 1       1          0 yes
 # 2       0          0 no
 # 3       0          1 yes
@@ -165,20 +160,82 @@ toc()
 # 5. Use 'ungroup' to remove grouping from the data frame.
 
 tic("get month_comp")
-compl_override_data__renamed_m_short__m_compl <-
+compl_override_data__renamed_m_short__m_compl__both_months <-
   compl_override_data__renamed_m_short__compl_overr_by_week |>
-  group_by(vessel_official_number, comp_year, comp_month) |>
-  mutate(all_m_comp =
+  group_by(vessel_official_number, comp_year, comp_month_min) |>
+  mutate(all_m_comp_min =
            toString(unique(sort(
              compliant_after_override
            )))) |>
-  mutate(month_comp =
-           case_when(all_m_comp %in% c(c("no, yes"), "no") ~ "non_compl",
+  mutate(month_comp_min =
+           case_when(all_m_comp_min %in% c(c("no, yes"), "no") ~ "non_compl",
+                     .default = "compl")) |>
+  ungroup() |>
+    group_by(vessel_official_number, comp_year, comp_month_min) |>
+  mutate(all_m_comp_min =
+           toString(unique(sort(
+             compliant_after_override
+           )))) |>
+  mutate(month_comp_min =
+           case_when(all_m_comp_min %in% c(c("no, yes"), "no") ~ "non_compl",
+                     .default = "compl")) |>
+  ungroup() |>
+
+    group_by(vessel_official_number, comp_year, comp_month_max) |>
+  mutate(all_m_comp_max =
+           toString(unique(sort(
+             compliant_after_override
+           )))) |>
+  mutate(month_comp_max =
+           case_when(all_m_comp_max %in% c(c("no, yes"), "no") ~ "non_compl",
                      .default = "compl")) |>
   ungroup()
 toc()
+# get month_comp: 31.7 sec elapsed
 
-# View(compl_override_data__renamed_m_short__m_compl)
+# compl_override_data__renamed_m_short__m_compl |>
+#     filter(!month_comp_min == month_comp_max) |>
+#     View()
+
+# combine month compliance for each week
+tic("min_max_compl")
+compl_override_data__renamed_m_short__m_compl <-
+  compl_override_data__renamed_m_short__m_compl__both_months |>
+  group_by(vessel_official_number,
+           comp_year,
+           comp_week,
+           comp_week_start_dt,
+           comp_week_end_dt) |>
+  mutate(
+    common_month_compliance =
+      case_when(
+        month_comp_min == month_comp_max &
+          month_comp_min == "compl" ~
+          month_comp_min,
+        .default = "non_compl"
+      )
+  ) |>
+  ungroup()
+toc()
+
+# check
+compl_override_data__renamed_m_short__m_compl |>
+  select(contains("month")) |>
+  # filter(!month_comp_min == month_comp_max) |>
+  distinct() |>
+  View()
+
+#   mutate(weeks_month_compl =
+#            toString(unique(
+#              month_comp_min, month_comp_max
+#            ))) |>
+#   ungroup() |>
+#   filter(!weeks_month_compl == "compl") |> View()
+#   mutate(month_comp_min =
+#            case_when(all_m_comp_min %in% c(c("no, yes"), "no") ~ "non_compl",
+#                      .default = "compl")) |>
+#
+
 
 # check
 # compl_override_data__renamed_m_short__m_compl |>
@@ -368,7 +425,7 @@ sc__fhier_compl__join_w_month <-
     compl_override_data__renamed_m_short__m_compl,
     join_by(
       vessel_reg_uscg_ == vessel_official_number,
-      month_sc == comp_month,
+      between(month_sc, comp_month_min, comp_month_max),
       year_sc == comp_year,
     )
   )
@@ -388,6 +445,14 @@ n_distinct(sc__fhier_compl__join_w_month$vessel_reg_uscg_)
 dim(sc__fhier_compl__join_w_month)
 # [1] 2588   14
 # [1] 7927   19 (w weeks)
+
+#
+sc__fhier_compl__join_w_month |>
+  select(contains("month")) |>
+  distinct() |>
+  filter(!month_comp_min == month_comp_max) |>
+  glimpse()
+# 44
 
 # Answering the questions
 # 1. SC non-compliant vessels that are also non-compliant in FHIER ----
