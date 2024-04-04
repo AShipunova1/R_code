@@ -249,6 +249,14 @@ dim(SC_permittedVessels)
 ### change sc data format ----
 
 # glimpse(SC_permittedVessels)
+
+# Explanations:
+# 1. 'SC_permittedVessels_longer' is created by reshaping the data frame 'SC_permittedVessels'.
+# 2. The 'pivot_longer()' function from the 'tidyr' package is used to reshape the data from wide to long format.
+# 3. All columns except those specified in "!c()" are pivoted.
+# 4. The 'names_to' parameter specifies the name of the new column that will store the names of the original columns. Here, it's set to "month_year".
+# 5. The 'values_to' parameter specifies the name of the new column that will store the values from the pivoted columns. Here, it's set to "delinquent_month".
+
 SC_permittedVessels_longer <-
   SC_permittedVessels |>
   pivot_longer(
@@ -265,6 +273,15 @@ SC_permittedVessels_longer <-
   )
 
 glimpse(SC_permittedVessels_longer)
+
+# Explanations:
+# 1. 'SC_permittedVessels_longer_m_y' is created by processing the 'SC_permittedVessels_longer' data frame.
+# 2. The 'separate_wider_delim()' function from the 'tidyr' package is used to separate the 'month_year' column into two separate columns ('month_sc' and 'year_sc') based on the specified delimiter '-'.
+# 3. The 'names' parameter specifies the names for the new columns created by separation.
+# 4. The 'delim' parameter specifies the delimiter used to separate the 'month_year' column.
+# 5. The 'mutate()' function is used to modify the 'year_sc' column by pasteing "20" in front of each entry to ensure it's in a four-digit format. This is done, because we have the four-digit ("2024") format for a year in the compliance report.
+# 6. The 'mutate()' function is applied across all columns containing month and year information ('month_sc' and 'year_sc') to convert them to numeric format. Again, for compatibility with the other data sets.
+# 7. The 'distinct()' function is used to remove duplicate rows from the data frame.
 
 SC_permittedVessels_longer_m_y <-
   SC_permittedVessels_longer |>
