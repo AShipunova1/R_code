@@ -124,11 +124,24 @@ toc()
 # 4       1          1 yes
 
 ### combine compliance by month ----
+
+# Explanations:
+# 1. Create a new data frame 'compl_override_data__renamed_m_short__m_compl'
+# 2. Group the data by 'vessel_official_number', 'comp_year', and 'comp_month'.
+# 3. Use 'mutate' to create a new column 'all_m_comp' containing a string representation of unique, sorted values of 'compliant_after_override'.
+# 4. Use 'mutate' again to create a new column 'month_comp' based on conditions specified in 'case_when'.
+#    - If 'all_m_comp' contains either "no, yes" or "no", set 'month_comp' to "non_compl". In other words, if at least one week of a month was non-compliant we consider the whole month as non-compliant.
+#    - For all other cases, set 'month_comp' to "compl".
+# 5. Use 'ungroup' to remove grouping from the data frame.
+
 tic("get month_comp")
 compl_override_data__renamed_m_short__m_compl <-
   compl_override_data__renamed_m_short__compl_overr_by_week |>
   group_by(vessel_official_number, comp_year, comp_month) |>
-  mutate(all_m_comp = toString(unique(sort(compliant_after_override)))) |>
+  mutate(all_m_comp =
+           toString(unique(sort(
+             compliant_after_override
+           )))) |>
   mutate(month_comp =
            case_when(all_m_comp %in% c(c("no, yes"), "no") ~ "non_compl",
                      .default = "compl")) |>
