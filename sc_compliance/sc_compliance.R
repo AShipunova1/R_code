@@ -80,7 +80,7 @@ compl_override_data__renamed_m <-
   mutate(comp_month = month(comp_week_end_dt))
 
 ### keep fewer compl fields ----
-# print_df_names(compl_override_data__renamed_m)
+# Keep only entries for "my_year" defined earlier and the previous year. COuld be changed depending on the data provided by SC.
 
 compl_override_data__renamed_m_short <-
   compl_override_data__renamed_m |>
@@ -103,14 +103,18 @@ compl_override_data__renamed_m_short <-
 # dim(compl_override_data__renamed_m_short)
 
 ### add compliance/overridden combinations by week ----
-# Copy the comment from dnf processing
+# This is needed so that we can easily filter out compliant or non-compliant vessels in the dataset, by adding an extra column that states yes or no regarding compliance. The NA represents one of two possible scenarios:
+# 1) a DNF was submitted for a vessel that is missing from the compliance module but is in metrics tracking, or
+# 2) a DNF was submitted for a week when the vessel was not permitted. It is not simple to determine which. Deciding what to do with these DNFs will depend on the individual analysis question, and so is not addressed here, but simply left as NA.
+## NOTE: IF “Is_Overriden == 1 & is_Comp == 0, then the vessel should be considered compliant in any compliance analyses
+
 tic("get comp/overridden")
 compl_override_data__renamed_m_short__compl_overr_by_week <-
   add_compliant_after_override(compl_override_data__renamed_m_short)
 toc()
 # get comp/overridden: 72.5 sec elapsed
 
-# View(compl_override_data__renamed_m_short__compl_overr_by_week)
+# check all is_comp and overridden combinations
 # compl_override_data__renamed_m_short__compl_overr_by_week |>
 #     select(is_comp, overridden, compliant_after_override) |>
 #     distinct()

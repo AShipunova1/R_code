@@ -1435,6 +1435,15 @@ list_sort_uniq <- function(my_lists) {
 #   bind_cols(db_participants_address__needed_short__phone0, .)
 
 # ===
+# Explanations:
+# 1. Create a new variable 'res' to store the result.
+# 2. Use 'rowwise' to perform operations row by row.
+# 3. Use 'mutate' to create a new column 'compliant_after_override' based on conditions specified in 'case_when'.
+#    - If 'is_comp' is 0 and 'overridden' is 0, set 'compliant_after_override' to "no".
+#    - If 'is_comp' is 1 or 'overridden' is 1, set 'compliant_after_override' to "yes".
+#    - If 'is_comp' is NA, set 'compliant_after_override' to NA.
+#    - For all other cases, set 'compliant_after_override' to the string representation of 'is_comp'.
+# 4. Use 'ungroup' to remove grouping from the data frame.
 
 add_compliant_after_override <- function(my_compl_df) {
   # browser()
