@@ -455,10 +455,24 @@ logbooks__sc_fhier_for_output <-
 
 ## add DNF info ----
 # DNF (list week date range for any for that month)
+
+dnfs__sc_fhier_1 <-
+  dnfs |>
+  inner_join(
+    non_compliant_vessels_in_sc_and_compl_in_fhier__m_w,
+    join_by(
+      vessel_official_number == vessel_reg_uscg_,
+      comp_week_start_dt,
+      comp_week_end_dt
+    )
+  )
+
 dnfs__sc_fhier <-
   dnfs |>
   filter(vessel_official_number %in%
            non_compliant_vessels_in_sc_and_compl_in_fhier$vessel_reg_uscg_)
+
+diffdf::diffdf(dnfs__sc_fhier, dnfs__sc_fhier_1)
 
 dim(dnfs__sc_fhier)
 # 94
