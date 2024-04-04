@@ -75,9 +75,39 @@ if (!class(compl_override_data__renamed$vessel_official_number) == "character") 
 }
 
 # TODO: change to the overlapping intervals (lubridate)
-compl_override_data__renamed_m <-
+tic("add intervals")
+compl_override_data__renamed_interv <-
   compl_override_data__renamed |>
-  mutate(comp_month = month(comp_week_end_dt))
+  # rowwise() |>
+  group_by(comp_week_start_dt, comp_week_end_dt) |>
+  # mutate(comp_month_interval =
+  #          lubridate::interval(comp_week_start_dt,
+  #                              comp_week_end_dt)) |>
+  mutate(comp_month1 = case_when(
+    month(comp_week_start_dt) == month(comp_week_end_dt) ~
+      month(comp_week_end_dt),
+    month(comp_week_start_dt) < month(comp_week_end_dt) ~
+      month(comp_week_start_dt),
+    month(comp_week_start_dt) > month(comp_week_end_dt) ~
+      month(comp_week_end_dt)
+  )) |>
+  mutate(comp_month2 = case_when(
+    month(comp_week_start_dt) == month(comp_week_end_dt) ~
+      month(comp_week_end_dt),
+    month(comp_week_start_dt) < month(comp_week_end_dt) ~
+      month(comp_week_end_dt),
+        month(comp_week_start_dt) > month(comp_week_end_dt) ~
+      month(comp_week_start_dt)
+  )) |>
+  mutate(comp_month3 = max(month(comp_week_start_dt),
+                             month(comp_week_end_dt))
+  ) |>
+  ungroup()
+toc()
+# add intervals: 0.73 sec elapsed
+  # mutate(comp_month = month(comp_week_end_dt))
+
+View(compl_override_data__renamed_interv)
 
 ### keep fewer compl fields ----
 # Keep only entries for "my_year" defined earlier and the previous year. COuld be changed depending on the data provided by SC.
