@@ -417,12 +417,21 @@ non_compliant_vessels_in_sc_and_compl_in_fhier__m_w <-
 
 ## add logbooks info ----
 # Logbook (list any dates for that month)
+# Get all logbooks info for this vessels filtered by month
+
 logbooks__sc_fhier <-
   logbooks |>
-  filter(vessel_official_number %in%
-           non_compliant_vessels_in_sc_and_compl_in_fhier$vessel_reg_uscg_)
+  inner_join(
+    non_compliant_vessels_in_sc_and_compl_in_fhier__m_w,
+    join_by(
+      vessel_official_number == vessel_reg_uscg_,
+      comp_week_start_dt,
+      comp_week_end_dt
+    )
+  )
 
-dim(logbooks__sc_fhier)
+# This is a good example of trip happens in Jan (1/30), in the week started in Jan and ended in Feb, hence it is marked as compliant in FHIER for February.
+# View(logbooks__sc_fhier)
 # 4
 
 logbooks__sc_fhier_for_output <-
@@ -438,6 +447,8 @@ logbooks__sc_fhier_for_output <-
   ) |>
   distinct() |>
   arrange(vessel_official_number, trip_start_date)
+
+# View(logbooks__sc_fhier_for_output)
 
 ## add DNF info ----
 # DNF (list week date range for any for that month)
