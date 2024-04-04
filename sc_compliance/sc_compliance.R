@@ -192,35 +192,56 @@ srhs_2024 <-
 # View(srhs_2024)
 
 ## read sc permitted data ----
-xlsx_names_list = list(r"(sc_mismatches\2024_04\scdnrFedVessels_04012024.xlsx)")
+xlsx_name = r"(sc_mismatches\2024_04\scdnrFedVessels_04012024.xlsx)"
 
-length(xlsx_names_list)
+myfiles <-  file.path(my_paths$inputs, xlsx_name)
 
-myfiles <- lapply(xlsx_names_list, function(x) file.path(my_paths$inputs, x))
-
-file.exists(myfiles[[1]])
+file.exists(myfiles)
 
 SC_permittedVessels <- read_excel(
-  myfiles[[1]],
+  myfiles,
   .name_repair = fix_names,
   guess_max = 21474836
 )
 
 # print_df_names(SC_permittedVessels)
 
+# save the original data for future comparison
+SC_permittedVessels_orig <- SC_permittedVessels
+
 ### fix dates in headers ----
-# TODO: grab just the month of interest
-# TODO: grep for numbers only in the names and convert them
+# TODO: grab just the month of interest (depends on the SC file)
+# grep for numbers only in the names and convert them
 
-date_names <-
-  names(SC_permittedVessels)[7:18] |>
-  convertToDate() |> format("%m-%y")
-  # format("%b-%y")
+# save the not digit headers
+not_date_names <-
+  grep("^\\D+$", names(SC_permittedVessels), value = T)
 
-names(SC_permittedVessels)[7:18] <-
-  date_names
+# find all digit headers
+date_names_raw <-
+  grep("^\\d+$", names(SC_permittedVessels), value = T)
 
-names(SC_permittedVessels)
+# Explanations:
+# 1. Take the data frame 'date_names_raw'.
+# 2. Use the function 'convertToDate()' to convert the Excel integer values to Date objects.
+# 3. Use the 'format()' function to format the dates as "%m-%y", which represents month and year.
+# 4. Assign the result to 'date_names_ok'.
+date_names_ok <-
+  date_names_raw |>
+  convertToDate() |>
+  format("%m-%y")
+
+# combine the saved non-digit headers and the newly converted once
+all_names <- c(not_date_names, date_names_ok)
+
+# View(all_names)
+
+# apply the names to the DF
+names(SC_permittedVessels) <-
+  all_names
+
+# check
+# names(SC_permittedVessels)
 
 dim(SC_permittedVessels)
 # [1] 215  18
