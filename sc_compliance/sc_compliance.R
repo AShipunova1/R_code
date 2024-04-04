@@ -472,62 +472,27 @@ dnfs__sc_fhier <-
       vessel_official_number == vessel_reg_uscg_,
       comp_week_start_dt,
       comp_week_end_dt
-    )
+    ),
+    suffix = c("__dnf", "__fhier")
   )
 
-# dnfs__sc_fhier <-
-#   dnfs |>
-#   filter(vessel_official_number %in%
-#            non_compliant_vessels_in_sc_and_compl_in_fhier$vessel_reg_uscg_)
-#
-# diffdf::diffdf(dnfs__sc_fhier, dnfs__sc_fhier_1)
-# glimpse(dnfs__sc_fhier$vessel_official_number)
-
 # View(dnfs__sc_fhier)
-# 94
 # 2
-rr <-
-  dnfs__sc_fhier |>
-  select(
-    vessel_official_number,
-    vessel_name,
-    comp_week_start_dt,
-    comp_week_end_dt,
-    is_comp,
-    overridden,
-    compliant_after_override
-  ) |>
-  distinct() |>
-  arrange(vessel_official_number, comp_week_start_dt)
 
-View(rr)
-
-# diffdf::diffdf(dnfs__sc_fhier_for_output, rr)
 dnfs__sc_fhier_for_output <-
   dnfs__sc_fhier |>
-  mutate(trip_date_month = month(trip_date)) |>
-  group_by(vessel_official_number, trip_date_year, trip_date_month) |>
-  mutate(all_m_comp = toString(unique(sort(compliant_after_override)))) |>
-  mutate(month_comp =
-           case_when(all_m_comp %in% c(c("no, yes"), "no") ~ "non_compl",
-                     .default = "compl")) |>
-  ungroup() |>
-  filter(month_comp == "compl" & compliant_after_override == "yes") |>
   select(
     vessel_official_number,
     vessel_name,
-    month_comp,
     comp_week_start_dt,
     comp_week_end_dt,
-    is_comp,
-    overridden,
-    compliant_after_override
+    compliant_after_override__fhier
   ) |>
   distinct() |>
   arrange(vessel_official_number, comp_week_start_dt)
 
-dim(dnfs__sc_fhier_for_output)
-# 10
+# View(dnfs__sc_fhier_for_output)
+# 1
 
 # 3. SC compliant and not compliant in FHIER ----
 # 3) we also need a step that just grabs the compliant vessels (herein "SC compliant vessels list"), and then checks FHIER compliance to see if any that SC has as compliant are listed as non-compliant for any of the weeks in the given month. If any vessels are found to be compliant with SC but non-compliant with us/FHIER, then we need (on a 3rd sheet) to list those vessels and include what week (with date ranges) we are missing in FHIER. Eric will use this to more proactively alert us when a vessel is reporting only to SC, since we have so many recurring issues with this.
