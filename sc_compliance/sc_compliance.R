@@ -677,15 +677,14 @@ colnames_for_each_df <-
 
 sheet_names_with_df_names <-
   cbind(sheet_names, names(output_df_list)) |>
-  as_tibble()
-
-str(sheet_names_with_df_names)
+  as.data.frame()
 
 names(sheet_names_with_df_names) <- c("Sheet name", "What is inside")
 
+str(sheet_names_with_df_names)
+
 top_of_read_me_text <-
-  list(today(),
-       "Sheet definition:") |>
+  list(today()) |>
   as_tibble_col(column_name =  "Read me")
 
 # TODO include headers definitions
@@ -698,16 +697,6 @@ readme_text <-
 
 # View(readme_text)
 map(readme_text, class)
-
-# str(readme_text)
-# colnames(readme_text) <- "Read.me"
-
-# result_list <-
-#   list(
-#     "readme" = readme_text
-#     # ,
-#     # output_df_list
-#   )
 
 wb <- createWorkbook()
 addWorksheet(wb, "Readme")
@@ -736,4 +725,4 @@ for (i in seq_along(readme_text)) {
 
 saveWorkbook(wb, output_file_name, overwrite = T)
 
-openxlsx::write.xlsx(result_list, file = output_file_name)
+# openxlsx::write.xlsx(result_list, file = output_file_name)
