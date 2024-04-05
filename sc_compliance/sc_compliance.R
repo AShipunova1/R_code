@@ -712,11 +712,31 @@ readme_text <-
 # str(readme_text)
 # colnames(readme_text) <- "Read.me"
 
-result_list <-
-  list(
-    "readme" = readme_text
-    # ,
-    # output_df_list
-  )
+# result_list <-
+#   list(
+#     "readme" = readme_text
+#     # ,
+#     # output_df_list
+#   )
+
+wb <- createWorkbook()
+addWorksheet(wb, "Readme")
+
+curr_row <- 1
+my_wb_readme <-
+  map(readme_text,
+      \(one_df) {
+        # browser()
+        writeData(wb,
+                  "Readme",
+                  one_df,
+                  startRow = curr_row)
+        curr_row <- curr_row + nrow(one_df) + 2
+      })
+
+
+View(my_wb_readme)
+View(wb)
+saveWorkbook(wb, output_file_name, overwrite = T)
 
 openxlsx::write.xlsx(result_list, file = output_file_name)
