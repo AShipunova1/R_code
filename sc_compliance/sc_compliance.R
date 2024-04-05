@@ -102,7 +102,7 @@ compl_override_data__renamed_interv |>
     comp_month_max
   ) |>
   distinct() |>
-  View()
+  glimpse()
 ### keep fewer compl fields ----
 # Keep only entries for "my_year" defined earlier and the previous year. COuld be changed depending on the data provided by SC.
 
@@ -195,7 +195,7 @@ toc()
 
 # compl_override_data__renamed_m_short__m_compl |>
 #     filter(!month_comp_min == month_comp_max) |>
-#     View()
+#     glimpse()
 
 # combine month compliance for each week
 tic("min_max_compl")
@@ -223,14 +223,14 @@ compl_override_data__renamed_m_short__m_compl |>
   select(contains("month")) |>
   # filter(!month_comp_min == month_comp_max) |>
   distinct() |>
-  View()
+  glimpse()
 
 #   mutate(weeks_month_compl =
 #            toString(unique(
 #              month_comp_min, month_comp_max
 #            ))) |>
 #   ungroup() |>
-#   filter(!weeks_month_compl == "compl") |> View()
+#   filter(!weeks_month_compl == "compl") |> glimpse()
 #   mutate(month_comp_min =
 #            case_when(all_m_comp_min %in% c(c("no, yes"), "no") ~ "non_compl",
 #                      .default = "compl")) |>
@@ -280,7 +280,7 @@ srhs_2024 <-
            col_types = cols(.default = 'c')) |>
   clean_headers()
 
-# View(srhs_2024)
+# glimpse(srhs_2024)
 
 ## read sc permitted data ----
 xlsx_name = r"(sc_mismatches\2024_04\scdnrFedVessels_04012024.xlsx)"
@@ -325,7 +325,7 @@ date_names_ok <-
 # combine the saved non-digit headers and the newly converted once
 all_names <- c(not_date_names, date_names_ok)
 
-# View(all_names)
+# glimpse(all_names)
 
 # apply the names to the DF
 names(SC_permittedVessels) <-
@@ -393,7 +393,7 @@ sc__srhs_join <-
             srhs_2024,
             join_by(vessel_reg_uscg_ == uscg__))
 
-# View(sc__srhs_join)
+# glimpse(sc__srhs_join)
 
 # Get all the combinations of SC and SRHS list.
 # In this results we have:
@@ -444,7 +444,7 @@ n_distinct(SC_permittedVessels)
 # 215
 n_distinct(sc__fhier_compl__join_w_month$vessel_reg_uscg_)
 # 207 (rm SRHS)
-# View(sc__fhier_compl__join_w_month)
+# glimpse(sc__fhier_compl__join_w_month)
 
 dim(sc__fhier_compl__join_w_month)
 # [1] 2588   14
@@ -491,7 +491,7 @@ non_compliant_vessels_in_sc_and_fhier__for_output <-
   distinct() |>
   arrange(vessel_reg_uscg_, year_sc, comp_week_start_dt)
 
-# View(non_compliant_vessels_in_sc_and_fhier__for_output)
+# glimpse(non_compliant_vessels_in_sc_and_fhier__for_output)
 
 # 2. non compliant in SC and compliant in FHIER ----
 
@@ -522,7 +522,7 @@ non_compliant_vessels_in_sc_and_compl_in_fhier__m_w <-
   distinct() |>
   arrange(vessel_reg_uscg_, comp_week_start_dt)
 
-# View(non_compliant_vessels_in_sc_and_compl_in_fhier__m_w)
+# glimpse(non_compliant_vessels_in_sc_and_compl_in_fhier__m_w)
 
 ## add logbooks info ----
 # Logbook (list any dates for that month)
@@ -540,8 +540,7 @@ logbooks__sc_fhier <-
   )
 
 # This is a good example of trip happens in Jan (1/30), in the week started in Jan and ended in Feb, hence it is marked as compliant in FHIER for February.
-# View(logbooks__sc_fhier)
-# 2
+# glimpse(logbooks__sc_fhier)
 
 logbooks__sc_fhier_for_output <-
   logbooks__sc_fhier |>
@@ -560,12 +559,12 @@ logbooks__sc_fhier_for_output <-
   distinct() |>
   arrange(vessel_official_number, trip_start_date)
 
-# View(logbooks__sc_fhier_for_output)
+# glimpse(logbooks__sc_fhier_for_output)
 
 ## add DNF info ----
 # DNF (list week date range for any for that month)
 dnfs__sc_fhier <-
-  dnfs_short |>
+  dnfs |>
   inner_join(
     non_compliant_vessels_in_sc_and_compl_in_fhier__m_w,
     join_by(
@@ -607,7 +606,7 @@ dim(compliant_vessels_in_sc_and_non_compl_fhier)
 # [1] 739  19 with weeks
 # [1] 758  19 with all non compl months
 # [1] 1002   24
-# View(compliant_vessels_in_sc_and_non_compl_fhier)
+# glimpse(compliant_vessels_in_sc_and_non_compl_fhier)
 
 # "all_m_comp" field shows if any weeks of that month were compliant. We consider the whole month non-compliant if even one week was non-compliant. If SC consider the month compliant if at least one week was compliant that makes the big difference in the monthly compliance counts between SC and FHIER.
 
@@ -634,7 +633,6 @@ dim(compliant_vessels_in_sc_and_non_compl_fhier__for_output)
 # [1] 406   10
 # [1] 474  10
 
-
 # write results to xlsx ----
 # (sheet 1) the list of those SC non-compliant vessels that are also non-compliant in FHIER, or
 # (on sheet 2) if they are compliant for that month in FHIER then list all the dates of DNFs and/or logbooks we have in FHIER by vessel (probably 3 columns needed: vessel ID, Logbook (list any dates for that month), DNF (list week date range for any for that month)
@@ -649,33 +647,76 @@ output_file_name <-
 # dnfs__sc_fhier_for_output
 # compliant_vessels_in_sc_and_non_compl_fhier__for_output
 
+output_df_list <-
+  lst(
+    non_compliant_vessels_in_sc_and_fhier__for_output,
+    logbooks__sc_fhier_for_output,
+    dnfs__sc_fhier_for_output,
+    compliant_vessels_in_sc_and_non_compl_fhier__for_output
+  )
+
+sheet_names <-
+  c(
+    "non_compl_sc_and_fhier",
+    "non_compl_sc__compl_fhier_lgb",
+    "non_compl_sc__compl_fhier_dnf",
+    "compl_sc__non_compl_fhier"
+  )
+
+# map_dfr(output_df_list,
+#         ~ names(.x) %>% as_tibble())
+
+colnames_for_each_df <-
+  map2(output_df_list,
+       sheet_names,
+       \(my_df, sheet_name) {
+         browser()
+
+         print(sheet_name)
+
+         df_names <-
+           names(my_df) |> as.tibble()
+
+         # output_df_list[[idx]] |> substitute() |> deparse()
+       })
+
+
+names(colnames_for_each_df) <- sheet_names
+
+sheet_names_with_df_names <-
+  cbind(sheet_names, names(output_df_list)) |>
+  as_tibble()
+
+# str(sheet_names_with_df_names)
+
+names(sheet_names_with_df_names) <- c("Sheet name", "What is inside")
+
+top_of_read_me_text <-
+  list(today(),
+       "Sheet definition:") |>
+  as_tibble_col(column_name =  "Read me")
+
+
 # TODO include headers definitions
 readme_text <-
-  list(
-    today(),
-    "Sheet definition:",
-    "'non_compl_sc_and_fhier' - Non compliant South Carolina vessels and non compliant in FHIER",
-    "non_compl_sc__compl_fhier_lgb,",
-    "non_compl_sc__compl_fhier_dnf,",
-    "compl_sc__non_compl_fhier",
-    "non_compl_sc_and_fhier:",
-    "header 1 --"
-  ) |>
-  as.data.frame() |>
-  t()
+  c(
+    top_of_read_me_text,
+    sheet_names_with_df_names,
+    colnames_for_each_df
+  # )
+  )
+# |>
+#   as.data.frame() |>
+#   t()
 
-colnames(readme_text) <- "Read.me"
+# str(readme_text)
+# colnames(readme_text) <- "Read.me"
 
 result_list <-
   list(
-    "readme" = readme_text,
-    "non_compl_sc_and_fhier" =
-      non_compliant_vessels_in_sc_and_fhier__for_output,
-    "non_compl_sc__compl_fhier_lgb" =
-      logbooks__sc_fhier_for_output,
-    "non_compl_sc__compl_fhier_dnf" = dnfs__sc_fhier_for_output,
-    "compl_sc__non_compl_fhier" =
-      compliant_vessels_in_sc_and_non_compl_fhier__for_output
+    "readme" = readme_text
+    # ,
+    # output_df_list
   )
 
 openxlsx::write.xlsx(result_list, file = output_file_name)
