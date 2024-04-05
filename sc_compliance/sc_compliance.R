@@ -269,7 +269,11 @@ dim(dnfs)
 ## get srhs vessels ----
 srhs_2024_file_path <-
   file.path(my_paths$inputs,
-            r"(SRHS_headboat_survey\Vessel_List_2024.csv)")
+            "SRHS_headboat_survey",
+            str_glue("Vessel_List_{my_year}.csv"))
+
+file.exists(srhs_2024_file_path)
+# T
 
 srhs_2024 <-
   read_csv(srhs_2024_file_path,
