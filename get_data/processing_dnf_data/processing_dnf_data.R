@@ -507,7 +507,7 @@ my_stats(dnfs_join_overr)
 # Unique vessels: 2020
 # Unique trips: 440307
 
-### Remove rows with NA DNFs and entries in Compiance ----
+### Remove rows with NA DNFs and entries in Compliance ----
 dnfs_join_overr__all_dnfs <-
   dnfs_join_overr |>
   filter(!is.na(TRIP_ID))
