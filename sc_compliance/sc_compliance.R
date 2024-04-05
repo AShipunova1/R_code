@@ -564,23 +564,6 @@ logbooks__sc_fhier_for_output <-
 
 ## add DNF info ----
 # DNF (list week date range for any for that month)
-dnfs_short <-
-  dnfs |>
-  select(
-    vessel_official_number,
-    comp_week_start_dt,
-    comp_week_end_dt,
-    compliant_after_override
-  ) |>
-  distinct()
-
-dim(dnfs_short)
-# [1] 12824     4
-
-dnfs |>
-  filter(vessel_official_number == "SC1663DK") |>
-  View()
-
 dnfs__sc_fhier <-
   dnfs_short |>
   inner_join(
