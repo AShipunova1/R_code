@@ -638,6 +638,8 @@ dim(compliant_vessels_in_sc_and_non_compl_fhier__for_output)
 # (on sheet 2) if they are compliant for that month in FHIER then list all the dates of DNFs and/or logbooks we have in FHIER by vessel (probably 3 columns needed: vessel ID, Logbook (list any dates for that month), DNF (list week date range for any for that month)
 # we also need a step that just grabs the compliant vessels (herein "SC compliant vessels list"), and then checks FHIER
 
+# 1. write all output dfs ----
+
 output_file_name <-
   file.path(curr_proj_output_path,
             "sc_compliance.xlsx")
@@ -658,17 +660,30 @@ sheet_names <-
     "compl_sc__non_compl_fhier"
   )
 
+print_result_list <-
+  output_df_list
+
+names(print_result_list) <- sheet_names
+
+write.xlsx(
+  print_result_list,
+  file = output_file_name,
+  asTable = TRUE,
+  overwrite = TRUE
+)
+
+# create readme ----
+
 colnames_for_each_df <-
   map2(output_df_list, sheet_names,
          \(my_df, sheet_name) {
 
            names(my_df) |>
-             as_tibble_col(column_name =  sheet_name) %>%
+             as_tibble_col(column_name = sheet_name) %>%
              return()
          })
 
-# str(colnames_for_each_df)
-# names(colnames_for_each_df) <- sheet_names
+colnames_for_each_df
 
 # 2
 sheet_names_with_df_names <-
@@ -697,6 +712,8 @@ map(readme_text, class)
 wb <- createWorkbook()
 addWorksheet(wb, "Readme")
 
+bold.style <- createStyle(textDecoration = "Bold")
+
 curr_row <- 1
 for (i in seq_along(readme_text)) {
 
@@ -713,12 +730,12 @@ for (i in seq_along(readme_text)) {
   writeData(wb,
                  "Readme",
                  one_df,
-                 # colNames = FALSE,
-                 # startCol = 1,
-                 startRow = curr_row)
+                 startRow = curr_row,
+            headerStyle = bold.style)
   curr_row <- curr_row + one_df_size + 2
 }
 
+openXL(wb)
+
 saveWorkbook(wb, output_file_name, overwrite = T)
 
-# openxlsx::write.xlsx(result_list, file = output_file_name)
