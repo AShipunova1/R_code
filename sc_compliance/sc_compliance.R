@@ -667,27 +667,19 @@ sheet_names <-
 #         ~ names(.x) %>% as_tibble())
 
 colnames_for_each_df <-
-  map2(output_df_list,
-       sheet_names,
-       \(my_df, sheet_name) {
-         browser()
+  map(output_df_list,
+         \(my_df) {
+           names(my_df) |> as.tibble() %>% return()
+         })
 
-         print(sheet_name)
-
-         df_names <-
-           names(my_df) |> as.tibble()
-
-         # output_df_list[[idx]] |> substitute() |> deparse()
-       })
-
-
-names(colnames_for_each_df) <- sheet_names
+# str(colnames_for_each_df)
+# names(colnames_for_each_df) <- sheet_names
 
 sheet_names_with_df_names <-
   cbind(sheet_names, names(output_df_list)) |>
   as_tibble()
 
-# str(sheet_names_with_df_names)
+str(sheet_names_with_df_names)
 
 names(sheet_names_with_df_names) <- c("Sheet name", "What is inside")
 
@@ -696,18 +688,16 @@ top_of_read_me_text <-
        "Sheet definition:") |>
   as_tibble_col(column_name =  "Read me")
 
-
 # TODO include headers definitions
 readme_text <-
   c(
     top_of_read_me_text,
     sheet_names_with_df_names,
     colnames_for_each_df
-  # )
   )
-# |>
-#   as.data.frame() |>
-#   t()
+
+# View(readme_text)
+map(readme_text, class)
 
 # str(readme_text)
 # colnames(readme_text) <- "Read.me"
@@ -724,14 +714,23 @@ addWorksheet(wb, "Readme")
 
 curr_row <- 1
 my_wb_readme <-
-  map(readme_text,
-      \(one_df) {
-        # browser()
-        writeData(wb,
-                  "Readme",
-                  one_df,
-                  startRow = curr_row)
-        curr_row <- curr_row + nrow(one_df) + 2
+  map2(readme_text,
+      \(one_df, length(one_df)) {
+        browser()
+
+        one_df_size <- nrow(one_df)
+        if (!any(grepl("data.frame", class(one_df))))
+        {
+          one_df_size <- length(one_df)
+          one_df <- as.data.frame(one_df)
+        }
+
+        writeDataTable(wb,
+                       "Readme",
+                       one_df,
+                       startRow = curr_row)
+
+        curr_row <- curr_row + one_df_size + 2
       })
 
 
