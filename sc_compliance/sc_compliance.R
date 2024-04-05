@@ -669,11 +669,13 @@ sheet_names <-
 colnames_for_each_df <-
   map(output_df_list,
          \(my_df) {
-           names(my_df) |> as.tibble() %>% return()
+           names(my_df) |>
+             as.data.frame() %>%
+             return()
          })
 
-# str(colnames_for_each_df)
-# names(colnames_for_each_df) <- sheet_names
+# View(colnames_for_each_df)
+names(colnames_for_each_df) <- sheet_names
 
 sheet_names_with_df_names <-
   cbind(sheet_names, names(output_df_list)) |>
@@ -684,14 +686,14 @@ names(sheet_names_with_df_names) <- c("Sheet name", "What is inside")
 str(sheet_names_with_df_names)
 
 top_of_read_me_text <-
-  list(today()) |>
+  today() |>
   as_tibble_col(column_name =  "Read me")
 
 # TODO include headers definitions
 readme_text <-
   c(
-    top_of_read_me_text,
-    sheet_names_with_df_names,
+    list(top_of_read_me_text),
+    list(sheet_names_with_df_names),
     colnames_for_each_df
   )
 
@@ -714,10 +716,10 @@ for (i in seq_along(readme_text)) {
     one_df <- as.data.frame(one_df)
   }
 
-  writeDataTable(wb,
+  writeData(wb,
                  "Readme",
                  one_df,
-                 colNames = FALSE,
+                 # colNames = FALSE,
                  startCol = 1,
                  startRow = curr_row + 1)
   curr_row <- curr_row + one_df_size + 2
