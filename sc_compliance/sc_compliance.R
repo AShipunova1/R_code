@@ -497,6 +497,8 @@ non_compliant_vessels_in_sc_and_fhier__for_output <-
 
 # 2) if they are compliant for that month in FHIER then list all the dates of DNFs and/or logbooks we have in FHIER by vessel (probably 3 columns needed: vessel ID, Logbook (list any dates for that month), DNF (list week date range for any for that month)
 
+test_vessels <- c("SC1663DK", "SC8348DB")
+
 non_compliant_vessels_in_sc_and_compl_in_fhier <-
   sc__fhier_compl__join_w_month |>
   filter(delinquent_month == 1 &
@@ -522,8 +524,6 @@ non_compliant_vessels_in_sc_and_compl_in_fhier__m_w <-
 
 # View(non_compliant_vessels_in_sc_and_compl_in_fhier__m_w)
 
-# There are 2 vessels, one has a logbook and another one a DNF:
-
 ## add logbooks info ----
 # Logbook (list any dates for that month)
 # Get all logbooks info for this vessels filtered by month
@@ -541,7 +541,7 @@ logbooks__sc_fhier <-
 
 # This is a good example of trip happens in Jan (1/30), in the week started in Jan and ended in Feb, hence it is marked as compliant in FHIER for February.
 # View(logbooks__sc_fhier)
-# 4
+# 2
 
 logbooks__sc_fhier_for_output <-
   logbooks__sc_fhier |>
@@ -564,9 +564,25 @@ logbooks__sc_fhier_for_output <-
 
 ## add DNF info ----
 # DNF (list week date range for any for that month)
+dnfs_short <-
+  dnfs |>
+  select(
+    vessel_official_number,
+    comp_week_start_dt,
+    comp_week_end_dt,
+    compliant_after_override
+  ) |>
+  distinct()
+
+dim(dnfs_short)
+# [1] 12824     4
+
+dnfs |>
+  filter(vessel_official_number == "SC1663DK") |>
+  View()
 
 dnfs__sc_fhier <-
-  dnfs |>
+  dnfs_short |>
   inner_join(
     non_compliant_vessels_in_sc_and_compl_in_fhier__m_w,
     join_by(
