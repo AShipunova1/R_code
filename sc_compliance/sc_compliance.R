@@ -713,29 +713,26 @@ wb <- createWorkbook()
 addWorksheet(wb, "Readme")
 
 curr_row <- 1
-my_wb_readme <-
-  map2(readme_text,
-      \(one_df, length(one_df)) {
-        browser()
+for (i in seq_along(readme_text)) {
 
-        one_df_size <- nrow(one_df)
-        if (!any(grepl("data.frame", class(one_df))))
-        {
-          one_df_size <- length(one_df)
-          one_df <- as.data.frame(one_df)
-        }
+  # browser()
+  one_df <- readme_text[[i]]
+  one_df_size <- nrow(one_df)
 
-        writeDataTable(wb,
-                       "Readme",
-                       one_df,
-                       startRow = curr_row)
+  if (!any(grepl("data.frame", class(one_df))))
+  {
+    one_df_size <- length(one_df)
+    one_df <- as.data.frame(one_df)
+  }
 
-        curr_row <- curr_row + one_df_size + 2
-      })
+  writeDataTable(wb,
+                 "Readme",
+                 one_df,
+                 startCol = 1,
+                 startRow = curr_row + 1)
+  curr_row <- curr_row + one_df_size + 2
+}
 
-
-View(my_wb_readme)
-View(wb)
 saveWorkbook(wb, output_file_name, overwrite = T)
 
 openxlsx::write.xlsx(result_list, file = output_file_name)
