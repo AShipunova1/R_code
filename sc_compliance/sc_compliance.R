@@ -672,8 +672,27 @@ write.xlsx(
   overwrite = TRUE
 )
 
-# create readme ----
+wb <- buildWorkbook(print_result_list, asTable = TRUE)
 
+# worksheetOrder(wb)
+# [1] 1 2 3 4
+
+# create readme ----
+# 1
+top_of_read_me_text <-
+  today() |>
+  as_tibble_col(column_name =  "Read me")
+
+# 2
+sheet_names_with_df_names <-
+  cbind(sheet_names, names(output_df_list)) |>
+  as.data.frame()
+
+names(sheet_names_with_df_names) <- c("Sheet name", "What is inside")
+
+glimpse(sheet_names_with_df_names)
+
+# 3
 colnames_for_each_df <-
   map2(output_df_list, sheet_names,
          \(my_df, sheet_name) {
@@ -683,22 +702,8 @@ colnames_for_each_df <-
              return()
          })
 
-colnames_for_each_df
+glimpse(colnames_for_each_df)
 
-# 2
-sheet_names_with_df_names <-
-  cbind(sheet_names, names(output_df_list)) |>
-  as.data.frame()
-
-names(sheet_names_with_df_names) <- c("Sheet name", "What is inside")
-
-str(sheet_names_with_df_names)
-
-top_of_read_me_text <-
-  today() |>
-  as_tibble_col(column_name =  "Read me")
-
-# TODO include headers definitions
 readme_text <-
   c(
     list(top_of_read_me_text),
@@ -706,10 +711,8 @@ readme_text <-
     colnames_for_each_df
   )
 
-# View(readme_text)
-map(readme_text, class)
+# map(readme_text, class)
 
-wb <- createWorkbook()
 addWorksheet(wb, "Readme")
 
 bold.style <- createStyle(textDecoration = "Bold")
@@ -735,7 +738,17 @@ for (i in seq_along(readme_text)) {
   curr_row <- curr_row + one_df_size + 2
 }
 
-openXL(wb)
+# openXL(wb)
+
+# saveWorkbook(wb, file.path(curr_proj_output_path,
+#             "sc_compliance11.xlsx"))
+
+old_order <- worksheetOrder(wb)
+length_of_wb <- old_order |> length()
+# str(old_order)
+worksheetOrder(wb) <- c(length_of_wb, 1:(length_of_wb - 1))
+
+# openXL(wb)
 
 saveWorkbook(wb, output_file_name, overwrite = T)
 
