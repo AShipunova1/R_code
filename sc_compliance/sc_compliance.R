@@ -577,13 +577,12 @@ dnfs__sc_fhier <-
   )
 
 dim(dnfs__sc_fhier)
-# 2
+# 0
 
 dnfs__sc_fhier_for_output <-
   dnfs__sc_fhier |>
   select(
     vessel_official_number,
-    vessel_name,
     comp_week_start_dt,
     comp_week_end_dt,
     compliant_after_override__fhier
@@ -591,8 +590,8 @@ dnfs__sc_fhier_for_output <-
   distinct() |>
   arrange(vessel_official_number, comp_week_start_dt)
 
-# View(dnfs__sc_fhier_for_output)
-# 1
+# dim(dnfs__sc_fhier_for_output)
+# 0
 
 # 3. SC compliant and not compliant in FHIER ----
 
@@ -607,7 +606,7 @@ dim(compliant_vessels_in_sc_and_non_compl_fhier)
 # [1] 180  14
 # [1] 739  19 with weeks
 # [1] 758  19 with all non compl months
-
+# [1] 1002   24
 # View(compliant_vessels_in_sc_and_non_compl_fhier)
 
 # "all_m_comp" field shows if any weeks of that month were compliant. We consider the whole month non-compliant if even one week was non-compliant. If SC consider the month compliant if at least one week was compliant that makes the big difference in the monthly compliance counts between SC and FHIER.
@@ -624,7 +623,7 @@ compliant_vessels_in_sc_and_non_compl_fhier__for_output <-
     is_comp,
     overridden,
     compliant_after_override,
-    all_m_comp
+    common_month_compliance
   ) |>
   filter(compliant_after_override == "no") |>
   distinct() |>
@@ -633,6 +632,8 @@ compliant_vessels_in_sc_and_non_compl_fhier__for_output <-
 dim(compliant_vessels_in_sc_and_non_compl_fhier__for_output)
 # [1] 394   9
 # [1] 406   10
+# [1] 474  10
+
 
 # write results to xlsx ----
 # (sheet 1) the list of those SC non-compliant vessels that are also non-compliant in FHIER, or
