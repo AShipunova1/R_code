@@ -461,11 +461,13 @@ sc__fhier_compl__join_w_month |>
 non_compliant_vessels_in_sc_and_fhier <-
   sc__fhier_compl__join_w_month |>
   filter(delinquent_month == 1 &
-           month_comp == "non_compl") |>
+           common_month_compliance == "non_compl") |>
   distinct()
 
+dim(non_compliant_vessels_in_sc_and_fhier)
 # 2
 # 8 19 with weeks
+# 12 24 counting non compliant in both month for straddling weeks
 
 # Fewer column
 non_compliant_vessels_in_sc_and_fhier__for_output <-
@@ -488,22 +490,24 @@ non_compliant_vessels_in_sc_and_fhier__for_output <-
 # View(non_compliant_vessels_in_sc_and_fhier__for_output)
 
 # 2. non compliant in SC and compliant in FHIER ----
+
 # 2) if they are compliant for that month in FHIER then list all the dates of DNFs and/or logbooks we have in FHIER by vessel (probably 3 columns needed: vessel ID, Logbook (list any dates for that month), DNF (list week date range for any for that month)
 
-non_compliant_vessels_in_sc_and_compl_in_fhier_1 <-
+non_compliant_vessels_in_sc_and_compl_in_fhier <-
   sc__fhier_compl__join_w_month |>
   filter(delinquent_month == 1 &
-           month_comp == "compl")
+           common_month_compliance == "compl")
 
 dim(non_compliant_vessels_in_sc_and_compl_in_fhier)
 # 40 14
 # [1] 172  19 w weeks
-# 8 19 with the second filter
+# 8 24
 
 # Get month and weeks when the vessels are marked as non-compliant in SC, but are compliant in FHIER
 non_compliant_vessels_in_sc_and_compl_in_fhier__m_w <-
   non_compliant_vessels_in_sc_and_compl_in_fhier |>
   select(vessel_reg_uscg_,
+         delinquent_month,
          month_sc,
          comp_week,
          comp_week_start_dt,
@@ -539,9 +543,12 @@ logbooks__sc_fhier_for_output <-
   logbooks__sc_fhier |>
   select(
     vessel_official_number,
-    vessel_name,
+    delinquent_month,
+    month_sc,
     trip_start_date,
     trip_end_date,
+    comp_week_start_dt,
+    comp_week_end_dt,
     vendor_app_name,
     trip_de,
     trip_ue
@@ -566,7 +573,7 @@ dnfs__sc_fhier <-
     suffix = c("__dnf", "__fhier")
   )
 
-# View(dnfs__sc_fhier)
+dim(dnfs__sc_fhier)
 # 2
 
 dnfs__sc_fhier_for_output <-
@@ -591,7 +598,7 @@ dnfs__sc_fhier_for_output <-
 compliant_vessels_in_sc_and_non_compl_fhier <-
   sc__fhier_compl__join_w_month |>
   filter(delinquent_month == 0 &
-           month_comp == "non_compl")
+           common_month_compliance == "non_compl")
 
 dim(compliant_vessels_in_sc_and_non_compl_fhier)
 # [1] 180  14
