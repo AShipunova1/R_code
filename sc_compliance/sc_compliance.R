@@ -734,29 +734,6 @@ for (i in seq_along(readme_text)) {
   curr_row <- curr_row + one_df_size + 2
 }
 
-
-for (i in seq_along(readme_text)) {
-
-  # browser()
-  one_df <- readme_text[[i]]
-  one_df_size <- nrow(one_df)
-  if (is.null(one_df_size)) {one_df_size <- length(one_df)}
-
-  # if (!any(grepl("data.frame", class(one_df))))
-  # {
-  #   one_df_size <- length(one_df)
-  #   one_df <- as.data.frame(one_df)
-  # }
-
-  writeData(wb,
-                 "Readme",
-                 one_df,
-                 # colNames = FALSE,
-                 startCol = 1,
-                 startRow = curr_row + 1)
-  curr_row <- curr_row + one_df_size + 2
-}
-
 saveWorkbook(wb, output_file_name, overwrite = T)
 
 openxlsx::write.xlsx(result_list, file = output_file_name)
