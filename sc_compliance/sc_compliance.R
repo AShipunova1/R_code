@@ -642,11 +642,6 @@ output_file_name <-
   file.path(curr_proj_output_path,
             "sc_compliance.xlsx")
 
-# non_compliant_vessels_in_sc_and_fhier__for_output
-# logbooks__sc_fhier_for_output
-# dnfs__sc_fhier_for_output
-# compliant_vessels_in_sc_and_non_compl_fhier__for_output
-
 output_df_list <-
   lst(
     non_compliant_vessels_in_sc_and_fhier__for_output,
@@ -656,27 +651,26 @@ output_df_list <-
   )
 
 sheet_names <-
-  c(
+  list(
     "non_compl_sc_and_fhier",
     "non_compl_sc__compl_fhier_lgb",
     "non_compl_sc__compl_fhier_dnf",
     "compl_sc__non_compl_fhier"
   )
 
-# map_dfr(output_df_list,
-#         ~ names(.x) %>% as_tibble())
-
 colnames_for_each_df <-
-  map(output_df_list,
-         \(my_df) {
+  map2(output_df_list, sheet_names,
+         \(my_df, sheet_name) {
+
            names(my_df) |>
-             as.data.frame() %>%
+             as_tibble_col(column_name =  sheet_name) %>%
              return()
          })
 
-# View(colnames_for_each_df)
-names(colnames_for_each_df) <- sheet_names
+# str(colnames_for_each_df)
+# names(colnames_for_each_df) <- sheet_names
 
+# 2
 sheet_names_with_df_names <-
   cbind(sheet_names, names(output_df_list)) |>
   as.data.frame()
@@ -720,8 +714,8 @@ for (i in seq_along(readme_text)) {
                  "Readme",
                  one_df,
                  # colNames = FALSE,
-                 startCol = 1,
-                 startRow = curr_row + 1)
+                 # startCol = 1,
+                 startRow = curr_row)
   curr_row <- curr_row + one_df_size + 2
 }
 
