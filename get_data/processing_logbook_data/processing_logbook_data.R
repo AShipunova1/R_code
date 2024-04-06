@@ -616,9 +616,11 @@ logbooks_join_overr__compl__start_end_ok['trip_length'] <-
 
 ### Filter: only keep trips with a length less than or equal to 10 days (240 hours) ----
 
+trip_length_threshold <- 240
+
 logbooks_join_overr__compl__start_end_ok__trip_len_ok <-
   logbooks_join_overr__compl__start_end_ok |>
-  filter(trip_length <= 240)
+  filter(trip_length <= trip_length_threshold)
 
 # stats
 my_stats(logbooks_join_overr__compl__start_end_ok__trip_len_ok)
