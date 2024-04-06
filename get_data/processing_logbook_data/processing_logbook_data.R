@@ -346,36 +346,34 @@ min(Logbooks_raw_renamed__to_date_time4__my_year$TRIP_END_DATE)
 max(Logbooks_raw_renamed__to_date_time4__my_year$TRIP_END_DATE)
 # [1] "2023-05-26"
 
-# create column for start date & time
+# create column for start and end date & time
+# Used in "the Time Stamp Error" and "the trip is too long".
+
 
 tic("format time")
 Logbooks_raw_renamed__to_date_time4__my_year__format_time <-
   Logbooks_raw_renamed__to_date_time4__my_year |>
   mutate(STARTDATETIME =
            as.POSIXct(paste(TRIP_START_DATE,                                           TRIP_START_TIME),
+                      format = "%Y-%m-%d %H%M")) |>
+  mutate(ENDDATETIME =
+           as.POSIXct(paste(TRIP_END_DATE,                                           TRIP_END_TIME),
                       format = "%Y-%m-%d %H%M"))
 toc()
-# format time: 3.37 sec elapsed
+# format time: 7.2 sec elapsed
 
 # check
-Logbooks_this_year$STARTDATETIME |>
+Logbooks_raw_renamed__to_date_time4__my_year__format_time$ENDDATETIME |>
   head(1)
 # "2022-07-07 08:00:00 EDT"
 
-# create column for end date & time
-Logbooks_this_year$ENDDATETIME <-
-  as.POSIXct(
-    paste(
-      Logbooks_this_year$TRIP_END_DATE,
-      Logbooks_this_year$TRIP_END_TIME
-    ),
-    format = "%Y-%m-%d %H%M"
-  )
-
-Logbooks_this_year |> filter(is.na(VESSEL_OFFICIAL_NUMBER))
+### Check if all vessels have ids ----
+Logbooks_raw_renamed__to_date_time4__my_year__format_time |>
+  filter(is.na(VESSEL_OFFICIAL_NUMBER)) |>
+  nrow()
 # 0 OK
 
-### Prepare data to determine what weeks were overridden, so we can exclude logbooks from those weeks later ----
+### Prepare data to determine what weeks were overridden, so we can mark logbooks from those weeks later ----
 
 # not needed for processing
 compl_override_data__renamed__this_year |>
@@ -398,15 +396,18 @@ compl_override_data__renamed__this_year |>
 # 3      2023       2023-01-15         2
 
 # Needed to adjust for week 52 of the previous year and use in joins
-Logbooks <-
-  Logbooks_this_year |>
-  mutate(TRIP_END_WEEK = isoweek(TRIP_END_DATE), # puts it in week num
-         TRIP_END_YEAR = isoyear(TRIP_END_DATE)) # adds a year
+Logbooks_raw_renamed__to_date_time4__my_year__format_time__iso <-
+  Logbooks_raw_renamed__to_date_time4__my_year__format_time |>
+  mutate(
+    TRIP_END_WEEK = isoweek(TRIP_END_DATE),
+    # puts it in week num
+    TRIP_END_YEAR = isoyear(TRIP_END_DATE)
+  ) # adds a year
 
 
 # Adding flags or filtering the logbook data ----
 
-## Filter out vessels not in Metrics tracking ----
+## Filter out vessels not in Metrics tracking from compliance info ----
 SEFHIER_compl_override_data__renamed__this_year <-
   compl_override_data__renamed__this_year |>
   filter(VESSEL_OFFICIAL_NUMBER %in% processed_metrics_tracking$VESSEL_OFFICIAL_NUMBER)
@@ -419,11 +420,9 @@ vessels_not_in_metrics <-
   n_distinct(SEFHIER_compl_override_data__renamed__this_year$VESSEL_OFFICIAL_NUMBER)
 
 vessels_not_in_metrics
-# 289 2022
 
 my_tee(vessels_not_in_metrics,
        "Vessels removed if a vessel is not in Metrics tracking")
-# 1556 (2022)
 
 logbooks_not_in_metrics <-
   n_distinct(compl_override_data__renamed__this_year$TRIP_ID) -
@@ -432,32 +431,26 @@ logbooks_not_in_metrics <-
 
 my_tee(logbooks_not_in_metrics,
        "logbooks removed if a vessel is not in Metrics tracking")
-# 356497 (2022)
-# 446859 (2023)
 
 ## add compliance/override data to logbooks ----
-my_stats(compl_override_data__renamed__this_year,
+my_stats(SEFHIER_compl_override_data__renamed__this_year,
          "Compliance and override data from the db")
-# 2022
-# rows: 150029
-# columns: 23
-# Unique vessels: 3626
 
 ### TODO: check if logbooks and compliance data have the same week dates
 
-### join the data frames ----
-# Logbooks |> names() |> cat('", "')
-# intersect(sort(names(Logbooks)),
-#           sort(names(
-#             SEFHIER_compl_override_data__renamed__this_year
-#           )))
+SEFHIER_compl_override_data__renamed__this_year$COMP_WEEK_START_DT |> min()
 
-# grep("year", names(Logbooks), ignore.case = T, value = T)
-# grep("week", names(Logbooks), ignore.case = T, value = T)
+Logbooks_raw_renamed__to_date_time4__my_year__format_time__iso$TRIP_START_DATE |> min()
+
+### join the data frames ----
+
+#### find field names ----
+grep("year", names(Logbooks_raw_renamed__to_date_time4__my_year__format_time__iso), ignore.case = T, value = T)
+grep("week", names(Logbooks_raw_renamed__to_date_time4__my_year__format_time__iso), ignore.case = T, value = T)
 
 logbooks_join_overr <-
   full_join(
-    Logbooks,
+    Logbooks_raw_renamed__to_date_time4__my_year__format_time__iso,
     SEFHIER_compl_override_data__renamed__this_year,
     join_by(TRIP_END_YEAR == COMP_YEAR,
             VESSEL_OFFICIAL_NUMBER,
@@ -473,7 +466,6 @@ in_compl_not_in_logbooks <-
   distinct()
 
 nrow(in_compl_not_in_logbooks)
-# 3320
 
 in_logbooks_not_in_compl <-
   logbooks_join_overr |>
@@ -482,28 +474,10 @@ in_logbooks_not_in_compl <-
   distinct()
 
 nrow(in_logbooks_not_in_compl)
-# 140
-
-# TODO: validate in_compl_not_in_logbooks and in_logbooks_not_in_compl
-# my_year
-# getwd()
-# write_rds(as_tibble(in_logbooks_not_in_compl),
-#           file.path(output_file_path,
-#             "in_logbooks_not_in_compl.rds"))
 
 # stats
 my_stats(SEFHIER_compl_override_data__renamed__this_year)
-# 2022
-# rows: 440307
-# columns: 8
-# Unique vessels: 2020
-# Unique trips: 440307
 my_stats(logbooks_join_overr)
-# 2022
-# rows: 441000
-# columns: 28
-# Unique vessels: 2020
-# Unique trips: 440307
 
 ### Remove rows with NA logbooks and entries in Compiance ----
 logbooks_join_overr__all_logbooks <-
@@ -514,6 +488,7 @@ dim(logbooks_join_overr)
 dim(logbooks_join_overr__all_logbooks)
 
 ### Add a compliant_after_override column ----
+# To use in compliance analysis where logbooks are also used
 tic("Add a compliant_after_override column")
 logbooks_join_overr__compl <-
   logbooks_join_overr__all_logbooks |>
@@ -578,10 +553,6 @@ logbooks_join_overr__compl__start_end_ok <-
 
 # stats
 my_stats(logbooks_join_overr__compl__start_end_ok)
-# rows: 310832
-# columns: 153
-# Unique vessels: 1825
-# Unique trips (logbooks): 89797
 
 # stats
 thrown_by_time_stamp_error <-
@@ -590,7 +561,6 @@ thrown_by_time_stamp_error <-
 
 my_tee(n_distinct(thrown_by_time_stamp_error$TRIP_ID),
        "Thrown away by time_stamp_error (logbooks num)")
-# 550
 
 ## Delete logbooks for trips lasting more than 10 days ----
 
