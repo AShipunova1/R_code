@@ -845,7 +845,7 @@ SEFHIER_processed_Logbooks_file_name <-
 
 write_rds(
   SEFHIER_logbooks_processed,
-  file = output_file_path
+  file = file.path(output_file_path, SEFHIER_processed_Logbooks_file_name)
 )
 
 # file.exists(file)
