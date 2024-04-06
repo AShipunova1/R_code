@@ -837,25 +837,6 @@ my_tee(removed_logbooks_and_vessels_text,
 SEFHIER_processed_Logbooks_file_name <-
   str_glue("SEFHIER_processed_Logbooks_{my_year}.rds")
 
-annas_file_path <-
-  file.path(Path,
-            "Outputs",
-            SEFHIER_processed_Logbooks_file_name)
-
-jennys_file_path <-
-  file.path(Path,
-            Outputs,
-            SEFHIER_processed_Logbooks_file_name)
-
-michelles_file_path <-
-  file.path(Path,
-            Outputs,
-            SEFHIER_processed_Logbooks_file_name)
-
-# !! Change to the correct path !!
-output_file_path <-
-  annas_file_path
-
 write_rds(
   SEFHIER_logbooks_processed,
   file = output_file_path
