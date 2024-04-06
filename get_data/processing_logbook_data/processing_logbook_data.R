@@ -602,8 +602,8 @@ thrown_by_time_stamp_error <-
   logbooks_join_overr__compl |>
   filter(time_stamp_error == TRUE)
 
-# my_tee(n_distinct(thrown_by_time_stamp_error$TRIP_ID),
-#        "Thrown away by time_stamp_error (logbooks num)")
+my_tee(n_distinct(thrown_by_time_stamp_error$TRIP_ID),
+       "Thrown away by time_stamp_error (logbooks num)")
 # 550
 
 ## Delete logbooks for trips lasting more than 10 days ----
@@ -637,8 +637,8 @@ logbooks_too_long <-
   logbooks_join_overr__compl__start_end_ok |>
   filter(trip_length > 240)
 
-# my_tee(n_distinct(logbooks_too_long$TRIP_ID),
-#        "Thrown away by trip_more_10_days (logbooks num)")
+my_tee(n_distinct(logbooks_too_long$TRIP_ID),
+       "Thrown away by trip_more_10_days (logbooks num)")
 # trip_ids: 35
 
 my_tee(n_distinct(logbooks_too_long$VESSEL_ID),
@@ -685,14 +685,14 @@ late_submission_filter_stats <-
       my_df |>
       filter(MORE_THAN_30_DAYS_LATE == FALSE)
 
-    # my_tee(n_distinct(late_submission$TRIP_ID),
-           # "Count late_submission (logbooks num)")
+    my_tee(n_distinct(late_submission$TRIP_ID),
+    "Count late_submission (logbooks num)")
     # trip_ids: 16449
 
-    # my_tee(
-      # n_distinct(late_submission$VESSEL_OFFICIAL_NUMBER),
-      # "Count late_submission (vessels num)"
-    # )
+    my_tee(
+    n_distinct(late_submission$VESSEL_OFFICIAL_NUMBER),
+    "Count late_submission (vessels num)"
+    )
     # 1064
 
     # check
