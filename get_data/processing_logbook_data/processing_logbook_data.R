@@ -14,11 +14,11 @@ library(crayon) # Colored terminal output
 
 # set working and output directory - where do you keep the data and analysis folder on your computer?
 michelles_path <-
-  "C:/Users/michelle.masi/Documents/SEFHIER/R code/DNF related analyses/DNF Processing (Do this before all DNF Analyses)/"
+  "C:/Users/michelle.masi/Documents/SEFHIER/R code/logbook related analyses/logbook Processing (Do this before all logbook Analyses)/"
 
 jennys_path <-
-  "//ser-fs1/sf/LAPP-DM Documents/Ostroff/SEFHIER/Rcode/ProcessingDNFData/"
-# r"(C:\Users\jenny.ostroff\Desktop\Backups\Rcode\ProcessingDNFData)"
+  "//ser-fs1/sf/LAPP-DM Documents/Ostroff/SEFHIER/Rcode/ProcessinglogbookData/"
+# r"(C:\Users\jenny.ostroff\Desktop\Backups\Rcode\ProcessinglogbookData)"
 
 # Input files are the same here
 annas_path <-
@@ -35,7 +35,9 @@ Outputs <- "Outputs"
 output_file_path <-
   file.path(Path, Outputs)
 
-# Set the date ranges for the DNF and compliance data you are pulling
+# dir.exists(output_file_path)
+
+# Set the date ranges for the logbook and compliance data you are pulling
 # this is the year to assign to the output file name
 # my_year <- "2022"
 # my_year <- "2023"
@@ -68,7 +70,7 @@ source(auxiliary_methods_file_path)
 
 # Start the log ----
 my_tee(date(),
-       my_title = str_glue("Start DNF processing for {my_year}"))
+       my_title = str_glue("Start logbook processing for {my_year}"))
 
 # Get data ----
 
@@ -154,6 +156,7 @@ compl_override_data__renamed__this_year <-
       COMP_WEEK_START_DT <= as.Date(my_date_end, "%d-%b-%Y",
                                     tz = Sys.timezone())
   )
+
 # check
 # That's the week 52 of the previous year (my_year - 1):
 min(compl_override_data__renamed__this_year$COMP_WEEK_START_DT)
@@ -209,11 +212,12 @@ WHERE
 ")
 
 # Use 'read_rds_or_run_query' defined above to either read logbook information from an RDS file or execute a query to obtain it and write a file for future use.
+# Change "force_from_db = NULL" to "force_from_db = TRUE" for force db downloading (must be on VPN)
+
 Logbooks <-
   read_rds_or_run_query(logbooks_file_path,
                         logbooks_download_query,
-                        force_from_db = NULL
-                        )
+                        force_from_db = NULL)
 # 2024-02-05 run for Raw_Oracle_Downloaded_logbook_01-JAN-2022__31-DEC-2022.rds: 122.37 sec elapsed
 
 # Rename column to be consistent with other dataframes
@@ -329,19 +333,19 @@ max(Logbooks$TRIP_START_DATE)
 # [1] "2023-12-31"
 
 # TODO: rename
-Logbooks <-
+Logbooks_this_year <-
   Logbooks |>
   filter(TRIP_START_DATE >= as.Date(my_date_beg, "%d-%b-%Y") &
            TRIP_START_DATE <= as.Date(my_date_end, "%d-%b-%Y"))
 
 # stats, to compare with the end result
 logbooks_stat_correct_dates_before_filtering <-
-  c(dim(Logbooks),
-    n_distinct(Logbooks$VESSEL_OFFICIAL_NUMBER),
-    n_distinct(Logbooks$TRIP_ID)
+  c(dim(Logbooks_this_year),
+    n_distinct(Logbooks_this_year$VESSEL_OFFICIAL_NUMBER),
+    n_distinct(Logbooks_this_year$TRIP_ID)
   )
 
-my_stats(Logbooks, "Logbooks after filtering by dates")
+my_stats(Logbooks_this_year, "Logbooks after filtering by dates")
 # rows: 327773
 # columns: 149
 # Unique vessels: 1882
@@ -360,23 +364,28 @@ max(Logbooks$TRIP_END_DATE)
 
 # create column for start date & time
 tic("format time")
-Logbooks$STARTDATETIME <-
-  as.POSIXct(paste(Logbooks$TRIP_START_DATE,                                           Logbooks$TRIP_START_TIME),
+Logbooks_this_year$STARTDATETIME <-
+  as.POSIXct(paste(Logbooks_this_year$TRIP_START_DATE,                                           Logbooks_this_year$TRIP_START_TIME),
              format = "%Y-%m-%d %H%M")
 toc()
 # format time: 4.38 sec elapsed
 
 # check
-Logbooks$STARTDATETIME |>
+Logbooks_this_year$STARTDATETIME |>
   head(1)
 # "2022-07-07 08:00:00 EDT"
 
 # create column for end date & time
-Logbooks$ENDDATETIME <-
-  as.POSIXct(paste(Logbooks$TRIP_END_DATE,                                         Logbooks$TRIP_END_TIME),
-             format = "%Y-%m-%d %H%M")
+Logbooks_this_year$ENDDATETIME <-
+  as.POSIXct(
+    paste(
+      Logbooks_this_year$TRIP_END_DATE,
+      Logbooks_this_year$TRIP_END_TIME
+    ),
+    format = "%Y-%m-%d %H%M"
+  )
 
-Logbooks |> filter(is.na(VESSEL_OFFICIAL_NUMBER))
+Logbooks_this_year |> filter(is.na(VESSEL_OFFICIAL_NUMBER))
 # 0 OK
 
 ### Prepare data to determine what weeks were overridden, so we can exclude logbooks from those weeks later ----
@@ -403,7 +412,7 @@ compl_override_data__renamed__this_year |>
 
 # Needed to adjust for week 52 of the previous year and use in joins
 Logbooks <-
-  Logbooks |>
+  Logbooks_this_year |>
   mutate(TRIP_END_WEEK = isoweek(TRIP_END_DATE), # puts it in week num
          TRIP_END_YEAR = isoyear(TRIP_END_DATE)) # adds a year
 
@@ -426,8 +435,8 @@ vessels_not_in_metrics
 # 289 2022
 
 # TODO: fix my_tee
-# my_tee(vessels_not_in_metrics,
-#        "Vessels removed if a vessel is not in Metrics tracking")
+my_tee(vessels_not_in_metrics,
+       "Vessels removed if a vessel is not in Metrics tracking")
 # 1556 (2022)
 
 logbooks_not_in_metrics <-
@@ -435,8 +444,8 @@ logbooks_not_in_metrics <-
   n_distinct(SEFHIER_compl_override_data__renamed__this_year$TRIP_ID)
 # 0
 
-# my_tee(dnfs_not_in_metrics,
-#        "DNFs removed if a vessel is not in Metrics tracking")
+my_tee(logbooks_not_in_metrics,
+       "logbooks removed if a vessel is not in Metrics tracking")
 # 356497 (2022)
 # 446859 (2023)
 
@@ -489,12 +498,12 @@ in_logbooks_not_in_compl <-
 nrow(in_logbooks_not_in_compl)
 # 140
 
-# TODO: validate in_compl_not_in_dnfs and in_dnfs_not_in_compl
+# TODO: validate in_compl_not_in_logbooks and in_logbooks_not_in_compl
 # my_year
 # getwd()
 # write_rds(as_tibble(in_logbooks_not_in_compl),
 #           file.path(output_file_path,
-#             "in_dnfs_not_in_compl.rds"))
+#             "in_logbooks_not_in_compl.rds"))
 
 # stats
 my_stats(SEFHIER_compl_override_data__renamed__this_year)
