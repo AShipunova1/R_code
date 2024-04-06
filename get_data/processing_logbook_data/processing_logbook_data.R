@@ -347,21 +347,15 @@ max(Logbooks_raw_renamed__to_date_time4__my_year$TRIP_END_DATE)
 # [1] "2023-05-26"
 
 # create column for start date & time
-tic("format time")
-Logbooks_raw_renamed__to_date_time4__my_year$STARTDATETIME <-
-  as.POSIXct(paste(Logbooks_raw_renamed__to_date_time4__my_year$TRIP_START_DATE,                                           Logbooks_raw_renamed__to_date_time4__my_year$TRIP_START_TIME),
-             format = "%Y-%m-%d %H%M")
-toc()
-# format time: 3.58 sec elapsed
 
-tic("format time mutate")
+tic("format time")
 Logbooks_raw_renamed__to_date_time4__my_year__format_time <-
   Logbooks_raw_renamed__to_date_time4__my_year |>
   mutate(STARTDATETIME =
            as.POSIXct(paste(TRIP_START_DATE,                                           TRIP_START_TIME),
                       format = "%Y-%m-%d %H%M"))
 toc()
-# format time mutate: 3.37 sec elapsed
+# format time: 3.37 sec elapsed
 
 # check
 Logbooks_this_year$STARTDATETIME |>
