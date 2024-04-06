@@ -139,9 +139,6 @@ compl_override_data__renamed <-
 
 # stats
 my_stats(compl_override_data__renamed)
-# rows: 460724
-# columns: 23
-# Unique vessels: 4390
 
 # stats
 min(compl_override_data__renamed$COMP_WEEK_START_DT)
@@ -214,15 +211,14 @@ WHERE
 # Use 'read_rds_or_run_query' defined above to either read logbook information from an RDS file or execute a query to obtain it and write a file for future use.
 # Change "force_from_db = NULL" to "force_from_db = TRUE" for force db downloading (must be on VPN)
 
-Logbooks <-
+Logbooks_raw <-
   read_rds_or_run_query(logbooks_file_path,
                         logbooks_download_query,
                         force_from_db = NULL)
-# 2024-02-05 run for Raw_Oracle_Downloaded_logbook_01-JAN-2022__31-DEC-2022.rds: 122.37 sec elapsed
 
 # Rename column to be consistent with other dataframes
-Logbooks <-
-  rename(Logbooks,
+Logbooks_raw_renamed <-
+  rename(Logbooks_raw,
          VESSEL_OFFICIAL_NUMBER =
            "VESSEL_OFFICIAL_NBR")
 
@@ -434,7 +430,6 @@ vessels_not_in_metrics <-
 vessels_not_in_metrics
 # 289 2022
 
-# TODO: fix my_tee
 my_tee(vessels_not_in_metrics,
        "Vessels removed if a vessel is not in Metrics tracking")
 # 1556 (2022)
@@ -851,3 +846,4 @@ write_rds(
   file = output_file_path
 )
 
+# file.exists(file)
