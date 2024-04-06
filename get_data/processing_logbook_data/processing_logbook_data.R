@@ -223,19 +223,14 @@ Logbooks_raw_renamed <-
            "VESSEL_OFFICIAL_NBR")
 
 # stats
-my_stats(Logbooks, "Logbooks from the db")
+my_stats(Logbooks_raw_renamed, "Logbooks from the db")
 # 2022
 # rows: 327847
 # columns: 149
 # Unique vessels: 1885
 # Unique trips (logbooks): 94737
 
-# rows: 484413
-# columns: 149
-# Unique vessels: 2218
-# Unique trips (logbooks): 143456
-
-# reformat trip start/end date
+### reformat trip start/end date ----
 # Explanation:
 #
 # 1. **Create New Dataframe:**
@@ -252,30 +247,22 @@ my_stats(Logbooks, "Logbooks from the db")
 # 4. **Convert Columns to Date:**
 #    - `as.Date`: Use the 'as.Date' function to convert the selected columns to the 'Date' format.
 
-Logbooks <-
-  Logbooks |>
+Logbooks_raw_renamed__to_date <-
+  Logbooks_raw_renamed |>
   mutate(across(c(!where(is.Date) & ends_with("_DATE")),
                 as.Date))
 
-# Check
-# Logbooks$TRIP_START_DATE |>
-#   class()
-# before
-# "POSIXct" "POSIXt"
-# after
-# "Date"
-
 # Was:
-# Logbooks$TRIP_START_DATE |>
-#   head(1)
+Logbooks_raw$TRIP_START_DATE |>
+  head(1)
 # "2022-07-07 01:00:00 EDT"
 
 # Now:
-# Logbooks$TRIP_START_DATE |>
-#   head(1)
+Logbooks_raw_renamed__to_date$TRIP_START_DATE |>
+  head(1)
 # "2022-07-07"
 
-# reformat trip start/end time
+### reformat trip start/end time ----
 time_col_names <-
   c("TRIP_START_TIME",
     "TRIP_END_TIME")
@@ -283,6 +270,7 @@ time_col_names <-
 # convert time columns to numeric,
 # then format to 4 digits as a string (some time entries were like "800")
 # (from help: sprintf returns a character vector)
+# TODO: why do we need this? (AS)
 
 # Explanation:
 #
@@ -309,8 +297,8 @@ time_col_names <-
 # 7. **Format Columns with Leading Zeros:**
 #    - `~ sprintf("%04d", .x)`: Format each column value with leading zeros using 'sprintf("%04d", .x)'.
 
-Logbooks <-
-  Logbooks |>
+Logbooks_raw_renamed__to_date_time4 <-
+  Logbooks_raw_renamed__to_date |>
   mutate(across(c(
     !where(is.numeric) & all_of(time_col_names)
   ),
@@ -321,50 +309,50 @@ Logbooks <-
 ### Filter out just my analysis year logbook entries ----
 
 # check
-min(Logbooks$TRIP_START_DATE)
+min(Logbooks_raw_renamed__to_date_time4$TRIP_START_DATE)
 # [1] "2022-01-01"
 # [1] "2023-01-01"
-max(Logbooks$TRIP_START_DATE)
+max(Logbooks_raw_renamed__to_date_time4$TRIP_START_DATE)
 # [1] "2022-12-31"
 # [1] "2023-12-31"
 
-# TODO: rename
-Logbooks_this_year <-
-  Logbooks |>
+Logbooks_raw_renamed__to_date_time4__my_year <-
+  Logbooks_raw_renamed__to_date_time4 |>
   filter(TRIP_START_DATE >= as.Date(my_date_beg, "%d-%b-%Y") &
            TRIP_START_DATE <= as.Date(my_date_end, "%d-%b-%Y"))
 
 # stats, to compare with the end result
 logbooks_stat_correct_dates_before_filtering <-
-  c(dim(Logbooks_this_year),
-    n_distinct(Logbooks_this_year$VESSEL_OFFICIAL_NUMBER),
-    n_distinct(Logbooks_this_year$TRIP_ID)
+  c(dim(Logbooks_raw_renamed__to_date_time4__my_year),
+    n_distinct(Logbooks_raw_renamed__to_date_time4__my_year$VESSEL_OFFICIAL_NUMBER),
+    n_distinct(Logbooks_raw_renamed__to_date_time4__my_year$TRIP_ID)
   )
 
-my_stats(Logbooks_this_year, "Logbooks after filtering by dates")
+my_stats(Logbooks_raw_renamed__to_date_time4__my_year,
+         "Logbooks after filtering by dates")
 # rows: 327773
 # columns: 149
 # Unique vessels: 1882
 # Unique trips (logbooks): 94714
 
 # check
-min(Logbooks$TRIP_START_DATE)
+min(Logbooks_raw_renamed__to_date_time4__my_year$TRIP_START_DATE)
 # [1] "2022-01-01"
-max(Logbooks$TRIP_START_DATE)
+max(Logbooks_raw_renamed__to_date_time4__my_year$TRIP_START_DATE)
 # [1] "2022-12-31"
 
-min(Logbooks$TRIP_END_DATE)
+min(Logbooks_raw_renamed__to_date_time4__my_year$TRIP_END_DATE)
 # [1] "2018-06-04"
-max(Logbooks$TRIP_END_DATE)
+max(Logbooks_raw_renamed__to_date_time4__my_year$TRIP_END_DATE)
 # [1] "2023-05-26"
 
 # create column for start date & time
 tic("format time")
-Logbooks_this_year$STARTDATETIME <-
-  as.POSIXct(paste(Logbooks_this_year$TRIP_START_DATE,                                           Logbooks_this_year$TRIP_START_TIME),
+Logbooks_raw_renamed__to_date_time4__my_year$STARTDATETIME <-
+  as.POSIXct(paste(Logbooks_raw_renamed__to_date_time4__my_year$TRIP_START_DATE,                                           Logbooks_raw_renamed__to_date_time4__my_year$TRIP_START_TIME),
              format = "%Y-%m-%d %H%M")
 toc()
-# format time: 4.38 sec elapsed
+# format time: 3.58 sec elapsed
 
 # check
 Logbooks_this_year$STARTDATETIME |>
