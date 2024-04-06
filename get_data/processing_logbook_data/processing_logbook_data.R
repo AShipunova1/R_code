@@ -39,9 +39,9 @@ output_file_path <-
 
 # Set the date ranges for the logbook and compliance data you are pulling
 # this is the year to assign to the output file name
-# my_year <- "2022"
+my_year <- "2022"
 # my_year <- "2023"
-my_year <- "2024"
+# my_year <- "2024"
 
 my_date_beg <- str_glue("01-JAN-{my_year}")
 my_date_end <- str_glue("31-DEC-{my_year}")
@@ -353,6 +353,15 @@ Logbooks_raw_renamed__to_date_time4__my_year$STARTDATETIME <-
              format = "%Y-%m-%d %H%M")
 toc()
 # format time: 3.58 sec elapsed
+
+tic("format time mutate")
+Logbooks_raw_renamed__to_date_time4__my_year__format_time <-
+  Logbooks_raw_renamed__to_date_time4__my_year |>
+  mutate(STARTDATETIME =
+           as.POSIXct(paste(TRIP_START_DATE,                                           TRIP_START_TIME),
+                      format = "%Y-%m-%d %H%M"))
+toc()
+# format time mutate: 3.37 sec elapsed
 
 # check
 Logbooks_this_year$STARTDATETIME |>
