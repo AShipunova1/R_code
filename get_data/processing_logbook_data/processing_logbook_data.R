@@ -585,10 +585,6 @@ logbooks_join_overr__compl__start_end_ok__trip_len_ok <-
 
 # stats
 my_stats(logbooks_join_overr__compl__start_end_ok__trip_len_ok)
-# rows: 310741
-# columns: 154
-# Unique vessels: 1822
-# Unique trips (logbooks): 89762
 
 # Output trips with length > 240 into a data frame (for stats)
 logbooks_too_long <-
@@ -597,11 +593,9 @@ logbooks_too_long <-
 
 my_tee(n_distinct(logbooks_too_long$TRIP_ID),
        "Thrown away by trip_more_10_days (logbooks num)")
-# trip_ids: 35
 
 my_tee(n_distinct(logbooks_too_long$VESSEL_ID),
        "Thrown away by trip_more_10_days (vessels num)")
-# 30
 
 ## Mark all trips that were received > 30 days after the trip end date, by using compliance data and time of submission ----
 ### add the threshold date ----
@@ -612,9 +606,7 @@ logbooks_join_overr_e <-
                    truncated = 3,
                    tz = Sys.timezone()))
 
-# add a date 30 days later with a time
-# logbooks_notoverridden <-
-#   logbooks_notoverridden |>
+# add a date 30 days later and set a time to the last minute of that day
 logbooks_join_overr_e_usable_date <-
   logbooks_join_overr_e |>
   mutate(USABLE_DATE_TIME =
@@ -626,18 +618,12 @@ logbooks_join_overr_e_usable_date <-
   mutate(USABLE_DATE_TIME =
            `second<-`(USABLE_DATE_TIME, 59))
 
-
 # subtract the usable date from the date of submission
 # value is true if the logbook was submitted within 30 days, false if the logbook was not
 
 late_submission_filter_stats <-
   function(my_df) {
-    # stats
     my_stats(my_df)
-    # rows: 271479
-    # columns: 155
-    # Unique vessels: 1629
-    # Unique trips (logbooks): 73313
 
     late_submission <-
       my_df |>
@@ -645,13 +631,11 @@ late_submission_filter_stats <-
 
     my_tee(n_distinct(late_submission$TRIP_ID),
     "Count late_submission (logbooks num)")
-    # trip_ids: 16449
 
     my_tee(
     n_distinct(late_submission$VESSEL_OFFICIAL_NUMBER),
     "Count late_submission (vessels num)"
     )
-    # 1064
 
     # check
     min(my_df$TRIP_START_DATE)
@@ -675,7 +659,6 @@ late_submission_filter <-
 
     late_submission_filter_stats(logbooks_join_overr__compl__start_end_ok__trip_len_ok_temp)
 
-    # late_submissions_flag = "_no_late_submissions"
     return(logbooks_join_overr__compl__start_end_ok__trip_len_ok_temp)
   }
 
@@ -737,56 +720,40 @@ SEFHIER_logbooks_processed_p_regions <-
 my_stats(SEFHIER_logbooks_processed)
 
 logbooks_before_filtering <-
-  n_distinct(Logbooks$TRIP_ID)
+  n_distinct(Logbooks_raw$TRIP_ID)
 
 my_tee(logbooks_before_filtering,
         "Logbooks before filtering")
-# 94737 2022
-# 52393 2023
 
 logbooks_after_filtering <-
   n_distinct(SEFHIER_logbooks_processed$TRIP_ID)
 
 my_tee(logbooks_after_filtering,
         "Logbooks after filtering")
-# [1] 73313
-# 51340 2023
-# 89621 2022
 
 percent_of_removed_logbooks <-
   (logbooks_before_filtering - logbooks_after_filtering) * 100 / logbooks_before_filtering
 
 cat(percent_of_removed_logbooks, sep = "\n")
-# 22.59539
-# 2.00981 (with late submission)
 # 5.400213 2022
 # 0.7146099 if keep overridden
 
 # removed_vessels
 vessels_before_filtering <-
-  n_distinct(Logbooks$VESSEL_OFFICIAL_NUMBER)
+  n_distinct(Logbooks_raw_renamed$VESSEL_OFFICIAL_NUMBER)
 
 cat(vessels_before_filtering)
-# 1885 2022
-# 1646 2023
 
 vessels_after_filtering <-
-  n_distinct(SEFHIER_logbooks_processed$VESSEL_OFFICIAL_NUMBER)
+  n_distinct(Logbooks_raw_renamed__to_date_time4__my_year__format_time__iso$VESSEL_OFFICIAL_NUMBER)
 
 cat(vessels_after_filtering)
-# 1823 2022
-# 1597 2023
 
 removed_vessels <-
   vessels_before_filtering - vessels_after_filtering
-# 253
-# 49
-# 3
 
 percent_of_removed_vessels <-
   (vessels_before_filtering - vessels_after_filtering) * 100 / vessels_before_filtering
-# [1] 13.44315
-# [1] 2.976914
 
 removed_logbooks_and_vessels_text <- c(
   crayon::blue("percent_of_removed_logbooks"),
@@ -809,4 +776,3 @@ write_rds(
   file = file.path(output_file_path, SEFHIER_processed_Logbooks_file_name)
 )
 
-# file.exists(file)
