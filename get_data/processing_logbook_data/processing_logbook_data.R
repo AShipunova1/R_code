@@ -3,8 +3,6 @@
 # Creates:
 # 1) The result will be in
 # SEFHIER_processed_Logbooks_{my_year}.rds
-# 2)
-# vessels_with_zero_logbooks_{my_year}.rds
 
 # Files to read or create:
 # 1) Raw_Oracle_Downloaded_compliance_2021_plus.rds
@@ -22,10 +20,9 @@
 #   (a) remove records from SRHS vessels
 #   (b) remove records where start date/time is after end date/time
 #   (c) remove records for trips lasting more than 10 days
-# (3) markremove all trips that were received > 30 days after trip end date, by using compliance data and time of submission
+# (3) mark all trips that were received > 30 days after trip end date, by using compliance data and time of submission
 #   (a) remove all overridden data, because the submission date is unknown
-# (4) Mark late submission data
-# (5) Add permit region information (GOM, SA, or dual), using permit names (optional)
+# (4) Add permit region information (GOM, SA, or dual), using permit names (optional)
 
 # For 2022 we don't keep trips starting in 2021 and ending in 2022. We only keep trips starting in 2022.
 
