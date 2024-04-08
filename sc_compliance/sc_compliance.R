@@ -74,7 +74,15 @@ if (!class(compl_override_data__renamed$vessel_official_number) == "character") 
     as.character(compl_override_data__renamed$vessel_official_number)
 }
 
-# TODO: change to the overlapping intervals (lubridate)
+# Add both month for straddle weeks
+
+# Explanations:
+# 1. 'compl_override_data__renamed_interv' is created from 'compl_override_data__renamed'.
+# 2. It groups the data by the start and end dates of the compliance weeks.
+# 3. It calculates the minimum month value between the 'comp_week_start_dt' and 'comp_week_end_dt' dates, storing it in a new column called 'comp_month_min'.
+# 4. It calculates the maximum month value between the 'comp_week_start_dt' and 'comp_week_end_dt' dates, storing it in a new column called 'comp_month_max'.
+# 5. The data is ungrouped after the calculations are done.
+
 compl_override_data__renamed_interv <-
   compl_override_data__renamed |>
   group_by(comp_week_start_dt, comp_week_end_dt) |>
@@ -84,9 +92,6 @@ compl_override_data__renamed_interv <-
   mutate(comp_month_max =
            max(month(comp_week_start_dt),
                month(comp_week_end_dt))) |>
-  # mutate(comp_month_interval =
-  #          lubridate::interval(comp_month_min,
-  #                              comp_month_max)) |>
   ungroup()
 toc()
 
@@ -103,8 +108,9 @@ compl_override_data__renamed_interv |>
   ) |>
   distinct() |>
   glimpse()
-### keep fewer compl fields ----
-# Keep only entries for "my_year" defined earlier and the previous year. COuld be changed depending on the data provided by SC.
+
+### keep fewer fields from compliance info ----
+# Keep only entries for "my_year" defined earlier and the previous year. Could be changed depending on the data provided by SC.
 
 compl_override_data__renamed_m_short <-
   compl_override_data__renamed_interv |>
@@ -193,11 +199,16 @@ compl_override_data__renamed_m_short__m_compl__both_months <-
 toc()
 # get month_comp: 31.7 sec elapsed
 
-# compl_override_data__renamed_m_short__m_compl |>
-#     filter(!month_comp_min == month_comp_max) |>
-#     glimpse()
-
 # combine month compliance for each week
+
+# Explanations:
+# 1. 'compl_override_data__renamed_m_short__m_compl' is created from 'compl_override_data__renamed_m_short__m_compl__both_months'.
+# 2. It groups the data by the vessel official number, compliance year, compliance week, start date of the compliance week, and end date of the compliance week.
+# 3. It calculates a new column 'common_month_compliance' based on conditions:
+#    a. If the minimum and maximum month values of compliance are both 'compl', then the 'common_month_compliance' is set to 'compl'.
+#    b. For all other cases, it is set to 'non_compl'. Meaning if any week in this 2 months is non_compl, both months are non-compliant.
+# 4. The data is ungrouped after the calculations are done.
+
 tic("min_max_compl")
 compl_override_data__renamed_m_short__m_compl <-
   compl_override_data__renamed_m_short__m_compl__both_months |>
@@ -224,23 +235,6 @@ compl_override_data__renamed_m_short__m_compl |>
   # filter(!month_comp_min == month_comp_max) |>
   distinct() |>
   glimpse()
-
-#   mutate(weeks_month_compl =
-#            toString(unique(
-#              month_comp_min, month_comp_max
-#            ))) |>
-#   ungroup() |>
-#   filter(!weeks_month_compl == "compl") |> glimpse()
-#   mutate(month_comp_min =
-#            case_when(all_m_comp_min %in% c(c("no, yes"), "no") ~ "non_compl",
-#                      .default = "compl")) |>
-#
-
-
-# check
-# compl_override_data__renamed_m_short__m_compl |>
-#     select(compliant_after_override, is_comp, overridden, all_m_comp, month_comp) |>
-#     distinct()
 
 ## get logbooks ----
 logbooks_path <- file.path(
@@ -423,6 +417,14 @@ SC_permittedVessels_longer_m_y_no_srhs <-
 # combine data ----
 
 # Join the SC data with the compliance data we prepared, by vessel, month and year.
+
+# Explanations:
+# 1. 'sc__fhier_compl__join_w_month' is created by left joining two data frames: 'SC_permittedVessels_longer_m_y_no_srhs' and 'compl_override_data__renamed_m_short__m_compl'.
+# 2. The join is performed based on the following conditions:
+#    a. The vessel registration number from 'SC_permittedVessels_longer_m_y_no_srhs' matches the vessel official number from 'compl_override_data__renamed_m_short__m_compl'.
+#    b. The month_sc column (representing the month in 'SC_permittedVessels_longer_m_y_no_srhs') falls within the range of months (comp_month_min to comp_month_max) in 'compl_override_data__renamed_m_short__m_compl'.
+#    c. The year_sc column (representing the year in 'SC_permittedVessels_longer_m_y_no_srhs') matches the comp_year column in 'compl_override_data__renamed_m_short__m_compl'.
+
 sc__fhier_compl__join_w_month <-
   left_join(
     SC_permittedVessels_longer_m_y_no_srhs,
@@ -439,7 +441,6 @@ dim(SC_permittedVessels)
 dim(SC_permittedVessels_longer_m_y_no_srhs)
 # SC_permittedVessels_longer_m_y_no_srhs
 dim(sc__fhier_compl__join_w_month)
-# 7927
 n_distinct(SC_permittedVessels)
 # 215
 n_distinct(sc__fhier_compl__join_w_month$vessel_reg_uscg_)
@@ -447,10 +448,7 @@ n_distinct(sc__fhier_compl__join_w_month$vessel_reg_uscg_)
 # glimpse(sc__fhier_compl__join_w_month)
 
 dim(sc__fhier_compl__join_w_month)
-# [1] 2588   14
-# [1] 7927   19 (w weeks)
 
-#
 sc__fhier_compl__join_w_month |>
   select(contains("month")) |>
   distinct() |>
@@ -473,7 +471,7 @@ dim(non_compliant_vessels_in_sc_and_fhier)
 # 8 19 with weeks
 # 12 24 counting non compliant in both month for straddling weeks
 
-# Fewer column
+# Fewer column and sort
 non_compliant_vessels_in_sc_and_fhier__for_output <-
   non_compliant_vessels_in_sc_and_fhier |>
   select(
@@ -496,8 +494,6 @@ non_compliant_vessels_in_sc_and_fhier__for_output <-
 # 2. non compliant in SC and compliant in FHIER ----
 
 # 2) if they are compliant for that month in FHIER then list all the dates of DNFs and/or logbooks we have in FHIER by vessel (probably 3 columns needed: vessel ID, Logbook (list any dates for that month), DNF (list week date range for any for that month)
-
-test_vessels <- c("SC1663DK", "SC8348DB")
 
 non_compliant_vessels_in_sc_and_compl_in_fhier <-
   sc__fhier_compl__join_w_month |>
@@ -633,12 +629,12 @@ dim(compliant_vessels_in_sc_and_non_compl_fhier__for_output)
 # [1] 406   10
 # [1] 474  10
 
-# write results to xlsx ----
+# Write results to xlsx ----
 # (sheet 1) the list of those SC non-compliant vessels that are also non-compliant in FHIER, or
 # (on sheet 2) if they are compliant for that month in FHIER then list all the dates of DNFs and/or logbooks we have in FHIER by vessel (probably 3 columns needed: vessel ID, Logbook (list any dates for that month), DNF (list week date range for any for that month)
-# we also need a step that just grabs the compliant vessels (herein "SC compliant vessels list"), and then checks FHIER
+# 3. we also need a step that just grabs the compliant vessels (herein "SC compliant vessels list"), and then checks FHIER
 
-# 1. write all output dfs ----
+# 1. Create a wb with all output dfs ----
 
 output_file_name <-
   file.path(curr_proj_output_path,
@@ -660,50 +656,53 @@ sheet_names <-
     "compl_sc__non_compl_fhier"
   )
 
+# make a copy with different names
 print_result_list <-
   output_df_list
 
 names(print_result_list) <- sheet_names
-
-write.xlsx(
-  print_result_list,
-  file = output_file_name,
-  asTable = TRUE,
-  overwrite = TRUE
-)
 
 wb <- buildWorkbook(print_result_list, asTable = TRUE)
 
 # worksheetOrder(wb)
 # [1] 1 2 3 4
 
-# create readme ----
-# 1
+# 2. create a readme sheet ----
+# a)
 top_of_read_me_text <-
   today() |>
   as_tibble_col(column_name =  "Read me")
 
-# 2
+# b)
 sheet_names_with_df_names <-
   cbind(sheet_names, names(output_df_list)) |>
   as.data.frame()
 
-names(sheet_names_with_df_names) <- c("Sheet name", "What is inside")
+names(sheet_names_with_df_names) <-
+  c("Sheet name", "What is inside")
 
 glimpse(sheet_names_with_df_names)
 
-# 3
+# c)
+
+# Explanations:
+# 1. 'colnames_for_each_df' is created by mapping over 'output_df_list' and 'sheet_names' simultaneously.
+# 2. For each dataframe 'my_df' in 'output_df_list' and corresponding 'sheet_name':
+#    a. Retrieve the column names of 'my_df' using the 'names' function.
+#    b. Convert the column names into a tibble format with a single column named 'column_name' and assign the value of 'sheet_name' to each row.
+#    c. Return the tibble containing the column names with associated sheet names.
+
 colnames_for_each_df <-
   map2(output_df_list, sheet_names,
-         \(my_df, sheet_name) {
+       \(my_df, sheet_name) {
+         names(my_df) |>
+           as_tibble_col(column_name = sheet_name) %>%
+           return()
+       })
 
-           names(my_df) |>
-             as_tibble_col(column_name = sheet_name) %>%
-             return()
-         })
+# glimpse(colnames_for_each_df)
 
-glimpse(colnames_for_each_df)
-
+# combine 3 dfs and
 readme_text <-
   c(
     list(top_of_read_me_text),
