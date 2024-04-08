@@ -1,6 +1,44 @@
 # processing_logbook_data
 
-# TODO: add comments
+# Creates:
+# 1) The result will be in
+# SEFHIER_processed_Logbooks_{my_year}.rds
+# 2)
+# vessels_with_zero_logbooks_{my_year}.rds
+
+# Files to read or create:
+# 1) Raw_Oracle_Downloaded_compliance_2021_plus.rds
+# 2) Raw_Oracle_Downloaded_logbook_{my_date_beg}__{my_date_end}.rds
+# 3) SEFHIER_permitted_vessels_nonSRHS_{my_year}.rds
+       # use processing_metrics_tracking.R to create file #3 before running this code
+#4) processing_auxiliary_methods.R
+       # get from Google Drive R code folder, put in path directory with this script
+
+# This code processes logbook data from Oracle database,
+# then cleans it up, so that we can use it in any logbook data analysis:
+# (1) (a) pull all logbook and compliance/override data from Oracle database
+#     (b) get processed Metrics Tracking
+# (2) clean up logbook data set
+#   (a) remove records from SRHS vessels
+#   (b) remove records where start date/time is after end date/time
+#   (c) remove records for trips lasting more than 10 days
+# (3) markremove all trips that were received > 30 days after trip end date, by using compliance data and time of submission
+#   (a) remove all overridden data, because the submission date is unknown
+# (4) Mark late submission data
+# (5) Add permit region information (GOM, SA, or dual), using permit names (optional)
+
+# For 2022 we don't keep trips starting in 2021 and ending in 2022. We only keep trips starting in 2022.
+
+# Caveats:
+# 1) The way COMP_WEEK is calculated could get messed up depending on a given year time frame. It's due to something
+# internal called the ISO number and how the function calculates the start of a week. If you are running this on a
+# new data set, check your weeks to make sure it's calculating correctly.
+
+# Running the code
+# To run the file as a whole, you can type this in the console: source('Processing Logbook Data.R') and hit enter.
+# Pressing F2 when the custom function name is under the cursor will show the function definition.
+# Pressing F1 when the R function name is under the cursor will show the function definition
+# and examples in the help panel.
 
 # General set up ----
 
