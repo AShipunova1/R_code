@@ -21,9 +21,11 @@ db_year_1 <- "2023"
 db_year_2 <- "2024"
 
 source("~/R_code_github/useful_functions_module.r")
-my_paths <- set_work_dir()
+annas_path <- set_work_dir()
 
 # Set up paths ----
+# Add correct paths for your environment
+
 annas_processed_data_path <-
   r"(~\R_files_local\my_inputs\processing_logbook_data\Outputs)"
 
@@ -34,7 +36,7 @@ current_project_dir_name <- this.path::this.dir()
 current_project_basename <-
   basename(current_project_dir_name)
 
-curr_proj_output_path <- file.path(my_paths$outputs,
+curr_proj_output_path <- file.path(annas_path$outputs,
                          current_project_basename)
 
 # get data ----
@@ -274,7 +276,7 @@ dim(dnfs)
 
 ## get srhs vessels ----
 srhs_2024_file_path <-
-  file.path(my_paths$inputs,
+  file.path(annas_path$inputs,
             "SRHS_headboat_survey",
             str_glue("Vessel_List_{my_year}.csv"))
 
@@ -291,12 +293,12 @@ srhs_2024 <-
 ## read sc permitted data ----
 xlsx_name = r"(sc_mismatches\2024_04\scdnrFedVessels_04012024.xlsx)"
 
-myfiles <-  file.path(my_paths$inputs, xlsx_name)
+sc_file <-  file.path(annas_path$inputs, xlsx_name)
 
-file.exists(myfiles)
+file.exists(sc_file)
 
 SC_permittedVessels <- read_excel(
-  myfiles,
+  sc_file,
   .name_repair = fix_names,
   guess_max = 21474836
 )
