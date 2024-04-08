@@ -316,10 +316,17 @@ max(Logbooks_raw_renamed__to_date_time4$TRIP_START_DATE)
 # [1] "2022-12-31"
 # [1] "2023-12-31"
 
+# (?) (AS)
+# TRIP_END_DATE >= my_date_beg OR
+# TRIP_START_DATE >= my_date_beg
 Logbooks_raw_renamed__to_date_time4__my_year <-
   Logbooks_raw_renamed__to_date_time4 |>
-  filter(TRIP_START_DATE >= as.Date(my_date_beg, "%d-%b-%Y") &
-           TRIP_START_DATE <= as.Date(my_date_end, "%d-%b-%Y"))
+  filter(TRIP_END_DATE >=
+           as.Date(my_date_beg, "%d-%b-%Y",
+                   tz = Sys.timezone()) &
+           TRIP_START_DATE <=
+           as.Date(my_date_end, "%d-%b-%Y",
+                                      tz = Sys.timezone()))
 
 # stats, to compare with the end result
 logbooks_stat_correct_dates_before_filtering <-
@@ -330,10 +337,6 @@ logbooks_stat_correct_dates_before_filtering <-
 
 my_stats(Logbooks_raw_renamed__to_date_time4__my_year,
          "Logbooks after filtering by dates")
-# rows: 327773
-# columns: 149
-# Unique vessels: 1882
-# Unique trips (logbooks): 94714
 
 # check
 min(Logbooks_raw_renamed__to_date_time4__my_year$TRIP_START_DATE)
@@ -348,7 +351,6 @@ max(Logbooks_raw_renamed__to_date_time4__my_year$TRIP_END_DATE)
 
 # create column for start and end date & time
 # Used in "the Time Stamp Error" and "the trip is too long".
-
 
 tic("format time")
 Logbooks_raw_renamed__to_date_time4__my_year__format_time <-
@@ -716,7 +718,7 @@ SEFHIER_logbooks_processed_p_regions <-
       )
   )
 
-# stats
+# All stats ----
 my_stats(SEFHIER_logbooks_processed)
 
 logbooks_before_filtering <-
