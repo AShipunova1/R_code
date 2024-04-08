@@ -16,6 +16,12 @@ db_year_2 <- "2024"
 source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 
+# Set up paths ----
+annas_processed_data_path <-
+  r"(~\R_files_local\my_inputs\processing_logbook_data\Outputs)"
+
+processed_data_path <- annas_processed_data_path
+
 current_project_dir_name <- this.path::this.dir()
 
 current_project_basename <-
@@ -32,7 +38,8 @@ curr_proj_output_path <- file.path(my_paths$outputs,
 
 # 1) Use file.path to construct the path to a file from components. It will add the correct slashes between path parts.
 compl_override_data_file_path <-
-  file.path(r"(~\R_files_local\my_inputs\processing_logbook_data\Outputs\Raw_Oracle_Downloaded_compliance_2021_plus.rds)")
+  file.path(annas_processed_data_path,
+            "Raw_Oracle_Downloaded_compliance_2021_plus.rds")
 
 # Check if the file path is correct, optional
 file.exists(compl_override_data_file_path)
@@ -236,11 +243,10 @@ compl_override_data__renamed_m_short__m_compl |>
   distinct() |>
   glimpse()
 
-## get logbooks ----
-logbooks_path <- file.path(
-  r"(~\R_files_local\my_inputs\processing_logbook_data\Outputs)",
-  str_glue("SEFHIER_processed_Logbooks_{my_year}.rds")
-)
+## get processed logbooks ----
+logbooks_path <-
+  file.path(processed_data_path,
+            str_glue("SEFHIER_processed_Logbooks_{my_year}.rds"))
 
 logbooks <-
   read_rds(logbooks_path) |>
@@ -249,10 +255,9 @@ logbooks <-
 dim(logbooks)
 
 ## get dnfs ----
-dnfs_path <- file.path(
-  r"(~\R_files_local\my_inputs\processing_logbook_data\Outputs)",
-  str_glue("SEFHIER_processed_dnfs_{my_year}.rds")
-)
+dnfs_path <-
+  file.path(processed_data_path,
+            str_glue("SEFHIER_processed_dnfs_{my_year}.rds"))
 
 dnfs <-
   read_rds(dnfs_path) |>
