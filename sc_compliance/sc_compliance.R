@@ -702,7 +702,7 @@ colnames_for_each_df <-
 
 # glimpse(colnames_for_each_df)
 
-# combine 3 dfs and
+# combine 3 dfs and convert to a type needed for output.
 readme_text <-
   c(
     list(top_of_read_me_text),
@@ -712,9 +712,26 @@ readme_text <-
 
 # map(readme_text, class)
 
+## Add a new sheet ----
 addWorksheet(wb, "Readme")
 
+## Add a new style ----
 bold.style <- createStyle(textDecoration = "Bold")
+
+## Write each df from readme_text on to the same sheet ----
+
+# Explanations:
+# 1. Initialize a variable 'curr_row' with a value of 1 to track the current row position in the Excel sheet.
+# 2. Iterate over the indices of 'readme_text' using 'seq_along' to access each element.
+# 3. Assign the current element to 'one_df'.
+# 4. Determine the size of 'one_df' by checking if it is a data frame using the 'class' function.
+#    a. If it's not a data frame, treat it as a vector and get its length.
+#    b. If it's a data frame, get the number of rows.
+# 5. If 'one_df' is not already a data frame, convert it to a data frame using 'as.data.frame'.
+# 6. Write the contents of 'one_df' to the "Readme" sheet in the Excel workbook 'wb':
+#    a. Start writing from the 'curr_row'.
+#    b. Apply a bold style to the header row.
+# 7. Update 'curr_row' by adding 'one_df_size' plus 2 (for additional spacing) to move to the next available row for writing the next dataframe.
 
 curr_row <- 1
 for (i in seq_along(readme_text)) {
@@ -737,17 +754,24 @@ for (i in seq_along(readme_text)) {
   curr_row <- curr_row + one_df_size + 2
 }
 
+# To see the wb. Not needed for processing.
 # openXL(wb)
 
-# saveWorkbook(wb, file.path(curr_proj_output_path,
-#             "sc_compliance11.xlsx"))
+## Move readme to the first position ----
+
+# Explanations:
+# 1. Get the current order of worksheets in the Excel workbook 'wb' using 'worksheetOrder' function and store it in 'old_order'.
+# 2. Calculate the length of 'old_order' and store it in 'length_of_wb'.
+# 3. Rearrange the order of worksheets in 'wb' by assigning a new order:
+#    a. Start with the last worksheet by placing it at the first position using 'length_of_wb'.
+#    b. Followed by the rest of the worksheets from the first to the second-to-last position using '1:(length_of_wb - 1)'.
 
 old_order <- worksheetOrder(wb)
 length_of_wb <- old_order |> length()
-# str(old_order)
 worksheetOrder(wb) <- c(length_of_wb, 1:(length_of_wb - 1))
 
 # openXL(wb)
 
+## Write the Excel file ----
 saveWorkbook(wb, output_file_name, overwrite = T)
 
