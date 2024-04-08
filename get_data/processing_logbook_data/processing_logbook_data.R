@@ -643,8 +643,16 @@ my_tee(n_distinct(logbooks_too_long$VESSEL_ID),
        "Thrown away by trip_more_10_days (vessels num)")
 
 ## Mark all trips that were received > 30 days after the trip end date, by using compliance data and time of submission ----
+
 ### add the threshold date ----
 # Add a date 30 days after the trip and set a time to the last minute of that day
+
+# Explanations:
+# 1. 'logbooks_join_overr_e_usable_date' is created based on the 'logbooks_join_overr__compl__start_end_ok' data frame.
+# 2. The 'mutate' function is used to add a new column named 'USABLE_DATE_TIME'.
+# 3. 'USABLE_DATE_TIME' is calculated as 30 days after 'TRIP_END_DATE' using the 'days' function from lubridate.
+# 4. Subsequent 'mutate' calls adjust the 'USABLE_DATE_TIME' to have the time set to 23:59:59 on the same date.
+
 logbooks_join_overr_e_usable_date <-
   logbooks_join_overr__compl__start_end_ok |>
   mutate(USABLE_DATE_TIME =
@@ -658,6 +666,15 @@ logbooks_join_overr_e_usable_date <-
 
 # subtract the usable date from the date of submission
 # value is true if the logbook was submitted within 30 days, false if the logbook was not
+
+# Print out statistics
+
+# Explanations:
+# 1. 'late_submission_filter_stats' is a function that takes a dataframe 'my_df' as input.
+# 2. It first calls another function 'my_stats' to compute and print statistics about 'my_df'.
+# 3. It filters 'my_df' to create a subset called 'late_submission' where 'MORE_THAN_30_DAYS_LATE' is FALSE.
+# 4. It then calculates and prints the number of distinct trip IDs and vessel official numbers in the 'late_submission' subset.
+# 5. Lastly, it checks and prints the minimum and maximum values of 'TRIP_START_DATE' and 'TRIP_END_DATE' in 'my_df'.
 
 late_submission_filter_stats <-
   function(my_df) {
@@ -693,7 +710,7 @@ late_submission_filter_stats <-
 # 3. Inside the function, a new data frame 'logbooks_join_overr__compl__start_end_ok__trip_len_ok_temp' is created by modifying 'my_df'.
 # 4. Within 'logbooks_join_overr__compl__start_end_ok__trip_len_ok_temp', a new column 'MORE_THAN_30_DAYS_LATE' is created based on a conditional statement.
 # 5. The conditional statement checks if the 'USABLE_DATE_TIME' column is greater than or equal to the 'TRIP_DE' column. If true, it assigns TRUE to 'MORE_THAN_30_DAYS_LATE', otherwise FALSE.
-# 6. The 'late_submission_filter_stats' function is called to generate statistics on the filtered data frame. This function is provided before.
+# 6. The 'late_submission_filter_stats' function is called to generate statistics on the filtered data frame. This function is provided above.
 # 7. Finally, the modified data frame 'logbooks_join_overr__compl__start_end_ok__trip_len_ok_temp' is returned from the function.
 
 late_submission_filter <-
