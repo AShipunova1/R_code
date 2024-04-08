@@ -626,7 +626,7 @@ trip_length_threshold <- 240
 
 logbooks_join_overr__compl__start_end_ok__trip_len_ok <-
   logbooks_join_overr__compl__start_end_ok |>
-  filter(trip_length <= trip_length_threshold)
+  filter(trip_length < trip_length_threshold)
 
 # stats
 my_stats(logbooks_join_overr__compl__start_end_ok__trip_len_ok)
