@@ -121,11 +121,12 @@ WHERE
 # or run the query and write the file for future use
 
 # use to force the DB download
-# force_from_db = T
+# force_from_db = TRUE
 
 compl_override_data <-
   read_rds_or_run_query(compl_override_data_file_path,
-                        compl_err_query
+                        compl_err_query,
+                        force_from_db = NULL
                         )
 
 ### prep the compliance/override data ----
@@ -145,6 +146,17 @@ min(compl_override_data__renamed$COMP_WEEK_START_DT)
 # [1] "2021-01-04 EST"
 
 # keep only year of analysis, including the week 52 of the previous year if needed
+
+# Explanations:
+# 1. 'compl_override_data__renamed__this_year' is a new data frame created from 'compl_override_data__renamed'.
+# 2. In this data frame, only rows meeting specific date criteria are retained.
+# 3. The 'filter' function is used to subset rows based on the following conditions:
+#    a. 'COMP_WEEK_END_DT' should be greater than or equal to 'my_date_beg' (start date).
+#    b. 'COMP_WEEK_START_DT' should be less than or equal to 'my_date_end' (end date).
+# 4. Dates are converted using 'as.Date' with the appropriate format ("%d-%b-%Y") and time zone.
+# 5. 'Sys.timezone()' retrieves the current system's time zone.
+# 6. The filtered data frame 'compl_override_data__renamed__this_year' contains only rows within the specified date range.
+
 compl_override_data__renamed__this_year <-
   compl_override_data__renamed |>
   filter(
@@ -316,9 +328,6 @@ max(Logbooks_raw_renamed__to_date_time4$TRIP_START_DATE)
 # [1] "2022-12-31"
 # [1] "2023-12-31"
 
-# (?) (AS)
-# TRIP_END_DATE >= my_date_beg OR
-# TRIP_START_DATE >= my_date_beg
 Logbooks_raw_renamed__to_date_time4__my_year <-
   Logbooks_raw_renamed__to_date_time4 |>
   filter(TRIP_END_DATE >=
@@ -352,17 +361,27 @@ max(Logbooks_raw_renamed__to_date_time4__my_year$TRIP_END_DATE)
 # create column for start and end date & time
 # Used in "the Time Stamp Error" and "the trip is too long".
 
-tic("format time")
+# Explanations:
+# 1. 'Logbooks_raw_renamed__to_date_time4__my_year__format_time' is a modified version of 'Logbooks_raw_renamed__to_date_time4__my_year'.
+# 2. Two new columns, 'STARTDATETIME' and 'ENDDATETIME', are added to this data frame.
+# 3. The values for these columns are obtained by combining 'TRIP_START_DATE' with 'TRIP_START_TIME' for 'STARTDATETIME'
+#    and 'TRIP_END_DATE' with 'TRIP_END_TIME' for 'ENDDATETIME'.
+# 4. 'paste' function is used to concatenate date and time strings.
+# 5. The resulting combined strings are then converted to POSIXct objects using 'as.POSIXct'.
+# 6. 'format' parameter specifies the format of the input strings ("%Y-%m-%d %H%M").
+# 7. 'tz' parameter specifies the time zone to be used for the conversion, obtained from 'Sys.timezone()'.
+# 8. This ensures that the date and time values are correctly parsed and stored as datetime objects in the specified time zone.
+
 Logbooks_raw_renamed__to_date_time4__my_year__format_time <-
   Logbooks_raw_renamed__to_date_time4__my_year |>
   mutate(STARTDATETIME =
            as.POSIXct(paste(TRIP_START_DATE,                                           TRIP_START_TIME),
-                      format = "%Y-%m-%d %H%M")) |>
+                      format = "%Y-%m-%d %H%M",
+                      tz = Sys.timezone())) |>
   mutate(ENDDATETIME =
            as.POSIXct(paste(TRIP_END_DATE,                                           TRIP_END_TIME),
-                      format = "%Y-%m-%d %H%M"))
-toc()
-# format time: 7.2 sec elapsed
+                      format = "%Y-%m-%d %H%M",
+                      tz = Sys.timezone()))
 
 # check
 Logbooks_raw_renamed__to_date_time4__my_year__format_time$ENDDATETIME |>
@@ -398,14 +417,21 @@ compl_override_data__renamed__this_year |>
 # 3      2023       2023-01-15         2
 
 # Needed to adjust for week 52 of the previous year and use in joins
+# Explanations:
+# 1. 'Logbooks_raw_renamed__to_date_time4__my_year__format_time__iso' is an extension of 'Logbooks_raw_renamed__to_date_time4__my_year__format_time'.
+# 2. Two new columns, 'TRIP_END_WEEK' and 'TRIP_END_YEAR', are added to this data frame.
+# 3. 'isoweek' function is applied to the 'TRIP_END_DATE' column to extract the ISO week number of the trip end date.
+# 4. This ISO week number represents the week of the year in which the trip ends.
+# 5. Similarly, 'isoyear' function is applied to the 'TRIP_END_DATE' column to extract the ISO year of the trip end date.
+# 6. This ISO year represents the year to which the trip end date belongs.
+# 7. These columns provide additional temporal information about the trips, such as the week number and year according to the ISO 8601 standard.
+
 Logbooks_raw_renamed__to_date_time4__my_year__format_time__iso <-
   Logbooks_raw_renamed__to_date_time4__my_year__format_time |>
   mutate(
     TRIP_END_WEEK = isoweek(TRIP_END_DATE),
-    # puts it in week num
     TRIP_END_YEAR = isoyear(TRIP_END_DATE)
-  ) # adds a year
-
+  )
 
 # Adding flags or filtering the logbook data ----
 
@@ -450,6 +476,7 @@ Logbooks_raw_renamed__to_date_time4__my_year__format_time__iso$TRIP_START_DATE |
 grep("year", names(Logbooks_raw_renamed__to_date_time4__my_year__format_time__iso), ignore.case = T, value = T)
 grep("week", names(Logbooks_raw_renamed__to_date_time4__my_year__format_time__iso), ignore.case = T, value = T)
 
+# join logbooks and compliance
 logbooks_join_overr <-
   full_join(
     Logbooks_raw_renamed__to_date_time4__my_year__format_time__iso,
@@ -481,7 +508,7 @@ nrow(in_logbooks_not_in_compl)
 my_stats(SEFHIER_compl_override_data__renamed__this_year)
 my_stats(logbooks_join_overr)
 
-### Remove rows with NA logbooks and entries in Compiance ----
+### Remove rows with NA logbooks and entries in Compliance ----
 logbooks_join_overr__all_logbooks <-
   logbooks_join_overr |>
   filter(!is.na(TRIP_ID))
@@ -491,6 +518,19 @@ dim(logbooks_join_overr__all_logbooks)
 
 ### Add a compliant_after_override column ----
 # To use in compliance analysis where logbooks are also used
+
+# Explanations:
+# 1. 'logbooks_join_overr__compl' is created as an extension of 'logbooks_join_overr__all_logbooks'.
+# 2. This operation is performed row-wise.
+# 3. A new column 'compliant_after_override' is added to the data frame.
+# 4. Within the 'compliant_after_override' column, values are assigned based on conditions using the 'case_when' function.
+# 5. If 'IS_COMP' (compliance indicator) is 0 and 'OVERRIDDEN' (override indicator) is 0, the value is set to "no".
+# 6. If 'IS_COMP' is 1, indicating compliance, the value is set to "yes".
+# 7. If 'OVERRIDDEN' is 1, indicating that compliance was overridden, the value is set to "yes".
+# 8. If 'IS_COMP' is NA, indicating missing data, the value is set to NA.
+# 9. For all other cases, the value is set to a string representation of 'IS_COMP'.
+# 10. Finally, the data frame is ungrouped to revert to its original structure.
+
 tic("Add a compliant_after_override column")
 logbooks_join_overr__compl <-
   logbooks_join_overr__all_logbooks |>
@@ -507,6 +547,7 @@ logbooks_join_overr__compl <-
 toc()
 # Add a compliant_after_override column: 91.81 sec elapsed
 
+# check
 logbooks_join_overr__all_logbooks |>
   select(IS_COMP,
          OVERRIDDEN) |>
@@ -601,12 +642,25 @@ my_tee(n_distinct(logbooks_too_long$VESSEL_ID),
 
 ## Mark all trips that were received > 30 days after the trip end date, by using compliance data and time of submission ----
 ### add the threshold date ----
+
+# Explanations:
+# 1. 'logbooks_join_overr_e' is created based on the 'logbooks_join_overr__compl__start_end_ok' data frame.
+# 2. The 'mutate' function is used to add a new column named 'TRIP_END_DATE_E'.
+# 3. 'ymd_hms' from the 'lubridate' package is used to convert the 'TRIP_END_DATE' column to a POSIXct datetime object.
+# 4. The 'truncated' argument is set to 3, indicating that any seconds beyond three decimal places should be discarded.
+# 5. 'tz' is set to 'Sys.timezone()' to ensure correct time zone conversion.
+
 logbooks_join_overr_e <-
   logbooks_join_overr__compl__start_end_ok |>
   mutate(TRIP_END_DATE_E =
            ymd_hms(TRIP_END_DATE,
                    truncated = 3,
                    tz = Sys.timezone()))
+
+logbooks_join_overr__compl__start_end_ok$TRIP_END_DATE |> head()
+
+logbooks_join_overr_e$TRIP_END_DATE_E |> head()
+
 
 # add a date 30 days later and set a time to the last minute of that day
 logbooks_join_overr_e_usable_date <-
@@ -650,6 +704,15 @@ late_submission_filter_stats <-
     # [1] "2022-12-31"
 
   }
+
+# Explanations:
+# 1. 'late_submission_filter' is a function designed to filter late submissions from a given data frame.
+# 2. The function takes 'my_df' as input, which represents the data frame to be processed.
+# 3. Inside the function, a new data frame 'logbooks_join_overr__compl__start_end_ok__trip_len_ok_temp' is created by modifying 'my_df'.
+# 4. Within 'logbooks_join_overr__compl__start_end_ok__trip_len_ok_temp', a new column 'MORE_THAN_30_DAYS_LATE' is created based on a conditional statement.
+# 5. The conditional statement checks if the 'USABLE_DATE_TIME' column is greater than or equal to the 'TRIP_DE' column. If true, it assigns TRUE to 'MORE_THAN_30_DAYS_LATE', otherwise FALSE.
+# 6. The 'late_submission_filter_stats' function is called to generate statistics on the filtered data frame. This function is provided before.
+# 7. Finally, the modified data frame 'logbooks_join_overr__compl__start_end_ok__trip_len_ok_temp' is returned from the function.
 
 late_submission_filter <-
   function(my_df) {
