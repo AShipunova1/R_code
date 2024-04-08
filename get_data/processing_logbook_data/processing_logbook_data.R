@@ -656,7 +656,7 @@ my_tee(n_distinct(logbooks_too_long$VESSEL_ID),
 logbooks_join_overr_e_usable_date <-
   logbooks_join_overr__compl__start_end_ok |>
   mutate(USABLE_DATE_TIME =
-           TRIP_END_DATE_E + days(30)) |>
+           TRIP_END_DATE + days(30)) |>
   mutate(USABLE_DATE_TIME =
            `hour<-`(USABLE_DATE_TIME, 23)) |>
   mutate(USABLE_DATE_TIME =
