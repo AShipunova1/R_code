@@ -23,16 +23,36 @@ db_year_2 <- "2024"
 source("~/R_code_github/useful_functions_module.r")
 
 # Set up paths ----
-
 annas_path <- set_work_dir()
 
 annas_processed_data_path <-
   r"(~\R_files_local\my_inputs\processing_logbook_data\Outputs)"
 
-# Add correct paths for your environment in the next 3 lines
-input_path <- annas_path$inputs
-output_path <- annas_path$outputs
+current_project_dir_name <- this.path::this.dir()
+
+current_project_basename <-
+  basename(current_project_dir_name)
+
+annas_sc_mismatch_file_path <-
+  file.path(annas_path$inputs,
+            r"(sc_mismatches\2024_04)",
+            "scdnrFedVessels_04012024.xlsx")
+
+file.exists(annas_sc_mismatch_file_path)
+
+annas_srhs_2024_file_path <-
+  file.path(annas_path$inputs,
+            "SRHS_headboat_survey",
+            str_glue("Vessel_List_{my_year}.csv"))
+
+file.exists(annas_srhs_2024_file_path)
+
+# Add correct paths for your environment in the next 4 lines
+
+output_path <- file.path(annas_path$outputs, current_project_basename)
 processed_data_path <- annas_processed_data_path
+sc_file_path <- annas_sc_mismatch_file_path
+srhs_2024_file_path <- annas_srhs_2024_file_path
 
 # get data ----
 ## Import and prep compliance/override data ----
@@ -42,7 +62,7 @@ processed_data_path <- annas_processed_data_path
 
 # 1) Use file.path to construct the path to a file from components. It will add the correct slashes between path parts.
 compl_override_data_file_path <-
-  file.path(annas_processed_data_path,
+  file.path(processed_data_path,
             "Raw_Oracle_Downloaded_compliance_2021_plus.rds")
 
 # Check if the file path is correct, optional
@@ -270,14 +290,6 @@ dnfs <-
 dim(dnfs)
 
 ## get srhs vessels ----
-srhs_2024_file_path <-
-  file.path(input_path,
-            "SRHS_headboat_survey",
-            str_glue("Vessel_List_{my_year}.csv"))
-
-file.exists(srhs_2024_file_path)
-# T
-
 srhs_2024 <-
   read_csv(srhs_2024_file_path,
            col_types = cols(.default = 'c')) |>
@@ -286,22 +298,13 @@ srhs_2024 <-
 # glimpse(srhs_2024)
 
 ## read sc permitted data ----
-xlsx_name = r"(sc_mismatches\2024_04\scdnrFedVessels_04012024.xlsx)"
-
-sc_file <-  file.path(input_path, xlsx_name)
-
-file.exists(sc_file)
-
 SC_permittedVessels <- read_excel(
-  sc_file,
+  sc_file_path,
   .name_repair = fix_names,
   guess_max = 21474836
 )
 
 # print_df_names(SC_permittedVessels)
-
-# save the original data for future comparison
-SC_permittedVessels_orig <- SC_permittedVessels
 
 ### fix dates in headers ----
 # TODO: grab just the month of interest (depends on the SC file)
@@ -645,10 +648,6 @@ dim(compliant_vessels_in_sc_and_non_compl_fhier__for_output)
 
 # 1. Create a wb with all output dfs ----
 
-output_file_name <-
-  file.path(curr_proj_output_path,
-            "sc_compliance.xlsx")
-
 output_df_list <-
   lst(
     non_compliant_vessels_in_sc_and_fhier__for_output,
@@ -782,5 +781,9 @@ worksheetOrder(wb) <- c(length_of_wb, 1:(length_of_wb - 1))
 # openXL(wb)
 
 ## Write the Excel file ----
+output_file_name <-
+  file.path(output_path,
+            "sc_compliance.xlsx")
+
 saveWorkbook(wb, output_file_name, overwrite = T)
 
