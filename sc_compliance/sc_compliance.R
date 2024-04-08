@@ -21,23 +21,18 @@ db_year_1 <- "2023"
 db_year_2 <- "2024"
 
 source("~/R_code_github/useful_functions_module.r")
-annas_path <- set_work_dir()
 
 # Set up paths ----
-# Add correct paths for your environment
+
+annas_path <- set_work_dir()
 
 annas_processed_data_path <-
   r"(~\R_files_local\my_inputs\processing_logbook_data\Outputs)"
 
+# Add correct paths for your environment in the next 3 lines
+input_path <- annas_path$inputs
+output_path <- annas_path$outputs
 processed_data_path <- annas_processed_data_path
-
-current_project_dir_name <- this.path::this.dir()
-
-current_project_basename <-
-  basename(current_project_dir_name)
-
-curr_proj_output_path <- file.path(annas_path$outputs,
-                         current_project_basename)
 
 # get data ----
 ## Import and prep compliance/override data ----
@@ -276,7 +271,7 @@ dim(dnfs)
 
 ## get srhs vessels ----
 srhs_2024_file_path <-
-  file.path(annas_path$inputs,
+  file.path(input_path,
             "SRHS_headboat_survey",
             str_glue("Vessel_List_{my_year}.csv"))
 
@@ -293,7 +288,7 @@ srhs_2024 <-
 ## read sc permitted data ----
 xlsx_name = r"(sc_mismatches\2024_04\scdnrFedVessels_04012024.xlsx)"
 
-sc_file <-  file.path(annas_path$inputs, xlsx_name)
+sc_file <-  file.path(input_path, xlsx_name)
 
 file.exists(sc_file)
 
