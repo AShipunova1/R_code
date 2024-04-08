@@ -14,15 +14,131 @@
 #   "Vessel_List_{my_year}.csv" (SRHS headboat survey)
 
 # set up ----
+# Load the 'ROracle' library, which provides an interface for working with Oracle databases in R.
+library(ROracle)
+
+# Load the 'tidyverse' library, which is a collection of R packages for data manipulation and visualization.
+library(tidyverse)
+
+# Load the 'magrittr' library, which provides piping data and functions.
+library(magrittr)
+
+# Load the 'tictoc' library, which allows measuring code execution time.
+library(tictoc)
+
 require(openxlsx)
 
 my_year <- "2024"
 db_year_1 <- "2023"
 db_year_2 <- "2024"
 
-source("~/R_code_github/useful_functions_module.r")
+# source("~/R_code_github/useful_functions_module.r")
 
 # Set up paths ----
+
+# current user name
+get_username <- function(){
+    return(as.character(Sys.info()["user"]))
+}
+
+# change main_r_dir, in_dir, out_dir, git_r_dir to your local environment
+  # then you can use it in the code like my_paths$input etc.
+set_work_dir <- function() {
+  # Set the working directory to the user's home directory (~)
+  setwd("~/")
+  base_dir <- getwd()
+
+  # Initialize 'add_dir' as an empty string (for others)
+  add_dir <- ""
+
+  # Check if the username is "anna.shipunova" (Anna's computer)
+  if (get_username() == "anna.shipunova") {
+    # Set 'add_dir' to a specific directory path for Anna
+    add_dir <- "R_files_local/test_dir"
+  }
+
+  # Construct the path to the main R directory
+  main_r_dir <- file.path(add_dir, "SEFHIER/R code")
+
+  # Define directory names for 'Inputs' and 'Outputs'
+  in_dir <- "Inputs"
+  out_dir <- "Outputs"
+
+  # Construct full paths to 'Inputs' and 'Outputs' directories using 'file.path'
+  # file.path is a function used to create platform-independent file paths by joining its arguments using the appropriate path separator (e.g., "\" on Windows, "/" on Unix-like systems).
+  #
+  # base_dir is the base directory obtained from the user's home directory.
+  #
+  # main_r_dir is the path to the main R directory, which may vary depending on whether the user is Anna or not.
+  #
+  # in_dir is the name of the 'Inputs' directory.
+  #
+  # So, this line effectively combines these components to create the full path to the 'Inputs' directory, ensuring that the path is correctly formatted for the user's operating system.
+
+  full_path_to_in_dir <- file.path(base_dir, main_r_dir, in_dir)
+  full_path_to_out_dir <- file.path(base_dir, main_r_dir, out_dir)
+
+  # Change the working directory to the main R directory
+  setwd(file.path(base_dir, main_r_dir))
+
+  # Create a list of directory paths for 'inputs' and 'outputs'
+  my_paths <- list("inputs" = full_path_to_in_dir,
+                   "outputs" = full_path_to_out_dir)
+  return(my_paths)
+}
+
+# Define a function named 'set_work_dir_local'
+# This function sets the working directory to the user's home directory, defines paths to 'my_inputs,' 'my_outputs,' and 'R_code_github' directories, and returns these directory paths as a list. The use of file.path ensures that the path construction is platform-independent.
+
+set_work_dir_local <- function() {
+
+  # Set the working directory to the user's home directory (~)
+  setwd("~/")
+  base_dir <- getwd()
+
+  # Define 'main_r_dir' as "R_files_local"
+  main_r_dir <- "R_files_local"
+
+  # Define 'in_dir' as "my_inputs"
+  in_dir <- "my_inputs"
+
+  # Construct the full path to 'my_inputs' directory
+  full_path_to_in_dir <- file.path(base_dir, main_r_dir, in_dir)
+
+  # Define 'out_dir' as "my_outputs"
+  out_dir <- "my_outputs"
+
+  # Construct the full path to 'my_outputs' directory
+  full_path_to_out_dir <- file.path(base_dir, main_r_dir, out_dir)
+
+  # Define 'git_r_dir' as "R_code_github"
+  git_r_dir <- "R_code_github"
+
+  # Construct the full path to 'R_code_github' directory
+  full_path_to_r_git_dir <- file.path(base_dir, git_r_dir)
+
+  # Change the working directory to 'R_files_local'
+  setwd(file.path(base_dir, main_r_dir))
+
+  # Create a list of directory paths for 'inputs,' 'outputs,' and 'git_r'
+  my_paths <- list("inputs" = full_path_to_in_dir,
+                   "outputs" = full_path_to_out_dir,
+                   "git_r" = full_path_to_r_git_dir)
+
+  # Return the list of directory paths
+  return(my_paths)
+}
+
+# ===
+# Change the behavior of the set_work_dir function based on the username. If the username matches "anna.shipunova," it reassigns set_work_dir to the set_work_dir_local function, effectively using a different directory structure for Anna compared to other users.
+
+# Check if the current username is "anna.shipunova"
+if (get_username() == "anna.shipunova") {
+  # If the condition is true, assign the 'set_work_dir_local' function to 'set_work_dir'
+  set_work_dir <- set_work_dir_local
+}
+
+
 annas_path <- set_work_dir()
 
 annas_processed_data_path <-
@@ -84,12 +200,114 @@ WHERE
 # read it
 # or run the query and write the file for future use
 
+# Pretty message print
+function_message_print <- function(text_msg) {
+  cat(crayon::bgCyan$bold(text_msg),
+      sep = "\n")
+}
+
+# The read_rds_or_run function is designed to read data from an RDS file if it exists or run an SQL query to pull the data from Oracle db if the file doesn't exist.
+read_rds_or_run <- function(my_file_path,
+                            my_data = as.data.frame(""),
+                            my_function,
+                            force_from_db = NULL) {
+  if (file.exists(my_file_path)) {
+    modif_time <- file.info(my_file_path)$mtime
+  }
+
+    # Check if the file specified by 'my_file_path' exists and 'force_from_db' is not set.
+    if (file.exists(my_file_path) &
+        is.null(force_from_db)) {
+        # If the file exists and 'force_from_db' is not set, read the data from the RDS file.
+
+        function_message_print("File already exists, reading.")
+
+        my_result <- readr::read_rds(my_file_path)
+
+    } else {
+
+      # If the file doesn't exist or 'force_from_db' is set, perform the following steps:
+
+      # 0. Print this message.
+      function_message_print(c(
+        "File",
+        my_file_path,
+        "doesn't exists, pulling data from database.",
+        "Must be on VPN."
+      ))
+
+      # 1. Generate a message indicating the date and the purpose of the run for "tic".
+      msg_text <-
+        paste(today(), "run for", basename(my_file_path))
+      tictoc::tic(msg_text)  # Start timing the operation.
+
+      # 2. Run the specified function 'my_function' on the provided 'my_data' to generate the result. I.e. download data from the Oracle database. Must be on VPN.
+
+      my_result <- my_function(my_data)
+
+      tictoc::toc()  # Stop timing the operation.
+
+      # 3. Save the result as an RDS binary file to 'my_file_path' for future use.
+      # try is a wrapper to run an expression that might fail and allow the user's code to handle error-recovery.
+
+      # 4. Print this message.
+      function_message_print(c("Saving new data into a file here: ",
+                       my_file_path))
+
+      try(readr::write_rds(my_result,
+                           my_file_path))
+
+      modif_time <- date()
+    }
+
+  # Print out the formatted string with the file name ('my_file_name') and the modification time ('modif_time') to keep track of when the data were downloaded.
+  my_file_name <- basename(my_file_path)
+  function_message_print(
+    str_glue("File: {my_file_name} modified {modif_time}"))
+
+    # Return the generated or read data.
+    return(my_result)
+}
+
 compl_override_data <-
   read_rds_or_run(compl_override_data_file_path,
                   my_function = compl_err_query)
 # File: Raw_Oracle_Downloaded_compliance_2021_plus.rds modified 2024-04-02 12:18:54.299425
 
 ### prep the compliance/override data ----
+
+# Use my function in case we want to change the case in all functions
+my_headers_case_function <- tolower
+
+# The fix_names function is used to clean and standardize column names to make them suitable for use in data analysis or further processing.
+# to use in a function,
+# e.g. read_csv(name_repair = fix_names)
+fix_names <- function(x) {
+  # Use the pipe operator %>%
+  x %>%
+
+    # Remove dots from column names
+    str_replace_all("\\.", "") %>%
+
+    # Replace all characters that are not letters or numbers with underscores
+    str_replace_all("[^A-z0-9]", "_") %>%
+
+    # Ensure that letters are only in the beginning of the column name
+    str_replace_all("^(_*)(.+)", "\\2\\1") %>%
+
+    # Convert column names to lowercase using 'my_headers_case_function'
+    my_headers_case_function()
+}
+
+# The clean_headers function is designed to clean and fix the column names of a given dataframe (my_df).
+clean_headers <- function(my_df) {
+    # Use the 'fix_names' function to clean and fix the column names of the dataframe.
+    colnames(my_df) %<>%
+        fix_names()
+
+    # Return the dataframe with cleaned and fixed column names.
+    return(my_df)
+}
 
 # Change column names for consistency with other datasets
 compl_override_data__renamed <-
@@ -124,7 +342,6 @@ compl_override_data__renamed_interv <-
            max(month(comp_week_start_dt),
                month(comp_week_end_dt))) |>
   ungroup()
-toc()
 
 # check
 compl_override_data__renamed_interv |>
@@ -169,6 +386,36 @@ compl_override_data__renamed_m_short <-
 # 1) a DNF was submitted for a vessel that is missing from the compliance module but is in metrics tracking, or
 # 2) a DNF was submitted for a week when the vessel was not permitted. It is not simple to determine which. Deciding what to do with these DNFs will depend on the individual analysis question, and so is not addressed here, but simply left as NA.
 ## NOTE: IF “Is_Overriden == 1 & is_Comp == 0, then the vessel should be considered compliant in any compliance analyses
+
+# Explanations:
+# 1. Create a new variable 'res' to store the result.
+# 2. Use 'rowwise' to perform operations row by row.
+# 3. Use 'mutate' to create a new column 'compliant_after_override' based on conditions specified in 'case_when'.
+#    - If 'is_comp' is 0 and 'overridden' is 0, set 'compliant_after_override' to "no".
+#    - If 'is_comp' is 1 or 'overridden' is 1, set 'compliant_after_override' to "yes".
+#    - If 'is_comp' is NA, set 'compliant_after_override' to NA.
+#    - For all other cases, set 'compliant_after_override' to the string representation of 'is_comp'.
+# 4. Use 'ungroup' to remove grouping from the data frame.
+
+add_compliant_after_override <- function(my_compl_df) {
+  # browser()
+  res <-
+    my_compl_df |>
+    rowwise() |>
+    mutate(
+      compliant_after_override =
+        case_when(
+          is_comp == 0 & overridden == 0  ~ "no",
+          is_comp == 1 ~ "yes",
+          overridden == 1 ~ "yes",
+          is.na(is_comp) ~ NA,
+          .default = toString(is_comp)
+        )
+    ) |>
+    ungroup()
+
+  return(res)
+}
 
 tic("get comp/overridden")
 compl_override_data__renamed_m_short__compl_overr_by_week <-
@@ -298,13 +545,24 @@ srhs_2024 <-
 # glimpse(srhs_2024)
 
 ## read sc permitted data ----
-SC_permittedVessels <- read_excel(
-  sc_file_path,
-  .name_repair = fix_names,
-  guess_max = 21474836
-)
+SC_permittedVessels <- read.xlsx(
+  sc_file_path
+) |> clean_headers()
 
-# print_df_names(SC_permittedVessels)
+# Define a function 'print_df_names' to print the names of columns in a data frame.
+# This function retrieves column names, limits the number to 'names_num' (default = 100),
+# and returns them as a comma-separated string.
+print_df_names <- function(my_df, names_num = 100) {
+  # Use 'names' to get column names,
+  # 'head' to limit the number of names to 'names_num',
+  # 'paste0' to concatenate them with a comma separator, and return the result.
+  names(my_df) %>%
+    head(names_num) %>%
+    paste0(collapse = ", ") %>%
+    return()
+}
+
+print_df_names(SC_permittedVessels)
 
 ### fix dates in headers ----
 # TODO: grab just the month of interest (depends on the SC file)
@@ -331,14 +589,14 @@ date_names_ok <-
 # combine the saved non-digit headers and the newly converted once
 all_names <- c(not_date_names, date_names_ok)
 
-# glimpse(all_names)
+all_names
 
 # apply the names to the DF
 names(SC_permittedVessels) <-
   all_names
 
 # check
-# names(SC_permittedVessels)
+names(SC_permittedVessels)
 
 dim(SC_permittedVessels)
 # [1] 215  18
@@ -358,11 +616,11 @@ SC_permittedVessels_longer <-
   SC_permittedVessels |>
   pivot_longer(
     !c(
-      "vessel_reg_uscg_",
-      "vessel_name",
-      "reports_to_srhs",
-      "federal_for_hire_permit_expiration",
-      "marked_as_federally_permitted_in_vesl",
+      "vesselreg_uscg_",
+      "vesselname",
+      "reportstosrhs",
+      "federalfor_hirepermitexpiration",
+      "markedasfederallypermittedinvesl",
       "delinquent"
     ),
     names_to = "month_year",
@@ -397,7 +655,7 @@ SC_permittedVessels_longer_m_y <-
 sc__srhs_join <-
   full_join(SC_permittedVessels_longer_m_y,
             srhs_2024,
-            join_by(vessel_reg_uscg_ == uscg__))
+            join_by(vesselreg_uscg_ == uscg__))
 
 # glimpse(sc__srhs_join)
 
@@ -413,7 +671,7 @@ sc__srhs_join <-
 # For this SC entry file there are no discrepancies, so we can simply remove all the vessel marked as reports_to_srhs from the future analysis. We don't have compliance information for them.
 
 sc__srhs_join |>
-  select(reports_to_srhs, is_insurvey) |>
+  select(reportstosrhs, is_insurvey) |>
   distinct()
 #   reports_to_srhs is_insurvey
 #             <dbl> <chr>
@@ -424,7 +682,7 @@ sc__srhs_join |>
 # Kepp only non-SRHS vessels
 SC_permittedVessels_longer_m_y_no_srhs <-
   SC_permittedVessels_longer_m_y |>
-  filter(reports_to_srhs == 0)
+  filter(reportstosrhs == 0)
 
 # combine data ----
 
@@ -442,7 +700,7 @@ sc__fhier_compl__join_w_month <-
     SC_permittedVessels_longer_m_y_no_srhs,
     compl_override_data__renamed_m_short__m_compl,
     join_by(
-      vessel_reg_uscg_ == vessel_official_number,
+      vesselreg_uscg_ == vessel_official_number,
       between(month_sc, comp_month_min, comp_month_max),
       year_sc == comp_year,
     )
@@ -455,7 +713,7 @@ dim(SC_permittedVessels_longer_m_y_no_srhs)
 dim(sc__fhier_compl__join_w_month)
 n_distinct(SC_permittedVessels)
 # 215
-n_distinct(sc__fhier_compl__join_w_month$vessel_reg_uscg_)
+n_distinct(sc__fhier_compl__join_w_month$vesselreg_uscg_)
 # 207 (rm SRHS)
 # glimpse(sc__fhier_compl__join_w_month)
 
@@ -487,8 +745,8 @@ dim(non_compliant_vessels_in_sc_and_fhier)
 non_compliant_vessels_in_sc_and_fhier__for_output <-
   non_compliant_vessels_in_sc_and_fhier |>
   select(
-    vessel_reg_uscg_,
-    vessel_name,
+    vesselreg_uscg_,
+    vesselname,
     delinquent,
     month_sc,
     year_sc,
@@ -499,7 +757,7 @@ non_compliant_vessels_in_sc_and_fhier__for_output <-
     compliant_after_override
   ) |>
   distinct() |>
-  arrange(vessel_reg_uscg_, year_sc, comp_week_start_dt)
+  arrange(vesselreg_uscg_, year_sc, comp_week_start_dt)
 
 # glimpse(non_compliant_vessels_in_sc_and_fhier__for_output)
 
@@ -520,7 +778,7 @@ dim(non_compliant_vessels_in_sc_and_compl_in_fhier)
 # Get month and weeks when the vessels are marked as non-compliant in SC, but are compliant in FHIER
 non_compliant_vessels_in_sc_and_compl_in_fhier__m_w <-
   non_compliant_vessels_in_sc_and_compl_in_fhier |>
-  select(vessel_reg_uscg_,
+  select(vesselreg_uscg_,
          delinquent_month,
          month_sc,
          comp_week,
@@ -528,7 +786,7 @@ non_compliant_vessels_in_sc_and_compl_in_fhier__m_w <-
          comp_week_end_dt,
          compliant_after_override) |>
   distinct() |>
-  arrange(vessel_reg_uscg_, comp_week_start_dt)
+  arrange(vesselreg_uscg_, comp_week_start_dt)
 
 # glimpse(non_compliant_vessels_in_sc_and_compl_in_fhier__m_w)
 
@@ -541,7 +799,7 @@ logbooks__sc_fhier <-
   inner_join(
     non_compliant_vessels_in_sc_and_compl_in_fhier__m_w,
     join_by(
-      vessel_official_number == vessel_reg_uscg_,
+      vessel_official_number == vesselreg_uscg_,
       comp_week_start_dt,
       comp_week_end_dt
     )
@@ -576,7 +834,7 @@ dnfs__sc_fhier <-
   inner_join(
     non_compliant_vessels_in_sc_and_compl_in_fhier__m_w,
     join_by(
-      vessel_official_number == vessel_reg_uscg_,
+      vessel_official_number == vesselreg_uscg_,
       comp_week_start_dt,
       comp_week_end_dt
     ),
@@ -621,7 +879,7 @@ dim(compliant_vessels_in_sc_and_non_compl_fhier)
 compliant_vessels_in_sc_and_non_compl_fhier__for_output <-
   compliant_vessels_in_sc_and_non_compl_fhier |>
   select(
-    vessel_reg_uscg_,
+    vesselreg_uscg_,
     month_sc,
     year_sc,
     delinquent,
@@ -634,7 +892,7 @@ compliant_vessels_in_sc_and_non_compl_fhier__for_output <-
   ) |>
   filter(compliant_after_override == "no") |>
   distinct() |>
-  arrange(vessel_reg_uscg_, comp_week_start_dt)
+  arrange(vesselreg_uscg_, comp_week_start_dt)
 
 dim(compliant_vessels_in_sc_and_non_compl_fhier__for_output)
 # [1] 394   9
