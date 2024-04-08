@@ -189,7 +189,7 @@ min(compl_override_data__renamed$COMP_WEEK_START_DT)
 # 1. 'compl_override_data__renamed__this_year' is a new data frame created from 'compl_override_data__renamed'.
 # 2. In this data frame, only rows meeting specific date criteria are retained.
 # 3. The 'filter' function is used to subset rows based on the following conditions:
-#    a. 'COMP_WEEK_END_DT' should be greater than or equal to 'my_date_beg' (start date).
+#    a. 'COMP_WEEK_START_DT' should be greater than or equal to 'my_date_beg' (start date).
 #    b. 'COMP_WEEK_START_DT' should be less than or equal to 'my_date_end' (end date).
 # 4. Dates are converted using 'as.Date' with the appropriate format ("%d-%b-%Y") and time zone.
 # 5. 'Sys.timezone()' retrieves the current system's time zone.
@@ -198,7 +198,7 @@ min(compl_override_data__renamed$COMP_WEEK_START_DT)
 compl_override_data__renamed__this_year <-
   compl_override_data__renamed |>
   filter(
-    COMP_WEEK_END_DT >= as.Date(my_date_beg, "%d-%b-%Y",
+    COMP_WEEK_START_DT >= as.Date(my_date_beg, "%d-%b-%Y",
                                 tz = Sys.timezone()) &
       COMP_WEEK_START_DT <= as.Date(my_date_end, "%d-%b-%Y",
                                     tz = Sys.timezone())
