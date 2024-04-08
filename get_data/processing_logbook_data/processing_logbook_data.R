@@ -631,10 +631,10 @@ logbooks_join_overr__compl__start_end_ok__trip_len_ok <-
 # stats
 my_stats(logbooks_join_overr__compl__start_end_ok__trip_len_ok)
 
-# Output trips with length > 240 into a data frame (for stats)
+# Output trips with length > trip_length_threshold (240) into a data frame (for stats)
 logbooks_too_long <-
   logbooks_join_overr__compl__start_end_ok |>
-  filter(trip_length > 240)
+  filter(trip_length > trip_length_threshold)
 
 my_tee(n_distinct(logbooks_too_long$TRIP_ID),
        "Thrown away by trip_more_10_days (logbooks num)")
