@@ -330,12 +330,14 @@ max(Logbooks_raw_renamed__to_date_time4$TRIP_START_DATE)
 
 Logbooks_raw_renamed__to_date_time4__my_year <-
   Logbooks_raw_renamed__to_date_time4 |>
-  filter(TRIP_END_DATE >=
-           as.Date(my_date_beg, "%d-%b-%Y",
-                   tz = Sys.timezone()) &
-           TRIP_START_DATE <=
-           as.Date(my_date_end, "%d-%b-%Y",
-                                      tz = Sys.timezone()))
+  filter(
+    TRIP_END_DATE >=
+      as.Date(my_date_beg, "%d-%b-%Y",
+              tz = Sys.timezone()) &
+      TRIP_START_DATE <=
+      as.Date(my_date_end, "%d-%b-%Y",
+              tz = Sys.timezone())
+  )
 
 # stats, to compare with the end result
 logbooks_stat_correct_dates_before_filtering <-
@@ -642,29 +644,9 @@ my_tee(n_distinct(logbooks_too_long$VESSEL_ID),
 
 ## Mark all trips that were received > 30 days after the trip end date, by using compliance data and time of submission ----
 ### add the threshold date ----
-
-# Explanations:
-# 1. 'logbooks_join_overr_e' is created based on the 'logbooks_join_overr__compl__start_end_ok' data frame.
-# 2. The 'mutate' function is used to add a new column named 'TRIP_END_DATE_E'.
-# 3. 'ymd_hms' from the 'lubridate' package is used to convert the 'TRIP_END_DATE' column to a POSIXct datetime object.
-# 4. The 'truncated' argument is set to 3, indicating that any seconds beyond three decimal places should be discarded.
-# 5. 'tz' is set to 'Sys.timezone()' to ensure correct time zone conversion.
-
-logbooks_join_overr_e <-
-  logbooks_join_overr__compl__start_end_ok |>
-  mutate(TRIP_END_DATE_E =
-           ymd_hms(TRIP_END_DATE,
-                   truncated = 3,
-                   tz = Sys.timezone()))
-
-logbooks_join_overr__compl__start_end_ok$TRIP_END_DATE |> head()
-
-logbooks_join_overr_e$TRIP_END_DATE_E |> head()
-
-
-# add a date 30 days later and set a time to the last minute of that day
+# Add a date 30 days after the trip and set a time to the last minute of that day
 logbooks_join_overr_e_usable_date <-
-  logbooks_join_overr_e |>
+  logbooks_join_overr__compl__start_end_ok |>
   mutate(USABLE_DATE_TIME =
            TRIP_END_DATE_E + days(30)) |>
   mutate(USABLE_DATE_TIME =
