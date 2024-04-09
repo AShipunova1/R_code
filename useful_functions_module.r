@@ -1445,7 +1445,10 @@ list_sort_uniq <- function(my_lists) {
 #    - For all other cases, set 'compliant_after_override' to the string representation of 'is_comp'.
 # 4. Use 'ungroup' to remove grouping from the data frame.
 
-add_compliant_after_override <- function(my_compl_df) {
+add_compliant_after_override <- 
+  function(my_compl_df,
+           overridden_col_name = "overridden",
+           compliance_col_name = "is_comp") {
   # browser()
   res <-
     my_compl_df |>
@@ -1453,11 +1456,12 @@ add_compliant_after_override <- function(my_compl_df) {
     mutate(
       compliant_after_override =
         case_when(
-          is_comp == 0 & overridden == 0  ~ "no",
-          is_comp == 1 ~ "yes",
-          overridden == 1 ~ "yes",
-          is.na(is_comp) ~ NA,
-          .default = toString(is_comp)
+          !!sym(compliance_col_name) %in% c(0, "NO") &
+            !!sym(overridden_col_name) %in% c(0, "NO")  ~ "no",
+          !!sym(compliance_col_name) %in% c(1, "YES") ~ "yes",
+          !!sym(overridden_col_name) %in% c(1, "YES") ~ "yes",
+          is.na(!!sym(compliance_col_name)) ~ NA,
+          .default = toString(!!sym(compliance_col_name))
         )
     ) |>
     ungroup()
