@@ -189,76 +189,56 @@ dim(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short)
 ## work with the whole period ----
 
 ### keep only 3 columns ----
-compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates <- 
-  compl_clean_w_permit_exp_last_half_year__sa__not_exp_short |>
-  select(vessel_official_number, compliant_, overridden_) |>
-  distinct()
+# compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates <- 
+#   compl_clean_w_permit_exp_last_half_year__sa__not_exp_short |>
+#   select(vessel_official_number, compliant_, overridden_) |>
+#   distinct()
 
-glimpse(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates)
+# glimpse(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short)
 
 ## add no_yes compliant ----
-compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__wide <-
-  get_compl_by(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates)
+# compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__wide <-
+#   get_compl_by(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short )
 
-compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__comp_after_overr <-
-  compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates |>
+tic("compl_overr")
+compl_clean_w_permit_exp_last_half_year__sa__not_exp_short__comp_after_overr <-
+  compl_clean_w_permit_exp_last_half_year__sa__not_exp_short |>
   add_compliant_after_override(overridden_col_name = "overridden_",
                                  compliance_col_name = "compliant_")
+toc()
+# compl_overr: 8.76 sec elapsed
 
-print_df_names(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates)
+glimpse(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short__comp_after_overr)
 
 # an empty vector
 cols_names <- c()
 
-compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__wide__long <-
-  compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__wide |>
-  compl__back_to_longer_format(cols_names) |>
-  filter(stats::complete.cases(is_compl_or_both))
-# back_to_long: 21.31 sec elapsed with 22 cols
-# back_to_long: 0.87 sec elapsed with 6 cols
-
-# compl_clean_w_permit_exp |> 
-#   filter(vessel_official_number == "VA8261ZY") |> 
+# compl_clean_w_permit_exp |>
+#   filter(vessel_official_number == "VA8261ZY") |>
 #   View()
 
-compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__wide__long$is_compl_or_both |> 
+# check
+compl_clean_w_permit_exp_last_half_year__sa__not_exp_short__comp_after_overr$compliant_after_override |> 
   unique()
-# [1] "YES"    "NO"     "NO_YES"
 
 # TODO: No egregious violators if only "YES" and "NO_YES". Stop here.
 
-dim(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__wide__long)
-# [1] 2246    2
-# [1] 1917    2
-# [1] 1611    2
+dim(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short__comp_after_overr)
 
 n_distinct(compl_clean_w_permit_exp_last_half_year__sa$vessel_official_number)
-# 2246
+# 22178746
 
-n_distinct(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__wide__long$vessel_official_number)
-# [1] 1917
-# [1] 1611    2
+n_distinct(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short__comp_after_overr$vessel_official_number)
+# [1] 1414
 
 ## get only all "compliant_ == "NO" for the past half year ----
-# View(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__wide__long)
-# compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp <-
-#   compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__wide__long |> 
-#   filter(tolower(is_compl_or_both) == "no_yes")
-
 # Commented out for test purposes, uncomment in production!
 compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp <-
-  compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__wide__long |>
+  compl_clean_w_permit_exp_last_half_year__sa__not_exp_short__comp_after_overr |>
   # not compliant
-  filter(tolower(is_compl_or_both) == "no")
+  filter(tolower(compliant_after_override) == "no")
 
 dim(compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp)
-# [1] 10419    23
-# [1] 9486   23
-# [1] 9315   23
-# [1] 7138   22
-# [1] 141   2
-# [1] 328   2
-# [1] 228   2
 
 ## add back columns needed for the output ----
 need_cols_names <- c(
@@ -615,7 +595,7 @@ unused_fields <- c(
   # "permit_expired",
   # "permitgroup",
   # "permit_groupexpiration",
-  "is_compl_or_both")
+  "compliant_after_override")
 
 compl_corr_to_investigation1_short <-
   compl_corr_to_investigation1 |>
