@@ -1020,6 +1020,8 @@ for (i in seq_along(readme_text)) {
     one_df <- as.data.frame(one_df)
   }
 
+  # TODO:   one_df_size <- nrow(one_df) after as.data.frame
+
   writeData(wb,
                  "Readme",
                  one_df,
