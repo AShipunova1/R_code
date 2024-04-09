@@ -396,35 +396,35 @@ str(corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates$contact_date_dttm)
 
 # Join correspondence with compliance ----
 # Explanations:
-# Create a new dataframe 'compl_corr_to_investigation1' by performing an inner join between
+# Create a new dataframe 'compl_corr_to_investigation' by performing an inner join between
 # 'correspondence' and 'compliance'.
 # The join is performed on the column 'vessel_official_number'.
 # Use 'multiple = "all"' and 'relationship = "many-to-many"' to handle multiple matches during the join.
 # 1. Use the 'inner_join' function from the dplyr package to combine the two dataframes based on the specified columns.
 # 2. Pass the column names and other parameters to the 'by', 'multiple', and 'relationship' arguments.
 
-compl_corr_to_investigation1 <-
+compl_corr_to_investigation <-
   inner_join(
     corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates,
-    compl_clean_w_permit_exp_last_half_year__sa_non_c,
+    compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present,
     by = c("vessel_official_number"),
     multiple = "all",
     relationship = "many-to-many"
   )
 
-dim(compl_corr_to_investigation1)
+dim(compl_corr_to_investigation)
 
 # check
-n_distinct(compl_corr_to_investigation1$vesselofficial_number)
+n_distinct(compl_corr_to_investigation$vesselofficial_number)
 
-# View(compl_corr_to_investigation1)
+# View(compl_corr_to_investigation)
 
 ## save number of vessels to investigate for checks ----
 num_of_vsl_to_investigate <- 
-  n_distinct(compl_corr_to_investigation1$vesselofficial_number)
+  n_distinct(compl_corr_to_investigation$vesselofficial_number)
 
 # Results: Compl & corresondence together are in
-# compl_corr_to_investigation1
+# compl_corr_to_investigation
 
 # ---- output needed investigation ----
 # 1. remove unused columns
@@ -440,7 +440,7 @@ num_of_vsl_to_investigate <-
 
 # Note: 'concat_unique' is not a standard R function, it is a custom function defined previously.
 
-colnames(compl_corr_to_investigation1) |> 
+colnames(compl_corr_to_investigation) |> 
   cat(sep = '",\n"')
 
 unused_fields <- c(
@@ -478,35 +478,35 @@ unused_fields <- c(
 # 3. Apply the custom function 'concat_unique' to all columns to concatenate unique non-missing values into a single string.
 # 4. Remove the grouping from the data frame.
 
-compl_corr_to_investigation1_short <-
-  compl_corr_to_investigation1 |>
-  # compl_corr_to_investigation1_w_non_compliant_weeks_n_date__contacttype_per_id |>
+compl_corr_to_investigation_short <-
+  compl_corr_to_investigation |>
+  # compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id |>
   select(-any_of(unused_fields)) |>
   group_by(vessel_official_number) |>
   summarise_all(concat_unique) |>
   ungroup()
 
-# print_df_names(compl_corr_to_investigation1_short)
+# print_df_names(compl_corr_to_investigation_short)
 
-compl_corr_to_investigation1_short |> glimpse()
+compl_corr_to_investigation_short |> glimpse()
 
-dim(compl_corr_to_investigation1_short)
+dim(compl_corr_to_investigation_short)
 
 ## 2. create additional columns ----
 ### add list of contact dates and contact type in parentheses  -----
 
 # put names into vars (needed, bc spaces and underscores placements vary from source to source)
 contactdate_field_name <-
-  find_col_name(compl_corr_to_investigation1_short, "contact", "date")[1]
+  find_col_name(compl_corr_to_investigation_short, "contact", "date")[1]
 
 contacttype_field_name <-
-  find_col_name(compl_corr_to_investigation1_short, "contact", "type")[1]
+  find_col_name(compl_corr_to_investigation_short, "contact", "type")[1]
 
 contactphonenumber_field_name <-
-  find_col_name(compl_corr_to_investigation1_short, ".*contact", "number.*")[1]
+  find_col_name(compl_corr_to_investigation_short, ".*contact", "number.*")[1]
 
 # Explanations:
-# Define a function 'get_date_contacttype' that takes a dataframe 'compl_corr_to_investigation1' as input.
+# Define a function 'get_date_contacttype' that takes a dataframe 'compl_corr_to_investigation' as input.
 # Perform several data manipulation steps to extract and organize relevant information.
 # 1. Add a new column 'date__contacttype' by concatenating the values from 'contactdate_field_name' and 'contacttype'.
 # 2. Select only the 'vessel_official_number' and 'date__contacttype' columns.
@@ -536,7 +536,7 @@ get_date_contacttype <-
 
 # use the function
 date__contacttype_per_id <-
-  get_date_contacttype(compl_corr_to_investigation1_short)
+  get_date_contacttype(compl_corr_to_investigation_short)
 
 dim(date__contacttype_per_id)
 
@@ -544,7 +544,7 @@ dim(date__contacttype_per_id)
 
 #### add the new column back ----
 compl_corr_to_investigation__corr_date <-
-  left_join(compl_corr_to_investigation1_short,
+  left_join(compl_corr_to_investigation_short,
             date__contacttype_per_id) |>
   # Joining with `by = join_by(vessel_official_number)`
   # this columns are not longer needed
@@ -558,7 +558,7 @@ compl_corr_to_investigation__corr_date |>
   glimpse()
 
 ### add pims home port info ----
-# compl_corr_to_investigation1_short_dup_marked__hailing_port <-
+# compl_corr_to_investigation_short_dup_marked__hailing_port <-
 compl_corr_to_investigation__corr_date__hailing_port <- 
   left_join(
     compl_corr_to_investigation__corr_date,
@@ -594,7 +594,7 @@ dim(vessels_to_mark_ids)
 
 #### mark these vessels ----
 # Explanations:
-# Create a new column 'duplicate_w_last_time' in the dataframe 'compl_corr_to_investigation1_short'.
+# Create a new column 'duplicate_w_last_time' in the dataframe 'compl_corr_to_investigation_short'.
 # This column is marked with "duplicate" for rows where 'vessel_official_number' is present in the list of vessel IDs to mark as duplicates ('vessels_to_mark_ids').
 # For all other rows, it is marked as "new".
 compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked <-
@@ -620,12 +620,12 @@ n_distinct(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_
 # If 'permitgroup' contains any of the specified patterns ("RCG", "HRCG", "CHG", "HCHG"),
 # set 'permit_region' to "dual". Otherwise, set 'permit_region' to "sa_only".
 # If none of the conditions are met, set 'permit_region' to "other".
-# The resulting dataframe includes the original columns from 'compl_corr_to_investigation1_short_dup_marked'
+# The resulting dataframe includes the original columns from 'compl_corr_to_investigation_short_dup_marked'
 # along with the newly added 'permit_region' column.
 
-compl_corr_to_investigation1_short_dup_marked__permit_region <-
+compl_corr_to_investigation_short_dup_marked__permit_region <-
   compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked |> 
-  # compl_corr_to_investigation1_short_dup_marked__permit_region__fhier_names__fhier_addr__mv_cols |>
+  # compl_corr_to_investigation_short_dup_marked__permit_region__fhier_names__fhier_addr__mv_cols |>
   mutate(permit_region =
            case_when(
              grepl("RCG|HRCG|CHG|HCHG", permitgroup) ~ "dual",
@@ -635,17 +635,17 @@ compl_corr_to_investigation1_short_dup_marked__permit_region <-
 
 # Explanations:
 # Use the 'select' function to extract the columns 'vessel_official_number' and 'permit_region'
-# from the dataframe 'compl_corr_to_investigation1_short_dup_marked__permit_region'.
+# from the dataframe 'compl_corr_to_investigation_short_dup_marked__permit_region'.
 # Use the 'distinct' function to keep only unique combinations of 'vessel_official_number' and 'permit_region'.
 # Use the 'count' function to count the occurrences of each unique 'permit_region'.
 # The resulting count provides the frequency of each 'permit_region'.
 region_counts <-
-  compl_corr_to_investigation1_short_dup_marked__permit_region |>
+  compl_corr_to_investigation_short_dup_marked__permit_region |>
   select(vessel_official_number, permit_region) |>
   distinct() |>
   count(permit_region)
 
-n_distinct(compl_corr_to_investigation1_short_dup_marked__permit_region$vessel_official_number)
+n_distinct(compl_corr_to_investigation_short_dup_marked__permit_region$vessel_official_number)
 # 262
 # 217
 
@@ -659,11 +659,11 @@ result_path <-
             current_project_basename,
             str_glue("egregious_violators_to_investigate_{today()}.csv"))
 
-compl_corr_to_investigation1_short_dup_marked__permit_region |> 
+compl_corr_to_investigation_short_dup_marked__permit_region |> 
 write_csv(result_path)
 
 cat("Result:",
-    "compl_corr_to_investigation1_short_dup_marked__permit_region",
+    "compl_corr_to_investigation_short_dup_marked__permit_region",
     "and",
     str_glue("egregious_violators_to_investigate_{today()}.csv"),
     sep = "\n")
