@@ -201,15 +201,15 @@ n_distinct(compl_clean_w_permit_exp_last_half_year__sa$vessel_official_number) =
   n_distinct(
     compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr$vessel_official_number
   )
-# T
+T
 
 ## get only non-compliant for the past half year ----
-compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp <-
+compl_clean_w_permit_exp_last_half_year__sa_non_c <-
   compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr |>
   # not compliant
   filter(tolower(compliant_after_override) == "no")
 
-dim(compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp)
+dim(compl_clean_w_permit_exp_last_half_year__sa_non_c)
 
 ## keep only vessels with info for all weeks in the period ----
 all_weeks_num <-
@@ -231,7 +231,7 @@ nrow(compl_clean_w_permit_exp_last_half_year__sa__not_exp__all_weeks_present)
 ## check the last report date ----
 ### get ids only ----
 compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_short_vesl_ids <-
-  compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp |>
+  compl_clean_w_permit_exp_last_half_year__sa_non_c |>
   select(vessel_official_number) |>
   distinct()
 
@@ -255,7 +255,7 @@ compl_clean_w_permit_exp_last_half_year__sa |>
   nrow()
 # 0 OK!
 
-# Results: prepared Compliance is in compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp
+# Results: prepared Compliance is in compl_clean_w_permit_exp_last_half_year__sa_non_c
 
 # ---- Preparing Correspondence ----
 
@@ -399,7 +399,7 @@ str(corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates$contact_date_dttm)
 compl_corr_to_investigation1 <-
   inner_join(
     corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates,
-    compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp,
+    compl_clean_w_permit_exp_last_half_year__sa_non_c,
     by = c("vessel_official_number"),
     multiple = "all",
     relationship = "many-to-many"
