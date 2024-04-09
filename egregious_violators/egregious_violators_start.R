@@ -146,7 +146,6 @@ dim(compl_clean_w_permit_exp_last_half_year__sa)
 ## fewer columns ----
 remove_columns <- c(
   "name",
-  "week",
   "gom_permitteddeclarations__",
   "captainreports__",
   "negativereports__",
@@ -197,6 +196,7 @@ compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr$compliant_a
 
 dim(compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr)
 
+# check
 n_distinct(compl_clean_w_permit_exp_last_half_year__sa$vessel_official_number) ==
   n_distinct(
     compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr$vessel_official_number
@@ -213,34 +213,41 @@ dim(compl_clean_w_permit_exp_last_half_year__sa_non_c)
 
 ## keep only vessels with info for all weeks in the period ----
 all_weeks_num <-
-  compl_clean_w_permit_exp_last_half_year__sa |>
+  compl_clean_w_permit_exp_last_half_year__sa_non_c |>
   select(week) |>
   distinct() |>
   nrow()
 
-compl_clean_w_permit_exp_last_half_year__sa__not_exp__all_weeks_present <-
-  compl_clean_w_permit_exp_last_half_year__sa |>
+# Explanations:
+# 1. Group the data frame by 'vessel_official_number'.
+# 2. Filter the groups based on the condition that the number of distinct weeks is greater than or equal to 'all_weeks_num'.
+# 3. Remove the grouping from the data frame.
+# 4. Exclude the 'week' column from the resulting data frame, we don't need it anymore.
+
+compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present <-
+  compl_clean_w_permit_exp_last_half_year__sa_non_c |>
   group_by(vessel_official_number) |>
   filter(n_distinct(week) >= all_weeks_num) |> 
-  ungroup()
+  ungroup() |> 
+  select(-week)
 
-compl_clean_w_permit_exp_last_half_year__sa |> dim()
+compl_clean_w_permit_exp_last_half_year__sa_non_c |> dim()
 
-nrow(compl_clean_w_permit_exp_last_half_year__sa__not_exp__all_weeks_present)
+dim(compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present)
 
 ## check the last report date ----
 ### get ids only ----
-compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_short_vesl_ids <-
-  compl_clean_w_permit_exp_last_half_year__sa_non_c |>
+compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present__vesl_ids <-
+  compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present |>
   select(vessel_official_number) |>
   distinct()
 
-dim(compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_short_vesl_ids)
+dim(compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present__vesl_ids)
 
 ### check these ids in the full compliance information ----
 compl_clean_w_permit_exp_last_half_year__sa |>
   filter(
-    vessel_official_number %in% compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_short_vesl_ids$vessel_official_number
+    vessel_official_number %in% compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present__vesl_ids$vessel_official_number
   ) |>
   # dim()
   # [1] 3146   23
@@ -255,7 +262,7 @@ compl_clean_w_permit_exp_last_half_year__sa |>
   nrow()
 # 0 OK!
 
-# Results: prepared Compliance is in compl_clean_w_permit_exp_last_half_year__sa_non_c
+# Results: prepared Compliance is in compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present
 
 # ---- Preparing Correspondence ----
 
