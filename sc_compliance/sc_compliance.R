@@ -934,12 +934,12 @@ wb <- buildWorkbook(print_result_list, asTable = TRUE)
 # [1] 1 2 3 4
 
 # 2. create a readme sheet ----
-# a)
+## today ----
 top_of_read_me_text <-
   today() |>
   as_tibble_col(column_name =  "Read me")
 
-# b)
+## sheet names with sheet descriptions ----
 sheet_descriptions <-
   c(
     "vessels that are non-compliant with SC and SEFHIER",
@@ -957,8 +957,8 @@ names(sheet_names_with_df_names) <-
 
 glimpse(sheet_names_with_df_names)
 
-# c)
-
+## column explanations for each tab ----
+### colnames_for_each_df ----
 # Explanations:
 # 1. 'colnames_for_each_df' is created by mapping over 'output_df_list' and 'sheet_names' simultaneously.
 # 2. For each dataframe 'my_df' in 'output_df_list' and corresponding 'sheet_name':
@@ -1048,7 +1048,7 @@ worksheetOrder(wb) <- c(length_of_wb, 1:(length_of_wb - 1))
 
 # openXL(wb)
 
-## Write the Excel file ----
+# Write the Excel file ----
 output_file_name <-
   file.path(output_path,
             "sc_compliance.xlsx")
