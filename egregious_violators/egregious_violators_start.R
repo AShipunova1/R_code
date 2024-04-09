@@ -596,7 +596,7 @@ source(prep_addresses_path)
 # data_overview(vessels_to_remove)
 
 vessels_to_mark_ids <-
-  vessels_to_mark |>
+  prev_result |>
   select(vessel_official_number)
 
 dim(vessels_to_mark_ids)
