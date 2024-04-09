@@ -1,4 +1,5 @@
 # get data for egregious violators
+# use from egregious_violators_start.R
 
 # 1) compliance data
 # Download files from FHIER / Reports / FHIER COMPLIANCE REPORT 
@@ -185,14 +186,12 @@ db_participants_address <-
   ) |>
   remove_empty_cols() |>
   clean_headers()
-# 2024-03-07 run for db_participants_address.rds: 30.14 sec elapsed
+# 2024-04-09 run for db_participants_address.rds: 52.22 sec elapsed
 
 dim(db_participants_address)
-# [1] 55113    41
-# [1] 55113    37 remove_empty_cols
 
 # Data from the previous results of "egregious violators for investigation" ----
-# Download first
+# Download first as .xlsx
 previous_egr_data_path <-
   file.path(
     my_paths$inputs,
@@ -223,3 +222,4 @@ results <-
 cat(c("Data are in:",
       results),
     sep = "\n")
+
