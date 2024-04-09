@@ -818,7 +818,7 @@ logbooks__sc_fhier_for_output <-
     trip_end_date,
     comp_week_start_dt,
     comp_week_end_dt,
-    vendor_app_name,
+    # vendor_app_name,
     trip_de,
     trip_ue
   ) |>
