@@ -191,7 +191,7 @@ dim(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short)
 ### keep only 3 columns ----
 compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates <- 
   compl_clean_w_permit_exp_last_half_year__sa__not_exp_short |>
-  select(vessel_official_number, compliant_) |>
+  select(vessel_official_number, compliant_, overridden_) |>
   distinct()
 
 glimpse(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates)
@@ -199,6 +199,13 @@ glimpse(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates)
 ## add no_yes compliant ----
 compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__wide <-
   get_compl_by(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates)
+
+compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__comp_after_overr <-
+  compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates |>
+  add_compliant_after_override(overridden_col_name = "overridden_",
+                                 compliance_col_name = "compliant_")
+
+print_df_names(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates)
 
 # an empty vector
 cols_names <- c()
