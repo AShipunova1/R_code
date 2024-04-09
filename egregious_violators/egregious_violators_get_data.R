@@ -64,21 +64,6 @@ dim(compl_clean)
 
 dim(corresp_contact_cnts_clean0)
 
-# get previous results ---
-prev_result_path <- 
-  file.path(my_paths$inputs,
-            current_project_basename,
-            "egregious violators for investigation_2023-08-15_to_2024-02-13_OLE.xlsx")
-
-# file.exists(prev_result_path)
-
-prev_result <-
-  read_xlsx(prev_result_path) |> 
-  remove_empty_cols() |> 
-  clean_headers()
-
-dim(prev_result)
-
 ## get Metric Tracking (permits from FHIER) ----
 processed_input_data_path <- 
   file.path(my_paths$inputs,
@@ -192,19 +177,21 @@ dim(db_participants_address)
 
 # Data from the previous results of "egregious violators for investigation" ----
 # Download first as .xlsx
-previous_egr_data_path <-
-  file.path(
-    my_paths$inputs,
-    current_project_name,
-    r"(egregious violators for investigation_2023-01-24_to_2023-08-01_OLEAction(green).xlsx)"
-  )
 
-file.exists(previous_egr_data_path)
-# T
+# get previous results ---
+prev_result_path <- 
+  file.path(my_paths$inputs,
+            current_project_basename,
+            "egregious violators for investigation_2023-08-15_to_2024-02-13_OLE.xlsx")
 
-vessels_to_mark <-
-  read_xlsx(previous_egr_data_path) |> 
-  remove_empty_cols()
+# file.exists(prev_result_path)
+
+prev_result <-
+  read_xlsx(prev_result_path) |> 
+  remove_empty_cols() |> 
+  clean_headers()
+
+dim(prev_result)
 
 # Results ----
 results <-
@@ -215,8 +202,7 @@ results <-
     "processed_metrics_tracking_permits",
     "fhier_addresses",
     "processed_pims_home_ports",
-    "db_participants_address",
-    "vessels_to_mark"
+    "db_participants_address"
   )
 
 cat(c("Data are in:",
