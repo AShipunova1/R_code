@@ -1,20 +1,23 @@
 # get data for egregious violators
 
 # 1) compliance data
-# Download files from FHIER / Reports / FHIER COMPLIANCE REPORT
-# FHIER_Compliance_2022__02_05_2024.csv
-# FHIER_Compliance_2023__01_24_2024.csv
+# Download files from FHIER / Reports / FHIER COMPLIANCE REPORT 
+# For the last 6 month
+# FHIER_Compliance_...csv
 
 # 2) correspondence data
 # Download files from FHIER / Home / Correspondence
-# Actions / Download
+# Actions / Download 
+# For the whole period, starting 01/01/2021
 # "~\my_inputs\from_Fhier\Correspondence\Correspondence_2024_02_15.csv"
 
 # 3) processed Metrics tracking
+# For the last 6 month
 # SEFHIER_permitted_vessels_nonSRHS_YEAR.csv
 
 # 4) Physical Address List from FHIER
 # Downloaded from REPORTS / For-hire Primary Physical Address List
+# For the whole period, starting 01/01/2021
 # "For-hire Primary Physical Address List.csv"
 
 # 5) home port processed city and state from PIMS
@@ -24,7 +27,7 @@
 # "db_participants_address.rds"
 
 # 7) Previous results (from google drive)
-# ~\R_files_local\my_inputs\egregious_violators\egregious violators for investigation_2023-01-24_to_2023-08-01_OLEAction(green).xlsx"
+# ~\R_files_local\my_inputs\egregious_violators\egregious violators for investigation_DATES...xlsx"
 
 # FHIER ----
 
@@ -33,13 +36,9 @@
 # permit info from processed metrics tracking
 
 # Download from FHIER first
-# all_csv_names_list = c("Correspondence_2024_02_15.csv",
-#                          r"(2024_02_15\FHIER_Compliance_2023__02_15_2024.csv)",
-#                          r"(2024_02_15\FHIER_Compliance_2024__02_15_2024.csv)")
-
-all_csv_names_list = c("Correspondence_2024_03_12.csv",
-                         r"(2024_02_15\FHIER_Compliance_2023__02_15_2024.csv)",
-                         r"(2024_03_12\FHIER_Compliance_2024__03_12_2024.csv)")
+all_csv_names_list = c("Correspondence_2024_04_09.csv",
+                         r"(2024_04_09\FHIER_Compliance_2023__04_09_2024.csv)",
+                         r"(2024_04_09\FHIER_Compliance_2024__04_09_2024.csv)")
 
 ## ---- get compliance and correspondence csv data into variables ----
 from_fhier_data_path <-
@@ -55,36 +54,29 @@ names(compl_clean_list) <- c(my_year1, my_year2)
 
 # check
 map(compl_clean_list, dim)
-# $`2023`
-# [1] 149025     20
-# 
-# $`2024`
-# [1] 19715    20
 
 # combine years in one df
 compl_clean <-
   rbind(compl_clean_list[[my_year1]], compl_clean_list[[my_year2]])
 
 dim(compl_clean)
-# [1] 168740     20
 
 dim(corresp_contact_cnts_clean0)
-# [1] 31038    20
 
 # get previous results ---
 prev_result_path <- 
   file.path(my_paths$inputs,
             current_project_basename,
-            "egregious violators for investigation_2023-01-24_to_2023-08-01_OLEAction(green).xlsx")
+            "egregious violators for investigation_2023-08-15_to_2024-02-13_OLE.xlsx")
 
 # file.exists(prev_result_path)
+
 prev_result <-
   read_xlsx(prev_result_path) |> 
   remove_empty_cols() |> 
   clean_headers()
 
-glimpse(prev_result)
-# [1] 96 18
+dim(prev_result)
 
 ## get Metric Tracking (permits from FHIER) ----
 processed_input_data_path <- 
@@ -101,6 +93,7 @@ processed_metrics_tracking_file_names_all <-
              recursive = TRUE,
              full.names = TRUE)
 
+# exclude links
 processed_metrics_tracking_file_names <-
   grep(
     processed_metrics_tracking_file_names_all,
@@ -109,10 +102,12 @@ processed_metrics_tracking_file_names <-
     value = TRUE
   )
 
+# read the rest
 processed_metrics_tracking_permits <-
   map_df(processed_metrics_tracking_file_names,
          read_rds)
 
+# lower names case
 names(processed_metrics_tracking_permits) <-
   names(processed_metrics_tracking_permits) |>
   tolower()
@@ -120,7 +115,6 @@ names(processed_metrics_tracking_permits) <-
 # [1] "vessel_official_number, vessel_name, effective_date, end_date, permits, sa_permits_, gom_permits_, permit_region, permit_sa_gom_dual"
 
 dim(processed_metrics_tracking_permits)
-# [1] 6822    9
 
 ## get Physical Address List from FHIER ----
 # REPORTS / For-hire Primary Physical Address List
@@ -128,7 +122,7 @@ dim(processed_metrics_tracking_permits)
 fhier_addresses_path <-
   file.path(
     my_paths$inputs,
-    r"(from_Fhier\address\For-hire Primary Physical Address List_02_21_2024.csv)"
+    r"(from_Fhier\address\For-hire Primary Physical Address List_04_09_2024.csv)"
   )
 
 file.exists(fhier_addresses_path)
@@ -204,11 +198,11 @@ SRH.MV_SERO_VESSEL_ENTITY@secapxdv_dblk
 "
 
 db_participants_address_file_path <-
-  file.path(all_inputs,
+  file.path(my_paths$inputs,
             current_project_name,
             "db_participants_address.rds")
  
-# dir.exists(file.path(all_inputs,
+# dir.exists(file.path(my_paths$inputs,
 #             current_project_name))
 
 # err msg if no connection, but keep running
