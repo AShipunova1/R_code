@@ -940,12 +940,20 @@ top_of_read_me_text <-
   as_tibble_col(column_name =  "Read me")
 
 # b)
+sheet_descriptions <-
+  c(
+    "vessels that are non-compliant with SC and SEFHIER",
+    "logbooks in FHIER from non-compliant SC vessels",
+    "DNFs in FHIER from non-compliant SC vessels",
+    "vessels that are compliant with SC but not SEFHIER"
+  )
+
 sheet_names_with_df_names <-
-  cbind(sheet_names, names(output_df_list)) |>
+  cbind(sheet_names, sheet_descriptions) |>
   as.data.frame()
 
 names(sheet_names_with_df_names) <-
-  c("Sheet name", "What is inside")
+  c("Sheet name", "Sheet Details")
 
 glimpse(sheet_names_with_df_names)
 
