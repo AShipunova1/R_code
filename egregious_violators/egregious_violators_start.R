@@ -162,32 +162,21 @@ remove_columns <- c(
 # Explanations:
 # 1. Use 'select' to remove columns specified in 'remove_columns'.
 # 2. Use 'distinct' to keep only unique rows in the resulting data frame.
-compl_clean_w_permit_exp_last_half_year__sa__not_exp_short <-
-  compl_clean_w_permit_exp_last_half_year__sa__not_exp__all_weeks_present |>
+compl_clean_w_permit_exp_last_half_year__sa__short <-
+  compl_clean_w_permit_exp_last_half_year__sa |>
   select(-any_of(remove_columns)) |> 
   distinct()
 
-dim(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short)
+dim(compl_clean_w_permit_exp_last_half_year__sa__short)
 
 ## work with the whole period ----
-
-### keep only 3 columns ----
-# compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates <- 
-#   compl_clean_w_permit_exp_last_half_year__sa__not_exp_short |>
-#   select(vessel_official_number, compliant_, overridden_) |>
-#   distinct()
-
-# glimpse(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short)
-
-## add no_yes compliant ----
-# compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__wide <-
-#   get_compl_by(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short )
+## add compliant_after_overr ----
 
 tic("compl_overr")
 compl_clean_w_permit_exp_last_half_year__sa__not_exp_short__comp_after_overr <-
-  compl_clean_w_permit_exp_last_half_year__sa__not_exp_short |>
+  compl_clean_w_permit_exp_last_half_year__sa__short |>
   add_compliant_after_override(overridden_col_name = "overridden_",
-                                 compliance_col_name = "compliant_")
+                               compliance_col_name = "compliant_")
 toc()
 # compl_overr: 8.76 sec elapsed
 
