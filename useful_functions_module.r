@@ -1251,19 +1251,13 @@ read_an_answer <- function(my_prompt) {
 # if (interactive()) read_an_answer(my_prompt)
 
 # make it "NO_YES" if both compliant and not compliant
-# Explanations:
-# The function 'get_compl_by' performs the following operations:
-# 1. Groups the data frame by the specified columns using 'group_by_at'.
-# 2. Selects unique rows based on the grouping columns since we are looking at vessels, not weeks.
-# 3. Pivots the data wider, creating a column for each vessel.
-# 4. Combines values if there are multiple entries for the same vessel using a custom function that sorts and concatenates them.
-# 5. Removes the grouping to return the data to its original structure.
-# 6. Returns the modified data frame.
+# Not tested with overridden
 get_compl_by <-
   function(my_df,
            group_by_for_compl =
-               vars(-c("vessel_official_number", "compliant_")),
+             vars(-c("vessel_official_number", "compliant_", "overridden_")),
            names_from_list = c("vessel_official_number")) {
+    browser()
     my_df %>%
     dplyr::group_by_at(group_by_for_compl) %>%
     # can unique, because we are looking at vessels, not weeks
@@ -1271,9 +1265,10 @@ get_compl_by <-
     # more columns, a column per vessel
     tidyr::pivot_wider(
       names_from = all_of(names_from_list),
-      values_from = compliant_,
+      values_from = c("compliant_", "overridden_"),
+        # compliant_,
       # make it "NO_YES" if both
-      values_fn = ~ paste0(sort(.x), collapse = "_")
+      values_fn = ~ paste0(unique(sort(.x)), collapse = "_")
     ) %>%
     dplyr::ungroup() %>%
     return()
