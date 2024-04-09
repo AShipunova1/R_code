@@ -173,39 +173,39 @@ dim(compl_clean_w_permit_exp_last_half_year__sa__short)
 ## add compliant_after_overr ----
 
 tic("compl_overr")
-compl_clean_w_permit_exp_last_half_year__sa__not_exp_short__comp_after_overr <-
+compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr <-
   compl_clean_w_permit_exp_last_half_year__sa__short |>
   add_compliant_after_override(overridden_col_name = "overridden_",
                                compliance_col_name = "compliant_")
 toc()
 # compl_overr: 8.76 sec elapsed
 
-glimpse(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short__comp_after_overr)
-
-# an empty vector
-cols_names <- c()
-
-# compl_clean_w_permit_exp |>
-#   filter(vessel_official_number == "VA8261ZY") |>
-#   View()
+# check
+compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr |> 
+  select(compliant_, overridden_, compliant_after_override) |>
+  count(compliant_, overridden_, compliant_after_override)
+#   compliant_ overridden_ compliant_after_override     n
+#   <chr>      <chr>       <chr>                    <int>
+# 1 NO         NO          no                       11258
+# 2 NO         YES         yes                         70
+# 3 YES        NO          yes                      29628
 
 # check
-compl_clean_w_permit_exp_last_half_year__sa__not_exp_short__comp_after_overr$compliant_after_override |> 
+compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr$compliant_after_override |> 
   unique()
+# [1] "yes" "no" 
 
-# TODO: No egregious violators if only "YES" and "NO_YES". Stop here.
+dim(compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr)
 
-dim(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short__comp_after_overr)
-
-n_distinct(compl_clean_w_permit_exp_last_half_year__sa$vessel_official_number)
-# 22178746
-
-n_distinct(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short__comp_after_overr$vessel_official_number)
-# [1] 1414
+n_distinct(compl_clean_w_permit_exp_last_half_year__sa$vessel_official_number) ==
+  n_distinct(
+    compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr$vessel_official_number
+  )
+# T
 
 ## get only non-compliant for the past half year ----
 compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp <-
-  compl_clean_w_permit_exp_last_half_year__sa__not_exp_short__comp_after_overr |>
+  compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr |>
   # not compliant
   filter(tolower(compliant_after_override) == "no")
 
