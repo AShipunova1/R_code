@@ -267,8 +267,7 @@ compl_clean_w_permit_exp_last_half_year__sa |>
   nrow()
 # 0 OK!
 
-
-# prepared Compliance is in compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c
+# Results: prepared Compliance is in compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp
 
 # ---- Preparing Correspondence ----
 
@@ -281,10 +280,6 @@ corresp_contact_cnts_clean <-
   filter(!grepl("^99999", vessel_official_number))
 
 n_distinct(corresp_contact_cnts_clean$vesselofficial_number)
-# vesselofficial_number   3223
-# vessel_official_number  3371
-# vesselofficial_number 3434
-# 4118
 
 # "2023-08-09"
 # Michelle
@@ -369,22 +364,10 @@ corresp_contact_cnts_clean_direct_cnt_2atmps |>
 #                !!we_emailed_once_filter))) |> 
 #   glimpse()
 
-# dim(corresp_contact_cnts_clean)
-# [1] 18629    23
-# dim(corresp_contact_cnts_clean_direct_cnt_2atmps)
-# [1] 18163    23
-# today()
-# [1] "2024-02-16"
 dim(corresp_contact_cnts_clean)
-# [1] 29587    20
 dim(corresp_contact_cnts_clean_direct_cnt_2atmps)
-# [1] 29089    20
-# [1] 29587    22
 
 n_distinct(corresp_contact_cnts_clean_direct_cnt_2atmps$vesselofficial_number)
-# vesselofficial_number 2968
-# 3620
-# 4118
 
 ## fix dates ----
 # check
@@ -419,7 +402,7 @@ str(corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates$contact_date_dttm)
 # Join correspondence with compliance ----
 # Explanations:
 # Create a new dataframe 'compl_corr_to_investigation1' by performing an inner join between
-# 'corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates' and 'compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c_ok'.
+# 'correspondence' and 'compliance'.
 # The join is performed on the column 'vessel_official_number'.
 # Use 'multiple = "all"' and 'relationship = "many-to-many"' to handle multiple matches during the join.
 # 1. Use the 'inner_join' function from the dplyr package to combine the two dataframes based on the specified columns.
@@ -428,41 +411,24 @@ str(corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates$contact_date_dttm)
 compl_corr_to_investigation1 <-
   inner_join(
     corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates,
-    compl_clean_w_permit_exp_last_half_year__sa_all_weeks_non_c,
+    compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp,
     by = c("vessel_official_number"),
     multiple = "all",
     relationship = "many-to-many"
   )
 
 dim(compl_corr_to_investigation1)
-# [1] 486  30
-# [1] 522  30
-# [1] 940  27
-# [1] 2100   27
-# [1] 1926   27
 
 # check
 n_distinct(compl_corr_to_investigation1$vesselofficial_number)
-# 110
-# 107
-# 27: 177
-# vesselofficial_number 188
-# vesselofficial_number 105
-# 108
-# 97
-# vesselofficial_number 116
-# 262
-# 217
 
 # View(compl_corr_to_investigation1)
 
 ## save number of vessels to investigate for checks ----
 num_of_vsl_to_investigate <- 
   n_distinct(compl_corr_to_investigation1$vesselofficial_number)
-# 262
-# 217
 
-# Compl & corresondence together are in
+# Results: Compl & corresondence together are in
 # compl_corr_to_investigation1
 
 # ---- output needed investigation ----
@@ -511,6 +477,12 @@ unused_fields <- c(
   # "permit_groupexpiration",
   "compliant_after_override")
 
+# Explanations:
+# 1. Exclude columns specified in 'unused_fields' from the data frame.
+# 2. Group the data frame by 'vessel_official_number'.
+# 3. Apply the custom function 'concat_unique' to all columns to concatenate unique non-missing values into a single string.
+# 4. Remove the grouping from the data frame.
+
 compl_corr_to_investigation1_short <-
   compl_corr_to_investigation1 |>
   # compl_corr_to_investigation1_w_non_compliant_weeks_n_date__contacttype_per_id |>
@@ -521,15 +493,9 @@ compl_corr_to_investigation1_short <-
 
 # print_df_names(compl_corr_to_investigation1_short)
 
-# compl_corr_to_investigation1_short |> glimpse()
+compl_corr_to_investigation1_short |> glimpse()
 
 dim(compl_corr_to_investigation1_short)
-# [1] 107   9
-# 27: [1] 177  10
-# [1] 105   9
-# 108
-# [1] 262  12
-# 217
 
 ## 2. create additional columns ----
 ### add list of contact dates and contact type in parentheses  -----
@@ -578,16 +544,6 @@ date__contacttype_per_id <-
   get_date_contacttype(compl_corr_to_investigation1_short)
 
 dim(date__contacttype_per_id)
-# [1] 110    2
-# 107
-# 27: 177
-# 188   2
-# 105   2 (the new filter)
-# 108
-# 97
-# [1] 116   2 (2 contact attempts)
-# [1] 262   2
-# 217
 
 # glimpse(date__contacttype_per_id)
 
