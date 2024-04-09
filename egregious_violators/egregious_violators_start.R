@@ -613,6 +613,13 @@ dim(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__d
 ### check ----
 n_distinct(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked$vessel_official_number)
 
+compl_corr_to_investigation_short_dup_marked__permit_region |>
+  count(duplicate_w_last_time)
+# today()
+# [1] "2024-04-09"
+# 1 duplicate               108
+# 2 new                      48
+
 ## 4. how many are duals? ----
 # Explanations:
 # Create a new dataframe 
@@ -659,7 +666,7 @@ result_path <-
             current_project_basename,
             str_glue("egregious_violators_to_investigate_{today()}.csv"))
 
-compl_corr_to_investigation_short_dup_marked__permit_region |> 
+compl_corr_to_investigation_short_dup_marked__permit_region |>
 write_csv(result_path)
 
 cat("Result:",
@@ -667,3 +674,4 @@ cat("Result:",
     "and",
     str_glue("egregious_violators_to_investigate_{today()}.csv"),
     sep = "\n")
+
