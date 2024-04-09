@@ -571,9 +571,9 @@ data_overview <- function(my_df) {
 # from https://stackoverflow.com/questions/53781563/combine-rows-based-on-multiple-columns-and-keep-all-unique-values
 # concat_unique <- function(x){paste(unique(x),  collapse=', ')}
 
-# Define a function 'concat_unique' to concatenate unique non-NA values from a vector x into a single character string.
-# Use 'unique' to extract unique values, '!is.na(x)' to remove NA values, and 'collapse = ", "' to concatenate with a comma and space.
-# Finally, paste0 is used to concatenate the unique non-NA values with a comma and space separator (", ").
+# Explanations:
+# 1. Extract unique non-NA elements from the input vector 'x' using 'unique'.
+# 2. Concatenate these unique elements into a single string with ", " as the separator using 'paste0' and 'collapse'.
 
 concat_unique <- function(x) {
   paste0(unique(x[!is.na(x)]), collapse = ", ")
