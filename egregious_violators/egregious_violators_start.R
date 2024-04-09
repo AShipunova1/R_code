@@ -125,20 +125,8 @@ compl_clean_w_permit_exp_last_half_year <-
   filter(year_month >= as.yearmon(half_year_ago))
 
 dim(compl_clean_w_permit_exp)
-# today()
-# [1] "2023-08-10"
-# [1] 235509     22
-# [1] "2024-02-16"
-# [1] 168740     21
 
 dim(compl_clean_w_permit_exp_last_half_year)
-# [1] 74809    23
-# [1] 70118    23
-# [1] 92370    23 (7m)
-# [1] 81153    23 189 d
-# [1] 87826    23
-# [1] 74169    23
-# [1] 80413    22
 
 ## ---- Have only SA and dual permits ----
 # Use 'filter' to select rows where 'permitgroup' contains "CDW", "CHS", or "SC".
@@ -146,19 +134,18 @@ compl_clean_w_permit_exp_last_half_year__sa <-
   compl_clean_w_permit_exp_last_half_year |>
   filter(grepl("CDW|CHS|SC", permitgroup))
 
-today()
+# today()
 # [1] "2023-08-01"
 # [1] "2023-07-10"
 # [1] "2023-08-10"
 # [1] "2024-02-16"
+# [1] "2024-04-09"
 
 dim(compl_clean_w_permit_exp_last_half_year__sa)
-# [1] 55194    22
 
 ## keep only vessels with info for all weeks in the period ----
 all_weeks_num <-
   compl_clean_w_permit_exp_last_half_year__sa |>
-  # filter(vessel_official_number == "NC5586WD") |> View()
   select(week) |>
   distinct() |>
   nrow()
@@ -170,12 +157,8 @@ compl_clean_w_permit_exp_last_half_year__sa__not_exp__all_weeks_present <-
   ungroup()
 
 compl_clean_w_permit_exp_last_half_year__sa |> dim()
-# [1] 55194    22
 
-# > compl_clean_w_permit_exp_last_half_year__sa__not_exp |> dim()
-# [1] 44756    22
-dim(compl_clean_w_permit_exp_last_half_year__sa__not_exp__all_weeks_present)
-# [1] 40275    22
+nrow(compl_clean_w_permit_exp_last_half_year__sa__not_exp__all_weeks_present)
 
 ## fewer columns ----
 remove_columns <- c(
@@ -186,7 +169,6 @@ remove_columns <- c(
   "negativereports__",
   "complianceerrors__",
   "set_permits_on_hold_",
-  "overridden_",
   "override_date",
   "override_by",
   "contactedwithin_48_hours_",
@@ -203,19 +185,16 @@ compl_clean_w_permit_exp_last_half_year__sa__not_exp_short <-
   distinct()
 
 dim(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short)
-# [1] 40275     9
 
 ## work with the whole period ----
 
-### keep only 2 columns ----
+### keep only 3 columns ----
 compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates <- 
   compl_clean_w_permit_exp_last_half_year__sa__not_exp_short |>
   select(vessel_official_number, compliant_) |>
   distinct()
 
 glimpse(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates)
-# [1] 3668    2
-# Rows: 2,481 (p active all time)
 
 ## add no_yes compliant ----
 compl_clean_w_permit_exp_last_half_year__sa__not_exp_short_no_dates__wide <-
