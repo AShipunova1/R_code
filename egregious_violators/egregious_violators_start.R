@@ -590,11 +590,6 @@ source(prep_addresses_path)
 ## 3. mark vessels already in the know list ----
 # The first column (report created) indicates the vessels that we have created a case for. My advice would be not to exclude those vessels. EOs may have provided compliance assistance and/or warnings already. If that is the case and they continue to be non-compliant after that, they will want to know and we may need to reopen those cases.
 
-# today()
-# [1] "2023-07-11"
-
-# data_overview(vessels_to_remove)
-
 vessels_to_mark_ids <-
   prev_result |>
   select(vessel_official_number)
@@ -619,29 +614,9 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_m
   )
 
 dim(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked)
-# [1] 177  11
-# [1] 105  10
-# 108
-# 97
-# [1] 110  10 2 atmpts
-# [1] 116  10
-# [1] 262  13
-# [1] 217  13
 
 ### check ----
 n_distinct(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked$vessel_official_number)
-# 107
-# 102
-# 27: 164
-# 177
-# 105
-# 108
-# 97
-# 110
-# 116
-# 2024-02-20
-# 262
-# 217
 
 ## 4. how many are duals? ----
 # Explanations:
@@ -674,24 +649,14 @@ region_counts <-
   select(vessel_official_number, permit_region) |>
   distinct() |>
   count(permit_region)
-# 1 dual             56
-# 2 sa_only         206
-#   permit_region     n
-#   <chr>         <int>
-# 1 dual             51
-# 2 sa_only         166
 
 n_distinct(compl_corr_to_investigation1_short_dup_marked__permit_region$vessel_official_number)
 # 262
 # 217
 
 ### dual permitted cnts ----
-# 56 / (206 + 56) * 100
-# 21.37405
 
 region_counts$n[[1]] / (region_counts$n[[2]] + region_counts$n[[1]]) * 100
-# 51 / (166 + 51) * 100
-# 23.5023%
 
 # Print out results ----
 result_path <- 
