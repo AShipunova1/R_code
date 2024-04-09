@@ -74,6 +74,8 @@ SEFHIER_metrics_tracking_path <-
   )
 )
 
+# file.exists(SEFHIER_metrics_tracking_path)
+
 SEFHIER_metrics_tracking <- read.csv(SEFHIER_metrics_tracking_path)
 
 # rename column headers
@@ -81,6 +83,8 @@ SEFHIER_metrics_tracking <-
   SEFHIER_metrics_tracking |>
   rename(PERMIT_REGION = `Permit.Grouping.Region`,
          VESSEL_OFFICIAL_NUMBER = `Vessel.Official.Number`)
+
+# dim(SEFHIER_metrics_tracking)
 
 # import the list of SRHS vessels
 # this is a single spreadsheet with all vessels listed, as opposed to the version where they are separated by region (bothregions_asSheets)
