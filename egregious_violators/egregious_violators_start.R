@@ -143,23 +143,6 @@ compl_clean_w_permit_exp_last_half_year__sa <-
 
 dim(compl_clean_w_permit_exp_last_half_year__sa)
 
-## keep only vessels with info for all weeks in the period ----
-all_weeks_num <-
-  compl_clean_w_permit_exp_last_half_year__sa |>
-  select(week) |>
-  distinct() |>
-  nrow()
-
-compl_clean_w_permit_exp_last_half_year__sa__not_exp__all_weeks_present <-
-  compl_clean_w_permit_exp_last_half_year__sa |>
-  group_by(vessel_official_number) |>
-  filter(n_distinct(week) >= all_weeks_num) |> 
-  ungroup()
-
-compl_clean_w_permit_exp_last_half_year__sa |> dim()
-
-nrow(compl_clean_w_permit_exp_last_half_year__sa__not_exp__all_weeks_present)
-
 ## fewer columns ----
 remove_columns <- c(
   "name",
@@ -231,14 +214,30 @@ n_distinct(compl_clean_w_permit_exp_last_half_year__sa$vessel_official_number)
 n_distinct(compl_clean_w_permit_exp_last_half_year__sa__not_exp_short__comp_after_overr$vessel_official_number)
 # [1] 1414
 
-## get only all "compliant_ == "NO" for the past half year ----
-# Commented out for test purposes, uncomment in production!
+## get only non-compliant for the past half year ----
 compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp <-
   compl_clean_w_permit_exp_last_half_year__sa__not_exp_short__comp_after_overr |>
   # not compliant
   filter(tolower(compliant_after_override) == "no")
 
 dim(compl_clean_w_permit_exp_last_half_year__sa_non_c__not_exp)
+
+## keep only vessels with info for all weeks in the period ----
+all_weeks_num <-
+  compl_clean_w_permit_exp_last_half_year__sa |>
+  select(week) |>
+  distinct() |>
+  nrow()
+
+compl_clean_w_permit_exp_last_half_year__sa__not_exp__all_weeks_present <-
+  compl_clean_w_permit_exp_last_half_year__sa |>
+  group_by(vessel_official_number) |>
+  filter(n_distinct(week) >= all_weeks_num) |> 
+  ungroup()
+
+compl_clean_w_permit_exp_last_half_year__sa |> dim()
+
+nrow(compl_clean_w_permit_exp_last_half_year__sa__not_exp__all_weeks_present)
 
 ## check the last report date ----
 ### get ids only ----
