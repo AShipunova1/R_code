@@ -583,37 +583,17 @@ source(prep_addresses_path)
 # result: compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr
 
 ## 3. mark vessels already in the know list ----
+# The first column (report created) indicates the vessels that we have created a case for. My advice would be not to exclude those vessels. EOs may have provided compliance assistance and/or warnings already. If that is the case and they continue to be non-compliant after that, they will want to know and we may need to reopen those cases.
 
-### Check if manual checking marks it as egregious ----
-
-# get the long name from the second column
-one_name <- colnames(prev_result[2])
-
-# get the vessel ids for these with a "yes" in it
-vessels_ids_from_prev_yes <-
-  prev_result |> 
-  filter(tolower(!!sym(one_name)) == "yes") |> 
+vessels_to_mark_ids <-
+  prev_result |>
   select(vessel_official_number)
 
-# get the vessel ids for these with a "no" in it
-vessels_ids_from_prev_no <-
-  prev_result |> 
-  filter(tolower(!!sym(one_name)) == "no") |> 
-  select(vessel_official_number)
+dim(vessels_to_mark_ids)
 
-dim(vessels_ids_from_prev_yes)
-
-### mark these vessels ----
-
-compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr |>
-  filter(vessel_official_number %in%
-           vessels_ids_from_prev_no$vessel_official_number) |>
-  View()
-
-vessels_ids_from_prev_yes
-
+#### mark these vessels ----
 # Explanations:
-# Create a new column 'duplicate_w_last_time'.
+# Create a new column 'duplicate_w_last_time' in the dataframe 'compl_corr_to_investigation_short'.
 # This column is marked with "duplicate" for rows where 'vessel_official_number' is present in the list of vessel IDs to mark as duplicates ('vessels_to_mark_ids').
 # For all other rows, it is marked as "new".
 compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked <-
@@ -676,6 +656,10 @@ n_distinct(compl_corr_to_investigation_short_dup_marked__permit_region$vessel_of
 region_counts$n[[1]] / (region_counts$n[[2]] + region_counts$n[[1]]) * 100
 
 # Print out results ----
+## add additional columns in front ----
+
+
+
 result_path <- 
   file.path(my_paths$outputs,
             current_project_basename,
