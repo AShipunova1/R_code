@@ -289,7 +289,7 @@ fix_names <- function(x) {
     my_headers_case_function()
 }
 
-## functions to clean FHIER compliance and correspondense reports ----
+## functions to clean FHIER compliance and correspondence reports ----
 
 # split week column ("52: 12/26/2022 - 01/01/2023") into 3 columns with proper classes, week_num (week order number), week_start and week_end
 # Define a function named 'clean_weeks' that takes a data frame 'my_df' as input.
