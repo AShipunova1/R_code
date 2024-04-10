@@ -658,18 +658,31 @@ region_counts$n[[1]] / (region_counts$n[[2]] + region_counts$n[[1]]) * 100
 # Print out results ----
 ## add additional columns in front ----
 
+additional_column_name1 <-
+  str_glue(
+    "Confirmed Egregious? (permits must still be active till {permit_expired_check_date}, missing past 6 months, and (1) they called/emailed us (incoming), or (2) at least 2 contacts (outgoing) with at least 1 call/other (voicemail counts) and at least 1 email)"
+  )
 
+compl_corr_to_investigation_short_dup_marked__permit_region__add_columns <-
+  compl_corr_to_investigation_short_dup_marked__permit_region |>
+  add_column(
+    !!(additional_column_name1) := NA,
+    Notes = NA,
+    .before = 2
+  )
+
+# print_df_names(compl_corr_to_investigation_short_dup_marked__permit_region__add_columns)
 
 result_path <- 
   file.path(my_paths$outputs,
             current_project_basename,
             str_glue("egregious_violators_to_investigate_{today()}.csv"))
 
-compl_corr_to_investigation_short_dup_marked__permit_region |>
+compl_corr_to_investigation_short_dup_marked__permit_region__add_columns |>
 write_csv(result_path)
 
 cat("Result:",
-    "compl_corr_to_investigation_short_dup_marked__permit_region",
+    "compl_corr_to_investigation_short_dup_marked__permit_region__add_columns",
     "and",
     str_glue("egregious_violators_to_investigate_{today()}.csv"),
     sep = "\n")
