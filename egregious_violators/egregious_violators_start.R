@@ -52,7 +52,7 @@ grace_period = 7 #days
 
 half_year_ago <-
   data_file_date - days_in_non_compl_weeks - grace_period
-# [1] "2023-08-11"
+# [1] "2023-10-04"
 
 # 30 days from today
 permit_expired_check_date <- data_file_date + 30
@@ -201,7 +201,7 @@ n_distinct(compl_clean_w_permit_exp_last_half_year__sa$vessel_official_number) =
   n_distinct(
     compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr$vessel_official_number
   )
-T
+# T
 
 ## get only non-compliant for the past half year ----
 compl_clean_w_permit_exp_last_half_year__sa_non_c <-
@@ -583,18 +583,37 @@ source(prep_addresses_path)
 # result: compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr
 
 ## 3. mark vessels already in the know list ----
-# The first column (report created) indicates the vessels that we have created a case for. My advice would be not to exclude those vessels. EOs may have provided compliance assistance and/or warnings already. If that is the case and they continue to be non-compliant after that, they will want to know and we may need to reopen those cases.
 
-vessels_to_mark_ids <-
-  prev_result |>
+### Check if manual checking marks it as egregious ----
+
+# get the long name from the second column
+one_name <- colnames(prev_result[2])
+
+# get the vessel ids for these with a "yes" in it
+vessels_ids_from_prev_yes <-
+  prev_result |> 
+  filter(tolower(!!sym(one_name)) == "yes") |> 
   select(vessel_official_number)
 
-dim(vessels_to_mark_ids)
-# [1] 96  1
+# get the vessel ids for these with a "no" in it
+vessels_ids_from_prev_no <-
+  prev_result |> 
+  filter(tolower(!!sym(one_name)) == "no") |> 
+  select(vessel_official_number)
 
-#### mark these vessels ----
+dim(vessels_ids_from_prev_yes)
+
+### mark these vessels ----
+
+compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr |>
+  filter(vessel_official_number %in%
+           vessels_ids_from_prev_no$vessel_official_number) |>
+  View()
+
+vessels_ids_from_prev_yes
+
 # Explanations:
-# Create a new column 'duplicate_w_last_time' in the dataframe 'compl_corr_to_investigation_short'.
+# Create a new column 'duplicate_w_last_time'.
 # This column is marked with "duplicate" for rows where 'vessel_official_number' is present in the list of vessel IDs to mark as duplicates ('vessels_to_mark_ids').
 # For all other rows, it is marked as "new".
 compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked <-
@@ -613,10 +632,8 @@ dim(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__d
 ### check ----
 n_distinct(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked$vessel_official_number)
 
-compl_corr_to_investigation_short_dup_marked__permit_region |>
+compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked |>
   count(duplicate_w_last_time)
-# today()
-# [1] "2024-04-09"
 # 1 duplicate               108
 # 2 new                      48
 
@@ -653,8 +670,6 @@ region_counts <-
   count(permit_region)
 
 n_distinct(compl_corr_to_investigation_short_dup_marked__permit_region$vessel_official_number)
-# 262
-# 217
 
 ### dual permitted cnts ----
 
