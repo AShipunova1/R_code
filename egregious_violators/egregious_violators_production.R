@@ -8,7 +8,7 @@
 # set up ----
 
 # Load the 'ROracle' library, which provides an interface for working with Oracle databases in R.
-# library(ROracle)
+library(ROracle)
 
 # Load the 'tidyverse' library, which is a collection of R packages for data manipulation and visualization.
 library(tidyverse)
@@ -25,6 +25,7 @@ library(magrittr)
 # library(zoo)
 # library(diffdf)
  
+# Auxiliary
 # Set up paths ----
 
 # function that will return current user name
@@ -220,9 +221,460 @@ all_csv_names_list = c("Correspondence_2024_04_09.csv",
                          r"(2024_04_09\FHIER_Compliance_2023__04_09_2024.csv)",
                          r"(2024_04_09\FHIER_Compliance_2024__04_09_2024.csv)")
 
-## ---- get compliance and correspondence csv data into variables ----
-from_fhier_data_path <-
-  file.path(my_paths$inputs)
+# Auxiliary
+# Use my function in case we want to change the case in all functions
+my_headers_case_function <- tolower
+
+# Define a function named 'load_csv_names' that takes two parameters: 'my_paths' and 'csv_names_list'
+load_csv_names <- function(csv_files_paths, csv_names_list) {
+ # Use 'lapply' to add the 'my_inputs' directory path in front of each file name in 'csv_names_list'
+  # This creates a list of full file paths for the CSV files
+  myfiles <- lapply(csv_names_list, function(x) file.path(csv_files_paths, x))
+
+  # browser()
+  print(myfiles)
+
+  # Use 'lapply' again to read all CSV files listed in 'myfiles'
+  # The 'read_csv' function from the 'readr' package is used, specifying default column types as 'c' ('character')
+  contents <- lapply(myfiles, read_csv, col_types = cols(.default = 'c'))
+
+  # Return the contents of the CSV files as a list
+  return(contents)
+}
+
+# The fix_names function is used to clean and standardize column names to make them suitable for use in data analysis or further processing.
+# to use in a function,
+# e.g. read_csv(name_repair = fix_names)
+fix_names <- function(x) {
+  # Use the pipe operator %>%
+  x %>%
+
+    # Remove dots from column names
+    str_replace_all("\\.", "") %>%
+
+    # Replace all characters that are not letters or numbers with underscores
+    str_replace_all("[^A-z0-9]", "_") %>%
+
+    # Ensure that letters are only in the beginning of the column name
+    str_replace_all("^(_*)(.+)", "\\2\\1") %>%
+
+    # Convert column names to lowercase using 'my_headers_case_function'
+    my_headers_case_function()
+}
+
+# The clean_headers function is designed to clean and fix the column names of a given dataframe (my_df).
+clean_headers <- function(my_df) {
+    # Use the 'fix_names' function to clean and fix the column names of the dataframe.
+    colnames(my_df) %<>%
+        fix_names()
+
+    # Return the dataframe with cleaned and fixed column names.
+    return(my_df)
+}
+
+# Functions always used for all compliance/correspondence preparation. Start ----
+
+# split week column ("52: 12/26/2022 - 01/01/2023") into 3 columns with proper classes, week_num (week order number), week_start and week_end
+# Define a function named 'clean_weeks' that takes a data frame 'my_df' as input.
+# It returns the modified 'my_df' with the cleaned and transformed 'week' columns, including 'week_num', 'week_start', and 'week_end'.
+
+clean_weeks <- function(my_df) {
+  my_df %>%
+
+    # Separate the 'week' column using ":" as the delimiter and create new columns 'week_num' and 'week_rest'
+    separate_wider_delim(week, ":", names = c("week_num", "week_rest")) %>%
+
+    # Further separate 'week_rest' using " - " as the delimiter and create 'week_start' and 'week_end' columns
+    separate_wider_delim(week_rest, " - ", names = c("week_start", "week_end")) ->
+    temp_df
+
+  # Convert 'week_num' to integer and update 'my_df' with the result
+  my_df$week_num <- as.integer(trimws(temp_df$week_num))
+
+  # Convert 'week_start' to Date format using the specified date format "%m/%d/%Y"
+  my_df$week_start <- as.Date(trimws(temp_df$week_start), "%m/%d/%Y")
+
+  # Convert 'week_end' to Date format using the specified date format "%m/%d/%Y"
+  my_df$week_end <- as.Date(trimws(temp_df$week_end), "%m/%d/%Y")
+
+  # Return the modified 'my_df' with cleaned and transformed 'week' columns
+  return(my_df)
+}
+
+# ===
+# trim vesselofficialnumber, there are 273 white spaces in Feb 2023
+# Define a function named 'trim_all_vessel_ids_simple' with two parameters:
+# 'csvs_clean_ws' is a list of data frames to be processed,
+# 'col_name_to_trim' is an optional column name to trim, default is NA.
+# It returns the list of data frames (csvs_clean) where each data frame has a trimmed 'vessel_official_number' column.
+trim_all_vessel_ids_simple <- function(csvs_clean_ws, col_name_to_trim = NA) {
+
+  # Use lapply to iterate through each data frame in 'csvs_clean_ws'
+  csvs_clean <- lapply(csvs_clean_ws, function(x) {
+
+    # Check if 'col_name_to_trim' is NA
+    if (is.na(col_name_to_trim)) {
+
+      # If it's NA, find the column name matching a pattern and store it in 'col_name_to_trim'
+      col_name_to_trim <- grep("vessel.*official.*number",
+                               tolower(names(x)),
+                               value = TRUE)
+    }
+
+    # Convert 'col_name_to_trim' to a symbol using 'sym' from tidyverse
+    col_name_to_trim_s <- rlang::sym(col_name_to_trim)
+
+    # Trim leading and trailing white spaces in the selected column
+    # Hard code vessel_official_number as vessel id
+    x %>%
+      dplyr::mutate(vessel_official_number = trimws(!!col_name_to_trim_s)) %>%
+      # Alternative way of doing the same, not tested
+      # dplyr::mutate({{col_name_to_trim_s}} := trimws(!!col_name_to_trim_s)) %>%
+      return()
+  })
+
+  # Return the list of data frames with trimmed vessel IDs
+  return(csvs_clean)
+}
+
+# ===
+# cleaning, regularly done for csvs downloaded from PHIER
+# The clean_all_csvs function is defined to clean a list of CSVs (csvs) and has an optional parameter vessel_id_field_name, which specifies the column to trim.
+# It returns the list of cleaned CSVs, where each CSV has had its headers unified and the vessel ID column (if specified) trimmed for consistency.
+
+clean_all_csvs <- function(csvs, vessel_id_field_name = NA) {
+  # Clean headers of all CSVs using the 'clean_headers' function
+  csvs_clean0 <- lapply(csvs, clean_headers)
+
+  # Trim 'vesselofficialnumber' column (if specified) in all cleaned CSVs
+  csvs_clean1 <-
+    trim_all_vessel_ids_simple(csvs_clean0, vessel_id_field_name)
+
+  # Return the list of cleaned CSVs
+  return(csvs_clean1)
+}
+
+# ===
+# The join_same_kind_csvs function is defined to concatenate multiple data frames in the 'csvs_list_2_plus' parameter vertically.
+join_same_kind_csvs <- function(csvs_list_2_plus) {
+
+  # Concatenate the data frames in 'csvs_list_2_plus' vertically using 'bind_rows'. This function binds the rows of the data frames together, assuming that they have the same column structure.
+  result_df <- dplyr::bind_rows(csvs_list_2_plus)
+
+  # Return the combined data frame
+  return(result_df)
+}
+
+# ===
+# Combine correspondence and compliance information into one dataframe by "vesselofficialnumber" only. Not by time!
+# The join_all_csvs function is defined to perform a full join operation on two data frames: 'corresp_arr' and 'compl_arr'. It handles cases where these parameters might be lists of data frames or individual data frames.
+# It returns the resulting data frame ('result_df') containing the merged data from 'compl' and 'corresp' data frames.
+
+join_all_csvs <- function(corresp_arr, compl_arr) {
+
+  # Initialize 'corresp' with 'corresp_arr' or join data frames in 'corresp_arr' if it's not already a data frame
+  corresp <- corresp_arr
+  if (!is.data.frame(corresp_arr)) {
+    corresp <- join_same_kind_csvs(corresp_arr)
+  }
+
+  # Initialize 'compl' with 'compl_arr' or join data frames in 'compl_arr' if it's not already a data frame
+  compl <- compl_arr
+  if (!is.data.frame(compl_arr)) {
+    compl <- join_same_kind_csvs(compl_arr)
+  }
+
+  # Perform a full join of 'compl' and 'corresp' data frames on the 'vesselofficialnumber' column, retaining all rows
+  result_df <- compl %>%
+    full_join(corresp,
+              by = c("vesselofficialnumber"),
+              multiple = "all")
+
+  # Return the resulting data frame
+  return(result_df)
+}
+
+# ===
+# Change a column class to POSIXct in the "my_df" for the field "field_name" using the "date_format"
+# The change_to_dates function is defined to convert a specific column ('field_name') in the input data frame ('my_df') to POSIXct date format using the specified 'date_format'.
+#
+# Inside the function, it uses the mutate function from the dplyr package to modify 'my_df'. The {{field_name}} syntax is used to refer to the column specified by 'field_name'.
+# It returns the 'result_df', which is the input data frame with the specified column converted to dates according to the specified 'date_format'.
+
+# ===
+change_to_dates <- function(my_df, field_name, date_format = "") {
+  # Convert the specified column ('field_name') in 'my_df' to POSIXct date format using 'as.POSIXct'
+  # Within the mutate function, it uses pull to extract the column specified by 'field_name' and then applies as.POSIXct to convert the values in that column to POSIXct date format using the provided 'date_format'.
+
+  # browser()
+  if (date_format == "") {
+    my_tryFormats = c(
+      "%m/%d/%Y %I:%M%p",
+      "%m/%d/%Y %I:%M %p",
+      "%m/%d/%Y %R%OS",
+      "%Y-%m-%d %H:%M:%OS",
+      "%Y/%m/%d %H:%M:%OS",
+      "%Y-%m-%d %H:%M",
+      "%Y/%m/%d %H:%M",
+      "%Y-%m-%d",
+      "%Y/%m/%d"
+    )
+  }
+
+  new_field_name <- str_glue("{field_name}_dttm")
+
+  result_df <-
+    my_df |>
+    mutate(!!new_field_name := as.POSIXct(!!field_name,
+                                      tryFormats = my_tryFormats,
+                                      format = date_format))
+
+  # Return the data frame with the specified column converted to dates
+  return(result_df)
+}
+
+# ===
+# The aux_fun_for_dates function is defined as a utility function to convert a given vector 'x' to POSIXct date format using the specified 'date_format'.
+aux_fun_for_dates <- function(x, date_format) {
+
+  # Convert 'x' to POSIXct date format using 'as.POSIXct'
+  out <- as.POSIXct(x, format = date_format)
+
+  # Return the result as a POSIXct date object
+  return(out)
+}
+
+# ===
+  # # Previously
+  # across(a:b, mean, na.rm = TRUE)
+  #
+  # # Now
+  # across(a:b, \(x) mean(x, na.rm = TRUE))
+# change_fields_arr_to_dates <- function(my_df, field_names_arr, date_format) {
+#   my_df %>%
+#     mutate(across(all_of(field_names_arr), aux_fun_for_dates, date_format)) %>%
+#
+#     # mutate({{field_name}} := as.POSIXct(pull(my_df[field_name]),
+#                                         # format = date_format)) %>%
+#     return()
+# }
+
+# The change_fields_arr_to_dates function is defined to convert multiple columns specified in 'field_names_arr' in the input data frame ('my_df') to POSIXct date format using the provided 'date_format'.
+# Inside the function, it uses the mutate function along with across from the dplyr package to target and modify the specified columns in 'field_names_arr'. The all_of(field_names_arr) ensures that all the columns listed in 'field_names_arr' are selected.
+
+# Within the across function, it applies the as.POSIXct function to each column ('x') in 'field_names_arr' using the provided 'date_format'. This step converts the values in these columns to POSIXct date format.
+# It returns the 'result_df', which is the input data frame with the specified columns converted to dates according to the specified 'date_format'.
+
+change_fields_arr_to_dates <-
+  function(my_df, field_names_arr, date_format) {
+    # Use 'mutate' and 'across' to convert all specified columns in 'field_names_arr' to POSIXct date format
+    result_df <- my_df %>%
+      dplyr::mutate(dplyr::across(
+        all_of(field_names_arr),
+        ~ as.POSIXct(.x, format = date_format)  # Apply 'as.POSIXct' to each column with the provided 'date_format'
+      ))
+
+    # Return the data frame with the specified columns converted to dates
+    return(result_df)
+  }
+
+# ===
+# The add_count_contacts function is defined to add two new columns ('was_contacted' and 'contact_freq') to the input data frame ('all_data_df_clean') based on the presence of contact dates.
+
+# It returns the 'result_df', which is the input data frame with the added columns indicating whether a vessel was contacted ('was_contacted') and the frequency of contacts ('contact_freq').
+
+# Use for contacts in the setup function before combining with compliant dataframes
+add_count_contacts <- function(all_data_df_clean) {
+  # Find the column name for 'contactdate' and 'vesselnumber' in 'all_data_df_clean'
+  contactdate_field_name <-
+    find_col_name(all_data_df_clean, "contact", "date")[1]
+  vessel_id_field_name <-
+    find_col_name(all_data_df_clean, "vessel", "number")[1]
+
+  # Apply a series of transformations to 'all_data_df_clean'
+  result_df <- all_data_df_clean %>%
+
+    # Add a new column 'was_contacted' with "yes" if 'contactdate' is not NA, or "no" if it is NA
+    # TODO: as.factor
+    dplyr::mutate(was_contacted =
+                    dplyr::if_else(is.na(contactdate_field_name), "no", "yes")) %>%
+
+    # Group the data by 'vesselofficialnumber' and 'was_contacted', and count the occurrences, saving it in 'contact_freq' column
+    dplyr::add_count(!!dplyr::sym(vessel_id_field_name), was_contacted, name = "contact_freq")
+
+  # Return the modified data frame with the added 'was_contacted' and 'contact_freq' columns
+  return(result_df)
+}
+
+# ===
+# Get frequencies for each column in the list
+# usage:
+# group_by_arr <- c("vesselofficialnumber", "contacttype")
+# count_by_column_arr(my_df, group_by_arr)
+# Define a function 'count_by_column_arr' to count the frequency of combinations of columns.
+# This function takes two arguments: my_df, which is the input data frame, and group_by_arr, which is a character vector containing the names of columns to group by.
+
+count_by_column_arr <- function(my_df, group_by_arr) {
+  my_df %>%
+    dplyr::arrange(group_by_arr[1]) %>%          # Arrange the data by the first column in 'group_by_arr'.
+    group_by_at(group_by_arr) %>%         # Group the data by the columns specified in 'group_by_arr'.
+    summarise(my_freq = n()) %>%           # Calculate the frequency of each combination.
+    return()                              # It returns the summary result.
+}
+
+# ===
+# Define a function 'count_uniq_by_column' to count the number of unique values in each column of a data frame.
+
+# Within the function, the sapply function is used to apply another function to each column of the input data frame. Specifically, it counts the number of unique values in each column using the length(unique(x)) expression, where x represents each column of the data frame.
+# The result of sapply is a vector containing the counts of unique values for each column.
+
+# It returns the resulting data frame, which provides a summary of the counts of unique values for each column in the input data frame. This information can be valuable for assessing the diversity of values within each column.
+
+count_uniq_by_column <- function(my_df) {
+  sapply(my_df, function(x) length(unique(x))) %>%  # Apply a function to each column to count unique values.
+    as.data.frame()  # Convert the result to a data frame.
+}
+
+# ===
+# The data_overview function is designed to provide an overview of a given data frame, including summary statistics and counts of unique values in each column.
+
+data_overview <- function(my_df) {
+  # Use 'summary' function to generate summary statistics and print the results.
+  summary(my_df) %>% print()
+
+  # Print a header indicating the next section of the output.
+  cat("\nCount unique values in each column:\n")
+
+  # Call the 'count_uniq_by_column' function to count unique values in each column of the data frame.
+  count_uniq_by_column(my_df)
+}
+
+# ===
+
+# from https://stackoverflow.com/questions/53781563/combine-rows-based-on-multiple-columns-and-keep-all-unique-values
+# concat_unique <- function(x){paste(unique(x),  collapse=', ')}
+
+# Explanations:
+# 1. Extract unique non-NA elements from the input vector 'x' using 'unique'.
+# 2. Concatenate these unique elements into a single string with ", " as the separator using 'paste0' and 'collapse'.
+
+concat_unique <- function(x) {
+  paste0(unique(x[!is.na(x)]), collapse = ", ")
+}
+
+# ===
+# Define a function 'print_df_names' to print the names of columns in a data frame.
+# This function retrieves column names, limits the number to 'names_num' (default = 100),
+# and returns them as a comma-separated string.
+print_df_names <- function(my_df, names_num = 100) {
+  # Use 'names' to get column names,
+  # 'head' to limit the number of names to 'names_num',
+  # 'paste0' to concatenate them with a comma separator, and return the result.
+  names(my_df) %>%
+    head(names_num) %>%
+    paste0(collapse = ", ") %>%
+    return()
+}
+
+# ===
+# Define a function to combine rows based on multiple columns while keeping all unique values.
+# This function groups the data frame by specified columns,
+# applies 'concat_unique' to combine values in each column,
+# and returns the result.
+combine_rows_based_on_multiple_columns_and_keep_all_unique_values <-
+  function(my_df, group_by_arr) {
+    # Group the data frame by specified columns.
+    my_df %>%
+      dplyr::group_by_at(group_by_arr) %>%
+      # Summarize all columns by applying 'concat_unique' to combine unique values.
+      dplyr::summarise_all(concat_unique) %>%
+      return()
+  }
+
+# ===
+# Define a function to concatenate unique values in a sorted manner.
+# This function takes a vector 'x', removes NA values, sorts the unique values,
+# and then concatenates them with a comma separator.
+concat_unique_sorted <- function(x) {
+  # Remove NA values from the input vector 'x' and store the result.
+  non_na_values <- x[!is.na(x)]
+
+  # Sort the unique values obtained from the previous step.
+  sorted_unique <- unique(sort(non_na_values))
+
+  # Concatenate the sorted unique values with a comma separator.
+  result <- paste0(sorted_unique, collapse = ", ")
+
+  # Return the concatenated result.
+  return(result)
+}
+
+# ===
+# Define a function to combine rows based on multiple columns and keep all
+# unique values sorted within each group.
+# This function takes a data frame 'my_df' and a vector of column names
+# 'group_by_arr' as input.
+combine_rows_based_on_multiple_columns_and_keep_all_unique_sorted_values <-
+  function(my_df, group_by_arr) {
+  # Group the data frame 'my_df' by the columns specified in 'group_by_arr'.
+  # This step ensures that we create groups based on unique combinations of
+  # values in the specified columns.
+  grouped_df <- my_df %>%
+    dplyr::group_by_at(group_by_arr)
+
+  # Apply the 'concat_unique_sorted' function to all columns in each group.
+  # This function concatenates all unique values within each group and sorts
+  # them in ascending order.
+  summarized_df <- grouped_df %>%
+    dplyr::summarise_all(concat_unique_sorted)
+
+  # Return the resulting data frame 'summarized_df'.
+  return(summarized_df)
+}
+
+## usage:
+# my_paths <- set_work_dir()
+#
+## get csv data into variables
+# temp_var <- get_compl_and_corresp_data(my_paths)
+# compl_clean <- temp_var[[1]]
+# corresp_clean <- temp_var[[2]]
+
+csv_names_list_22_23 = c("Correspondence.csv",
+                         "FHIER_Compliance_22.csv",
+                         "FHIER_Compliance_23.csv")
+
+# To add my additional folder names to each filename.
+
+# Define a function to prepare file names by categorizing them into two
+# subdirectories based on their prefixes.
+# This function takes a vector of 'filenames' as input.
+prepare_csv_names <- function(filenames) {
+  # Define subdirectory names for correspondence and compliance files.
+  add_path_corresp <- "from_Fhier/Correspondence"
+  add_path_compl <- "from_Fhier/FHIER Compliance"
+
+  # Use 'sapply' to process each filename in the 'filenames' vector.
+  my_list <- sapply(filenames, function(x) {
+    # Use 'case_when' to categorize filenames based on their prefixes.
+    # If a filename starts with "correspond," it is placed in the
+    # 'Correspondence' subdirectory. If it starts with "fhier_compliance,"
+    # it is placed in the 'FHIER Compliance' subdirectory. Otherwise, it is
+    # placed in the 'FHIER Compliance' subdirectory as a default.
+    dplyr::case_when(
+      startsWith(my_headers_case_function(x), "correspond") ~
+        file.path(add_path_corresp,  x),
+      startsWith(my_headers_case_function(x), "fhier_compliance") ~
+        file.path(add_path_compl,  x),
+      .default = file.path(add_path_compl,  x)
+    )
+  })
+
+  # Convert the resulting list into a character vector and return it.
+  return(paste(my_list) %>% as.list())
+}
+
+# ===
 
 # Define a function to retrieve compliance and correspondence data from CSV files.
 # This function takes 'my_paths' (file paths configuration), 'filenames'
@@ -322,162 +774,93 @@ compliance_cleaning <- function(compl_arr) {
   return(compl_dates)
 }
 
-# Define a function to prepare file names by categorizing them into two
-# subdirectories based on their prefixes.
-# This function takes a vector of 'filenames' as input.
-prepare_csv_names <- function(filenames) {
-  # Define subdirectory names for correspondence and compliance files.
-  add_path_corresp <- "from_Fhier/Correspondence"
-  add_path_compl <- "from_Fhier/FHIER Compliance"
+# ===
+# Define a function to read CSV files with EOFs (End of File) from a specified directory.
+# This function takes 'my_paths' (directory paths) and 'csv_names_list' (list of CSV file names) as input.
+read_csv_w_eofs <- function(my_paths, csv_names_list) {
+  # Get the input directory path from 'my_paths'.
+  my_inputs <- my_paths$inputs
 
-  # Use 'sapply' to process each filename in the 'filenames' vector.
-  my_list <- sapply(filenames, function(x) {
-    # Use 'case_when' to categorize filenames based on their prefixes.
-    # If a filename starts with "correspond," it is placed in the
-    # 'Correspondence' subdirectory. If it starts with "fhier_compliance,"
-    # it is placed in the 'FHIER Compliance' subdirectory. Otherwise, it is
-    # placed in the 'FHIER Compliance' subdirectory as a default.
-    dplyr::case_when(
-      startsWith(my_headers_case_function(x), "correspond") ~
-        file.path(add_path_corresp,  x),
-      startsWith(my_headers_case_function(x), "fhier_compliance") ~
-        file.path(add_path_compl,  x),
-      .default = file.path(add_path_compl,  x)
+  # Create a vector 'myfiles' that contains the full paths to each CSV file.
+  # Add the input directory path in front of each file name.
+  myfiles <- sapply(csv_names_list, function(x) file.path(my_inputs, add_csv_path, x))
+
+  # Read CSV files using 'fread' from the 'data.table' package with 'header = TRUE' (considering the first row as column names).
+  contents <- sapply(myfiles, fread, header = TRUE)
+
+  # Convert the first CSV file into a data frame.
+  # TODO: Consider changing this function to handle multiple files.
+  # For now, it returns the first CSV file as a data frame.
+  contents[, 1] %>%
+    as.data.frame() %>%
+    return()
+}
+
+# ===
+# To use as a filter in FHIER
+# Define a function to concatenate and output character data to a text file.
+# This function takes 'my_characters' (a character vector) as input.
+cat_filter_for_fhier <- function(my_characters) {
+  # Concatenate the elements of 'my_characters' using a comma and space as the separator.
+  # Output the concatenated string to a text file named "cat_out.txt" in the outputs directory.
+  cat(my_characters,
+      sep = ', ',
+      file = file.path(my_paths$outputs, "cat_out.txt"))
+}
+
+# ===
+#
+# benchmarking to insert inside a function
+# time_for_appl <<- benchmark(replications=rep(10, 3),
+                            # lapply(myfiles, read.csv, skipNul = TRUE, header = TRUE),
+                            # sapply(myfiles, read.csv, skipNul = TRUE, header = TRUE, simplify = TRUE)
+                            # ,
+                            # columns = c('test', 'elapsed', 'relative')
+# )
+
+# write.csv(time_for_appl, "time_for_appl.csv")
+
+# or
+# sappl_exp <- function(){
+#   sapply(my_df, function(x) length(unique(x))) %>% as.data.frame()
+# }
+#
+# map_exp <- function(){
+#   my_fun <- function(x) length(unique(x))
+#   purrr::map_df(my_df, my_fun)
+# }
+#
+# time_for_appl <<- benchmark(replications=rep(10^7, 3),
+#                             exp1,
+#                             exp2,
+#                             columns = c('test', 'elapsed', 'relative')
+# )
+#
+# purrr::map_df(my_df, function(x) length(unique(x)))
+# to compare:
+# time_for_appl %>% dplyr::group_by(test) %>% summarise(sum(elapsed))
+
+# Define a function named 'connect_to_secpr'.
+# It returns the established database connection (con), which can be used to interact with the "SECPR" database in R.
+# usage:
+# con <- connect_to_secpr()
+connect_to_secpr <- function() {
+    # Retrieve the username associated with the "SECPR" database from the keyring.
+    my_username <- keyring::key_list("SECPR")[1, 2]
+
+    # Use 'dbConnect' to establish a database connection with the specified credentials.
+    con <- dbConnect(
+        dbDriver("Oracle"),  # Use the Oracle database driver.
+        username = my_username,  # Use the retrieved username.
+        password = keyring::key_get("SECPR", my_username),  # Retrieve the password from the keyring.
+        dbname = "SECPR"  # Specify the name of the database as "SECPR."
     )
-  })
 
-  # Convert the resulting list into a character vector and return it.
-  return(paste(my_list) %>% as.list())
+    # Return the established database connection.
+    return(con)
 }
 
-# Use my function in case we want to change the case in all functions
-my_headers_case_function <- tolower
-
-# Define a function named 'load_csv_names' that takes two parameters: 'my_paths' and 'csv_names_list'
-load_csv_names <- function(csv_files_paths, csv_names_list) {
- # Use 'lapply' to add the 'my_inputs' directory path in front of each file name in 'csv_names_list'
-  # This creates a list of full file paths for the CSV files
-  myfiles <- lapply(csv_names_list, function(x) file.path(csv_files_paths, x))
-
-  # browser()
-  print(myfiles)
-
-  # Use 'lapply' again to read all CSV files listed in 'myfiles'
-  # The 'read_csv' function from the 'readr' package is used, specifying default column types as 'c' ('character')
-  contents <- lapply(myfiles, read_csv, col_types = cols(.default = 'c'))
-
-  # Return the contents of the CSV files as a list
-  return(contents)
-}
-
-# cleaning, regularly done for csvs downloaded from PHIER
-# The clean_all_csvs function is defined to clean a list of CSVs (csvs) and has an optional parameter vessel_id_field_name, which specifies the column to trim.
-# It returns the list of cleaned CSVs, where each CSV has had its headers unified and the vessel ID column (if specified) trimmed for consistency.
-
-clean_all_csvs <- function(csvs, vessel_id_field_name = NA) {
-  # Clean headers of all CSVs using the 'clean_headers' function
-  csvs_clean0 <- lapply(csvs, clean_headers)
-
-  # Trim 'vesselofficialnumber' column (if specified) in all cleaned CSVs
-  csvs_clean1 <-
-    trim_all_vessel_ids_simple(csvs_clean0, vessel_id_field_name)
-
-  # Return the list of cleaned CSVs
-  return(csvs_clean1)
-}
-
-# The clean_headers function is designed to clean and fix the column names of a given dataframe (my_df).
-clean_headers <- function(my_df) {
-    # Use the 'fix_names' function to clean and fix the column names of the dataframe.
-    colnames(my_df) %<>%
-        fix_names()
-
-    # Return the dataframe with cleaned and fixed column names.
-    return(my_df)
-}
-
-# The fix_names function is used to clean and standardize column names to make them suitable for use in data analysis or further processing.
-# to use in a function,
-# e.g. read_csv(name_repair = fix_names)
-fix_names <- function(x) {
-  # Use the pipe operator %>%
-  x %>%
-
-    # Remove dots from column names
-    str_replace_all("\\.", "") %>%
-
-    # Replace all characters that are not letters or numbers with underscores
-    str_replace_all("[^A-z0-9]", "_") %>%
-
-    # Ensure that letters are only in the beginning of the column name
-    str_replace_all("^(_*)(.+)", "\\2\\1") %>%
-
-    # Convert column names to lowercase using 'my_headers_case_function'
-    my_headers_case_function()
-}
-
-# trim vesselofficialnumber, there are 273 white spaces in Feb 2023
-# Define a function named 'trim_all_vessel_ids_simple' with two parameters:
-# 'csvs_clean_ws' is a list of data frames to be processed,
-# 'col_name_to_trim' is an optional column name to trim, default is NA.
-# It returns the list of data frames (csvs_clean) where each data frame has a trimmed 'vessel_official_number' column.
-trim_all_vessel_ids_simple <- function(csvs_clean_ws, col_name_to_trim = NA) {
-
-  # Use lapply to iterate through each data frame in 'csvs_clean_ws'
-  csvs_clean <- lapply(csvs_clean_ws, function(x) {
-
-    # Check if 'col_name_to_trim' is NA
-    if (is.na(col_name_to_trim)) {
-
-      # If it's NA, find the column name matching a pattern and store it in 'col_name_to_trim'
-      col_name_to_trim <- grep("vessel.*official.*number",
-                               tolower(names(x)),
-                               value = TRUE)
-    }
-
-    # Convert 'col_name_to_trim' to a symbol using 'sym' from tidyverse
-    col_name_to_trim_s <- rlang::sym(col_name_to_trim)
-
-    # Trim leading and trailing white spaces in the selected column
-    # Hard code vessel_official_number as vessel id
-    x %>%
-      dplyr::mutate(vessel_official_number = trimws(!!col_name_to_trim_s)) %>%
-      # Alternative way of doing the same, not tested
-      # dplyr::mutate({{col_name_to_trim_s}} := trimws(!!col_name_to_trim_s)) %>%
-      return()
-  })
-
-  # Return the list of data frames with trimmed vessel IDs
-  return(csvs_clean)
-}
-
-# The add_count_contacts function is defined to add two new columns ('was_contacted' and 'contact_freq') to the input data frame ('all_data_df_clean') based on the presence of contact dates.
-
-# It returns the 'result_df', which is the input data frame with the added columns indicating whether a vessel was contacted ('was_contacted') and the frequency of contacts ('contact_freq').
-
-# Use for contacts in the setup function before combining with compliant dataframes
-add_count_contacts <- function(all_data_df_clean) {
-  # Find the column name for 'contactdate' and 'vesselnumber' in 'all_data_df_clean'
-  contactdate_field_name <-
-    find_col_name(all_data_df_clean, "contact", "date")[1]
-  vessel_id_field_name <-
-    find_col_name(all_data_df_clean, "vessel", "number")[1]
-
-  # Apply a series of transformations to 'all_data_df_clean'
-  result_df <- all_data_df_clean %>%
-
-    # Add a new column 'was_contacted' with "yes" if 'contactdate' is not NA, or "no" if it is NA
-    # TODO: as.factor
-    dplyr::mutate(was_contacted =
-                    dplyr::if_else(is.na(contactdate_field_name), "no", "yes")) %>%
-
-    # Group the data by 'vesselofficialnumber' and 'was_contacted', and count the occurrences, saving it in 'contact_freq' column
-    dplyr::add_count(!!dplyr::sym(vessel_id_field_name), was_contacted, name = "contact_freq")
-
-  # Return the modified data frame with the added 'was_contacted' and 'contact_freq' columns
-  return(result_df)
-}
-
+# ===
 # usage: complianceerrors_field_name <- find_col_name(compl_clean_sa, ".*xcompliance", "errors.*")[1]
 # TODO what if two names?
 # Define a function to find column names in a dataframe based on partial matches.
@@ -496,47 +879,284 @@ find_col_name <- function(mydf, start_part, end_part) {
   return(matching_names)
 }
 
-# Change a column class to POSIXct in the "my_df" for the field "field_name" using the "date_format"
-# The change_to_dates function is defined to convert a specific column ('field_name') in the input data frame ('my_df') to POSIXct date format using the specified 'date_format'.
-#
-# Inside the function, it uses the mutate function from the dplyr package to modify 'my_df'. The {{field_name}} syntax is used to refer to the column specified by 'field_name'.
-# It returns the 'result_df', which is the input data frame with the specified column converted to dates according to the specified 'date_format'.
+# https://stackoverflow.com/questions/23986140/how-to-call-exists-without-quotation-marks
+# usage: vexists(con_psql, bogus_variable_name)
+# Define a function to check the existence of one or more variables in the current environment.
+# This function takes a variable number of arguments using '...' notation.
+vexists <- function(...) {
+  # Use 'substitute' to capture the variable names from the arguments and convert them to character vectors.
+  vars <- as.character(substitute(...()))
 
-# ===
-change_to_dates <- function(my_df, field_name, date_format = "") {
-  # Convert the specified column ('field_name') in 'my_df' to POSIXct date format using 'as.POSIXct'
-  # Within the mutate function, it uses pull to extract the column specified by 'field_name' and then applies as.POSIXct to convert the values in that column to POSIXct date format using the provided 'date_format'.
+  # Use 'sapply' to iterate over the variable names and check if each variable exists in the current environment.
+  exists_check <- sapply(vars, exists)
 
-  # browser()
-  if (date_format == "") {
-    my_tryFormats = c(
-      "%m/%d/%Y %I:%M%p",
-      "%m/%d/%Y %I:%M %p",
-      "%m/%d/%Y %R%OS",
-      "%Y-%m-%d %H:%M:%OS",
-      "%Y/%m/%d %H:%M:%OS",
-      "%Y-%m-%d %H:%M",
-      "%Y/%m/%d %H:%M",
-      "%Y-%m-%d",
-      "%Y/%m/%d"
-    )
-  }
-
-  new_field_name <- str_glue("{field_name}_dttm")
-
-  result_df <-
-    my_df |>
-    mutate(!!new_field_name := as.POSIXct(!!field_name,
-                                      tryFormats = my_tryFormats,
-                                      format = date_format))
-
-  # Return the data frame with the specified column converted to dates
-  return(result_df)
+  # Return a logical vector indicating the existence of each variable.
+  return(exists_check)
 }
 
-temp_var <-
-  get_compl_and_corresp_data(from_fhier_data_path, all_csv_names_list)
+# ===
+# make a separate legend for grid.arrange
+legend_for_grid_arrange <- function(legend_plot) {
+  # legend_plot <-
+  #   ggplot(data = legend_data, aes(x1, y1, colour = ll)) +
+  #   geom_text(dat = legend_data,
+  #             aes(label = ll),
+  #             hjust = 0) +
+  #   scale_color_manual(
+  #     name = 'Lines',
+  #     breaks = c('Mean', 'Num of weeks'),
+  #     values = my_colors
+  #   )
+  #
+  # legend_plot
 
+  # Obtain the legend from a 'legend_plot' using the 'get_legend' function from the 'cowplot' package.
+  my_legend <-
+    cowplot::get_legend(legend_plot)
+
+  return(my_legend)
+}
+
+# ===
+# Define a function to append the contents of a single file to an existing flat file.
+write_to_1_flat_file <- function(flat_file_name, file_name_to_write) {
+  # Redirect the output to the specified 'flat_file_name' and append content.
+  sink(flat_file_name, append = TRUE)
+
+  # Read the contents of the current file.
+  current_file_text <- readr::read_lines(file_name_to_write)
+
+  # Print a header indicating the current file being processed.
+  cat("\n\n#### Current file:", basename(file_name_to_write), "----\n\n")
+
+  # Print the contents of the current file, separating lines with newline characters.
+  cat(current_file_text, sep = "\n")
+
+  # # Restore the default output behavior.
+  sink()
+}
+
+# Function to separate permit groups into three categories based on a specified field
+separate_permits_into_3_groups <-
+  function(my_df, permit_group_field_name = "permitgroup") {
+    my_df %>%
+      # Use 'mutate' to create a new column 'permit_sa_gom' with categories based on permit group
+      mutate(permit_sa_gom =
+               dplyr::case_when(
+                 # Check if 'permit_group_field_name' doesn't contain 'RCG', 'HRCG', 'CHG', or 'HCHG'; assign "sa_only" if true
+                 !grepl("RCG|HRCG|CHG|HCHG", !!sym(permit_group_field_name)) ~ "sa_only",
+                 # Check if 'permit_group_field_name' doesn't contain 'CDW', 'CHS', or 'SC'; assign "gom_only" if true
+                 !grepl("CDW|CHS|SC", !!sym(permit_group_field_name)) ~ "gom_only",
+                 # For all other cases, assign "dual"
+                 .default = "dual"
+               )) %>%
+      # Return the modified data frame
+      return()
+  }
+
+
+# ===
+
+read_rds_or_run_no_db <-
+  function(my_file_path,
+           my_data_list_of_dfs,
+           my_function) {
+
+    if (file.exists(my_file_path)) {
+      # read a binary file saved previously
+      my_df <-
+        readr::read_rds(my_file_path)
+    } else {
+      tic("run the function")
+      my_df <-
+        my_function(my_data_list_of_dfs[[1]],
+                    my_data_list_of_dfs[[2]])
+      toc()
+
+      # write all as binary
+      readr::write_rds(my_df,
+                       my_file_path)
+    }
+
+    return(my_df)
+  }
+
+# Pretty message print
+function_message_print <- function(text_msg) {
+  cat(crayon::bgCyan$bold(text_msg),
+      sep = "\n")
+}
+
+get_df_name_as_text <-
+  function(my_df) {
+    df_name = deparse(substitute(my_df))
+    return(df_name)
+  }
+
+# # A title
+# if (is.na(title_msg))  {
+#   df_name = deparse(substitute(my_df))
+#   title_msg <- df_name
+# }
+
+# to print the title message in blue.
+title_message_print <- function(title_msg) {
+  cat(crayon::blue(title_msg), sep = "\n")
+}
+
+
+# Define a helper function 'my_tee' to print the message to the console and a file.
+my_tee <- function(my_text,
+                   my_title = NA,
+                   stat_log_file_path = NA,
+                   date_range = NA) {
+
+  the_end = "---"
+
+  if (is.na(date_range)) date_range = 2022
+
+  # Print out to console
+  title_message_print(my_title)
+  cat(c(my_text, the_end),
+      sep = "\n")
+
+  # Create a new file every day
+  if (is.na(stat_log_file_path)) {
+    stat_log_file_path <-
+      file.path(Path,
+                Outputs,
+                str_glue("{my_title}_{date_range}_run_{today()}.log"))
+  }
+
+  # Write to a log file
+  cat(c(my_title, my_text, the_end),
+      file = stat_log_file_path,
+      sep = "\n",
+      append = TRUE)
+}
+
+
+# ===
+# A function to use every time we want to read a ready file or query the database if no files exist. Pressing F2 when the function name is under the cursor will show the function definition.
+
+# The read_rds_or_run function is designed to read data from an RDS file if it exists or run an SQL query to pull the data from Oracle db if the file doesn't exist.
+# See usage below at the `Grab compliance file from Oracle` section
+read_rds_or_run <- function(my_file_path,
+                            my_data = as.data.frame(""),
+                            my_function,
+                            force_from_db = NULL) {
+
+  if (file.exists(my_file_path)) {
+    modif_time <- file.info(my_file_path)$mtime
+  }
+
+    # Check if the file specified by 'my_file_path' exists and 'force_from_db' is not set.
+    if (file.exists(my_file_path) &
+        is.null(force_from_db)) {
+        # If the file exists and 'force_from_db' is not set, read the data from the RDS file.
+
+        function_message_print("File already exists, reading.")
+
+        my_result <- readr::read_rds(my_file_path)
+
+    } else {
+
+      # If the file doesn't exist or 'force_from_db' is set, perform the following steps:
+
+      # 0. Print this message.
+      function_message_print(c(
+        "File",
+        my_file_path,
+        "doesn't exists, pulling data from database.",
+        "Must be on VPN."
+      ))
+
+      # 1. Generate a message indicating the date and the purpose of the run for "tic".
+      msg_text <-
+        paste(today(), "run for", basename(my_file_path))
+      tictoc::tic(msg_text)  # Start timing the operation.
+
+      # 2. Run the specified function 'my_function' on the provided 'my_data' to generate the result. I.e. download data from the Oracle database. Must be on VPN.
+
+      my_result <- my_function(my_data)
+
+      tictoc::toc()  # Stop timing the operation.
+
+      # 3. Save the result as an RDS binary file to 'my_file_path' for future use.
+      # try is a wrapper to run an expression that might fail and allow the user's code to handle error-recovery.
+
+      # 4. Print this message.
+      function_message_print(c("Saving new data into a file here: ",
+                       my_file_path))
+
+      try(readr::write_rds(my_result,
+                           my_file_path))
+
+      modif_time <- date()
+    }
+
+  # Print out the formatted string with the file name ('my_file_name') and the modification time ('modif_time') to keep track of when the data were downloaded.
+  my_file_name <- basename(my_file_path)
+  function_message_print(
+    str_glue("File: {my_file_name} modified {modif_time}"))
+
+    # Return the generated or read data.
+    return(my_result)
+}
+
+
+# Usage:
+# select(-all_of(names(empty_cols)))
+# empty_cols <-
+#   function(my_df) {
+#     my_df |>
+#       purrr::map_df(function(x) {
+#         if (length(unique(x)) == 1) {
+#           return(unique(x))
+#         }
+#       }) %>%
+#     return()
+#   }
+
+# ===
+# Function to remove empty columns from a data frame
+remove_empty_cols <- function(my_df) {
+  # Define an inner function "not_all_na" that checks if any value in a vector is not NA.
+  not_all_na <- function(x) any(!is.na(x))
+
+  my_df |>
+    # Select columns from "my_df" where the result of the "not_all_na" function is true,
+    # i.e., select columns that have at least one non-NA value.
+    select(where(not_all_na)) %>%
+    # Return the modified data frame, which contains only the selected columns.
+    return()
+}
+
+remove_0_cols <- function(my_df) {
+  not_all_0 <- function(x)
+  {
+    any(!x == 0)
+  }
+
+  my_df |>
+    select(where(not_all_0)) %>%
+    return()
+}
+
+# ===
+# Function to create a directory if it doesn't exist
+create_dir_if_not <- function(curr_dir_name) {
+  # Check if the directory does not exist
+  if (!dir.exists(curr_dir_name)) {
+    dir.create(curr_dir_name)  # Create the directory if it doesn't exist
+  }
+}
+
+# Functions always used for all compliance/correspondence preparation. End
+
+# get cleaned compliance and correspondence dfs
+temp_var <-
+  get_compl_and_corresp_data(my_paths$inputs, all_csv_names_list)
 
 compl_clean_list <- temp_var[[1]]
 corresp_contact_cnts_clean0 <- temp_var[[2]]
@@ -588,8 +1208,6 @@ names(processed_metrics_tracking_permits) <-
   names(processed_metrics_tracking_permits) |>
   tolower()
 
-# [1] "vessel_official_number, vessel_name, effective_date, end_date, permits, sa_permits_, gom_permits_, permit_region, permit_sa_gom_dual"
-
 dim(processed_metrics_tracking_permits)
 
 ## get Physical Address List from FHIER ----
@@ -609,8 +1227,6 @@ fhier_addresses <-
            col_types = cols(.default = 'c'),
            name_repair = fix_names)
 
-# View(fhier_addresses)
-
 # PIMS ----
 ## get home port processed city and state ----
 
@@ -621,9 +1237,6 @@ processed_pims_home_ports_path <-
 
 processed_pims_home_ports <- 
   read_csv(processed_pims_home_ports_path)
-
-# View(processed_pims_home_ports)
-# View(vessels_from_pims) - more fields
 
 # Oracle db ----
 ## get owners addresses ----
