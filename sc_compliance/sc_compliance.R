@@ -974,7 +974,37 @@ colnames_for_each_df <-
            return()
        })
 
-# glimpse(colnames_for_each_df)
+View(colnames_for_each_df)
+
+temp_wb <- createWorkbook()
+addWorksheet(temp_wb, "Temp readme")
+write_readme_sheet(readme_text, temp_wb, "Temp readme")
+
+# writeData(temp_wb,
+#           "Temp readme",
+#           colnames_for_each_df)
+
+openXL(temp_wb)
+temp_wb_2 <- read.xlsx(r"(C:\Users\anna.shipunova\Downloads\filed906b3a7054.xlsx)")
+View(temp_wb_2)
+
+"C:\Users\anna.shipunova\Downloads\sc_complianceMM.csv"
+
+### Add description for each column name ----
+add_one_line <- c("HEADER DEFINITIONS BY SHEET",
+                  "Column Header",
+                  "Definition")
+
+c(c("vessel_reg_uscg_", "SC field"),
+c("vessel_name", "SC field"),
+c("delinquent", "SC field"),
+c("month_sc", "SC field"),
+c("year_sc", "SC field"),
+c("comp_week_start_dt", "Start date of FHIER compliance week"),
+c("comp_week_end_dt", "End date of FHIER compliance week"),
+c("is_comp", "Compliance flag (0=non-compliant)"),
+c("overridden", "1 = SEFHIER team overrode non-compliance in FHIER and vessel is now compliant (this can happen when SEFHIER has already reached out to SC and got confirmation reports exist with them)"),
+c("compliant_after_override", "flag combining is_comp and overriden to determine final compliance status (use this to determine if the vessel is actively compliant with SEFHIER)"))
 
 # combine 3 dfs and convert to a type needed for output.
 readme_text <-
