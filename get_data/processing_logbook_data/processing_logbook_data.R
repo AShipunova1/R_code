@@ -9,7 +9,7 @@
 # 2) Raw_Oracle_Downloaded_logbook_{my_date_beg}__{my_date_end}.rds
 # 3) SEFHIER_permitted_vessels_nonSRHS_{my_year}.rds
        # use processing_metrics_tracking.R to create file #3 before running this code
-#4) processing_auxiliary_methods.R
+# 4) processing_auxiliary_methods.R
        # get from Google Drive R code folder, put in path directory with this script
 
 # This code processes logbook data from Oracle database,
@@ -43,13 +43,12 @@
 library(ROracle)
 library(tidyverse)
 # see the list of packages: tidyverse_packages()
-
 library(tictoc) # Functions for timing
 library(crayon) # Colored terminal output
 
 # set working and output directory - where do you keep the data and analysis folder on your computer?
 michelles_path <-
-  "C:/Users/michelle.masi/Documents/SEFHIER/R code/logbook related analyses/logbook Processing (Do this before all logbook Analyses)/"
+  "C:/Users/michelle.masi/Documents/SEFHIER/R code/Processed data/"
 
 jennys_path <-
   "//ser-fs1/sf/LAPP-DM Documents/Ostroff/SEFHIER/Rcode/ProcessinglogbookData/"
@@ -103,6 +102,7 @@ if (Path == annas_path) {
 
 source(auxiliary_methods_file_path)
 
+# Create logbook processing start date and time (for version control tracking) ----
 # Start the log ----
 my_tee(date(),
        my_title = str_glue("Start logbook processing for {my_year}"))
@@ -116,10 +116,11 @@ my_tee(date(),
 # set up an Oracle connection
 # Sys.getenv("ORA_SDTZ")
 
-# You have to set up the same timezones for ROracle and the system. Because by default they use different ones.
+# You have to set up the same time zones for ROracle and RStudio. By default, they use different ones, and this difference causes dates and times to round up in R Studio, pushing some date timestamps to the next day, and making them incorrect.# You have to set up the same timezones for ROracle and the system. Because by default they use different ones.
 Sys.setenv(TZ = Sys.timezone())
 Sys.setenv(ORA_SDTZ = Sys.timezone())
 
+# test if you are connected to VPN
 tic("try_connection")
 try(con <- connect_to_secpr())
 toc()
@@ -157,7 +158,6 @@ WHERE
 
 # use to force the DB download
 # force_from_db = TRUE
-
 compl_override_data <-
   read_rds_or_run_query(compl_override_data_file_path,
                         compl_err_query,
@@ -175,8 +175,13 @@ compl_override_data__renamed <-
 
 # stats
 my_stats(compl_override_data__renamed)
+# compl_override_data__renamed
+# rows: 460724
+# columns: 23
+# Unique vessels: 4390
 
-# stats
+
+# stats (check the min date in the data)
 min(compl_override_data__renamed$COMP_WEEK_START_DT)
 # [1] "2021-01-04 EST"
 
@@ -191,7 +196,6 @@ min(compl_override_data__renamed$COMP_WEEK_START_DT)
 # 4. Dates are converted using 'as.Date' with the appropriate format ("%d-%b-%Y") and time zone.
 # 5. 'Sys.timezone()' retrieves the current system's time zone.
 # 6. The filtered data frame 'compl_override_data__renamed__this_year' contains only rows within the specified date range.
-
 compl_override_data__renamed__this_year <-
   compl_override_data__renamed |>
   filter(
@@ -224,6 +228,8 @@ processed_metrics_tracking_path <-
 
 # optional
 # file.exists(processed_metrics_tracking_path)
+
+# reads the file in the path into a data frame
 
 processed_metrics_tracking <-
   read_rds(processed_metrics_tracking_path)
@@ -299,23 +305,23 @@ Logbooks_raw_renamed__to_date <-
   mutate(across(c(!where(is.Date) & ends_with("_DATE")),
                 as.Date))
 
-# Was:
+# (check) Was:
 Logbooks_raw$TRIP_START_DATE |>
   head(1)
 # "2022-07-07 01:00:00 EDT"
 
-# Now:
+# (check time was removed from date column) Now:
 Logbooks_raw_renamed__to_date$TRIP_START_DATE |>
   head(1)
 # "2022-07-07"
 
-### reformat trip start/end time ----
+### renameformat trip start/end time columns ----
 time_col_names <-
   c("TRIP_START_TIME",
     "TRIP_END_TIME")
 
 # convert time columns to numeric,
-# then format to 4 digits as a string (some time entries were like "800")
+# then format to 4 digits as a string (some time entries were like "800") —-
 # (from help: sprintf returns a character vector)
 # TODO: why do we need this? (AS)
 
@@ -355,7 +361,7 @@ Logbooks_raw_renamed__to_date_time4 <-
 
 ### Filter out just my analysis year logbook entries ----
 
-# check
+# first check the min and max start date in the DF
 min(Logbooks_raw_renamed__to_date_time4$TRIP_START_DATE)
 # [1] "2022-01-01"
 # [1] "2023-01-01"
@@ -363,6 +369,7 @@ max(Logbooks_raw_renamed__to_date_time4$TRIP_START_DATE)
 # [1] "2022-12-31"
 # [1] "2023-12-31"
 
+# Now filter for just my analysis year
 Logbooks_raw_renamed__to_date_time4__my_year <-
   Logbooks_raw_renamed__to_date_time4 |>
   filter(
@@ -374,28 +381,37 @@ Logbooks_raw_renamed__to_date_time4__my_year <-
               tz = Sys.timezone())
   )
 
-# stats, to compare with the end result
+# stats, to compare with the end result —-
 logbooks_stat_correct_dates_before_filtering <-
   c(dim(Logbooks_raw_renamed__to_date_time4__my_year),
     n_distinct(Logbooks_raw_renamed__to_date_time4__my_year$VESSEL_OFFICIAL_NUMBER),
     n_distinct(Logbooks_raw_renamed__to_date_time4__my_year$TRIP_ID)
   )
+# [1] 327823    149   1885  94733
 
+# check the number of logbooks after filtering by my analysis year
 my_stats(Logbooks_raw_renamed__to_date_time4__my_year,
          "Logbooks after filtering by dates")
+# Logbooks after filtering by dates
+# rows: 327823
+# columns: 149
+# Unique vessels: 1885
+# Unique trips: 94733
 
-# check
+
+# check the min and max start dates, after filtering DF to just my analysis year
 min(Logbooks_raw_renamed__to_date_time4__my_year$TRIP_START_DATE)
 # [1] "2022-01-01"
 max(Logbooks_raw_renamed__to_date_time4__my_year$TRIP_START_DATE)
 # [1] "2022-12-31"
 
+# check the min and max end dates, after filtering DF to just my analysis year
 min(Logbooks_raw_renamed__to_date_time4__my_year$TRIP_END_DATE)
 # [1] "2018-06-04"
 max(Logbooks_raw_renamed__to_date_time4__my_year$TRIP_END_DATE)
 # [1] "2023-05-26"
 
-# create column for start and end date & time
+# create column for start and end date & time —--
 # Used in "the Time Stamp Error" and "the trip is too long".
 
 # Explanations:
@@ -420,7 +436,7 @@ Logbooks_raw_renamed__to_date_time4__my_year__format_time <-
                       format = "%Y-%m-%d %H%M",
                       tz = Sys.timezone()))
 
-# check
+# check date and time values are correctly parsed and stored as datetime objects in the specified time zone
 Logbooks_raw_renamed__to_date_time4__my_year__format_time$ENDDATETIME |>
   head(1)
 # "2022-07-07 08:00:00 EDT"
@@ -433,7 +449,7 @@ Logbooks_raw_renamed__to_date_time4__my_year__format_time |>
 
 ### Prepare data to determine what weeks were overridden, so we can mark logbooks from those weeks later ----
 
-# not needed for processing
+# not needed for processing, just checking
 compl_override_data__renamed__this_year |>
   select(COMP_YEAR,
          COMP_WEEK_END_DT,
@@ -477,30 +493,67 @@ SEFHIER_compl_override_data__renamed__this_year <-
   compl_override_data__renamed__this_year |>
   filter(VESSEL_OFFICIAL_NUMBER %in% processed_metrics_tracking$VESSEL_OFFICIAL_NUMBER)
 
+# Check the number of records (rows), vessels and trips after filtering vessels not in Metrics Tracking
+
 my_stats(compl_override_data__renamed__this_year)
+# compare numbers with DF prior to filtering out non-SEFHIER permitted vessels
+
 my_stats(SEFHIER_compl_override_data__renamed__this_year)
 
+# Total number of vessels in Oracle raw data but not in Metrics Tracking
+vessels_not_in_metrics <-
+  n_distinct(compl_override_data__renamed__this_year$VESSEL_OFFICIAL_NUMBER) -
+  n_distinct(SEFHIER_compl_override_data__renamed__this_year$VESSEL_OFFICIAL_NUMBER)
+  # check if there are any vessels not in metrics tracking
+  vessels_not_in_metrics # [1] 244
+# Create DF of vessels not in Metrics Tracking
 vessels_not_in_metrics <-
   n_distinct(compl_override_data__renamed__this_year$VESSEL_OFFICIAL_NUMBER) -
   n_distinct(SEFHIER_compl_override_data__renamed__this_year$VESSEL_OFFICIAL_NUMBER)
 
 vessels_not_in_metrics
 
+# Total number of vessels in Oracle raw data but not in Metrics Tracking
 my_tee(vessels_not_in_metrics,
        "Vessels removed if a vessel is not in Metrics tracking")
+# 244 (2022)
+
+# Create DF of logbooks that get excluded, because the vessel is not in Metrics Tracking (submitted by non-SEFHIER permitted vessels)
 
 logbooks_not_in_metrics <-
   n_distinct(compl_override_data__renamed__this_year$TRIP_ID) -
   n_distinct(SEFHIER_compl_override_data__renamed__this_year$TRIP_ID)
 # 0
 
+# Total number of logbooks removed, after removing non-SEFHIER permitted vessels
 my_tee(logbooks_not_in_metrics,
        "logbooks removed if a vessel is not in Metrics tracking")
 
 ## add compliance/override data to logbooks ----
+# We add data from the compliance module to the DNF data frame to associate weeks where compliance was overridden with the corresponding DNFs.
+# Depending on the analysis question, we may want to remove DNFs for weeks that
+# were overridden because we don't have a timestamp for when the DNF was submitted to
+# the app, only when it was submitted to Oracle/SAFIS, and we can't differentiate between
+# turning a DNF in on time- in the app, and it then taking two months to get it into FHIER vs
+# turning in a DNF two months late.
+# E.g. user submitted Jan 1, 2022, but SEFHIER team found it missing in FHIER (and
+# SAFIS) in March, 2022 (at permit renewal)... user submitted on time in app (VESL) but we
+# may not get that report in SAFIS for months later (when its found as a "missing report" and
+# then requeued for transmission)
+
 my_stats(SEFHIER_compl_override_data__renamed__this_year,
          "Compliance and override data from the db")
+# Compliance and override data from the db
+# rows: 141557
+# columns: 23
+# Unique vessels: 3382
 
+
+### Check if logbooks and compliance data have the same week dates
+SEFHIER_compl_override_data__renamed__this_year$COMP_WEEK_START_DT |> min()
+# [1] "2022-01-03 EST"
+Logbooks_raw_renamed__to_date_time4__my_year__format_time__iso$TRIP_START_DATE |> min()
+# [1] "2022-01-01"
 ### TODO: check if logbooks and compliance data have the same week dates
 
 SEFHIER_compl_override_data__renamed__this_year$COMP_WEEK_START_DT |> min()
@@ -511,7 +564,9 @@ Logbooks_raw_renamed__to_date_time4__my_year__format_time__iso$TRIP_START_DATE |
 
 #### find field names ----
 grep("year", names(Logbooks_raw_renamed__to_date_time4__my_year__format_time__iso), ignore.case = T, value = T)
+# [1] "TRIP_END_YEAR"
 grep("week", names(Logbooks_raw_renamed__to_date_time4__my_year__format_time__iso), ignore.case = T, value = T)
+# [1] "TRIP_END_WEEK"
 
 # join logbooks and compliance
 logbooks_join_overr <-
@@ -523,7 +578,11 @@ logbooks_join_overr <-
             TRIP_END_WEEK == COMP_WEEK),
     relationship = "many-to-many"
   )
+# We need the “many-to-many” relationship. There will be many logbooks that match a compliance week, because a logbook is submitted for any day in the week.
+# to see the many-to-many relationship see find_duplicates_in_compl.R
 
+# check the difference
+# This list of vessels is not concerning, it’s just an extra step in providing a thorough analysis. It's possible that a vessel submitted a logbook for every week they were permitted, so that they remained compliant but never submitted a DNF.
 # check the difference
 in_compl_not_in_logbooks <-
   logbooks_join_overr |>
@@ -531,7 +590,11 @@ in_compl_not_in_logbooks <-
   select(VESSEL_OFFICIAL_NUMBER) |>
   distinct()
 
+# check the number of rows in the new DF
 nrow(in_compl_not_in_logbooks)
+
+## This list of vessels is not concerning, it’s just an extra step in providing a thorough analysis.
+# This tells us that these vessels submitted a logbook for a week when they were not permitted. It can happen when a captain is unaware that his permit has expired, but reports anyway.
 
 in_logbooks_not_in_compl <-
   logbooks_join_overr |>
@@ -539,21 +602,37 @@ in_logbooks_not_in_compl <-
   select(VESSEL_OFFICIAL_NUMBER) |>
   distinct()
 
+# check the number of rows in the new DF
 nrow(in_logbooks_not_in_compl)
 
-# stats
+# Total # of records, vessels and trips, comparing the df before and after joining DNF and compliance data# stats
 my_stats(SEFHIER_compl_override_data__renamed__this_year)
+# SEFHIER_compl_override_data__renamed__this_year
+# rows: 141557
+# columns: 23
+# Unique vessels: 3382
+
 my_stats(logbooks_join_overr)
+# logbooks_join_overr
+# rows: 435911
+# columns: 173
+# Unique vessels: 3426
+# Unique trips: 94734
+
 
 ### Remove rows with NA logbooks and entries in Compliance ----
+# this just means that no logbooks were submitted for that compliance week, i.e. the vessel submitted a logbook instead
+
 logbooks_join_overr__all_logbooks <-
   logbooks_join_overr |>
   filter(!is.na(TRIP_ID))
 
+# check the dimensions of the DFs before and after removing rows with NA logbooks and compliance entries
 dim(logbooks_join_overr)
 dim(logbooks_join_overr__all_logbooks)
 
 ### Add a compliant_after_override column ----
+# This is needed so that we can easily filter out compliant or non-compliant vessels in the dataset, by adding an extra column that states yes or no regarding compliance. The NA represents one of two possible scenarios: 1) a DNF was submitted for a vessel that is missing from the compliance module but is in metrics tracking, or 2) a DNF was submitted for a week when the vessel was not permitted. It is not simple to determine which. Deciding what to do with these DNFs will depend on the individual analysis question, and so is not addressed here, but simply left as NA.
 # To use in compliance analysis where logbooks are also used
 
 # Explanations:
@@ -567,7 +646,7 @@ dim(logbooks_join_overr__all_logbooks)
 # 8. If 'IS_COMP' is NA, indicating missing data, the value is set to NA.
 # 9. For all other cases, the value is set to a string representation of 'IS_COMP'.
 # 10. Finally, the data frame is ungrouped to revert to its original structure.
-
+## NOTE: IF “Is_Overriden == 1 & is_Comp == 0, then the vessel should be considered compliant in any compliance analyses
 tic("Add a compliant_after_override column")
 logbooks_join_overr__compl <-
   logbooks_join_overr__all_logbooks |>
@@ -584,7 +663,7 @@ logbooks_join_overr__compl <-
 toc()
 # Add a compliant_after_override column: 91.81 sec elapsed
 
-# check
+# check distinct values in old DF for ‘is_comp’ and ‘overridden’ columnscheck
 logbooks_join_overr__all_logbooks |>
   select(IS_COMP,
          OVERRIDDEN) |>
@@ -596,6 +675,7 @@ logbooks_join_overr__all_logbooks |>
 # 4       0          1
 # 5       0          0
 
+# check the number of distinct trips that are compliant and overridden
 logbooks_join_overr |>
   filter(IS_COMP == 1 & OVERRIDDEN == 1) |>
   select(TRIP_ID) |>
@@ -603,6 +683,7 @@ logbooks_join_overr |>
   dim()
 # 401
 
+# check the distinct values in new DF for ‘compliant after override’, ‘is_comp’ and ‘overridden’ columns
 logbooks_join_overr__compl |>
   select(compliant_after_override,
          IS_COMP,
@@ -633,12 +714,19 @@ logbooks_join_overr__compl__start_end_ok <-
 
 # stats
 my_stats(logbooks_join_overr__compl__start_end_ok)
+# logbooks_join_overr__compl__start_end_ok
+# rows: 325649
+# columns: 175
+# Unique vessels: 1882
+# Unique trips: 94060
 
-# stats
+
+# create a tibble of all trips with time_stamp_Errorstats
 thrown_by_time_stamp_error <-
   logbooks_join_overr__compl |>
   filter(time_stamp_error == TRUE)
 
+# check the number of logbooks thrown out due to time_stamp_error
 my_tee(n_distinct(thrown_by_time_stamp_error$TRIP_ID),
        "Thrown away by time_stamp_error (logbooks num)")
 
@@ -659,11 +747,12 @@ logbooks_join_overr__compl__start_end_ok['trip_length'] <-
 
 trip_length_threshold <- 240
 
+# filter out logbooks that exceed the trip length threshold, as defined above
 logbooks_join_overr__compl__start_end_ok__trip_len_ok <-
   logbooks_join_overr__compl__start_end_ok |>
   filter(trip_length < trip_length_threshold)
 
-# stats
+# Number of vessels and unique trips, after removing trips that exceed the length thresholdstats
 my_stats(logbooks_join_overr__compl__start_end_ok__trip_len_ok)
 
 # Output trips with length > trip_length_threshold (240) into a data frame (for stats)
@@ -671,9 +760,10 @@ logbooks_too_long <-
   logbooks_join_overr__compl__start_end_ok |>
   filter(trip_length > trip_length_threshold)
 
+# number of trips thrown out because they exceed 10 days
 my_tee(n_distinct(logbooks_too_long$TRIP_ID),
        "Thrown away by trip_more_10_days (logbooks num)")
-
+# number of vessels impacted by tossing logbooks that exceed 10 day threshold
 my_tee(n_distinct(logbooks_too_long$VESSEL_ID),
        "Thrown away by trip_more_10_days (vessels num)")
 
@@ -699,12 +789,13 @@ logbooks_join_overr_e_usable_date <-
   mutate(USABLE_DATE_TIME =
            `second<-`(USABLE_DATE_TIME, 59))
 
-# subtract the usable date from the date of submission
+# subtract the usable date from the date of submission —
 # value is true if the logbook was submitted within 30 days, false if the logbook was not
 
 # Print out statistics
 
-# Explanations:
+# # create a function to produce some stats for the next analysis step, assessing late submission —-
+Function Explanations:
 # 1. 'late_submission_filter_stats' is a function that takes a dataframe 'my_df' as input.
 # 2. It first calls another function 'my_stats' to compute and print statistics about 'my_df'.
 # 3. It filters 'my_df' to create a subset called 'late_submission' where 'MORE_THAN_30_DAYS_LATE' is FALSE.
@@ -739,7 +830,9 @@ late_submission_filter_stats <-
 
   }
 
-# Explanations:
+### Add a column with late submission ----
+
+# Function Explanations:
 # 1. 'late_submission_filter' is a function designed to filter late submissions from a given data frame.
 # 2. The function takes 'my_df' as input, which represents the data frame to be processed.
 # 3. Inside the function, a new data frame 'logbooks_join_overr__compl__start_end_ok__trip_len_ok_temp' is created by modifying 'my_df'.
@@ -817,43 +910,58 @@ SEFHIER_logbooks_processed_p_regions <-
 
 # All stats ----
 my_stats(SEFHIER_logbooks_processed)
+# SEFHIER_logbooks_processed
+# rows: 325649
+# columns: 178
+# Unique vessels: 1882
+# Unique trips: 94060
 
+# number of logbooks from Oracle, before any processing done
 logbooks_before_filtering <-
-  n_distinct(Logbooks_raw$TRIP_ID)
-
+  n_distinct(Logbooks_raw$TRIP_ID)  # 94737 (2022)
+# call out to console the # of logbooks before filtering
 my_tee(logbooks_before_filtering,
         "Logbooks before filtering")
 
+# number of logbooks from Oracle, after processing is done
 logbooks_after_filtering <-
-  n_distinct(SEFHIER_logbooks_processed$TRIP_ID)
-
+  n_distinct(SEFHIER_logbooks_processed$TRIP_ID)  # 94060 (2022)
+# call out to console the # of logbooks before filtering
 my_tee(logbooks_after_filtering,
         "Logbooks after filtering")
-
+# total % of logbooks removed after processing
 percent_of_removed_logbooks <-
   (logbooks_before_filtering - logbooks_after_filtering) * 100 / logbooks_before_filtering
-
+# call out to console the % of logbooks before filtering
 cat(percent_of_removed_logbooks, sep = "\n")
 # 5.400213 2022
 # 0.7146099 if keep overridden
 
-# removed_vessels
+# number removed_vessels, after processing the logbook data from Oracle
 vessels_before_filtering <-
   n_distinct(Logbooks_raw_renamed$VESSEL_OFFICIAL_NUMBER)
-
+# call out to console the # of vessels removed
 cat(vessels_before_filtering)
 
+# number of vessels in the processed logbook file
+vessels_after_filtering <-
+  n_distinct(Logbooks_raw_renamed__to_date_time4__my_year__format_time__iso$VESSEL_OFFICIAL_NUMBER)
+# call out the # of vessels to the console
+cat(vessels_after_filtering)
 vessels_after_filtering <-
   n_distinct(Logbooks_raw_renamed__to_date_time4__my_year__format_time__iso$VESSEL_OFFICIAL_NUMBER)
 
 cat(vessels_after_filtering)
 
+# number of vessels that were removed in the processing steps of this code
 removed_vessels <-
   vessels_before_filtering - vessels_after_filtering
 
+# percent of vessels that were removed in the processing steps of this code
 percent_of_removed_vessels <-
   (vessels_before_filtering - vessels_after_filtering) * 100 / vessels_before_filtering
 
+# establish text color and format to call to console
 removed_logbooks_and_vessels_text <- c(
   crayon::blue("percent_of_removed_logbooks"),
   str_glue("{round(percent_of_removed_logbooks)}%"),
@@ -863,6 +971,16 @@ removed_logbooks_and_vessels_text <- c(
   str_glue("{round(percent_of_removed_vessels)}%")
 )
 
+# call to the consolve the text established above
+my_tee(removed_logbooks_and_vessels_text,
+       "\nRemoved logbooks and vessels stats")
+# Removed logbooks and vessels stats
+# percent_of_removed_logbooks
+# 1%
+# removed_vessels
+# 0
+# percent_of_removed_vessels
+# 0%
 my_tee(removed_logbooks_and_vessels_text,
        "\nRemoved logbooks and vessels stats")
 
