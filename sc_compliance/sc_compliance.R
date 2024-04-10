@@ -1007,29 +1007,30 @@ bold.style <- createStyle(textDecoration = "Bold")
 #    b. Apply a bold style to the header row.
 # 7. Update 'curr_row' by adding 'one_df_size' plus 2 (for additional spacing) to move to the next available row for writing the next dataframe.
 
-curr_row <- 1
-for (i in seq_along(readme_text)) {
+write_readme_sheet <-
+  function(readme_text, workbook = wb, sheet_name = "Readme") {
+    curr_row <- 1
+    for (i in seq_along(readme_text)) {
+      # browser()
+      one_df <- readme_text[[i]]
+      one_df_size <- nrow(one_df)
 
-  # browser()
-  one_df <- readme_text[[i]]
-  one_df_size <- nrow(one_df)
+      if (!any(grepl("data.frame", class(one_df))))
+      {
+        one_df_size <- length(one_df)
+        one_df <- as.data.frame(one_df)
+      }
 
-  if (!any(grepl("data.frame", class(one_df))))
-  {
-    one_df_size <- length(one_df)
-    one_df <- as.data.frame(one_df)
+      # TODO:   one_df_size <- nrow(one_df) after as.data.frame
+
+      writeData(workbook,
+                sheet_name,
+                one_df,
+                startRow = curr_row,
+                headerStyle = bold.style)
+      curr_row <- curr_row + one_df_size + 2
+    }
   }
-
-  # TODO:   one_df_size <- nrow(one_df) after as.data.frame
-
-  writeData(wb,
-                 "Readme",
-                 one_df,
-                 startRow = curr_row,
-            headerStyle = bold.style)
-  curr_row <- curr_row + one_df_size + 2
-}
-
 # To see the wb. Not needed for processing.
 # openXL(wb)
 
