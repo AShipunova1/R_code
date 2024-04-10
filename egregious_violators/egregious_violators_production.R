@@ -17,14 +17,13 @@ library(tidyverse)
 library(magrittr)
 
 # Load the 'tictoc' library, which allows measuring code execution time.
-# library(tictoc)
+library(tictoc)
 
-# Load the 'openxlsx' library, which allows 
-# library(openxlsx)
+# Load the 'openxlsx' library, which simplifies the creation of Excel .xlsx files by providing a high level interface to writing, styling and editing worksheets. 
+library(openxlsx)
 
 # library(zoo)
-# library(diffdf)
- 
+
 # Auxiliary
 # Set up paths ----
 
@@ -1290,7 +1289,7 @@ prev_result_path <-
 # file.exists(prev_result_path)
 
 prev_result <-
-  read_xlsx(prev_result_path) |> 
+  read.xlsx(prev_result_path) |> 
   remove_empty_cols() |> 
   clean_headers()
 
@@ -1314,16 +1313,8 @@ cat(c("Data are in:",
 
 # end of get data
 
-# compl_clean
-# corresp_contact_cnts_clean0
-# prev_result
-# processed_metrics_tracking_permits
-# fhier_addresses
-# processed_pims_home_ports
-# db_participants_address
-# vessels_permits_participants
-
-# ---- Preparing compliance info ----
+# Data preparation specific for Egregious violators project ----
+# Preparing compliance info ----
 
 ## Permit Expiration ----
 ### ---- add permit_expired column ----
