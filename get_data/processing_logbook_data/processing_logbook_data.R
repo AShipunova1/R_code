@@ -794,8 +794,8 @@ logbooks_join_overr_e_usable_date <-
 
 # Print out statistics
 
-# # create a function to produce some stats for the next analysis step, assessing late submission —-
-Function Explanations:
+# create a function to produce some stats for the next analysis step, assessing late submission —-
+# Explanations:
 # 1. 'late_submission_filter_stats' is a function that takes a dataframe 'my_df' as input.
 # 2. It first calls another function 'my_stats' to compute and print statistics about 'my_df'.
 # 3. It filters 'my_df' to create a subset called 'late_submission' where 'MORE_THAN_30_DAYS_LATE' is FALSE.
