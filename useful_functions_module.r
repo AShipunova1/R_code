@@ -39,8 +39,8 @@ library(tidyverse)
 # Load the 'magrittr' library, which provides piping data and functions.
 library(magrittr)
 
-# Load the 'readxl' library, used for reading Excel (.xlsx) files.
-library(readxl)
+# Load the 'openxlsx' library, used for reading Excel (.xlsx) files.
+library(openxlsx)
 
 # Load the 'rbenchmark' library, which is used for benchmarking code performance.
 library(rbenchmark)
@@ -1440,7 +1440,7 @@ list_sort_uniq <- function(my_lists) {
 #    - For all other cases, set 'compliant_after_override' to the string representation of 'is_comp'.
 # 4. Use 'ungroup' to remove grouping from the data frame.
 
-add_compliant_after_override <- 
+add_compliant_after_override <-
   function(my_compl_df,
            overridden_col_name = "overridden",
            compliance_col_name = "is_comp") {
