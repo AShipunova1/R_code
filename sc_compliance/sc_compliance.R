@@ -974,23 +974,15 @@ colnames_for_each_df <-
            return()
        })
 
-View(colnames_for_each_df)
+glimpse(colnames_for_each_df)
 
-# temp_wb <- createWorkbook()
-# addWorksheet(temp_wb, "Temp readme")
-# write_readme_sheet(readme_text, temp_wb, "Temp readme")
+column_definitions_path <-
+    file.path(annas_path$inputs,
+            r"(sc_compliance\sc_complianceMM.csv)")
 
-# writeData(temp_wb,
-#           "Temp readme",
-#           colnames_for_each_df)
-
-# openXL(temp_wb)
-readme_MM <-
-  read.xlsx(r"(C:\Users\anna.shipunova\Downloads\sc_complianceMM.csv)",
-            sheet = 1)
-# View(temp_wb_2)
-
-
+# file.exists(column_definitions_path)
+column_definitions <- read_csv(column_definitions_path)
+# View(column_definitions)
 
 ### Add description for each column name ----
 add_one_line <- c("HEADER DEFINITIONS BY SHEET",
