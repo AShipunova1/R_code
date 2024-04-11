@@ -976,19 +976,21 @@ colnames_for_each_df <-
 
 View(colnames_for_each_df)
 
-temp_wb <- createWorkbook()
-addWorksheet(temp_wb, "Temp readme")
-write_readme_sheet(readme_text, temp_wb, "Temp readme")
+# temp_wb <- createWorkbook()
+# addWorksheet(temp_wb, "Temp readme")
+# write_readme_sheet(readme_text, temp_wb, "Temp readme")
 
 # writeData(temp_wb,
 #           "Temp readme",
 #           colnames_for_each_df)
 
-openXL(temp_wb)
-temp_wb_2 <- read.xlsx(r"(C:\Users\anna.shipunova\Downloads\filed906b3a7054.xlsx)")
-View(temp_wb_2)
+# openXL(temp_wb)
+readme_MM <-
+  read.xlsx(r"(C:\Users\anna.shipunova\Downloads\sc_complianceMM.csv)",
+            sheet = 1)
+# View(temp_wb_2)
 
-"C:\Users\anna.shipunova\Downloads\sc_complianceMM.csv"
+
 
 ### Add description for each column name ----
 add_one_line <- c("HEADER DEFINITIONS BY SHEET",
