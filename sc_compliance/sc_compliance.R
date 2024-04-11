@@ -842,19 +842,20 @@ dnfs__sc_fhier <-
     suffix = c("__dnf", "__fhier")
   )
 
-dim(dnfs__sc_fhier)
-# 0
+# check
+# dim(dnfs__sc_fhier)
 
 dnfs__sc_fhier_for_output <-
   dnfs__sc_fhier |>
   select(
     vessel_official_number,
+    trip_date,
     comp_week_start_dt,
     comp_week_end_dt,
     compliant_after_override__fhier
   ) |>
   distinct() |>
-  arrange(vessel_official_number, comp_week_start_dt)
+  arrange(vessel_official_number, trip_date)
 
 # dim(dnfs__sc_fhier_for_output)
 # 0
