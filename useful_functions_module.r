@@ -39,7 +39,7 @@ library(tidyverse)
 # Load the 'magrittr' library, which provides piping data and functions.
 library(magrittr)
 
-# Load the 'openxlsx' library, used for reading Excel (.xlsx) files.
+# Load the 'openxlsx' library, used for reading and writing Excel (.xlsx) files.
 library(openxlsx)
 
 # Load the 'rbenchmark' library, which is used for benchmarking code performance.
