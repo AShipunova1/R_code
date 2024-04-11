@@ -959,6 +959,8 @@ glimpse(sheet_names_with_df_names)
 
 ## column explanations for each tab ----
 ### colnames_for_each_df ----
+
+# Use to create the lsit of colnames for each DF to be corrected in Excel
 # Explanations:
 # 1. 'colnames_for_each_df' is created by mapping over 'output_df_list' and 'sheet_names' simultaneously.
 # 2. For each dataframe 'my_df' in 'output_df_list' and corresponding 'sheet_name':
@@ -966,15 +968,22 @@ glimpse(sheet_names_with_df_names)
 #    b. Convert the column names into a tibble format with a single column named 'column_name' and assign the value of 'sheet_name' to each row.
 #    c. Return the tibble containing the column names with associated sheet names.
 
-colnames_for_each_df <-
-  map2(output_df_list, sheet_names,
-       \(my_df, sheet_name) {
-         names(my_df) |>
-           as_tibble_col(column_name = sheet_name) %>%
-           return()
-       })
+get_each_df_colnames <-
+  function(output_df_list, sheet_names) {
 
-glimpse(colnames_for_each_df)
+  colnames_for_each_df <-
+    map2(output_df_list, sheet_names,
+         \(my_df, sheet_name) {
+           names(my_df) |>
+             as_tibble_col(column_name = sheet_name) %>%
+             return()
+         })
+
+  return(colnames_for_each_df)
+}
+
+# Uncomment and run if needed
+# colnames_for_each_df <- get_each_df_colnames(output_df_list, sheet_names)
 
 column_definitions_path <-
     file.path(annas_path$inputs,
