@@ -1,17 +1,27 @@
-# We have a request that is going to require some new coding, but it shouldn't be too difficult. Essentially SC (Eric Hiltz) sends us a list of active SC/SEFHIER permitted vessels each month, which Anna has been using to update the FHIER flag ("SC permitted"). Eric will still be sending us that same list of vessels each month but with added columns that now reflect whether the vessel is compliant or not (0 or 1, respectively). Note, we still need to use the list to update FHIER but we need to add a couple new items to the task.
+
+
+# This script fulfills a monthly request from SCDNR for compliance data from FHIER.
+
+#Essentially SC (Eric Hiltz) sends us a list of active SC/SEFHIER permitted vessels each month, which Anna has been using to update the FHIER flag ("SC permitted"). Eric will still be sending us that same list of vessels each month but with added columns that now reflect whether the vessel is compliant or not (0 or 1, respectively). #
+#In addition to using the list to update FHIER, we will use this code to do two things:
 #
-# So, in addition to updating FHIER, we need to create code that can do two things:
-#
-# read in this file of SC/SEFHIER vessel IDs for the given month (e.g. March 2024) and then pull out all vessels marked as "1" (non-compliant) - herein, "SC non-compliant vessels list". Then with that SC non-compliant vessel list we need to join//find all those vessels that are in the FHIER compliance table and create an output file that consists of a check that we will send back to Eric. In the check/output file we need, (sheet 1) the list of those SC non-compliant vessels that are also non-compliant in FHIER, or (on sheet 2) if they are compliant for that month in FHIER then list all the dates of DNFs and/or logbooks we have in FHIER by vessel (probably 3 columns needed: vessel ID, Logbook (list any dates for that month), DNF (list week date range for any for that month)
-# we also need a step that just grabs the compliant vessels (herein "SC compliant vessels list"), and then checks FHIER compliance to see if any that SC has as compliant are listed as non-compliant for any of the weeks in the given month. If any vessels are found to be compliant with SC but non-compliant with us/FHIER, then we need (on a 3rd sheet) to list those vessels and include what week (with date ranges) we are missing in FHIER. Eric will use this to more proactively alert us when a vessel is reporting only to SC, since we have so many recurring issues with this.
-# If you have time or would like to attempt writing this code let me know ASAP. Ideally, I would like to have this operational by the next time Eric sends his list (which is usually the beginning of every month). I can start writing the code this week, if neither of you has time.
+# 1) read in this file of SC/SEFHIER vessel IDs for the given month (e.g. March 2024) and then pull out all vessels marked as "1" (non-compliant) - herein, "SC non-compliant vessels list". Then with that SC non-compliant vessel list, this code pulls all those vessels that are in the FHIER compliance table and creates an output file that consists of a check that we will send back to Eric.
+
+# 2) grab the compliant vessels (herein "SC compliant vessels list"), and then check FHIER compliance to see if any that SC has as compliant are listed as non-compliant for any of the weeks in the given month. If any vessels are found to be compliant with SC but non-compliant with us/FHIER, then we list those vessels and include what week (with date ranges) we are missing in FHIER. Eric will use this to more proactively alert us when a vessel is reporting only to SC, since we have so many recurring issues with this.
+
+#So, in the output file we have: (sheet 1) the list of those SC non-compliant vessels that are also non-compliant in FHIER, or (on sheet 2) if they are compliant for that month in FHIER then list all the dates of DNFs and/or logbooks we have in FHIER by vessel (probably 3 columns needed: vessel ID, Logbook (list any dates for that month), DNF (list week date range for any for that month)
 
 # Needed files (5):
-#   "scdnrFedVessels_04012024.xlsx" (South Carolina compliance, instead of "04012024" there will be the date of the latest file)
-#   "Raw_Oracle_Downloaded_compliance_2021_plus.rds"
-#   "SEFHIER_processed_dnfs_{my_year}.rds"
-#   "SEFHIER_processed_Logbooks_{my_year}.rds"
-#   "Vessel_List_{my_year}.csv" (SRHS headboat survey)
+#   1) "scdnrFedVessels_04012024.xlsx" (South Carolina compliance, instead of "04012024" there will be the date of the latest file)
+          #this file comes from Eric Hilts at SCDNR
+#   2) "Raw_Oracle_Downloaded_compliance_2021_plus.rds"
+          # this file comes from where?
+#   3) "SEFHIER_processed_dnfs_{my_year}.rds"
+          # this file comes from running the DNF processing code for a given year, it should be available to download on Google Drive
+#   4) "SEFHIER_processed_Logbooks_{my_year}.rds"
+          # this file comes from running the logbook processing code for a given year
+#   5) "Vessel_List_{my_year}.csv" (southeast region headboat survey, SRHS)
+          # this file comes from Ken Brennan at the SRHS program, it should be available to download on Google Drive
 
 # set up ----
 # Load the 'ROracle' library, which provides an interface for working with Oracle databases in R.
@@ -26,17 +36,16 @@ library(magrittr)
 # Load the 'tictoc' library, which allows measuring code execution time.
 library(tictoc)
 
-require(openxlsx)
+# Load the 'openxlsx' library, used for reading and writing Excel (.xlsx) files.
+library(openxlsx)
 
 my_year <- "2024"
 db_year_1 <- "2023"
 db_year_2 <- "2024"
 
-# source("~/R_code_github/useful_functions_module.r")
-
 # Set up paths ----
 
-# current user name
+# function that will return current user name
 get_username <- function(){
     return(as.character(Sys.info()["user"]))
 }
@@ -232,7 +241,7 @@ read_rds_or_run <- function(my_file_path,
       function_message_print(c(
         "File",
         my_file_path,
-        "doesn't exists, pulling data from database.",
+        "doesn't exist, pulling data from database.",
         "Must be on VPN."
       ))
 
@@ -323,7 +332,7 @@ if (!class(compl_override_data__renamed$vessel_official_number) == "character") 
     as.character(compl_override_data__renamed$vessel_official_number)
 }
 
-# Add both month for straddle weeks
+# Add both months for straddle weeks
 
 # Explanations:
 # 1. 'compl_override_data__renamed_interv' is created from 'compl_override_data__renamed'.
@@ -484,7 +493,7 @@ toc()
 # 2. It groups the data by the vessel official number, compliance year, compliance week, start date of the compliance week, and end date of the compliance week.
 # 3. It calculates a new column 'common_month_compliance' based on conditions:
 #    a. If the minimum and maximum month values of compliance are both 'compl', then the 'common_month_compliance' is set to 'compl'.
-#    b. For all other cases, it is set to 'non_compl'. Meaning if any week in this 2 months is non_compl, both months are non-compliant.
+#    b. For all other cases, it is set to 'non_compl'. Meaning if any week in these 2 months is non_compl, both months are non-compliant.
 # 4. The data is ungrouped after the calculations are done.
 
 tic("min_max_compl")
@@ -659,7 +668,7 @@ sc__srhs_join <-
 
 # glimpse(sc__srhs_join)
 
-# Get all the combinations of SC and SRHS list.
+# Get all the combinations of SC and SRHS lists.
 # In this results we have:
 # 1               0 NA
 # Both are not SRHS
@@ -668,7 +677,7 @@ sc__srhs_join <-
 # 3              NA Y
 # The vessel is not in the SC list, which is expected.
 
-# For this SC entry file there are no discrepancies, so we can simply remove all the vessel marked as reports_to_srhs from the future analysis. We don't have compliance information for them.
+# For this SC entry file there are no discrepancies, so we can simply remove all the vessels marked as reports_to_srhs from the future analysis. We don't have compliance information for them.
 
 sc__srhs_join |>
   select(reportstosrhs, is_insurvey) |>
@@ -874,7 +883,7 @@ dim(compliant_vessels_in_sc_and_non_compl_fhier)
 # [1] 1002   24
 # glimpse(compliant_vessels_in_sc_and_non_compl_fhier)
 
-# "all_m_comp" field shows if any weeks of that month were compliant. We consider the whole month non-compliant if even one week was non-compliant. If SC consider the month compliant if at least one week was compliant that makes the big difference in the monthly compliance counts between SC and FHIER.
+# "all_m_comp" field shows if any weeks of that month were compliant. We consider the whole month non-compliant if even one week was non-compliant. If SC considers the month compliant if at least one week was compliant that makes a big difference in the monthly compliance counts between SC and FHIER.
 
 compliant_vessels_in_sc_and_non_compl_fhier__for_output <-
   compliant_vessels_in_sc_and_non_compl_fhier |>
