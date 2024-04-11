@@ -758,8 +758,6 @@ sc__fhier_compl__join_w_month |>
 # Answering the questions
 # 1. Non-compliant in SC and compliant in FHIER ----
 
-# TODO: add a sheet with all vessels for 2.
-
 # a)
 non_compliant_vessels_in_sc_and_compl_in_fhier <-
   sc__fhier_compl__join_w_month |>
@@ -770,19 +768,20 @@ dim(non_compliant_vessels_in_sc_and_compl_in_fhier)
 # 8 24
 
 # Get month and weeks when the vessels are marked as non-compliant in SC, but are compliant in FHIER
-non_compliant_vessels_in_sc_and_compl_in_fhier__m_w <-
+non_compliant_vessels_in_sc_and_compl_in_fhier__m_w__output <-
   non_compliant_vessels_in_sc_and_compl_in_fhier |>
-  select(vesselreg_uscg_,
-         delinquent_month,
-         month_sc,
-         comp_week,
-         comp_week_start_dt,
-         comp_week_end_dt,
-         compliant_after_override) |>
+  select(
+    vesselreg_uscg_,
+    delinquent,
+    month_sc,
+    year_sc,
+    # comp_week,
+    comp_week_start_dt,
+    comp_week_end_dt,
+    compliant_after_override
+  ) |>
   distinct() |>
   arrange(vesselreg_uscg_, comp_week_start_dt)
-
-View(non_compliant_vessels_in_sc_and_compl_in_fhier__m_w)
 
 # b) list all the dates of DNFs and/or logbooks we have in FHIER by vessel.
 
@@ -790,15 +789,10 @@ View(non_compliant_vessels_in_sc_and_compl_in_fhier__m_w)
 # Logbook (list any dates for that month)
 # Get all logbooks info for this vessels filtered by month
 
-logbooks |>
-  filter(vessel_official_number == "SC8348DB") |>
-           # "SC6884DB") |>
-  View()
-
 logbooks__sc_fhier <-
   logbooks |>
   inner_join(
-    non_compliant_vessels_in_sc_and_compl_in_fhier__m_w,
+    non_compliant_vessels_in_sc_and_compl_in_fhier__m_w__output,
     join_by(
       vessel_official_number == vesselreg_uscg_,
       comp_week_start_dt,
@@ -833,7 +827,7 @@ logbooks__sc_fhier_for_output <-
 dnfs__sc_fhier <-
   dnfs |>
   inner_join(
-    non_compliant_vessels_in_sc_and_compl_in_fhier__m_w,
+    non_compliant_vessels_in_sc_and_compl_in_fhier__m_w__output,
     join_by(
       vessel_official_number == vesselreg_uscg_,
       comp_week_start_dt,
@@ -911,14 +905,14 @@ dim(compliant_vessels_in_sc_and_non_compl_fhier__for_output)
 # This list is constructed using the 'lst' function from the tibble package,
 # which combines several objects into a list. lst() also generates missing names automatically.
 
-# 1. 'non_compliant_vessels_in_sc_and_fhier__for_output': A data frame of non-compliant vessels in SC and FHIER.
-# 2. 'logbooks__sc_fhier_for_output': A data frame of logbooks data for SC and FHIER.
-# 3. 'dnfs__sc_fhier_for_output': A data frame of DNFS data for SC and FHIER.
+# 1. 'non_compliant_vessels_in_sc_and_compl_in_fhier__m_w__output': A data frame of non-compliant vessels in SC but compliant in FHIER.
+# 2. 'logbooks__sc_fhier_for_output': A data frame of logbooks data for FHIER.
+# 3. 'dnfs__sc_fhier_for_output': A data frame of DNFS data for FHIER.
 # 4. 'compliant_vessels_in_sc_and_non_compl_fhier__for_output': A data frame of compliant vessels in SC and non-compliant FHIER.
 
 output_df_list <-
   lst(
-    non_compliant_vessels_in_sc_and_fhier__for_output,
+    non_compliant_vessels_in_sc_and_compl_in_fhier__m_w__output,
     logbooks__sc_fhier_for_output,
     dnfs__sc_fhier_for_output,
     compliant_vessels_in_sc_and_non_compl_fhier__for_output
@@ -927,7 +921,7 @@ output_df_list <-
 # a simple list of sheet names
 sheet_names <-
   list(
-    "non_compl_sc_and_fhier",
+    "non_compl_sc__compl_fhier",
     "non_compl_sc__compl_fhier_lgb",
     "non_compl_sc__compl_fhier_dnf",
     "compl_sc__non_compl_fhier"
@@ -972,10 +966,10 @@ top_of_read_me_text <-
 # save sheet_descriptions
 sheet_descriptions <-
   c(
-    "vessels that are non-compliant with SC and SEFHIER",
+    "vessels that are non-compliant with SC but compliant with SEFHIER",
     "logbooks in FHIER from non-compliant SC vessels",
     "DNFs in FHIER from non-compliant SC vessels",
-    "vessels that are compliant with SC but not SEFHIER"
+    "vessels that are compliant with SC but not with SEFHIER"
   )
 
 # Explanations:
