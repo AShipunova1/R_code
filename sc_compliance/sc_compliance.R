@@ -937,6 +937,7 @@ output_df_list <-
     compliant_vessels_in_sc_and_non_compl_fhier__for_output
   )
 
+# a simple list of sheet names
 sheet_names <-
   list(
     "non_compl_sc_and_fhier",
@@ -945,24 +946,47 @@ sheet_names <-
     "compl_sc__non_compl_fhier"
   )
 
-# make a copy with different names
+# Make a copy with different names. output_df_list has dataframe names for column names and print_result_list has sheet names for column names.
 print_result_list <-
   output_df_list
 
 names(print_result_list) <- sheet_names
 
+# Explanations:
+# Build a workbook using a list of data frames ('print_result_list') and create tables in the workbook.
+
+# 1. 'wb': An object representing the workbook to be created.
+# 2. The function 'buildWorkbook()' is used to create a workbook from a list of data frames.
+#    It takes the list of data frames ('print_result_list') as input and an option to convert them to tables ('asTable = TRUE').
+#    The 'asTable = TRUE' option ensures that each data frame is added to the workbook as a formatted table.
+
 wb <- buildWorkbook(print_result_list, asTable = TRUE)
 
+# optional
 # worksheetOrder(wb)
 # [1] 1 2 3 4
 
 # 2. create a readme sheet ----
 ## today ----
+
+# Explanations:
+# Create a tibble with the current date in a specific format and set it as the "Read me" column.
+
+# 1. 'top_of_read_me_text': A variable that stores a tibble containing the current date as its content.
+
+# 2. The 'today()' function from the 'lubridate' package is used to get the current date.
+
+# 3. The 'as_tibble_col()' function is used to create a tibble with a single column.
+#    - The first argument is the value to be used for the tibble (in this case, the current date).
+#    - The 'column_name' argument specifies the name of the single column ("Read me").
+#    This results in a tibble with the current date stored under the "Read me" column.
+
 top_of_read_me_text <-
   today() |>
   as_tibble_col(column_name =  "Read me")
 
 ## sheet names with sheet descriptions ----
+# save sheet_descriptions
 sheet_descriptions <-
   c(
     "vessels that are non-compliant with SC and SEFHIER",
@@ -971,10 +995,25 @@ sheet_descriptions <-
     "vessels that are compliant with SC but not SEFHIER"
   )
 
+# Explanations:
+# Combine 'sheet_names' and 'sheet_descriptions' into a data frame.
+
+# 1. 'sheet_names_with_df_names': A variable that stores a data frame containing sheet names and descriptions.
+
+# 2. The 'cbind()' function combines the two vectors 'sheet_names' and 'sheet_descriptions' into a single data frame.
+#    - This function combines the columns of the input vectors.
+#    - Since 'sheet_names' and 'sheet_descriptions' are vectors, the resulting output is a two-column matrix.
+
+# 3. The matrix is then converted to a data frame using the 'as.data.frame()' function.
+#    - This conversion is necessary to work with the data structure more efficiently.
+#    - The resulting data frame contains one column for sheet names and one column for sheet descriptions.
+
 sheet_names_with_df_names <-
   cbind(sheet_names, sheet_descriptions) |>
   as.data.frame()
 
+
+# rename columns in the new df
 names(sheet_names_with_df_names) <-
   c("Sheet name", "Sheet Details")
 
