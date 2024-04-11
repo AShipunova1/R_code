@@ -1057,10 +1057,10 @@ column_definitions <-
 
 # combine 3 dfs and convert to a type needed for output.
 readme_text <-
-  c(
-    list(top_of_read_me_text),
-    list(sheet_names_with_df_names),
-    list(column_definitions)
+  list(
+    top_of_read_me_text,
+    sheet_names_with_df_names,
+    column_definitions
   )
 
 # check class for each df, optional
