@@ -84,8 +84,8 @@ output_file_path <-
 # Set the date ranges for the DNF and compliance data you are pulling
 # this is the year to assign to the output file name
 # my_year <- "2022"
-my_year <- "2023"
-# my_year <- "2024"
+# my_year <- "2023"
+my_year <- "2024"
 
 my_date_beg <- str_glue("01-JAN-{my_year}")
 my_date_end <- str_glue("31-DEC-{my_year}")
@@ -166,9 +166,11 @@ WHERE
 # using the function pre-defined above to check if there is a file saved already,
 # read it
 # or run the query and write the file for future use
+# Use force_from_db = TRUE to pull again from the DB
 compl_override_data <-
   read_rds_or_run_query(compl_override_data_file_path,
-                        compl_err_query)
+                        compl_err_query,
+                        force_from_db = NULL)
 
 # check a week start day, should be Monday
 compl_override_data |>
@@ -278,10 +280,13 @@ TO_DATE('{my_date_end}', 'dd-mon-yy')
   )
 
 # Use 'read_rds_or_run_query' defined above to either read DNF information from an RDS file or execute a query to obtain it and write a file for future use.
+# Use force_from_db = TRUE to pull again from the DB
 dnfs <-
   read_rds_or_run_query(dnfs_file_path,
-                        dnfs_download_query)
-# from scratch (add parameter "force_from_db = TRUE")
+                        dnfs_download_query,
+                        force_from_db = NULL)
+
+# from scratch (with the parameter "force_from_db = TRUE")
 # 2024-03-25 run for Raw_Oracle_Downloaded_dnf_01-JAN-2022__31-DEC-2022.rds: 120.43 sec elapsed
 # 2024-03-25 run for Raw_Oracle_Downloaded_dnf_01-JAN-2023__31-DEC-2023.rds: 125.17 sec elapsed
 
