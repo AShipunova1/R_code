@@ -807,8 +807,9 @@ logbooks__sc_fhier_for_output <-
   logbooks__sc_fhier |>
   select(
     vessel_official_number,
-    delinquent_month,
+    delinquent,
     month_sc,
+    year_sc,
     trip_start_date,
     trip_end_date,
     comp_week_start_dt,
@@ -864,11 +865,6 @@ compliant_vessels_in_sc_and_non_compl_fhier <-
            common_month_compliance == "non_compl")
 
 dim(compliant_vessels_in_sc_and_non_compl_fhier)
-# [1] 180  14
-# [1] 739  19 with weeks
-# [1] 758  19 with all non compl months
-# [1] 1002   24
-# glimpse(compliant_vessels_in_sc_and_non_compl_fhier)
 
 # "all_m_comp" field shows if any weeks of that month were compliant. We consider the whole month non-compliant if even one week was non-compliant. If SC considers the month compliant if at least one week was compliant that makes a big difference in the monthly compliance counts between SC and FHIER.
 
@@ -876,22 +872,18 @@ compliant_vessels_in_sc_and_non_compl_fhier__for_output <-
   compliant_vessels_in_sc_and_non_compl_fhier |>
   select(
     vesselreg_uscg_,
+    delinquent,
     month_sc,
     year_sc,
-    delinquent,
     comp_week_start_dt,
     comp_week_end_dt,
-    is_comp,
-    overridden,
-    compliant_after_override,
-    common_month_compliance
+    compliant_after_override
   ) |>
   filter(compliant_after_override == "no") |>
   distinct() |>
   arrange(vesselreg_uscg_, comp_week_start_dt)
 
 dim(compliant_vessels_in_sc_and_non_compl_fhier__for_output)
-# [1] 474  10
 
 # Write results to xlsx ----
 # (sheet 1) the list of those SC non-compliant vessels that are also non-compliant in FHIER, or
