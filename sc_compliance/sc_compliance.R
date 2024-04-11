@@ -777,7 +777,7 @@ dim(non_compliant_vessels_in_sc_and_compl_in_fhier)
 # 8 24
 
 # Get month and weeks when the vessels are marked as non-compliant in SC, but are compliant in FHIER
-non_compliant_vessels_in_sc_and_compl_in_fhier__m_w__output1 <-
+non_compliant_vessels_in_sc_and_compl_in_fhier__m_w__output <-
   non_compliant_vessels_in_sc_and_compl_in_fhier |>
   select(
     vesselreg_uscg_,
@@ -786,9 +786,6 @@ non_compliant_vessels_in_sc_and_compl_in_fhier__m_w__output1 <-
   ) |>
   distinct() |>
   arrange(vesselreg_uscg_, comp_week_start_dt)
-
-diffdf::diffdf(non_compliant_vessels_in_sc_and_compl_in_fhier__m_w__output, non_compliant_vessels_in_sc_and_compl_in_fhier__m_w__output1)
-    # all_of(common_outpt_fields),
 
 # b) list all the dates of DNFs and/or logbooks we have in FHIER by vessel.
 
@@ -814,13 +811,9 @@ logbooks__sc_fhier_for_output <-
   logbooks__sc_fhier |>
   select(
     vessel_official_number,
-    delinquent,
-    month_sc,
-    year_sc,
+    all_of(common_outpt_fields),
     trip_start_date,
     trip_end_date,
-    comp_week_start_dt,
-    comp_week_end_dt,
     # vendor_app_name,
     trip_de,
     trip_ue
@@ -851,9 +844,8 @@ dnfs__sc_fhier_for_output <-
   dnfs__sc_fhier |>
   select(
     vessel_official_number,
+    all_of(common_outpt_fields),
     trip_date,
-    comp_week_start_dt,
-    comp_week_end_dt,
     compliant_after_override__fhier
   ) |>
   distinct() |>
@@ -879,11 +871,7 @@ compliant_vessels_in_sc_and_non_compl_fhier__for_output <-
   compliant_vessels_in_sc_and_non_compl_fhier |>
   select(
     vesselreg_uscg_,
-    delinquent,
-    month_sc,
-    year_sc,
-    comp_week_start_dt,
-    comp_week_end_dt,
+    all_of(common_outpt_fields),
     compliant_after_override
   ) |>
   filter(compliant_after_override == "no") |>
