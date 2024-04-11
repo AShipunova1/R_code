@@ -2,20 +2,20 @@
 
 # This script fulfills a monthly request from SCDNR for compliance data from FHIER.
 
-#Essentially SC (Eric Hiltz) sends us a list of active SC/SEFHIER permitted vessels each month, which Anna has been using to update the FHIER flag ("SC permitted"). Eric will still be sending us that same list of vessels each month but with added columns that now reflect whether the vessel is compliant or not (0 or 1, respectively). #
-#In addition to using the list to update FHIER, we will use this code to do two things:
+# Essentially SC (Eric Hiltz) sends us a list of active SC/SEFHIER permitted vessels each month, which Anna has been using to update the FHIER flag ("SC permitted"). Eric will still be sending us that same list of vessels each month but with added columns that now reflect whether the vessel is compliant or not (0 or 1, respectively). #
+# In addition to using the list to update FHIER, we will use this code to do two things:
 #
 # 1) read in this file of SC/SEFHIER vessel IDs for the given month (e.g. March 2024) and then pull out all vessels marked as "1" (non-compliant) - herein, "SC non-compliant vessels list". Then with that SC non-compliant vessel list, this code pulls all those vessels that are in the FHIER compliance table and creates an output file that consists of a check that we will send back to Eric.
 
 # 2) grab the compliant vessels (herein "SC compliant vessels list"), and then check FHIER compliance to see if any that SC has as compliant are listed as non-compliant for any of the weeks in the given month. If any vessels are found to be compliant with SC but non-compliant with us/FHIER, then we list those vessels and include what week (with date ranges) we are missing in FHIER. Eric will use this to more proactively alert us when a vessel is reporting only to SC, since we have so many recurring issues with this.
 
-#So, in the output file we have: (sheet 1) the list of those SC non-compliant vessels that are also non-compliant in FHIER, or (on sheet 2) if they are compliant for that month in FHIER then list all the dates of DNFs and/or logbooks we have in FHIER by vessel (probably 3 columns needed: vessel ID, Logbook (list any dates for that month), DNF (list week date range for any for that month)
+# So, in the output file we have: (sheet 1) the list of those SC non-compliant vessels that are also non-compliant in FHIER, or (on sheet 2) if they are compliant for that month in FHIER then list all the dates of DNFs and/or logbooks we have in FHIER by vessel (probably 3 columns needed: vessel ID, Logbook (list any dates for that month), DNF (list week date range for any for that month)
 
 # Needed files (5):
 #   1) "scdnrFedVessels_04012024.xlsx" (South Carolina compliance, instead of "04012024" there will be the date of the latest file)
-          #this file comes from Eric Hilts at SCDNR
+          # this file comes from Eric Hilts at SCDNR
 #   2) "Raw_Oracle_Downloaded_compliance_2021_plus.rds"
-          # this file comes from where?
+          # this file is downloaded from the Oracle db or read below
 #   3) "SEFHIER_processed_dnfs_{my_year}.rds"
           # this file comes from running the DNF processing code for a given year, it should be available to download on Google Drive
 #   4) "SEFHIER_processed_Logbooks_{my_year}.rds"
@@ -257,7 +257,7 @@ read_rds_or_run <- function(my_file_path,
       tictoc::toc()  # Stop timing the operation.
 
       # 3. Save the result as an RDS binary file to 'my_file_path' for future use.
-      # try is a wrapper to run an expression that might fail and allow the user's code to handle error-recovery.
+      # try is a wrapper to run an expression that might fail and allow the user's code to handle error recovery.
 
       # 4. Print this message.
       function_message_print(c("Saving new data into a file here: ",
@@ -278,6 +278,7 @@ read_rds_or_run <- function(my_file_path,
     return(my_result)
 }
 
+# Run the function
 compl_override_data <-
   read_rds_or_run(compl_override_data_file_path,
                   my_function = compl_err_query)
@@ -426,6 +427,7 @@ add_compliant_after_override <- function(my_compl_df) {
   return(res)
 }
 
+# Run the function
 tic("get comp/overridden")
 compl_override_data__renamed_m_short__compl_overr_by_week <-
   add_compliant_after_override(compl_override_data__renamed_m_short)
@@ -436,6 +438,7 @@ toc()
 compl_override_data__renamed_m_short__compl_overr_by_week |>
     select(is_comp, overridden, compliant_after_override) |>
     distinct()
+#   is_comp overridden compliant_after_override
 # 1       1          0 yes
 # 2       0          0 no
 # 3       0          1 yes
@@ -515,6 +518,7 @@ compl_override_data__renamed_m_short__m_compl <-
   ) |>
   ungroup()
 toc()
+# min_max_compl: 35.58 sec elapsed
 
 # check
 compl_override_data__renamed_m_short__m_compl |>
@@ -546,6 +550,7 @@ dnfs <-
 dim(dnfs)
 
 ## get srhs vessels ----
+# read csv and clean headers
 srhs_2024 <-
   read_csv(srhs_2024_file_path,
            col_types = cols(.default = 'c')) |>
@@ -554,6 +559,7 @@ srhs_2024 <-
 # glimpse(srhs_2024)
 
 ## read sc permitted data ----
+# read xlsx and clean headers
 SC_permittedVessels <- read.xlsx(
   sc_file_path
 ) |> clean_headers()
@@ -575,6 +581,7 @@ print_df_names(SC_permittedVessels)
 
 ### fix dates in headers ----
 # TODO: grab just the month of interest (depends on the SC file)
+
 # grep for numbers only in the names and convert them
 
 # save the not digit headers
@@ -598,6 +605,7 @@ date_names_ok <-
 # combine the saved non-digit headers and the newly converted once
 all_names <- c(not_date_names, date_names_ok)
 
+# check
 all_names
 
 # apply the names to the DF
@@ -607,7 +615,7 @@ names(SC_permittedVessels) <-
 # check
 names(SC_permittedVessels)
 
-dim(SC_permittedVessels)
+# dim(SC_permittedVessels)
 # [1] 215  18
 
 ### change sc data format ----
@@ -683,12 +691,11 @@ sc__srhs_join |>
   select(reportstosrhs, is_insurvey) |>
   distinct()
 #   reports_to_srhs is_insurvey
-#             <dbl> <chr>
 # 1               0 NA
 # 2               1 Y
 # 3              NA Y
 
-# Kepp only non-SRHS vessels
+# Keep only non-SRHS vessels
 SC_permittedVessels_longer_m_y_no_srhs <-
   SC_permittedVessels_longer_m_y |>
   filter(reportstosrhs == 0)
@@ -715,6 +722,7 @@ sc__fhier_compl__join_w_month <-
     )
   )
 
+# check
 dim(SC_permittedVessels)
 # 215
 dim(SC_permittedVessels_longer_m_y_no_srhs)
@@ -780,8 +788,6 @@ non_compliant_vessels_in_sc_and_compl_in_fhier <-
            common_month_compliance == "compl")
 
 dim(non_compliant_vessels_in_sc_and_compl_in_fhier)
-# 40 14
-# [1] 172  19 w weeks
 # 8 24
 
 # Get month and weeks when the vessels are marked as non-compliant in SC, but are compliant in FHIER
@@ -814,7 +820,7 @@ logbooks__sc_fhier <-
     )
   )
 
-# This is a good example of trip happens in Jan (1/30), in the week started in Jan and ended in Feb, hence it is marked as compliant in FHIER for February.
+# This is a good example of a trip happens in Jan (1/30), in the week started in Jan and ended in Feb, hence it is marked as compliant in FHIER for February.
 # glimpse(logbooks__sc_fhier)
 
 logbooks__sc_fhier_for_output <-
@@ -904,8 +910,6 @@ compliant_vessels_in_sc_and_non_compl_fhier__for_output <-
   arrange(vesselreg_uscg_, comp_week_start_dt)
 
 dim(compliant_vessels_in_sc_and_non_compl_fhier__for_output)
-# [1] 394   9
-# [1] 406   10
 # [1] 474  10
 
 # Write results to xlsx ----
@@ -914,6 +918,16 @@ dim(compliant_vessels_in_sc_and_non_compl_fhier__for_output)
 # 3. we also need a step that just grabs the compliant vessels (herein "SC compliant vessels list"), and then checks FHIER
 
 # 1. Create a wb with all output dfs ----
+
+# Explanations:
+# Create a list 'output_df_list' containing multiple data frames.
+# This list is constructed using the 'lst' function from the tibble package,
+# which combines several objects into a list. lst() also generates missing names automatically.
+
+# 1. 'non_compliant_vessels_in_sc_and_fhier__for_output': A data frame of non-compliant vessels in SC and FHIER.
+# 2. 'logbooks__sc_fhier_for_output': A data frame of logbooks data for SC and FHIER.
+# 3. 'dnfs__sc_fhier_for_output': A data frame of DNFS data for SC and FHIER.
+# 4. 'compliant_vessels_in_sc_and_non_compl_fhier__for_output': A data frame of compliant vessels in SC and non-compliant FHIER.
 
 output_df_list <-
   lst(
