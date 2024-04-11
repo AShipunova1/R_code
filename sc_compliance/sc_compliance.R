@@ -756,14 +756,11 @@ sc__fhier_compl__join_w_month |>
 # 44
 
 # Answering the questions
-# 1. SC non-compliant vessels that compliant in FHIER ----
-
 # 1. Non-compliant in SC and compliant in FHIER ----
 
 # TODO: add a sheet with all vessels for 2.
 
-# 2) if they are compliant for that month in FHIER then list all the dates of DNFs and/or logbooks we have in FHIER by vessel (probably 3 columns needed: vessel ID, Logbook (list any dates for that month), DNF (list week date range for any for that month)
-
+# a)
 non_compliant_vessels_in_sc_and_compl_in_fhier <-
   sc__fhier_compl__join_w_month |>
   filter(delinquent_month == 1 &
@@ -785,11 +782,18 @@ non_compliant_vessels_in_sc_and_compl_in_fhier__m_w <-
   distinct() |>
   arrange(vesselreg_uscg_, comp_week_start_dt)
 
-# glimpse(non_compliant_vessels_in_sc_and_compl_in_fhier__m_w)
+View(non_compliant_vessels_in_sc_and_compl_in_fhier__m_w)
+
+# b) list all the dates of DNFs and/or logbooks we have in FHIER by vessel.
 
 ## add logbooks info ----
 # Logbook (list any dates for that month)
 # Get all logbooks info for this vessels filtered by month
+
+logbooks |>
+  filter(vessel_official_number == "SC8348DB") |>
+           # "SC6884DB") |>
+  View()
 
 logbooks__sc_fhier <-
   logbooks |>
