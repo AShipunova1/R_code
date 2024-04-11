@@ -1,5 +1,3 @@
-
-
 # This script fulfills a monthly request from SCDNR for compliance data from FHIER.
 
 # Essentially SC (Eric Hiltz) sends us a list of active SC/SEFHIER permitted vessels each month, which Anna has been using to update the FHIER flag ("SC permitted"). Eric will still be sending us that same list of vessels each month but with added columns that now reflect whether the vessel is compliant or not (0 or 1, respectively). #
@@ -963,10 +961,6 @@ names(print_result_list) <- sheet_names
 
 wb <- buildWorkbook(print_result_list, asTable = TRUE)
 
-# optional
-# worksheetOrder(wb)
-# [1] 1 2 3 4
-
 # 2. create a readme sheet ----
 ## today ----
 
@@ -1012,7 +1006,6 @@ sheet_descriptions <-
 sheet_names_with_df_names <-
   cbind(sheet_names, sheet_descriptions) |>
   as.data.frame()
-
 
 # rename columns in the new df
 names(sheet_names_with_df_names) <-
@@ -1071,7 +1064,7 @@ readme_text <-
   )
 
 # check class for each df, optional
-# map(readme_text, class)
+map(readme_text, class)
 
 ## Add a new sheet ----
 addWorksheet(wb, "Readme")
@@ -1108,8 +1101,6 @@ write_readme_sheet <-
         one_df <- as.data.frame(one_df)
       }
 
-      # TODO:   one_df_size <- nrow(one_df) after as.data.frame
-
       writeData(workbook,
                 sheet_name,
                 one_df,
@@ -1124,7 +1115,13 @@ write_readme_sheet(readme_text,
                    workbook = wb,
                    sheet_name = "Readme")
 
-# To see the wb. Not needed for processing.
+# Optional. Not needed for processing.
+
+# The readme sheet will be in the last position.
+# worksheetOrder(wb)
+# [1] 1 2 3 4 5
+
+# To see the wb.
 # openXL(wb)
 
 ## Move readme to the first position ----
@@ -1140,6 +1137,13 @@ old_order <- worksheetOrder(wb)
 length_of_wb <- old_order |> length()
 worksheetOrder(wb) <- c(length_of_wb, 1:(length_of_wb - 1))
 
+# Optional. Not needed for processing.
+
+# To see the new sheet order.
+# worksheetOrder(wb)
+# [1] 5 1 2 3 4
+
+# To see the wb
 # openXL(wb)
 
 # Write the Excel file ----
