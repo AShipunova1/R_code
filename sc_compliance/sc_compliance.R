@@ -756,6 +756,15 @@ sc__fhier_compl__join_w_month |>
 # 44
 
 # Answering the questions
+
+# save common column names
+common_outpt_fields <-
+  c("delinquent",
+    "month_sc",
+    "year_sc",
+    "comp_week_start_dt",
+    "comp_week_end_dt")
+
 # 1. Non-compliant in SC and compliant in FHIER ----
 
 # a)
@@ -768,20 +777,18 @@ dim(non_compliant_vessels_in_sc_and_compl_in_fhier)
 # 8 24
 
 # Get month and weeks when the vessels are marked as non-compliant in SC, but are compliant in FHIER
-non_compliant_vessels_in_sc_and_compl_in_fhier__m_w__output <-
+non_compliant_vessels_in_sc_and_compl_in_fhier__m_w__output1 <-
   non_compliant_vessels_in_sc_and_compl_in_fhier |>
   select(
     vesselreg_uscg_,
-    delinquent,
-    month_sc,
-    year_sc,
-    # comp_week,
-    comp_week_start_dt,
-    comp_week_end_dt,
+    all_of(common_outpt_fields),
     compliant_after_override
   ) |>
   distinct() |>
   arrange(vesselreg_uscg_, comp_week_start_dt)
+
+diffdf::diffdf(non_compliant_vessels_in_sc_and_compl_in_fhier__m_w__output, non_compliant_vessels_in_sc_and_compl_in_fhier__m_w__output1)
+    # all_of(common_outpt_fields),
 
 # b) list all the dates of DNFs and/or logbooks we have in FHIER by vessel.
 
