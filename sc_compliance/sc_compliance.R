@@ -1,13 +1,19 @@
 # This script fulfills a monthly request from SCDNR for compliance data from FHIER.
 
-# Essentially SC (Eric Hiltz) sends us a list of active SC/SEFHIER permitted vessels each month, which Anna has been using to update the FHIER flag ("SC permitted"). Eric will still be sending us that same list of vessels each month but with added columns that now reflect whether the vessel is compliant or not (0 or 1, respectively). #
+# Essentially SC (Eric Hiltz) sends us a list of active SC/SEFHIER permitted vessels each month, which Anna has been using to update the FHIER flag ("SC permitted"). Eric will still be sending us that same list of vessels each month but with added columns that now reflect whether the vessel is compliant or not.
 # In addition to using the list to update FHIER, we will use this code to do two things:
-#
-# 1) read in this file of SC/SEFHIER vessel IDs for the given month (e.g. March 2024) and then pull out all vessels marked as "1" (non-compliant) - herein, "SC non-compliant vessels list". Then with that SC non-compliant vessel list, this code pulls all those vessels that are in the FHIER compliance table and creates an output file that consists of a check that we will send back to Eric.
 
-# 2) grab the compliant vessels (herein "SC compliant vessels list"), and then check FHIER compliance to see if any that SC has as compliant are listed as non-compliant for any of the weeks in the given month. If any vessels are found to be compliant with SC but non-compliant with us/FHIER, then we list those vessels and include what week (with date ranges) we are missing in FHIER. Eric will use this to more proactively alert us when a vessel is reporting only to SC, since we have so many recurring issues with this.
+# 1) Non-compliant in SC and compliant in FHIER.
+# Read in this file of SC/SEFHIER vessel IDs for the given month (e.g. March 2024) and then pull out all vessels marked as "1" (NON-COMPLIANT) - herein, "SC non-compliant vessels list". Then with that SC non-compliant vessel list, this code pulls all those vessels that are COMPLIANT in the FHIER compliance table and creates an output file that consists of a check that we will send back to Eric.
+# Add logbooks and dnfs for FHIER compliant weeks for the SC non-compliant month.
 
-# So, in the output file we have: (sheet 1) the list of those SC non-compliant vessels that are also non-compliant in FHIER, or (on sheet 2) if they are compliant for that month in FHIER then list all the dates of DNFs and/or logbooks we have in FHIER by vessel (probably 3 columns needed: vessel ID, Logbook (list any dates for that month), DNF (list week date range for any for that month)
+# 2) Compliant in SC and non-compliant in FHIER.
+# grab the compliant vessels (herein "SC compliant vessels list"), and then check FHIER compliance to see if any that SC has as compliant are listed as non-compliant for any of the weeks in the given month. If any vessels are found to be compliant with SC but non-compliant with us/FHIER, then we list those vessels and include what week (with date ranges) we are missing in FHIER. Eric will use this to more proactively alert us when a vessel is reporting only to SC, since we have so many recurring issues with this.
+
+# So, in the output file we have: (sheet 1) the list of those SC NON-COMPLIANT vessels that are COMPLIANT in FHIER,
+# with (on sheets 2-3) the list all the dates of DNFs and/or logbooks we have in FHIER by vessel (probably 3 columns needed: vessel ID, Logbook (list any dates for that month), DNF (list week date range for any for that month).
+# (sheet 4) is the list of those SC COMPLIANT vessels that are NON-COMPLIANT in FHIER.
+
 
 # Needed files (5):
 #   1) "scdnrFedVessels_04012024.xlsx" (South Carolina compliance, instead of "04012024" there will be the date of the latest file)
@@ -750,44 +756,11 @@ sc__fhier_compl__join_w_month |>
 # 44
 
 # Answering the questions
-# 1. SC non-compliant vessels that are also non-compliant in FHIER ----
+# 1. SC non-compliant vessels that compliant in FHIER ----
 
-# Keep vessels marked as non-compliant in both data sets
-non_compliant_vessels_in_sc_and_fhier <-
-  sc__fhier_compl__join_w_month |>
-  filter(delinquent_month == 1 &
-           common_month_compliance == "non_compl") |>
-  distinct()
+# 1. Non-compliant in SC and compliant in FHIER ----
 
-View(non_compliant_vessels_in_sc_and_fhier)
-# 2
-# 8 19 with weeks
-# 12 24 counting non compliant in both month for straddling weeks
-
-# Fewer column and sort
-non_compliant_vessels_in_sc_and_fhier__for_output <-
-  non_compliant_vessels_in_sc_and_fhier |>
-  select(
-    vesselreg_uscg_,
-    vesselname,
-    delinquent,
-    month_sc,
-    year_sc,
-    comp_week_start_dt,
-    comp_week_end_dt,
-    is_comp,
-    overridden,
-    compliant_after_override
-  ) |>
-  distinct() |>
-  arrange(vesselreg_uscg_, year_sc, comp_week_start_dt)
-
-# glimpse(non_compliant_vessels_in_sc_and_fhier__for_output)
-
-# 2. non compliant in SC and compliant in FHIER ----
-
-# TODO: 1) remove both are not;
-# 2) add a sheet with all vessels for 2.
+# TODO: add a sheet with all vessels for 2.
 
 # 2) if they are compliant for that month in FHIER then list all the dates of DNFs and/or logbooks we have in FHIER by vessel (probably 3 columns needed: vessel ID, Logbook (list any dates for that month), DNF (list week date range for any for that month)
 
