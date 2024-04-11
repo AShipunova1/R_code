@@ -172,8 +172,9 @@ annas_srhs_2024_file_path <-
 
 file.exists(annas_srhs_2024_file_path)
 
-# Add correct paths for your environment in the next 4 lines
+# Add correct paths for your environment in the next 5 lines
 
+input_path <- file.path(annas_path$inputs, current_project_basename)
 output_path <- file.path(annas_path$outputs, current_project_basename)
 processed_data_path <- annas_processed_data_path
 sc_file_path <- annas_sc_mismatch_file_path
@@ -1017,7 +1018,7 @@ sheet_names_with_df_names <-
 names(sheet_names_with_df_names) <-
   c("Sheet name", "Sheet Details")
 
-glimpse(sheet_names_with_df_names)
+# glimpse(sheet_names_with_df_names)
 
 ## column explanations for each tab ----
 ### colnames_for_each_df ----
@@ -1048,14 +1049,18 @@ get_each_df_colnames <-
 # colnames_for_each_df <- get_each_df_colnames(output_df_list, sheet_names)
 
 # Use column definitions saved in a csv file
-column_definitions_path <-
-    file.path(annas_path$inputs,
-            r"(sc_compliance\column_definitions.csv)")
 
+# define a path
+column_definitions_path <-
+    file.path(input_path,
+            "column_definitions.csv")
+
+# optional check
 # file.exists(column_definitions_path)
+
+# read csv
 column_definitions <-
   read_csv(column_definitions_path)
-# View(column_definitions)
 
 # combine 3 dfs and convert to a type needed for output.
 readme_text <-
@@ -1065,7 +1070,8 @@ readme_text <-
     list(column_definitions)
   )
 
-map(readme_text, class)
+# check class for each df, optional
+# map(readme_text, class)
 
 ## Add a new sheet ----
 addWorksheet(wb, "Readme")
@@ -1113,6 +1119,7 @@ write_readme_sheet <-
     }
   }
 
+# run the function
 write_readme_sheet(readme_text,
                    workbook = wb,
                    sheet_name = "Readme")
@@ -1136,9 +1143,12 @@ worksheetOrder(wb) <- c(length_of_wb, 1:(length_of_wb - 1))
 # openXL(wb)
 
 # Write the Excel file ----
+
+# define the path
 output_file_name <-
   file.path(output_path,
             "sc_compliance.xlsx")
 
+# write the workbook unto file
 saveWorkbook(wb, output_file_name, overwrite = T)
 
