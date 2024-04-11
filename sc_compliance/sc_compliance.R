@@ -1075,17 +1075,35 @@ bold.style <- createStyle(textDecoration = "Bold")
 ## Write each df from readme_text on to the same sheet ----
 
 # Explanations:
-# 1. Initialize a variable 'curr_row' with a value of 1 to track the current row position in the Excel sheet.
-# 2. Iterate over the indices of 'readme_text' using 'seq_along' to access each element.
-# 3. Assign the current element to 'one_df'.
-# 4. Determine the size of 'one_df' by checking if it is a data frame using the 'class' function.
-#    a. If it's not a data frame, treat it as a vector and get its length.
-#    b. If it's a data frame, get the number of rows.
-# 5. If 'one_df' is not already a data frame, convert it to a data frame using 'as.data.frame'.
-# 6. Write the contents of 'one_df' to the "Readme" sheet in the Excel workbook 'wb':
-#    a. Start writing from the 'curr_row'.
-#    b. Apply a bold style to the header row.
-# 7. Update 'curr_row' by adding 'one_df_size' plus 2 (for additional spacing) to move to the next available row for writing the next dataframe.
+# - This function, `write_readme_sheet`, writes the given `readme_text` data into a specified sheet of an Excel workbook.
+# - `readme_text`: A list of data frames to be written into the workbook's specified sheet.
+# - `workbook`: The Excel workbook object where data will be written. Defaults to the `wb` variable.
+# - `sheet_name`: The name of the sheet where the data will be written. Defaults to "Readme".
+
+  # 1. Initialize the `curr_row` variable to 1.
+  #    This variable keeps track of the current row position in the sheet where data will be written.
+
+  # 2. Loop through each element in `readme_text`:
+  #    - `i` is the index of the current element.
+  #    - `one_df` is the current dataframe.
+
+  # 3. Check if `one_df` is indeed a data frame:
+  #    - If not, convert it to a data frame using `as.data.frame()`.
+  #    - This is done to ensure compatibility with the `writeData` function.
+
+  # 4. Calculate the number of rows in `one_df` using `nrow()`.
+  #    - This is stored in `one_df_size`.
+
+  # 5. Use the `writeData` function to write `one_df` to the workbook:
+  #    - `workbook` is the Excel workbook object where data will be written.
+  #    - `sheet_name` is the name of the sheet where data will be written.
+  #    - `one_df` is the data to be written.
+  #    - `startRow` is set to `curr_row`, specifying the starting row in the sheet.
+  #    - `headerStyle` is set to `bold.style` to apply bold styling to headers.
+
+  # 6. Update `curr_row` to point to the next available row in the sheet:
+  #    - Add the number of rows in `one_df` to `curr_row`.
+  #    - Add 2 to account for spacing between each data frame.
 
 write_readme_sheet <-
   function(readme_text, workbook = wb, sheet_name = "Readme") {
