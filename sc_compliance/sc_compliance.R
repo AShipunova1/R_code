@@ -985,39 +985,25 @@ get_each_df_colnames <-
 # Uncomment and run if needed
 # colnames_for_each_df <- get_each_df_colnames(output_df_list, sheet_names)
 
+# Use column definitions saved in a csv file
 column_definitions_path <-
     file.path(annas_path$inputs,
-            r"(sc_compliance\sc_complianceMM.csv)")
+            r"(sc_compliance\column_definitions.csv)")
 
 # file.exists(column_definitions_path)
-column_definitions <- read_csv(column_definitions_path)
+column_definitions <-
+  read_csv(column_definitions_path)
 # View(column_definitions)
-
-### Add description for each column name ----
-add_one_line <- c("HEADER DEFINITIONS BY SHEET",
-                  "Column Header",
-                  "Definition")
-
-c(c("vessel_reg_uscg_", "SC field"),
-c("vessel_name", "SC field"),
-c("delinquent", "SC field"),
-c("month_sc", "SC field"),
-c("year_sc", "SC field"),
-c("comp_week_start_dt", "Start date of FHIER compliance week"),
-c("comp_week_end_dt", "End date of FHIER compliance week"),
-c("is_comp", "Compliance flag (0=non-compliant)"),
-c("overridden", "1 = SEFHIER team overrode non-compliance in FHIER and vessel is now compliant (this can happen when SEFHIER has already reached out to SC and got confirmation reports exist with them)"),
-c("compliant_after_override", "flag combining is_comp and overriden to determine final compliance status (use this to determine if the vessel is actively compliant with SEFHIER)"))
 
 # combine 3 dfs and convert to a type needed for output.
 readme_text <-
   c(
     list(top_of_read_me_text),
     list(sheet_names_with_df_names),
-    colnames_for_each_df
+    list(column_definitions)
   )
 
-# map(readme_text, class)
+map(readme_text, class)
 
 ## Add a new sheet ----
 addWorksheet(wb, "Readme")
@@ -1064,6 +1050,11 @@ write_readme_sheet <-
       curr_row <- curr_row + one_df_size + 2
     }
   }
+
+write_readme_sheet(readme_text,
+                   workbook = wb,
+                   sheet_name = "Readme")
+
 # To see the wb. Not needed for processing.
 # openXL(wb)
 
