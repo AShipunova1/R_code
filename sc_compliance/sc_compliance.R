@@ -617,19 +617,26 @@ names(SC_permittedVessels)
 # dim(SC_permittedVessels)
 # [1] 215  18
 
+# Convert federalfor_hirepermitexpiration column to a date format.
+# convertToDate() converts from excel date number to R Date type
+SC_permittedVessels_correct_dates <-
+  SC_permittedVessels |>
+  mutate(federalfor_hirepermitexpiration =
+           convertToDate(federalfor_hirepermitexpiration))
+
 ### change sc data format ----
 
 # glimpse(SC_permittedVessels)
 
 # Explanations:
-# 1. 'SC_permittedVessels_longer' is created by reshaping the data frame 'SC_permittedVessels'.
+# 1. 'SC_permittedVessels_longer' is created by reshaping the data frame 'SC_permittedVessels_correct_dates'.
 # 2. The 'pivot_longer()' function from the 'tidyr' package is used to reshape the data from wide to long format.
 # 3. All columns except those specified in "!c()" are pivoted.
 # 4. The 'names_to' parameter specifies the name of the new column that will store the names of the original columns. Here, it's set to "month_year".
 # 5. The 'values_to' parameter specifies the name of the new column that will store the values from the pivoted columns. Here, it's set to "delinquent_month".
 
 SC_permittedVessels_longer <-
-  SC_permittedVessels |>
+  SC_permittedVessels_correct_dates |>
   pivot_longer(
     !c(
       "vesselreg_uscg_",
@@ -722,12 +729,12 @@ sc__fhier_compl__join_w_month <-
   )
 
 # check
-dim(SC_permittedVessels)
+dim(SC_permittedVessels_correct_dates)
 # 215
 dim(SC_permittedVessels_longer_m_y_no_srhs)
 # SC_permittedVessels_longer_m_y_no_srhs
 dim(sc__fhier_compl__join_w_month)
-n_distinct(SC_permittedVessels)
+n_distinct(SC_permittedVessels_correct_dates)
 # 215
 n_distinct(sc__fhier_compl__join_w_month$vesselreg_uscg_)
 # 207 (rm SRHS)
@@ -752,7 +759,7 @@ non_compliant_vessels_in_sc_and_fhier <-
            common_month_compliance == "non_compl") |>
   distinct()
 
-dim(non_compliant_vessels_in_sc_and_fhier)
+View(non_compliant_vessels_in_sc_and_fhier)
 # 2
 # 8 19 with weeks
 # 12 24 counting non compliant in both month for straddling weeks
@@ -778,6 +785,9 @@ non_compliant_vessels_in_sc_and_fhier__for_output <-
 # glimpse(non_compliant_vessels_in_sc_and_fhier__for_output)
 
 # 2. non compliant in SC and compliant in FHIER ----
+
+# TODO: 1) remove both are not;
+# 2) add a sheet with all vessels for 2.
 
 # 2) if they are compliant for that month in FHIER then list all the dates of DNFs and/or logbooks we have in FHIER by vessel (probably 3 columns needed: vessel ID, Logbook (list any dates for that month), DNF (list week date range for any for that month)
 
@@ -1016,7 +1026,7 @@ names(sheet_names_with_df_names) <-
 ## column explanations for each tab ----
 ### colnames_for_each_df ----
 
-# Use to create the lsit of colnames for each DF to be corrected in Excel
+# Use to create the list of colnames for each DF to be corrected in Excel
 # Explanations:
 # 1. 'colnames_for_each_df' is created by mapping over 'output_df_list' and 'sheet_names' simultaneously.
 # 2. For each dataframe 'my_df' in 'output_df_list' and corresponding 'sheet_name':
