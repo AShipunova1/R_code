@@ -1093,13 +1093,12 @@ write_readme_sheet <-
     for (i in seq_along(readme_text)) {
       # browser()
       one_df <- readme_text[[i]]
-      one_df_size <- nrow(one_df)
 
       if (!any(grepl("data.frame", class(one_df))))
       {
-        one_df_size <- length(one_df)
         one_df <- as.data.frame(one_df)
       }
+      one_df_size <- nrow(one_df)
 
       writeData(workbook,
                 sheet_name,
