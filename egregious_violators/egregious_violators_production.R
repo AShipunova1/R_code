@@ -423,6 +423,25 @@ change_fields_arr_to_dates <-
   }
 
 # ===
+# usage: complianceerrors_field_name <- find_col_name(compl_clean_sa, ".*xcompliance", "errors.*")[1]
+# TODO what if two names?
+# Define a function to find column names in a dataframe based on partial matches.
+# This function takes 'mydf' (a dataframe), 'start_part' (the start of the column name),
+# and 'end_part' (the end of the column name) as inputs.
+find_col_name <- function(mydf, start_part, end_part) {
+  # Create a regular expression pattern to search for column names that start with 'start_part'
+  # and end with 'end_part'.
+  to_search <- paste0(start_part, ".*", end_part)
+
+  # Use 'grep' to search for column names in lowercase that match the pattern.
+  # 'value = TRUE' returns the matching column names as a character vector.
+  matching_names <- grep(to_search, tolower(names(mydf)), value = TRUE)
+
+  # Return the matching column name(s) as a character vector.
+  return(matching_names)
+}
+
+# ===
 # The add_count_contacts function is defined to add two new columns ('was_contacted' and 'contact_freq') to the input data frame ('all_data_df_clean') based on the presence of contact dates.
 
 # It returns the 'result_df', which is the input data frame with the added columns indicating whether a vessel was contacted ('was_contacted') and the frequency of contacts ('contact_freq').
@@ -771,25 +790,6 @@ connect_to_secpr <- function() {
 
     # Return the established database connection.
     return(con)
-}
-
-# ===
-# usage: complianceerrors_field_name <- find_col_name(compl_clean_sa, ".*xcompliance", "errors.*")[1]
-# TODO what if two names?
-# Define a function to find column names in a dataframe based on partial matches.
-# This function takes 'mydf' (a dataframe), 'start_part' (the start of the column name),
-# and 'end_part' (the end of the column name) as inputs.
-find_col_name <- function(mydf, start_part, end_part) {
-  # Create a regular expression pattern to search for column names that start with 'start_part'
-  # and end with 'end_part'.
-  to_search <- paste0(start_part, ".*", end_part)
-
-  # Use 'grep' to search for column names in lowercase that match the pattern.
-  # 'value = TRUE' returns the matching column names as a character vector.
-  matching_names <- grep(to_search, tolower(names(mydf)), value = TRUE)
-
-  # Return the matching column name(s) as a character vector.
-  return(matching_names)
 }
 
 # ===
