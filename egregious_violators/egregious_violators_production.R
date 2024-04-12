@@ -1568,14 +1568,14 @@ corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates <-
   corresp_contact_cnts_clean_direct_cnt_2atmps |>
   mutate(
     created_on_dttm =
-      lubridate::parse_date_time(created_on,
-                                 c("mdY R")),
+      parse_date_time(created_on,
+                      c("mdY R")),
     contact_date_dttm =
-      lubridate::parse_date_time(contact_date,
-                                 c("mdY R"))
+      parse_date_time(contact_date,
+                      c("mdY R"))
   )
 
-# check
+# check, optional
 str(corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates$contact_date_dttm)
 # POSIXct[1:29089], format: "2024-02-15 15:15:00" 
 
@@ -1600,16 +1600,9 @@ compl_corr_to_investigation <-
     relationship = "many-to-many"
   )
 
+# check, optional
 dim(compl_corr_to_investigation)
-
-# check
 n_distinct(compl_corr_to_investigation$vesselofficial_number)
-
-# View(compl_corr_to_investigation)
-
-## save number of vessels to investigate for checks ----
-num_of_vsl_to_investigate <- 
-  n_distinct(compl_corr_to_investigation$vesselofficial_number)
 
 # Results: Compl & corresondence together are in
 # compl_corr_to_investigation
@@ -1621,16 +1614,7 @@ num_of_vsl_to_investigate <-
 # 4. duals vs. sa_only
 
 ## 1. remove extra columns ----
-
-# Explanations:
-# Group the dataframe by the 'vessel_official_number' column and then apply the 'summarise_all' function.
-# The 'summarise_all' function applies the specified function (in this case, 'concat_unique') to each column.
-
-# Note: 'concat_unique' is not a standard R function, it is a custom function defined previously.
-
-colnames(compl_corr_to_investigation) |> 
-  cat(sep = '",\n"')
-
+# create a variable with column names to remove
 unused_fields <- c(
   "vesselofficial_number",
   "primary",
@@ -1663,27 +1647,21 @@ unused_fields <- c(
 # Explanations:
 # 1. Exclude columns specified in 'unused_fields' from the data frame.
 # 2. Group the data frame by 'vessel_official_number'.
-# 3. Apply the custom function 'concat_unique' to all columns to concatenate unique non-missing values into a single string.
+# 3. Apply the custom function 'concat_unique' to all columns to concatenate unique non-missing values into a single string. (See the function definition by clicking F2 on its name.)
 # 4. Remove the grouping from the data frame.
 
 compl_corr_to_investigation_short <-
   compl_corr_to_investigation |>
-  # compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id |>
   select(-any_of(unused_fields)) |>
   group_by(vessel_official_number) |>
   summarise_all(concat_unique) |>
   ungroup()
 
-# print_df_names(compl_corr_to_investigation_short)
-
-compl_corr_to_investigation_short |> glimpse()
-
-dim(compl_corr_to_investigation_short)
-
 ## 2. create additional columns ----
 ### add list of contact dates and contact type in parentheses  -----
 
-# put names into vars (needed, bc spaces and underscores placements vary from source to source)
+# put 3 names into vars (needed, bc spaces and underscores placements vary from source to source)
+# (See the function definition by clicking F2 on its name.)
 contactdate_field_name <-
   find_col_name(compl_corr_to_investigation_short, "contact", "date")[1]
 
