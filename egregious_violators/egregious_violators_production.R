@@ -1058,20 +1058,6 @@ read_rds_or_run <- function(my_file_path,
     return(my_result)
 }
 
-
-# Usage:
-# select(-all_of(names(empty_cols)))
-# empty_cols <-
-#   function(my_df) {
-#     my_df |>
-#       purrr::map_df(function(x) {
-#         if (length(unique(x)) == 1) {
-#           return(unique(x))
-#         }
-#       }) %>%
-#     return()
-#   }
-
 # ===
 # Function to remove empty columns from a data frame
 remove_empty_cols <- function(my_df) {
