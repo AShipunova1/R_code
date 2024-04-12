@@ -1660,7 +1660,7 @@ compl_corr_to_investigation_short <-
 ## 2. create additional columns ----
 ### add list of contact dates and contact type in parentheses  -----
 
-# put 3 names into vars (needed, bc spaces and underscores placements vary from source to source)
+# put 3 names into vars (needed, because spaces and underscores placements vary from source to source)
 # (See the function definition by clicking F2 on its name.)
 contactdate_field_name <-
   find_col_name(compl_corr_to_investigation_short, "contact", "date")[1]
@@ -1704,8 +1704,8 @@ get_date_contacttype <-
 date__contacttype_per_id <-
   get_date_contacttype(compl_corr_to_investigation_short)
 
+# check, optional
 dim(date__contacttype_per_id)
-
 # glimpse(date__contacttype_per_id)
 
 #### add the new column back ----
@@ -1719,12 +1719,31 @@ compl_corr_to_investigation__corr_date <-
     contacttype_field_name
   )))
   
-# check
+# check, optional
 compl_corr_to_investigation__corr_date |> 
   glimpse()
 
 ### add pims home port info ----
-# compl_corr_to_investigation_short_dup_marked__hailing_port <-
+# Explanations:
+# - This code snippet joins two data frames (`compl_corr_to_investigation__corr_date` and `processed_pims_home_ports`) based on a common column (`vessel_official_number`) and renames the joined columns.
+# 
+# 1. **Joining Data Frames**:
+#     - `compl_corr_to_investigation__corr_date__hailing_port <- left_join(`:
+#         - This line begins the assignment of the resulting data frame to `compl_corr_to_investigation__corr_date__hailing_port`.
+#         - The function `left_join()` is used to join the two data frames.
+#     - `compl_corr_to_investigation__corr_date, processed_pims_home_ports, join_by(vessel_official_number))`:
+#         - The first argument is `compl_corr_to_investigation__corr_date`, the data frame on the left side of the join.
+#         - The second argument is `processed_pims_home_ports`, the data frame on the right side of the join.
+#         - The join condition is specified using `join_by(vessel_official_number)`, indicating the common column (`vessel_official_number`) on which the join will be performed.
+# 
+# 2. **Renaming Columns**:
+#     - `|> rename("hailing_port_city" = city_fixed, "hailing_port_state" = state_fixed)`:
+#         - This line uses the pipe operator (`|>`) to pass the joined data frame to the `rename()` function.
+#         - The `rename()` function is used to change the column names in the resulting data frame.
+#         - `"hailing_port_city"` is renamed from `city_fixed`.
+#         - `"hailing_port_state"` is renamed from `state_fixed`.
+# 
+# In summary, this code snippet performs a left join between two data frames (`compl_corr_to_investigation__corr_date` and `processed_pims_home_ports`) based on a common column (`vessel_official_number`) and then renames the resulting columns to `"hailing_port_city"` and `"hailing_port_state"`.
 compl_corr_to_investigation__corr_date__hailing_port <- 
   left_join(
     compl_corr_to_investigation__corr_date,
@@ -1733,8 +1752,6 @@ compl_corr_to_investigation__corr_date__hailing_port <-
   ) |> 
   rename("hailing_port_city" = city_fixed,
          "hailing_port_state" = state_fixed)
-
-# stopped here with compl_corr_to_investigation__corr_date__hailing_port
 
 ### add prepared addresses ----
 
