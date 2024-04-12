@@ -7,7 +7,7 @@ is_empty <- c(NA, "NA", "", "UN", "N/A")
 # fhier_addresses are from get_data (For-hire Primary Physical Address List)
 fhier_addr_short <-
   fhier_addresses |>
-  dplyr::select(
+  select(
     vessel_official_number,
     permit_holder_names,
     physical_address_1,
@@ -39,7 +39,7 @@ fhier_addr_short_clean <-
 #       "
 #       )
 #   ) |>
-#   dplyr::select(
+#   select(
 #     -c(
 #       physical_address_1,
 #       physical_address_2,
