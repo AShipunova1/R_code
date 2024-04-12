@@ -753,37 +753,6 @@ cat_filter_for_fhier <- function(my_characters) {
 }
 
 # ===
-#
-# benchmarking to insert inside a function
-# time_for_appl <<- benchmark(replications=rep(10, 3),
-                            # lapply(myfiles, read.csv, skipNul = TRUE, header = TRUE),
-                            # sapply(myfiles, read.csv, skipNul = TRUE, header = TRUE, simplify = TRUE)
-                            # ,
-                            # columns = c('test', 'elapsed', 'relative')
-# )
-
-# write.csv(time_for_appl, "time_for_appl.csv")
-
-# or
-# sappl_exp <- function(){
-#   sapply(my_df, function(x) length(unique(x))) %>% as.data.frame()
-# }
-#
-# map_exp <- function(){
-#   my_fun <- function(x) length(unique(x))
-#   purrr::map_df(my_df, my_fun)
-# }
-#
-# time_for_appl <<- benchmark(replications=rep(10^7, 3),
-#                             exp1,
-#                             exp2,
-#                             columns = c('test', 'elapsed', 'relative')
-# )
-#
-# purrr::map_df(my_df, function(x) length(unique(x)))
-# to compare:
-# time_for_appl %>% dplyr::group_by(test) %>% summarise(sum(elapsed))
-
 # Define a function named 'connect_to_secpr'.
 # It returns the established database connection (con), which can be used to interact with the "SECPR" database in R.
 # usage:
@@ -823,133 +792,63 @@ find_col_name <- function(mydf, start_part, end_part) {
   return(matching_names)
 }
 
-# https://stackoverflow.com/questions/23986140/how-to-call-exists-without-quotation-marks
-# usage: vexists(con_psql, bogus_variable_name)
-# Define a function to check the existence of one or more variables in the current environment.
-# This function takes a variable number of arguments using '...' notation.
-vexists <- function(...) {
-  # Use 'substitute' to capture the variable names from the arguments and convert them to character vectors.
-  vars <- as.character(substitute(...()))
-
-  # Use 'sapply' to iterate over the variable names and check if each variable exists in the current environment.
-  exists_check <- sapply(vars, exists)
-
-  # Return a logical vector indicating the existence of each variable.
-  return(exists_check)
-}
-
 # ===
-# make a separate legend for grid.arrange
-legend_for_grid_arrange <- function(legend_plot) {
-  # legend_plot <-
-  #   ggplot(data = legend_data, aes(x1, y1, colour = ll)) +
-  #   geom_text(dat = legend_data,
-  #             aes(label = ll),
-  #             hjust = 0) +
-  #   scale_color_manual(
-  #     name = 'Lines',
-  #     breaks = c('Mean', 'Num of weeks'),
-  #     values = my_colors
-  #   )
-  #
-  # legend_plot
-
-  # Obtain the legend from a 'legend_plot' using the 'get_legend' function from the 'cowplot' package.
-  my_legend <-
-    cowplot::get_legend(legend_plot)
-
-  return(my_legend)
-}
-
-# ===
-# Define a function to append the contents of a single file to an existing flat file.
-write_to_1_flat_file <- function(flat_file_name, file_name_to_write) {
-  # Redirect the output to the specified 'flat_file_name' and append content.
-  sink(flat_file_name, append = TRUE)
-
-  # Read the contents of the current file.
-  current_file_text <- readr::read_lines(file_name_to_write)
-
-  # Print a header indicating the current file being processed.
-  cat("\n\n#### Current file:", basename(file_name_to_write), "----\n\n")
-
-  # Print the contents of the current file, separating lines with newline characters.
-  cat(current_file_text, sep = "\n")
-
-  # # Restore the default output behavior.
-  sink()
-}
-
-# Function to separate permit groups into three categories based on a specified field
-separate_permits_into_3_groups <-
-  function(my_df, permit_group_field_name = "permitgroup") {
-    my_df %>%
-      # Use 'mutate' to create a new column 'permit_sa_gom' with categories based on permit group
-      mutate(permit_sa_gom =
-               dplyr::case_when(
-                 # Check if 'permit_group_field_name' doesn't contain 'RCG', 'HRCG', 'CHG', or 'HCHG'; assign "sa_only" if true
-                 !grepl("RCG|HRCG|CHG|HCHG", !!sym(permit_group_field_name)) ~ "sa_only",
-                 # Check if 'permit_group_field_name' doesn't contain 'CDW', 'CHS', or 'SC'; assign "gom_only" if true
-                 !grepl("CDW|CHS|SC", !!sym(permit_group_field_name)) ~ "gom_only",
-                 # For all other cases, assign "dual"
-                 .default = "dual"
-               )) %>%
-      # Return the modified data frame
-      return()
-  }
-
-
-# ===
-
-read_rds_or_run_no_db <-
-  function(my_file_path,
-           my_data_list_of_dfs,
-           my_function) {
-
-    if (file.exists(my_file_path)) {
-      # read a binary file saved previously
-      my_df <-
-        readr::read_rds(my_file_path)
-    } else {
-      tic("run the function")
-      my_df <-
-        my_function(my_data_list_of_dfs[[1]],
-                    my_data_list_of_dfs[[2]])
-      toc()
-
-      # write all as binary
-      readr::write_rds(my_df,
-                       my_file_path)
-    }
-
-    return(my_df)
-  }
-
-# Pretty message print
+# Explanations:
+# 
+# 1. The function `function_message_print` is defined, which takes one argument `text_msg` (the text message to be printed).
+# 2. Inside the function, the `cat` function is used to print `text_msg` to the console.
+# 3. The function applies custom styling to `text_msg` using the `crayon` package:
+#    - `crayon::bgCyan$bold(text_msg)` applies a cyan background color and bold styling to `text_msg`.
+# 4. The `sep = "\n"` argument to `cat` ensures that the output is followed by a new line, so each message is printed on a separate line.
+# 5. The function prints the styled `text_msg` to the console and does not return any value (`NULL` by default).
 function_message_print <- function(text_msg) {
   cat(crayon::bgCyan$bold(text_msg),
       sep = "\n")
 }
 
+# Explanations:
+# 1. The function `get_df_name_as_text` is defined, which takes one argument `my_df` (the data frame for which the name should be retrieved as text).
+# 2. The function uses the `substitute` function to capture the expression used to pass the data frame as `my_df`.
+# 3. The `deparse` function is then used to convert the expression from `substitute` into a character string, which represents the name of the data frame.
+# 4. The resulting character string (`df_name`) is stored in a variable of the same name.
+# 5. The function returns the name of `my_df` as a string (`df_name`).
 get_df_name_as_text <-
   function(my_df) {
     df_name = deparse(substitute(my_df))
     return(df_name)
   }
 
-# # A title
-# if (is.na(title_msg))  {
-#   df_name = deparse(substitute(my_df))
-#   title_msg <- df_name
-# }
-
 # to print the title message in blue.
 title_message_print <- function(title_msg) {
   cat(crayon::blue(title_msg), sep = "\n")
 }
 
-
-# Define a helper function 'my_tee' to print the message to the console and a file.
+# ===
+# Explanations:
+# - This function, `my_tee`, is designed to print messages to both the console and a log file.
+# - The function takes four parameters: 
+#   - `my_text`: The text message to print and log.
+#   - `my_title`: An optional title for the message. If not provided, the function will default to `NA`.
+#   - `stat_log_file_path`: The file path where the message should be logged. If not provided, a default path is created.
+#   - `date_range`: An optional date range used to customize the log file's name. The default value is `2022`.
+# 
+# - The function includes three main operations:
+#   - Print the message to the console with a title.
+#   - Create a log file path and write the message to the log file.
+#   
+# Here's what's happening in detail:
+# 
+# 1. The function `my_tee` is defined with four parameters: `my_text`, `my_title`, `stat_log_file_path`, and `date_range`.
+# 
+# 2. The function initializes a constant `the_end` with the value `"---"`, which is used to mark the end of each message.
+# 
+# 3. If the `date_range` parameter is not provided, it defaults to `2022`.
+# 
+# 4. The function prints the title and message to the console. It uses the function `title_message_print` (not defined in the provided code) to print the title. Then, it prints the text of the message followed by the end mark (`the_end`).
+# 
+# 5. If the `stat_log_file_path` parameter is not provided, the function constructs a default file path using the `Path` and `Outputs` variables (not defined in the provided code) and the current date (`today()`). The file path is constructed with the title, date range, and date as part of the file name.
+# 
+# 6. Finally, the function writes the title, message, and end mark to the log file at the specified path. The function appends the new message to the file if it already exists.
 my_tee <- function(my_text,
                    my_title = NA,
                    stat_log_file_path = NA,
@@ -983,8 +882,33 @@ my_tee <- function(my_text,
 # ===
 # A function to use every time we want to read a ready file or query the database if no files exist. Pressing F2 when the function name is under the cursor will show the function definition.
 
-# The read_rds_or_run function is designed to read data from an RDS file if it exists or run an SQL query to pull the data from Oracle db if the file doesn't exist.
-# See usage below at the `Grab compliance file from Oracle` section
+# Explanations:
+# - This function, `read_rds_or_run`, is designed to read data from an RDS file if it exists or run a specified function to obtain the data and save it as an RDS file if the file does not exist or if the `force_from_db` parameter is set.
+# 
+# Here's what's happening in detail:
+# 
+# 1. **Function Definition**: The function takes four parameters: 
+#    - `my_file_path`: The path to the RDS file to be read or saved.
+#    - `my_data`: The data to be used with the function. Default is an empty data frame.
+#    - `my_function`: The function to be run to obtain the data if necessary.
+#    - `force_from_db`: A flag that, when set, will force the function to run the specified function instead of reading from the file, even if the file exists.
+# 
+# 2. **Check File Existence**: The function first checks if the file specified by `my_file_path` exists and, if so, retrieves its modification time. 
+# 
+# 3. **Read or Run**: Depending on the existence of the file and the `force_from_db` flag:
+#     - **File Exists and `force_from_db` is not set**: If the file exists and `force_from_db` is not set, the function reads the data from the RDS file using `readr::read_rds(my_file_path)` and assigns it to `my_result`.
+#     - **File Does Not Exist or `force_from_db` is set**: If the file does not exist or `force_from_db` is set, the function follows these steps:
+#         - Prints a message indicating the file doesn't exist and data will be pulled from the database.
+#         - Times the function execution using `tictoc::tic()` and starts with a message indicating the date and purpose of the run.
+#         - Runs the specified function (`my_function`) on the provided `my_data` to generate the result (`my_result`), e.g., downloading data from the Oracle database.
+#         - Stops timing the function execution using `tictoc::toc()`.
+#         - Saves the result as an RDS file to the specified `my_file_path` for future use using `readr::write_rds(my_result, my_file_path)`. A `try` block is used to handle potential errors in writing the file.
+#         - Prints a message indicating that the new data is being saved into a file.
+# 
+# 4. **Print File Information**: After obtaining the data, the function prints the file name and modification time to provide information on when the data was last downloaded or modified.
+# 
+# 5. **Return**: The function returns the generated or read data (`my_result`).
+
 read_rds_or_run <- function(my_file_path,
                             my_data = as.data.frame(""),
                             my_function,
@@ -1062,35 +986,17 @@ remove_empty_cols <- function(my_df) {
     return()
 }
 
-remove_0_cols <- function(my_df) {
-  not_all_0 <- function(x)
-  {
-    any(!x == 0)
-  }
-
-  my_df |>
-    select(where(not_all_0)) %>%
-    return()
-}
-
-# ===
-# Function to create a directory if it doesn't exist
-create_dir_if_not <- function(curr_dir_name) {
-  # Check if the directory does not exist
-  if (!dir.exists(curr_dir_name)) {
-    dir.create(curr_dir_name)  # Create the directory if it doesn't exist
-  }
-}
-
 # Functions always used for all compliance/correspondence preparation. End
 
 # get cleaned compliance and correspondence dfs
 temp_var <-
   get_compl_and_corresp_data(my_paths$inputs, all_csv_names_list)
 
+# rename variables
 compl_clean_list <- temp_var[[1]]
 corresp_contact_cnts_clean0 <- temp_var[[2]]
 
+# add names
 names(compl_clean_list) <- c(my_year1, my_year2)
 
 # check
@@ -1100,8 +1006,8 @@ map(compl_clean_list, dim)
 compl_clean <-
   rbind(compl_clean_list[[my_year1]], compl_clean_list[[my_year2]])
 
+# check
 dim(compl_clean)
-
 dim(corresp_contact_cnts_clean0)
 
 ## get Metric Tracking (permits from FHIER) ----
@@ -1109,7 +1015,9 @@ processed_input_data_path <-
   file.path(my_paths$inputs,
             "processing_logbook_data",
             "Outputs")
-dir.exists(processed_input_data_path)
+
+# optional
+# dir.exists(processed_input_data_path)
 # T  
 
 # file names for all years
@@ -1128,7 +1036,7 @@ processed_metrics_tracking_file_names <-
     value = TRUE
   )
 
-# read the rest
+# read the rest in a loop
 processed_metrics_tracking_permits <-
   map_df(processed_metrics_tracking_file_names,
          read_rds)
@@ -1138,62 +1046,120 @@ names(processed_metrics_tracking_permits) <-
   names(processed_metrics_tracking_permits) |>
   tolower()
 
+# check
 dim(processed_metrics_tracking_permits)
 
 ## get Physical Address List from FHIER ----
+# download first
 # REPORTS / For-hire Primary Physical Address List
-
 fhier_addresses_path <-
   file.path(
     my_paths$inputs,
     r"(from_Fhier\address\For-hire Primary Physical Address List_04_09_2024.csv)"
   )
 
+# optional
 file.exists(fhier_addresses_path)
 
+# read file
+# Explanations:
+# - The code snippet reads a CSV file and stores its data in the `fhier_addresses` variable. The `read_csv` function from the `readr` package is used for this purpose.
+# 
+# Here's what's happening in detail:
+#   
+#   1. **Function Call**: The `read_csv` function is called with specific parameters:
+#   - `fhier_addresses_path`: The path to the CSV file to be read. This is the source file that contains the data you want to load into the `fhier_addresses` variable.
+# - `col_types = cols(.default = 'c')`: This argument specifies the types of columns in the CSV file. The `.default = 'c'` part indicates that all columns should be treated as character data (text data).
+# - `name_repair = fix_names`: This parameter specifies a function (in this case, `fix_names`) that will be used to clean and repair the column names of the data frame after reading the CSV file.
+# 
+# 2. **Loading Data**: The function reads the CSV file located at `fhier_addresses_path` according to the specified column types (all character) and repairs the column names using `fix_names`.
+# 
+# 3. **Storing Data**: The data read from the CSV file is stored in the `fhier_addresses` variable, which is now a data frame with the data from the CSV file.
+# 
+# Overall, the function reads a CSV file, treats all columns as character data, repairs column names, and stores the resulting data frame in the `fhier_addresses` variable.
 fhier_addresses <-
   read_csv(fhier_addresses_path,
-           # read all as characters
            col_types = cols(.default = 'c'),
            name_repair = fix_names)
 
 # PIMS ----
 ## get home port processed city and state ----
+# download first
 
+# set a path
 processed_pims_home_ports_path <-
   file.path(my_paths$outputs,
               "home_ports",
               "vessels_from_pims_ports.csv")
 
+# read
 processed_pims_home_ports <- 
   read_csv(processed_pims_home_ports_path)
 
 # Oracle db ----
 ## get owners addresses ----
+# set variables to use as read_rds_or_run parameters
+# the SQL query
 db_participants_address_query <-
   "select * from
 SRH.MV_SERO_VESSEL_ENTITY@secapxdv_dblk
 "
 
+# the existing file path
 db_participants_address_file_path <-
   file.path(my_paths$inputs,
             current_project_name,
             "db_participants_address.rds")
  
+# optional
 # dir.exists(file.path(my_paths$inputs,
 #             current_project_name))
 
-# err msg if no connection, but keep running
+# Explanations:
+# Establish a connection to a database, only if one does not already exist.
+# 
+# 1. **Condition Check**: The code begins with a conditional statement that checks if the object `con` exists in the current environment using the `exists` function. 
+#     - `exists("con")`: This function checks whether a variable or object named `con` exists in the current environment.
+#     - The function returns `TRUE` if `con` exists, and `FALSE` otherwise.
+# 
+# 2. **Establishing Connection**: If the object `con` does not exist (`!exists("con")` evaluates to `TRUE`), the code inside the block executes. This means a connection needs to be established.
+# 
+# 3. **Using `try`**: The code inside the block uses the `try` function:
+#     - `try(con <- connect_to_secpr())`: This expression attempts to establish a connection using the `connect_to_secpr()` function and assigns the result to the `con` variable.
+#     - `try` is used here to handle potential errors that might occur during the connection process, such as connection timeouts or incorrect credentials. If an error occurs, the `try` function will catch it and prevent the script from terminating.
+# 
+# 4. **End Result**: If the `connect_to_secpr()` function executes successfully, the connection object (`con`) is created and available for further operations. If an error occurs, the `try` function will handle it gracefully.
+# 
+# In summary, the code checks if a database connection (`con`) already exists. If not, it attempts to establish a connection using the `connect_to_secpr()` function, and any potential errors during the connection process are handled using the `try` function.
 if (!exists("con")) {
   try(con <- connect_to_secpr())
 }
 
+# crate an aux function to use in read_rds_or_run()
+# Explanations:
+# This function executes a given SQL query on a database using an established connection (`con`) and returns the results.
+# 
+# 1. **Function Definition**: 
+#     - `function(db_participants_address)`: This line defines the function named `db_participants_address_fun` and specifies that it accepts one argument (`db_participants_address`). This argument is expected to be a string containing an SQL query.
+# 
+# 2. **Query Execution and Return**:
+#     - `return(dbGetQuery(con, db_participants_address))`: 
+#         - The function executes the SQL query provided in the `db_participants_address` argument using the established database connection `con`.
+#         - The function `dbGetQuery` is part of the `DBI` package, which is commonly used for interacting with databases in R.
+#         - The function takes two arguments: the connection object (`con`) and the SQL query (`db_participants_address`).
+#         - It executes the SQL query on the database and returns the result as a data frame.
+#     - The result of the `dbGetQuery` function is returned as the output of the function `db_participants_address_fun`.
+# 
+# In summary, `db_participants_address_fun` takes an SQL query string as input, executes the query on the database using an established connection (`con`), and returns the result as a data frame.
 db_participants_address_fun <-
   function(db_participants_address) {
-    # browser()
     return(dbGetQuery(con,
                       db_participants_address))
   }
+
+# This code reads data from a file (or a database query if the file doesn't exist) using read_rds_or_run, cleans up the data by removing empty columns with remove_empty_cols, and standardizes column names with clean_headers.
+# See the full functions definition above (F2).
+# Use force_from_db = "yes" parameter to force a new pull for the DB
 
 db_participants_address <-
   read_rds_or_run(
@@ -1206,6 +1172,7 @@ db_participants_address <-
   clean_headers()
 # 2024-04-09 run for db_participants_address.rds: 52.22 sec elapsed
 
+# check
 dim(db_participants_address)
 
 # Data from the previous results of "egregious violators for investigation" ----
