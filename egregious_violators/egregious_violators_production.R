@@ -1761,6 +1761,8 @@ compl_corr_to_investigation__corr_date__hailing_port <-
 
 ##### fewer fields ----
 # fhier_addresses are from get_data (For-hire Primary Physical Address List)
+
+# fewer columns
 fhier_addr_short <-
   fhier_addresses |>
   select(
@@ -1775,6 +1777,74 @@ fhier_addr_short <-
     phone_number,
     primary_email
   )
+
+# Explanations:
+# The purpose of the function is to clean character-type columns.
+# 
+# 1. **Input**:
+#     - The function takes a dataframe called `my_df` as input.
+# 
+# 2. **Data Cleaning Operations**:
+#     - The function uses the `mutate` function from the `dplyr` package to modify columns in `my_df`.
+#     - `across(where(is.character), ...)`: This clause specifies that the following operations should be applied across all character-type columns in `my_df`.
+#     - Each operation is explained below:
+# 
+#         - `str_squish(.x)`: This function trims leading and trailing whitespace and reduces multiple spaces between words to a single space.
+#         - `replace_na(.x, "")`: This function replaces `NA` values with an empty string `""`.
+#         - `str_replace_all(.x, ", ;", ";")`: This function replaces occurrences of ", ;" with ";".
+#         - `str_replace_all(.x, "\\s+[,;]", ",")`: This function replaces any spaces followed by "," or ";" with a single comma.
+#         - `str_replace_all(.x, ";,+", ";")`: This function replaces sequences of ";," with a single ";".
+#         - `str_replace_all(.x, ";;+", ";")`: This function replaces consecutive ";" characters with a single ";".
+#         - `str_replace_all(.x, ",,+", ",")`: This function replaces consecutive "," characters with a single ",".
+#         - `str_replace_all(.x, "[,;] *\\bUN\\b *", "")`: This function removes occurrences of ", UN", "; UN", or "UN ;" from the strings.
+#         - `str_replace_all(.x, "\\bUN\\b", "")`: This function removes standalone occurrences of "UN" from the strings.
+#         - `str_replace_all(.x, "\\s*\\bUN\\b\\s*", "")`: This function removes occurrences of "UN" surrounded by whitespace from the strings.
+#         - `str_replace_all(.x, "^[,;] ", "")`: This function removes leading ", " or "; " from the strings.
+#         - `str_replace_all(.x, "^[,;]$", "")`: This function removes trailing "," or ";" from the strings.
+#         - `str_replace_all(.x, "[,;]$", "")`: This function removes trailing "," or ";" from the strings.
+#         - The final operation is another `str_squish(.x)`, which trims any remaining whitespace and reduces multiple spaces between words to a single space.
+# 
+# 3. **Output**:
+#     - The function returns a cleaned dataframe named `my_df_cleaned`.
+#     - This dataframe contains the original data with character-type columns cleaned according to the specified operations.
+# 
+clean_names_and_addresses <- function(my_df) {
+
+  my_df_cleaned <-
+    my_df |>
+    mutate(
+      across(where(is.character),
+             ~ str_squish(.x)),
+      across(where(is.character),
+             ~ replace_na(.x, "")),
+      across(where(is.character),
+             ~ str_replace_all(.x, ", ;", ";")),
+      across(where(is.character),
+             ~ str_replace_all(.x, "\\s+[,;]", ",")),
+      across(where(is.character),
+             ~ str_replace_all(.x, ";,+", ";")),
+      across(where(is.character),
+             ~ str_replace_all(.x, ";;+", ";")),
+      across(where(is.character),
+             ~ str_replace_all(.x, ",,+", ",")),
+      across(where(is.character),
+             ~ str_replace_all(.x, "[,;] *\\bUN\\b *", "")),
+      across(where(is.character),
+                          ~ str_replace_all(.x, "\\bUN\\b", "")),
+      across(where(is.character),
+             ~ str_replace_all(.x, "\\s*\\bUN\\b\\s*", "")),
+      across(where(is.character),
+             ~ str_replace_all(.x, "^[,;] ", "")),
+      across(where(is.character),
+             ~ str_replace_all(.x, "^[,;]$", "")),
+      across(where(is.character),
+             ~ str_replace_all(.x, "[,;]$", "")),
+      across(where(is.character),
+             ~ str_squish(.x))
+    )
+
+  return(my_df_cleaned)
+}
 
 fhier_addr_short_clean <-
   fhier_addr_short |>
@@ -1954,6 +2024,37 @@ col_part_names <-
     "mailing_state",
     "mailing_zip_code"
   )
+
+# combine columns into one
+
+# Explanations:
+# - The function `list_sort_uniq` is designed to take a list of strings as input, perform various transformations on the list, and return a sorted list with unique elements. 
+# 
+# 1. **Input**:
+#     - The function accepts a single argument `my_lists`, which is expected to be a list of strings.
+# 
+# 2. **Data Processing**:
+#     - The function performs the following operations on `my_lists`:
+#         - `str_trim()`: This function trims leading and trailing whitespace from each string in the list.
+#         - `unique()`: This function removes duplicate elements from the list, keeping only unique strings.
+#         - `sort()`: This function sorts the list of unique strings in alphabetical order.
+#         - `list()`: This function converts the sorted unique list back to a list data type.
+#         - `flatten()`: This function flattens the list, converting it to a simple list of unique, sorted strings.
+# 
+# 3. **Output**:
+#     - The function returns a list that contains unique and sorted strings from the input list `my_lists`.
+# 
+list_sort_uniq <- function(my_lists) {
+  res <-
+    my_lists |>
+    str_trim() |>
+    unique() |>
+    sort() |>
+    list() |>
+    flatten()
+  return(res)
+}
+
 
 # Explanations:
 # 1. **Time Measurement**:
@@ -2247,7 +2348,6 @@ compl_corr_to_investigation_short_dup_marked__permit_region__add_columns <-
     Notes = NA,
     .before = 2
   )
-
 
 # create the output file path
 result_path <- 
