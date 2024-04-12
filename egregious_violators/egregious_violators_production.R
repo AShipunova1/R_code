@@ -1179,21 +1179,27 @@ dim(db_participants_address)
 # Download first as .xlsx
 
 # get previous results ---
+# download from Google drive first
+# set the filepath
 prev_result_path <- 
   file.path(my_paths$inputs,
             current_project_name,
             "egregious violators for investigation_2023-08-15_to_2024-02-13_OLE.xlsx")
 
+# optional
 # file.exists(prev_result_path)
+# This code reads data from an Excel file using read.xlsx, cleans up the data by removing empty columns with remove_empty_cols, and standardizes column names with clean_headers. The processed data is stored in the variable prev_result.
 
 prev_result <-
   read.xlsx(prev_result_path) |> 
   remove_empty_cols() |> 
   clean_headers()
 
+# check
 dim(prev_result)
 
 # Results ----
+# Combine result names from "Get data"
 results <-
   c(
     "compl_clean",
@@ -1205,6 +1211,7 @@ results <-
     "db_participants_address"
   )
 
+# Print them out onto the console
 cat(c("Data are in:",
       results),
     sep = "\n")
@@ -1230,18 +1237,16 @@ compl_clean_w_permit_exp <-
              .default = "yes"
            ))
 
-# glimpse(compl_clean_w_permit_exp)
-
-### get only not expired last 27 weeks of data minus grace period ----
+### get only not expired for the predefined period of data (half_year_ago) minus the grace period ----
 compl_clean_w_permit_exp__not_exp <-
   compl_clean_w_permit_exp |>
-  # the last 27 week
   filter(week_start > half_year_ago) |>
   # before the last week (a report's grace period)
   filter(week_end < last_week_start) |>
   # not expired
   filter(tolower(permit_expired) == "no")
 
+# check, optional
 min(compl_clean_w_permit_exp__not_exp$permit_groupexpiration)
 # [1] "2024-02-29 EST"
 
@@ -1255,15 +1260,33 @@ max(compl_clean_w_permit_exp__not_exp$week_end)
 # [1] "2024-02-04"
 
 ## ---- add year_month column ----
-
+# Explanations:
+# - This code snippet performs filtering and transformation on a data frame (`compl_clean_w_permit_exp__not_exp`) to keep only entries for the last six months (half a year) from a given check period.
+# 
+# 1. **Data Frame Transformation**:
+#     - `compl_clean_w_permit_exp__not_exp`:
+#         - This is the data frame that will be processed.
+#         
+# 2. **Adding a New Column**:
+#     - `|> mutate(year_month = as.yearmon(week_start))`:
+#         - The pipe operator (`|>`) is used to pass the data frame to the `mutate` function.
+#         - The function adds a new column `year_month` to the data frame by converting the `week_start` column to year-month format using the `as.yearmon` function.
+#         - The `as.yearmon` function converts the given date to a year-month format for easier filtering.
+# 
+# 3. **Filtering Data**:
+#     - `|> filter(year_month >= as.yearmon(half_year_ago))`:
+#         - The pipe operator (`|>`) passes the data frame from the previous step to the `filter` function.
+#         - The function filters the data frame to keep only entries where the `year_month` value is greater than or equal to the value of `as.yearmon(half_year_ago)`.
+#         - This means that only entries from the last six months (or half a year) from the current date will be kept.
+# 
+# In summary, this code transforms the data frame by adding a `year_month` column using the `week_start` column, then filters the data to keep only entries from the last six months from a given check period. The processed data is stored in the variable `compl_clean_w_permit_exp_last_half_year`.
 compl_clean_w_permit_exp_last_half_year <-
   compl_clean_w_permit_exp__not_exp |>
   mutate(year_month = as.yearmon(week_start)) |>
-  # keep entries for the last check period
   filter(year_month >= as.yearmon(half_year_ago))
 
+# check, optional
 dim(compl_clean_w_permit_exp)
-
 dim(compl_clean_w_permit_exp_last_half_year)
 
 ## ---- Have only SA and dual permits ----
@@ -1279,9 +1302,11 @@ compl_clean_w_permit_exp_last_half_year__sa <-
 # [1] "2024-02-16"
 # [1] "2024-04-09"
 
+# check, optional
 dim(compl_clean_w_permit_exp_last_half_year__sa)
 
 ## fewer columns ----
+# create a variable with column names to remove
 remove_columns <- c(
   "name",
   "gom_permitteddeclarations__",
@@ -1304,20 +1329,54 @@ compl_clean_w_permit_exp_last_half_year__sa__short <-
   select(-any_of(remove_columns)) |> 
   distinct()
 
+# check, optional
 dim(compl_clean_w_permit_exp_last_half_year__sa__short)
 
-## work with the whole period ----
+# Work with the whole period
 ## add compliant_after_overr ----
+# ===
+# Combine compliant and override values
+# Explanations:
+# 1. Create a new variable 'res' to store the result.
+# 2. Use 'rowwise' to perform operations row by row.
+# 3. Use 'mutate' to create a new column 'compliant_after_override' based on conditions specified in 'case_when'.
+#    - If 'is_comp' is 0 and 'overridden' is 0, set 'compliant_after_override' to "no".
+#    - If 'is_comp' is 1 or 'overridden' is 1, set 'compliant_after_override' to "yes".
+#    - If 'is_comp' is NA, set 'compliant_after_override' to NA.
+#    - For all other cases, set 'compliant_after_override' to the string representation of 'is_comp'.
+# 4. Use 'ungroup' to remove grouping from the data frame.
 
-tic("compl_overr")
+add_compliant_after_override <-
+  function(my_compl_df,
+           overridden_col_name = "overridden",
+           compliance_col_name = "is_comp") {
+  # browser()
+  res <-
+    my_compl_df |>
+    rowwise() |>
+    mutate(
+      compliant_after_override =
+        case_when(
+          !!sym(compliance_col_name) %in% c(0, "NO") &
+            !!sym(overridden_col_name) %in% c(0, "NO")  ~ "no",
+          !!sym(compliance_col_name) %in% c(1, "YES") ~ "yes",
+          !!sym(overridden_col_name) %in% c(1, "YES") ~ "yes",
+          is.na(!!sym(compliance_col_name)) ~ NA,
+          .default = toString(!!sym(compliance_col_name))
+        )
+    ) |>
+    ungroup()
+
+  return(res)
+}
+
+# See the explanations for add_compliant_after_override() above (F2)
 compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr <-
   compl_clean_w_permit_exp_last_half_year__sa__short |>
   add_compliant_after_override(overridden_col_name = "overridden_",
                                compliance_col_name = "compliant_")
-toc()
-# compl_overr: 8.76 sec elapsed
 
-# check
+# check, optional
 compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr |> 
   select(compliant_, overridden_, compliant_after_override) |>
   count(compliant_, overridden_, compliant_after_override)
@@ -1327,14 +1386,15 @@ compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr |>
 # 2 NO         YES         yes                         70
 # 3 YES        NO          yes                      29628
 
-# check
+# check, optional
 compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr$compliant_after_override |> 
   unique()
 # [1] "yes" "no" 
 
+# check, optional
 dim(compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr)
 
-# check
+# check, optional
 n_distinct(compl_clean_w_permit_exp_last_half_year__sa$vessel_official_number) ==
   n_distinct(
     compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr$vessel_official_number
@@ -1347,9 +1407,11 @@ compl_clean_w_permit_exp_last_half_year__sa_non_c <-
   # not compliant
   filter(tolower(compliant_after_override) == "no")
 
+# check, optional
 dim(compl_clean_w_permit_exp_last_half_year__sa_non_c)
 
 ## keep only vessels with info for all weeks in the period ----
+# get the total number weeks in the period
 all_weeks_num <-
   compl_clean_w_permit_exp_last_half_year__sa_non_c |>
   select(week) |>
@@ -1369,8 +1431,8 @@ compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present <-
   ungroup() |> 
   select(-week)
 
+# check, optional
 compl_clean_w_permit_exp_last_half_year__sa_non_c |> dim()
-
 dim(compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present)
 
 ## check the last report date ----
@@ -1380,9 +1442,11 @@ compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present__vesl_ids <
   select(vessel_official_number) |>
   distinct()
 
+# check, optional
 dim(compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present__vesl_ids)
 
 ### check these ids in the full compliance information ----
+# optional
 compl_clean_w_permit_exp_last_half_year__sa |>
   filter(
     vessel_official_number %in% compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present__vesl_ids$vessel_official_number
@@ -1412,8 +1476,10 @@ corresp_contact_cnts_clean <-
   corresp_contact_cnts_clean0 |>
   filter(!grepl("^99999", vessel_official_number))
 
+# check, optional
 n_distinct(corresp_contact_cnts_clean$vesselofficial_number)
 
+# New requirements
 # "2023-08-09"
 # Michelle
 # It should be at least 2 contact "attempts". i.e., if they are ignoring our calls and emails then they cannot continue to go on in perpetuity without reporting and never be seen as egregious. So, at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough at this point and they need to be passed to OLE.
@@ -1425,85 +1491,69 @@ n_distinct(corresp_contact_cnts_clean$vesselofficial_number)
 # Michelle
 # It needs to be that we called at least 1 time and emailed at least 1 time. Or they contacted us at least once.
 
-# check
+# check, optional
 corresp_contact_cnts_clean |>
   select(calltype, voicemail, contacttype) |>
   distinct() |> head(10)
 
+# Create filters to be used later on for filtering data frames based on the specified criteria.
+
+# Explanations:
+#   Quotation:
+# 
+# we_called_filter <- quo(any(...)):
+# The quo function creates a quoted expression (a lazy evaluation) that captures the provided code.
+# we_called_filter is the variable where this quoted expression is stored.
+# any() function returns TRUE if any element in the provided condition is true; otherwise, it returns FALSE.
+
+
+# 1)
+# This code defines a filtering condition (we_called_filter) using the quo function. The condition checks whether any row in a data frame has contacttype equal to "call" (case-insensitive) and calltype equal to "outgoing" (also case-insensitive).
 we_called_filter <-
   quo(any(tolower(contacttype) == "call" &
         tolower(calltype) == "outgoing"))
 
+# 2)
+# This code defines a filtering condition (we_emailed_once_filter) using the quo function. The condition checks whether any row in a data frame has a contacttype equal to "email" or "other" (both case-insensitive) and a calltype equal to "outgoing" (case-insensitive). 
 we_emailed_once_filter <-
   quo(any(
     tolower(contacttype) %in% c("email", "other") &
       tolower(calltype) == "outgoing"
   ))
 
+# 3)
 # don't need a second contact
+# This code defines a filtering condition (they_contacted_direct_filter) using the quo function. The condition checks whether any row in a data frame has a calltype equal to "incoming" (case-insensitive). 
 they_contacted_direct_filter <-
-  quo(
-    any(
-      tolower(calltype) == "incoming"
-      )
-  )
+  quo(any(tolower(calltype) == "incoming"))
 
-# corresp_filter <-
-#   quo(!!they_contacted_direct_filter |
-#         (
-#           contact_freq > 1 &
-#             (!!we_called_filter &
-#                !!we_emailed_once_filter)
-#         ))
-
-# calltype voicemail contacttype
-
-# two_attempts_filter <-
-#   quo(contact_freq > 1 &
-#         any(tolower(contacttype) == "call"))
-
-# use the filter
+# use the filters
+# Explanations:
+#     - The filtering operation contains multiple conditions combined with the logical OR (`|`) operator:
+#         - `tolower(calltype) == "incoming"`:
+#             - This condition filters rows where the `calltype` column (converted to lowercase using `tolower()`) is equal to `"incoming"`.
+#         - `(contact_freq > 1 & (!!we_called_filter & !!we_emailed_once_filter))`:
+#             - This condition is evaluated if `contact_freq` is greater than 1, and it combines two quoted expressions (`we_called_filter` and `we_emailed_once_filter`).
+#             - `we_called_filter` and `we_emailed_once_filter` are captured expressions (using `quo`), which are then unquoted (`!!`) and evaluated in the context of the data frame.
+#             - If both `we_called_filter` and `we_emailed_once_filter` conditions are true, the filter will include rows where `contact_freq` is greater than 1.
+# 
+# In summary, the code snippet filters the data frame `corresp_contact_cnts_clean` based on the specified conditions. It retains rows where the `calltype` is "incoming" or rows that satisfy the combined conditions of `contact_freq > 1`, `we_called_filter`, and `we_emailed_once_filter`.
 corresp_contact_cnts_clean_direct_cnt_2atmps <-
   corresp_contact_cnts_clean |>
-  # select(calltype) |> distinct()
   filter(tolower(calltype) == "incoming" |
            (
              contact_freq > 1 &
                (!!we_called_filter &
                   !!we_emailed_once_filter)
            ))
-  # filter(tolower(calltype) == "incoming" |
-  #          (contact_freq > 1 &
-  #             (
-  #               any(
-  #                 tolower(contacttype) == "call" &
-  #                   tolower(calltype) == "outgoing" &
-  #                   tolower(contacttype) %in% c("email", "other") &
-  #                   tolower(calltype) == "outcoming"
-  #               )
-  #             ))) |>
-  # filter(vesselofficial_number == '1149600') |>
-  # glimpse()
-# filter(!!corresp_filter)
 
-corresp_contact_cnts_clean_direct_cnt_2atmps |> 
-  filter(vesselofficial_number == '1168661') |> 
-  glimpse()
-
-# corresp_contact_cnts_clean |>
-#   filter(!!they_contacted_direct_filter |
-#   (contact_freq > 1 &
-#             (!!we_called_filter &
-#                !!we_emailed_once_filter))) |> 
-#   glimpse()
-
+# check, optional
 dim(corresp_contact_cnts_clean)
 dim(corresp_contact_cnts_clean_direct_cnt_2atmps)
-
 n_distinct(corresp_contact_cnts_clean_direct_cnt_2atmps$vesselofficial_number)
 
 ## fix dates ----
-# check
+# check, optional
 head(corresp_contact_cnts_clean_direct_cnt_2atmps$contact_date, 1) |> str()
  # chr "02/15/2024 03:15PM"
 
