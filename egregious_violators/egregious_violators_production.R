@@ -403,21 +403,6 @@ aux_fun_for_dates <- function(x, date_format) {
   return(out)
 }
 
-# ===
-  # # Previously
-  # across(a:b, mean, na.rm = TRUE)
-  #
-  # # Now
-  # across(a:b, \(x) mean(x, na.rm = TRUE))
-# change_fields_arr_to_dates <- function(my_df, field_names_arr, date_format) {
-#   my_df %>%
-#     mutate(across(all_of(field_names_arr), aux_fun_for_dates, date_format)) %>%
-#
-#     # mutate({{field_name}} := as.POSIXct(pull(my_df[field_name]),
-#                                         # format = date_format)) %>%
-#     return()
-# }
-
 # The change_fields_arr_to_dates function is defined to convert multiple columns specified in 'field_names_arr' in the input data frame ('my_df') to POSIXct date format using the provided 'date_format'.
 # Inside the function, it uses the mutate function along with across from the dplyr package to target and modify the specified columns in 'field_names_arr'. The all_of(field_names_arr) ensures that all the columns listed in 'field_names_arr' are selected.
 
