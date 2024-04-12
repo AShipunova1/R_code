@@ -1272,8 +1272,6 @@ current_project_path <-
 
 # make a flat file ----
 
-"C:\Users\anna.shipunova\Documents\R_code_github\egregious_violators\get_data_egregious_violators.R"
-
 files_to_combine <-
   c("~/R_code_github/useful_functions_module.r",
     file.path(current_project_path, "db_functions.R"),
