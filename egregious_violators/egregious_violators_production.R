@@ -84,24 +84,27 @@ if (get_username() == "anna.shipunova") {
   set_work_dir <- set_work_dir_local
 }
 
+# Add your paths here
 annas_path <- set_work_dir()
+
+# Change to your path
 my_paths <- annas_path
 
+# get this project name
 current_project_dir_name <- this.path::this.dir()
 
-current_project_basename <-
+# find its base name
+current_project_name <-
   basename(current_project_dir_name)
 
-curr_proj_output_path <- file.path(my_paths$outputs,
-                         current_project_basename)
-
+# use current_project_name to create input and output path
 curr_proj_input_path <- file.path(my_paths$inputs,
-                         current_project_basename)
+                         current_project_name)
 
-current_project_name <- current_project_basename
+curr_proj_output_path <- file.path(my_paths$outputs,
+                         current_project_name)
 
-all_inputs <- my_paths$inputs
-
+# set years and dates
 my_year1 <- "2023"
 my_beginning1 <- str_glue("{my_year1}-01-01")
 my_end1 <- str_glue("{my_year1}-12-31")
@@ -110,10 +113,15 @@ my_year2 <- "2024"
 my_beginning2 <- str_glue("{my_year2}-01-01")
 my_end2 <- str_glue("{my_year2}-12-31")
 
+# save today's date
 data_file_date <- 
   today()
 
+# define constants and variables to calculate egregious violation period
+# how many weeks
 number_of_weeks_for_non_compliancy = 26
+
+# how many days
 days_in_non_compl_weeks <- 
   number_of_weeks_for_non_compliancy * 7
 
@@ -131,9 +139,6 @@ last_week_start <- data_file_date - grace_period
 # get_data_path <- 
 #   file.path(current_project_path, "egregious_violators_get_data.R")
 # source(get_data_path)
-
-# get data for egregious violators
-# use from egregious_violators_start.R
 
 # 1) compliance data
 # Download files from FHIER / Reports / FHIER COMPLIANCE REPORT 
@@ -1224,7 +1229,7 @@ dim(db_participants_address)
 # get previous results ---
 prev_result_path <- 
   file.path(my_paths$inputs,
-            current_project_basename,
+            current_project_name,
             "egregious violators for investigation_2023-08-15_to_2024-02-13_OLE.xlsx")
 
 # file.exists(prev_result_path)
@@ -1755,7 +1760,7 @@ compl_corr_to_investigation__corr_date__hailing_port <-
 
 prep_addresses_path <-
   file.path(current_project_path,
-            str_glue("{current_project_basename}_prep_addresses.R"))
+            str_glue("{current_project_name}_prep_addresses.R"))
 
 file.exists(prep_addresses_path)
 
@@ -1856,7 +1861,7 @@ compl_corr_to_investigation_short_dup_marked__permit_region__add_columns <-
 
 result_path <- 
   file.path(my_paths$outputs,
-            current_project_basename,
+            current_project_name,
             str_glue("egregious_violators_to_investigate_{today()}.csv"))
 
 compl_corr_to_investigation_short_dup_marked__permit_region__add_columns |>
