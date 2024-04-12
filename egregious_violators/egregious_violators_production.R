@@ -1756,7 +1756,6 @@ compl_corr_to_investigation__corr_date__hailing_port <-
 ### add prepared addresses ----
 
 # Manually check missing addresses
-is_empty <- c(NA, "NA", "", "UN", "N/A")
 
 #### From FHIER ----
 
@@ -1832,28 +1831,49 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>
 # 0
 
 ##### vessels with no addresses ----
+# This defines a vector called is_empty that contains various values that can represent an empty state or missing value.
+# The vector contains different representations of empty or missing values:
+# NA: This is a special value in R representing a missing or undefined value.
+# "NA": This is the string representation of NA, which might appear in data.
+# "": An empty string, often used to represent a missing value in character data.
+# "UN": A string that might be used to represent an unknown value in data.
+# "N/A": A string abbreviation for "Not Applicable," commonly used to represent a value that is not available or relevant.
 
-# print_df_names(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
+is_empty <- c(NA, "NA", "", "UN", "N/A")
+
+# Explanations:
+# 1. **Filtering Dataset**:
+#     - `compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |> filter(physical_address_1 %in% is_empty) |> select(vessel_official_number) |> distinct()`
+#     - The pipe operator (`|>`) chains multiple data manipulation steps together.
+#     - The first step applies the `filter()` function to `compl_corr_to_investigation__corr_date__hailing_port__fhier_addr`:
+#         - This function filters rows based on a condition involving the `physical_address_1` column.
+#         - The condition checks if `physical_address_1` is in the `is_empty` vector. This vector contains different representations of empty or missing values (`NA`, `"NA"`, `""`, `"UN"`, `"N/A"`).
+#     - The next step uses `select()` to choose only the `vessel_official_number` column from the filtered data.
+#     - The final step applies `distinct()` to remove duplicate values from the `vessel_official_number` column.
+# 
+# 2. **Result**:
+#     - The filtered dataset `no_addr_vsl_ids` contains only unique vessel official numbers (`vessel_official_number`) from the input dataset where the `physical_address_1` field is considered empty or missing based on the `is_empty` vector.
 no_addr_vsl_ids <- 
   compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |> 
   filter(physical_address_1 %in% is_empty) |> 
   select(vessel_official_number) |> 
   distinct()
 
+# check, optional
 n_distinct(no_addr_vsl_ids$vessel_official_number)
 # 109
 # 71
-# [1] "656222"   "FL0450JN"
 
 #### From Oracle db ----
+# for vessels still without addresses get data from DB
 db_participants_address__needed <-
   db_participants_address |>
   filter(official_number %in% no_addr_vsl_ids$vessel_official_number) |>
   distinct()
 
+# check, optional
 dim(db_participants_address__needed)
 # [1] 139  37
-
 n_distinct(db_participants_address__needed$official_number)
 # 71
 
@@ -1882,25 +1902,39 @@ db_participants_address__needed_short <-
   ) |>
   distinct()
 
+# check, optional
 nrow(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
 # 199
 n_distinct(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr$vessel_official_number)
 # 199
 # one vessel per row
 
-# have to combine rows
+# check, optional
+# if combine rows
 dim(db_participants_address__needed_short)
 # 106
 n_distinct(db_participants_address__needed_short$official_number)
 # 71
 
 ##### combine area and phone numbers ----
+# Explanations:
+# 1. **Adding New Columns**:
+#     - `db_participants_address__needed_short |> mutate(erv_phone = paste0(erv_ph_area, erv_ph_number), erb_phone = paste0(erb_ph_area, erb_ph_number))`
+#     - The pipe operator (`|>`) is used to chain the operation.
+#     - The `mutate()` function creates two new columns in the dataset:
+#         - `erv_phone`: This column is created by concatenating the `erv_ph_area` and `erv_ph_number` columns using the `paste0()` function. This function concatenates the two inputs without any separator, creating a phone number string.
+#         - `erb_phone`: Similarly, this column is created by concatenating the `erb_ph_area` and `erb_ph_number` columns using `paste0()`.
+#     - The newly created columns (`erv_phone` and `erb_phone`) are added to the `db_participants_address__needed_short` dataset.
+# 
+# 2. **Result**:
+#     - The `db_participants_address__needed_short` dataset now includes the two additional columns, `erv_phone` and `erb_phone`, which contain concatenated phone number strings based on their respective area codes and phone numbers.
 db_participants_address__needed_short__phone0 <- 
   db_participants_address__needed_short |> 
   mutate(erv_phone = paste0(erv_ph_area, erv_ph_number),
          erb_phone = paste0(erb_ph_area, erb_ph_number))
 
 ##### make erv and erb combinations ----
+# list of column parts
 col_part_names <-
   c(
     "entity_name",
@@ -1921,6 +1955,35 @@ col_part_names <-
     "mailing_zip_code"
   )
 
+# Explanations:
+# 1. **Time Measurement**:
+#     - `tic("map all pairs")`: This line starts a timer with the label "map all pairs." The timer will measure the execution time for the subsequent code block.
+#     - `toc()`: This function ends the timer started by `tic()` and prints the elapsed time with the label "map all pairs."
+# 
+# 2. **Data Manipulation**:
+#     - The code uses `map()` to iterate over the list of column parts (`col_part_names`) and apply a transformation function to each part.
+#     - `col_part_names |>`:
+#         - The pipe operator (`|>`) is used to pass the list of column parts (`col_part_names`) as input to the next function.
+#     - `map(\(curr_col_part) { ... })`:
+#         - The `map()` function applies the provided function to each element of `col_part_names`. The function is defined using a lambda function (`\(curr_col_part)`), where `curr_col_part` is the current element being processed.
+#         - `new_col_name <- str_glue("db_{curr_col_part}")`: This line creates a new column name using `str_glue()` by prefixing "db_" to the current column part (`curr_col_part`).
+#         - The subsequent code block performs data manipulation on `db_participants_address__needed_short__phone0`:
+#             - `group_by(official_number)`: This function groups the data by the `official_number` column.
+#             - `mutate(!!new_col_name := pmap(across(ends_with(curr_col_part)), ~ list_sort_uniq(.)), .keep = "none")`:
+#                 - This line applies `mutate()` to add a new column (`new_col_name`) to the grouped data.
+#                 - The column is created by applying `pmap()` across columns that end with the current column part (`curr_col_part`).
+#                 - `pmap()` applies the function `list_sort_uniq(.)` to the selected columns and assigns the result to the new column (`new_col_name`).
+#                 - The `.keep = "none"` argument specifies that only the new column (`new_col_name`) should be kept.
+#             - `ungroup()`: This function removes grouping from the data.
+#             - `select(-official_number)`: This function removes the `official_number` column from the dataset.
+#         - The resulting dataset for each column part is collected in a list.
+#     - `bind_cols(db_participants_address__needed_short__phone0, .)`:
+#         - The `%>%` pipe operator is used to bind the original dataset (`db_participants_address__needed_short__phone0`) with the list of transformed datasets from `map()`.
+#         - The result is a new dataset that combines the original data with the transformed data.
+# 
+# 3. **Result**:
+#     - The final dataset, `db_participants_address__needed_short__erv_erb_combined3`, is created by combining the original data with the transformed data from the list of column parts.
+# - The time taken to execute the code block is printed by `toc()`.
 tic("map all pairs")
 db_participants_address__needed_short__erv_erb_combined3 <-
   col_part_names |>
@@ -1942,18 +2005,18 @@ toc()
 # map all pairs: 14.31 sec elapsed
 
 ###### shorten ----
+# keep only official_number and columns starting with "db_"
 db_participants_address__needed_short__erv_erb_combined_short <-
   db_participants_address__needed_short__erv_erb_combined3 |>
   select(official_number,
          all_of(starts_with("db_"))) |> 
   distinct()
 
+# check, optional
 dim(db_participants_address__needed_short__erv_erb_combined_short)
 # 94 17
-
 n_distinct(db_participants_address__needed_short__erv_erb_combined_short$official_number)
 # 71
-
 db_participants_address__needed_short__erv_erb_combined_short |> 
   filter(official_number == "1235397") |>
   glimpse()
@@ -2001,17 +2064,34 @@ db_participants_address__needed_short__erv_erb_combined_short__u <-
   select(official_number, all_of(ends_with("_u"))) |> 
   distinct()
 
+# check, optional
 # db_participants_address__needed_short__erv_erb_combined_short__u |>
-#   filter(official_number == "1235397") |>
-#   glimpse()
+  # filter(official_number == "1235397") |>
+  # glimpse()
 
 ###### convert to characters ----
+# Explanations:
+# In the result dataset, list columns are transformed into single strings with elements separated by semicolons (`; `).
+
+# **Transforming the Dataset**:
+#     - `db_participants_address__needed_short__erv_erb_combined_short__u` is the input dataset.
+#     - `rowwise()`:
+#         - This function is used to apply operations to each row of the dataset independently.
+#     - `mutate_if(is.list, ~ paste(unlist(.), collapse = '; '))`:
+#         - `mutate_if()` applies the function to columns based on the provided predicate.
+#         - The predicate `is.list` is used to select columns that contain list data.
+#         - For each selected column, the lambda function (`~ paste(unlist(.), collapse = '; ')`) is applied:
+#             - `unlist(.)` converts the list into a vector.
+#             - `paste(..., collapse = '; ')` joins the elements of the vector into a single string, separating them with a semicolon (`; `).
+#     - `ungroup()`:
+#         - This function removes any grouping from the data.
 db_participants_address__needed_short__erv_erb_combined_short__u_no_c <-
   db_participants_address__needed_short__erv_erb_combined_short__u |>
   rowwise() |>
   mutate_if(is.list, ~ paste(unlist(.), collapse = '; ')) |>
   ungroup()
 
+# check, optional
 # db_participants_address__needed_short__erv_erb_combined_short__u_no_c |>
 #   filter(official_number == "1235397") |>
 #   glimpse()
@@ -2019,11 +2099,27 @@ db_participants_address__needed_short__erv_erb_combined_short__u_no_c <-
 # $ db_mailing_zip_code_u  <chr> "11749; 11749-5010"
 
 ##### rename fields ----
+# Explanations:
+# - This code snippet modifies column names, renaming columns by removing the suffix `_u` from each column name.
+# 
+# 1. **Transforming Column Names**:
+#     - `db_participants_address__needed_short__erv_erb_combined_short__u_no_c` is the input dataset.
+#     - `rename_with(~ stringr::str_replace(.x, pattern = "_u$", replacement = ""))`:
+#         - `rename_with()` is a function that renames columns according to a given lambda function.
+#         - The lambda function (`~ stringr::str_replace(.x, pattern = "_u$", replacement = "")`):
+#             - Takes a column name (`.x`) as input.
+#             - Uses `stringr::str_replace()` to replace occurrences of the pattern `_u$` in the column name with an empty string (`""`).
+#             - The pattern `_u$` specifies that the function should look for a suffix `_u` at the end of each column name.
+#     - As a result, the lambda function removes the `_u` suffix from each column name in the dataset.
+# 
+# 2. **Result**:
+#     - The final dataset, `db_participants_address__needed_short__erv_erb_combined_short__u_ok`, is created with the modified column names.
+#     - All column names in the dataset that ended with `_u` now have that suffix removed.
 db_participants_address__needed_short__erv_erb_combined_short__u_ok <-
   db_participants_address__needed_short__erv_erb_combined_short__u_no_c |>
-  rename_with(~ stringr::str_replace(.x,
-                                      pattern = "_u$",
-                                      replacement = ""))
+  rename_with( ~ str_replace(.x,
+                             pattern = "_u$",
+                             replacement = ""))
 
 #### Join fhier and Oracle db addresses ----
 compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr <-
@@ -2033,12 +2129,14 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr <-
     join_by(vessel_official_number == official_number)
   )
 
+# check, optional
 # compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr |>
 #   filter(vessel_official_number == "1235397") |>
 #   glimpse()
 # $ db_mailing_state       <chr> "NY"
 # $ db_mailing_zip_code    <chr> "11749; 11749-5010"
 
+# Print the result name to the console
 cat("Result: ",
     "compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr",
     sep = "\n")
@@ -2046,12 +2144,12 @@ cat("Result: ",
 # result: compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr
 
 ## 3. mark vessels already in the know list ----
-# The first column (report created) indicates the vessels that we have created a case for. My advice would be not to exclude those vessels. EOs may have provided compliance assistance and/or warnings already. If that is the case and they continue to be non-compliant after that, they will want to know and we may need to reopen those cases.
-
+# Get vessel ids only from the previous results
 vessels_to_mark_ids <-
   prev_result |>
   select(vessel_official_number)
 
+# check, optional
 dim(vessels_to_mark_ids)
 
 #### mark these vessels ----
@@ -2070,9 +2168,7 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_m
       )
   )
 
-dim(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked)
-
-### check ----
+### check, optional ----
 n_distinct(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked$vessel_official_number)
 
 compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked |>
@@ -2112,19 +2208,37 @@ region_counts <-
   distinct() |>
   count(permit_region)
 
+# check, optional
 n_distinct(compl_corr_to_investigation_short_dup_marked__permit_region$vessel_official_number)
 
 ### dual permitted cnts ----
-
+# get percentage
 region_counts$n[[1]] / (region_counts$n[[2]] + region_counts$n[[1]]) * 100
 
 # Print out results ----
 ## add additional columns in front ----
 
+# create its name
 additional_column_name1 <-
   str_glue(
     "Confirmed Egregious? (permits must still be active till {permit_expired_check_date}, missing past 6 months, and (1) they called/emailed us (incoming), or (2) at least 2 contacts (outgoing) with at least 1 call/other (voicemail counts) and at least 1 email)"
   )
+
+# Explanations:
+# - This code snippet modifies a dataset called `compl_corr_to_investigation_short_dup_marked__permit_region` by adding two new columns and creating a new dataset named `compl_corr_to_investigation_short_dup_marked__permit_region__add_columns`.
+# 
+# 1. **Adding Columns**:
+#     - The input dataset is `compl_corr_to_investigation_short_dup_marked__permit_region`.
+#     - The `add_column()` function is used to add new columns to the dataset.
+#     - It takes three arguments:
+#         - `!!(additional_column_name1) := NA`: This argument specifies a new column to add. The name of the column is provided by `additional_column_name1`, and its initial values are set to `NA`.
+#         - `Notes = NA`: This argument specifies another new column named `Notes` with its initial values set to `NA`.
+#         - `.before = 2`: This argument specifies the position at which the new columns should be added. The `2` indicates that the new columns should be added before the second column in the dataset.
+# 
+# 2. **Result**:
+#     - The function adds two new columns to the dataset: one with the name provided by `additional_column_name1` and the other named `Notes`.
+#     - Both columns are initialized with `NA` values.
+#     - The new columns are added before the second column in the dataset, as specified by the `.before = 2` argument.
 
 compl_corr_to_investigation_short_dup_marked__permit_region__add_columns <-
   compl_corr_to_investigation_short_dup_marked__permit_region |>
@@ -2134,16 +2248,18 @@ compl_corr_to_investigation_short_dup_marked__permit_region__add_columns <-
     .before = 2
   )
 
-# print_df_names(compl_corr_to_investigation_short_dup_marked__permit_region__add_columns)
 
+# create the output file path
 result_path <- 
   file.path(my_paths$outputs,
             current_project_name,
             str_glue("egregious_violators_to_investigate_{today()}.csv"))
 
+# write a csv
 compl_corr_to_investigation_short_dup_marked__permit_region__add_columns |>
 write_csv(result_path)
 
+# Print out the text to the console
 cat("Result:",
     "compl_corr_to_investigation_short_dup_marked__permit_region__add_columns",
     "and",
