@@ -40,7 +40,7 @@ curr_proj_output_path <- file.path(my_paths$outputs,
 curr_proj_input_path <- file.path(my_paths$inputs,
                          current_project_basename)
 
-my_year <- "2022"
+my_year <- "2023"
 my_date_beg <- str_glue('01-JAN-{my_year}')
 my_date_end <- str_glue('31-DEC-{my_year}')
 
@@ -68,7 +68,7 @@ srhs_vessels_path <-
     str_glue("{my_year}srhsvessels.csv")
   )
 
-# file.exists(srhs_vessels_path)
+file.exists(srhs_vessels_path)
 
 srhs_vessels <-
   read_csv(srhs_vessels_path)
@@ -87,23 +87,33 @@ if (!class(srhs_vessels__renamed$vessel_official_number) == "character") {
 ## 2) compliance report downloaded from FHIER----
 # (= complaince module)
 
-compliance_file_name <- "FHIER Compliance.csv"
-
 compliance_file_path <-
-  file.path(curr_proj_input_path,
-            compliance_file_name)
+  file.path(my_paths$inputs,
+            r"(from_Fhier\FHIER Compliance\2024_04_09\FHIER_Compliance_2023__04_09_2024.csv)")
+
+# file.exists(compliance_file_path)
 
 compliance_from_fhier <-
   read_csv(compliance_file_path)
 
 dim(compliance_from_fhier)
-# [1] 148375     17
+# [1] 149412     17
 
 ## 3) logbooks from the Oracle db all_logbooks ----
 # (has 3 or 4 letters coded permit types)
 
 # check_processed_logbooks
-processed_logbooks <- read_rds(r"(~\R_files_local\my_inputs\processing_logbook_data\Outputs\SEFHIER_processed_Logbooks_2023_feb_7_2024.rds)")
+
+processed_logbooks_path <-
+  file.path(
+    my_paths$inputs,
+    r"(processing_logbook_data\Outputs\SEFHIER_processed_Logbooks_2023_feb_7_2024.rds)"
+  )
+
+# file.exists(processed_logbooks_path)
+
+processed_logbooks <-
+  read_rds(processed_logbooks_path)
 
 # has permits from metrics tracking
 
@@ -120,6 +130,8 @@ WHERE
 db_logbooks_file_name <-
   file.path(curr_proj_input_path,
                       str_glue("logbooks_{my_year}.rds"))
+
+file.exists(db_logbooks_file_name)
 
 db_logbooks_fun <-
   function(db_logbooks_query) {
@@ -142,6 +154,7 @@ db_logbooks <- get_db_logbooks()
 
 dim(db_logbooks)
 # [1] 327987    149
+# [1] 173521    149
 
 ## 4) Metrics tracking from FHIER, processed ----
 # removed SRHS vessels and added permit_region column
@@ -204,7 +217,6 @@ get_permit_info <-
   function() {
     read_rds_or_run(mv_sero_fh_permits_his_query_file_path,
                     mv_sero_fh_permits_his_query,
-                    mv_sero_fh_permits_his_query_fun
                     # force_from_db = TRUE
                     )
   }
