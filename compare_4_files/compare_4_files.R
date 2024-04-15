@@ -302,6 +302,7 @@ glimpse(permits_from_pims)
 
 dim(permits_from_pims)
 # [1] 23575    11
+# [1] 53365    11
 
 ## 7) from_PIMS - permit applications for transfer ----
 # "~\from_PIMS\Permit Applications - transfer - 2024-02-27_1555.xlsx"
@@ -344,6 +345,29 @@ all_dfs_list <-
 all_dfs_list_names <- names(all_dfs_list)
 
 # aux functions ----
+# Explanations:
+# - The function `sep_chr_column` aims to transform a given column in a data frame by splitting its contents based on a specified delimiter and expanding the data frame to include a separate row for each unique value from the split column.
+#
+# 1. **Function Definition**:
+#     - The function `sep_chr_column` takes three arguments:
+#         - `my_df`: The input data frame that contains the column to be split.
+#         - `col_name_to_sep`: The name of the column to be split, as a string.
+#         - `split_chr`: The character used to split the column's values (default is a comma `,`).
+#
+# 2. **Data Transformation**:
+#     - The function operates on the input data frame `my_df` and proceeds through several transformations:
+#         - **`sep_s`**: A new column is added to the data frame (`my_df`) using the `mutate` function. The `str_split` function is applied to the specified column (`col_name_to_sep`) in each row, splitting the string into a list of separate values using the specified delimiter (`split_chr`).
+#         - **`rowwise()`**: The data frame is processed row by row.
+#         - **`sep_u`**: In each row, the unique values in `sep_s` are sorted and stored in a list format.
+#         - **`ungroup()`**: Stops the row-wise operation after processing all rows.
+#
+# 3. **Data Unnesting**:
+#     - The function `unnest_longer` is used to unpack the `sep_u` list in each row, creating separate rows for each unique value from the split column. The unpacked values are stored in a new column `permit_sep_u`.
+#
+# 4. **Return**:
+#     - The function returns the transformed data frame (`my_df_w_split_col`), which contains separate rows for each unique value from the original column that was split.
+#
+# Overall, the function provides a convenient way to expand a data frame by splitting a specified column based on a delimiter, resulting in a new data frame with separate rows for each unique value from the split column.
 sep_chr_column <-
   function(my_df,
            col_name_to_sep,
@@ -500,6 +524,26 @@ all_dfs_list3 <- all_dfs_list_dates
 
 ### compliance_from_fhier: split permit column ----
 
+# Explanations:
+# 1. **Column Transformation**:
+#     - **`permitgroup_sep_0`**: The function `gsub` is used to remove parentheses and their contents from the `permitgroup` column and replaces them with a comma-separated list of groups.
+#     - **`permitgroup_sep_1`**: The function `gsub` replaces consecutive commas (`,,`) with a single comma in the `permitgroup_sep_0` column.
+#     - **`permitgroup_sep`**: The function `gsub` removes any trailing commas at the end of the string in `permitgroup_sep_1`.
+#     - **`permitgroup_sep_s`**: The function `str_split` splits the cleaned `permitgroup_sep` strings into lists of separate groups based on commas.
+#
+# 2. **Data Processing**:
+#     - The function operates `rowwise()`, processing each row individually:
+#         - **`permitgroup_sep_u`**: In each row, the unique groups in `permitgroup_sep_s` are sorted and stored in a list format.
+#         - The code comments out the `permitgroup_sep_u_str` line, which previously concatenated the list into a string.
+#     - The data frame is then `ungroup()`-ed to stop the row-wise operation.
+#
+# 3. **Data Unnesting**:
+#     - The function `unnest_longer` is used to unpack the `permitgroup_sep_u` list in each row, creating separate rows for each unique permit group.
+#     - The unpacked values are stored in a new column `permit_sep_u`.
+#
+# 4. **Output**:
+#     - The final data frame contains separate rows for each unique permit group per original row, allowing easier analysis and manipulation.
+
 temp_compliance_from_fhier <-
   all_dfs_list_dates$compliance_from_fhier |>
   mutate(permitgroup_sep_0 =
@@ -606,6 +650,39 @@ nrow(short_compliance_from_fhier_multi_permitgroups)
 # the same permits, diff format
 
 ### metrics_report: split permit column ----
+# Explanations:
+# - This block of code modifies the `metrics_report` data frame in the `all_dfs_list_dates` list and assigns the resulting data frame back to `all_dfs_list3$metrics_report`.
+# - The code uses a series of `mutate` transformations, `rowwise` processing, and `unnest_longer` to split a column in the data frame and expand it.
+#
+# 1. **Column Trimming**:
+#     - The code starts by using the `mutate` function to create a new column, `permits_trim`.
+#     - `permits_trim` is created by removing all spaces from the `permits` column using the `gsub` function.
+#
+# 2. **Splitting Column**:
+#     - Another `mutate` step creates a new column `permits_sep_s`.
+#     - This column is a list of split values from `permits_trim`, split by semicolons (`;`) using the `str_split` function.
+#
+# 3. **Row-wise Processing**:
+#     - The data frame is processed row by row using the `rowwise` function.
+#
+# 4. **Creating Unique Sorted List**:
+#     - In each row, the code calculates the `permits_sep_u` column.
+#     - It contains a list of sorted, unique values from `permits_sep_s` for each row.
+#
+# 5. **Stop Row-wise Processing**:
+#     - The function `ungroup()` is called to stop row-wise processing.
+#
+# 6. **Data Unnesting**:
+#     - The function `unnest_longer` unpacks the `permits_sep_u` list column, creating a separate row for each unique value from the original `permits` column.
+#     - The new values are stored in the `permit_sep_u` column.
+#
+# 7. **Selecting Columns**:
+#     - The code removes the original columns `permits_trim`, `permits_sep_s`, and `permits` using the `select` function.
+#
+# 8. **Final Output**:
+#     - The modified data frame is stored back in `all_dfs_list3$metrics_report`.
+#
+# Overall, the code efficiently processes the `metrics_report` data frame by splitting a specified column, expanding the data frame with separate rows for each unique value, and removing unnecessary columns.
 all_dfs_list3$metrics_report <-
   all_dfs_list_dates$metrics_report |>
   mutate(permits_trim =
@@ -717,11 +794,12 @@ permits_from_pims_new <-
 # check
 dim(permits_from_pims_new)
 # [1] 8801   8
-# [1] 20485     9
+# [1] 20485  9
 
-n_distinct(permits_from_pims_new$vessel_or_dealer)
+n_distinct(permits_from_pims_new$vesselordealer)
 # 3127
 # 7178
+# [1] 7102
 
 # don't do that, too few vessels left
 # in_my_date_range <-
