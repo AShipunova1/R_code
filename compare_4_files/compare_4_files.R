@@ -1,6 +1,6 @@
 # today()
-# [1] "2024-03-15"
-# compare this 4 files (permits) for 2022
+# [1] "2024-04-15"
+# compare this 4 files (permits) for 2023
 # 1) compliance report downloaded from FHIER (= complaince module)
 # 2) logbooks from the Oracle db all_logbooks... (has 3 or 4 letters coded permit types) -- don't know how to get permit info,
 # 3) Metrics tracking from FHIER
@@ -26,7 +26,6 @@ library(tidyverse)
 # Determine the path of the executing script
 library(this.path)
 
-source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 
 # Get the current project directory name using the 'this.path' package.
@@ -104,7 +103,7 @@ dim(compliance_from_fhier)
 # (has 3 or 4 letters coded permit types)
 
 # check_processed_logbooks
-processed_logbooks <- read_rds(r"(~\R_files_local\my_inputs\processing_logbook_data\Outputs\SEFHIER_processed_Logbooks_2023.rds)")
+processed_logbooks <- read_rds(r"(~\R_files_local\my_inputs\processing_logbook_data\Outputs\SEFHIER_processed_Logbooks_2023_feb_7_2024.rds)")
 
 # has permits from metrics tracking
 
