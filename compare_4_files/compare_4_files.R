@@ -318,9 +318,14 @@ my_sheet <- "Sheet 1"
 file.exists(transfer_applications_file_path)
 
 transfer_applications_from_pims <-
-  read_xlsx(transfer_applications_file_path,
-            sheet = my_sheet,
-            skip = to_skip)
+  read.xlsx(permit_file_path,
+            startRow = 4,
+            detectDates = TRUE) |>
+  clean_headers() |>
+  remove_empty_cols()
+  # read_xlsx(transfer_applications_file_path,
+  #           sheet = my_sheet,
+  #           skip = to_skip)
 
 dim(transfer_applications_from_pims)
 # [1] 3214    9
