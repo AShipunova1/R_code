@@ -288,9 +288,17 @@ my_sheet <- "Sheet 1"
 file.exists(permit_file_path)
 
 permits_from_pims <-
-  read_xlsx(permit_file_path,
-            sheet = my_sheet,
-            skip = to_skip)
+  read.xlsx(permit_file_path,
+            startRow = 4,
+            detectDates = TRUE) |>
+  clean_headers() |>
+  remove_empty_cols()
+
+glimpse(permits_from_pims)
+
+  # read_xlsx(permit_file_path,
+  #           sheet = my_sheet,
+  #           skip = to_skip)
 
 dim(permits_from_pims)
 # [1] 23575    11
