@@ -386,18 +386,6 @@ sep_chr_column <-
     return(my_df_w_split_col)
   }
 
-title_message_print <- function(title_msg) {
-  cat(crayon::blue(title_msg), sep = "\n")
-}
-
-pretty_print <- function(my_text, my_title,
-                         the_end = "---") {
-  # Print out to console
-  title_message_print(my_title)
-  cat(c(my_text, the_end),
-      sep = "\n")
-}
-
 # prepare data for comparison ----
 ## clean_headers ----
 all_dfs_list1 <- map(all_dfs_list, clean_headers)
