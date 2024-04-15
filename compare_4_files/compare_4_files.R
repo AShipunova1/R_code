@@ -882,16 +882,20 @@ n_distinct(permits_from_pims__permit_only__vessel_id_short__not_srhs$vessel_offi
 
 # this year only
 in_my_date_range <-
-  rlang::quo((expirationdate >= lubridate::dmy(my_date_beg) |
-                enddate >= lubridate::dmy(my_date_beg)) &
-               effectivedate <= lubridate::dmy(my_date_end))
+  rlang::quo((
+    expirationdate >= lubridate::dmy(my_date_beg) |
+      enddate >= lubridate::dmy(my_date_beg)
+  ) &
+    effectivedate <= lubridate::dmy(my_date_end)
+  )
 
 permits_from_pims_my_year <-
-  all_dfs_list3$permits_from_pims |>
+  permits_from_pims__permit_only__vessel_id_short__not_srhs |>
   filter(!!in_my_date_range)
 
 dim(permits_from_pims_my_year)
 # [1] 1500    9
+# [1] 13007     9
 
 # print_df_names(permits_from_pims_my_year)
 
@@ -903,9 +907,9 @@ n_distinct(metrics_report$VESSEL_OFFICIAL_NUMBER)
 # 3443
 
 permits_from_pims_my_year |>
-  select(effective_date, end_date, expiration_date) |>
+  select(effectivedate, enddate, expirationdate) |>
   distinct() |>
-  arrange(effective_date) |>
+  arrange(effectivedate) |>
   # arrange(desc(effective_date)) |>
   glimpse()
 # effective_date  2020-02-01 -- 2022-12-30
@@ -923,12 +927,12 @@ unique(all_dfs_list3$permits_from_pims$permit_clean)
 
 ### transfer_applications_from_pims split vessel_or_dealer 1 ----
 
-all_dfs_list3$transfer_applications_from_pims$vessel_or_dealer |>
+all_dfs_list3$transfer_applications_from_pims$vesselordealer |>
   head()
 
 transfer_applications_from_pims__split1 <-
   all_dfs_list3$transfer_applications_from_pims |>
-  separate(vessel_or_dealer,
+  separate(vesselordealer,
            c('vessel_official_numbers', 'dealer'),
            sep = "\\(") |>
   mutate(across(c('vessel_official_numbers', 'dealer'),
@@ -969,7 +973,8 @@ transfer_applications_from_pims__split2 <-
 
 transfer_applications_from_pims__split2_short <-
   transfer_applications_from_pims__split2 |>
-  select(-c(dealer, permitholder_name)) |>
+  # select(-c(dealer, permitholder_name)) |>
+  select(-c(dealer)) |>
   distinct()
 
 # glimpse(transfer_applications_from_pims__split2_short)
@@ -978,7 +983,7 @@ transfer_applications_from_pims__split2_short <-
 all_dfs_list3$transfer_applications_from_pims <-
   transfer_applications_from_pims__split2_short
 
-# TODO: how to deal with vessel_official_number 1 & 2 in here? Needed for further transformations
+-*+-*+/# TODO: how to deal with vessel_official_number 1 & 2 in here? Needed for further transformations
 
 ## remove SRHS vessels ----
 # map(all_dfs_list3, print_df_names)
