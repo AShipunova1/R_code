@@ -328,7 +328,7 @@ transfer_applications_from_pims <-
   #           sheet = my_sheet,
   #           skip = to_skip)
 
-dim(transfer_applications_from_pims)
+glimpse(transfer_applications_from_pims)
 # [1] 3214    9
 
 ## combine 4 dataframes ----
@@ -432,7 +432,7 @@ all_dfs_list__name_col <-
 names_to_keep <-
   function(my_df) {
     my_df_names <- names(my_df)
-    grep("vessel|permit|_date",
+    grep("vessel|permit|date",
          my_df_names,
          value = TRUE,
          ignore.case = TRUE)
@@ -503,7 +503,7 @@ all_dfs_list_dates <-
         )
     })
 
-# View(all_dfs_list_dates)
+View(all_dfs_list_dates)
 
 # save the df
 all_dfs_list3 <- all_dfs_list_dates
@@ -584,9 +584,11 @@ short_compliance_from_fhier_to_test <-
 
 dim(short_compliance_from_fhier_to_test)
 # [1] 3692    3
+# [1] 3614    3 2023
 
 n_distinct(short_compliance_from_fhier_to_test$vessel_official_number)
 # [1] 3687
+# [1] 3613 2023
 # Some vessels have > 1 permitgroup
 
 dim(all_dfs_list3$compliance_from_fhier)
@@ -636,6 +638,7 @@ short_compliance_from_fhier_multi_permitgroups <-
 nrow(short_compliance_from_fhier_multi_permitgroups)
 # 10
 # the same permits, diff format
+# 0 2023
 
 ### metrics_report: split permit column ----
 # Explanations:
@@ -772,7 +775,7 @@ program_start_date <- lubridate::dmy("04-JAN-2021")
 in_my_date_range <-
   rlang::quo(
       # end_date >= program_start_date |
-        expiration_date >= program_start_date
+        expirationdate >= program_start_date
   )
 
 permits_from_pims_new <-
@@ -799,20 +802,20 @@ n_distinct(permits_from_pims_new$vesselordealer)
 #       effective_date <=    lubridate::dmy(my_date_end)
 #   )
 #
-# permits_from_pims_2022 <-
+# permits_from_pims_my_year <-
 #   all_dfs_list3$permits_from_pims |>
 #   filter(!!in_my_date_range)
 #
-# dim(permits_from_pims_2022)
+# dim(permits_from_pims_my_year)
 # # [1] 1036    8
 
 # check
-# n_distinct(permits_from_pims_2022$vessel_or_dealer)
+# n_distinct(permits_from_pims_my_year$vessel_or_dealer)
 # 324
 # n_distinct(all_dfs_list2$permits_from_pims$vessel_or_dealer)
 # 7417
 
-# permits_from_pims_2022 |>
+# permits_from_pims_my_year |>
 #   select(effective_date, end_date, expiration_date) |>
 #   distinct() |>
 #   arrange(effective_date) |>
@@ -824,20 +827,20 @@ n_distinct(permits_from_pims_new$vesselordealer)
 permits_from_pims__permit_only <-
   permits_from_pims_new |>
   mutate(permit_clean =
-           str_replace(permit__,
+           str_replace(permit_,
                        "-\\d+", ""),
          .before = permits_from_pims)
 
-
-n_distinct(permits_from_pims__permit_only$vessel_or_dealer)
+n_distinct(permits_from_pims__permit_only$vesselordealer)
 # 3127
 # [1] 7178
+# [1] 7102
 
 ### permits_from_pims split vessel_or_dealer ----
 
 permits_from_pims__permit_only__vessel_id <-
   permits_from_pims__permit_only |>
-  separate(vessel_or_dealer,
+  separate(vesselordealer,
            c('vessel_official_number', 'dealer'),
            sep = " / ") |>
   mutate(across(c('vessel_official_number', 'dealer'),
@@ -852,6 +855,7 @@ permits_from_pims__permit_only__vessel_id <-
 n_distinct(permits_from_pims__permit_only__vessel_id$vessel_official_number)
 # 3069
 # [1] 7016
+# [1] 6990
 
 # View(permits_from_pims__permit_only__vessel_id)
 
@@ -859,7 +863,7 @@ n_distinct(permits_from_pims__permit_only__vessel_id$vessel_official_number)
 
 permits_from_pims__permit_only__vessel_id_short <-
   permits_from_pims__permit_only__vessel_id |>
-  select(-c(permit__, dealer)) |>
+  select(-c(permit_, dealer)) |>
   distinct()
 
 # glimpse(permits_from_pims__permit_only__vessel_id_short)
@@ -871,33 +875,34 @@ permits_from_pims__permit_only__vessel_id_short__not_srhs <-
 
 n_distinct(permits_from_pims__permit_only__vessel_id_short$vessel_official_number)
 # 6979
+
 n_distinct(permits_from_pims__permit_only__vessel_id_short__not_srhs$vessel_official_number)
 # 6865
 # lost to SRHS 114
 
-# 2022 only
+# this year only
 in_my_date_range <-
-  rlang::quo((expiration_date >= lubridate::dmy(my_date_beg) |
-                end_date >= lubridate::dmy(my_date_beg)) &
-               effective_date <= lubridate::dmy(my_date_end))
+  rlang::quo((expirationdate >= lubridate::dmy(my_date_beg) |
+                enddate >= lubridate::dmy(my_date_beg)) &
+               effectivedate <= lubridate::dmy(my_date_end))
 
-permits_from_pims_2022 <-
+permits_from_pims_my_year <-
   all_dfs_list3$permits_from_pims |>
   filter(!!in_my_date_range)
 
-dim(permits_from_pims_2022)
+dim(permits_from_pims_my_year)
 # [1] 1500    9
 
-# print_df_names(permits_from_pims_2022)
+# print_df_names(permits_from_pims_my_year)
 
 # check
-n_distinct(permits_from_pims_2022$vessel_official_number)
+n_distinct(permits_from_pims_my_year$vessel_official_number)
 # 734
 
 n_distinct(metrics_report$VESSEL_OFFICIAL_NUMBER)
 # 3443
 
-permits_from_pims_2022 |>
+permits_from_pims_my_year |>
   select(effective_date, end_date, expiration_date) |>
   distinct() |>
   arrange(effective_date) |>
