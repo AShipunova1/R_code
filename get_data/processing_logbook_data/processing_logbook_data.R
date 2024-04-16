@@ -790,7 +790,7 @@ my_tee(n_distinct(logbooks_too_long$VESSEL_ID),
 # 4. Subsequent 'mutate' calls adjust the 'USABLE_DATE_TIME' to have the time set to 23:59:59 on the same date.
 
 logbooks_join_overr_e_usable_date <-
-  logbooks_join_overr__compl__start_end_ok |>
+  logbooks_join_overr__compl__start_end_ok__trip_len_ok |>
   mutate(USABLE_DATE_TIME =
            TRIP_END_DATE + days(30)) |>
   mutate(USABLE_DATE_TIME =
