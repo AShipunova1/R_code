@@ -294,11 +294,22 @@ permits_from_pims <-
   clean_headers() |>
   remove_empty_cols()
 
-glimpse(permits_from_pims)
+print_df_names(permits_from_pims)
+# [1] "permit__, type, request_type, status, vessel_or_dealer, status_date, issue_date, effective_date, expiration_date, end_date, term_date"
 
-  # read_xlsx(permit_file_path,
-  #           sheet = my_sheet,
-  #           skip = to_skip)
+names(permits_from_pims) <- c(
+  "permit__",
+  "type",
+  "request_type",
+  "status",
+  "vessel_or_dealer",
+  "status_date",
+  "issue_date",
+  "effective_date",
+  "expiration_date",
+  "end_date",
+  "term_date"
+)
 
 dim(permits_from_pims)
 # [1] 23575    11
@@ -324,9 +335,6 @@ transfer_applications_from_pims <-
             detectDates = TRUE) |>
   clean_headers() |>
   remove_empty_cols()
-  # read_xlsx(transfer_applications_file_path,
-  #           sheet = my_sheet,
-  #           skip = to_skip)
 
 glimpse(transfer_applications_from_pims)
 # [1] 3214    9
@@ -883,10 +891,10 @@ n_distinct(permits_from_pims__permit_only__vessel_id_short__not_srhs$vessel_offi
 # this year only
 in_my_date_range <-
   rlang::quo((
-    expirationdate >= lubridate::dmy(my_date_beg) |
-      enddate >= lubridate::dmy(my_date_beg)
+    expiration_date >= lubridate::dmy(my_date_beg) |
+      end_date >= lubridate::dmy(my_date_beg)
   ) &
-    effectivedate <= lubridate::dmy(my_date_end)
+    effective_date <= lubridate::dmy(my_date_end)
   )
 
 permits_from_pims_my_year <-
@@ -907,9 +915,9 @@ n_distinct(metrics_report$VESSEL_OFFICIAL_NUMBER)
 # 3443
 
 permits_from_pims_my_year |>
-  select(effectivedate, enddate, expirationdate) |>
+  select(effective_date, end_date, expiration_date) |>
   distinct() |>
-  arrange(effectivedate) |>
+  arrange(effective_date) |>
   # arrange(desc(effective_date)) |>
   glimpse()
 # effective_date  2020-02-01 -- 2022-12-30
@@ -983,7 +991,7 @@ transfer_applications_from_pims__split2_short <-
 all_dfs_list3$transfer_applications_from_pims <-
   transfer_applications_from_pims__split2_short
 
--*+-*+/# TODO: how to deal with vessel_official_number 1 & 2 in here? Needed for further transformations
+# TODO: how to deal with vessel_official_number 1 & 2 in here? Needed for further transformations
 
 ## remove SRHS vessels ----
 # map(all_dfs_list3, print_df_names)
@@ -1212,7 +1220,7 @@ join_compliance_from_fhier__permits_from_pims__perm <-
     join_by(vessel_official_number)
   )
 # ℹ Row 1 of `x` matches multiple rows in `y`.
-# ℹ Row 12403 of `y` matches multiple rows in `x`.
+# ℹ Row 14828 of `y` matches multiple rows in `x`.
 # TODO check, this is a result of having sep permits
 
 # View(join_compliance_from_fhier__permits_from_pims__perm)
@@ -1263,6 +1271,9 @@ join_compliance_from_fhier__permits_from_pims__vsl_perm <-
     all_dfs_list_no_srhs$permits_from_pims,
     join_by(vessel_official_number, permit_sep_u == permit_clean)
   )
+
+# ℹ Row 334 of `x` matches multiple rows in `y`.
+# ℹ Row 6383 of `y` matches multiple rows in `x`.
 
 # View(join_compliance_from_fhier__permits_from_pims__vsl_perm)
 
