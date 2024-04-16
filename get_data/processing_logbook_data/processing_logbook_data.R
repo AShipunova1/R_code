@@ -352,6 +352,11 @@ Logbooks_raw_renamed__to_date$TRIP_START_DATE |>
 # 7. **Format Columns with Leading Zeros:**
 #    - `~ sprintf("%04d", .x)`: Format each column value with leading zeros using 'sprintf("%04d", .x)'.
 
+#create list of column headers, to be used in the next piece of code
+time_col_names <-
+  c("TRIP_START_TIME",
+    "TRIP_END_TIME")
+
 Logbooks_raw_renamed__to_date_time4 <-
   Logbooks_raw_renamed__to_date |>
   mutate(across(c(
@@ -556,6 +561,7 @@ SEFHIER_compl_override_data__renamed__this_year$COMP_WEEK_START_DT |> min()
 # [1] "2022-01-03 EST"
 Logbooks_raw_renamed__to_date_time4__my_year__format_time__iso$TRIP_START_DATE |> min()
 # [1] "2022-01-01"
+#[1] "2022-01-01"
 ### TODO: check if logbooks and compliance data have the same week dates
 
 SEFHIER_compl_override_data__renamed__this_year$COMP_WEEK_START_DT |> min()
