@@ -82,8 +82,32 @@ my_year <- "2023"
 # my_year <- "2024"
 
 # TODO: find the fringe weeks
-my_compliance_date_beg <- str_glue("")
-my_compliance_date_end <- str_glue("")
+
+my_calendar_date_beg <- str_glue("01-JAN-{my_year}")
+my_calendar_date_end <- str_glue("31-DEC-{my_year}")
+
+# floor_date(x, 'weeks')
+#[1] "2019-12-29"
+
+# ceiling_date(x, 'weeks') - 1
+#[1] "2020-01-04"
+
+my_compliance_date_beg <-
+  dmy(my_calendar_date_beg) |>
+  floor_date('weeks')
+
+wday(my_compliance_date_beg,
+     label = TRUE,
+     week_start = 1)
+
+my_compliance_date_end <-
+    dmy(my_calendar_date_end) |>
+  ceiling_date('weeks') - 1
+
+wday(my_compliance_date_end,
+     label = TRUE,
+     week_start = 1)
+
 
 # years range for srfh_vessel_comp db download, see below
 # this should at least run the year before my_year to the year after my_year
@@ -1013,4 +1037,5 @@ write_rds(
   SEFHIER_logbooks_processed,
   file = file.path(output_file_path, SEFHIER_processed_Logbooks_file_name)
 )
+
 
