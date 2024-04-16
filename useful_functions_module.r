@@ -1000,7 +1000,7 @@ read_rds_or_run_no_db <-
 
 # ===
 # Explanations:
-# 
+#
 # 1. The function `function_message_print` is defined, which takes one argument `text_msg` (the text message to be printed).
 # 2. Inside the function, the `cat` function is used to print `text_msg` to the console.
 # 3. The function applies custom styling to `text_msg` using the `crayon` package:
@@ -1030,31 +1030,39 @@ title_message_print <- function(title_msg) {
   cat(crayon::blue(title_msg), sep = "\n")
 }
 
+pretty_print <- function(my_text, my_title,
+                         the_end = "---") {
+  # Print out to console
+  title_message_print(my_title)
+  cat(c(my_text, the_end),
+      sep = "\n")
+}
+
 # ===
 # Explanations:
 # - This function, `my_tee`, is designed to print messages to both the console and a log file.
-# - The function takes four parameters: 
+# - The function takes four parameters:
 #   - `my_text`: The text message to print and log.
 #   - `my_title`: An optional title for the message. If not provided, the function will default to `NA`.
 #   - `stat_log_file_path`: The file path where the message should be logged. If not provided, a default path is created.
 #   - `date_range`: An optional date range used to customize the log file's name. The default value is `2022`.
-# 
+#
 # - The function includes three main operations:
 #   - Print the message to the console with a title.
 #   - Create a log file path and write the message to the log file.
-#   
+#
 # Here's what's happening in detail:
-# 
+#
 # 1. The function `my_tee` is defined with four parameters: `my_text`, `my_title`, `stat_log_file_path`, and `date_range`.
-# 
+#
 # 2. The function initializes a constant `the_end` with the value `"---"`, which is used to mark the end of each message.
-# 
+#
 # 3. If the `date_range` parameter is not provided, it defaults to `2022`.
-# 
+#
 # 4. The function prints the title and message to the console. It uses the function `title_message_print` (not defined in the provided code) to print the title. Then, it prints the text of the message followed by the end mark (`the_end`).
-# 
+#
 # 5. If the `stat_log_file_path` parameter is not provided, the function constructs a default file path using the `Path` and `Outputs` variables (not defined in the provided code) and the current date (`today()`). The file path is constructed with the title, date range, and date as part of the file name.
-# 
+#
 # 6. Finally, the function writes the title, message, and end mark to the log file at the specified path. The function appends the new message to the file if it already exists.
 my_tee <- function(my_text,
                    my_title = NA,
@@ -1094,17 +1102,17 @@ my_tee <- function(my_text,
 
 # Explanations:
 # - This function, `read_rds_or_run`, is designed to read data from an RDS file if it exists or run a specified function to obtain the data and save it as an RDS file if the file does not exist or if the `force_from_db` parameter is set.
-# 
+#
 # Here's what's happening in detail:
-# 
-# 1. **Function Definition**: The function takes four parameters: 
+#
+# 1. **Function Definition**: The function takes four parameters:
 #    - `my_file_path`: The path to the RDS file to be read or saved.
 #    - `my_data`: The data to be used with the function. Default is an empty data frame.
 #    - `my_function`: The function to be run to obtain the data if necessary.
 #    - `force_from_db`: A flag that, when set, will force the function to run the specified function instead of reading from the file, even if the file exists.
-# 
-# 2. **Check File Existence**: The function first checks if the file specified by `my_file_path` exists and, if so, retrieves its modification time. 
-# 
+#
+# 2. **Check File Existence**: The function first checks if the file specified by `my_file_path` exists and, if so, retrieves its modification time.
+#
 # 3. **Read or Run**: Depending on the existence of the file and the `force_from_db` flag:
 #     - **File Exists and `force_from_db` is not set**: If the file exists and `force_from_db` is not set, the function reads the data from the RDS file using `readr::read_rds(my_file_path)` and assigns it to `my_result`.
 #     - **File Does Not Exist or `force_from_db` is set**: If the file does not exist or `force_from_db` is set, the function follows these steps:
@@ -1114,9 +1122,9 @@ my_tee <- function(my_text,
 #         - Stops timing the function execution using `tictoc::toc()`.
 #         - Saves the result as an RDS file to the specified `my_file_path` for future use using `readr::write_rds(my_result, my_file_path)`. A `try` block is used to handle potential errors in writing the file.
 #         - Prints a message indicating that the new data is being saved into a file.
-# 
+#
 # 4. **Print File Information**: After obtaining the data, the function prints the file name and modification time to provide information on when the data was last downloaded or modified.
-# 
+#
 # 5. **Return**: The function returns the generated or read data (`my_result`).
 read_rds_or_run <- function(my_file_path,
                             my_data = as.data.frame(""),
