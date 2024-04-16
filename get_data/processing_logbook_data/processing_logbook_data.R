@@ -77,12 +77,13 @@ output_file_path <-
 
 # Set the date ranges for the logbook and compliance data you are pulling
 # this is the year to assign to the output file name
-my_year <- "2022"
-# my_year <- "2023"
+# my_year <- "2022"
+my_year <- "2023"
 # my_year <- "2024"
 
-my_date_beg <- str_glue("01-JAN-{my_year}")
-my_date_end <- str_glue("31-DEC-{my_year}")
+# TODO: find the fringe weeks
+my_compliance_date_beg <- str_glue("")
+my_compliance_date_end <- str_glue("")
 
 # years range for srfh_vessel_comp db download, see below
 # this should at least run the year before my_year to the year after my_year
@@ -869,6 +870,9 @@ late_submission_filter <-
 SEFHIER_logbooks_processed <-
   late_submission_filter(logbooks_join_overr_e_usable_date)
 
+# logbooks_join_overr_e_usable_date |>
+#   filter(TRIP_ID == "66666297") |> View()
+
 # Separate permit regions to GOM only, SA only or dual using PERMIT_GROUP ----
 # Revisit after
 # fixing metrics tracking for transferred permits
@@ -996,6 +1000,12 @@ my_tee(removed_logbooks_and_vessels_text,
        "\nRemoved logbooks and vessels stats")
 
 # Export processed logbooks ----
+
+my_calendar_date_beg <- str_glue("01-JAN-{my_year}")
+my_calendar_date_end <- str_glue("31-DEC-{my_year}")
+
+# TODO: create 2 different dfs by calendar and compliance date separately
+
 SEFHIER_processed_Logbooks_file_name <-
   str_glue("SEFHIER_processed_Logbooks_{my_year}.rds")
 
