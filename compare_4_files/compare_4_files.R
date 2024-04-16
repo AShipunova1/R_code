@@ -294,10 +294,11 @@ permits_from_pims <-
   clean_headers() |>
   remove_empty_cols()
 
-print_df_names(permits_from_pims)
+# print_df_names(permits_from_pims)
 # [1] "permit__, type, request_type, status, vessel_or_dealer, status_date, issue_date, effective_date, expiration_date, end_date, term_date"
 
-names(permits_from_pims) <- c(
+correct_names_pims <-
+  c(
   "permit__",
   "type",
   "request_type",
@@ -310,6 +311,8 @@ names(permits_from_pims) <- c(
   "end_date",
   "term_date"
 )
+
+names(permits_from_pims) <- correct_names_pims
 
 dim(permits_from_pims)
 # [1] 23575    11
@@ -327,6 +330,7 @@ transfer_applications_file_path <-
 to_skip <- 4
 my_sheet <- "Sheet 1"
 
+
 file.exists(transfer_applications_file_path)
 
 transfer_applications_from_pims <-
@@ -336,9 +340,11 @@ transfer_applications_from_pims <-
   clean_headers() |>
   remove_empty_cols()
 
-glimpse(transfer_applications_from_pims)
+names(transfer_applications_from_pims) <- correct_names_pims
+dim(transfer_applications_from_pims)
 # [1] 3214    9
 
+correct_names_pims
 ## combine 4 dataframes ----
 # "llist" is like list except that it preserves the names or labels of the component variables in the variables label attribute.
 all_dfs_list <-
@@ -499,6 +505,8 @@ map(all_dfs_list2, print_df_names)
 all_dfs_list_dates <-
   map(all_dfs_list2,
     \(current_df) {
+      # browser()
+      # names(current_df)
       current_df |>
         mutate(
           across(
@@ -511,7 +519,7 @@ all_dfs_list_dates <-
         )
     })
 
-View(all_dfs_list_dates)
+# View(all_dfs_list_dates)
 
 # save the df
 all_dfs_list3 <- all_dfs_list_dates
@@ -783,19 +791,23 @@ program_start_date <- lubridate::dmy("04-JAN-2021")
 in_my_date_range <-
   rlang::quo(
       # end_date >= program_start_date |
-        expirationdate >= program_start_date
+        expiration_date >= program_start_date
   )
 
-permits_from_pims_new <-
+all_dfs_list3$permits_from_pims |>
+glimpse()
+
+# permits_from_pims_new <-
   all_dfs_list3$permits_from_pims |>
-  filter(!!in_my_date_range)
+  filter(expiration_date >= program_start_date) |> dim()
+  # filter(!!in_my_date_range)
 
 # check
 dim(permits_from_pims_new)
 # [1] 8801   8
 # [1] 20485  9
 
-n_distinct(permits_from_pims_new$vesselordealer)
+n_distinct(permits_from_pims_new$vessel_or_dealer)
 # 3127
 # 7178
 # [1] 7102
