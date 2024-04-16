@@ -653,6 +653,19 @@ dim(logbooks_join_overr__all_logbooks)
 # 8. If 'IS_COMP' is NA, indicating missing data, the value is set to NA.
 # 9. For all other cases, the value is set to a string representation of 'IS_COMP'.
 # 10. Finally, the data frame is ungrouped to revert to its original structure.
+
+# This shows the different scenarios we should account for in the case_when statement below. If the results differ from what is shown in the comments here, we will need to adapt the code.
+logbooks_join_overr__all_logbooks |>
+  select(IS_COMP,
+         OVERRIDDEN) |>
+  distinct()
+#   IS_COMP OVERRIDDEN
+# 1       1          0
+# 2       1          1
+# 3      NA         NA
+# 4       0          1
+# 5       0          0
+
 ## NOTE: IF “Is_Overriden == 1 & is_Comp == 0, then the vessel should be considered compliant in any compliance analyses
 
 
