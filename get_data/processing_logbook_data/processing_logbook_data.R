@@ -959,7 +959,7 @@ percent_of_removed_vessels <-
 #establish text color and format to call to console
 removed_logbooks_and_vessels_text <- c(
   crayon::blue("percent_of_removed_logbooks"),
-  str_glue("{round(percent_of_removed_logbooks)}%"),
+  str_glue("{round(percent_of_removed_logbooks, 2)}%"),
   crayon::blue("removed_vessels"),
   removed_vessels,
   crayon::blue("percent_of_removed_vessels"),
