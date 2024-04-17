@@ -81,33 +81,47 @@ output_file_path <-
 my_year <- "2023"
 # my_year <- "2024"
 
-# TODO: find the fringe weeks
-
+## find the fringe weeks dates ----
 my_calendar_date_beg <- str_glue("01-JAN-{my_year}")
 my_calendar_date_end <- str_glue("31-DEC-{my_year}")
 
-# floor_date(x, 'weeks')
-# [1] "2019-12-29"
+# my_date_beg <- str_glue("01-JAN-{my_year}")
+# my_date_end <- str_glue("31-DEC-{my_year}")
 
-# ceiling_date(x, 'weeks') - 1
-# [1] "2020-01-04"
-
+# The start date
 my_compliance_date_beg <-
   dmy(my_calendar_date_beg) |>
-  floor_date('weeks')
+  floor_date('weeks', week_start = getOption("lubridate.week.start", "Monday"))
+
+# check
+# my_compliance_date_beg
+# [1] "2022-12-26"
+
+week(my_compliance_date_beg)
+# 52
 
 wday(my_compliance_date_beg,
      label = TRUE,
      week_start = 1)
+# Mon
 
+# The end date
 my_compliance_date_end <-
-    dmy(my_calendar_date_end) |>
-  ceiling_date('weeks') - 1
+  dmy(my_calendar_date_end) |>
+  ceiling_date('weeks',
+               week_start = getOption("lubridate.week.start", "Monday")) - 1
+
+# check
+my_compliance_date_end
+# [1] "2023-12-31"
+
+week(my_compliance_date_end)
+# 53
 
 wday(my_compliance_date_end,
      label = TRUE,
      week_start = 1)
-
+# Sun
 
 # years range for srfh_vessel_comp db download, see below
 # this should at least run the year before my_year to the year after my_year
