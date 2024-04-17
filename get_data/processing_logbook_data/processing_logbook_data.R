@@ -533,14 +533,9 @@ my_stats(SEFHIER_compl_override_data__renamed__this_year)
 vessels_not_in_metrics <-
   n_distinct(compl_override_data__renamed__this_year$VESSEL_OFFICIAL_NUMBER) -
   n_distinct(SEFHIER_compl_override_data__renamed__this_year$VESSEL_OFFICIAL_NUMBER)
-  # check if there are any vessels not in metrics tracking
-  vessels_not_in_metrics # [1] 244
-# Create DF of vessels not in Metrics Tracking
-vessels_not_in_metrics <-
-  n_distinct(compl_override_data__renamed__this_year$VESSEL_OFFICIAL_NUMBER) -
-  n_distinct(SEFHIER_compl_override_data__renamed__this_year$VESSEL_OFFICIAL_NUMBER)
 
-vessels_not_in_metrics
+#check if there are any vessels not in metrics tracking
+vessels_not_in_metrics #[1] 244
 
 # Total number of vessels in Oracle raw data but not in Metrics Tracking
 my_tee(vessels_not_in_metrics,
