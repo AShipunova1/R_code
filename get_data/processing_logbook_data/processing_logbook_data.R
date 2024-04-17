@@ -843,9 +843,8 @@ late_submission_filter <-
   function(my_df) {
     logbooks_join_overr__compl__start_end_ok__trip_len_ok_temp <-
       my_df |>
-      mutate(IS_MORE_THAN_30_DAYS_LATE =
-               case_when(TRIP_DE >= USABLE_DATE_TIME ~ TRUE,
-                         .default = FALSE))
+      mutate(MORE_THAN_30_DAYS_LATE =
+               ifelse(USABLE_DATE_TIME >= TRIP_DE, TRUE, FALSE))
 
     late_submission_filter_stats(logbooks_join_overr__compl__start_end_ok__trip_len_ok_temp)
 
