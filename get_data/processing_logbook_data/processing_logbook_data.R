@@ -11,11 +11,11 @@
 # 2) processing_auxiliary_methods.R
        # get from Google Drive R code folder, put in path directory with this code
 
-# Files this code willor pull from Oraclecreate:
+# Files this code will pull from Oracle:
 # 1) Raw_Oracle_Downloaded_compliance_2021_plus.rds
 # 2) Raw_Oracle_Downloaded_logbook_{my_date_beg}__{my_date_end}.rds
 
-# This code pulls inprocesses logbook data from Oracle database,
+# This code pulls in logbook data from Oracle database,
 # then cleans it up, so that we can use it in any logbook data analysis:
 # (1) (a) pull all logbook and compliance/override data from Oracle database
 #     (b) get processed Metrics Tracking file
@@ -24,10 +24,10 @@
 #   (b) remove records where start date/time is after end date/time
 #   (c) remove records for trips lasting more than 10 days
 # (3) mark all trips that were received > 30 days after trip end date, by using compliance data and time of submission
-#   (a) mark all trips where the week was remove all overridden data, because the submission date is unknown, more notes further in the code
+#   (a) mark all trips where the week was overridden, because the submission date is unknown, more notes further in the code
 # (4) Add permit region information (GOM, SA, or dual), using permit names (optional)
 
-# For 2022 we don't keep trips starting in 2021 and ending in 2022. We only keep trips starting in 2022, because 2021 was the first year of the program and we don’t think it’s very reliable data.
+# For 2022 we don't keep trips starting in 2021 and ending in 2022. We only keep trips starting in 2022, because 2021 was the first year of the program and we don’t think it’s very reliable data
 
 # Caveats:
 # 1) The way COMP_WEEK is calculated could get messed up depending on a given year time frame. It's due to something
@@ -77,8 +77,8 @@ output_file_path <-
 
 # Set the date ranges for the logbook and compliance data you are pulling
 # this is the year to assign to the output file name
-# my_year <- "2022"
-my_year <- "2023"
+my_year <- "2022"
+# my_year <- "2023"
 # my_year <- "2024"
 
 # TODO: find the fringe weeks
@@ -132,8 +132,8 @@ if (Path == annas_path) {
 
 source(auxiliary_methods_file_path)
 
-# Create logbook processing start date and time (for version control tracking) ----
-# Start the log ----
+# Create a log of stats for the processing file, various parameters are tallied throughout the code, and saved here. ----
+
 my_tee(date(),
        my_title = str_glue("Start logbook processing for {my_year}"))
 
@@ -146,7 +146,7 @@ my_tee(date(),
 # set up an Oracle connection
 # Sys.getenv("ORA_SDTZ")
 
-# You have to set up the same time zones for ROracle and RStudio. By default, they use different ones, and this difference causes dates and times to round up in R Studio, pushing some date timestamps to the next day, and making them incorrect.# You have to set up the same timezones for ROracle and the system. Because by default they use different ones.
+# You have to set up the same time zones for ROracle and RStudio. By default, they use different ones, and this difference causes dates and times to round up in R Studio, pushing some date timestamps to the next day, and making them incorrect.
 Sys.setenv(TZ = Sys.timezone())
 Sys.setenv(ORA_SDTZ = Sys.timezone())
 
@@ -240,7 +240,7 @@ compl_override_data__renamed__this_year <-
 min(compl_override_data__renamed__this_year$COMP_WEEK_START_DT)
 # [1] "2021-12-27 EST" # this might contain the last week in the year before my_year, to account for a compliance week that overlaps last week of the year and first week of my_year
 min(compl_override_data__renamed__this_year$COMP_WEEK_END_DT)
-# [1] "2022-01-02 EST" # this might contain the last week in the year before my_year, to account for a compliance week that overlaps last week of the previous year and first week of my_year# this should be the last day of the first week in my_year
+# [1] "2022-01-02 EST" # this might contain the last week in the year before my_year, to account for a compliance week that overlaps last week of the previous year and first week of my_year
 
 # change data type of this column if needed
 if (!class(compl_override_data__renamed__this_year$VESSEL_OFFICIAL_NUMBER) == "character") {
@@ -260,7 +260,6 @@ processed_metrics_tracking_path <-
 # file.exists(processed_metrics_tracking_path)
 
 #reads the file in the path into a data frame
-
 processed_metrics_tracking <-
   read_rds(processed_metrics_tracking_path)
 
@@ -329,7 +328,6 @@ my_stats(Logbooks_raw_renamed, "Logbooks from the db")
 #
 # 4. **Convert Columns to Date:**
 #    - `as.Date`: Use the 'as.Date' function to convert the selected columns to the 'Date' format.
-
 Logbooks_raw_renamed__to_date <-
   Logbooks_raw_renamed |>
   mutate(across(c(!where(is.Date) & ends_with("_DATE")),
