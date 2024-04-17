@@ -946,10 +946,7 @@ vessels_after_filtering <-
   n_distinct(Logbooks_raw_renamed__to_date_time4__my_year__format_time__iso$VESSEL_OFFICIAL_NUMBER)
 #call out the # of vessels to the console
 cat(vessels_after_filtering)
-vessels_after_filtering <-
-  n_distinct(Logbooks_raw_renamed__to_date_time4__my_year__format_time__iso$VESSEL_OFFICIAL_NUMBER)
 
-cat(vessels_after_filtering)
 
 #number of vessels that were removed in the processing steps of this code
 removed_vessels <-
