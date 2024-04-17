@@ -342,13 +342,13 @@ Logbooks_raw$TRIP_START_DATE |>
 Logbooks_raw_renamed__to_date$TRIP_START_DATE |>
   head(1)
 # "2022-07-07"
+#this also changes the format from POSIX to DATE
 
 ### reformat trip start/end time ----
 
 # convert time columns to numeric,
 # then format to 4 digits as a string (some time entries were like "800") —-
 # (from help: sprintf returns a character vector)
-# TODO: why do we need this? (AS)
 
 # Explanation:
 #
@@ -518,7 +518,7 @@ Logbooks_raw_renamed__to_date_time4__my_year__format_time__iso <-
     TRIP_END_YEAR = isoyear(TRIP_END_DATE)
   )
 
-# Adding flags or filtering the logbook data ----
+# Adding flags for filtering the logbook data ----
 
 ## Filter out vessels not in Metrics tracking from compliance info ----
 SEFHIER_compl_override_data__renamed__this_year <-
@@ -526,7 +526,6 @@ SEFHIER_compl_override_data__renamed__this_year <-
   filter(VESSEL_OFFICIAL_NUMBER %in% processed_metrics_tracking$VESSEL_OFFICIAL_NUMBER)
 
 # Check the number of records (rows), vessels and trips before and after filtering out vessels not in Metrics Tracking
-
 my_stats(compl_override_data__renamed__this_year)
 my_stats(SEFHIER_compl_override_data__renamed__this_year)
 
@@ -563,14 +562,13 @@ my_tee(logbooks_not_in_metrics,
 # We add data from the compliance module to the DNF data frame to associate weeks where compliance was overridden with the corresponding DNFs.
 # Depending on the analysis question, we may want to remove DNFs for weeks that
 # were overridden because we don't have a timestamp for when the DNF was submitted to
-# the app, only when it was submitted to Oracle/SAFIS, and we can't differentiate between
-# turning a DNF in on time- in the app, and it then taking two months to get it into FHIER vs
-# turning in a DNF two months late.
+#the app, only when it was submitted to Oracle/SAFIS, and we can't differentiate between
+#turning a DNF in on time- in the app, and it then taking two months to get it into FHIER vs
+#turning in a DNF two months late.
 # E.g. user submitted Jan 1, 2022, but SEFHIER team found it missing in FHIER (and
 #SAFIS) in March, 2022 (at permit renewal)... user submitted on time in app (VESL) but we
 #may not get that report in SAFIS for months later (when it’s found as a "missing report" and
 #then requeued for transmission)
-
 my_stats(SEFHIER_compl_override_data__renamed__this_year,
          "Compliance and override data from the db")
 # Compliance and override data from the db
@@ -578,18 +576,6 @@ my_stats(SEFHIER_compl_override_data__renamed__this_year,
 # columns: 23
 # Unique vessels: 3382
 
-
-### Check if logbooks and compliance data have the same week dates
-SEFHIER_compl_override_data__renamed__this_year$COMP_WEEK_START_DT |> min()
-# [1] "2022-01-03 EST"
-Logbooks_raw_renamed__to_date_time4__my_year__format_time__iso$TRIP_START_DATE |> min()
-# [1] "2022-01-01"
-#[1] "2022-01-01"
-### TODO: check if logbooks and compliance data have the same week dates
-
-SEFHIER_compl_override_data__renamed__this_year$COMP_WEEK_START_DT |> min()
-
-Logbooks_raw_renamed__to_date_time4__my_year__format_time__iso$TRIP_START_DATE |> min()
 
 ### join the data frames ----
 
@@ -614,7 +600,6 @@ logbooks_join_overr <-
 
 # check the difference
 #This list of vessels is not concerning, it’s just an extra step in providing a thorough analysis. It's possible that a vessel submitted a DNF for every week they were permitted, so that they remained compliant but never submitted a logbook.
-# check the difference
 in_compl_not_in_logbooks <-
   logbooks_join_overr |>
   filter(is.na(TRIP_ID)) |>
@@ -626,7 +611,6 @@ nrow(in_compl_not_in_logbooks)
 
 ##This list of vessels is not concerning, it’s just an extra step in providing a thorough analysis.
 #This tells us that these vessels submitted a logbook for a week when they were not permitted. It can happen when a captain is unaware that his permit has expired, but reports anyway.
-
 in_logbooks_not_in_compl <-
   logbooks_join_overr |>
   filter(is.na(IS_COMP)) |>
@@ -635,20 +619,6 @@ in_logbooks_not_in_compl <-
 
 # check the number of rows in DF
 nrow(in_logbooks_not_in_compl)
-
-# Total # of records, vessels and trips, comparing the df before and after joining DNF and compliance data# stats
-my_stats(SEFHIER_compl_override_data__renamed__this_year)
-# SEFHIER_compl_override_data__renamed__this_year
-# rows: 141557
-# columns: 23
-# Unique vessels: 3382
-
-my_stats(logbooks_join_overr)
-# logbooks_join_overr
-# rows: 435911
-# columns: 173
-# Unique vessels: 3426
-# Unique trips: 94734
 
 
 ### Remove rows with NA logbooks and entries in Compliance ----
@@ -662,8 +632,8 @@ logbooks_join_overr__all_logbooks <-
 dim(logbooks_join_overr__all_logbooks)
 
 ### Add a compliant_after_override column ----
-#This is needed so that we can easily filter out compliant or non-compliant vessels in the dataset, by adding an extra column that states yes or no regarding compliance. The NA in IS_COMP represents one of two possible scenarios: 1) a DNF was submitted for a vessel that is missing from the compliance module but is in metrics tracking, or 2) a DNF was submitted for a week when the vessel was not permitted. It is not simple to determine which. Deciding what to do with these DNFs will depend on the individual analysis question, and so is not addressed here, but simply left as NA.
-# To use in compliance analysis where logbooks are also used
+#This is needed so that we can easily filter out compliant or non-compliant vessels in the dataset, by adding an extra column that states yes or no regarding compliance. The NA in IS_COMP represents one of two possible scenarios: 1) a logbook was submitted for a vessel that is missing from the compliance module but is in metrics tracking, or 2) a logbook was submitted for a week when the vessel was not permitted. It is not simple to determine which. Deciding what to do with these DNFs will depend on the individual analysis question, and so is not addressed here, but simply left as NA.
+
 
 # Explanations:
 # 1. 'logbooks_join_overr__compl' is created as an extension of 'logbooks_join_overr__all_logbooks'.
@@ -754,8 +724,7 @@ my_stats(logbooks_join_overr__compl__start_end_ok)
 # Unique vessels: 1882
 # Unique trips: 94060
 
-
-# create a tibble of all trips with time_stamp_Errorstats
+# create a tibble of all trips with time_stamp_Error
 thrown_by_time_stamp_error <-
   logbooks_join_overr__compl |>
   filter(time_stamp_error == TRUE)
@@ -786,7 +755,7 @@ logbooks_join_overr__compl__start_end_ok__trip_len_ok <-
   logbooks_join_overr__compl__start_end_ok |>
   filter(trip_length < trip_length_threshold)
 
-# Number of vessels and unique trips, after removing trips that exceed the length thresholdstats
+# Number of vessels and unique trips, after removing trips that exceed the length threshold
 my_stats(logbooks_join_overr__compl__start_end_ok__trip_len_ok)
 
 # Output trips with length > trip_length_threshold (240) into a data frame (for stats)
@@ -829,7 +798,7 @@ logbooks_join_overr_e_usable_date <-
 # Print out statistics
 
 # # create a function to produce some stats for the next analysis step, assessing late submission —-
-# Function Explanations:
+
 # 1. 'late_submission_filter_stats' is a function that takes a dataframe 'my_df' as input.
 # 2. It first calls another function 'my_stats' to compute and print statistics about 'my_df'.
 # 3. It filters 'my_df' to create a subset called 'late_submission' where 'IS_MORE_THAN_30_DAYS_LATE' is FALSE.
@@ -891,9 +860,6 @@ late_submission_filter <-
 ### Filter (mark only): data frame of logbooks that were usable ----
 SEFHIER_logbooks_processed <-
   late_submission_filter(logbooks_join_overr_e_usable_date)
-
-# logbooks_join_overr_e_usable_date |>
-#   filter(TRIP_ID == "66666297") |> View()
 
 # Separate permit regions to GOM only, SA only or dual using PERMIT_GROUP ----
 # Revisit after
