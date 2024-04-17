@@ -13,7 +13,7 @@
 
 # Files this code will pull from Oracle:
 # 1) Raw_Oracle_Downloaded_compliance_2021_plus.rds
-# 2) Raw_Oracle_Downloaded_logbook_{my_date_beg}__{my_date_end}.rds
+# 2) Raw_Oracle_Downloaded_logbook_{my_compliance_date_beg}__{my_compliance_date_end}.rds
 
 # This code pulls in logbook data from Oracle database,
 # then cleans it up, so that we can use it in any logbook data analysis:
@@ -235,17 +235,17 @@ min(compl_override_data__renamed$COMP_WEEK_START_DT)
 # 1. 'compl_override_data__renamed__this_year' is a new data frame created from 'compl_override_data__renamed'.
 # 2. In this data frame, only rows meeting specific date criteria are retained.
 # 3. The 'filter' function is used to subset rows based on the following conditions:
-#    a. 'COMP_WEEK_START_DT' should be greater than or equal to 'my_date_beg' (start date).
-#    b. 'COMP_WEEK_START_DT' should be less than or equal to 'my_date_end' (end date).
+#    a. 'COMP_WEEK_START_DT' should be greater than or equal to 'my_compliance_date_beg' (start date).
+#    b. 'COMP_WEEK_START_DT' should be less than or equal to 'my_compliance_date_end' (end date).
 # 4. Dates are converted using 'as.Date' with the appropriate format ("%d-%b-%Y") and time zone.
 # 5. 'Sys.timezone()' retrieves the current system's time zone.
 # 6. The filtered data frame 'compl_override_data__renamed__this_year' contains only rows within the specified date range.
 compl_override_data__renamed__this_year <-
   compl_override_data__renamed |>
   filter(
-    COMP_WEEK_END_DT >= as.Date(my_date_beg, "%d-%b-%Y",
+    COMP_WEEK_END_DT >= as.Date(my_compliance_date_beg, "%d-%b-%Y",
                                 tz = Sys.timezone()) &
-      COMP_WEEK_START_DT <= as.Date(my_date_end, "%d-%b-%Y",
+      COMP_WEEK_START_DT <= as.Date(my_compliance_date_end, "%d-%b-%Y",
                                     tz = Sys.timezone())
   )
 
@@ -287,7 +287,7 @@ processed_metrics_tracking <-
 logbooks_file_path <-
   file.path(Path,
             Outputs,
-            str_glue("Raw_Oracle_Downloaded_logbook_{my_date_beg}__{my_date_end}.rds"))
+            str_glue("Raw_Oracle_Downloaded_logbook_{my_compliance_date_beg}__{my_compliance_date_end}.rds"))
 
 # 2) create a variable with an SQL query to call data from the database
 
@@ -295,14 +295,15 @@ logbooks_file_path <-
 # Interpolation with glue to include variable names
 
 logbooks_download_query <-
-  str_glue("SELECT
+  str_glue(
+    "SELECT
   *
 FROM
   srh.mv_safis_trip_download@secapxdv_dblk
 WHERE
-    trip_end_date >= '{my_date_beg}'
-  AND trip_start_date <= '{my_date_end}'
-")
+    trip_end_date >= TO_DATE('{my_compliance_date_beg}', 'yyyy-mm-dd')
+  AND trip_start_date <= TO_DATE('{my_compliance_date_end}', 'yyyy-mm-dd')"
+  )
 
 # Use 'read_rds_or_run_query' defined above to either read logbook information from an RDS file or execute a query to obtain it and write a file for future use.
 # Change "force_from_db = NULL" to "force_from_db = TRUE" for force db downloading (must be on VPN)
@@ -420,10 +421,10 @@ Logbooks_raw_renamed__to_date_time4__my_year <-
   Logbooks_raw_renamed__to_date_time4 |>
   filter(
     TRIP_END_DATE >=
-      as.Date(my_date_beg, "%d-%b-%Y",
+      as.Date(my_compliance_date_beg, "%d-%b-%Y",
               tz = Sys.timezone()) &
       TRIP_START_DATE <=
-      as.Date(my_date_end, "%d-%b-%Y",
+      as.Date(my_compliance_date_end, "%d-%b-%Y",
               tz = Sys.timezone())
   )
 
@@ -1004,9 +1005,6 @@ my_tee(removed_logbooks_and_vessels_text,
 # 0%
 
 # Export processed logbooks ----
-
-my_calendar_date_beg <- str_glue("01-JAN-{my_year}")
-my_calendar_date_end <- str_glue("31-DEC-{my_year}")
 
 # TODO: create 2 different dfs by calendar and compliance date separately
 
