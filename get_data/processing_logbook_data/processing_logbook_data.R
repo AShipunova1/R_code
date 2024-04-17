@@ -841,6 +841,7 @@ late_submission_filter_stats <-
 
 late_submission_filter <-
   function(my_df) {
+
     logbooks_join_overr__compl__start_end_ok__trip_len_ok_temp <-
       my_df |>
       mutate(MORE_THAN_30_DAYS_LATE =
@@ -943,6 +944,8 @@ cat(vessels_before_filtering)
 #number of vessels in the processed logbook file
 vessels_after_filtering <-
   n_distinct(Logbooks_raw_renamed__to_date_time4__my_year__format_time__iso$VESSEL_OFFICIAL_NUMBER)
+
+  # n_distinct(SEFHIER_logbooks_processed$VESSEL_OFFICIAL_NUMBER)
 #call out the # of vessels to the console
 cat(vessels_after_filtering)
 
