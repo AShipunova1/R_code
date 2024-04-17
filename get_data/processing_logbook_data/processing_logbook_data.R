@@ -540,18 +540,8 @@ vessels_not_in_metrics #[1] 244
 # Total number of vessels in Oracle raw data but not in Metrics Tracking
 my_tee(vessels_not_in_metrics,
        "Vessels removed if a vessel is not in Metrics tracking")
-# 244 (2022)
+#244 (2022)
 
-# Create DF of logbooks that get excluded, because the vessel is not in Metrics Tracking (submitted by non-SEFHIER permitted vessels)
-
-logbooks_not_in_metrics <-
-  n_distinct(compl_override_data__renamed__this_year$TRIP_ID) -
-  n_distinct(SEFHIER_compl_override_data__renamed__this_year$TRIP_ID)
-# 0
-
-# Total number of logbooks removed, after removing non-SEFHIER permitted vessels
-my_tee(logbooks_not_in_metrics,
-       "logbooks removed if a vessel is not in Metrics tracking")
 
 ## add compliance/override data to logbooks ----
 # We add data from the compliance module to the DNF data frame to associate weeks where compliance was overridden with the corresponding DNFs.
