@@ -1006,7 +1006,15 @@ my_tee(removed_logbooks_and_vessels_text,
 
 # Export processed logbooks ----
 
-# TODO: create 2 different dfs by calendar and compliance date separately
+# create 2 different dfs by a) compliance and
+# b) calendar date separately
+
+# check
+# compliance dates:
+# min(SEFHIER_logbooks_processed$TRIP_END_DATE)
+# [1] "2022-12-26"
+# max(SEFHIER_logbooks_processed$TRIP_START_DATE)
+# [1] "2023-12-31"
 
 SEFHIER_processed_Logbooks_file_name <-
   str_glue("SEFHIER_processed_Logbooks_{my_year}.rds")
@@ -1016,4 +1024,29 @@ write_rds(
   file = file.path(output_file_path, SEFHIER_processed_Logbooks_file_name)
 )
 
+# calendar dates
+SEFHIER_logbooks_processed__calendar_year <-
+  SEFHIER_logbooks_processed |>
+  filter(
+    TRIP_END_DATE >=
+      as.Date(my_calendar_date_beg, "%d-%b-%Y",
+              tz = Sys.timezone()) &
+      TRIP_START_DATE <=
+      as.Date(my_calendar_date_end, "%d-%b-%Y",
+              tz = Sys.timezone())
+  )
 
+# check
+# min(SEFHIER_logbooks_processed__calendar_year$TRIP_END_DATE)
+# [1] "2023-01-01"
+
+# max(SEFHIER_logbooks_processed__calendar_year$TRIP_START_DATE)
+# [1] "2023-12-31"
+
+SEFHIER_logbooks_processed__calendar_year_file_name <-
+  str_glue("SEFHIER_logbooks_processed__calendar_{my_year}.rds")
+
+write_rds(
+  SEFHIER_logbooks_processed__calendar_year,
+  file = file.path(output_file_path, SEFHIER_logbooks_processed__calendar_year_file_name)
+)
