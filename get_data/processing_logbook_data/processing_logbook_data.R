@@ -929,9 +929,15 @@ logbooks_after_filtering <-
 # call out to console the # of logbooks before filtering
 my_tee(logbooks_after_filtering,
         "Logbooks after filtering")
+
+# number of logbooks that were removed in the processing steps of this code
+removed_logbooks <-
+  logbooks_before_filtering - logbooks_after_filtering
+
 # total % of logbooks removed after processing
 percent_of_removed_logbooks <-
   (logbooks_before_filtering - logbooks_after_filtering) * 100 / logbooks_before_filtering
+
 # call out to console the % of logbooks before filtering
 cat(percent_of_removed_logbooks, sep = "\n")
 # 5.400213 2022
@@ -940,6 +946,7 @@ cat(percent_of_removed_logbooks, sep = "\n")
 # number removed_vessels, after processing the logbook data from Oracle
 vessels_before_filtering <-
   n_distinct(Logbooks_raw_renamed$VESSEL_OFFICIAL_NUMBER)
+
 # call out to console the # of vessels removed
 cat(vessels_before_filtering)
 
@@ -951,7 +958,6 @@ vessels_after_filtering <-
 # call out the # of vessels to the console
 cat(vessels_after_filtering)
 
-
 # number of vessels that were removed in the processing steps of this code
 removed_vessels <-
   vessels_before_filtering - vessels_after_filtering
@@ -962,6 +968,8 @@ percent_of_removed_vessels <-
 
 # establish text color and format to call to console
 removed_logbooks_and_vessels_text <- c(
+  crayon::blue("removed_logbooks"),
+  removed_logbooks,
   crayon::blue("percent_of_removed_logbooks"),
   str_glue("{round(percent_of_removed_logbooks, 2)}%"),
   crayon::blue("removed_vessels"),
