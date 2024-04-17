@@ -616,6 +616,17 @@ logbooks_join_overr__all_logbooks <-
 #check the dimensions of the DFs before and after removing rows with NA logbooks dim(logbooks_join_overr)
 dim(logbooks_join_overr__all_logbooks)
 
+# Total # of records, vessels and trips, before and after joining logbook and compliance data
+my_stats(Logbooks_raw_renamed__to_date_time4__my_year__format_time__iso)
+
+my_stats(logbooks_join_overr_all_logbooks)
+# logbooks_join_overr_all_logbooks
+# rows: 435911
+# columns: 173
+# Unique vessels: 3426
+# Unique trips: 94734
+
+
 ### Add a compliant_after_override column ----
 #This is needed so that we can easily filter out compliant or non-compliant vessels in the dataset, by adding an extra column that states yes or no regarding compliance. The NA in IS_COMP represents one of two possible scenarios: 1) a logbook was submitted for a vessel that is missing from the compliance module but is in metrics tracking, or 2) a logbook was submitted for a week when the vessel was not permitted. It is not simple to determine which. Deciding what to do with these DNFs will depend on the individual analysis question, and so is not addressed here, but simply left as NA.
 
