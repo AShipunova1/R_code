@@ -619,7 +619,7 @@ dim(logbooks_join_overr__all_logbooks)
 # Total # of records, vessels and trips, before and after joining logbook and compliance data
 my_stats(Logbooks_raw_renamed__to_date_time4__my_year__format_time__iso)
 
-my_stats(logbooks_join_overr_all_logbooks)
+my_stats(logbooks_join_overr__all_logbooks)
 # logbooks_join_overr_all_logbooks
 # rows: 435911
 # columns: 173
