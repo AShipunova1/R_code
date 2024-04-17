@@ -967,7 +967,7 @@ removed_logbooks_and_vessels_text <- c(
   crayon::blue("removed_vessels"),
   removed_vessels,
   crayon::blue("percent_of_removed_vessels"),
-  str_glue("{round(percent_of_removed_vessels)}%")
+  str_glue("{round(percent_of_removed_vessels, 2)}%")
 )
 
 # call to the consolve the text established above
