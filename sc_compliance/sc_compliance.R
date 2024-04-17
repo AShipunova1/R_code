@@ -11,7 +11,7 @@
 # grab the compliant vessels (herein "SC compliant vessels list"), and then check FHIER compliance to see if any that SC has as compliant are listed as non-compliant for any of the weeks in the given month. If any vessels are found to be compliant with SC but non-compliant with us/FHIER, then we list those vessels and include what week (with date ranges) we are missing in FHIER. Eric will use this to more proactively alert us when a vessel is reporting only to SC, since we have so many recurring issues with this.
 
 # So, in the output file we have: (sheet 1) the list of those SC NON-COMPLIANT vessels that are COMPLIANT in FHIER,
-# with (on sheets 2-3) the list all the dates of DNFs and/or logbooks we have in FHIER by vessel (probably 3 columns needed: vessel ID, Logbook (list any dates for that month), DNF (list week date range for any for that month).
+# with (on sheets 2-3) the list of all the dates of DNFs and/or logbooks we have in FHIER by vessel (probably 3 columns needed: vessel ID, Logbook (list any dates for that month), DNF (list week date range for any for that month).
 # (sheet 4) is the list of those SC COMPLIANT vessels that are NON-COMPLIANT in FHIER.
 
 
@@ -23,7 +23,7 @@
 #   3) "SEFHIER_processed_dnfs_{my_year}.rds"
           # this file comes from running the DNF processing code for a given year, it should be available to download on Google Drive
 #   4) "SEFHIER_processed_Logbooks_{my_year}.rds"
-          # this file comes from running the logbook processing code for a given year
+          # this file comes from running the logbook processing code for a given year, it should be available to download on Google Drive
 #   5) "Vessel_List_{my_year}.csv" (southeast region headboat survey, SRHS)
           # this file comes from Ken Brennan at the SRHS program, it should be available to download on Google Drive
 
@@ -43,9 +43,10 @@ library(tictoc)
 # Load the 'openxlsx' library, used for reading and writing Excel (.xlsx) files.
 library(openxlsx)
 
-my_year <- "2024"
-db_year_1 <- "2023"
-db_year_2 <- "2024"
+#assign dates to variables
+my_year <- "2024" #the year of the analysis
+db_year_1 <- "2023" #the year before the year of the analysis
+db_year_2 <- "2024" #the same as my_year
 
 # Set up paths ----
 
@@ -154,11 +155,14 @@ if (get_username() == "anna.shipunova") {
 
 annas_path <- set_work_dir()
 
+#set the path to processed logbook data on Anna’s computer
 annas_processed_data_path <-
   r"(~\R_files_local\my_inputs\processing_logbook_data\Outputs)"
 
+#set the current project directory name to the directory that has this R script in it
 current_project_dir_name <- this.path::this.dir()
 
+#set the current project base name to the name of the directory that has this R script in it
 current_project_basename <-
   basename(current_project_dir_name)
 
