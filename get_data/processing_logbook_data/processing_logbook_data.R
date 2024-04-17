@@ -976,8 +976,6 @@ my_tee(removed_logbooks_and_vessels_text,
 # 0
 # percent_of_removed_vessels
 # 0%
-my_tee(removed_logbooks_and_vessels_text,
-       "\nRemoved logbooks and vessels stats")
 
 # Export processed logbooks ----
 
