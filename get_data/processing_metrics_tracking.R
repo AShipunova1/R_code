@@ -4,7 +4,7 @@
 # "SEFHIER_permitted_vessels_nonSRHS_{my_year}.rds"
 
 # Steps for Input files
-# 1) set date range and download data from Metrics Tracking Detail Report in FHIER as is, no need to filter data or delete any columns
+# 1) set date range (use compliance dates, see below) and download data from Metrics Tracking Detail Report in FHIER as is, no need to filter data or delete any columns
 # we use this file to collect the vessel permit information that is included in the table, but the file itself is an output of tallies of types of submitted reports for each vessel for the date range selected, regardless of if the vessel was permitted in that date range
 # 2) name it: Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)_{my_year}.csv
 # 3) add year manually to downloaded file
@@ -12,6 +12,7 @@
 
 # 5) download the SRHS list from Google Drive (comes from Ken Brennan/SRHS branch chief)
 # 6) save as "{my_year}SRHSvessels.csv" to the directory that has this R script, in an “input” sub-directory
+# Compliance dates include the "fringe" weeks, the weeks which are in both the previous and the next year (if any). Use get_the_dates(my_year).
 
 # setup ----
 library(tidyverse)
@@ -36,12 +37,9 @@ Outputs <- "Outputs/"
 
 # Set the date ranges for the logbook and compliance data you are pulling
 # this is the year to assign to the output file name
-# my_year <- '2022'
+my_year <- '2022'
 # my_year <- '2023'
-my_year <- '2024'
-
-my_date_beg <- str_glue("01-JAN-{my_year}")
-my_date_end <- str_glue("31-DEC-{my_year}")
+# my_year <- '2024'
 
 # Auxiliary methods ----
 annas_git_path <-
@@ -60,6 +58,10 @@ if (Path == annas_path) {
 # file.exists(auxiliary_methods_file_path)
 
 source(auxiliary_methods_file_path)
+
+curr_dates <- get_the_dates(my_year)
+my_compliance_date_beg <- curr_dates$my_compliance_date_beg
+my_compliance_date_end <- curr_dates$my_compliance_date_end
 
 # Start the log ----
 my_tee(date(),
@@ -176,8 +178,8 @@ processed_metrics_permit_info_short <-
 processed_metrics_permit_info_short_this_year <-
   processed_metrics_permit_info_short |>
   filter(
-    EFFECTIVE_DATE <= as.Date(my_date_end, "%d-%b-%Y") &
-      END_DATE >= as.Date(my_date_beg, "%d-%b-%Y")
+    EFFECTIVE_DATE <= as.Date(my_compliance_date_end, "%d-%b-%Y") &
+      END_DATE >= as.Date(my_compliance_date_beg, "%d-%b-%Y")
   )
 
 ## Check vessels removed by dates ----
