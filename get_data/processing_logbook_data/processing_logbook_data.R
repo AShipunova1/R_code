@@ -104,7 +104,7 @@ if (Path == annas_path) {
 
 source(auxiliary_methods_file_path)
 
-curr_dates <- get_the_dates()
+curr_dates <- get_the_dates(my_year)
 my_compliance_date_beg <- curr_dates$my_compliance_date_beg
 my_compliance_date_end <- curr_dates$my_compliance_date_end
 
