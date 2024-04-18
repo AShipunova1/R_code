@@ -73,8 +73,46 @@ get_the_dates <-
   }
 
 # usage
-# curr_dates <- get_the_dates()
+curr_dates <- get_the_dates()
 # my_compliance_date_end <- curr_dates$my_compliance_date_end
+
+# tests
+test_compl_week_start_day <-
+  curr_dates$my_compliance_date_beg |>
+  wday(label = TRUE,
+       abbr = FALSE,
+     week_start = week_start_day)
+
+test_compl_week_start_day == week_start_day
+# T
+
+# Explanations:
+# - This code creates a variable `test_compl_week_end_day` that represents the day of the week for the day after the end of the compliance period.
+# - It uses the functions from the `lubridate` package to calculate the day of the week.
+#
+# 1. **Convert Date**:
+#     - The code takes the end date of the compliance period (`curr_dates$my_compliance_date_end`) and adds one day to it (`curr_dates$my_compliance_date_end + 1`).
+#     - The result is passed to the `ymd` function, which converts it to a date object in "year-month-day" format.
+#
+# 2. **Determine Day of the Week**:
+#     - The resulting date object is then used as an input for the `wday` function.
+#     - `wday` determines the day of the week for the date, using the specified `week_start_day` option as the first day of the week.
+#
+# 3. **Format the Output**:
+#     - The `wday` function is configured to return the full name of the day of the week (`abbr = FALSE`) and not an abbreviated version.
+#     - The final output is the day of the week of the date after the compliance period end date, formatted as a full name string.
+#
+# By executing this code, the user can verify the day of the week following the end of the compliance period, which can be useful for checking whether the compliance period aligns with the expected weekly schedule.
+
+test_compl_week_end_day <-
+  ymd(curr_dates$my_compliance_date_end + 1) |>
+  wday(label = TRUE,
+       abbr = FALSE,
+     week_start = week_start_day)
+
+test_compl_week_end_day == week_start_day
+# T
+
 
 # ---
 # Pretty message print
