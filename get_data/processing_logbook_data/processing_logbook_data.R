@@ -104,6 +104,10 @@ if (Path == annas_path) {
 
 source(auxiliary_methods_file_path)
 
+curr_dates <- get_the_dates()
+my_compliance_date_beg <- curr_dates$my_compliance_date_beg
+my_compliance_date_end <- curr_dates$my_compliance_date_end
+
 # Create a log of stats for the processing file, various parameters are tallied throughout the code, and saved here. ----
 
 my_tee(date(),
@@ -983,6 +987,9 @@ write_rds(
 )
 
 # calendar dates
+my_calendar_date_beg <- curr_dates$my_calendar_date_beg
+my_calendar_date_end <- curr_dates$my_calendar_date_end
+
 SEFHIER_logbooks_processed__calendar_year <-
   SEFHIER_logbooks_processed |>
   filter(
@@ -995,10 +1002,10 @@ SEFHIER_logbooks_processed__calendar_year <-
   )
 
 # check
-# min(SEFHIER_logbooks_processed__calendar_year$TRIP_END_DATE)
+min(SEFHIER_logbooks_processed__calendar_year$TRIP_END_DATE)
 # [1] "2023-01-01"
 
-# max(SEFHIER_logbooks_processed__calendar_year$TRIP_START_DATE)
+max(SEFHIER_logbooks_processed__calendar_year$TRIP_START_DATE)
 # [1] "2023-12-31"
 
 SEFHIER_logbooks_processed__calendar_year_file_name <-
