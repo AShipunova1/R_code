@@ -3,13 +3,15 @@
 # Creates
 # "SEFHIER_permitted_vessels_nonSRHS_{my_year}.rds"
 
-# Input files
-# Metrics Tracking (Downloaded from FHIER)
-# "Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)_{my_year}.csv"
-# add year manually to downloaded file
+# Steps for Input files
+# 1) set date range and download data from Metrics Tracking Detail Report in FHIER as is, no need to filter data or delete any columns
+# we use this file to collect the vessel permit information that is included in the table, but the file itself is an output of tallies of types of submitted reports for each vessel for the date range selected, regardless of if the vessel was permitted in that date range
+# 2) name it: Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)_{my_year}.csv
+# 3) add year manually to downloaded file
+# 4) save file to the directory that has this R script, in an “input” sub-directory
 
-# SRHS list from Ken Brennan (SRHS branch chief)
-# "{my_year}SRHSvessels.csv"
+# 5) download the SRHS list from Google Drive (comes from Ken Brennan/SRHS branch chief)
+# 6) save as "{my_year}SRHSvessels.csv" to the directory that has this R script, in an “input” sub-directory
 
 # setup ----
 library(tidyverse)
@@ -19,6 +21,7 @@ michelles_path <- "C:/Users/michelle.masi/Documents/SEFHIER/R code/Logbook relat
 
 jennys_path <-
   "//ser-fs1/sf/LAPP-DM Documents/Ostroff/SEFHIER/Rcode/ProcessingLogbookData/"
+#r"(C:\Users\jenny.ostroff\Desktop\Backups\Rcode\ProcessingMetricsTracking)"
 
 annas_path <-
   r"(C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\processing_logbook_data/)"
@@ -74,8 +77,7 @@ SEFHIER_metrics_tracking_path <-
   )
 )
 
-# file.exists(SEFHIER_metrics_tracking_path)
-
+#read in metrics tracking data
 SEFHIER_metrics_tracking <- read.csv(SEFHIER_metrics_tracking_path)
 
 # rename column headers
@@ -83,8 +85,6 @@ SEFHIER_metrics_tracking <-
   SEFHIER_metrics_tracking |>
   rename(PERMIT_REGION = `Permit.Grouping.Region`,
          VESSEL_OFFICIAL_NUMBER = `Vessel.Official.Number`)
-
-# dim(SEFHIER_metrics_tracking)
 
 # import the list of SRHS vessels
 # this is a single spreadsheet with all vessels listed, as opposed to the version where they are separated by region (bothregions_asSheets)
@@ -96,6 +96,7 @@ SRHS_vessels <-
   rename(SRHS_vessels,
          VESSEL_OFFICIAL_NUMBER = "USCG #")
 
+#if the class is not character, change it to character
 if (!class(SRHS_vessels$VESSEL_OFFICIAL_NUMBER) == "character") {
   SRHS_vessels$VESSEL_OFFICIAL_NUMBER <-
     as.character(SRHS_vessels$VESSEL_OFFICIAL_NUMBER)
@@ -144,16 +145,10 @@ processed_metrics_permit_info |>
 # 2           gom_only  987
 # 3            sa_only 2149
 
-# 2024 Mar
-#   permit_sa_gom_dual    n
-# 1               dual  190
-# 2           gom_only 1044
-# 3            sa_only 1801
-
 # stats
 my_stats(processed_metrics_permit_info, "Metrics tracking minus SRHS vsls")
 
-# see all names
+# see all column names
 processed_metrics_permit_info |> names() |> cat(sep = ", ")
 
 # remove the columns you don't need and rename the rest
@@ -165,8 +160,7 @@ processed_metrics_permit_info_short <-
       toupper()
   })
 
-# stats
-my_stats(processed_metrics_permit_info)
+
 
 # change the format of the date for these two columns
 processed_metrics_permit_info_short <-
@@ -178,6 +172,7 @@ processed_metrics_permit_info_short <-
   )
 
 # filter data to only include permits with an effective and end date within the current year
+# this step is necessary because the original data frame downloaded from FHIER includes some vessels that were not permitted in my_year, and we need to remove them
 processed_metrics_permit_info_short_this_year <-
   processed_metrics_permit_info_short |>
   filter(
@@ -192,6 +187,7 @@ not_my_year_vessels <-
     processed_metrics_permit_info_short_this_year$VESSEL_OFFICIAL_NUMBER
   )
 
+ # this is a check to make sure that all the vessels removed from the dataframe did not submit any reports in my_year, which makes sense since they were not permitted during “my_year”
 processed_metrics_permit_info |>
   filter(VESSEL_OFFICIAL_NUMBER %in% not_my_year_vessels) |>
   filter(VESSEL_OFFICIAL_NUMBER %in% not_my_year_vessels) |>
@@ -199,7 +195,6 @@ processed_metrics_permit_info |>
   distinct() |>
   glimpse()
 # 0 - OK, all removed vessels have no "total" information
-# 8 2024
 
 # stats
 my_stats(processed_metrics_permit_info_short)
