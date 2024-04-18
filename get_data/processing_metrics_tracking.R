@@ -21,7 +21,7 @@ michelles_path <- "C:/Users/michelle.masi/Documents/SEFHIER/R code/Logbook relat
 
 jennys_path <-
   "//ser-fs1/sf/LAPP-DM Documents/Ostroff/SEFHIER/Rcode/ProcessingLogbookData/"
-#r"(C:\Users\jenny.ostroff\Desktop\Backups\Rcode\ProcessingMetricsTracking)"
+# r"(C:\Users\jenny.ostroff\Desktop\Backups\Rcode\ProcessingMetricsTracking)"
 
 annas_path <-
   r"(C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\processing_logbook_data/)"
@@ -30,7 +30,7 @@ annas_path <-
 # Path <- michelles_path
 Path <- annas_path
 
-#create these paths in your directory first
+# create these paths in your directory first
 Inputs <- "Inputs/"
 Outputs <- "Outputs/"
 
@@ -77,7 +77,7 @@ SEFHIER_metrics_tracking_path <-
   )
 )
 
-#read in metrics tracking data
+# read in metrics tracking data
 SEFHIER_metrics_tracking <- read.csv(SEFHIER_metrics_tracking_path)
 
 # rename column headers
@@ -96,7 +96,7 @@ SRHS_vessels <-
   rename(SRHS_vessels,
          VESSEL_OFFICIAL_NUMBER = "USCG #")
 
-#if the class is not character, change it to character
+# if the class is not character, change it to character
 if (!class(SRHS_vessels$VESSEL_OFFICIAL_NUMBER) == "character") {
   SRHS_vessels$VESSEL_OFFICIAL_NUMBER <-
     as.character(SRHS_vessels$VESSEL_OFFICIAL_NUMBER)
