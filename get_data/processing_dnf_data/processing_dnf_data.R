@@ -759,3 +759,29 @@ write_rds(
   SEFHIER_processed_dnfs__late_subm__metrics,
   file = file.path(output_file_path, SEFHIER_processed_dnfs_file_name)
 )
+
+# calendar dates
+my_calendar_date_beg <- curr_dates$my_calendar_date_beg
+my_calendar_date_end <- curr_dates$my_calendar_date_end
+
+SEFHIER_processed_dnfs__calendar_year <-
+  SEFHIER_processed_dnfs__late_subm__metrics |>
+  filter(between(
+    TRIP_DATE,
+    as.Date(my_calendar_date_beg, "%d-%b-%Y",
+            tz = Sys.timezone()),
+    as.Date(my_calendar_date_end, "%d-%b-%Y",
+            tz = Sys.timezone())
+  ))
+
+# check
+min(SEFHIER_processed_dnfs__calendar_year$TRIP_DATE)
+max(SEFHIER_processed_dnfs__calendar_year$TRIP_DATE)
+
+SEFHIER_processed_dnfs__calendar_year_file_name <-
+  str_glue("SEFHIER_processed_dnfs_calendar_{my_year}.rds")
+
+write_rds(
+  SEFHIER_processed_dnfs__calendar_year,
+  file = file.path(output_file_path, SEFHIER_processed_dnfs__calendar_year_file_name)
+)
