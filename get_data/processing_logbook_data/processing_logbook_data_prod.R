@@ -1113,6 +1113,7 @@ my_stats(SEFHIER_logbooks_processed)
 logbooks_before_filtering <-
   n_distinct(Logbooks_raw$TRIP_ID)
 # 94737 (2022)
+
 # call out to console the # of logbooks before filtering
 my_tee(logbooks_before_filtering,
         "Logbooks before filtering")
@@ -1121,6 +1122,7 @@ my_tee(logbooks_before_filtering,
 logbooks_after_filtering <-
   n_distinct(SEFHIER_logbooks_processed$TRIP_ID)
 # 94060 (2022)
+
 # call out to console the # of logbooks before filtering
 my_tee(logbooks_after_filtering,
         "Logbooks after filtering")
@@ -1176,13 +1178,6 @@ removed_logbooks_and_vessels_text <- c(
 # call to the consolve the text established above
 my_tee(removed_logbooks_and_vessels_text,
        "\nRemoved logbooks and vessels stats")
-# Removed logbooks and vessels stats
-# percent_of_removed_logbooks
-# 1%
-# removed_vessels
-# 0
-# percent_of_removed_vessels
-# 0%
 
 # Export processed logbooks ----
 
@@ -1233,3 +1228,4 @@ write_rds(
   SEFHIER_logbooks_processed__calendar_year,
   file = file.path(output_file_path, SEFHIER_logbooks_processed__calendar_year_file_name)
 )
+
