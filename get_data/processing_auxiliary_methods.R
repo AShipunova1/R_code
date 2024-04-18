@@ -73,7 +73,7 @@ get_the_dates <-
   }
 
 # usage
-curr_dates <- get_the_dates()
+curr_dates <- get_the_dates(my_year)
 # my_compliance_date_end <- curr_dates$my_compliance_date_end
 
 # tests
