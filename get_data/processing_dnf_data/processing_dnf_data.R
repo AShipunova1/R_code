@@ -82,59 +82,9 @@ output_file_path <-
 
 # Set the date ranges for the DNF and compliance data you are pulling
 # this is the year to assign to the output file name
-# my_year <- "2022"
+my_year <- "2022"
 # my_year <- "2023"
-my_year <- "2024"
-
-# ---
-# Explanations:
-# - This function, `get_the_dates`, generates a list of date strings and date objects based on a specified year and a start day for weeks.
-# - It takes two parameters: `my_year`, which defaults to "2023", and `week_start_day`, which defaults to "Monday".
-# - The function returns a list (`lst`) of the start and end dates for the calendar year, as well as the start and end dates for compliance based on week boundaries. lst is used to keep entries names.
-# The compliance dates include the "fringe" weeks if needed.
-#
-# 1. **Generating Calendar Dates**:
-#     - The function first creates two strings representing the start and end dates of the calendar year based on the provided `my_year` parameter.
-#     - `my_calendar_date_beg` is set to "01-JAN-{my_year}" and `my_calendar_date_end` is set to "31-DEC-{my_year}" using string interpolation (`str_glue`).
-#
-# 2. **Calculating Compliance Date Boundaries**:
-#     - The function calculates the compliance start and end dates based on the provided `week_start_day` option.
-#     - It uses `lubridate` functions to convert the calendar date strings to date objects (`dmy`) and then adjust them to the nearest week boundaries.
-#     - `my_compliance_date_beg` is calculated as the beginning of the week containing the calendar start date.
-#     - `my_compliance_date_end` is calculated as the end of the week containing the calendar end date, minus one day.
-#     - The `getOption` function is used to ensure the start of the week is set according to `week_start_day`.
-#
-# 3. **Creating the List of Dates**:
-#     - The function combines the four calculated dates (`my_calendar_date_beg`, `my_calendar_date_end`, `my_compliance_date_beg`, and `my_compliance_date_end`) into a list using the `lst` function.
-#
-week_start_day = "Monday"
-
-get_the_dates <-
-  function(my_year = "2023",
-           week_start_day = "Monday") {
-    my_calendar_date_beg <- str_glue("01-JAN-{my_year}")
-    my_calendar_date_end <- str_glue("31-DEC-{my_year}")
-    my_compliance_date_beg <-
-      dmy(my_calendar_date_beg) |>
-      floor_date('weeks', week_start = getOption("lubridate.week.start", week_start_day))
-    my_compliance_date_end <-
-      dmy(my_calendar_date_end) |>
-      ceiling_date('weeks',
-                   week_start = getOption("lubridate.week.start", week_start_day)) - 1
-
-    my_dates <- lst(
-      my_calendar_date_beg,
-      my_calendar_date_end,
-      my_compliance_date_beg,
-      my_compliance_date_end
-    )
-
-    return(my_dates)
-  }
-
-curr_dates <- get_the_dates(my_year)
-my_compliance_date_beg <- curr_dates$my_compliance_date_beg
-my_compliance_date_end <- curr_dates$my_compliance_date_end
+# my_year <- "2024"
 
 # years range for srfh_vessel_comp db download, see below
 db_year_1 <- "2021"
@@ -157,6 +107,10 @@ if (Path == annas_path) {
 # file.exists(auxiliary_methods_file_path)
 
 source(auxiliary_methods_file_path)
+
+curr_dates <- get_the_dates(my_year)
+my_compliance_date_beg <- curr_dates$my_compliance_date_beg
+my_compliance_date_end <- curr_dates$my_compliance_date_end
 
 # Create DNF processing start date and time (for version control tracking) ----
 my_tee(date(),
