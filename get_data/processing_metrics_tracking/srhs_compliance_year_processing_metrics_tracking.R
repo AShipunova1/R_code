@@ -57,7 +57,7 @@ file_names_all <-
   list.files(processed_data_dir,
              "process.*rds", full.names = T)
 
-file_names_to_read <-
+file_names_to_read_not_calendar <-
   grep(
     "calendar",
     file_names_all,
@@ -69,14 +69,14 @@ file_names_to_read <-
 file_names_to_read_dnf <-
   grep(
     "dnf",
-    file_names_to_read,
+    file_names_to_read_not_calendar,
     ignore.case = T,
     value = T
   )
 
 file_names_to_read_logbooks_0 <-
   grep("logbook",
-       file_names_to_read,
+       file_names_to_read_not_calendar,
        ignore.case = T,
        value = T)
 # incl. "C:/Users/anna.shipunova/Documents/R_files_local/my_inputs/processing_logbook_data\\Outputs/SEFHIER_processed_dnfs_2022.rds"
@@ -89,3 +89,25 @@ file_names_to_read_logbooks <-
     ignore.case = T,
     value = T
   )
+
+# check if vessels in questions are in the results
+# 2022 ---
+
+one_year <- "2022"
+file_name_list <- file_names_to_read_logbooks
+
+read_one_year_rds <-
+  function(one_year, file_name_list) {
+    file_name_to_read <-
+      grep(one_year, file_name_list, value = T)
+
+    this_year_result <-
+      read_rds(file_name_to_read)
+
+    return(this_year_result)
+  }
+
+processed_logbooks_2022 <-
+  read_one_year_rds("2022", file_names_to_read_logbooks)
+
+# glimpse(processed_logbooks_2022)
