@@ -73,34 +73,33 @@ file_names_to_read_logbooks <-
 
 # read processed results ----
 years <- c("2022", "2023", "2024")
+
+all_file_names <-
+  lst(file_names_to_read_dnf,
+    file_names_to_read_logbooks,
+    file_names_to_read_metrics)
+
+all_files <-
+  all_file_names |>
+  imap(\(curr_names, i)
+       {
+         current_name <- map(curr_names, read_rds)
+
+         names(current_name) <- years
+         return(current_name)
+  })
+
 ## read all metrics ----
 all_metrics <-
-file_names_to_read_metrics |>
+  file_names_to_read_metrics |>
   map(read_rds)
 
 names(all_metrics) <- years
 
+# View(all_metrics)
 
 # check if vessels in questions are in the results
 # 2022 ---
-
-one_year <- "2022"
-file_name_list <- file_names_to_read_logbooks
-
-read_one_year_rds <-
-  function(one_year, file_name_list) {
-    file_name_to_read <-
-      grep(one_year, file_name_list, value = T)
-
-    this_year_result <-
-      read_rds(file_name_to_read)
-
-    return(this_year_result)
-  }
-
-### 2022 ----
-processed_logbooks_2022 <-
-  read_one_year_rds("2022", file_names_to_read_logbooks)
 
 
 # Compare with 2022 result of metrics tracking processing ----
