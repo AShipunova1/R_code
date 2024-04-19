@@ -112,30 +112,30 @@ srhs_22_23_diff_as_char__2023 <-
 # check if vessels in questions are in processed logbooks or dnfs ----
 
 ## srhs 2022 in 2023 ----
-all_files |>
+srhs_2022_in_2023 <-
+  all_files |>
   map(\(one_df) {
     one_df |>
       map(\(one_year) {
         one_year |>
           filter(VESSEL_OFFICIAL_NUMBER %in%
-                   srhs_22_23_diff_as_char__2023$uscg_2022) |>
-          nrow()
+                   srhs_22_23_diff_as_char__2023$uscg_2022)
       })
-})
+  })
 # $processed_results_logbooks$`2023`
 # [1] 62
 
 ## srhs 2023 in 2022 ----
-all_files |>
+srhs_2023_in_2022 <-
+  all_files |>
   map(\(one_df) {
     one_df |>
       map(\(one_year) {
         one_year |>
           filter(VESSEL_OFFICIAL_NUMBER %in%
-                   srhs_22_23_diff_as_char__2022$uscg_2023) |>
-          nrow()
+                   srhs_22_23_diff_as_char__2022$uscg_2023)
       })
-})
+  })
 # $processed_results_dnf$`2022`
 # [1] 372
 # $processed_results_logbooks$`2022`
@@ -145,5 +145,18 @@ all_files |>
 # [1] 5
 #
 
-# check each
+# check each ----
+# View(srhs_2022_in_2023)
+srhs_2022_in_2023$processed_results_logbooks$`2023`$VESSEL_OFFICIAL_NUMBER |> unique()
+# [1] "1197401"
 
+srhs_2022_in_2023$processed_results_logbooks$`2023` |>
+  select(VESSEL_OFFICIAL_NUMBER, TRIP_START_DATE, TRIP_END_DATE) |>
+  distinct() |>
+  mutate(TRIP_START_year = year(TRIP_START_DATE)) |>
+  select(TRIP_START_year) |>
+  distinct()
+
+# 2023 only, ok
+
+# TODO: the same for 2022
