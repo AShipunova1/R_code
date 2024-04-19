@@ -45,32 +45,6 @@ file_names_to_read_ok <-
     value = T
   )
 
-## dnf file names ----
-file_names_to_read_dnf <-
-  grep(
-    "dnf",
-    file_names_to_read_ok,
-    ignore.case = T,
-    value = T
-  )
-
-## logbook file names ----
-file_names_to_read_logbooks_0 <-
-  grep("logbook",
-       file_names_to_read_ok,
-       ignore.case = T,
-       value = T)
-# incl. "C:/Users/anna.shipunova/Documents/R_files_local/my_inputs/processing_logbook_data\\Outputs/SEFHIER_processed_dnfs_2022.rds"
-
-file_names_to_read_logbooks <-
-  grep(
-    "dnf",
-    file_names_to_read_logbooks_0,
-    invert = T,
-    ignore.case = T,
-    value = T
-  )
-
 ## metriks tracking file names ----
 
 file_names_to_read_metrics <-
@@ -80,6 +54,22 @@ file_names_to_read_metrics <-
     ignore.case = T,
     value = T
   )
+
+## dnf file names ----
+file_names_to_read_dnf <-
+  grep(
+    "SEFHIER_processed_dnfs_",
+    file_names_to_read_ok,
+    ignore.case = T,
+    value = T
+  )
+
+## logbook file names ----
+file_names_to_read_logbooks <-
+  grep("SEFHIER_processed_logbook",
+       file_names_to_read_ok,
+       ignore.case = T,
+       value = T)
 
 # check if vessels in questions are in the results
 # 2022 ---
