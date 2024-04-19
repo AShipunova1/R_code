@@ -110,3 +110,18 @@ srhs_22_23_diff_as_char__2023 <-
 # 2
 
 # check if vessels in questions are in processed logbooks or dnfs ----
+
+## srhs 2022 in 2023 ----
+all_files |>
+  map(\(one_df) {
+    one_df |>
+      map(\(one_year) {
+        one_year |>
+          filter(VESSEL_OFFICIAL_NUMBER %in%
+                   srhs_22_23_diff_as_char__2023$uscg_2022) |>
+          nrow()
+      })
+})
+# $processed_results_logbooks$`2023`
+# [1] 62
+
