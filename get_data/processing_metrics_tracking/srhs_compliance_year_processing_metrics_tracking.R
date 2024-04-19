@@ -125,3 +125,25 @@ all_files |>
 # $processed_results_logbooks$`2023`
 # [1] 62
 
+## srhs 2023 in 2022 ----
+all_files |>
+  map(\(one_df) {
+    one_df |>
+      map(\(one_year) {
+        one_year |>
+          filter(VESSEL_OFFICIAL_NUMBER %in%
+                   srhs_22_23_diff_as_char__2022$uscg_2023) |>
+          nrow()
+      })
+})
+# $processed_results_dnf$`2022`
+# [1] 372
+# $processed_results_logbooks$`2022`
+# [1] 388
+#
+# $processed_results_logbooks$`2023`
+# [1] 5
+#
+
+# check each
+
