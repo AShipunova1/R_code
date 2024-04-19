@@ -24,7 +24,7 @@ srhs_22_23_diff_as_char <-
   srhs_22_23_diff |>
   mutate(across(everything(), as.character))
 
-# read processed results ----
+# prepare processed file names ----
 ## get all result file names ----
 processed_data_dir <-
   file.path(my_paths$inputs,
@@ -70,6 +70,16 @@ file_names_to_read_logbooks <-
        file_names_to_read_ok,
        ignore.case = T,
        value = T)
+
+# read processed results ----
+years <- c("2022", "2023", "2024")
+## read all metrics ----
+all_metrics <-
+file_names_to_read_metrics |>
+  map(read_rds)
+
+names(all_metrics) <- years
+
 
 # check if vessels in questions are in the results
 # 2022 ---
