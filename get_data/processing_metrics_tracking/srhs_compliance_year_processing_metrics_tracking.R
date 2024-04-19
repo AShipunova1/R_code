@@ -89,23 +89,24 @@ all_files <-
          return(current_name_res)
   })
 
+# rename
+names(all_files) <-
+  gsub("file_names_to_read_",
+       "processed_results_",
+       names(all_files))
+
 # Compare with 2022 result of metrics tracking processing ----
 
 srhs_22_23_diff_as_char__2022 <-
   srhs_22_23_diff_as_char |>
-  filter(uscg_2023 %in% processed_metrics_permit_info_short_2022$VESSEL_OFFICIAL_NUMBER)
+  filter(uscg_2023 %in% all_files$processed_results_metrics$`2022`$VESSEL_OFFICIAL_NUMBER)
 # 4
-
-# processed_metrics_permit_info_short_this_year |> print_df_names()
 
 # the same for 2023 ----
 
-processed_metrics_permit_info_short_2023 <-
-  processed_metrics_permit_info_short_this_year
-
 srhs_22_23_diff_as_char__2023 <-
   srhs_22_23_diff_as_char |>
-  filter(uscg_2022 %in% processed_metrics_permit_info_short_2023$VESSEL_OFFICIAL_NUMBER)
+  filter(uscg_2022 %in% all_files$processed_results_metrics$`2023`$VESSEL_OFFICIAL_NUMBER)
 # 2
 
 # check if vessels in questions are in processed logbooks or dnfs ----
