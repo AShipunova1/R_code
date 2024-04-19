@@ -37,8 +37,8 @@ Outputs <- "Outputs/"
 
 # Set the date ranges for the logbook and compliance data you are pulling
 # this is the year to assign to the output file name
-# my_year <- '2022'
-my_year <- '2023'
+my_year <- '2022'
+# my_year <- '2023'
 # my_year <- '2024'
 
 # Auxiliary methods ----
@@ -173,7 +173,7 @@ processed_metrics_permit_info_short <-
            as.Date(END_DATE, "%m/%d/%Y")
   )
 
-# filter data to only include permits with an effective and end date within the current year
+# filter data to only include permits with an effective and end date within the current compliance year
 # this step is necessary because the original data frame downloaded from FHIER includes some vessels that were not permitted in my_year, and we need to remove them
 processed_metrics_permit_info_short_this_year <-
   processed_metrics_permit_info_short |>
