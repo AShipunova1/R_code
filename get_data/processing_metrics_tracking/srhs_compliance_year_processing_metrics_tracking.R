@@ -1,7 +1,8 @@
 # check srhs vessels for compliance vs. calendar year
-# run after processing_metrics_tracking.R
-
 # setup ----
+source("~/R_code_github/useful_functions_module.r")
+my_paths <- set_work_dir()
+
 srhs_22_23_filepath <-
   file.path(my_paths$inputs,
             r"(SRHS_headboat_survey\srhs_compare_years.xlsx)")
@@ -20,6 +21,32 @@ srhs_22_23_diff <-
 srhs_22_23_diff_as_char <-
   srhs_22_23_diff |>
   mutate(across(everything(), as.character))
+
+# read processed results ----
+# SEFHIER_permitted_vessels_nonSRHS_2023
+
+## get all results ----
+processed_data_dir <-
+  file.path(my_paths$inputs,
+            r"(processing_logbook_data\Outputs)")
+
+# dir.exists(processed_data_dir)
+
+file_names_all <-
+  list.files(processed_data_dir,
+             "*\\.rds", full.names = T)
+
+# \SEFHIER_permitted_vessels_nonSRHS_2023.rds
+
+file_names_to_read_not_calendar <-
+  grep(
+    "calendar",
+    file_names_all,
+    invert = T,
+    ignore.case = T,
+    value = T
+  )
+
 
 # Compare with 2022 result of metrics tracking processing ----
 
@@ -107,6 +134,7 @@ read_one_year_rds <-
     return(this_year_result)
   }
 
+### 2022 ----
 processed_logbooks_2022 <-
   read_one_year_rds("2022", file_names_to_read_logbooks)
 
