@@ -44,4 +44,48 @@ srhs_22_23_diff_as_char__2023 <-
 # 2
 
 # Check if in processed logbooks or dnfs ----
+## get all results ----
+processed_data_dir <-
+  file.path(my_paths$inputs,
+            r"(processing_logbook_data\Outputs)")
 
+# \SEFHIER_permitted_vessels_nonSRHS_2023.rds
+
+# dir.exists(processed_data_dir)
+
+file_names_all <-
+  list.files(processed_data_dir,
+             "process.*rds", full.names = T)
+
+file_names_to_read <-
+  grep(
+    "calendar",
+    file_names_all,
+    invert = T,
+    ignore.case = T,
+    value = T
+  )
+
+file_names_to_read_dnf <-
+  grep(
+    "dnf",
+    file_names_to_read,
+    ignore.case = T,
+    value = T
+  )
+
+file_names_to_read_logbooks_0 <-
+  grep("logbook",
+       file_names_to_read,
+       ignore.case = T,
+       value = T)
+# incl. "C:/Users/anna.shipunova/Documents/R_files_local/my_inputs/processing_logbook_data\\Outputs/SEFHIER_processed_dnfs_2022.rds"
+
+file_names_to_read_logbooks <-
+  grep(
+    "dnf",
+    file_names_to_read_logbooks_0,
+    invert = T,
+    ignore.case = T,
+    value = T
+  )
