@@ -1,4 +1,11 @@
 # check if this vessels have logbooks
+#
+# Eric Hiltz HiltzE@dnr.sc.gov via scdnr3.onmicrosoft.com
+# Attachments
+# 2024-04-22 10:36 AM
+# We noticed that there are a few (20) federally permitted vessels that either have their state listed as SC or have a vessel registration # beginning with SC that do not have a current SC charter license.  I’ve attached the vessels as well as their permits and the last time that vessel had a charter license in SC.  Are any of these 20 vessels reporting positive trips to you all?  If so, we’ll have to do some outreach.  These vessels could also be contributing to the differences we’re seeing in compliance rates.
+
+# set up ----
 sc_unlicensed_fed_charters_path <-
   file.path(
     annas_path$inputs,
