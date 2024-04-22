@@ -43,4 +43,50 @@ sc_unlicensed_fed_charters__compliance__join |>
 
 # Join sc unlicensed with logbooks ----
 
-logbooks |> View()
+sc_unlicensed_fed_charters__logbooks__join <-
+  inner_join(
+    sc_unlicensed_fed_charters,
+    logbooks,
+    join_by(vessel_id == vessel_official_number)
+  )
+
+sc_unlicensed_fed_charters__logbooks__join |>
+  filter(!is.na(is_comp)) |>
+  select(vessel_id) |>
+  distinct() |>
+  count()
+# 1
+
+sc_unlicensed_fed_charters__logbooks__join__output <-
+  sc_unlicensed_fed_charters__logbooks__join |>
+  select(
+    vessel_id,
+    any_of(common_outpt_fields),
+    trip_start_date,
+    trip_end_date,
+    trip_de,
+    trip_ue
+  ) |>
+  distinct() |>
+  arrange(vessel_id, trip_start_date)
+
+View(sc_unlicensed_fed_charters__logbooks__join__output)
+
+# check again ----
+logbooks_sc <-
+  logbooks |>
+  filter(vessel_official_number %in% sc_unlicensed_fed_charters$vessel_id)
+
+View(logbooks_sc)
+
+# other years?
+## get processed logbooks ----
+# logbooks_path <-
+#   file.path(processed_data_path,
+#             str_glue("SEFHIER_processed_Logbooks_{my_year}.rds"))
+#
+# logbooks <-
+#   read_rds(logbooks_path) |>
+#   clean_headers()
+#
+# dim(logbooks)
