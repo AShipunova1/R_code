@@ -70,7 +70,12 @@ sc_unlicensed_fed_charters__logbooks__join__output <-
   distinct() |>
   arrange(vessel_id, trip_start_date)
 
-View(sc_unlicensed_fed_charters__logbooks__join__output)
+output_sc_unlicensed_fed_file_name <-
+  file.path(output_path,
+            "sc_unlicensed_fed_charters__logbooks.xlsx")
+
+write.xlsx(sc_unlicensed_fed_charters__logbooks__join__output,
+           output_sc_unlicensed_fed_file_name)
 
 # check again ----
 logbooks_sc <-
@@ -81,12 +86,13 @@ View(logbooks_sc)
 
 # other years?
 ## get processed logbooks ----
-# logbooks_path <-
-#   file.path(processed_data_path,
-#             str_glue("SEFHIER_processed_Logbooks_{my_year}.rds"))
-#
-# logbooks <-
-#   read_rds(logbooks_path) |>
-#   clean_headers()
-#
-# dim(logbooks)
+logbooks_file_names_all <-
+  list.files(path = processed_data_path,
+             pattern = "SEFHIER_processed_Logbooks_.*rds",
+             full.names = TRUE)
+
+logbooks_all_years <-
+  logbooks_file_names_all |>
+  map_df(read_rds)
+
+# View(logbooks_all_years)
