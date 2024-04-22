@@ -82,7 +82,7 @@ logbooks_sc <-
   logbooks |>
   filter(vessel_official_number %in% sc_unlicensed_fed_charters$vessel_id)
 
-View(logbooks_sc)
+# View(logbooks_sc)
 
 # other years?
 ## get processed logbooks ----
@@ -96,3 +96,34 @@ logbooks_all_years <-
   map_df(read_rds)
 
 # View(logbooks_all_years)
+
+logbooks_sc_all <-
+  logbooks_all_years |>
+  filter(VESSEL_OFFICIAL_NUMBER %in% sc_unlicensed_fed_charters$vessel_id)
+
+# View(logbooks_sc_all)
+
+
+sc_unlicensed_fed_charters__all_logbooks__output <-
+  logbooks_sc_all |>
+  clean_headers() |>
+  select(
+    vessel_official_number,
+    any_of(common_outpt_fields),
+    trip_start_date,
+    trip_end_date,
+    trip_end_year,
+    trip_de,
+    trip_ue
+  ) |>
+  distinct() |>
+  arrange(vessel_official_number, trip_start_date)
+
+# View(sc_unlicensed_fed_charters__all_logbooks__output)
+
+output_sc_unlicensed_fed_all_years_file_name <-
+  file.path(output_path,
+            "sc_unlicensed_fed_charters__logbooks.xlsx")
+
+write.xlsx(sc_unlicensed_fed_charters__all_logbooks__output,
+    output_sc_unlicensed_fed_all_years_file_name)
