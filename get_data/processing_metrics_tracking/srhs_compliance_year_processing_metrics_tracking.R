@@ -160,3 +160,34 @@ srhs_2022_in_2023$processed_results_logbooks$`2023` |>
 # 2023 only, ok
 
 # TODO: the same for 2022
+
+srhs_2023_in_2022$processed_results_logbooks$`2022`$VESSEL_OFFICIAL_NUMBER |> unique()
+# [1] "1038780"
+
+srhs_2023_in_2022$processed_results_logbooks$`2022` |>
+  select(VESSEL_OFFICIAL_NUMBER, TRIP_START_DATE, TRIP_END_DATE) |>
+  distinct() |>
+  mutate(TRIP_START_year = year(TRIP_START_DATE)) |>
+  select(TRIP_START_year) |>
+  distinct()
+# 2022
+
+srhs_2023_in_2022$processed_results_logbooks$`2022` |>
+  select(VESSEL_OFFICIAL_NUMBER, TRIP_START_DATE, TRIP_END_DATE) |>
+  distinct() |>
+  mutate(TRIP_END_year = year(TRIP_END_DATE)) |>
+  select(TRIP_END_year) |>
+  distinct()
+# 2022
+
+# all trips in 2022, ok
+
+srhs_2023_in_2022$processed_results_logbooks$`2022` |>
+  filter(VESSEL_OFFICIAL_NUMBER  == "1038780") |>
+  View()
+
+srhs_22_23_raw |>
+  filter(uscg_2023 == "1038780") |>
+  glimpse()
+# ok
+#
