@@ -1023,7 +1023,7 @@ processed_input_data_path <-
 # file names for all years
 processed_metrics_tracking_file_names_all <-
   list.files(path = processed_input_data_path,
-             pattern = "SEFHIER_permitted_vessels_nonSRHS_*",
+             pattern = "SEFHIER_permitted_vessels_nonSRHS_.*",
              recursive = TRUE,
              full.names = TRUE)
 
