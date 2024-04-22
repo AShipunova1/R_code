@@ -182,12 +182,38 @@ srhs_2023_in_2022$processed_results_logbooks$`2022` |>
 
 # all trips in 2022, ok
 
-srhs_2023_in_2022$processed_results_logbooks$`2022` |>
-  filter(VESSEL_OFFICIAL_NUMBER  == "1038780") |>
-  View()
+# srhs_2023_in_2022$processed_results_logbooks$`2022` |>
+#   filter(VESSEL_OFFICIAL_NUMBER  == "1038780") |>
+#   View()
 
 srhs_22_23_raw |>
   filter(uscg_2023 == "1038780") |>
   glimpse()
+# ok
+
+## dnfs 23 in 22 ----
+
+srhs_2023_in_2022_processed_results_dnf_2022 <-
+  srhs_2023_in_2022$processed_results_dnf$`2022` |>
+  select(VESSEL_OFFICIAL_NUMBER, TRIP_DATE) |>
+  distinct() |>
+  mutate(TRIP_year = year(TRIP_DATE))
+
+srhs_2023_in_2022_processed_results_dnf_2022 |>
+  count(TRIP_year)
+#   TRIP_year     n
+#       <dbl> <int>
+# 1      2021     5
+# 2      2022   366
+# 3      2023     1
+
+
+srhs_2023_in_2022_processed_results_dnf_2022 |>
+  filter(TRIP_year == "2023") |> View()
+# $ VESSEL_OFFICIAL_NUMBER <chr> "644342"
+# $ TRIP_DATE              <dttm> 2023-01-01
+# srhs_22_23_diff_as_char__2022 |> filter(uscg_2023 == "644342")
+#   uscg_2022 uscg_2023
+# 1      <NA>    644342
 # ok
 #
