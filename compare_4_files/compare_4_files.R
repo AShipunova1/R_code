@@ -869,12 +869,28 @@ n_distinct(permits_from_pims__permit_only$vessel_or_dealer)
 
 ### permits_from_pims split vessel_or_dealer ----
 
+
 permits_from_pims__permit_only__clean_vessel <-
   permits_from_pims__permit_only |>
   mutate(vessel_or_dealer1 =
            str_replace_all(vessel_or_dealer,
                            'xml:space="preserve">',
                            ""))
+
+permits_from_pims__permit_only__clean_vessel |>
+  filter(!grepl("[0-9]",
+              vessel_or_dealer1)) |>
+  select(vessel_or_dealer1) |> distinct() |>
+  View()
+
+  mutate(vessel_or_dealer2 =
+           # if(!vessel_or_dealer1)
+           case_when(grep("[0-9]",
+                           vessel_or_dealer1,
+                           invert = TRUE) ~ "/ vessel_or_dealer1",
+                     .default = vessel_or_dealer1))
+
+     mutate(neuro = +(if_any(starts_with("ICD"),  ~. %in% ICD)))
 
 View(permits_from_pims__permit_only__clean_vessel)
 
@@ -887,7 +903,8 @@ permits_from_pims__permit_only__vessel_id <-
                 str_squish))
 
 # permits_from_pims__permit_only[8636,] |> glimpse()
-# Expected 2 pieces. Missing pieces filled with `NA` in 3 rows [8636, 8637, 8638].
+# Expected 2 pieces. Missing piece
+s filled with `NA` in 3 rows [8636, 8637, 8638].
 # Expected 2 pieces. Missing pieces filled with `NA` in 778 rows [393, 396, 478, 479,
 # 508, 514, 519, 546, 555, 766, 767, 768, 810, 811, 815, 828, 893, 910, 911, 912,
 # ...].
