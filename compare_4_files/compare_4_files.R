@@ -597,7 +597,7 @@ all_dfs_list3$compliance_from_fhier <-
   ) |>
   distinct()
 
-# View(all_dfs_list3$compliance_from_fhier)
+glimpse(all_dfs_list3$compliance_from_fhier)
 
 #### check diff permitgroup for the same vessel ----
 short_compliance_from_fhier_to_test <-
@@ -740,6 +740,8 @@ nrow(all_dfs_list3$permit_info_from_db)
 # 20730
 # 15763
 
+# View(all_dfs_list3$permit_info_from_db)
+
 all_dfs_list3$permit_info_from_db <-
   all_dfs_list3$permit_info_from_db |>
   mutate(permit_info_from_db_vessel_id = vessel_id) |> # want to keep it to see if NA in the full join
@@ -867,6 +869,15 @@ n_distinct(permits_from_pims__permit_only$vessel_or_dealer)
 
 ### permits_from_pims split vessel_or_dealer ----
 
+permits_from_pims__permit_only__clean_vessel <-
+  permits_from_pims__permit_only |>
+  mutate(vessel_or_dealer1 =
+           str_replace_all(vessel_or_dealer,
+                           'xml:space="preserve">',
+                           ""))
+
+View(permits_from_pims__permit_only__clean_vessel)
+
 permits_from_pims__permit_only__vessel_id <-
   permits_from_pims__permit_only |>
   separate(vessel_or_dealer,
@@ -943,6 +954,8 @@ permits_from_pims_my_year |>
   glimpse()
 # effective_date  2020-02-01 -- 2022-12-30
 # expiration_date 2022-01-31 -- 2024-05-31
+
+# View(permits_from_pims__permit_only__vessel_id_short__not_srhs)
 
 ### put permits_from_pims back ----
 all_dfs_list3$permits_from_pims <-
@@ -1140,7 +1153,7 @@ vessel_ids_only_by_group <- function(my_df) {
 group_vsls_and_count <-
   function(my_df, curr_file_name_combination) {
 
-    # browser()
+    browser()
     my_df__grps <-
       add_groups_by_where(my_df,
                           curr_file_name_combination)
@@ -1171,7 +1184,7 @@ group_vsls_and_count <-
   }
 
 vessel_in_more_than_1_grp <- function(my_names_lists) {
-  browser()
+  # browser()
   names_combns <- combn(names(my_names_lists), 2) |>
     as.data.frame()
 
@@ -1207,7 +1220,7 @@ vessel_in_more_than_1_grp <- function(my_names_lists) {
 
 run_intersection_check <-
   function(my_df) {
-    browser()
+    # browser()
     my_df__list <-
       split_by_3_grps(my_df)
 
@@ -1246,6 +1259,9 @@ join_compliance_from_fhier__permits_from_pims__perm <-
 # TODO check, this is a result of having sep permits
 
 # View(join_compliance_from_fhier__permits_from_pims__perm)
+# TODO weird vessel ids
+
+# View(all_dfs_list_no_srhs$compliance_from_fhier)
 
 ### vessel is in compliance_from_fhier, not in permits_from_pims ----
 
@@ -1377,6 +1393,8 @@ join_compliance_from_fhier__permits_from_pims__vsl_perm |>
   glimpse()
 # old SA in PIMS, ok
 
+
+# xml:space="preserve">SC7681DR
 join_compliance_from_fhier__permits_from_pims__vsl_perm |>
   filter(vessel_official_number == "") |>
   glimpse()
@@ -1733,9 +1751,9 @@ join_permits_from_pims__metrics_report__vsl_perm |>
   filter(vessel_official_number == "") |>
   glimpse()
 
-## [5] "permits_from_pims" "permit_info_from_db" ----
+## [6] "permits_from_pims" "permit_info_from_db" ----
 curr_file_name_combinations <-
-  file_name_combinations[, 5]
+  file_name_combinations[, 6]
 
 # print_df_names(all_dfs_list_no_srhs$permits_from_pims)
 # print_df_names(all_dfs_list_no_srhs$permit_info_from_db)
@@ -1907,10 +1925,10 @@ join_permits_from_pims__permit_info_from_db__vsl_perm__grps <-
 # ---
 
 ### vessels in > 1 group, join_permits_from_pims__permit_info_from_db__vsl_perm__grps ----
-intersections_5 <-
+intersections_6 <-
   run_intersection_check(join_permits_from_pims__permit_info_from_db__vsl_perm__grps)
 
-map(intersections_5, length)
+map(intersections_6, length)
 # $inters_in_both__in_permit_info_from_db
 # [1] 19
 #
@@ -1920,7 +1938,7 @@ map(intersections_5, length)
 # $inters_in_permit_info_from_db__in_permits_from_pims
 # [1] 53
 
-map(intersections_5, head(1))
+map(intersections_6, head(1))
 # $inters_in_both__in_permit_info_from_db
 
 # $inters_in_both__in_permits_from_pims
@@ -1942,10 +1960,11 @@ map(intersections_5, head(1))
 #   View()
 # missing in PIMS?
 
-## [6] "metrics_report" "permit_info_from_db" ----
+## [7] "permits_from_pims"               "transfer_applications_from_pims" ----
 curr_file_name_combinations <-
-  file_name_combinations[, 6]
+  file_name_combinations[, 7]
 
+# View(file_name_combinations)
 # print_df_names(all_dfs_list_no_srhs$metrics_report)
 # print_df_names(all_dfs_list_no_srhs$permit_info_from_db)
 
