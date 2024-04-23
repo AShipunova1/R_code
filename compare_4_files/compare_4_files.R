@@ -91,7 +91,7 @@ compliance_file_path <-
   file.path(my_paths$inputs,
             r"(from_Fhier\FHIER Compliance\2024_04_09\FHIER_Compliance_2023__04_09_2024.csv)")
 
-# file.exists(compliance_file_path)
+file.exists(compliance_file_path)
 
 compliance_from_fhier <-
   read_csv(compliance_file_path)
@@ -338,7 +338,6 @@ transfer_applications_file_path <-
 to_skip <- 4
 my_sheet <- "Sheet 1"
 
-
 file.exists(transfer_applications_file_path)
 
 transfer_applications_from_pims <-
@@ -351,8 +350,10 @@ transfer_applications_from_pims <-
 names(transfer_applications_from_pims) <- correct_names_pims
 dim(transfer_applications_from_pims)
 # [1] 3214    9
+# [1] 53365    11
 
-correct_names_pims
+# correct_names_pims
+
 ## combine 4 dataframes ----
 # "llist" is like list except that it preserves the names or labels of the component variables in the variables label attribute.
 all_dfs_list <-
@@ -439,7 +440,7 @@ all_dfs_list__name_col <-
            add_column(!!curr_name := str_glue("{curr_name}__df_name"))
        })
 
-# View(all_dfs_list__name_col)
+# glimpse(all_dfs_list__name_col)
 
 ## keep only vessel ids and permit columns ----
 
@@ -463,7 +464,7 @@ names_to_keep <-
 ### Apply the names_to_keep function to each dataframe in all_dfs_list__name_col ----
 col_names_to_keep <- map(all_dfs_list__name_col, names_to_keep)
 
-# View(col_names_to_keep)
+# glimpse(col_names_to_keep)
 
 # Explanation:
 # 1. The 'imap' function iterates over each element (data frame) in the 'all_dfs_list__name_col' list along with its index.
@@ -522,12 +523,12 @@ all_dfs_list_dates <-
             (ends_with("_date") |
                starts_with("permit_groupexpiration")
              ),
-            ~ lubridate::parse_date_time(.x, orders = c("mdY"))
+             ~ lubridate::parse_date_time(.x, orders = c("mdY", "Ymd"))
           )
         )
     })
 
-# View(all_dfs_list_dates)
+glimpse(all_dfs_list_dates)
 
 # save the df
 all_dfs_list3 <- all_dfs_list_dates
