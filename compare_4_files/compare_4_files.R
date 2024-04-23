@@ -104,10 +104,18 @@ dim(compliance_from_fhier)
 
 # check_processed_logbooks
 
+list.files(file.path(
+    my_paths$inputs,
+    r"(processing_logbook_data\Outputs)"),
+    full.names = F) ->
+  all_f
+
+
 processed_logbooks_path <-
   file.path(
     my_paths$inputs,
-    r"(processing_logbook_data\Outputs\SEFHIER_processed_Logbooks_2023_feb_7_2024.rds)"
+    r"(processing_logbook_data\Outputs)",
+    str_glue("SEFHIER_processed_Logbooks_{my_year}.rds")
   )
 
 # file.exists(processed_logbooks_path)
@@ -797,9 +805,9 @@ in_my_date_range <-
 all_dfs_list3$permits_from_pims |>
 glimpse()
 
-# permits_from_pims_new <-
+permits_from_pims_new <-
   all_dfs_list3$permits_from_pims |>
-  filter(expiration_date >= program_start_date) |> dim()
+  filter(expiration_date >= program_start_date)
   # filter(!!in_my_date_range)
 
 # check
@@ -847,11 +855,11 @@ n_distinct(permits_from_pims_new$vessel_or_dealer)
 permits_from_pims__permit_only <-
   permits_from_pims_new |>
   mutate(permit_clean =
-           str_replace(permit_,
+           str_replace(permit__,
                        "-\\d+", ""),
          .before = permits_from_pims)
 
-n_distinct(permits_from_pims__permit_only$vesselordealer)
+n_distinct(permits_from_pims__permit_only$vessel_or_dealer)
 # 3127
 # [1] 7178
 # [1] 7102
@@ -860,7 +868,7 @@ n_distinct(permits_from_pims__permit_only$vesselordealer)
 
 permits_from_pims__permit_only__vessel_id <-
   permits_from_pims__permit_only |>
-  separate(vesselordealer,
+  separate(vessel_or_dealer,
            c('vessel_official_number', 'dealer'),
            sep = " / ") |>
   mutate(across(c('vessel_official_number', 'dealer'),
@@ -883,7 +891,7 @@ n_distinct(permits_from_pims__permit_only__vessel_id$vessel_official_number)
 
 permits_from_pims__permit_only__vessel_id_short <-
   permits_from_pims__permit_only__vessel_id |>
-  select(-c(permit_, dealer)) |>
+  select(-c(permit__, dealer)) |>
   distinct()
 
 # glimpse(permits_from_pims__permit_only__vessel_id_short)
@@ -947,12 +955,12 @@ unique(all_dfs_list3$permits_from_pims$permit_clean)
 
 ### transfer_applications_from_pims split vessel_or_dealer 1 ----
 
-all_dfs_list3$transfer_applications_from_pims$vesselordealer |>
+all_dfs_list3$transfer_applications_from_pims$vessel_or_dealer |>
   head()
 
 transfer_applications_from_pims__split1 <-
   all_dfs_list3$transfer_applications_from_pims |>
-  separate(vesselordealer,
+  separate(vessel_or_dealer,
            c('vessel_official_numbers', 'dealer'),
            sep = "\\(") |>
   mutate(across(c('vessel_official_numbers', 'dealer'),
@@ -1162,7 +1170,7 @@ group_vsls_and_count <-
   }
 
 vessel_in_more_than_1_grp <- function(my_names_lists) {
-  # browser()
+  browser()
   names_combns <- combn(names(my_names_lists), 2) |>
     as.data.frame()
 
@@ -1198,6 +1206,7 @@ vessel_in_more_than_1_grp <- function(my_names_lists) {
 
 run_intersection_check <-
   function(my_df) {
+    browser()
     my_df__list <-
       split_by_3_grps(my_df)
 
@@ -2055,3 +2064,8 @@ vessels_to_check |>
       glimpse()
   })
 
+# Write results out ----
+
+# wb <- buildWorkbook(print_result_list, asTable = TRUE)
+
+file_name_combinations
