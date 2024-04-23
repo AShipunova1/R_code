@@ -877,43 +877,58 @@ permits_from_pims__permit_only__clean_vessel <-
                            'xml:space="preserve">',
                            ""))
 
-permits_from_pims__permit_only__clean_vessel |>
-  filter(!grepl("[0-9]",
-              vessel_or_dealer1)) |>
-  select(vessel_or_dealer1) |> distinct() |>
-  View()
+# permits_from_pims__permit_only__clean_vessel |>
+#   filter(!grepl("[0-9]",
+#               vessel_or_dealer1)) |>
+#   select(vessel_or_dealer1) |> distinct() |>
+#   View()
 
-  mutate(vessel_or_dealer2 =
-           # if(!vessel_or_dealer1)
-           case_when(grep("[0-9]",
-                           vessel_or_dealer1,
-                           invert = TRUE) ~ "/ vessel_or_dealer1",
-                     .default = vessel_or_dealer1))
+permits_from_pims__permit_only__clean_vessel__clean_dealer <-
+  permits_from_pims__permit_only__clean_vessel |>
+  mutate(
+    vessel_or_dealer2 =
+      case_when(
+        !grepl("[0-9]",
+               vessel_or_dealer1) ~ str_glue("/ {vessel_or_dealer1}"),
+        .default = vessel_or_dealer1
+      )
+  )
 
-     mutate(neuro = +(if_any(starts_with("ICD"),  ~. %in% ICD)))
-
-View(permits_from_pims__permit_only__clean_vessel)
+# permits_from_pims__permit_only__clean_vessel__clean_dealer |>
+#   select(vessel_or_dealer2) |> distinct() |>
+#   arrange(vessel_or_dealer2) |>
+#   head()
 
 permits_from_pims__permit_only__vessel_id <-
-  permits_from_pims__permit_only |>
-  separate(vessel_or_dealer,
+  permits_from_pims__permit_only__clean_vessel__clean_dealer |>
+  separate(vessel_or_dealer2,
            c('vessel_official_number', 'dealer'),
-           sep = " / ") |>
+           sep = "/",
+           extra = "merge") |>
   mutate(across(c('vessel_official_number', 'dealer'),
                 str_squish))
 
-# permits_from_pims__permit_only[8636,] |> glimpse()
-# Expected 2 pieces. Missing piece
-s filled with `NA` in 3 rows [8636, 8637, 8638].
-# Expected 2 pieces. Missing pieces filled with `NA` in 778 rows [393, 396, 478, 479,
-# 508, 514, 519, 546, 555, 766, 767, 768, 810, 811, 815, 828, 893, 910, 911, 912,
-# ...].
+
+# 1: Expected 2 pieces. Additional pieces discarded in 40 rows [3837, 3838, 3839, 6015,
+# 6016, 6017, 7671, 7672, 7867, 7941, 7942, 7943, 7944, 7945, 8285, 8286, 11586,
+# 11587, 11985, 11986, ...].
+# permits_from_pims__permit_only__clean_vessel__clean_dealer[3837,] |> View()
+# MS8535ZG / 20/20
+
+# 2: Expected 2 pieces. Missing pieces filled with `NA` in 4 rows [5725, 5726, 9882,
+# 9883].
+
+# permits_from_pims__permit_only__clean_vessel__clean_dealer[9883,] |> View()
+# 3-G ENTERPRISES INC
+# no vessel id
 
 n_distinct(permits_from_pims__permit_only__vessel_id$vessel_official_number)
 # 3069
 # [1] 7016
 # [1] 6990
 
+# permits_from_pims__permit_only__vessel_id |>
+#   filter(vessel_official_number == "MS8535ZG") |> View()
 # View(permits_from_pims__permit_only__vessel_id)
 
 ### permits_from_pims fewer cols ----
