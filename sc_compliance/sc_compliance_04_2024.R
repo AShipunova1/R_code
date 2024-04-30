@@ -474,16 +474,6 @@ compl_override_data__renamed_m_short__m_compl__both_months <-
            case_when(all_m_comp_min %in% c(c("no, yes"), "no") ~ "non_compl",
                      .default = "compl")) |>
   ungroup() |>
-    group_by(vessel_official_number, comp_year, comp_month_min) |>
-  mutate(all_m_comp_min =
-           toString(unique(sort(
-             compliant_after_override
-           )))) |>
-  mutate(month_comp_min =
-           case_when(all_m_comp_min %in% c(c("no, yes"), "no") ~ "non_compl",
-                     .default = "compl")) |>
-  ungroup() |>
-
     group_by(vessel_official_number, comp_year, comp_month_max) |>
   mutate(all_m_comp_max =
            toString(unique(sort(
