@@ -1,0 +1,417 @@
+---
+title: "The 2022 number of fishing intended trips with effort"
+date: today
+format:
+  html:
+    toc: true
+    # toc-depth: 2
+    css: styles.css
+    code-overflow: wrap
+    code-line-numbers: true
+---
+Ken Brennan has requested the 2022 number of fishing intended trips with effort for just trips landing at a GOM state (west coast only of FL), by state, for GOM permitted SEFHIER vessels. 
+
+# Questions
+```{r Questions}
+#  Questions ----
+# FHIER / Reports
+# TRIP NOTIFICATIONS (HAIL-OUT) EXTENDED -- REPORT OF DATA FOUND IN THE TRIP NOTIFICATIONS TABLE WITH LIST OF VALUE ITEMS EXTENDED UPON TO SHOW ADDITIONAL INFORMATION.
+# or
+# TRIP NOTIFICATIONS (HAIL-OUTS) -- REPORT OF DATA FOUND IN THE TRIP NOTIFICATIONS TABLE.
+# or
+# SRHS TRIP NOTIFICATIONS (HAIL-OUT) EXTENDED -- REPORT OF DATA FOUND IN THE TRIP NOTIFICATIONS TABLE FOR VESSELS IN THE HEADBOAT SURVEY WITH LIST OF VALUE ITEMS EXTENDED UPON TO SHOW ADDITIONAL INFORMATION.
+# or
+# GOM TRIP NOTIFICATIONS BY ARRIVAL PORT STATE -- GOM TRIP NOTIFICATIONS BY ARRIVAL PORT WHERE THE TRIP NOTIFICATION WAS NOT CANCELLED.
+
+# data base questions
+# udp.v_sero_oth_prm_period_his@secpr_dblk
+# 1) what are end_date, expiration_date, last_expiration_date
+# 2) dplyr::select distinct permit_status from
+          # udp.v_sero_oth_prm_period_his@secpr_dblk;
+# -- MV_SAFIS_GOM_VESSELS
+# dplyr::select distinct permit_status
+# "PERMIT_STATUS"
+# "EXPIRED"
+# "TERMINATED"
+# "TRANSFERRED"
+# "PENDING VESSEL SOLD"
+# "RENEWED"
+# "DUPLICATED"
+# "VESSEL SOLD"
+# "UPDATED"
+# "VESSEL LEASED"
+# "MAILED"
+# "SURRENDERED"
+
+# 3) 
+# data_from_db %>% 
+#     dplyr::select(ACTIVITY_TYPE_NAME) %>% unique()
+# 1 TRIP WITH EFFORT
+# 2 TRIP UNABLE TO FISH
+# Do we need 2?
+
+```
+
+# Read.me
+```{r Read.me}
+# Read.me ----
+# Ken Brennan has requested the 2022 number of fishing intended trips with effort for just trips landing at a GOM state (west coast only of FL), by state, for GOM permitted SEFHIER vessels. 
+# 
+# I think you can just use the FHIER report "Trip notifications (hail-outs) extended (declaration data from SAFIS). From there, you'd want to filter out any non-GOM permitted vessels, parse for just fishing intended charter and headboat trips (A & H), and then filter those declarations into state bins to count (using the landing location info) - to get the total # for just 2022.
+# 
+# Taking a quick look at that csv file (trip notifications (hail-out) extended), a lot of the state abbreviations appear to be missing.  So, I think finding numbers by state will be the most complicated part of this data request. Perhaps parsing by County and then matching county -> corresponding state would be the best bet. This would make just grabbing west coast FL landing locations possible as well. 
+# 
+# I told Ken we'd get this back to him by COB Friday, but let me know if you need more time. You can also pull from the DB, if that is easiest for you. 
+
+# But don't forget to filter out any non-GOM permitted vessels from the pulled data. There'd need to be some comparison to the 2022 permitted vessels list, and an innerjoin() of something to exclude those in the report that are not in fact permitted. I'm sure you know this, but just putting it here in case. ;)
+
+## rm AND trunc(t.trip_start_date) BETWEEN trunc(gom.effective_date) AND trunc(gom.end_date) ----
+# USE:
+# WHERE
+# t.activity_type IN (0, 80)
+# AND
+# t.trip_type IN ('A', 'H')
+# AND trunc(t.trip_start_date) BETWEEN  TO_DATE('01-JAN-22') and
+# TO_DATE('31-DEC-22')
+
+```
+
+
+```{r no cache setup}
+# setup ----
+library(tictoc)
+source("~/R_code_github/useful_functions_module.r")
+my_paths <- set_work_dir()
+```
+
+# Get data
+## data from fhier
+### GOM Trip Notifications by Arrival Port State
+```{r GOM Trip Notifications by Arrival Port State}
+## data from fhier ----
+### GOM Trip Notifications by Arrival Port State ----
+file_name_summ <-
+  file.path(my_paths$inputs, r"(fishing_trips_GOM_2022\gom_trip_notifications_by_arrival_port_state_summary.csv)")
+  
+gom_trip_notifications_by_arrival_port_state_summary <-
+  read_csv(file_name_summ)
+# Rows: 1 Columns: 11                                                                                 
+# ── Column specification ─────────────────────────────────────────
+# Delimiter: ","
+# dbl (6): Rounded AL Pct, Rounded FL Pct, Rounded LA Pct, Tota...
+# num (5): Total With GOM Arrival Port, Total AL, Total FL, Tot...
+```
+
+### GOM TRIP NOTIFICATIONS BY ARRIVAL PORT STATE
+```{r GOM TRIP NOTIFICATIONS BY ARRIVAL PORT STATE}
+### FHIER / Reports / GOM TRIP NOTIFICATIONS BY ARRIVAL PORT STATE ----
+# 51641
+# Filters in FHIER
+# INTENDED_FISHING_FLAG = 'YES'
+# TRIP_TYPE in 'CHARTER, HEADBOAT'
+data_from_fhier_GOM <-
+  read_csv(file.path(my_paths$inputs, r"(fishing_trips_GOM_2022\Trip Notifications Detail.csv)"))
+# Rows: 51641 Columns: 18                                                                               
+# ── Column specification ───────────────────────────────────────────
+# Delimiter: ","
+# chr (16): NOTIFICATION_TYPE, VESSEL_OFFICIAL_NUMBER, VESSEL_NAM...
+# dbl  (2): NOTIFICATION_SEQ, LANDING_LOCATION
+
+# print_df_names(data_from_fhier_GOM)
+
+```
+
+#### check data_from_fhier_GOM
+```{r check data_from_fhier_GOM}
+
+#### check data_from_fhier_GOM ----
+# Florida counties by region (from the Internet)
+fl_counties <- list(
+  "SA" = c(
+    "Brevard",
+    "Broward",
+    "Duval",
+    "Flagler",
+    "Indian River",
+    "Martin",
+    "Miami-Dade",
+    "Nassau",
+    "Palm Beach",
+    "St. Johns",
+    "St. Lucie",
+    "Volusia"
+  ),
+  "GOM" = c(
+    "Bay",
+    "Charlotte",
+    "Citrus",
+    "Collier",
+    "Dixie",
+    "Escambia",
+    "Franklin",
+    "Gulf",
+    "Hernando",
+    "Hillsborough",
+    "Lee",
+    "Levy",
+    "Manatee",
+    "Monroe",
+    "Okaloosa",
+    "Pasco",
+    "Pinellas",
+    "Santa Rosa",
+    "Sarasota",
+    "Taylor",
+    "Wakulla",
+    "Walton"
+  )
+)
+
+data_from_fhier_GOM_fl_counties <-
+  data_from_fhier_GOM %>% 
+  filter(ARRIVAL_PORT_STATE == "FL") %>% 
+  dplyr::select(ARRIVAL_PORT_COUNTY) %>% 
+  unique()
+
+str(data_from_fhier_GOM_fl_counties)
+
+sa_fl_counties_in_fhier_data <-
+  intersect(
+    toupper(fl_counties$SA),
+    toupper(data_from_fhier_GOM_fl_counties$ARRIVAL_PORT_COUNTY)
+  )
+
+```
+
+
+## get data from db
+```{r setup, cache = TRUE}
+
+# get data ----
+# 01/01/2022 - 12/31/2022
+
+gom_state_abbr <- c("AL", "FL", "LA", "MS", "TX")
+
+## data from db ----
+
+# if a csv exists, read it, it is faster than from db
+db_csv_data_gom_22_path <- 
+  file.path(my_paths$inputs, 
+r"(fishing_trips_GOM_2022\gom_landing_2022_more_fields.csv)")
+
+if (file.exists(db_csv_data_gom_22_path)) {
+  data_from_db_more_fields <-
+    read_csv(db_csv_data_gom_22_path)
+} else {
+  con <- connect_to_secpr()
+
+  q_file_name <-
+    file.path(my_paths$inputs,
+            r"(fishing_trips_GOM_2022\gom_landing_2022_more_fields.sql)")
+  
+  gom_landing_2022_more_fields_query <-
+    readr::read_file(q_file_name)
+  
+  tic("data_from_db_more_fields")
+  data_from_db_more_fields <-
+    dbGetQuery(con, gom_landing_2022_more_fields_query)
+  toc()
+  # 731.83 sec elapsed
+  # 455.661 in sql dev
+  
+  dbDisconnect(con)
+}
+```
+
+## Compare with FHIER
+```{r}
+## Compare with FHIER ----
+## in_fhier_only_names_diff ----
+in_fhier_only_names_diff5 <-
+  setdiff(
+    unique(data_from_fhier_GOM$VESSEL_OFFICIAL_NUMBER),
+    unique(data_from_db_more_fields$SERO_OFFICIAL_NUMBER))
+
+length(in_fhier_only_names_diff5)
+# 33
+
+in_db_only_names_diff5 <-
+  setdiff(
+    unique(data_from_db_more_fields$SERO_OFFICIAL_NUMBER),
+    unique(data_from_fhier_GOM$VESSEL_OFFICIAL_NUMBER)
+  )
+
+length(in_db_only_names_diff5)
+# 83
+
+```
+
+## Separate Florida counties by region
+```{r Separate Florida counties by region}
+## Separate Florida counties by region ----
+
+data_from_db_more_fields_gom0 <-
+  data_from_db_more_fields %>%
+  dplyr::filter(END_PORT_STATE %in% gom_state_abbr) %>%
+  dplyr::mutate(fl_county_gom = dplyr::case_when(
+    toupper(END_PORT_COUNTY) %in% toupper(fl_counties$GOM) ~ "fl_county_gom",
+    .default = 'not_gom'
+  ))
+  
+data_from_db_more_fields_gom0 %>%
+  dplyr::select(END_PORT_COUNTY,
+                END_PORT_STATE,
+                fl_county_gom) %>%
+  dplyr::filter(END_PORT_STATE == "FL" &
+                  fl_county_gom == 'not_gom') %>%
+  unique() %>%
+  head()
+#   END_PORT_COUNTY END_PORT_STATE fl_county_gom
+# 1      PALM BEACH             FL       not_gom
+# 2        ST LUCIE             FL       not_gom
+# 8         BREVARD             FL       not_gom
+# 9           DUVAL             FL       not_gom
+
+filter_florida <-
+  rlang::quo(END_PORT_STATE == 'FL' & fl_county_gom == 'fl_county_gom')
+
+data_from_db_more_fields_gom1 <-
+  data_from_db_more_fields_gom0 %>%
+  dplyr::filter(!!filter_florida | !(END_PORT_STATE == "FL"))
+
+dim(data_from_db_more_fields_gom1)
+# 564416
+
+```
+
+
+# Count end port by trip_id (db)
+```{r count end port by trip_id (db)}
+# count end port by trip_id ----
+## from DB
+
+# For comparison:
+# in FHIER / GOM Trip Notifications by Arrival Port State
+# Total AL 8,714
+# Total FL 41,066
+# Total LA 1,557
+# Total MS 970
+# Total TX 4,809
+
+data_from_db_more_fields_gom1_p <-
+  data_from_db_more_fields_gom1 %>%
+  dplyr::select(TRIP_ID, END_PORT_STATE) %>%
+  unique() %>%
+  dplyr::add_count(END_PORT_STATE,
+                   name = "trip_by_state_num") %>%
+  dplyr::select(END_PORT_STATE, trip_by_state_num) %>%
+  unique() %>%
+  dplyr::mutate(perc_st =
+                  trip_by_state_num * 100 / sum(trip_by_state_num))
+
+
+glimpse(data_from_db_more_fields_gom1_p)
+# percentage is very close to FHIER summary
+```
+
+## convert gom_fhier
+```{r convert gom_fhier}
+## convert gom_fhier ----
+gom_fhier1 <-
+  gom_trip_notifications_by_arrival_port_state_summary %>%
+  as.data.frame()
+
+# https://stackoverflow.com/questions/51297089/how-to-split-data-frame-by-column-names-in-r
+# split by column names into Total and Round dfs
+gom_fhier1_list <-
+  purrr::map(rlang::set_names(c("Total", "Round")),
+             ~ dplyr::select(gom_fhier1,
+                             tidyselect::starts_with(.x)))
+str(gom_fhier1_list)
+# List of 2
+
+# i.e.
+# gom_fhier1_list$Total %>%
+#   t() %>% 
+#   as.data.frame() %>% 
+#   tibble::rownames_to_column()
+  
+gom_fhier1_list_t <- purrr::map(gom_fhier1_list,
+  # transpose
+  ~ t(.x) %>% 
+  as.data.frame() %>% 
+  # var: Name of column to use for rownames
+  tibble::rownames_to_column(var = "header_state")
+)
+
+glimpse(gom_fhier1_list_t$Round)
+
+# clean headers
+gom_fhier1_list_t <-
+  purrr::map(gom_fhier1_list_t,
+          ~ dplyr::mutate(.x,
+          # gsub(pattern, replacement, x, ignore.case = FALSE...)
+          # remove any of:
+          state_abbr = gsub("Total |Rounded | Pct",
+                            "", 
+                            header_state, 
+                            ignore.case = T
+                            )
+          )
+ )
+
+glimpse(gom_fhier1_list_t)
+```
+
+## Join db results with FHIER summary
+```{r join db results with FHIER summary}
+## join db results with FHIER summary ----
+# join each df separately, for clarity
+compare_perc_db_fhier0 <-
+  data_from_db_more_fields_gom1_p %>%
+  dplyr::mutate(rounded_percent_db = round(perc_st)) %>%
+  dplyr::inner_join(gom_fhier1_list_t$Round,
+             dplyr::join_by(END_PORT_STATE == state_abbr))
+
+compare_perc_db_fhier1 <-
+  dplyr::inner_join(compare_perc_db_fhier0,
+                    gom_fhier1_list_t$Total,
+             dplyr::join_by(END_PORT_STATE == state_abbr))
+
+glimpse(compare_perc_db_fhier1)
+# print_df_names(compare_perc_db_fhier1)
+# [1] "END_PORT_STATE, trip_by_state_num, perc_st, rounded_percent_db, header_state.x, V1.x, header_state.y, V1.y"
+```
+
+## Change columns
+```{r change columns}
+## change columns ----
+compare_perc_db_fhier <-
+  compare_perc_db_fhier1 %>%
+  dplyr::select(-dplyr::starts_with("header_state"))
+
+names(compare_perc_db_fhier) <-
+  c("END_PORT_STATE", "trip_by_state_num", "perc_st", "rounded_percent_db", "rounded_percent_fhier", "total_fhier")
+
+glimpse(compare_perc_db_fhier)
+```
+
+## Get total
+```{r Get total}
+## Get total ----
+# DB:
+compare_perc_db_fhier %>%
+  dplyr::count(wt = trip_by_state_num)
+#       n
+# 1 53504
+
+# FHIER:
+compare_perc_db_fhier %>%
+  dplyr::count(wt = total_fhier)
+#       n
+# 1 57116
+
+# write_csv(compare_perc_db_fhier,
+          # "lending_compare_perc_db_fhier.csv")
+```
+
