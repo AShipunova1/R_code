@@ -4,12 +4,10 @@
 # FHIER_Compliance_2023__01_24_2023.csv (from FHIER / compliance report)
 # FHIER_Compliance_2022__02_05_2024.csv (from FHIER / compliance report)
 
-# Compliance_Error_Types_03_29_2023.csv
-
 # Processed Metrics tracking
 # SEFHIER_permitted_vessels_nonSRHS_{my_year}
 
-# "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\processing_logbook_data\Outputs\SEFHIER_processed_Logbooks_2022.rds"
+# "~\R_files_local\my_inputs\processing_logbook_data\Outputs\SEFHIER_processed_Logbooks_2022.rds"
 
 project_dir_name <- "FHIER Compliance"
 
@@ -35,29 +33,6 @@ get_data_from_FHIER_csvs <- function() {
   return(compl_clean)
 }
 
-# Define a function named 'get_compliance_error_definitions' with no parameters
-get_compliance_error_definitions <- function() {
-  
-  # Create a character vector 'err_desc_filenames' containing the file path
-  err_desc_filenames = c(file.path(project_dir_name, "Compliance_Error_Types_03_29_2023.csv"))
-  
-  # Load the contents of the CSV file specified in 'err_desc_filenames' using 'load_csv_names' and 'my_paths'
-  err_desc_csv_contents <- load_csv_names(my_paths, err_desc_filenames)
-  
-  # Clean the headers of the loaded CSV content using 'clean_headers'
-  err_desc_clean_headers_csv_content <-
-    clean_headers(err_desc_csv_contents[[1]])
-  
-  # Convert a specific column ("last_updated") to date format using 'change_to_dates'
-  err_desc <-
-    change_to_dates(err_desc_clean_headers_csv_content,
-                    "last_updated",
-                    "%m/%d/%Y %I:%M:%S %p")
-  
-  # Return the cleaned and processed data frame 'err_desc'
-  return(err_desc)
-}
-
 get_data_from_csv <- function() {
   # uncomment to run
   # browser()
@@ -68,17 +43,13 @@ get_data_from_csv <- function() {
       length(compl_clean) == 1) {
     compl_clean <- compl_clean[[1]]
   }
-  # View(compl_clean)
-  
-  ## get compliance error definitions from csvs ----
-  err_desc <- get_compliance_error_definitions()
-  
-  # Check the result is a single dataframe, and if not, combine separate dataframes for all years into one.
+
+  # Check if the result is a single dataframe, and if not, combine separate dataframes for all years into one.
   if (length(compl_clean) > 1) {
     compl_clean_1 <- join_same_kind_csvs(compl_clean)
   }
 
-  dim(compl_clean_1)
+  # dim(compl_clean_1)
   # [1] 296294     20
   
   compl_clean_2 <- additional_clean_up(compl_clean_1)
@@ -109,21 +80,11 @@ additional_clean_up <- function(my_df) {
   return(compl_clean_sa_vs_gom_m_int)
 }
 
-# Uncomment and run above functions if using csvs downloaded from FHIER
+# Run above functions if using csvs downloaded from FHIER
 tic("get_data_from_csv")
 compl_clean_sa_vs_gom_m_int_c <- get_data_from_csv()
 toc()
 
-# get data from db ----
-file.path(my_paths$git_r, r"(get_data\get_db_data\get_db_data.R)") |>
-  source()
-
-tic("run_all_get_db_data()")
-all_get_db_data_result_l <- run_all_get_db_data()
-toc()
-# run_all_get_db_data(): 13.61 sec elapsed
-
-# View(all_get_db_data_result_l)
 # get_permit_data_from_metrics_tracking ----
 processed_input_data_path <- 
   file.path(my_paths$inputs,
@@ -163,7 +124,6 @@ names(processed_logbooks) <-
   names(processed_logbooks) |>
   tolower()
 
-
 # get vessels with no logbooks ----
 # For all years
 vessels_no_logbooks_file_names <-
@@ -181,8 +141,11 @@ names(vessels_no_logbooks) <-
   names(vessels_no_logbooks) |>
   tolower()
 
-# results:
-# all_get_db_data_result_l
-# processed_metrics_tracking_permits
-# processed_logbooks
-# vessels_no_logbooks
+results <- c(
+  "compl_clean_sa_vs_gom_m_int_c",
+  "processed_metrics_tracking_permits",
+  "processed_logbooks",
+  "vessels_no_logbooks"
+)
+
+cat(results, sep = "\n")

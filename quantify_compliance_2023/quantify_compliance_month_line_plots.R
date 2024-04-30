@@ -8,20 +8,6 @@ axis_title_size <- text_sizes[["axis_text_x_size"]]
 axis_title_size <- 12
 point_size <- 4
 
-add_cnt_in_gr <-
-  function(my_df, 
-           group_by_col, 
-           cnt_col_name = "total_vsl_m_by_year_perm") {
-    my_df %>%
-      # group by per month and permit
-    group_by_at(group_by_col) %>%
-    # cnt distinct vessels in each group
-    mutate({{cnt_col_name}} :=
-                    n_distinct(vessel_official_number)) %>%
-    ungroup() %>%
-    return()
-}
-
 # Add total vessels count per month and region ----
 # (both compl. and not, a vsl can be in both)
 
@@ -47,18 +33,13 @@ res1 <-
   arrange(year_month, permit_sa_gom_dual_both)
 
 # tail(res1)
-# 1 2023 sa_dual Dec 2023                       1969
-# 2 2023 sa_dual Sep 2023                       1986
-# 3 2023 sa_dual May 2023                       2020
-# 4 2023 sa_dual Aug 2023                       2023
-# 5 2023 sa_dual Jun 2023                       2026
-# 6 2023 sa_dual Jul 2023                       2036
+# 1 2023 dual Nov 2023 270
+# 2 2023 gom_only Nov 2023 949
+# 3 2023 sa_only Nov 2023 1729
+# 4 2023 dual Dec 2023 272
+# 5 2023 gom_only Dec 2023 947
+# 6 2023 sa_only Dec 2023 1726
 
-# res1 |> 
-#   filter(year == 2023) |> 
-#   glimpse()
-
-# rm(res2)
 res2 <-
   compl_clean_sa_vs_gom_m_int_tot |>
   select(year,
@@ -68,38 +49,17 @@ res2 <-
   distinct() |>
   arrange(year_month, permit_sa_gom_dual_both)
 
-# tail(res2)
-# 1 2023  gom_only                Oct 2023                        955
-# 2 2023  sa_dual                 Oct 2023                       1965
-# 3 2023  gom_only                Nov 2023                        949
-# 4 2023  sa_dual                 Nov 2023                       1963
-# 5 2023  gom_only                Dec 2023                        947
-# 6 2023  sa_dual                 Dec 2023                       1963
-
 diffdf::diffdf(res1, res2)
 # T
 
 compl_clean_sa_vs_gom_m_int_tot |>
-  filter(year == "2023", 
+  filter(year == "2023",
          permit_sa_gom_dual %in%
-           c("sa_only", "dual")) |> 
-  select(year_month, total_vsl_m_by_year_perm) |>
-  distinct() |> 
-  arrange(year_month) |> 
+           c("sa_only", "dual")) |>
+  select(year_month, compliant_, total_vsl_m_by_year_perm) |>
+  distinct() |>
+  arrange(year_month) |>
   head()
-# 1 Jan 2023          1967
-# 2 Feb 2023          1958
-# 3 Mar 2023          1954
-# 4 Apr 2023          1968
-# 5 May 2023          2020
-# 6 Jun 2023          2026
-
-# 1 Jan 2023                       1753
-# 2 Feb 2023                       1744
-# 3 Mar 2023                       1740
-# 4 Apr 2023                       1752
-# 5 May 2023                       1791
-# 6 Jun 2023                       1793
 
 # sa_dual
 # 1 Jan 2023                       1982
@@ -109,14 +69,13 @@ compl_clean_sa_vs_gom_m_int_tot |>
 # 5 May 2023                       2032
 # 6 Jun 2023                       2035
 
-compl_clean_sa_vs_gom_m_int_tot |>
-  filter(year_permit_sa_gom_dual == "2023 sa_dual") |> 
-  select(year_month,
-         year_permit_sa_gom_dual,
-         total_vsl_m_by_year_perm) |>
-  distinct() |> 
-  arrange(year_month) |> 
-  head()
+# sa_only
+# 1 Jan 2023   YES                            1753
+# 2 Jan 2023   NO                             1753
+# 3 Jan 2023   YES                             285
+# 4 Jan 2023   NO                              285
+# 5 Feb 2023   YES                            1744
+# 6 Feb 2023   NO                             1744
 
 compl_clean_sa_vs_gom_m_int_tot |>
   filter(year == "2023" &
@@ -128,6 +87,8 @@ compl_clean_sa_vs_gom_m_int_tot |>
   ungroup() |> 
   arrange(year_month) |> 
   head()
+# 1 Jan 2023   sa_only                                1753        2038
+# 2 Jan 2023   dual                                    285        2038
 
 # Fewer columns ----
 compl_clean_sa_vs_gom_m_int_tot_short <-
@@ -145,32 +106,7 @@ compl_clean_sa_vs_gom_m_int_tot_short <-
 
 # Get compl, no compl, or both per month ----
 
-get_compl_by <- 
-  function(my_df, group_by_for_compl, names_from_list) {
-  my_df %>%
-    group_by_at(group_by_for_compl) %>%
-    # can unique, because we are looking at vessels, not weeks
-    unique() %>%
-    # more columns, a column per vessel
-    tidyr::pivot_wider(
-      names_from = all_of(names_from_list),
-      values_from = compliant_,
-      # make it "NO_YES" if both
-      values_fn = ~ paste0(sort(.x), collapse = "_")
-    ) %>%
-    ungroup() %>%
-    return()
-}
-
-# all columns except "vessel_official_number" and "compliant_"
-# group_by_for_compl_m <-
-#   vars(c(
-#     year_month,
-#     year,
-#     permit_sa_gom_dual,
-#     total_vsl_m_by_year_perm
-#   ))
-
+## all columns except "vessel_official_number" and "compliant_" ----
 group_by_for_compl_m <-
   vars(-c(vessel_official_number,
           compliant_))
@@ -184,10 +120,10 @@ compl_clean_sa_vs_gom_m_int_tot_short_wide <-
     names_from_list
   )
 
-# View(compl_clean_sa_vs_gom_m_int_tot_short_wide)
+dim(compl_clean_sa_vs_gom_m_int_tot_short_wide)
+# [1]   72 4021
 
 ## Back to long format ----
-
 not_vessel_id_col_names <-
   c("year_month",
     "year",
@@ -195,6 +131,12 @@ not_vessel_id_col_names <-
     "year_permit_sa_gom_dual",
     "total_vsl_m_by_year_perm")
 
+# Explanations:
+# Pivot the compl_clean_sa_vs_gom_m_int_tot_short_wide dataframe to a longer format.
+# 1. Use tidyr::pivot_longer to transform the dataframe by specifying:
+#    - cols: All columns except those listed in not_vessel_id_col_names are considered values.
+#    - values_to: The new column "is_compl_or_both" will store the values from the pivoted columns.
+#    - names_to: The new column "vessel_official_number" will store the names of the pivoted columns.
 compl_clean_sa_vs_gom_m_int_tot_short_wide_long <- 
   compl_clean_sa_vs_gom_m_int_tot_short_wide |> 
   tidyr::pivot_longer(
@@ -204,13 +146,22 @@ compl_clean_sa_vs_gom_m_int_tot_short_wide_long <-
     names_to = "vessel_official_number"
   )
 
-# dim(compl_clean_sa_vs_gom_m_int_tot_short_wide_long)
-# [1] 240960      7
+dim(compl_clean_sa_vs_gom_m_int_tot_short_wide_long)
+# [1] 289152      7
 
-# compl_clean_sa_vs_gom_m_int_tot_short_wide_long$is_compl_or_both |> unique()
+compl_clean_sa_vs_gom_m_int_tot_short_wide_long$is_compl_or_both |> unique()
 # [1] "YES"    "NO"     NA       "NO_YES"
 
 # Add count vessels per month, region and compl ----
+
+# Explanations:
+# Filter out rows with missing values in the 'is_compl_or_both' column.
+# Mutate a new column 'compl_or_not' based on the values in 'is_compl_or_both'.
+# 1. Use filter(stats::complete.cases(is_compl_or_both)) to remove rows with missing values in 'is_compl_or_both'.
+# 2. Use mutate to create 'compl_or_not' based on conditions:
+#    - If 'is_compl_or_both' is "YES", set 'compl_or_not' to "compliant".
+#    - For other cases, set 'compl_or_not' to "non_compliant".
+# 3. Use select(-is_compl_or_both) to drop the original 'is_compl_or_both' column.
 
 compl_clean_sa_vs_gom_m_int_tot_short_wide_long__yes_no <-
   compl_clean_sa_vs_gom_m_int_tot_short_wide_long |>
@@ -225,7 +176,6 @@ compl_clean_sa_vs_gom_m_int_tot_short_wide_long__yes_no <-
 # [1] "year_month, year, permit_sa_gom_dual_both, year_permit_sa_gom_dual, total_vsl_m_by_year_perm, vessel_official_number, compl_or_not"
 
 group_by_col <-
-  # c("year", "permit_sa_gom_dual", "year_month", "compl_or_not")
   c(
     "year",
     "permit_sa_gom_dual_both",
@@ -243,60 +193,30 @@ compl_clean_sa_vs_gom_m_int_tot__compl_cnt <-
     "cnt_vsl_m_compl"
   )
 
-# View(compl_clean_sa_vs_gom_m_int_tot__compl_cnt)
+dim(compl_clean_sa_vs_gom_m_int_tot__compl_cnt)
+# [1] 70046     8
 
 ## test cnts compl per month ----
-# tic("test tot cnts per month")
 compl_clean_sa_vs_gom_m_int_tot__compl_cnt %>%
   select(-vessel_official_number) %>%
-  unique() %>%
+  distinct() %>%
   filter(year_month == "Jan 2023") %>%
   glimpse()
-# toc()
-# $ year_month      <yearmon> Jan 2022, Jan 2022, Jan 2022, Jan 2022
-# $ perm_exp_m      <chr> "active", "active", "active", "active"
-# $ exp_m_tot_cnt   <int> 1635, 1635, 1192, 1192
-# $ total_vsl_m_by_year_perm     <int> 1635, 1635, 1192, 1192
-# $ compliant_      <chr> "YES", "NO", "YES", "NO"
-# $ cnt_vsl_m_compl <int> 1057, 703, 1173, 45
-# 1057 + 703 = 1760 is more than total. Some vessels can be both in a month, if compliance differs by week. For this analysis I used vessels having at least one week in the month  non-compliant.
-# If we are going to use "yes only" than redo "yes, no, no_yes" division as for a year above.
-# $ cnt_vsl_m_compl <int> 1052, 688, 1004, 42
 
-# 2023:
-# $ year_month      <yearmon> Jan 2023, Jan 2023, Jan 2023, Jan 2023, Jan 2023, …
-# $ total_vsl_m_by_year_perm     <int> 1967, 1967, 1967, 675, 1967, 675
-# $ compliant_      <chr> "YES", "NO", "YES", "YES", "NO", "NO"
-# $ cnt_vsl_m_compl <int> 1693, 322, 1693, 675, 322, 1
-
-# (w yes_no)
-# $ year_month               <yearmon> Jan 2023, Jan 2023, Jan 2023, Jan 2023, Jan 2…
-# $ year_permit              <chr> "2023 sa_dual", "2023 sa_dual", "2023 sa_dual", "…
-# $ total_vsl_m_by_year_perm <int> 1967, 1967, 1967, 1967, 675, 675, 675
-# $ is_compl_or_both         <chr> "YES", NA, "NO", "NO_YES", NA, "YES", "NO_YES"
-# $ cnt_vsl_m_compl          <int> 1645, 1405, 274, 48, 2697, 674, 1
-# > 1645+274+48
-# [1] 1967
-# correct sum 
-
-# w compl_or_not
+# w compl_or_not & sa_dual
 # $ year_month               <yearmon> Jan 2023, Jan 2023, Jan 2023, Jan 2023
 # $ year_permit              <chr> "2023 sa_dual", "2023 sa_dual", "2023 gom_onl…
 # $ total_vsl_m_by_year_perm <int> 1967, 1967, 675, 675
 # $ compl_or_not             <chr> "compliant", "non_compliant", "compliant", "non_c…
 # $ cnt_vsl_m_compl          <int> 1645, 322, 674, 1
 
+# with sa_only
 # today()
 # [1] "2024-02-08"
 # $ permit_sa_gom_dual       <chr> "sa_only", "sa_only", "dual", "dual", "gom_only", "go…
 # $ total_vsl_m_by_year_perm <int> 1753, 1753, 285, 285, 850, 850
 # $ compl_or_not             <chr> "compliant", "non_compliant", "compliant", "non_compl…
 # $ cnt_vsl_m_compl          <int> 1434, 319, 273, 12, 847, 3
-
-# $ permit_sa_gom_dual_both  <chr> "sa_dual", "sa_dual", "gom_only", "gom_only"
-# $ total_vsl_m_by_year_perm <int> 1982, 1982, 850, 850
-# $ compl_or_not             <chr> "compliant", "non_compliant", "compliant", "non_c…
-# $ cnt_vsl_m_compl          <int> 1658, 324, 847, 3
 
 # Month: percent compl vessels per per month ----
 
@@ -306,16 +226,15 @@ compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short <-
   distinct()
 
 dim(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short)
-# [1] 38  5
-# 144   6 (sep dual)
-# [1] 120   7
+# 144   7
 
 compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc <-
   compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short |>
   mutate(cnt_m_compl_perc =
            cnt_vsl_m_compl * 100 / total_vsl_m_by_year_perm)
 
-# View(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc)
+dim(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc)
+# [1] 144   8
 
 # Plot non compliant perc by month ----
 
@@ -324,9 +243,17 @@ compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc__nc_comb_col <-
   compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc |>
   filter(compl_or_not == "non_compliant")
 
-# View(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc__nc_comb_col)
+dim(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc__nc_comb_col)
+# [1] 72  8
 
-## split
+## split ----
+# Explanations:
+# Split the dataframe 'compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc__nc_comb_col'
+# into a list of dataframes based on the levels of 'year_permit_sa_gom_dual'.
+# 1. Use split to create a list of dataframes.
+# 2. The splitting is done based on the levels of 'year_permit_sa_gom_dual'.
+#    - Each dataframe in the list corresponds to a unique value of 'year_permit_sa_gom_dual'.
+
 compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l_nc <-
   split(
     compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc__nc_comb_col,
@@ -335,13 +262,25 @@ compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l_nc <-
     )
   )
 
-# View(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l_nc[[1]])
+dim(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l_nc[[1]])
+# [1] 12  8
 
 ## make % line plots by permit ----
 line_df_23_gom_monthly_nc_percent_plot_color =
   plot_colors$non_compliant_by_month
 
-# curr_permit_sa_gom_dual <- "2023 sa_dual" # (for tests)
+# Explanations:
+# Generate a list of line plots for monthly non-compliance percentages for different
+# year_permit_sa_gom_dual combinations.
+# 1. Iterate over each 'curr_year_permit' in the list of names.
+# 2. Split 'curr_year_permit' into 'curr_year' and 'curr_permit_sa_gom_dual'.
+# 3. Create a dataframe 'one_df' from the corresponding dataframe in the list.
+#    - Add columns 'my_label' and 'tot_cnt_label' for labeling points and annotating text.
+# 4. Use ggplot to create a line plot for each dataframe in the list.
+# 5. Customize the plot appearance, labels, and limits.
+# 6. Scale the x-axis as a date with monthly breaks and labels.
+# 7. Expand the x-axis limits to the end of the year.
+# 8. Return a list of line plots.
 
 line_monthly_nc_plot_l <-
   names(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l_nc) |>
@@ -424,25 +363,23 @@ line_monthly_nc_plot_l <-
     #          color = "blue")
   })
 
-# rm(line_monthly_nc_plot_l)
 names(line_monthly_nc_plot_l) <-
   names(compl_clean_sa_vs_gom_m_int_tot__compl_cnt_short_perc_l_nc)
 
-# print_df_names(line_monthly_nc_plot_l)
-
-# line_monthly_nc_plot_l
 line_monthly_nc_plot_l["2023 sa_only"]
+
 # save to files ----
 plots_to_save <- c(line_monthly_nc_plot_l["2022 sa_only"],
                    line_monthly_nc_plot_l["2023 sa_only"],
                    line_monthly_nc_plot_l["2023 dual"])
 
-# line_monthly_nc_plot_l["2022 sa_only"]
-
-# plots_to_save <- c(line_monthly_nc_plot_l["2022 sa_only"],
-#                    line_monthly_nc_plot_l["2023 sa_dual"])
-
-# plots_to_save
+# Explanations:
+# Save each plot in the 'plots_to_save' list to a PNG file.
+# 1. Iterate over each 'one_plot' in the list.
+# 2. Extract 'permit_sa_gom_dual_both' and 'year' from the plot data.
+# 3. Generate a lowercase 'file_name_part' using these extracted values.
+# 4. Construct the full file path with the 'file_name_part'.
+# 5. Save the plot to the specified file path with custom width and height.
 plots_to_save |>
   map(\(one_plot) {
     # browser()
@@ -464,9 +401,4 @@ plots_to_save |>
                              my_height = 10)
     
   })
-# ...
-# $`2023 dual`
-# "2024-02-12/m_line_perc_dual_2023_plot.png"
 
-# $`2023 sa_dual`
-# 2024-02-09/m_line_perc_sa_dual_2023_plot.png
