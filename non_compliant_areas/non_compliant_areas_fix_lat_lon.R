@@ -575,14 +575,35 @@ compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_mor
 # $ state_fixed.double_names <chr> "TX", "TX", "DE", "DE", "DE", "MD", "MD", "MD…
 # $ state_fixed1             <chr> "TX", "TX", "DE", "DE", "DE", "MD", "MD", "MD…
 
+### the same for cities ----
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports2 <-
+  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports1 |>
+  mutate(across(where(is.character), str_trim)) |>
+  mutate(city_fixed1 =
+           case_when((is.na(city_fixed.orig) |
+                        city_fixed.orig == "NA") &
+                       !is.na(city_fixed.double_names) ~
+                       city_fixed.double_names,
+                     .default = city_fixed.orig
+           ))
+
+dim(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports2)
+# [1] 9362   14
+
 ### rename the state column ----
 # Explanations:
 # 1. Removing the 'state_fixed.orig' column using 'select(-state_fixed.orig)'.
 # 2. Renaming the 'state_fixed1' column to 'state_fixed' using 'rename("state_fixed" = state_fixed1)'.
-compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports <-
-  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports1 |>
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports1 <-
+  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports2 |>
   select(-state_fixed.orig) |>
   rename("state_fixed" = state_fixed1)
+
+### the same for cities ----
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports <-
+  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports1 |>
+  select(-city_fixed.orig) |>
+  rename("city_fixed" = city_fixed1)
 
 # check
 dim(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports)
@@ -590,10 +611,12 @@ dim(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2
 
 compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports |>
   filter(year_permit_sa_gom_dual == "2023 sa_only") |> 
-  filter(state_fixed == "NA" | is.na(state_fixed)) |> 
+  # filter(state_fixed == "NA" | is.na(state_fixed)) |> 
+  filter(city_fixed == "NA" | is.na(city_fixed)) |> 
   nrow()
 # 0
 
 # Print results ----
 cat("compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports",
     sep = "\n")
+

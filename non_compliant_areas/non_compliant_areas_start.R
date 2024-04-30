@@ -78,6 +78,21 @@ fix_lat_lon_file_path <-
 
 source(fix_lat_lon_file_path)
 
+# print out cleaned home/hailing ports to a file ----
+
+home_ports_out_path <- 
+  file.path(my_paths$outputs,
+            current_project_basename,
+            "home_port_fixed_info.csv")
+  
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports |>
+  select(vessel_official_number,
+         year_permit_sa_gom_dual,
+         city_fixed,
+         state_fixed) |>
+  distinct() |> 
+  write_csv(home_ports_out_path)
+
 ## split by permit and year ----
 # Explanations:
 # Splitting the data frame based on the levels of the 'year_permit_sa_gom_dual' factor.
@@ -167,6 +182,7 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt[["2023 sa_only"
 vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt[["2023 sa_only"]]$state_fixed |> unique() |> length()
 # 21
 
+# View(vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt$`2023 sa_only`)
 # vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt[["2023 sa_only"]] |> 
 #   select(state_fixed) |> 
 #   distinct() |> 
@@ -372,6 +388,36 @@ vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide
   # ..$ cnt_vsl_compl              : int [1:35] 780 446 28 20 154 245 64 23 36 26 ...
   # ..$ non_compl_proportion_per_st: num [1:35] 0.636 0.364 0.583 0.417 0.386 ...
   # ..$ non_compl_percent_per_st   : num [1:35] 63.6 36.4 58.3 41.7 38.6 ...
+
+# GA only ----
+# vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt |> 
+#   glimpse()
+
+ga_vessel_permits_state_fixed_23_vessel_ids <-
+  vessels_permits_home_port_22_compliance_list_vessel_by_state_cnt_list_compl_wide_long__compl_or_not__compl_cnt$`2023 sa_only` |>
+  filter(state_fixed == "GA") |>
+  select(vessel_official_number) |>
+  distinct()
+
+write_csv(ga_vessel_permits_state_fixed_23_vessel_ids,
+          "ga_vessel_permits_state_fixed_23_vessel_ids.csv")
+# nrow()
+# 62
+
+ga_ids2 <-
+  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports |>
+  filter(state_fixed == "GA") |>
+  filter(year_permit_sa_gom_dual %in% c("2023 dual", "2023 sa_only")) |>
+  select(vessel_official_number) |>
+  distinct()
+
+setdiff(ga_ids2$vessel_official_number,
+        ga_vessel_permits_state_fixed_23_vessel_ids$vessel_official_number)
+# 1322973 (dual)
+
+setdiff(ga_vessel_permits_state_fixed_23_vessel_ids$vessel_official_number,
+        ga_ids2$vessel_official_number)
+# 0
 
 # Maps ----
 ## map specific columns ----
