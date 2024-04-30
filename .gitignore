@@ -1,6 +1,6 @@
-
 __packages
 .RData
+.renv
 .Rhistory
 .Rproj.user
 .vscode/launch.json
@@ -15,6 +15,7 @@ __packages
 *.RData
 *.RDataTmp
 *.rdb
+*.rds
 *.rdx
 *.rmarkdown
 *.sql
@@ -24,6 +25,7 @@ __packages
 bootstrap-icons.css
 bootstrap.min.css
 butterfish_pull_and_analysis_v2A.Rmd
+compare_4_files/compare_4_files.qmd
 compare_catch/compare_catch_plots0.R
 connect.r
 db_compliance/dnf_2022.R
