@@ -2,15 +2,14 @@ source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 
 # Download Maintenance / SC Vessels Reporting via VESL
-# from FHIER 
-# https://grunt.sefsc.noaa.gov/apex/f?p=162:386:5458401387184:::RP,386::&cs=3lR5MlDRVs7tWDLbTPOrYh-j00HYH4yeXtQKl8Dqltvjuxmt6sBAwnah0ltdU_dBPQRSNZ21KX_NR4YGfsjtJOA
+# from FHIER
+# https://grunt.sefsc.noaa.gov/apex/f?p=162...
 
-# csv_names_list = list("sc_mismatches/sc_report_Aug_2023.csv")
-csv_names_list = list(r"(sc_mismatches\2024_02\fhier_report_02_14_2024.csv)")
+csv_names_list = list(r"(sc_mismatches\2024_04\fhier_report_04_01_2024.csv)")
 
-xsl_names_list = list(r"(sc_mismatches\2024_02\scdnrFedVessels_01312024.xlsx)")
+xsl_names_list = list(r"(sc_mismatches\2024_04\scdnrFedVessels_04012024.xlsx)")
 
-SC_vessels_FHIERData_0 <- load_csv_names(my_paths, csv_names_list)[[1]]
+SC_vessels_FHIERData_0 <- load_csv_names(my_paths$inputs, csv_names_list)[[1]]
 
 SC_vessels_FHIERData <- clean_headers(SC_vessels_FHIERData_0)
 
@@ -24,10 +23,8 @@ SC_vessels_FHIERData_enabled <-
 dim(SC_vessels_FHIERData_enabled)
 # 199 8
 # [1] 187   8
-# 189   
-
-# SC_vessels_FHIERData_enabled %>% names()
-#   filter(vessel_official_number   == "1225219")
+# 189
+# 188
 
 #create new dataframe with just enabled vessel official # for analysis
 FHIER_vessel_officialnumber <-
@@ -38,20 +35,24 @@ dim(FHIER_vessel_officialnumber)
 # 88
 # [1] 187   1
 # [1] 189   1
+# 188
 
 #---
 SC_permittedVessels  <- load_xls_names(my_paths, xsl_names_list, 1)
 
-glimpse(SC_permittedVessels)
+dim(SC_permittedVessels)
 # 213
 # 188
+# 200
 
 # SC_permittedVessels1 <- read_excel(paste(my_paths$inputs, xsl_names_list[[1]], sep = "/"), 1)
 
 #---
+# names(SC_permittedVessels)
+# vessel_reg_uscg_
 #create new dataframe with just official # codes for analysis
 SC_vessel_officalnumber <-
-  data.frame(Official_number = tolower(SC_permittedVessels[[1]]))
+  data.frame(Official_number = tolower(SC_permittedVessels$vessel_reg_uscg_))
 
 #check for mistmatching fields using dplyr packages anti_join function
 mismatched_officialnumbers_FHIERvsSC <-
@@ -61,7 +62,9 @@ mismatched_officialnumbers_FHIERvsSC <-
 
 #NOTE - now do in reverse to ensure no vessels are in SC list that are not in FHIER list
 mismatched_officialnumbers_SCvsFHIER <-
-  anti_join(SC_vessel_officalnumber, FHIER_vessel_officialnumber, by = "Official_number") #to ID rows that exist in SC but not in FHIER
+  anti_join(SC_vessel_officalnumber,
+            FHIER_vessel_officialnumber,
+            by = "Official_number") #to ID rows that exist in SC but not in FHIER
 
 #---
 # identical?
@@ -79,6 +82,7 @@ sc_to_fh_diff <-
 identical(sort(mismatched_officialnumbers_SCvsFHIER$Official_number),
           sort(sc_to_fh_diff))
 # T
+
 # check if not in sc report at all ----
 not_it_fhier_sc_report <-
   setdiff(
@@ -100,6 +104,8 @@ length(not_it_fhier_sc_report)
 # 4
 # 1
 # 0
+# 11
+# 14 "2024-04-06"
 
 #create output files - use these to update FHIER maintenance list ----
 ## make output file names ----
