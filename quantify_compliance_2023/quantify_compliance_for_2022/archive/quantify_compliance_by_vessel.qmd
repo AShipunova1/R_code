@@ -1,0 +1,290 @@
+---
+title: "compliance plots by vessel"
+date: 2023-03-23
+output:
+  html_document
+format:
+  html:
+    css: styles.css
+    code-overflow: wrap
+---
+
+## Set up
+
+```{r no cache setup, include=FALSE}
+# additional libraries
+library(zoo)
+library(gridExtra)
+library(cowplot)
+
+source("~/R_code_github/useful_functions_module.r")
+```
+
+```{r setup, cache=TRUE, include=FALSE}
+# knitr::opts_chunk$set(tidy=TRUE)
+my_paths <- set_work_dir()
+root.dir <- my_paths
+source("~/R_code_github/quantify_compliance/get_data.R")
+
+```
+
+```{r, cache=TRUE}
+glimpse(compl_clean)
+# Rows: 167,607
+# Columns: 21
+
+```
+
+## Separate SA and GOM permits
+
+#### get list of all permitgroups
+
+https://www.fisheries.noaa.gov/southeast/recreational-fishing/frequently-asked-questions-southeast-hire-integrated-electronic#general-program-requirements
+
+GOM: RCG, HRCG, CHG, HCHG
+
+SA: CDW, CHS, SC
+
+### add a column for our permit groups
+
+```{r separate into 2 groups: SA vs GOM + dual}
+compl_clean_sa_vs_gom_plus_dual_0 <-
+  compl_clean %>%
+  dplyr::mutate(permit =
+           dplyr::case_when(
+             !grepl("RCG|HRCG|CHG|HCHG", permitgroup) ~ "sa_only",
+             .default = "gom"
+           ))
+
+glimpse(compl_clean_sa_vs_gom_plus_dual_0)
+```
+
+## add columns for month and quarter
+```{r add columns for month and quarter}
+compl_clean_sa_vs_gom_plus_dual <-
+  compl_clean_sa_vs_gom_plus_dual_0 %>%
+  # add month
+  dplyr::mutate(year_month = as.yearmon(week_start)) %>%
+  # add quarter
+  dplyr::mutate(year_quarter = as.yearqtr(week_start))
+
+```
+
+## by vessel
+```{r}
+#| tidy: true
+compl_clean_sa_vs_gom_plus_dual_short <-
+  compl_clean_sa_vs_gom_plus_dual %>% 
+  select(permit, compliant_, vessel_official_number, week_start, year_month, year_quarter, year)
+
+glimpse(compl_clean_sa_vs_gom_plus_dual_short)
+
+```
+
+
+
+### view fewer columns of original data
+
+```{r view fewer columns}
+
+compl_clean_sa_vs_gom_plus_dual %>%
+  select(vessel_official_number, compliant_, week, permit, year_month, year) %>%
+  # dplyr::arrange(year, week, permit, vessel_official_number) %>%
+  head()
+
+```
+
+### aux functions
+```{r aux functions}
+my_title <- function(time_period) {
+  dplyr::case_when(
+    time_period == "year" ~ "Annual",
+    time_period == "year_month" ~ "Monthly",
+    time_period == "year_quarter" ~ "Quarterly",
+    time_period == "week_start" ~ "Weekly"
+  ) %>%
+  return()
+}
+  
+  # rename column names for x labels
+my_x_lab <- function(time_period) {
+  dplyr::case_when(
+    time_period == "year" ~ "year",
+    time_period == "year_month" ~ "month",
+    time_period == "year_quarter" ~ "quarter",
+    time_period == "week_start" ~ "week"
+  ) %>%
+  return()
+}
+# cat(names(compl_clean_sa_vs_gom_plus_dual_q_t))
+
+get_time_period_col_name <- function(my_df) {
+  time_period_fields <- c("year", "year_quarter", "year_month", "year")
+  time_period_field <- intersect(colnames(my_df), time_period_fields)
+  return(time_period_field)
+}
+
+
+```
+
+### Total counts
+```{r total counts}
+
+total_counts <- function(time_period_name) {
+  compl_clean_sa_vs_gom_plus_dual_short %>% 
+  dplyr::group_by(vessel_official_number, permit, !!sym(time_period_name)) %>% 
+  summarise(total_count = n()) %>%
+  as.data.frame()
+}
+compl_clean_sa_vs_gom_plus_dual_all_q <- total_counts("year_quarter")
+compl_clean_sa_vs_gom_plus_dual_all_m <- total_counts("year_month")
+compl_clean_sa_vs_gom_plus_dual_all_y <- total_counts("year")
+
+head(compl_clean_sa_vs_gom_plus_dual_all_q)
+```
+
+### count_compliant_yes
+```{r compliant_yes}
+count_compliant_yes <- function(time_period_name) {
+  compl_clean_sa_vs_gom_plus_dual_short %>% 
+  filter(tolower(compliant_) == "yes") %>%
+  dplyr::group_by(vessel_official_number, permit, !!sym(time_period_name)) %>% 
+  summarise(compliant_yes = n()) %>%
+  as.data.frame()
+}
+compl_clean_sa_vs_gom_plus_dual_q <- count_compliant_yes("year_quarter")
+head(compl_clean_sa_vs_gom_plus_dual_q)
+compl_clean_sa_vs_gom_plus_dual_m <- count_compliant_yes("year_month")
+compl_clean_sa_vs_gom_plus_dual_y <- count_compliant_yes("year")
+
+```
+
+### join counts
+```{r join counts}
+join_counts <- function(df_all_cnt, df_yes_cnt){
+  full_join(df_all_cnt, df_yes_cnt
+            # ,
+            # by = c("vessel_official_number", "year_quarter", "permit")
+            ) %>%
+      replace(is.na(.), 0) %>%
+    return()
+}
+
+compl_clean_sa_vs_gom_plus_dual_q_t <- join_counts(compl_clean_sa_vs_gom_plus_dual_all_q,
+            compl_clean_sa_vs_gom_plus_dual_q)
+
+str(compl_clean_sa_vs_gom_plus_dual_q_t)
+
+compl_clean_sa_vs_gom_plus_dual_m_t <-
+  join_counts(compl_clean_sa_vs_gom_plus_dual_all_m,
+            compl_clean_sa_vs_gom_plus_dual_m)
+
+compl_clean_sa_vs_gom_plus_dual_y_t <-
+  join_counts(compl_clean_sa_vs_gom_plus_dual_all_y,
+            compl_clean_sa_vs_gom_plus_dual_y)
+
+
+```
+
+### percent by time period
+```{r percent by time period}
+
+percent_by_time_period <- function(joined_df) {
+  time_period_name <- get_time_period_col_name(joined_df)
+  joined_df %>%
+    dplyr::group_by(vessel_official_number, permit, !!sym(time_period_name)) %>%
+    summarise(percent_yes = compliant_yes * 100 / total_count,
+              percent_no = 100 - percent_yes)
+}
+
+percent_by_quarter <- percent_by_time_period(compl_clean_sa_vs_gom_plus_dual_q_t)
+
+# time_period <- get_time_period_col_name(my_df)
+head(compl_clean_sa_vs_gom_plus_dual_q_t)
+  
+  head(percent_by_quarter)
+
+percent_by_month <- percent_by_time_period(compl_clean_sa_vs_gom_plus_dual_m_t)
+percent_by_year <- percent_by_time_period(compl_clean_sa_vs_gom_plus_dual_y_t)
+
+```
+#### make plots
+```{r make plots}
+plot_by_time <-
+  function(my_df,
+           vessel_id,
+           permit_gr,
+           time_period_name) {
+    # browser()
+    time_period_lab <- my_x_lab(time_period_name)
+    time_period_title <- my_title(time_period_name)
+    my_df %>%
+      filter(permit == permit_gr) %>%
+      tidyr::pivot_longer(starts_with("percent"),
+                   names_to = "yes_or_no",
+                   values_to = "compliance_percent") %>%
+      filter(vessel_official_number == vessel_id) %>%
+      # head(100) %>%
+      ggplot(aes(
+        x = !!sym(time_period_name),
+        y = compliance_percent,
+        fill = yes_or_no
+      )) +
+      geom_bar(stat = "identity") +
+      theme(axis.text.x = element_text(angle = 45)) +
+      
+      labs(title = paste0(time_period_title, " compliance for ", vessel_id),
+      # labs(
+      #   title = paste0("compliance for ", vessel_id),
+        x = time_period_lab,
+        y = "compliance percent"
+      )
+    
+}
+head(percent_by_quarter)
+quarter_p <- plot_by_time(percent_by_quarter, "1000042", "gom", "year_quarter")
+month_p <- plot_by_time(percent_by_month, "1000042", "gom", "year_month")
+year_p <- plot_by_time(percent_by_year, "1000042", "gom", "year")
+
+# 1023972
+quarter_1023972p <- plot_by_time(percent_by_quarter, "1023972", "gom", "year_quarter")
+month_1023972p <- plot_by_time(percent_by_month, "1023972", "gom", "year_month")
+year_1023972p <- plot_by_time(percent_by_year, "1023972", "gom", "year")
+
+```
+### arrange plots
+```{r arrange}
+
+legend <-
+  cowplot::get_legend(month_p + theme(legend.position = "right"))
+
+grid.arrange(
+  month_p + theme(legend.position = 'hidden'),
+  quarter_p + theme(legend.position = 'hidden'),
+  year_p + theme(legend.position = 'hidden'),
+  legend,
+  nrow = 2
+  # top = "compliance for '1000042'",
+  # left = "YES and NO percent",
+  # right = legend
+)
+
+```
+
+```{r 1023972}
+
+legend <-
+  cowplot::get_legend(quarter_1023972p + theme(legend.position = "right"))
+
+grid.arrange(
+  month_1023972p + theme(legend.position = 'hidden'),
+  quarter_1023972p + theme(legend.position = 'hidden'),
+  year_1023972p + theme(legend.position = 'hidden'),
+  legend,
+  nrow = 2
+  # top = "compliance for '1000042'",
+  # left = "YES and NO percent",
+  # right = legend
+)
+```
+

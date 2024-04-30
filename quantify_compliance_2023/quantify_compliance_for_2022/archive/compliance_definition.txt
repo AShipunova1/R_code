@@ -1,0 +1,17 @@
+"To Be Compliant (for data before week 9 of 2023)"
+GOM:
+1) There should be a declaration for every logbook (in another words, the number of fishing intended charter declarations would need to be equal to logbooks to be compliant)
+<!-- 2) There could be no logbooks for a declaration if it is recreational ("non-fishing intended, recreational declaration") or not a charter
+I'd take out rule 2. Having a logbook submitted for a recreational or non-fishing intended charter declaration isn't required but wouldn't make them non-compliant if they did submit it by accident. -->
+
+2) declarations can be submitted no more than 30 days in advance
+
+SA:
+1) There should be at least one logbook or one DNFs filed for any given week except the last one (can submit the following Tuesday).
+2) DNFs should not be submitted more than 30 days in advance
+
+Dual:
+Before week 9 of 2023, dual permitted vessels had followed GOM reqs.
+
+All:
+Noncompliant + overridden are compliant

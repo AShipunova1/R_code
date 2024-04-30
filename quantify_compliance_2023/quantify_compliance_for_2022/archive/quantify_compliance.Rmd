@@ -1,0 +1,339 @@
+---
+title: "Looking at the proportion of compliant and non-compliant vessels per different time periods and permit groups"
+date: 2023-03-22
+output: 
+  html_document
+---
+
+## Set up
+```{r no cache setup, include=FALSE}
+# additional libraries
+library(zoo)
+library(gridExtra)
+library(cowplot)
+
+source("~/R_code_github/useful_functions_module.r")
+```
+
+```{r setup, cache=TRUE, include=FALSE}
+# knitr::opts_chunk$set(tidy=TRUE)
+my_paths <- set_work_dir()
+root.dir <- my_paths
+source("~/R_code_github/quantify_compliance/get_data.R")
+
+```
+```{r, cache=TRUE}
+glimpse(compl_clean)
+# Rows: 167,607
+# Columns: 21
+
+```
+## Separate SA and GOM permits
+
+#### get list of all permitgroups
+https://www.fisheries.noaa.gov/southeast/recreational-fishing/frequently-asked-questions-southeast-hire-integrated-electronic#general-program-requirements
+
+GOM: RCG, HRCG, CHG, HCHG
+
+SA:  CDW, CHS, SC
+
+### add a column for our permit groups
+```{r separate into 2 groups: SA vs GOM + dual}
+compl_clean_sa_vs_gom_plus_dual_0 <-
+  compl_clean %>%
+  dplyr::mutate(permit =
+           dplyr::case_when(
+             !grepl("RCG|HRCG|CHG|HCHG", permitgroup) ~ "sa_only",
+             .default = "gom"
+           ))
+
+glimpse(compl_clean_sa_vs_gom_plus_dual_0)
+```
+
+## add columns for month and quarter
+```{r add columns for month and quarter}
+compl_clean_sa_vs_gom_plus_dual <-
+  compl_clean_sa_vs_gom_plus_dual_0 %>%
+  # add month
+  dplyr::mutate(year_month = as.yearmon(week_start)) %>%
+  # add quarter
+  dplyr::mutate(year_quarter = as.yearqtr(week_start))
+
+glimpse(compl_clean_sa_vs_gom_plus_dual)
+```
+
+### view fewer columns for a test
+```{r view fewer columns}
+
+compl_clean_sa_vs_gom_plus_dual %>%
+  select(vessel_official_number, compliant_, week, permit, year_month, year) %>%
+  # dplyr::arrange(year, week, permit, vessel_official_number) %>%
+  head()
+
+```
+
+## Percentage
+
+From Michelle:
+
+Can we make the titles, “weekly compliance Gulf and dual permitted”, “monthly compliance Gulf and dual permitted”, “annual compliance Gulf and dual permitted”, and then the same for SA. So 6 total figures.
+
+Oh, and show it not as a number but a proportion. So, if we were looking at Gulf weekly compliance and it was 50 compliant vessels and 50 non-compliant, then the figures would be showing bars for 50% compliant and 50% non compliant. (50/100*100= 50%)
+
+We don’t want to sum the entries though. We just need to know vessel level compliance, weekly, monthly and annually.  How many vessels by gulf and SA. The file you have lists the compliance by vessel and permit type, so you’ll just need to analyze it that way.
+
+### Prepare compliance info
+
+#### Get only the columns we need
+```{r Prepare compliance info}
+compl_clean_sa_vs_gom_plus_dual_short <-
+  compl_clean_sa_vs_gom_plus_dual %>%
+  select(
+    vessel_official_number,
+    compliant_,
+    permit,
+    week_start,
+    year_month,
+    year_quarter,
+    year
+  )
+
+head(compl_clean_sa_vs_gom_plus_dual_short)
+```
+
+#### Create 2 new dfs for SA and GOM + dual permit groups
+```{r}
+sa_compl_clean_sa_vs_gom_plus_dual_short <-
+  filter(compl_clean_sa_vs_gom_plus_dual_short, permit == "sa_only")
+gom_compl_clean_sa_vs_gom_plus_dual_short <-
+  filter(compl_clean_sa_vs_gom_plus_dual_short, permit == "gom")
+```
+
+#### an auxilary percent function
+```{r my_percent fun}
+my_percent <- function(x, y) {
+  # y : 100%
+  # x : b%
+  return(x * 100 / y)
+}
+
+```
+
+#### an auxilary function to get time period field name from df names
+```{r time period field name fun}
+
+get_time_period_col_name <- function(my_df) {
+  my_df %>%
+    select(-count, -starts_with("percent")) %>%
+    names() %>%
+    return()
+}
+  
+```
+#### function percent_by_time_period
+```{r percent_by_time_period fun}
+percent_by_time_period <- function(my_df, time_period_field_name) {
+  my_df %>%
+    dplyr::group_by(!!sym(time_period_field_name)) %>%
+    summarize(
+      count = n(),
+      percent_yes = my_percent(sum(compliant_ == "YES"), count),
+      percent_no = my_percent(sum(compliant_ == "NO"), count)
+    ) %>%
+    return()
+}
+```
+
+
+#### create individual dfs by permit region and time period
+```{r individual dfs by permit region and time period}
+
+gom_per_year <-
+  percent_by_time_period(gom_compl_clean_sa_vs_gom_plus_dual_short, "year")
+
+gom_per_month <-
+  percent_by_time_period(gom_compl_clean_sa_vs_gom_plus_dual_short, "year_month")
+
+gom_per_week <-
+  percent_by_time_period(gom_compl_clean_sa_vs_gom_plus_dual_short, "week_start")
+
+sa_per_year <-
+  percent_by_time_period(sa_compl_clean_sa_vs_gom_plus_dual_short, "year")
+
+sa_per_month <-
+  percent_by_time_period(sa_compl_clean_sa_vs_gom_plus_dual_short, "year_month")
+
+sa_per_week <-
+  percent_by_time_period(sa_compl_clean_sa_vs_gom_plus_dual_short, "week_start")
+```
+
+#### test one week
+##### from the function result:
+```{r function result, class.source="bg-success"}
+sa_per_week %>%
+ filter(week_start == "2022-12-26")
+```
+percent_yes = **58.2**
+
+##### step by step:
+```{r step by step, class.source="bg-success"}
+sa_compl_clean_sa_vs_gom_plus_dual_short %>%
+  filter(week_start == "2022-12-26") %>%
+  dplyr::group_by(compliant_, week_start) %>%
+  summarise(count = n())
+```
+
+no + yes = 684 + 953 = 1637 (100%)
+
+"yes" * 100 / 1637 = `r my_percent(953, (684 + 953))`
+
+percent "YES" vessels (= compliant vessels):
+```{r}
+my_percent(953, (684 + 953))
+```
+
+Percent of a "YES" for this week is **58.2**
+
+##### inside the function:
+```{r, class.source="bg-success"}
+sa_compl_clean_sa_vs_gom_plus_dual_short %>%
+  filter(week_start == "2022-12-26") %>%
+  dplyr::group_by(week_start) %>%
+  summarise(count = n(),
+      percent_yes = my_percent(sum(compliant_ == "YES"), count),
+      percent_no = my_percent(sum(compliant_ == "NO"), count) # the same as "100 - percent_yes"
+    )
+```
+
+percent_yes = **58.2**
+
+### plots for percentage
+```{r define variables}
+
+my_regions <- c("Gulf and dual", "South Atlantic")
+
+my_colors <- c("red", "blue")
+
+names(sa_per_year)
+```
+
+```{r plots for percentage}
+percent_plot <- function(my_df,
+                         region #SA vs. GOM + dual, see my_regions
+                         ) {
+  # get the current time period field name
+  time_period <- get_time_period_col_name(my_df)
+  
+  # make a plot
+  percent_p <-
+    my_df %>%
+    tidyr::pivot_longer(
+      # which columns to pivot
+      starts_with("percent"),
+      # pivot column names go to a new "key" column
+      names_to = "key",
+      # pivot values go to a new "percent" column
+      values_to = "percent") %>%
+    ggplot(aes(
+      # "year" etc. column names for x
+      x = !!sym(time_period),
+      y = percent,
+      fill = key
+    ))
+  
+  # rename column names for titles
+  my_title <- dplyr::case_when(
+    time_period == "year" ~ "Annual",
+    time_period == "year_month" ~ "Monthly",
+    time_period == "week_start" ~ "Weekly"
+  )
+  
+  # rename column names for x labels
+  my_x_lab <- dplyr::case_when(
+    time_period == "year" ~ "year",
+    time_period == "year_month" ~ "month",
+    time_period == "week_start" ~ "week"
+  )
+  
+  # improve the plot view
+  percent_p + 
+    # side by side bars
+    geom_bar(position = "dodge", stat = "identity") +
+    # labels
+    labs(
+      title = paste0(my_title, " compliance"),
+      y = "",
+      x = my_x_lab
+    ) +
+    # Change colors manually
+    scale_fill_manual(
+      # what colors to use
+      values = my_colors,
+      # The legend title and labels
+      name = "Colors",
+      labels = c("% non-compliant", "% compliant")) +
+    # rotate x labels
+    theme(axis.text.x = element_text(angle = 45)) +
+    # make Y axes go to 100
+    ylim(0, 100) %>%
+    return()
+}
+```
+
+#### create individual plots
+```{r create individual plots}
+sa_per_year_p <- percent_plot(sa_per_year, my_regions[[2]])
+sa_per_month_p <- percent_plot(sa_per_month, my_regions[[2]])
+sa_per_week_p <- percent_plot(sa_per_week, my_regions[[2]])
+
+gom_per_year_p <- percent_plot(gom_per_year, my_regions[[1]])
+gom_per_month_p <- percent_plot(gom_per_month, my_regions[[1]])
+gom_per_week_p <- percent_plot(gom_per_week, my_regions[[1]])
+```
+
+#### save the legend separately
+```{r legend}
+legend <-
+  cowplot::get_legend(gom_per_week_p)
+```
+
+#### combine SA plots
+```{r combine plots SA}
+
+# SA
+region <- my_regions[[2]]
+grid.arrange(
+  sa_per_week_p + theme(legend.position = 'hidden'),
+  sa_per_month_p + theme(legend.position = 'hidden'),
+  sa_per_year_p + theme(legend.position = 'hidden') +
+    # add numbers
+    geom_text(aes(label = round(percent, 2)),
+              position = position_dodge(width = 0.9),
+              vjust = -0.25),
+  legend,
+  nrow = 2,
+  top = paste0(region, " permitted"),
+  left = "YES and NO percentage"
+)
+```
+
+#### combine GOM + dual plots
+```{r combine plots GOM + dual}
+
+# GOM + dual
+region <- my_regions[[1]]
+grid.arrange(
+  gom_per_week_p + theme(legend.position = 'hidden'),
+  gom_per_month_p + theme(legend.position = 'hidden'),
+  gom_per_year_p + theme(legend.position = 'hidden') + 
+    # add numbers
+    geom_text(aes(label = round(percent, 2)),
+              position = position_dodge(width = 0.9),
+              vjust = -0.25),
+  legend,
+  nrow = 2,
+  top = paste0(region, " permitted"),
+  left = "YES and NO percentage"
+)
+
+```
