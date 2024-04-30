@@ -1,4 +1,4 @@
-# Prepare all_logbooks_db_data_2022_short_p_region
+# Prepare all_logbooks_data_short_p_region
 # 1) download all db data
 # 2) use "all logbooks = mv_safis_trip_download
 # 3) Filter 2022 only
@@ -149,7 +149,7 @@ source(script_path)
 
 # Rows are filtered to keep only vessels whose 'VESSEL_OFFICIAL_NBR' is in the
 # 'vessels_22_sa' vector.
-all_logbooks_db_data_2022_short_p_region <-
+all_logbooks_data_short_p_region <-
   all_logbooks_db_data_2022_short |>
   # Use the dplyr::mutate function to add a new column 'permit_region' to the dataset
   dplyr::mutate(
@@ -161,16 +161,16 @@ all_logbooks_db_data_2022_short_p_region <-
                 .default = "gom_and_dual")
   )
 
-dim(all_logbooks_db_data_2022_short_p_region)
+dim(all_logbooks_data_short_p_region)
 # [1] 94471    73
 
-names(all_logbooks_db_data_2022_short_p_region) <-
-  names(all_logbooks_db_data_2022_short_p_region) |>
+names(all_logbooks_data_short_p_region) <-
+  names(all_logbooks_data_short_p_region) |>
   my_headers_case_function()
 
 # Output the object list. cat performs much less conversion than print.
 data_list <- c("all_get_db_data_result_l",
-               "all_logbooks_db_data_2022_short_p_region")
+               "all_logbooks_data_short_p_region")
 
 cat(data_list,
     sep = '\n')

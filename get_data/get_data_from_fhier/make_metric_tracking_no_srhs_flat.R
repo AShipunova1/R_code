@@ -1,3 +1,9 @@
+# files to have:
+# from "Logbook Processing (Do this before all Logbook Analyses)" google drive
+# https://drive.google.com/drive/folders/18ociLUchXpLxrhb3-gJRuIV_0PaQGUFy?usp=sharing
+# 1) "Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)_{my_year}.csv"
+# 2) "2023SRHSvessels.csv"
+
 library(tidyverse)
 library(readxl)
 # help functions in no srhs ----
@@ -97,22 +103,20 @@ my_paths <- set_work_dir()
 #### Current file: C:/Users/anna.shipunova/Documents/R_code_github/get_data_from_fhier/get_srhs_vessels.R ----
 
 # get SRHS vessels to exclude ----
-# The file is provided by Kenneth Brennan
 
-file_name <- "2022_SRHS_Vessels_08_18_2023.xlsx"
-srhs_vessels_2022 <-
-  file.path(file_name,
-  r"(~\Official documents\srhs_boats)")
+srhs_vessels_2023_path <-
+  file.path(my_paths$inputs,
+  r"(from_Fhier\2023SRHSvessels.csv)")
 
-if (!file.exists(srhs_vessels_2022)) {
-  srhs_vessels_2022 <-
+if (!file.exists(srhs_vessels_2023_path)) {
+  srhs_vessels_2023 <-
     file.path(my_paths$inputs,
               file_name)
 }
 
-srhs_vessels_2022_info <-
+srhs_vessels_2023_info <-
   read_excel(
-  srhs_vessels_2022,
+  srhs_vessels_2023,
   # add the sheet name if needed and uncomment the next line
   # sheet = sheet_n,
   # use my fix_names function for col names
@@ -191,7 +195,7 @@ fhier_reports_metrics_tracking_not_srhs_ids <-
     # for each df
     ~ .x |>
       # exclude SRHS vessels
-      dplyr::filter(!vessel_official_number %in% srhs_vessels_2022_info$uscg__)
+      dplyr::filter(!vessel_official_number %in% srhs_vessels_2023_info$uscg__)
   ) |>
   # keep only the vessel_official_numbers, remove all other columns
   dplyr::select(vessel_official_number) |>
@@ -202,7 +206,7 @@ fhier_reports_metrics_tracking_not_srhs_ids_list <-
   purrr::map(
     fhier_reports_metrics_tracking_list,
     ~ .x |>
-      dplyr::filter(!vessel_official_number %in% srhs_vessels_2022_info$uscg__) |>
+      dplyr::filter(!vessel_official_number %in% srhs_vessels_2023_info$uscg__) |>
       dplyr::select(vessel_official_number) |>
       dplyr::distinct()
   )

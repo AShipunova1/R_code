@@ -423,12 +423,15 @@ join_all_csvs <- function(corresp_arr, compl_arr) {
 change_to_dates <- function(my_df, field_name, date_format) {
   # Convert the specified column ('field_name') in 'my_df' to POSIXct date format using 'as.POSIXct'
   # Within the mutate function, it uses pull to extract the column specified by 'field_name' and then applies as.POSIXct to convert the values in that column to POSIXct date format using the provided 'date_format'.
-  result_df <- my_df %>%
-    dplyr::mutate({
-      {
-        field_name
-      }
-    } := as.POSIXct(dplyr::pull(my_df[field_name]), format = date_format))
+
+  result_df <-
+    my_df |>
+    mutate(!!field_name := as.POSIXct(!!field_name, format = date_format))
+    # dplyr::mutate({
+    #   {
+    #     field_name
+    #   }
+    # } := as.POSIXct(dplyr::pull(my_df[field_name]), format = date_format))
 
   # Return the data frame with the specified column converted to dates
   return(result_df)
@@ -747,24 +750,32 @@ compliance_cleaning <- function(compl_arr) {
   # if it is just one df already, do nothing
   compl <- compl_arr
 
-  # Check if it is a single dataframe, and if not, combine separate dataframes for all years into one.
-  if (length(compl_arr) > 1) {
-    compl <- join_same_kind_csvs(compl_arr)
-  }
+  # Clean the 'week' column by splitting it into three columns with proper classes: 'week_num' (week order number), 'week_start', and 'week_end'.
+  compl_clean <-
+    map(compl, clean_weeks)
 
   # Find a column name containing 'permit', 'group', and 'expiration' (permitgroupexpiration).
-  permitgroupexpiration <- grep("permit.*group.*expiration",
-                                tolower(names(compl)),
-                                value = TRUE)
-
-  # Clean the 'week' column by splitting it into three columns with proper classes: 'week_num' (week order number), 'week_start', and 'week_end'.
-  compl <- clean_weeks(compl)
+  permitgroupexpirations <-
+    map(compl,
+        \(x) {
+          grep("permit.*group.*expiration",
+               tolower(names(x)),
+               value = TRUE)
+        })
 
   # Change the classes of dates in the 'permitgroupexpiration' columns from character to POSIXct.
-  compl <- change_to_dates(compl, permitgroupexpiration, "%m/%d/%Y")
+  compl_dates <-
+    compl_clean |>
+    imap(\(x, idx) {
+      field_name <- permitgroupexpirations[[idx]]
+      x |>
+        mutate({{field_name}} := as.POSIXct(pull(x[field_name]),
+                                            format = "%m/%d/%Y"))
+      # change_to_dates(x, permitgroupexpirations[[idx]], "%m/%d/%Y")
+    })
 
   # Return the cleaned and processed compliance data.
-  return(compl)
+  return(compl_dates)
 }
 
 # ===
@@ -804,7 +815,6 @@ cat_filter_for_fhier <- function(my_characters) {
 # ===
 #
 # benchmarking to insert inside a function
-# browser()
 # time_for_appl <<- benchmark(replications=rep(10, 3),
                             # lapply(myfiles, read.csv, skipNul = TRUE, header = TRUE),
                             # sapply(myfiles, read.csv, skipNul = TRUE, header = TRUE, simplify = TRUE)
@@ -815,7 +825,6 @@ cat_filter_for_fhier <- function(my_characters) {
 # write.csv(time_for_appl, "time_for_appl.csv")
 
 # or
-# browser()
 # sappl_exp <- function(){
 #   sapply(my_df, function(x) length(unique(x))) %>% as.data.frame()
 # }
@@ -956,7 +965,6 @@ read_rds_or_run_no_db <-
   function(my_file_path,
            my_data_list_of_dfs,
            my_function) {
-    # browser()
 
     if (file.exists(my_file_path)) {
       # read a binary file saved previously
@@ -1042,6 +1050,10 @@ read_rds_or_run <- function(my_file_path,
                             my_function,
                             force_from_db = NULL) {
 
+  if (file.exists(my_file_path)) {
+    modif_time <- file.info(my_file_path)$mtime
+  }
+
     # Check if the file specified by 'my_file_path' exists and 'force_from_db' is not set.
     if (file.exists(my_file_path) &
         is.null(force_from_db)) {
@@ -1083,7 +1095,14 @@ read_rds_or_run <- function(my_file_path,
 
       try(readr::write_rds(my_result,
                            my_file_path))
+
+      modif_time <- date()
     }
+
+  # Print out the formatted string with the file name ('my_file_name') and the modification time ('modif_time') to keep track of when the data were downloaded.
+  my_file_name <- basename(my_file_path)
+  function_message_print(
+    str_glue("File: {my_file_name} modified {modif_time}"))
 
     # Return the generated or read data.
     return(my_result)
@@ -1096,7 +1115,6 @@ read_rds_or_run <- function(my_file_path,
 #   function(my_df) {
 #     my_df |>
 #       purrr::map_df(function(x) {
-#         browser()
 #         if (length(unique(x)) == 1) {
 #           return(unique(x))
 #         }
@@ -1119,7 +1137,6 @@ remove_empty_cols <- function(my_df) {
 }
 
 remove_0_cols <- function(my_df) {
-  browser()
   not_all_0 <- function(x)
   {
     any(!x == 0)
@@ -1203,4 +1220,110 @@ save_plot_to_file <-
       height = 20,
       units = "cm"
     )
+  }
+
+# Explanations:
+# The function 'read_an_answer' performs the following operations:
+# 1. Reads user input with the provided prompt using 'readline'.
+# 2. Checks if the first character of the input is 'n'. If true, sets 'ANSWER' to "no"; otherwise, sets it to "yes".
+# 3. Returns the processed answer.
+read_an_answer <- function(my_prompt) {
+  ANSWER <- readline(my_prompt)
+  if (tolower(substr(ANSWER, 1, 1)) == "n")
+    ANSWER = "no"
+  else
+    ANSWER = "yes"
+}
+# USE:
+# if (interactive()) read_an_answer(my_prompt)
+
+# make it "NO_YES" if both compliant and not compliant
+# Explanations:
+# The function 'get_compl_by' performs the following operations:
+# 1. Groups the data frame by the specified columns using 'group_by_at'.
+# 2. Selects unique rows based on the grouping columns since we are looking at vessels, not weeks.
+# 3. Pivots the data wider, creating a column for each vessel.
+# 4. Combines values if there are multiple entries for the same vessel using a custom function that sorts and concatenates them.
+# 5. Removes the grouping to return the data to its original structure.
+# 6. Returns the modified data frame.
+get_compl_by <- function(my_df, group_by_for_compl) {
+  my_df %>%
+    dplyr::group_by_at(group_by_for_compl) %>%
+    # can unique, because we are looking at vessels, not weeks
+    unique() %>%
+    # more columns, a column per vessel
+    tidyr::pivot_wider(
+      names_from = vessel_official_number,
+      values_from = compliant_,
+      # make it "NO_YES" if both
+      values_fn = ~ paste0(sort(.x), collapse = "_")
+    ) %>%
+    dplyr::ungroup() %>%
+    return()
+}
+
+# Example:
+# all columns except...
+group_by_for_compl <-
+  vars(-c("vessel_official_number", "compliant_"))
+
+# Usage example:
+# cols_names <-
+#   c("year",
+#     "permit_sa_gom_dual",
+#     "total_vsl_y_by_year_perm",
+#     "year_permit_sa_gom_dual"
+#     )
+#
+# compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_both <-
+#   compl__back_to_longer_format(
+#     compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide__both,
+#     cols_names
+#   )
+
+# Explanations:
+# The function 'compl__back_to_longer_format' performs the following operations:
+# 1. Turns the data frame back to a longer format with vessel IDs in one column.
+# 2. Specifies the columns to pivot. All columns except those specified in 'cols_names' are treated as vessel IDs.
+# 3. Sets the values to the column 'is_compl_or_both'.
+# 4. Sets the names to the column 'vessel_official_number'.
+# 5. Returns the modified data frame.
+compl__back_to_longer_format <-
+  function(my_df,
+           cols_names) {
+    my_df %>%
+      # turn back to a longer format, vessel ids in one column
+      tidyr::pivot_longer(
+        # all other columns are vessel ids, use them as names
+        cols = !any_of(cols_names),
+        values_to = "is_compl_or_both",
+        names_to = "vessel_official_number"
+      ) %>%
+      return()
+  }
+
+# ===
+# Explanations:
+# The function 'add_cnt_in_gr' performs the following operations:
+# 1. Groups the data frame by the specified columns using `group_by_at(group_by_col)`. `group_by_col` is defined above.
+# 2. Adds a new column named 'cnt_col_name' representing the count of distinct vessel official numbers in each group using `mutate({cnt_col_name} := n_distinct(vessel_official_number))`.
+# The syntax `{cnt_col_name} :=` is used to create a new column dynamically with the name provided in the `cnt_col_name` argument.
+# 3. Removes the grouping to return the data to its original structure with `ungroup()`.
+# 4. Returns the modified data frame.
+add_cnt_in_gr <-
+  function(my_df,
+           group_by_col,
+           cnt_col_name = "total_vsl_m_by_year_perm") {
+    my_df %>%
+      # group by per month and permit
+      group_by_at(group_by_col) %>%
+      # cnt distinct vessels in each group
+      mutate({
+        {
+          cnt_col_name
+        }
+      } :=
+        n_distinct(vessel_official_number)) %>%
+      ungroup() %>%
+      return()
   }

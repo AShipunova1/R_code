@@ -1,3 +1,15 @@
+# files to read or create:
+# mv_safis_trip_download.rds
+# mv_tms_trip_notifications.rds
+# permit_info.rds
+# trips.rds
+# trip_coord.rds
+# trip_neg.rds
+# trips_notifications.rds
+# vessels_permits.rds
+# dates.rds
+# compl_err_db_data_raw.rds
+
 # help functions (in get_data) ----
 # Load the 'tidyverse' library, which includes a collection of packages for data manipulation and visualization.
 library(tidyverse)
@@ -180,40 +192,7 @@ connect_to_secpr <- function() {
 }
 
 # ===
-# The read_rds_or_run function is designed to read data from an RDS file if it exists or run a specified function to generate the data if the file doesn't exist.
-      # read a binary file saved previously
-      # write all as binary
-read_rds_or_run <- function(my_file_path,
-                            my_data = as.data.frame(""),
-                            my_function,
-                            force_from_db = NULL) {
 
-    # Check if the file specified by 'my_file_path' exists and 'force_from_db' is not set.
-    if (file.exists(my_file_path) &
-        is.null(force_from_db)) {
-        # If the file exists and 'force_from_db' is not set, read the data from the RDS file.
-        my_result <- readr::read_rds(my_file_path)
-    } else {
-        # If the file doesn't exist or 'force_from_db' is set, perform the following steps:
-        # 1. Generate a message indicating the date and the purpose of the run.
-        msg_text <- paste(today(), "run for", basename(my_file_path))
-        tic(msg_text)  # Start timing the operation.
-
-        # 2. Run the specified function 'my_function' on the provided 'my_data' to generate the result.
-        my_result <- my_function(my_data)
-
-        toc()  # Stop timing the operation.
-
-        # 3. Save the result as an RDS binary file to 'my_file_path' for future use.
-        readr::write_rds(my_result,
-                         my_file_path)
-    }
-
-    # Return the generated or read data.
-    return(my_result)
-}
-
-# to use on download from db
 # to use on download from db
 # Define a function named 'vessels_permits_id_clean' to clean a dataframe.
 vessels_permits_id_clean <- function(my_df) {
@@ -282,7 +261,7 @@ mv_safis_trip_download_fun <-
 }
 
 get_mv_safis_trip_download <-
-  function() {
+  function(force_from_db) {
     # Use 'read_rds_or_run' to either read permit information from an RDS file or execute a query to obtain it.
     read_rds_or_run(file_name_mv_safis_trip_download,
                     mv_safis_trip_download_query,
@@ -315,7 +294,7 @@ mv_tms_trip_notifications_fun <- function(mv_tms_trip_notifications_query) {
 }
 
 get_mv_tms_trip_notifications <-
-  function() {
+  function(force_from_db) {
     # Use 'read_rds_or_run' to either read permit information from an RDS file or execute a query to obtain it.
     read_rds_or_run(file_name_mv_tms_trip_notifications,
                     mv_tms_trip_notifications_query,
@@ -347,7 +326,7 @@ permit_info_fun <- function(mv_sero_fh_permits_his_query) {
 }
 
 get_permit_info <-
-  function() {
+  function(force_from_db) {
     # Use 'read_rds_or_run' to either read permit information from an RDS file or execute a query to obtain it.
     read_rds_or_run(file_name_permits,
                     mv_sero_fh_permits_his_query,
@@ -394,7 +373,7 @@ trips_query <-
 FROM
   safis.trips@secapxdv_dblk.sfsc.noaa.gov
 WHERE
-  ( trip_start_date BETWEEN TO_DATE('01-JAN-22', 'dd-mon-yy') AND CURRENT_DATE
+  ( trip_start_date BETWEEN TO_DATE('01-JAN-21', 'dd-mon-yy') AND CURRENT_DATE
   )
 ORDER BY
   trip_end_date DESC
@@ -406,7 +385,7 @@ trips_fun <- function(trips_query) {
 }
 
 get_trips_info <-
-  function() {
+  function(force_from_db) {
       read_rds_or_run(trips_file_name,
                       trips_query,
                       trips_fun,
@@ -468,7 +447,7 @@ FROM
   JOIN safis.trips@secapxdv_dblk.sfsc.noaa.gov t
   USING ( trip_id )
 WHERE
-  ( trip_start_date BETWEEN TO_DATE('01-JAN-22', 'dd-mon-yy') AND CURRENT_DATE
+  ( trip_start_date BETWEEN TO_DATE('01-JAN-21', 'dd-mon-yy') AND CURRENT_DATE
   )
 "
 
@@ -481,7 +460,7 @@ trip_coord_fun <- function(trip_coord_query) {
 }
 
 get_trip_coord_info <-
-  function() {
+  function(force_from_db) {
       read_rds_or_run(trip_coord_file_name,
                       trip_coord_query,
                       trip_coord_fun,
@@ -493,68 +472,66 @@ get_trip_coord_info <-
 # DNF reports
 # get trip neg ----
 
-trip_neg_2022_file_path <-
-  file.path(input_path, "trip_neg_2022.rds")
+trip_neg_file_path <-
+  file.path(input_path, "trip_neg.rds")
 
-trip_neg_2022_query <-
+trip_neg_query <-
   "SELECT *
   FROM
     safis.trips_neg@secapxdv_dblk.sfsc.noaa.gov
 WHERE
-  ( trip_date BETWEEN TO_DATE('01-JAN-22', 'dd-mon-yy') AND TO_DATE('01-JAN-23'
-  , 'dd-mon-yy') )"
+  trip_date BETWEEN TO_DATE('01-JAN-21', 'dd-mon-yy') AND CURRENT_DATE
+"
 
 # 1495929
 
-trip_neg_2022_fun <-
-  function(trip_neg_2022_query) {
-    return(dbGetQuery(con, trip_neg_2022_query))
+trip_neg_fun <-
+  function(trip_neg_query) {
+    return(dbGetQuery(con, trip_neg_query))
   }
 
-# trip_neg_query_2022: 201.21 sec elapsed
-# trip_neg_query_2022: 60.06 sec elapsed
-# trip_neg_query_2022: 89.38 sec elapsed
+# trip_neg_query: 201.21 sec elapsed
+# trip_neg_query: 60.06 sec elapsed
+# trip_neg_query: 89.38 sec elapsed
 
-get_trip_neg_2022 <-
-  function() {
-    read_rds_or_run(trip_neg_2022_file_path,
-                    trip_neg_2022_query,
-                    trip_neg_2022_fun,
+get_trip_neg <-
+  function(force_from_db) {
+    read_rds_or_run(trip_neg_file_path,
+                    trip_neg_query,
+                    trip_neg_fun,
                     force_from_db)
   }
 # run the function: 98.23 sec elapsed
 
 # Declarations
 # trips_notifications ----
-trips_notifications_2022_query <-
+trips_notifications_query <-
   "SELECT
  *
 FROM
   safis.trip_notifications@secapxdv_dblk.sfsc.noaa.gov
 WHERE
-  ( trip_start_date BETWEEN TO_DATE('01-JAN-22', 'dd-mon-yy') AND TO_DATE('01-JAN-23'
-  , 'dd-mon-yy') )
-  OR ( trip_end_date BETWEEN TO_DATE('01-JAN-22', 'dd-mon-yy') AND TO_DATE('01-JAN-23'
-  , 'dd-mon-yy') )
+  ( trip_start_date BETWEEN TO_DATE('01-JAN-21', 'dd-mon-yy') AND CURRENT_DATE )
+  OR ( trip_end_date BETWEEN TO_DATE('01-JAN-21', 'dd-mon-yy') AND CURRENT_DATE )
 "
 
-trips_notifications_2022_file_path <-
-  file.path(input_path, "trips_notifications_2022.rds")
+trips_notifications_file_path <-
+  file.path(input_path, "trips_notifications.rds")
 
-trips_notifications_2022_fun <-
-  function(trips_notifications_2022_query) {
-    return(dbGetQuery(con, trips_notifications_2022_query))
+trips_notifications_fun <-
+  function(trips_notifications_query) {
+    return(dbGetQuery(con, trips_notifications_query))
   }
 # trips_notifications_query: 52.08 sec elapsed
 # 97279
 # trips_notifications_query: 7.65 sec elapsed
 
-get_trips_notifications_2022 <-
-  function() {
+get_trips_notifications <-
+  function(force_from_db) {
     read_rds_or_run(
-      trips_notifications_2022_file_path,
-      trips_notifications_2022_query,
-      trips_notifications_2022_fun,
+      trips_notifications_file_path,
+      trips_notifications_query,
+      trips_notifications_fun,
       force_from_db
     )
   }
@@ -607,7 +584,7 @@ vessels_permits_fun <-
   }
 
 get_vessels_permits <-
-  function() {
+  function(force_from_db) {
     read_rds_or_run(vessels_permits_file_path,
                     vessels_permits_query,
                     vessels_permits_fun,
@@ -695,13 +672,13 @@ get_vessels_permits <-
 #
 #
 # dim(permit_info)
-# dim(trip_neg_2022)
-# dim(trips_notifications_2022)
-# dim(trips_info_2022)
+# dim(trip_neg)
+# dim(trips_notifications)
+# dim(trips_info)
 # dim(vessels_all)
 
-# dates_2022 ----
-dates_2022_query <-
+# dates ----
+dates_query <-
   "SELECT
   dd.year,
   dd.month_of_year,
@@ -713,18 +690,18 @@ WHERE
   dd.complete_date BETWEEN '01-DEC-2021' AND '31-JAN-2023'
 "
 
-dates_2022_file_path <- file.path(input_path, "dates_2022.rds")
+dates_file_path <- file.path(input_path, "dates.rds")
 
-dates_2022_fun <-
-  function(dates_2022_query) {
+dates_fun <-
+  function(dates_query) {
     return(dbGetQuery(con,
-                      dates_2022_query))
+                      dates_query))
   }
 
-get_dates_2022 <- function() {
-  read_rds_or_run(dates_2022_file_path,
-                  dates_2022_query,
-                  dates_2022_fun,
+get_dates <- function(force_from_db) {
+  read_rds_or_run(dates_file_path,
+                  dates_query,
+                  dates_fun,
                   force_from_db)
 }
 
@@ -766,15 +743,16 @@ get_compl_err_data_from_db <- function(compl_err_query) {
 file_name_overr <-
   file.path(input_path, "compl_err_db_data_raw.rds")
 
-get_compl_err_db_data <- function() {
-  compl_err_db_data_raw <-
-    read_rds_or_run(file_name_overr,
-                    compl_err_query,
-                    get_compl_err_data_from_db,
-                    force_from_db)
-  # 2023-09-20 run the function: 14.99 sec elapsed
+get_compl_err_db_data <-
+  function(force_from_db) {
+    compl_err_db_data_raw <-
+      read_rds_or_run(file_name_overr,
+                      compl_err_query,
+                      get_compl_err_data_from_db,
+                      force_from_db)
+# 2023-09-20 run the function: 14.99 sec elapsed
 
-  # Clean the column names of the 'compl_err_db_data_raw' data frame using the 'clean_headers' function defined above.
+# Clean the column names of the 'compl_err_db_data_raw' data frame using the 'clean_headers' function defined above.
   compl_err_db_data <- clean_headers(compl_err_db_data_raw)
 
   return(compl_err_db_data)
@@ -817,14 +795,14 @@ source(get_metrics_tracking_path)
 
 # --- main ----
 # Define a function 'run_all_get_db_data' to fetch data from the database and store it in a result list.
-
+# force_from_db = NULL: read data from files if exist, change to TRUE to download again
 run_all_get_db_data <-
-  function() {
+  function(force_from_db = NULL) {
     # Initialize an empty list to store the results.
     result_l = list()
 
     # 1) Call the 'get_permit_info' function to retrieve permit information from the database.
-    mv_sero_fh_permits_his <- get_permit_info()
+    mv_sero_fh_permits_his <- get_permit_info(force_from_db)
 
     # 2) Store the retrieved data in the result list under the name "mv_sero_fh_permits_his."
     result_l[["mv_sero_fh_permits_his"]] <- mv_sero_fh_permits_his
@@ -833,55 +811,55 @@ run_all_get_db_data <-
 
     # Repeat the steps 1 and 2 for all other types of data using the predefined functions.
 
-    mv_safis_trip_download_data <- get_mv_safis_trip_download()
+    mv_safis_trip_download_data <- get_mv_safis_trip_download(force_from_db)
     result_l[["mv_safis_trip_download"]] <-
       mv_safis_trip_download_data
     # dim(mv_safis_trip_download_data)
     # [1] 735666    149
 
     mv_tms_trip_notifications_data <-
-      get_mv_tms_trip_notifications()
+      get_mv_tms_trip_notifications(force_from_db)
     result_l[["mv_tms_trip_notifications"]] <-
       mv_tms_trip_notifications_data
     # dim(mv_tms_trip_notifications_data)
     # [1] 118730     41
 
-    trips_info <- get_trips_info()
+    trips_info <- get_trips_info(force_from_db)
     result_l[["trips_info"]] <- trips_info
     # dim(trips_info)
     # [1] 98528    72 2022
     # [1] 142037   72 2021+
 
-    trip_coord_info <- get_trip_coord_info()
+    trip_coord_info <- get_trip_coord_info(force_from_db)
     result_l[["trip_coord_info"]] <- trip_coord_info
     # dim(trip_coord_info)
     # [1] 141350     41
 
-    trip_neg_2022 <- get_trip_neg_2022()
-    result_l[["trip_neg_2022"]] <- trip_neg_2022
-    # dim(trip_neg_2022)
+    trip_neg <- get_trip_neg(force_from_db)
+    result_l[["trip_neg"]] <- trip_neg
+    # dim(trip_neg)
     # Rows: 1,495,929
     # [1] 746087     12
     # [1] 747173     12
 
-    trips_notifications_2022 <- get_trips_notifications_2022()
-    result_l[["trips_notifications_2022"]] <-
-      trips_notifications_2022
-    # dim(trips_notifications_2022)
+    trips_notifications <- get_trips_notifications(force_from_db)
+    result_l[["trips_notifications"]] <-
+      trips_notifications
+    # dim(trips_notifications)
     # Rows: 129,701
     # [1] 70056    33
 
-    vessels_permits <- get_vessels_permits()
+    vessels_permits <- get_vessels_permits(force_from_db)
     result_l[["vessels_permits"]] <- vessels_permits
     # dim(vessels_permits)
     # [1] 78438    51
 
-    dates_2022 <- get_dates_2022()
-    result_l[["dates_2022"]] <- dates_2022
-    # dim(dates_2022)
+    dates <- get_dates(force_from_db)
+    result_l[["dates"]] <- dates
+    # dim(dates)
     # 427 4
 
-    compl_err_db_data <- get_compl_err_db_data()
+    compl_err_db_data <- get_compl_err_db_data(force_from_db)
     result_l[["compl_err_db_data"]] <- compl_err_db_data
     # dim(compl_err_db_data)
     # [1] 99832    38
@@ -919,8 +897,9 @@ force_from_db <- NULL # read data from files if exist
 #     c(df_name, dim(all_get_db_data_result_l[[df_name]]))
 #   })
 
+# To test pulling from the db
 # force_from_db <- "NULL"
-# dates_2022 <- get_dates_2022()
+# dates <- get_dates()
 
 
 # close the db connection ----

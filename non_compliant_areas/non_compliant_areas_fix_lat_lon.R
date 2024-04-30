@@ -1,256 +1,112 @@
+# compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col
+
 # run once to get lat lon and check names with no coords
+# 1) add lat/lon
+# 2) check names without coordinates
+# 3) fix names
+
+# print_df_names(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col)
+# [1] "vessel_official_number, permit_sa_gom_dual, compliant_, year, hailing_port, year_permit_sa_gom_dual"
+
+# separate hailing_port into city and state ----
+
+# Explanations:
+# The variable 'compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr' is created by:
+# 1. Separating the 'hailing_port' column into two columns ('city' and 'state') using a comma as the delimiter with 'tidyr::separate_wider_delim'.
+# 2. Dropping any additional columns created during the separation.
+# 3. Trimming leading and trailing whitespaces from all character columns using 'mutate(across(where(is.character), str_trim))'.
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr <-
+  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col |>
+  tidyr::separate_wider_delim(hailing_port,
+                              delim = ",",
+                              names = c("city", "state"),
+                              too_many = "drop") |> 
+    mutate(across(where(is.character), str_trim))
+
+# compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col |>
+#   filter(grepl(",.+,", hailing_port))
+# 1 AL6468LL               ALEXANDER CITY, AL, AL gom_only          
+# Can do too_many = "drop", because it is the only case of double commas
+
+# compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr |> View()
+#   filter(vessel_official_number == "AL6468LL")
+# 1 AL6468LL               ALEXANDER CITY AL    gom_only  
 
 # add lat/lon ----
-
-my_file_path_lat_lon <- 
-  file.path(my_paths$outputs, 
-            current_project_basename,
-            paste0(current_project_basename, "_no_county_all.rds"))
-
-file.exists(my_file_path_lat_lon)
-
-# ---
-# Explanations:
-# The code creates a new data frame 'vessels_permits_home_port_short_trim_no_county'
-# using the pipe operator and dplyr functions:
-# - mutate(): Trims leading and trailing whitespaces from 'SERO_HOME_PORT_CITY'
-#   and 'SERO_HOME_PORT_STATE' columns.
-# - select(): Removes the 'SERO_HOME_PORT_COUNTY' column from the resulting data frame.
-# The final result is a modified data frame with trimmed city and state columns
-# and without the 'SERO_HOME_PORT_COUNTY' column.
-vessels_permits_home_port_short_trim_no_county <-
-  vessels_permits_home_port_short |>
-  mutate(
-    SERO_HOME_PORT_CITY = trimws(SERO_HOME_PORT_CITY),
-    SERO_HOME_PORT_STATE = trimws(SERO_HOME_PORT_STATE)
-  ) |>
-  select(-SERO_HOME_PORT_COUNTY)
-
-# ---
-# Explanations:
-# The code defines a custom R function 'get_lat_lon_no_county':
-# - Takes a data frame 'my_df' as input.
-# - Utilizes the tidygeocoder::geocode() function to geocode the city and state
-#   information, obtaining latitude and longitude coordinates.
-# - Includes 'return_input = TRUE' to return the input data frame along with geocoded results.
-# - Returns the resulting data frame 'vessels_permits_home_port_lat_longs'.
-# This function can be used to add geolocation information to the original data frame.
+# Uses 'tidygeocoder::geocode' to obtain latitude and longitude for the given city and state columns.
 
 get_lat_lon_no_county <-
-  function(my_df) {
-    vessels_permits_home_port_lat_longs <-
+  function(my_df,
+           city_col_name = "city",
+           state_col_name = "state") {
+    result_coord <-
       my_df |>
-      tidygeocoder::geocode(city = "SERO_HOME_PORT_CITY",
-                            state = "SERO_HOME_PORT_STATE",
+      tidygeocoder::geocode(city = "city",
+                            state = "state",
                             return_input = TRUE)
-    return(vessels_permits_home_port_lat_longs)
+    return(result_coord)
   }
 
-vessels_permits_home_port_lat_longs_city_state <-
+my_file_path_lat_lon_1 <- 
+  file.path(my_paths$outputs, 
+            current_project_basename,
+            paste0(current_project_basename,
+                   "2024-02-09",
+                   "_lat_lon_2023.rds"))
+
+tic("compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord")
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_1 <-
   read_rds_or_run(
-    my_file_path_lat_lon,
+    my_file_path_lat_lon_1,
     my_data =
-      as.data.frame(vessels_permits_home_port_short_trim_no_county),
+      as.data.frame(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr),
     get_lat_lon_no_county
   )
+toc()
+# Passing 552 addresses to the Nominatim single address geocoder
+# ~10 min
 
-# vessels_permits_home_port_lat_longs_city_state |> 
-#   filter(SERO_OFFICIAL_NUMBER %in% compl_vessl_not_in_ves_perm$vessel_official_number) |>
-#   glimpse()
+# File: non_compliant_areas2024-02-09_lat_lon_2023.rds modified Fri Feb  9 15:43:14 2024
+# compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord: 633.06 sec elapsed
 
-# View(vessels_permits_home_port_lat_longs_city_state)
-# setdiff(tolower(compl_vessl_not_in_ves_perm$vessel_official_number),
-#         tolower(vessels_permits_home_port_short$SERO_OFFICIAL_NUMBER)) |> 
-#   length()
-# 1
+# 2) check names without coordinates
 
-# setdiff(tolower(compl_vessl_not_in_ves_perm$vessel_official_number),
-#         tolower(vessels_permits_home_port_short_trim_no_county$SERO_OFFICIAL_NUMBER)) |> 
-#   length()
-# 1
+n_distinct(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr$vessel_official_number)
+# 4017
 
-# setdiff(tolower(compl_vessl_not_in_ves_perm$vessel_official_number),
-#         tolower(vessels_permits_home_port_lat_longs_city_state$SERO_OFFICIAL_NUMBER)) |> 
-#   length()
-# 228
-
-# intersect(tolower(compl_vessl_not_in_ves_perm$vessel_official_number),
-#         tolower(vessels_permits_home_port_lat_longs_city_state$SERO_OFFICIAL_NUMBER)) |> 
-#   length()
-# 0?
-#   
-# Passing 850 addresses to the Nominatim single address geocoder
-# [==================================] 850/850 (100%) Elapsed: 15m Remaining:  0s
-# 2024-01-02 run for non_compliant_areas_no_county_all.rds: 881.34 sec elapsed
-# Saving new data into a file here: 
-# C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/non_compliant_areas/non_compliant_areas_no_county_all.rds
-# Warning message:
-# In query_api(api_url, api_query_parameters, method = method) :
-#   Internal Server Error (HTTP 500).
-
-# Add back lost vessels ----
-# check
-vessels_permits_home_port_lat_longs_city_state_df <- 
-  as.data.frame(vessels_permits_home_port_lat_longs_city_state)
-
-setdiff(tolower(unique(
-  vessels_permits_home_port_lat_longs_city_state_df$SERO_OFFICIAL_NUMBER)),
-  tolower(unique(
-vessels_permits_home_port_short_trim_no_county$SERO_OFFICIAL_NUMBER))) |> 
-  length()
-# 9
-
-# View(vessels_permits_home_port_lat_longs_city_state_df)
-setdiff(tolower(unique(vessels_permits_home_port_short_trim_no_county$SERO_OFFICIAL_NUMBER)),
-        tolower(unique(vessels_permits_home_port_lat_longs_city_state_df$SERO_OFFICIAL_NUMBER))) |> 
-  length()
-# 92
-
-str(vessels_permits_home_port_short_trim_no_county)
-str(vessels_permits_home_port_lat_longs_city_state_df)
-
-all_vessels_permits_home_port <-
-  full_join(
-    vessels_permits_home_port_lat_longs_city_state_df,
-    vessels_permits_home_port_short_trim_no_county
-  )
-# Joining with `by = join_by(SERO_OFFICIAL_NUMBER, SERO_HOME_PORT_CITY,
-# SERO_HOME_PORT_STATE)`
-
-# all_vessels_permits_home_port |>
-#   filter(SERO_OFFICIAL_NUMBER %in% no_state_vessels$SERO_OFFICIAL_NUMBER) |>
-#   View()
-
-dim(all_vessels_permits_home_port)
-# [1] 6894    5
-# data_overview(all_vessels_permits_home_port)
-# SERO_OFFICIAL_NUMBER 6854
-# SERO_HOME_PORT_CITY   840
-# SERO_HOME_PORT_STATE   32
-# lat                   695
-# long                  695
-
-# TODO: Use all_vessels_permits_home_port later to add states back if missing
-
-# check home port typos by lat/lon ----
+n_distinct(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_1$vessel_official_number)
+# 4017 the same
 
 # Explanations:
-# The code defines a custom R function 'check_home_port_typos_by_lat_lon':
-# - Takes a list of data frames 'df_list_by_reg' as input.
-# - Iterates over the names of the list using map() and a lambda function.
-# - For each region's data frame:
-#   - Filters rows with missing latitude or longitude.
-#   - Selects relevant columns for further analysis.
-#   - Removes duplicate rows based on selected columns.
-#   - Trims leading and trailing whitespaces from city and state columns using mutate().
-# - Names the resulting list with region names.
-# - Returns the list 'compl_err_db_data_metrics_permit_reg_list_home_port_err'.
-# This function is designed to check and clean data related to home ports with missing
-# latitude or longitude coordinates within each region's data frame.
+# Filtering rows from 'compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_1' where the latitude ('lat') is missing using 'filter(is.na(lat))'.
 
-check_home_port_typos_by_lat_lon <-
-  function(df_list_by_reg) {
-    
-    compl_err_db_data_metrics_permit_reg_list_home_port_err <-
-      names(df_list_by_reg) |>
-      map(\(curr_permit_reg_name) {
-        browser()
-        df_list_by_reg[[curr_permit_reg_name]] |>
-          filter(is.na(long) |
-                   is.na(lat)) |>
-          select(vessel_official_nbr,
-                 SERO_HOME_PORT_CITY,
-                 # SERO_HOME_PORT_COUNTY,
-                 SERO_HOME_PORT_STATE) |>
-          distinct() |>
-          mutate(
-            SERO_HOME_PORT_CITY = trimws(SERO_HOME_PORT_CITY),
-            # SERO_HOME_PORT_COUNTY = trimws(SERO_HOME_PORT_COUNTY),
-            SERO_HOME_PORT_STATE = trimws(SERO_HOME_PORT_STATE)
-          )
-      })
-    
-    names(compl_err_db_data_metrics_permit_reg_list_home_port_err) <-
-      names(df_list_by_reg)
-    
-    return(compl_err_db_data_metrics_permit_reg_list_home_port_err)
-  }
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coord <-
+  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_1 |>
+  filter(is.na(lat))
 
-# vessels_permits_home_port_lat_longs_city_state |>
-#   filter(is.na(long) |
-#            is.na(lat)) |>
-#   select(SERO_OFFICIAL_NUMBER,
-#          SERO_HOME_PORT_CITY,
-#          SERO_HOME_PORT_STATE) |>
-#   distinct() |>
-#   mutate(
-#     SERO_HOME_PORT_CITY = trimws(SERO_HOME_PORT_CITY),
-#     SERO_HOME_PORT_STATE = trimws(SERO_HOME_PORT_STATE)
-#   )
-# Rows: 80
+## unique vessels_addr ----
 
-# View(compl_err_db_data_metrics_permit_reg_list_home_port_err)
-
-# compl_err_db_data_metrics_permit_reg_list_home_port_err_county <- 
-    # check_home_port_typos_by_lat_lon(compl_err_db_data_metrics_permit_reg_list)
-
-  # check_home_port_typos_by_lat_lon(compl_err_db_data_metrics_permit_reg_list_home_port)
-
-# Work with compl_err_db_data_metrics_permit_reg_list_home_port_err_county in excel ----
-
-# Explanations:
-# The code creates a new data frame 'vessels_permits_home_port_lat_longs_city_state_err'
-# using the pipe operator and dplyr functions:
-# - filter(): Selects rows with missing latitude or longitude coordinates.
-# - select(): Chooses relevant columns for further analysis.
-# - distinct(): Removes duplicate rows based on the selected columns.
-# The final result is a data frame containing rows with home ports that have
-# missing latitude or longitude coordinates.
-
-vessels_permits_home_port_lat_longs_city_state_err <-
-  vessels_permits_home_port_lat_longs_city_state |>
-  filter(is.na(long) |
-           is.na(lat)) |>
-  select(SERO_OFFICIAL_NUMBER,
-         SERO_HOME_PORT_CITY,
-         SERO_HOME_PORT_STATE) |>
+## fewer columns ----
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coord__u_vessels_addr <-
+  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coord |>
+  select(vessel_official_number, city, state, lat, long) |>
   distinct()
 
-dim(vessels_permits_home_port_lat_longs_city_state_err)
-# [1] 80  3
-# 126 3
-# 128 3
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coord__u_vessels_addr |> 
+  nrow()
+# 288
 
-vessels_permits_home_port_lat_longs_city_state_err_all <-
-  vessels_permits_home_port_lat_longs_city_state |>
-  select(SERO_HOME_PORT_CITY,
-         SERO_HOME_PORT_STATE,
-         lat,
-         long) |>
-  distinct()
+# check no city
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coord__has_city <-
+  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coord__u_vessels_addr |>
+  filter(!is.na(city))
 
-vessels_permits_home_port_lat_longs_city_state_err_all |> 
-  dim()
-# [1] 648   4
-# [1] 851   4
-
-csv_file_path <-
-  file.path(
-    my_paths$outputs,
-    current_project_basename,
-    stringr::str_glue(
-      "{current_project_basename}_vessels_permits_home_port_lat_longs_city_state_err_all1.csv"
-    )
-  )
-
-file.exists(csv_file_path)   
-
-# uncomment and run once
-# vessels_permits_home_port_lat_longs_city_state_err_all |>
-  # write_csv(file = csv_file_path)
+nrow(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_coord_no_coord__has_city)
+# 71
 
 # fix home port typos ----
-# the list is created manuall from the csv
+
+# this list is created manually
 to_fix_list <- 
   list(
     c(
@@ -306,6 +162,8 @@ to_fix_list <-
       "OCEAN CITY#MD"),
     c("POINT PLEASANT NJ#NJ",
       "POINT PLEASANT#NJ"),
+    c("PORT AERANSAS#TX",
+      "PORT ARANSAS#TX"),
     c("PORT CANVERAL#FL",
       "PORT CANAVERAL#FL"),
     c("PORT O CANNOR#TX",
@@ -342,29 +200,15 @@ to_fix_list <-
 
 # ---
 # Explanations:
-# The code creates a new data frame 'vessels_permits_home_port_c_st' by using the pipe
-# operator and the dplyr mutate() function:
-# - mutate(): Adds a new column 'city_state' to the data frame.
-# - paste(): Concatenates the trimmed values of 'SERO_HOME_PORT_CITY' and
-#   'SERO_HOME_PORT_STATE' columns with '#' as a separator.
-# The result is a modified data frame with an additional 'city_state' column
-# containing concatenated city and state information.
-
-vessels_permits_home_port_c_st <-
-  vessels_permits_home_port_short |>
+# Creating a new column 'city_state' by concatenating trimmed 'city' and 'state' columns, separated by '#'.
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_1 <-
+  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr |>
   mutate(city_state =
            paste(
-             trimws(SERO_HOME_PORT_CITY),
-             trimws(SERO_HOME_PORT_STATE),
+             trimws(city),
+             trimws(state),
              sep = "#"
            ))
-
-all_vessels_permits_home_port_clean0 <- 
-  all_vessels_permits_home_port |> 
-    mutate(city_state = 
-           paste(trimws(SERO_HOME_PORT_CITY), 
-                 trimws(SERO_HOME_PORT_STATE), 
-                 sep = "#")) 
 
 # ---
 
@@ -382,17 +226,12 @@ all_vessels_permits_home_port_clean0 <-
 wrong_port_addr <-
   sapply(to_fix_list, "[", 1)
 
-# ---
 # Explanations:
-# The code defines a custom R function 'get_correct_addr_by_wrong':
-# - Takes a 'wrong_addr' as input.
-# - Uses grep() to find the index in 'to_fix_list' that contains the wrong address.
-# - Uses tryCatch() to handle potential errors and print informative messages.
-# - Extracts the corresponding pair of names from 'to_fix_list'.
-# - Returns the correct address from the pair.
-# This function is designed to find the correct address given a wrong address
-# by searching for it in 'to_fix_list'.
-
+# The function 'get_correct_addr_by_wrong' takes a 'wrong_addr' as input and performs the following steps:
+# 1. Finds the index of 'wrong_addr' in the 'to_fix_list'.
+# 2. Uses 'tryCatch' to handle errors, printing information about the error and the index if one occurs.
+# 3. Extracts the correct address from the pair.
+# 4. Returns the correct address.
 get_correct_addr_by_wrong <-
   function(wrong_addr) {
     idx <- grep(wrong_addr, to_fix_list)
@@ -410,23 +249,12 @@ get_correct_addr_by_wrong <-
     return(good_addr)
   }
 
-# ---
 # Explanations:
-# The code creates a new data frame 'vessels_permits_home_port_c_st_fixed' using
-# the pipe operator and dplyr functions:
-# - rowwise(): Specifies that operations should be applied row by row.
-# - mutate(): Adds a new column 'city_state_fixed':
-#   - If 'city_state' is in 'wrong_port_addr', it is replaced with the correct
-#     address using get_correct_addr_by_wrong(); otherwise, the original value is kept.
-# - ungroup(): Removes the rowwise grouping.
-# - tidyr::separate_wider_delim(): Splits 'city_state_fixed' into 'city_fixed' and
-#   'state_fixed' columns using '#' as a separator.
-# The resulting data frame has fixed and separated city and state columns.
-
-# Have to use "if", because case_when will execute all the LHS and RHS, then keep based on conditions. So get_correct_addr_by_wrong is executed, one time by each row during the RHS evaluation and produces idx = 0 error. 
-
-vessels_permits_home_port_c_st_fixed <-
-  vessels_permits_home_port_c_st |>
+# The variable 'compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed' is created by:
+# 1. Creating a new column 'city_state_fixed' by replacing wrong addresses using 'get_correct_addr_by_wrong' for rows where 'city_state' is in 'wrong_port_addr'.
+# 2. Separating the 'city_state_fixed' column into two columns ('city_fixed' and 'state_fixed') using '#' as the delimiter.
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed <-
+  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr_1 |>
   rowwise() |>
   mutate(city_state_fixed =
            if (city_state %in% wrong_port_addr)
@@ -439,47 +267,333 @@ vessels_permits_home_port_c_st_fixed <-
                               names = c("city_fixed",
                                         "state_fixed"))
 
-dim(vessels_permits_home_port_c_st_fixed)
-# [1] 4729    8
-# [1] 5029    8 with permit region
-# [1] 6762    7 not processed db vessel_permits
+n_distinct(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed$vessel_official_number)
+# 4017
 
-## The same for the second df ----
-all_vessels_permits_home_port_clean0_fixed <-
-  all_vessels_permits_home_port_clean0 |>
+dim(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed)
+# [1] 9362   10
+
+# duplicated addr
+
+# add new fixes manually ----
+manual_fixes <-
+  list(
+    list("TX9606KA", "HOUSTON", "TX"),
+    list("FL5029RM", "KEY WEST", "FL"),
+    list("646818", "HOUSTON", "TX"),
+    list("1185107", "KEY WEST", "FL"),
+    list("FL3119EE", "BOCA GRANDE", "FL"),
+    list("FL2615MT", "STUART", "FL"),
+    list("581260", "PONCE INLET", "FL"),
+    list("531549", "TOWNSEND", "GA"),
+    list("FL0146BH", "MIAMI", "FL"),
+    list("FL1431JU", "MARATHON", "FL"),
+    list("FL1553TM", "BILOXI", "MS"),
+    list("FL3976FH", "PONCE INLET", "FL"),
+    list("FL7549PJ", "KEY LARGO", "FL"),
+    list("FL5011MX", "NAPLES", "FL"),
+    list("139403", "MIAMI", "FL"),
+    list("FL8252JK", "MIAMI", "FL")
+  )
+
+# Explanations:
+# The variable 'compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_1' is created by:
+# 1. Applying mutations to the 'compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed' data frame for each set of manual fixes using 'map_df'.
+# - Creating new columns 'city_fixed1' and 'state_fixed1' using case_when for each manual fix.
+# 
+# 2. Returning the result of the mutations.
+# 3. Keeping only distinct rows in the final result.
+
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_1 <-
+  map_df(manual_fixes,
+         \(x) {
+           # browser()
+           res <-
+             compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed |>
+             mutate(
+               city_fixed1 =
+                 case_when(vessel_official_number == x[[1]] ~ x[[2]]),
+               state_fixed1 =
+                 case_when(vessel_official_number == x[[1]] ~ x[[3]])
+             )
+           return(res)
+         }) |>
+  distinct()
+
+dim(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_1)
+# [1] 9382   12
+
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_1 |>
+  filter(vessel_official_number == "FL1431JU") |>
+  glimpse()
+# $ city_fixed             <chr> "KEY WEST", "MARATHON", "KEY WEST", "MARATHON"
+# $ state_fixed            <chr> "FL", "FL", "FL", "FL"
+# $ city_fixed1            <chr> NA, NA, "MARATHON", "MARATHON"
+# $ state_fixed1           <chr> NA, NA, "FL", "FL"
+
+# check
+new_f_vsl <-
+  sapply(manual_fixes, "[", 1) |> 
+  unlist()
+
+both <-
+  intersect(
+    compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed$vessel_official_number,
+    new_f_vsl
+  )
+length(both)
+# 5
+# [1] "FL1431JU" "FL3976FH" "FL0146BH" "FL7549PJ" "FL1553TM"
+
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_1 |>
+  filter(vessel_official_number %in% both) |>
+  select(vessel_official_number,
+         permit_sa_gom_dual,
+         city_fixed1,
+         state_fixed1) |>
+  filter(!is.na(city_fixed1) & !is.na(city_fixed1)) |>
+  distinct() |>
+  glimpse()
+# 5 ok
+
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_1 |>
+  filter(vessel_official_number %in% both) |>
+  select(vessel_official_number,
+         permit_sa_gom_dual,
+         city_fixed,
+         state_fixed,
+         city_fixed1,
+         state_fixed1) |>
+  filter(!is.na(city_fixed1) & !is.na(city_fixed1)) |>
+  distinct() |>
+  glimpse()
+
+## replace duplicated values ----
+# Explanations:
+# The variable 'compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2' is created by:
+# 1. Updating 'city_fixed' and 'state_fixed' columns based on conditions using 'case_when':
+#     - If 'city_fixed1' is not NA, update 'city_fixed' with 'city_fixed1'; otherwise, keep the existing value in 'city_fixed'.
+#     - If 'state_fixed1' is not NA, update 'state_fixed' with 'state_fixed1'; otherwise, keep the existing value in 'state_fixed'.
+# 2. Filtering rows where 'vessel_official_number' is not in 'both' or 'state_fixed1' is not missing.
+# 3. Selecting all columns except "city_fixed1" and "state_fixed1".
+# 4. Keeping only distinct rows in the final result to avoid duplications.
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2 <-
+  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_1 |>
+  mutate(
+    city_fixed =
+      case_when(!is.na(city_fixed1) ~ city_fixed1,
+                .default = city_fixed),
+    state_fixed =
+      case_when(!is.na(state_fixed1) ~ state_fixed1,
+                .default = state_fixed)
+  ) |> 
+  filter((!vessel_official_number %in% both) |
+           !is.na(state_fixed1)) |> 
+  select(-c("city_fixed1", "state_fixed1")) |> 
+  distinct()
+
+dim(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2)
+# [1] 9362   10
+
+# check
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2 |>
+  filter(vessel_official_number %in% both) |>
+  select(vessel_official_number,
+         permit_sa_gom_dual,
+         city_fixed,
+         state_fixed) |> 
+# ,
+#          # city_fixed1,
+#          state_fixed1) |>
+  # filter(!is.na(city_fixed1) & !is.na(city_fixed1)) |>
+  distinct() |>
+  glimpse()
+# 5
+
+## no address ----
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_no_addr <-
+  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2 |>
+  filter(is.na(city))
+
+nrow(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_no_addr)
+# 467
+
+# write_csv(
+#   compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_no_addr,
+#   file.path(my_paths$outputs,
+#             current_project_basename,
+#             "no_addr.csv")
+# )
+
+# vessels_from_pims |>
+#   filter(official__ == "504660")
+# not in pims vessels
+
+# vessels with NA fixed state in vessels_from_pims_double ----
+
+names(vessels_from_pims_double)
+# [1] "vessel_official_number1" "vessel_official_number2" "hailing_port"           
+
+# glimpse(vessels_from_pims_double)
+# 652
+
+## make one column of double names ----
+### split into 2 dataframes and rename the id column ----
+vessels_from_pims_double_1 <-
+  vessels_from_pims_double |>
+  select(vessel_official_number1, hailing_port) |>
+  rename("vessel_official_number" = vessel_official_number1)
+
+vessels_from_pims_double_2 <-
+  vessels_from_pims_double |>
+  select(vessel_official_number2, hailing_port) |> 
+  rename("vessel_official_number" = vessel_official_number2)
+
+### combine in one df ----
+vessels_from_pims_double_bind <-
+  rbind(
+    vessels_from_pims_double_1,
+    vessels_from_pims_double_2
+  ) |> 
+  distinct() |> 
+  rename("hailing_port_2" = hailing_port)
+
+dim(vessels_from_pims_double_bind)
+# 1205 2
+
+# write_csv(
+#   na_vessel_states,
+#   file.path(current_output_dir,
+#             "na_vessel_states.csv")
+# )
+
+# vessels_from_pims_double_short__na_vessel_states <-
+#   vessels_from_pims_double_bind |>
+#   filter(vessel_official_number %in% compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_no_addr$vessel_official_number) |> 
+#   distinct()
+
+dim(vessels_from_pims_double_bind)
+# 1205    2
+
+# check
+# vessels_from_pims_double_short__na_vessel_states |>
+#   filter(vessel_official_number == "1173297")
+# 1 1173297                CAROLINA BEACH, NC
+
+# compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2 |> 
+#     filter(vessel_official_number == "1173297") |> distinct() |> 
+#   glimpse()
+# $ year_permit_sa_gom_dual <chr> "2022 sa_only", "2023 sa_only"
+# $ city_state              <chr> "NA#NA", "NA#NA"
+# $ city_fixed              <chr> "NA", "NA"
+# $ state_fixed             <chr> "NA", "NA"
+
+## clean addresses ----
+# Explanations:
+# Creating a new column 'city_state' by replacing commas in 'hailing_port_2' with '#' using 'str_replace'.
+vessels_from_pims_double_bind__city_state <-
+  vessels_from_pims_double_bind |>
+  mutate(city_state =
+           str_replace(hailing_port_2, " *, *", "#"))
+
+# Explanations:
+# The variable 'vessels_from_pims_double_bind__city_state__fixed' is created by:
+# 1. Creating a new column 'city_state_fixed' by replacing wrong addresses using 'get_correct_addr_by_wrong' for rows where 'city_state' is in 'wrong_port_addr'.
+# 2. Separating the 'city_state_fixed' column into two columns ('city_fixed' and 'state_fixed') using '#' as the delimiter.
+# 3. Keeping only distinct rows in the final result to avoid duplications.
+vessels_from_pims_double_bind__city_state__fixed <-
+  vessels_from_pims_double_bind__city_state |>
   rowwise() |>
   mutate(city_state_fixed =
            if (city_state %in% wrong_port_addr)
              get_correct_addr_by_wrong(city_state)
          else
            city_state) |>
-  ungroup() |> 
-  tidyr::separate_wider_delim(city_state_fixed, 
-                              delim = "#", 
-                              names = c("city_fixed", "state_fixed"))
+  ungroup() |>
+  tidyr::separate_wider_delim(city_state_fixed,
+                              delim = "#",
+                              names = c("city_fixed",
+                                        "state_fixed")) |>
+  distinct()
 
-vessels_permits_home_port_c_st_fixed |> 
-  filter(!SERO_HOME_PORT_CITY == city_fixed) |> 
-  dim()
-# [1] 49  7
-# [1] 109   8 trimmed
-# [1] 115   8 with permit region
-# [1] 281   7
+# glimpse(vessels_from_pims_double_bind__city_state__fixed)
+# 1205
 
-# Manually add Bokeelia is located in western Lee County at 26°41′17″N 82°8′43″W (26.687960, -82.145249).[5] It sits at the northern end of Pine Island and is bordered by water on three sides
+## unique fixed double names ----
+vessels_from_pims_double_bind__city_state__fixed_1 <-
+  vessels_from_pims_double_bind__city_state__fixed |>
+  select(-c(hailing_port_2, city_state)) |>
+  distinct()
 
-# View(all_vessels_permits_home_port_clean0_fixed)
-all_vessels_permits_home_port_clean0_fixed |> 
-  filter(!SERO_HOME_PORT_CITY == city_fixed) |> 
-  dim()
-# [1] 60  8
+nrow(vessels_from_pims_double_bind__city_state__fixed_1)
+# 1202
 
-dim(all_vessels_permits_home_port_clean0_fixed)
-# [1] 6894    8
+## add more home ports ----
+# Explanations:
+# 1. Joining two data frames ('compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2' and 'vessels_from_pims_double_bind__city_state__fixed_1') on 'vessel_official_number'.
+# 2. Adding suffixes '.orig' and '.double_names' to the overlapping column names from the original and double names data frames.
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_3 <-
+  left_join(
+    compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2,
+    vessels_from_pims_double_bind__city_state__fixed_1,
+    join_by(vessel_official_number),
+    suffix = c(".orig", ".double_names")
+  )
 
-cat("Result in vessels_permits_home_port_c_st_fixed",
-    "And in all_vessels_permits_home_port_clean0_fixed",
+# dim(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_3)
+# [1] 9362   12
+
+# check
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_3 |>
+  filter(vessel_official_number == "563752") |>
+  glimpse()
+
+### Combine state fixed names ----
+# Explanations:
+# 1. Trimming leading and trailing whitespaces from all character columns using 'mutate(across(where(is.character), str_trim))'.
+# 2. Creating a new column 'state_fixed1' based on conditions using 'case_when':
+#     - If 'state_fixed.orig' is NA or "NA" and 'state_fixed.double_names' is not NA, update 'state_fixed1' with 'state_fixed.double_names'.
+#     - Otherwise, keep the existing value in 'state_fixed.orig'.
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports1 <-
+  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_3 |>
+  mutate(across(where(is.character), str_trim)) |>
+  mutate(state_fixed1 =
+           case_when((is.na(state_fixed.orig) |
+                        state_fixed.orig == "NA") &
+                       !is.na(state_fixed.double_names) ~
+                       state_fixed.double_names,
+                     .default = state_fixed.orig
+           ))
+
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports1 |> 
+  filter(!state_fixed.orig == state_fixed1) |> 
+  glimpse()
+# $ city_state               <chr> "NA#NA", "NA#NA", "NA#NA", "NA#NA", "NA#NA", …
+# $ city_fixed.orig          <chr> "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA…
+# $ state_fixed.orig         <chr> "NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA…
+# $ city_fixed.double_names  <chr> "FREEPORT", "FREEPORT", "WILMINGTON", "WILMIN…
+# $ state_fixed.double_names <chr> "TX", "TX", "DE", "DE", "DE", "MD", "MD", "MD…
+# $ state_fixed1             <chr> "TX", "TX", "DE", "DE", "DE", "MD", "MD", "MD…
+
+### rename the state column ----
+# Explanations:
+# 1. Removing the 'state_fixed.orig' column using 'select(-state_fixed.orig)'.
+# 2. Renaming the 'state_fixed1' column to 'state_fixed' using 'rename("state_fixed" = state_fixed1)'.
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports <-
+  compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports1 |>
+  select(-state_fixed.orig) |>
+  rename("state_fixed" = state_fixed1)
+
+# check
+dim(compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports)
+# 9362   12
+
+compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports |>
+  filter(year_permit_sa_gom_dual == "2023 sa_only") |> 
+  filter(state_fixed == "NA" | is.na(state_fixed)) |> 
+  nrow()
+# 0
+
+# Print results ----
+cat("compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed_2_more_ports_more_ports",
     sep = "\n")
-dim(vessels_permits_home_port_c_st_fixed)
-# [1] 6845    7
-
