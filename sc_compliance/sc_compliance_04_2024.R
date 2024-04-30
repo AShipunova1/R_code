@@ -15,7 +15,7 @@
 # (sheet 4) is the list of those SC COMPLIANT vessels that are NON-COMPLIANT in FHIER.
 
 
-# Needed files (5):
+# Needed files (6):
 #   1) "scdnrFedVessels_04012024.xlsx" (South Carolina compliance, instead of "04012024" there will be the date of the latest file)
           # this file comes from Eric Hilts at SCDNR
 #   2) "Raw_Oracle_Downloaded_compliance_2021_plus.rds"
@@ -26,6 +26,7 @@
           # this file comes from running the logbook processing code for a given year, it should be available to download on Google Drive
 #   5) "Vessel_List_{my_year}.csv" (Southeast Region Headboat Survey, SRHS)
           # this file comes from Ken Brennan at the SRHS program, it should be available to download on Google Drive
+#   6) “column_definitions.csv” (csv file of column definitions written by Anna, used for the ReadMe tab of the output Excel spreadsheet, it should be available to download on Google Drive)
 
 # set up ----
 # Load the 'ROracle' library, which provides an interface for working with Oracle databases in R.
@@ -459,16 +460,7 @@ compl_override_data__renamed_m_short__compl_overr_by_week |>
 # 3       0          1 yes
 # 4       1          1 yes
 
-### combine compliance by month ----
-
-# Explanations:
-# 1. Create a new data frame 'compl_override_data__renamed_m_short__m_compl'
-# 2. Group the data by 'vessel_official_number', 'comp_year', and 'comp_month'.
-# 3. Use 'mutate' to create a new column 'all_m_comp' containing a string representation of unique, sorted values of 'compliant_after_override'.
-# 4. Use 'mutate' again to create a new column 'month_comp' based on conditions specified in 'case_when'.
-#    - If 'all_m_comp' contains either "no, yes" or "no", set 'month_comp' to "non_compl". In other words, if at least one week of a month was non-compliant we consider the whole month as non-compliant.
-#    - For all other cases, set 'month_comp' to "compl".
-# 5. Use 'ungroup' to remove grouping from the data frame.
+### Combine weekly compliance to create monthly compliance ----
 
 tic("get month_comp")
 compl_override_data__renamed_m_short__m_compl__both_months <-
@@ -511,7 +503,7 @@ toc()
 # 2. It groups the data by the vessel official number, compliance year, compliance week, start date of the compliance week, and end date of the compliance week.
 # 3. It calculates a new column 'common_month_compliance' based on conditions:
 #    a. If the minimum and maximum month values of compliance are both 'compl', then the 'common_month_compliance' is set to 'compl'.
-#    b. For all other cases, it is set to 'non_compl'. Meaning if any week in these 2 months is non_compl, both months are non-compliant.
+#    b. For all other cases, it is set to 'non_compl'. Meaning if a week that overlaps these 2 months is non_compl, both months are non-compliant.
 # 4. The data is ungrouped after the calculations are done.
 
 tic("min_max_compl")
@@ -766,7 +758,6 @@ n_distinct(sc__fhier_compl__join_w_month$vesselreg_uscg_)
 # 207 (rm SRHS)
 # glimpse(sc__fhier_compl__join_w_month)
 
-dim(sc__fhier_compl__join_w_month)
 
 sc__fhier_compl__join_w_month |>
   select(contains("month")) |>
@@ -916,8 +907,8 @@ dim(compliant_vessels_in_sc_and_non_compl_fhier__for_output)
 # which combines several objects into a list. lst() also generates missing names automatically.
 
 # 1. 'non_compliant_vessels_in_sc_and_compl_in_fhier__m_w__output': A data frame of non-compliant vessels in SC but compliant in FHIER.
-# 2. 'logbooks__sc_fhier_for_output': A data frame of logbooks data for FHIER.
-# 3. 'dnfs__sc_fhier_for_output': A data frame of DNFs data for FHIER.
+# 2. 'logbooks__sc_fhier_for_output': A data frame of logbooks data from FHIER.
+# 3. 'dnfs__sc_fhier_for_output': A data frame of DNFs data from FHIER.
 # 4. 'compliant_vessels_in_sc_and_non_compl_fhier__for_output': A data frame of compliant vessels in SC and non-compliant FHIER.
 
 output_df_list <-
