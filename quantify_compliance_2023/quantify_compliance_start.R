@@ -1,18 +1,28 @@
 # quantify_compliance_start.R
-
-# TODO: change
-# need files:
-# Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)
-# Detail_Report_12312021_12312022__08_23_2023.csv
-# FHIER_Compliance_2023__01_24_2023.csv
-# Compliance_Error_Types_03_29_2023.csv
-# Permits_2023-03-29_1611_active.csv
-
 # Quantify program compliance.
 
+# need files:
+# 1) compliance data
+# Download files from FHIER / Reports / FHIER COMPLIANCE REPORT
+# FHIER_Compliance_2022__02_05_2024.csv
+# FHIER_Compliance_2023__01_24_2024.csv
+
+# All other files are from Processed data google folder:
+# https://drive.google.com/drive/folders/1ZObq0pd7yr7caYGXjZfgRFa9BqN00OKv
+
+# 2) Processed metrics_tracking
+# SEFHIER_permitted_vessels_nonSRHS_2022.rds
+# SEFHIER_permitted_vessels_nonSRHS_2023.rds
+
+# 3) Processed Logbooks
+# SEFHIER_processed_Logbooks_2022.rds
+# SEFHIER_processed_Logbooks_2023.rds
+
+# 4) Vessels with no logbooks
+# vessels_with_zero_logbooks_2022.rds
+# vessels_with_zero_logbooks_2023.rds
+
 # setup ----
-# 2022, 2023
-# dual + SA
 library(grid)  # Load the 'grid' library, which provides low-level graphics functions.
 library(zoo)   # Load the 'zoo' library, which deals with time series data.
 library(gridExtra)  # Load the 'gridExtra' library for arranging and combining grid graphics.
@@ -44,9 +54,9 @@ curr_proj_input_path <- file.path(my_paths$inputs,
                          current_project_basename)
 
 project_name <- current_project_basename
-  # "quantify_compliance_2023"
+# "quantify_compliance_2023"
 
-# Read R Code from files
+# Read additional R Code from files
 quantify_compliance_functions_path <- 
   file.path(current_project_dir_name,
             "quantify_compliance_functions.R")
@@ -84,8 +94,6 @@ title_permits <- data.frame(
             "SA + Dual",
             "GOM only",
             "Dual only"),
-  # "2022: GOM + Dual",
-  # "2023: SA + Dual"),
   long_title = c("South Atlantic",
             "South Atlantic + Dual",
             "Gulf of Mexico",
@@ -94,13 +102,16 @@ title_permits <- data.frame(
   second_part = c("Permitted Vessels")
 )
 
+# Explanations:
+# The code uses the ls function to list the objects in the current workspace that have names containing the substring "metric".
 ls(pattern = "metric")
 # processed_metrics_tracking_permits
 
-# ls(pattern = "process")
-# processed_logbooks
-
+# ls(pattern = "logb")
+# # processed_logbooks
+# 
 # ls(pattern = "compl_clean_sa_vs_gom_m_int")
+# # compl_clean_sa_vs_gom_m_int_c
 
 # Vessels which are in processed_logbooks + vessels which have no logbooks at all, but are in metrics tracking ----
 compl_clean_sa_vs_gom_m_int <-
@@ -108,23 +119,15 @@ compl_clean_sa_vs_gom_m_int <-
   dplyr::filter(
     vessel_official_number %in% processed_logbooks$vessel_official_number |
       vessel_official_number %in% vessels_no_logbooks$vessel_official_number
-  ) |> 
+  ) |>
   distinct()
 
 dim(compl_clean_sa_vs_gom_m_int)
-# [1] 146066     24
-# [1] 143767     24 (2023)
-# [1] 265533     23 both
-# [1] 290408     22 use processed
 # [1] 290402     22
 
 # save vsl count for future checks ----
 count_all_vessels <-
   n_distinct(compl_clean_sa_vs_gom_m_int$vessel_official_number)
-# 4017 
-# 3411 (2023)
-# 3372 in metrics only
-# 3382 both
 # 4016
 
 # add permit_region from processed metrics tracking ----
@@ -137,8 +140,6 @@ compl_clean_sa_vs_gom_m_int__join_metrics <-
 #   Detected an unexpected many-to-many relationship between `x` and `y`.
 # ℹ Row 1 of `x` matches multiple rows in `y`.
 # ℹ Row 2531 of `y` matches multiple rows in `x`.
-# ℹ If a many-to-many relationship is expected, set `relationship = "many-to-many"` to
-#   silence this warning.
 
 dim(compl_clean_sa_vs_gom_m_int__join_metrics)
 # [1] 535295     30
@@ -179,12 +180,11 @@ vessels_compl_or_not_per_y_r_all
 #                   permit_sa_gom_dual == "dual") ~ "sa_dual",
 #              .default = permit_sa_gom_dual
 #            ))
+
 # if_sa_only
 compl_clean_sa_vs_gom_m_int__join_metrics__both_p <-
   compl_clean_sa_vs_gom_m_int__join_metrics |>
   mutate(permit_sa_gom_dual_both = permit_sa_gom_dual)
-
-# View(compl_clean_sa_vs_gom_m_int__join_metrics)
 
 # add a year_permit column ----
 compl_clean_sa_vs_gom_m_int__join_metrics__both_p__comb <-

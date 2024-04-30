@@ -252,6 +252,29 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_m <-
   dplyr::distinct() |>
   unique()
 
+# <<<<<<< HEAD
+# From Help:
+# It is common to have right-open ranges with bounds like `[)`, which would
+# mean an end value of `415` would no longer overlap a start value of `415`.
+# Setting `bounds` allows you to compute overlaps with those kinds of ranges.
+# by <- join_by(VESSEL_ID,
+#               overlaps(x$EFFECTIVE_DATE,
+#                        x$my_end_date,
+#                        y$EFFECTIVE_DATE,
+#                        y$my_end_date,
+#                        bounds = "[)"))
+#
+# overlap_join1 <-
+#   full_join(
+#   permit_info_r_l_short$gom_only,
+#   permit_info_r_l_short$sa_only,
+#   by,
+#   suffix = c(".gom", ".sa")
+# )
+#
+# dim(overlap_join1)
+# [1] 84570     5
+# =======
 count_weeks_per_vsl_permit_year_n_compl_p_short_y <-
   count_weeks_per_vsl_permit_year_compl_p %>%
   dplyr::filter(tolower(compl_w_total) == "no") %>%
@@ -265,12 +288,155 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_y <-
   ) %>%
   dplyr::distinct() |>
   unique()
+# >>>> origin/current
 
 dim(count_weeks_per_vsl_permit_year_n_compl_p_short_y)
 # [1] 453   4
 dim(count_weeks_per_vsl_permit_year_n_compl_p_short_m)
 # [1] 2293    6 (with month)
 
+# <<<<<<< HEAD
+# to get dual in the overlapping period:
+# filter(!is.na(permit_sa_gom.sa))
+
+# overlap_join1 %>%
+  # filter(VESSEL_ID == '669631') %>%
+  # mutate(
+  #   eff_int_gom =
+  #     lubridate::interval(EFFECTIVE_DATE.gom,
+  #                         my_end_date.gom),
+  #   eff_int_sa =
+  #     lubridate::interval(EFFECTIVE_DATE.sa,
+  #                         my_end_date.sa)
+  # ) %>%
+  # View()
+
+# overlap_join1 %>%
+#   filter(!is.na(EFFECTIVE_DATE.sa) |
+#            !is.na(EFFECTIVE_DATE.gom)
+#          ) %>%
+#   select(VESSEL_ID) %>%
+#   unique() %>%
+#   dim()
+# [1] 13929     1
+ # dual permits with dates overlapping between SA and GOM
+
+# add intervals ----
+dim(permit_info_r_short)
+# 180869
+
+permit_info_r_short_int <-
+  permit_info_r_short %>%
+  mutate(eff_int =
+           lubridate::interval(EFFECTIVE_DATE,
+                               my_end_date))
+
+# View(permit_info_r_short_int)
+
+## get all permit info for 2022 ----
+
+permit_info_r_short_int_22 <-
+  permit_info_r_short_int %>%
+  filter(year(EFFECTIVE_DATE) == '2022')
+
+# dim(permit_info_r_short_int_22)
+# [1] 10743     9
+
+# by period ----
+# overlapped_gom_sa_int <-
+#   overlapped_gom_sa %>%
+#     mutate(
+#     eff_int_gom =
+#       lubridate::interval(EFFECTIVE_DATE.gom,
+#                           my_end_date.gom),
+#     eff_int_sa =
+#       lubridate::interval(EFFECTIVE_DATE.sa,
+#                           my_end_date.sa)
+#   ) %>%
+#   mutate(int_overlapped = int_overlaps(eff_int_gom, eff_int_sa) )
+
+# get overlapping periods ----
+# https://stackoverflow.com/questions/37486572/date-roll-up-in-r/37487673#37487673
+  # mutate(gr = cumsum(FromDate-lag(ToDate, default=1) != 1)) %>%
+# ---
+# https://stackoverflow.com/questions/76076208/calculating-number-of-overlapping-days-between-two-date-ranges
+# dat <-
+#   data.frame(enr_dte = sample(seq(
+#     as.Date('2022-01-01'),
+#     as.Date('2023-06-30'),
+#     by = "day"
+#   ), 10))
+#
+# dat %>%
+#   mutate(
+#     # Create interval between enrollment and enrollment + 180 days:
+#     enr_end_int = lubridate::interval( enr_dte, enr_dte + days(180) )
+#     # Create winter interval:
+#     , winter_int = lubridate::interval( as.Date('2022-10-01'), as.Date('2023-05-31') )
+#     # Get the intersection between enrollment interval and winter interval:
+#     , enr_winter_intersection = lubridate::intersect( enr_end_int, winter_int )
+#     # Get the length of the intersection (int_length can only return length in seconds):
+#     , enr_winter_intersection_length_sec = lubridate::int_length( enr_winter_intersection )
+#     # Convert seconds to days:
+#     , enr_winter_intersection_length_days = enr_winter_intersection_length_sec/60/60/24
+#   ) %>%
+#   View()
+
+# lubridate::
+# int_overlaps
+# int_diff() returns the intervals that occur between the elements of a vector of date-times. int_diff() is similar to the POSIXt and Date methods of diff(), but returns an Interval object instead of a difftime object.
+# interval(start = NULL, end = NULL, tzone = tz(start))
+# int_length(int)
+# period(months = 1, days = 15)
+# [1] "1m 15d 0H 0M 0S"
+
+# int_standardize(int)
+# int_shift(int, duration(days = 11))
+
+# print_df_names(overlap_join1)
+# int_gom = EFFECTIVE_DATE.gom, my_end_date.gom
+# in_sa = EFFECTIVE_DATE.sa, my_end_date.sa
+# overlapps?
+# int_o = int_overlaps(int_gom, in_sa)
+# if overlaps get overlapping period dates:
+# int_start(int_o) =
+#   ymd(min(EFFECTIVE_DATE.gom, EFFECTIVE_DATE.sa))
+# int_end(int_o) =
+#   ymd(max(EFFECTIVE_DATE.gom, EFFECTIVE_DATE.sa))
+
+# Permits: by day solutuion ----
+
+# library(sqldf)
+# sqldf("SELECT ID, Date, COUNT(*) as PurchaseCount
+#        FROM df
+#        GROUP BY Date, ID")
+
+# permit_vessel_query_exp21_reg_0_list_by_perm_r$gom_only
+
+## get all days in 2022 ----
+
+# print_df_names(permit_info)
+
+# dim(permit_info_r_l_short_22$gom_only)
+# 'data.frame':	85586 obs. of  3 variables:
+# 'data.frame':	85592 obs. of  5 variables:
+# 'data.frame':	85319 obs. of  3 variables:
+
+my_compl_function <- function(my_row) {
+  # browser()
+  my_row %>%
+    tidyr::complete(
+      EFFECTIVE_DATE =
+        seq(EFFECTIVE_DATE, my_end_date, "1 day"),
+      VESSEL_ID = VESSEL_ID,
+      TOP = TOP,
+      PERMIT = PERMIT,
+      PERMIT_STATUS = PERMIT_STATUS,
+      VESSEL_ALT_NUM = VESSEL_ALT_NUM,
+      permit_sa_gom = permit_sa_gom,
+      my_end_date = my_end_date,
+      eff_int = eff_int
+# =======
 ## 2b) get percentage "buckets" ----
 # percent buckets
 get_p_buckets <- function(my_df, field_name) {
@@ -285,6 +451,7 @@ get_p_buckets <- function(my_df, field_name) {
             !!sym(field_name) < 75 ~ '50<= & <75%',
           75 <= !!sym(field_name) ~ '75<= & <=100%'
         )
+# >>>>>>> origin/current
     ) %>%
     return()
 }
@@ -293,9 +460,65 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_m <-
   get_p_buckets(count_weeks_per_vsl_permit_year_n_compl_p_short_m,
                 "percent_compl")
 
+# <<<<<<< HEAD
+tic("permit_info_r_short_int_22 by day")
+permit_info_22_days <-
+  permit_info_r_short_int_22 %>%
+  group_by(VESSEL_ID) %>%
+  # run in parallel
+  purrr::pmap(
+    # .l = ex1,
+    .f = function(VESSEL_ID,
+                  TOP,
+                  PERMIT,
+                  EFFECTIVE_DATE,
+                  PERMIT_STATUS,
+                  VESSEL_ALT_NUM,
+                  permit_sa_gom,
+                  my_end_date,
+                  eff_int) {
+      # browser()
+      my_df <-
+        data.frame(
+          VESSEL_ID,
+          TOP,
+          PERMIT,
+          EFFECTIVE_DATE,
+          PERMIT_STATUS,
+          VESSEL_ALT_NUM,
+          permit_sa_gom,
+          my_end_date,
+          eff_int
+        )
+      if (EFFECTIVE_DATE > my_end_date) {
+        # save wrong ones
+        print(paste(VESSEL_ID,
+                    EFFECTIVE_DATE,
+                    my_end_date))
+        res = my_df
+      } else {
+        res <- my_compl_function(my_df)
+      }
+      return(res)
+    }
+  ) %>%
+  list_rbind()
+toc()
+# permit_info_r_l_short_22 by day: 196 sec elapsed
+
+# permit_info_r_short_int_22 by day: 211.58 sec elapsed
+# not splitted
+# permit_info_r_l_short_22 by day: 395.39 sec elapsed
+# with all fields
+# permit_info_22 by day: 33.33 sec elapsed
+# permit_info_r_l_short_22 by day: 16.42 sec elapsed
+# print_df_names(permit_info_22_days_rename$gom_only)
+# permit_info_r_l_short_22 by day: 23.05 sec elapsed
+# =======
 count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_y <-
   get_p_buckets(count_weeks_per_vsl_permit_year_n_compl_p_short_y,
                 "percent_compl")
+# >>>>>>> origin/current
 
 dim(count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_y)
 # [1] 453   6
@@ -308,6 +531,26 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_y |>
 ### test 2 ----
 # count in one bucket
 
+# <<<<<<< HEAD
+## get day only ----
+tic("get day only")
+permit_info_22_days <-
+  permit_info_22_days_rename %>%
+  mutate(
+    is_effective_date =
+      lubridate::floor_date(is_effective_date,
+                            unit = "day"),
+    my_end_date =
+      lubridate::floor_date(my_end_date,
+                            unit = "day")
+  ) %>%
+  # unique()
+toc()
+# View(permit_info_22_days)
+
+# dim(permit_info_22_days)
+# [1] 3806184       9
+# =======
 count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_y %>%
   dplyr::filter(percent_n_compl_rank == '75<= & <=100%') %>%
   # dplyr::filter(date_y_m == "2022 sa_only") %>%
@@ -324,6 +567,7 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_y %>%
 # 262 y
 
 # 3) count how many in each bucket ----
+# >>>>>>> origin/current
 
 count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_m <-
   count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_m %>%
@@ -369,6 +613,39 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc_m <-
   dplyr::mutate(perc_vsls_per_y_r_b = cnt_v_in_bucket * 100 / vsls_per_y_r) %>%
   dplyr::mutate(perc_labels = paste0(round(perc_vsls_per_y_r_b, 1), "%"))
 
+# <<<<<<< HEAD
+dim(vessels_in_both)
+# 277
+
+## use only vesel_ids in both ----
+tic("permit_info_22_days_vsls_in_both")
+permit_info_22_days_vsls_in_both <-
+  permit_info_22_days %>%
+  map(~ .x %>%
+        filter(VESSEL_ID %in% vessels_in_both$VESSEL_ID) %>%
+        unique())
+toc()
+# permit_info_22_days_vsls_in_both: 221.2 sec elapsed
+
+# permit_info_22_days_vsls_in_both$gom_only %>%
+#   select(is_effective_date) %>%
+#   unique() %>%
+#   dim()
+# [1] 849   1
+
+# join with days_22 ----
+## convert to days only, no hours ----
+permit_info_22_days_vsls_in_both_d <-
+  permit_info_22_days_vsls_in_both %>%
+  map(~ .x %>%
+        mutate(is_effective_date =
+                 floor_date(is_effective_date,
+                            unit = "day")))
+
+# permit_info_22_days_vsls_in_both$gom_only$is_effective_date <-
+#   permit_info_22_days_vsls_in_both$gom_only$is_effective_date %>%
+#   floor_date(unit = "day")
+# =======
 dim(count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc_y)
 # 453
 dim(count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc_m)
@@ -398,6 +675,7 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc_y %>%
 # 5) blue plots by year ----
 
 # View(count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc)
+# >>>>>>> origin/current
 
 # print_df_names(count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc)
 
@@ -408,6 +686,42 @@ count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc_y %>%
 # For plot 4:
 # "2023: SA + Dual Permitted SEFHIER Vessels (Total Permitted: 2235 ; Total Noncompliant: 1628; Expired Permits: 1)"
 
+# <<<<<<< HEAD
+# join each with days_22 ----
+
+tic("permit_info_22_days_vsls_in_both_d full_join")
+permit_info_22_days_vsls_in_both_d_j <-
+  permit_info_22_days_vsls_in_both_d %>%
+  map(~ .x %>%
+        full_join(days_22,
+                  join_by(is_effective_date == day_in_2022)) %>%
+        unique())
+toc()
+# permit_info_22_days_vsls_in_both_d full_join: 210.74 sec elapsed
+
+# str(permit_info_22_days_vsls_in_both_d_j)
+# tibble [101,228 × 3] (S3: tbl_df/tbl/data.frame)
+# $ gom_only: tibble [192,768 × 9] (S3: tbl_df/tbl/data.frame)
+
+# TODO: get only few field to join on, add other info later?
+
+
+# join gom and sa with all days and vessels ----
+# print_df_names(permit_info_22_days_vsls_in_both_d$gom_only)
+# is_effective_date, VESSEL_ID, TOP, PERMIT, PERMIT_STATUS, VESSEL_ALT_NUM, permit_sa_gom, my_end_date, eff_int
+
+tic("days_22_permits_g_s full join")
+days_22_permits_g_s <-
+  full_join(
+    permit_info_22_days_vsls_in_both_d$gom_only,
+    permit_info_22_days_vsls_in_both_d$sa_only,
+    join_by(is_effective_date,
+            VESSEL_ID,
+            VESSEL_ALT_NUM
+            ),
+    suffix = c(".gom", ".sa"),
+    relationship = "many-to-many"
+# =======
 blue_year_plot_titles <-
   data.frame(
     year_permit = c("2022 sa_only",
@@ -418,8 +732,41 @@ blue_year_plot_titles <-
       "GOM + Dual Permitted Vessels\n(",
       "2023: SA + Dual Permitted SEFHIER Vessels\n(Total Permitted = 2235 Vessels; "
     )
+# >>>>>>> origin/current
   )
 
+# <<<<<<< HEAD
+View(days_22_permits_g_s)
+
+## get overlapping intervals ----
+tic("days_22_permits_g_s_overl")
+days_22_permits_g_s_overl <-
+  days_22_permits_g_s %>%
+  filter(int_overlaps(eff_int.gom, eff_int.sa)) %>%
+  unique()
+toc()
+# View(days_22_permits_g_s_overl)
+
+days_22_permits_g_s %>%
+  # group_by(VESSEL_ID) %>%
+  select(is_effective_date, VESSEL_ID) %>%
+  count(is_effective_date)
+tic("days_22_permits_g_s_cnts u")
+days_22_permits_g_s_cnts <-
+  days_22_permits_g_s %>%
+  mutate(is_effective_date =
+           lubridate::floor_date(is_effective_date,
+                                 unit = "day")) %>%
+  select(is_effective_date, VESSEL_ID) %>%
+  add_count(is_effective_date) %>%
+  # filter(is_effective_date == '2022-01-01 00:00:00') %>%
+  View()
+
+days_22_permits_g_s %>%
+  filter(VESSEL_ID == '558306') %>%
+  unique() %>%
+  View()
+# =======
 gg_count_weeks_per_vsl_permit_year_compl_p_short_cuts_cnt_in_b_tot_perc <-
   count_weeks_per_vsl_permit_year_n_compl_p_short_cuts_cnt_in_b_perc$year_permit %>%
   unique() %>%
@@ -523,3 +870,4 @@ plot_perc_22 <- gridExtra::grid.arrange(
   grobs = p,
   left = yleft,
   top = super_title)
+# >>>>>>> origin/current

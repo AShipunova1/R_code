@@ -1,6 +1,15 @@
 # by Year: ----
+
 ## year add total counts ----
 # (both compl. and not, a vsl can be in both)
+
+# Explanations:
+# The function 'add_total_cnt_in_gr' performs the following operations:
+# 1. Groups the data frame by the specified columns using 'group_by_at'.
+# 2. Adds a new column 'new_col_name' representing the count of distinct vessel official numbers in each group using `{{new_col_name}} := dplyr::n_distinct(vessel_official_number)`.
+# The syntax `{{new_col_name}} :=` is used to create a new column dynamically with the name provided in the new_col_name argument.
+# 3. Removes the grouping to return the data to its original structure with 'ungroup'.
+# 4. Returns the modified data frame.
 
 add_total_cnt_in_gr <- 
   function(my_df, 
@@ -25,21 +34,26 @@ compl_clean_sa_vs_gom_m_int_tot <-
 # print_df_names(compl_clean_sa_vs_gom_m_int__join_metrics__both_p)
 
 compl_clean_sa_vs_gom_m_int_tot__both <-
-  add_total_cnt_in_gr(compl_clean_sa_vs_gom_m_int__join_metrics__both_p__comb, 
-                      c("permit_sa_gom_dual_both", "year"))
+  add_total_cnt_in_gr(
+    compl_clean_sa_vs_gom_m_int__join_metrics__both_p__comb,
+    c("permit_sa_gom_dual_both", "year")
+  )
 
 # check
 res1 <-
   compl_clean_sa_vs_gom_m_int__join_metrics |>
   select(vessel_official_number, year, permit_sa_gom_dual) |>
   distinct() |>
-  count(year, permit_sa_gom_dual, 
+  count(year, permit_sa_gom_dual,
         name = "total_vsl_y_by_year_perm") |>
   arrange(total_vsl_y_by_year_perm)
 
 res1a <-
   compl_clean_sa_vs_gom_m_int__join_metrics__both_p |>
-  select(vessel_official_number, year, permit_sa_gom_dual, permit_sa_gom_dual_both) |>
+  select(vessel_official_number,
+         year,
+         permit_sa_gom_dual,
+         permit_sa_gom_dual_both) |>
   distinct() |>
   count(year, permit_sa_gom_dual_both, name = "total_vsl_y_by_year_perm") |>
   arrange(total_vsl_y_by_year_perm)
@@ -71,21 +85,21 @@ diffdf::diffdf(res1, res2)
 ## get vessel counts by compliance (compl_counts) ----
 ### get compl, no compl, or both per year ----
 
-get_compl_by <- function(my_df, group_by_for_compl) {
-  my_df %>%
-    dplyr::group_by_at(group_by_for_compl) %>%
-    # can unique, because we are looking at vessels, not weeks
-    unique() %>%
-    # more columns, a column per vessel
-    tidyr::pivot_wider(
-      names_from = vessel_official_number,
-      values_from = compliant_,
-      # make it "NO_YES" if both
-      values_fn = ~ paste0(sort(.x), collapse = "_")
-    ) %>%
-    dplyr::ungroup() %>%
-    return()
-}
+# get_compl_by <- function(my_df, group_by_for_compl) {
+#   my_df %>%
+#     dplyr::group_by_at(group_by_for_compl) %>%
+#     # can unique, because we are looking at vessels, not weeks
+#     unique() %>%
+#     # more columns, a column per vessel
+#     tidyr::pivot_wider(
+#       names_from = vessel_official_number,
+#       values_from = compliant_,
+#       # make it "NO_YES" if both
+#       values_fn = ~ paste0(sort(.x), collapse = "_")
+#     ) %>%
+#     dplyr::ungroup() %>%
+#     return()
+# }
 
 # all columns except...
 group_by_for_compl <- 
@@ -126,8 +140,9 @@ names(compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide__both) |>
   glimpse()
  # chr [1:6] "permit_sa_gom_dual" "total_vsl_y_by_year_perm" "VI5498TB" "VA9447ZY" ...
  
-# View(compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide__both)
 ### count compl, no compl, or both per year, permit, active status ----
+# Explanations:
+#   tidyr::pivot_longer(cols = !any_of(cols_names), values_to = "is_compl_or_both", names_to = "vessel_official_number") %>%: Turns the data frame back to a longer format with vessel ids in one column using 'pivot_longer'. It specifies that all other columns except those in 'cols_names' should be used as vessel ids, and the resulting values should be placed in the "is_compl_or_both" column.
 
 count_by_cols <- function(my_df,
                           cols_names) {
@@ -170,15 +185,14 @@ compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_both |>
 # 4 2023  sa_dual                                   2436 1000042               
 
 #### save sa_dual filter ----
+# Explanations:
+# The code uses the `rlang::quo` function to create a quosure named 'sa_dual_filter'. This quosure represents a logical condition that filters rows based on two conditions:
+# - Rows where 'permit_sa_gom_dual' is equal to "sa_only".
+# - Rows where 'year' is equal to "2023" and 'permit_sa_gom_dual' is equal to "dual".
+# These conditions are combined with the logical OR (`|`) operator. The resulting quosure can be used later in dplyr functions for filtering data based on this logical condition.
 sa_dual_filter <-
   rlang::quo(permit_sa_gom_dual == "sa_only" |
           (year == "2023" & permit_sa_gom_dual == "dual"))
-
-# compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_sa <-
-#   compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_ |>
-#   filter(!!sa_dual_filter) |>
-#   select(vessel_official_number, is_compl_or_both) |>
-#   dplyr::distinct()
 
 compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_sa_both <-
   compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_both |>
@@ -187,73 +201,72 @@ compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_sa_both <-
   dplyr::distinct()
 
 dim(compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_sa_both)
-# [1] 5793    2
-# [1] 3372    2 sa_dual
-# [1] 6614    2 both years
-# [1] 7677    2
-# [1] 5911    2  (sa_dual)
-
-# View(compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_sa_both)
-# [1] 5911    2 (sa_dual)
+# [1] 5652    2
 
 n_distinct(compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_sa_both$vessel_official_number)
 # vessel_official_number 4016
 
 n_distinct(compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_sa_both$is_compl_or_both)
 # 4
-# compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_sa$is_compl_or_both |> unique()
+compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_sa_both$is_compl_or_both |> unique()
 # [1] "YES"    "NO"     "NO_YES" NA      
 
+## get non compliant only ----
+# If was non compliant once a year, then is non compliant the whole year.
 compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_sa_non_c_both <-
   compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_sa_both |>
   filter(is_compl_or_both %in% c("NO", "NO_YES"))
 
 dim(compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_sa_non_c_both)
-# 370 2
-# [1] 1545    2 no_yes
-# 1859    both years
-# 2210    
+# [1] 2024    2
 
 ### get cnts for compl, no compl, or both per month with exp ----
+
+# Explanation:
+# 1. **Grouping Data**: The data frame is grouped by the specified columns using 'group_by_at'.
+# 2. **Removing Duplicates (Within Groups)**: Duplicates are removed within each group using 'unique'.
+# 3. **Excluding Column**: The 'vessel_official_number' column is excluded from the grouped data using 'select'.
+# 4. **Counting Occurrences**: The occurrences of combinations of columns specified in 'cols_to_cnt' are counted within each group using 'add_count', and the new column is named "compl_or_not_cnt".
+
+# syms(cols_to_cnt): This function is from the rlang package and is used to quote a list of symbols. In this case, it is quoting the symbols representing column names specified in the cols_to_cnt variable.
+# 
+# !!!: The bang-bang (!!!) is the unquote-splice operator. It is used within a function argument to unquote and splice the quoted expressions. It takes a list of expressions and splices them into the surrounding call. In this context, it is used to unquote and pass the symbols as separate arguments to the add_count function.
+# 
+# So, !!!syms(cols_to_cnt) is unquoting and splicing the symbols representing column names into the add_count function, which expects individual column names to count occurrences within groups.
+# 
+# In simpler terms, it allows you to pass a dynamic list of column names to the add_count function, depending on what is specified in the cols_to_cnt variable.
+
+# 5. **Removing Duplicates (Again)**: Duplicates are removed again to keep only unique combinations.
+# 6. **Ungrouping Data**: The grouping is removed to return the data to its original structure using 'ungroup'.
+# 7. **Returning Modified Data Frame**: The modified data frame is returned from the function.
 cnts_for_compl <-
   function(my_df, group_by_cols, cols_to_cnt) {
     my_df %>%
       dplyr::group_by_at(group_by_cols) %>%
-      unique() %>%
+      distinct() %>%
       # exclude vessel id
       dplyr::select(-vessel_official_number) %>%
       # count grouped by other columns
       dplyr::add_count(!!!syms(cols_to_cnt),
                        name = "compl_or_not_cnt") %>%
-      unique() %>%
+      distinct() %>%
       dplyr::ungroup() %>%
       return()
   }
-
-# group_by_cols <- c("year", "permit_sa_gom_dual")
-# cols_to_cnt <- c("year", "permit_sa_gom_dual", "is_compl_or_both")
 
 group_by_cols <- c("year", "permit_sa_gom_dual_both")
 cols_to_cnt <- c("year", "permit_sa_gom_dual_both", "is_compl_or_both")
 
 print_df_names(compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_both)
-# [1] "year, permit_sa_gom_dual, total_vsl_y_by_year_perm, vessel_official_number, is_compl_or_both"
 # [1] "year, permit_sa_gom_dual_both, year_permit_sa_gom_dual, total_vsl_y_by_year_perm, vessel_official_number, is_compl_or_both"
 
-#TODO: rename to _both from here
 compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt <-
   cnts_for_compl(compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_both,
                  group_by_cols,
                  cols_to_cnt)
 
 dim(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt)
-# [1] 21  7
-# [1] 7 4 (no exp)
-# 22 5 both years
-# [1] 23  5
-# [1] 19  6 sa_dual
-
-# View(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt)
+# [1] 23  6
 
 #### check counts ----
 # print_df_names(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt)
@@ -286,8 +299,6 @@ compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt %>%
   ungroup() |>
   dplyr::glimpse()
 # $ is_compl_or_both     <chr> "YES", "NO", "NO_YES"
-# $ sum_compl_or_not_cnt <int> 1752, 742, 2350
-# $ sum_compl_or_not_cnt <int> 1825, 370, 1177 (2023)
 # $ sum_compl_or_not_cnt <int> 4102, 845, 2202 (both years with processed)
 # $ sum_compl_or_not_cnt <int> 4095, 843, 2155 (sa_dual)
 
@@ -344,6 +355,13 @@ compl_clean_sa_vs_gom_m_int %>%
 
 ## add total cnts by compliance ----
 # active vs expired per year, permit, compl, permit expiration
+# Explanations:
+# 1. Filter out rows with missing values in the 'is_compl_or_both' column
+# 2. Create a new column 'compl_or_not' based on the values in 'is_compl_or_both'
+# 3. Group the data frame by the columns specified in 'group_by_compl_cols'
+# 4. Add a new column 'cnt_y_p_c' representing the sum of 'compl_or_not_cnt' within each group
+# 5. Ungroup the data frame to remove grouping structure
+# 6. Return the modified data frame
 
 add_total_cnts <-
   function(my_df, group_by_compl_cols, group_by_exp_cols) {
@@ -374,9 +392,17 @@ compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y <-
   add_total_cnts(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt,
                  group_by_cols3)
 
-# glimpse(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y)
+dim(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y)
+# [1] 17  8
 
 ## add percents of total ----
+# Explanations:
+# 1. Select columns specified in 'select_cols' from the data frame
+# 2. Remove duplicate rows to get unique combinations of selected columns
+# 3. Add a new column 'perc_c_or_not' representing the percentage of compliant counts
+#    relative to the total count ('cnt_y_p_c') within each unique combination
+# 4. Return the modified data frame
+
 add_percents_of_total <-
   function(my_df, select_cols) {
     my_df %>%
@@ -396,30 +422,38 @@ select_cols <- c(
   "cnt_y_p_c"
 )
 
-# print_df_names(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y)
-
 compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y_perc <-
   add_percents_of_total(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y,
                         select_cols)
 
-# View(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y_perc)
-
 dim(compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y_perc)
-# [1] 11  8
-# 7 8 (sa_dual)
-# [1] 4 5 no exp
-# [1] 12  6
+# [1] 12  7 sa_only
 # [1] 10  7 sa_dual
 
 # plots for compl vs. non compl vessels per year ----
 
 # "Permitted SEFHIER Vessels"
+
+# Explanations:
+
+# gg_all_c_vs_nc_plots function generates a list of plots for each combination of
+# permit_sa_gom_dual and year from the provided data frame.
+
+# 1. Extract unique values of permit_sa_gom_dual
+# 2. Use purrr::map to iterate over each permit_sa_gom_dual
+# 3. Inside the outer map, use purrr::map to iterate over each year (my_year1, my_year2)
+# 4. Filter the data frame based on the current permit_sa_gom_dual and year
+# 5. If the filtered data frame is empty (no rows), return NULL for that combination
+# 6. Calculate unique total_vsls using the make_one_plot_compl_vs_non_compl function (F2)
+# 7. Extract current title information for the plot based on the permit_sa_gom_dual
+# 8. Create a plot using make_one_plot_compl_vs_non_compl function (F2)
+# 9. Return the generated plot for the current permit_sa_gom_dual and year
+
 gg_all_c_vs_nc_plots <-
   compl_clean_sa_vs_gom_m_int_tot_exp_y_short_wide_long_cnt_tot_y_perc$permit_sa_gom_dual_both %>%
   unique() %>%
   # repeat for each permit_sa_gom_dual and each year
   purrr::map(function(curr_permit_sa_gom_dual) {
-    
     c(my_year1, my_year2) |>
       map(\(curr_year) {
         # browser()
@@ -457,20 +491,31 @@ gg_all_c_vs_nc_plots <-
           )
         
         return(one_plot)
-        
       })
   })
 
-gg_all_c_vs_nc_plots
+# gg_all_c_vs_nc_plots
 
 ## Make a flat list of plots with names ----
+# Explanations:
+# The make_flat_plot_list function takes a list of plots and flattens it, removing NULL values.
+
+# 1. Use list_flatten from the purrr package to flatten the list of plots.
+# 2. Remove NULL values from the flattened list using compact.
+
 make_flat_plot_list <- function(list_of_plots) {
   flat_plot_list_all <- list_flatten(list_of_plots)
   
   # rm NULLs
   flat_plot_list <- compact(flat_plot_list_all)
 }
-  
+
+# Explanations:
+# 1. Use map from the purrr package to iterate over each plot in the flat_plot_list.
+# 2. Process the title of each plot: replace spaces with underscores, convert to lowercase, remove specific substrings, and replace non-alphanumeric characters with underscores.
+# 3. Set the processed titles as names for the flat_plot_list.
+# 4. Return the flat_plot_list with updated names.
+
 make_flat_plot_list_names <- function(flat_plot_list) {
   flat_plot_list_names <-
     flat_plot_list |>
@@ -498,40 +543,30 @@ flat_plot_list |>
     x$labels$title
   })
 
-# View(flat_plot_list)
-
-# sa_only <- gg_all_c_vs_nc_plots[[1]]
-# dual <- gg_all_c_vs_nc_plots[[2]]
-# gom_only <- gg_all_c_vs_nc_plots[[3]]
-
-# sa_only <- gg_all_c_vs_nc_plots[[1]]
-# dual <- gg_all_c_vs_nc_plots[[2]]
-# gom_only <- gg_all_c_vs_nc_plots[[3]]
-
 main_title <- "Percent Compliant vs. Noncompliant SEFHIER Vessels"
 
 my_grobs_list <-
   flat_plot_list
-# list(gg_all_c_vs_nc_plots[[1]])
 
 # combine plots for 2023
 grid.arrange(grobs = my_grobs_list,
              top = main_title)
 
 # see the function definition F2
+# This code iterates over a list of ggplot2 objects (`my_grobs_list`), retrieves each plot by name, constructs a file name, and saves each plot as a PNG file using the `save_plots_list_to_files` function. The file names are constructed based on the `plot_file_path` and a formatted plot name. The width and height of the saved plots are specified as 20 and 10, respectively.
+
+# 1. Use the names() function to obtain the names of the plots in my_grobs_list.
+# 2. Use map from the purrr package to iterate over each plot name.
+# 3. Inside the map function, retrieve the current plot using my_grobs_list[[plot_name]].
+# 4. Construct the file_full_name_c_nc by combining plot_file_path and a formatted plot name.
+# 5. Use save_plots_list_to_files to save the current plot to a PNG file with specified width and height.
+
 my_grobs_list |>
   names() |> 
   map(\(plot_name) {
     # browser()
     curr_plot <- my_grobs_list[[plot_name]]
       
-    # file_name_part <-
-    #   plot_name$labels$title |>
-    #   str_replace_all(" ", "_") |>
-    #   str_replace("(^[0-9]+):_(.+)", "\\2_\\1") |>
-    #   str_replace("_permitted_vessels", "") |>
-    #   tolower()
-    
     file_full_name_c_nc <-
       file.path(plot_file_path,
                 str_glue("compl_vs_nonc_plots_{plot_name}.png"))
@@ -542,7 +577,7 @@ my_grobs_list |>
                              my_height = 10)
   })
 
-# [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance_2023/2024-02-09/compl_vs_nonc_plots_2023__sa___dual.png"
+# [1] "~/R_files_local/my_outputs/quantify_compliance_2023/2024-02-09/compl_vs_nonc_plots_2023__sa___dual.png"
 
 # Non compliant only ----
 # compl_clean_sa_vs_gom_m_int_tot |> print_df_names()
@@ -552,6 +587,7 @@ my_grobs_list |>
 
 # print_df_names(compl_clean_sa_vs_gom_m_int_tot__both)
 
+### fewer columns ----
 compl_clean_sa_vs_gom_m_int_tot_short <-
   compl_clean_sa_vs_gom_m_int_tot__both |>
   select(
@@ -585,20 +621,8 @@ compl_clean_sa_vs_gom_m_int_tot_short <-
   ) |> 
   distinct()
 
-# dim(compl_clean_sa_vs_gom_m_int_tot)
-# [1] 535295     31
-# dim(compl_clean_sa_vs_gom_m_int_tot__both)
-# [1] 535295     33
 dim(compl_clean_sa_vs_gom_m_int_tot_short)
 # [1] 298147      10
-
-# print_df_names(compl_clean_sa_vs_gom_m_int_tot_short)
-# [1] "vessel_official_number, year, compliant_, week_num, week_start, year_month, permit_sa_gom_dual, permit_sa_gom_dual_both, year_permit_sa_gom_dual"
-
-# compl_clean_sa_vs_gom_m_int_tot_short_week <-
-#   add_total_cnt_in_gr(compl_clean_sa_vs_gom_m_int_tot_short,
-#                       c("permit_sa_gom_dual", "year", "week_start"),
-#                       "")
 
 # count weeks per vessel / year
 compl_clean_sa_vs_gom_m_int_tot_short_week_cnt <-
@@ -609,8 +633,6 @@ compl_clean_sa_vs_gom_m_int_tot_short_week_cnt <-
                   dplyr::n_distinct(week_start)) %>%
   dplyr::ungroup()
 
-# View(compl_clean_sa_vs_gom_m_int_tot_short_week_cnt)
-
 # count weeks per vessel / year / compliance
 compl_clean_sa_vs_gom_m_int_tot_short_week_compl_cnt <-
   compl_clean_sa_vs_gom_m_int_tot_short_week_cnt |>
@@ -619,9 +641,6 @@ compl_clean_sa_vs_gom_m_int_tot_short_week_compl_cnt <-
   dplyr::mutate(weeks_per_vessel_per_compl =
                   dplyr::n_distinct(week_start)) %>%
   dplyr::ungroup()
-
-# check
-# glimpse(compl_clean_sa_vs_gom_m_int_tot_short_week_compl_cnt)
 
 ## test 1a ----
 # have both comp and not
@@ -644,9 +663,6 @@ compl_clean_sa_vs_gom_m_int_tot_short_week_compl_cnt %>%
 # 2 2022 NO 19 52
 # 3 2023 YES 47 52
 # 4 2023 NO 5 52
-
-# compl_clean_sa_vs_gom_m_int_tot_short_week_compl_cnt |> 
-# print_df_names()
 
 nc_2023_sa_only_test <-
   compl_clean_sa_vs_gom_m_int_tot_short_week_compl_cnt %>% 
@@ -691,12 +707,6 @@ compl_clean_sa_vs_gom_m_int_tot_short_week_compl_cnt %>%
 # $ total_weeks_per_vessel     <int> 52, 52
 
 ## 1b) percent of compl/non-compl per total weeks each vsl was present ----
-# print_df_names(compl_clean_sa_vs_gom_m_int_tot_short_week_compl_cnt)
-
-# compl_clean_sa_vs_gom_m_int_tot_short_week_compl_cnt |> 
-#    select(year_permit_sa_gom_dual, total_vsl_y_by_year_perm) |> 
-#    distinct() |> 
-#    View()
 
 count_weeks_per_vsl_permit_year_compl_p <-
   compl_clean_sa_vs_gom_m_int_tot_short_week_compl_cnt %>%
@@ -706,13 +716,11 @@ count_weeks_per_vsl_permit_year_compl_p <-
   ungroup()
 
 dim(count_weeks_per_vsl_permit_year_compl_p)
-# [1] 185251     32
-# [1] 143767     31 (2023)
-# [1] 298147     12 both
+# [1] 298147     13
 
 # test
-# count_weeks_per_vsl_permit_year_compl_p$permit_sa_gom_dual |>
-#   unique()
+count_weeks_per_vsl_permit_year_compl_p$permit_sa_gom_dual |>
+  unique()
 # [1] "sa_only"  "dual"     "gom_only"
 
 count_weeks_per_vsl_permit_year_compl_p %>%
@@ -721,8 +729,6 @@ count_weeks_per_vsl_permit_year_compl_p %>%
   select(vessel_official_number) %>%
   unique() %>%
   dim()
-# [1] 2178
-# 2421 (2023)
 # 2436    
 
 count_weeks_per_vsl_permit_year_compl_p %>%
@@ -731,12 +737,8 @@ count_weeks_per_vsl_permit_year_compl_p %>%
          compliant_ == "NO") %>%
   select(vessel_official_number) %>%
   # unique() %>%
-  # 1289    Non compliant vsl
-  # 1545 (2023)
   # 1549    
   dim()
-# [1] 26466 non compliant weeks
-# 24302 (2023)
 # 25382     
 
 ### test 1b ----

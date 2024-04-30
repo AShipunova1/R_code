@@ -39,9 +39,9 @@ get_data_from_FHIER_csvs <- function() {
 
   ## ---- get csv data into variables ----
   csv_names_list <- prepare_csv_names(filenames)
-
+  
   # read all csv files
-  csv_contents <- load_csv_names(my_paths, csv_names_list)
+  csv_contents <- load_csv_names(my_paths$inputs, csv_names_list)
 
   # unify headers, trim vesselofficialnumber, just in case
   csvs_clean1 <- clean_all_csvs(csv_contents)
@@ -180,6 +180,22 @@ vessels_from_pims_short <-
 dim(vessels_from_pims_short)
 # 22842     
 
+# remove "NOVESID" vessels
+vessels_from_pims_short_ok <-
+  vessels_from_pims_short |>
+  filter(!grepl("^NOVESID", vessel_official_number))
+
+# dim(vessels_from_pims_short_ok)
+# [1] 22466     2
+
+vessels_from_pims_short_ok_ga <- 
+vessels_from_pims_short_ok |>
+  filter(grepl(", GA", hailing_port)) |> 
+  select(vessel_official_number) |> 
+  distinct()
+  nrow()
+# 411
+
 # Get processed metrics tracking ----
 processed_input_data_path <- 
   file.path(my_paths$inputs,
@@ -190,7 +206,7 @@ dir.exists(processed_input_data_path)
 
 # [1] "~\\R_files_local\\my_inputs\\processing_logbook_data//Outputs//SEFHIER_permitted_vessels_nonSRHS_2023.rds"
 # file names for all years
-processed_metrics_tracking_file_names <-
+processed_metrics_tracking_file_names_all <-
   list.files(
     path = processed_input_data_path,
     pattern =
@@ -198,6 +214,15 @@ processed_metrics_tracking_file_names <-
     recursive = TRUE,
     full.names = TRUE
   )
+
+processed_metrics_tracking_file_names <-
+  grep(
+    processed_metrics_tracking_file_names_all,
+    pattern = "Shortcut.lnk",
+    invert = TRUE,
+    value = TRUE
+  )
+
 
 # Explanations:
 # The variable 'processed_metrics_tracking_permits' is created by applying the 'read_rds' function to each element in the 'processed_metrics_tracking_file_names' list using the 'map_df' function from the 'purrr' package. The result is a combined data frame.
@@ -323,7 +348,7 @@ n_distinct(compl_err_db_data_metrics_2022_23_clean$vessel_official_number)
 
 compl_err_db_data_metrics_2022_23_clean__ports <-
   left_join(compl_err_db_data_metrics_2022_23_clean,
-            vessels_from_pims_short,
+            vessels_from_pims_short_ok,
             relationship =
               "many-to-many")
 

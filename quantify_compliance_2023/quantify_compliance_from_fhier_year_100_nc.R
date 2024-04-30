@@ -6,8 +6,6 @@
 # Calculate the percentage of never compliant entries from all entries in each year
 # all SA vessels (compl and not compl alike) ----
 
-# glimpse(count_weeks_per_vsl_permit_year_compl_p)
-
 ## fewer fields ----
 count_weeks_per_vsl_permit_year_compl_p_short <- 
   count_weeks_per_vsl_permit_year_compl_p |>
@@ -17,30 +15,18 @@ count_weeks_per_vsl_permit_year_compl_p_short <-
             permit_sa_gom_dual)) |>
   distinct()
   
+# Explanations:
+# This code filters rows based on whether the column 'permit_sa_gom_dual_both' contains the string "sa".
+
+# 1. Use the filter function from dplyr along with str_detect from stringr to filter rows.
+# 2. Apply str_detect to 'permit_sa_gom_dual_both' column, checking if it contains the string "sa".
+# 3. The resulting data frame contains only rows where 'permit_sa_gom_dual_both' contains "sa".
+
 count_weeks_per_vsl_permit_year_compl_p_sa <-
   count_weeks_per_vsl_permit_year_compl_p_short |>
   filter(str_detect(permit_sa_gom_dual_both, "sa"))
 
-# View(count_weeks_per_vsl_permit_year_compl_p_sa)
 # check
-# > count_weeks_per_vsl_permit_year_compl_p_sa |> 
-# +     filter(compliant_ == "NO") |> 
-# +     distinct() |> 
-# +     filter(year == 2023) |> 
-# +     mutate(nn = n_distinct(vessel_official_number)) |> 
-# +     select(nn) |> 
-# +     distinct()
-# # A tibble: 1 × 1
-#      nn
-#   <int>
-# 1  1549
-# > count_weeks_per_vsl_permit_year_compl_p_sa |> 
-# +     filter(compliant_ == "NO") |> 
-# +     distinct() |> 
-# +     filter(year == 2023) |> 
-# +     nrow()
-# [1] 1549
-
 count_weeks_per_vsl_permit_year_compl_p_sa %>%
   group_by(vessel_official_number) %>%
   filter(n() >
@@ -62,21 +48,19 @@ count_weeks_per_vsl_permit_year_compl_p_sa |>
 dim(count_weeks_per_vsl_permit_year_compl_p)
 # [1] 298147     10
 dim(count_weeks_per_vsl_permit_year_compl_p_sa)
-# [1] 6628    8
-# [1] 48436    11
-# [1] 6525    9
+# [1] 6092    9
 
 count_weeks_per_vsl_permit_year_compl_p_sa |> 
   select(year, permit_sa_gom_dual_both, year_permit_sa_gom_dual) |> 
   distinct()
-# 1 2022  sa_only            2022 sa_only           
-# 2 2023  sa_only            2023 sa_dual           
-# 3 2023  dual               2023 sa_dual           
-
 #   year  permit_sa_gom_dual_both year_permit_sa_gom_dual
 #   <chr> <chr>                   <chr>                  
 # 1 2022  sa_only                 2022 sa_only           
 # 2 2023  sa_dual                 2023 sa_dual           
+
+# without sa_dual
+# 1 2022  sa_only                 2022 sa_only           
+# 2 2023  sa_only                 2023 sa_only           
 
 total_sa_dual_vessels <-
   count_weeks_per_vsl_permit_year_compl_p_sa |> 
@@ -86,18 +70,25 @@ total_sa_dual_vessels <-
   select(year, cnts) |> 
   distinct()
 # 1 2022   2231
-# 2 2023   2436
+# 2 2023   2177
 
 # 100% non compliant out of total ----
 
 ## add columns ----
+
+# Explanations:
+# This code creates a logical filter using the rlang::quo function to filter rows based on specific conditions.
+
+# 1. Define a logical condition using the rlang::quo function.
+# 2. The condition checks if 'perc_nc_100_gr' is equal to 2 and the lowercase of 'compliant_' is "no".
+# 3. The resulting filter is stored in the variable 'never_reported_filter'.
+
 never_reported_filter <-
   rlang::quo(perc_nc_100_gr == 2 &
                tolower(compliant_) == "no")
 
 dim(count_weeks_per_vsl_permit_year_compl_p_sa)
-# [1] 6628    8
-# [1] 48436    11
+# [1] 6092    9
 
 count_weeks_per_vsl_permit_year_compl_p_sa |>
   filter(percent_compl == "100",
@@ -106,14 +97,34 @@ count_weeks_per_vsl_permit_year_compl_p_sa |>
   select(vessel_official_number) |>
   # distinct() |>
   nrow()
-# 372 ok
+# 360
+
+count_weeks_per_vsl_permit_year_compl_p_sa |>
+  filter(percent_compl == "100",
+         year == my_year2) |>
+  count(compliant_)
+#   compliant_     n
+#   <chr>      <int>
+# 1 NO           360
+# 2 YES          814
 
 # non_compliant_only ----
-count_weeks_per_vsl_permit_year_compl_p_sa_nc <-
-  count_weeks_per_vsl_permit_year_compl_p_sa
+# Explanations:
+# This code calculates various metrics related to compliance percentages and vessel counts.
+
+# 1. Count the number of weeks per vessel, permit, year, and compliance status.
+# 2. Group the data by 'year_permit_sa_gom_dual'.
+# 3. Calculate the 'perc_nc_100_gr' by finding the interval of 'percent_compl' within [1, 100].
+# 4. Create a new column 'perc_nc_100_gr_name' based on the logical condition specified in 'never_reported_filter'.
+# 5. Create a new column 'group_100_vs_rest' based on the logical condition specified in 'never_reported_filter'.
+# 6. Ungroup the data.
+# 7. Group the data by 'perc_nc_100_gr_name' and 'year_permit_sa_gom_dual'.
+# 8. Calculate the number of distinct vessels ('group_vsl_cnt') in each group.
+# 9. Calculate the 'perc_of_perc' by multiplying 'group_vsl_cnt' by 100 and dividing by 'total_vsl_y_by_year_perm'.
+# 10. Ungroup the data.
 
 count_weeks_per_vsl_permit_year_compl_p_sa__tot_perc <-
-  count_weeks_per_vsl_permit_year_compl_p_sa_nc |>
+  count_weeks_per_vsl_permit_year_compl_p_sa |>
   group_by(year_permit_sa_gom_dual) |>
   mutate(perc_nc_100_gr = base::findInterval(percent_compl, c(1, 100))) |> 
   mutate(
@@ -129,15 +140,11 @@ count_weeks_per_vsl_permit_year_compl_p_sa__tot_perc <-
   ungroup() |> 
   group_by(perc_nc_100_gr_name, year_permit_sa_gom_dual) |>
   mutate(group_vsl_cnt = n_distinct(vessel_official_number)) |>
-  # filter(permit_sa_gom_dual == "dual", compliant_ == "YES",
-  #        year == "2023") |>
-  # filter(vessel_official_number == "TX6550AU") |>
-  # glimpse()
-  #
   dplyr::mutate(perc_of_perc =
                   group_vsl_cnt * 100 / total_vsl_y_by_year_perm) |>
   dplyr::ungroup()
 
+# check
 count_weeks_per_vsl_permit_year_compl_p_sa__tot_perc |>
   filter(vessel_official_number == "1020822") |>
   distinct() |> 
@@ -148,10 +155,28 @@ count_weeks_per_vsl_permit_year_compl_p_sa__tot_perc |>
 # $ year                       <chr> "2022", "2022", "2023", "2023"
 # $ perc_of_perc               <dbl> 79.33662, 79.33662, 83.46348, 83.46348
 
-# curr_year <- my_year2
-# curr_permit_sa_gom_dual <- "sa_only"
-
 # Plots ----
+
+# Explanations:
+# This function prepares information for creating a plot that visualizes compliance percentages
+# for vessels that never reported. It extracts relevant details from the input data and constructs
+# a title for the plot.
+
+# 1. Split the curr_year_permit string into a list using a space as a delimiter.
+# 2. Extract the year and permit_sa_gom_dual from the split list.
+# 3. Filter the title_permits data frame to get details related to the current permit.
+# 4. Extract the unique total_vsl_y_by_year_perm values from the input data.
+# 5. Construct the plot title using string interpolation.
+
+# One plot:
+# 1. Use ggplot to create a plot with aesthetics specified for x-axis, y-axis, and fill.
+# 2. Add a bar geometry (geom_col) to represent the data.
+# 3. Use scale_fill_manual to set custom colors for compliance values.
+# 4. Set labels for fill colors based on unique values of perc_nc_100_gr_name.
+# 5. Adjust theme settings, such as removing the legend and customizing axis text.
+# 6. Add plot titles and labels, while removing x and y-axis titles.
+# 7. Set y-axis limits to ensure values range from 0 to 100.
+
 make_one_plot_100c <-
   function(curr_df,
            curr_year_permit) {
@@ -221,7 +246,14 @@ make_one_plot_100c <-
     return(curr_tot_100_plot)
   }
 
-# View(count_weeks_per_vsl_permit_year_compl_p_sa__tot_perc)
+# Explanations:
+# This code generates a list of plots (sa_dual_tot_100_plots) using the make_one_plot_100c function.
+# 1. Extract unique combinations of year and permit from the data.
+# 2. Use purrr::map to iterate over each unique combination of year and permit.
+# 3. Within the map function, filter the data to select rows for vessels that never reported and are non-compliant.
+# 4. Select relevant columns from the filtered data, ensuring uniqueness.
+# 5. Call the make_one_plot_100c function with the filtered data and the current year_permit combination.
+# 6. Collect the resulting plots in a list (sa_dual_tot_100_plots).
 sa_dual_tot_100_plots <-
   count_weeks_per_vsl_permit_year_compl_p_sa__tot_perc$year_permit_sa_gom_dual |>
   unique() |>
@@ -238,19 +270,10 @@ sa_dual_tot_100_plots <-
         group_100_vs_rest,
         perc_nc_100_gr_name,
         group_vsl_cnt,
-        # permit_sa_gom_dual,
         year_permit_sa_gom_dual,
-        # compliant_,
         perc_of_perc
       ) |>
       distinct()
-    
-    # cat(c("curr_year_permit",
-    #       curr_year_permit,
-    #       "curr_year",
-    #       curr_year,
-    #       "curr_permit_sa_gom_dual",
-    #       curr_permit_sa_gom_dual), "\n")
     
     make_one_plot_100c(curr_df,
                        curr_year_permit)
@@ -258,12 +281,14 @@ sa_dual_tot_100_plots <-
 
 sa_dual_tot_100_plots
 
-# names(sa_dual_tot_100_plots)
-# rm(sa_dual_tot_100_plots_flat_list)
 sa_dual_tot_100_plots_flat_list <-
   make_flat_plot_list(sa_dual_tot_100_plots)
 
-# View(sa_dual_tot_100_plots_flat_list)
+# Explanations:
+# Extract unique names for each plot in the sa_dual_tot_100_plots_flat_list.
+# 1. For each element (plot) in the list, extract the year_permit_sa_gom_dual value.
+# 2. Replace spaces with underscores, convert to lowercase, and remove unnecessary characters.
+# 3. Ensure uniqueness of the resulting names for each plot.
 
 flat_plot_list_names <-
   sa_dual_tot_100_plots_flat_list |>
@@ -279,21 +304,22 @@ flat_plot_list_names <-
 names(sa_dual_tot_100_plots_flat_list) <-
     flat_plot_list_names
 
-# View(sa_dual_tot_100_plots_flat_list)
-
-# drop dual 2022
 my_grobs_list <- sa_dual_tot_100_plots_flat_list
-  # list(sa_dual_tot_100_plots[[1]][[1]],
-  #                     sa_dual_tot_100_plots[[2]][[1]],
-  #                     sa_dual_tot_100_plots[[2]][[2]])
 
 # combine plots ----
 grid.arrange(grobs = my_grobs_list)
 
+# Explanations:
+# Iterate through each plot name in the flat_plot_list_names.
+# 1. For each plot, create a file name by combining the plot_file_path with the plot_name.
+#    - This file name is used to save the plot image.
+# 2. Use the save_plots_list_to_files function to save the corresponding plot in my_grobs_list.
+#    - Set specific parameters for the output file, such as width, height, etc.
+
 flat_plot_list_names |>
   map(\(plot_name) {
     # browser()
-
+    
     file_full_name_c_nc <-
       file.path(plot_file_path,
                 str_glue("100nc_plot_{plot_name}.png"))
@@ -304,5 +330,5 @@ flat_plot_list_names |>
                              my_height = 10)
   })
 
-# [1] "C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/quantify_compliance_2023/2024-02-09/100nc_plot_2023_sa_dual.png"
+# [1] "~/R_files_local/my_outputs/quantify_compliance_2023/2024-02-09/100nc_plot_2023_sa_dual.png"
 

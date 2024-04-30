@@ -413,7 +413,7 @@ vessels_permits_home_port_lat_longs_city_state <-
 # [==================================] 850/850 (100%) Elapsed: 15m Remaining:  0s
 # 2024-01-02 run for non_compliant_areas_no_county_all.rds: 881.34 sec elapsed
 # Saving new data into a file here: 
-# C:/Users/anna.shipunova/Documents/R_files_local/my_outputs/non_compliant_areas/non_compliant_areas_no_county_all.rds
+# ~/R_files_local/my_outputs/non_compliant_areas/non_compliant_areas_no_county_all.rds
 # Warning message:
 # In query_api(api_url, api_query_parameters, method = method) :
 #   Internal Server Error (HTTP 500).

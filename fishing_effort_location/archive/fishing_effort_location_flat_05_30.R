@@ -148,7 +148,7 @@ fields_list <-
 "LONGITUDE",
 "FISHING_GEAR_DEPTH")
 
-#### Current file: C:/Users/anna.shipunova/Documents/R_code_github/fishing_effort_location/read.me.R ----
+#### Current file: ~/R_code_github/fishing_effort_location/read.me.R ----
 
 # https://github.com/AShipunova1/R_code/tree/main/fishing_effort_location
 
@@ -231,7 +231,7 @@ fields_list <-
 
 # north of 28N - EEZ only
 
-#### Current file: C:/Users/anna.shipunova/Documents/R_code_github/fishing_effort_location/fishing_effort_locations_get_data.R ----
+#### Current file: ~/R_code_github/fishing_effort_location/fishing_effort_locations_get_data.R ----
 
 # get area data ----
 ## From DB ====
@@ -336,7 +336,7 @@ gom_reef_shp <- read_shapefile(r"(gom\ReefFish_EFH_GOM\ReefFish_EFH_GOM.shp)")
 # see the function above
 fl_state_w_counties_shp <- read_shapefile(r"(GOVTUNIT_Florida_State_Shape\Shape\GU_CountyOrEquivalent.shp)")
 
-#### Current file: C:/Users/anna.shipunova/Documents/R_code_github/fishing_effort_location/fishing_effort_location.R ----
+#### Current file: ~/R_code_github/fishing_effort_location/fishing_effort_location.R ----
 
 # Filter out maximum by data ----
 db_data_w_area_no_mex <-
