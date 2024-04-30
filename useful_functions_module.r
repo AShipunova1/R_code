@@ -39,8 +39,8 @@ library(tidyverse)
 # Load the 'magrittr' library, which provides piping data and functions.
 library(magrittr)
 
-# Load the 'readxl' library, used for reading Excel (.xlsx) files.
-library(readxl)
+# Load the 'openxlsx' library, used for reading and writing Excel (.xlsx) files.
+library(openxlsx)
 
 # Load the 'rbenchmark' library, which is used for benchmarking code performance.
 library(rbenchmark)
@@ -174,14 +174,13 @@ if (get_username() == "anna.shipunova") {
 }
 
 # Define a function named 'load_csv_names' that takes two parameters: 'my_paths' and 'csv_names_list'
-load_csv_names <- function(my_paths, csv_names_list) {
-
-  # Extract the 'inputs' directory path from 'my_paths' and store it in 'my_inputs'
-  my_inputs <- my_paths$inputs
-
-  # Use 'lapply' to prepend the 'my_inputs' directory path to each file name in 'csv_names_list'
+load_csv_names <- function(csv_files_paths, csv_names_list) {
+ # Use 'lapply' to add the 'my_inputs' directory path in front of each file name in 'csv_names_list'
   # This creates a list of full file paths for the CSV files
-  myfiles <- lapply(csv_names_list, function(x) file.path(my_inputs, x))
+  myfiles <- lapply(csv_names_list, function(x) file.path(csv_files_paths, x))
+
+  # browser()
+  print(myfiles)
 
   # Use 'lapply' again to read all CSV files listed in 'myfiles'
   # The 'read_csv' function from the 'readr' package is used, specifying default column types as 'c' ('character')
@@ -260,10 +259,10 @@ load_xls_names <- function(my_paths, xls_names_list, sheet_n = 1) {
 }
 
 # The clean_headers function is designed to clean and fix the column names of a given dataframe (my_df).
-clean_headers <- function(my_df) {
+clean_headers <- function(my_df, replace_to = "") {
     # Use the 'fix_names' function to clean and fix the column names of the dataframe.
     colnames(my_df) %<>%
-        fix_names()
+        fix_names(replace_to = replace_to)
 
     # Return the dataframe with cleaned and fixed column names.
     return(my_df)
@@ -273,12 +272,12 @@ clean_headers <- function(my_df) {
 # The fix_names function is used to clean and standardize column names to make them suitable for use in data analysis or further processing.
 # to use in a function,
 # e.g. read_csv(name_repair = fix_names)
-fix_names <- function(x) {
+fix_names <- function(x, replace_to = "") {
   # Use the pipe operator %>%
   x %>%
 
     # Remove dots from column names
-    str_replace_all("\\.", "") %>%
+    str_replace_all("\\.", replace_to) %>%
 
     # Replace all characters that are not letters or numbers with underscores
     str_replace_all("[^A-z0-9]", "_") %>%
@@ -290,7 +289,7 @@ fix_names <- function(x) {
     my_headers_case_function()
 }
 
-## functions to clean FHIER compliance and correspondense reports ----
+## functions to clean FHIER compliance and correspondence reports ----
 
 # split week column ("52: 12/26/2022 - 01/01/2023") into 3 columns with proper classes, week_num (week order number), week_start and week_end
 # Define a function named 'clean_weeks' that takes a data frame 'my_df' as input.
@@ -420,18 +419,32 @@ join_all_csvs <- function(corresp_arr, compl_arr) {
 # It returns the 'result_df', which is the input data frame with the specified column converted to dates according to the specified 'date_format'.
 
 # ===
-change_to_dates <- function(my_df, field_name, date_format) {
+change_to_dates <- function(my_df, field_name, date_format = "") {
   # Convert the specified column ('field_name') in 'my_df' to POSIXct date format using 'as.POSIXct'
   # Within the mutate function, it uses pull to extract the column specified by 'field_name' and then applies as.POSIXct to convert the values in that column to POSIXct date format using the provided 'date_format'.
 
+  # browser()
+  if (date_format == "") {
+    my_tryFormats = c(
+      "%m/%d/%Y %I:%M%p",
+      "%m/%d/%Y %I:%M %p",
+      "%m/%d/%Y %R%OS",
+      "%Y-%m-%d %H:%M:%OS",
+      "%Y/%m/%d %H:%M:%OS",
+      "%Y-%m-%d %H:%M",
+      "%Y/%m/%d %H:%M",
+      "%Y-%m-%d",
+      "%Y/%m/%d"
+    )
+  }
+
+  new_field_name <- str_glue("{field_name}_dttm")
+
   result_df <-
     my_df |>
-    mutate(!!field_name := as.POSIXct(!!field_name, format = date_format))
-    # dplyr::mutate({
-    #   {
-    #     field_name
-    #   }
-    # } := as.POSIXct(dplyr::pull(my_df[field_name]), format = date_format))
+    mutate(!!new_field_name := as.POSIXct(!!field_name,
+                                      tryFormats = my_tryFormats,
+                                      format = date_format))
 
   # Return the data frame with the specified column converted to dates
   return(result_df)
@@ -558,10 +571,11 @@ data_overview <- function(my_df) {
 # from https://stackoverflow.com/questions/53781563/combine-rows-based-on-multiple-columns-and-keep-all-unique-values
 # concat_unique <- function(x){paste(unique(x),  collapse=', ')}
 
-# Define a function 'concat_unique' to concatenate unique non-NA values from a vector x into a single character string.
+# Explanations:
+# 1. Extract unique non-NA elements from the input vector 'x' using 'unique'.
+# 2. Concatenate these unique elements into a single string with ", " as the separator using 'paste0' and 'collapse'.
+
 concat_unique <- function(x) {
-  # Use 'unique' to extract unique values, '!is.na(x)' to remove NA values, and 'collapse = ", "' to concatenate with a comma and space.
-  # Finally, paste0 is used to concatenate the unique non-NA values with a comma and space separator (", ").
   paste0(unique(x[!is.na(x)]), collapse = ", ")
 }
 
@@ -617,7 +631,8 @@ concat_unique_sorted <- function(x) {
 # unique values sorted within each group.
 # This function takes a data frame 'my_df' and a vector of column names
 # 'group_by_arr' as input.
-combine_rows_based_on_multiple_columns_and_keep_all_unique_sorted_values <- function(my_df, group_by_arr) {
+combine_rows_based_on_multiple_columns_and_keep_all_unique_sorted_values <-
+  function(my_df, group_by_arr) {
   # Group the data frame 'my_df' by the columns specified in 'group_by_arr'.
   # This step ensures that we create groups based on unique combinations of
   # values in the specified columns.
@@ -653,8 +668,8 @@ csv_names_list_22_23 = c("Correspondence.csv",
 # This function takes a vector of 'filenames' as input.
 prepare_csv_names <- function(filenames) {
   # Define subdirectory names for correspondence and compliance files.
-  add_path_corresp <- "Correspondence"
-  add_path_compl <- "FHIER Compliance"
+  add_path_corresp <- "from_Fhier/Correspondence"
+  add_path_compl <- "from_Fhier/FHIER Compliance"
 
   # Use 'sapply' to process each filename in the 'filenames' vector.
   my_list <- sapply(filenames, function(x) {
@@ -731,12 +746,10 @@ corresp_cleaning <- function(csvs_clean1) {
   # Change the data types of 'createdon' and 'contactdate' columns to POSIXct.
   corresp_arr_contact_cnts <-
     change_to_dates(corresp_arr_contact_cnts,
-                    createdon_field_name,
-                    "%m/%d/%Y %H:%M")
+                    createdon_field_name)
   corresp_arr_contact_cnts <-
     change_to_dates(corresp_arr_contact_cnts,
-                    contactdate_field_name,
-                    "%m/%d/%Y %I:%M %p")
+                    contactdate_field_name)
 
   # Return the cleaned and processed correspondence data.
   return(corresp_arr_contact_cnts)
@@ -985,31 +998,72 @@ read_rds_or_run_no_db <-
     return(my_df)
   }
 
-# Pretty message print
+# ===
+# Explanations:
+#
+# 1. The function `function_message_print` is defined, which takes one argument `text_msg` (the text message to be printed).
+# 2. Inside the function, the `cat` function is used to print `text_msg` to the console.
+# 3. The function applies custom styling to `text_msg` using the `crayon` package:
+#    - `crayon::bgCyan$bold(text_msg)` applies a cyan background color and bold styling to `text_msg`.
+# 4. The `sep = "\n"` argument to `cat` ensures that the output is followed by a new line, so each message is printed on a separate line.
+# 5. The function prints the styled `text_msg` to the console and does not return any value (`NULL` by default).
 function_message_print <- function(text_msg) {
   cat(crayon::bgCyan$bold(text_msg),
       sep = "\n")
 }
 
+# ===
+# Explanations:
+# 1. The function `get_df_name_as_text` is defined, which takes one argument `my_df` (the data frame for which the name should be retrieved as text).
+# 2. The function uses the `substitute` function to capture the expression used to pass the data frame as `my_df`.
+# 3. The `deparse` function is then used to convert the expression from `substitute` into a character string, which represents the name of the data frame.
+# 4. The resulting character string (`df_name`) is stored in a variable of the same name.
+# 5. The function returns the name of `my_df` as a string (`df_name`).
 get_df_name_as_text <-
   function(my_df) {
     df_name = deparse(substitute(my_df))
     return(df_name)
   }
 
-# # A title
-# if (is.na(title_msg))  {
-#   df_name = deparse(substitute(my_df))
-#   title_msg <- df_name
-# }
-
 # to print the title message in blue.
 title_message_print <- function(title_msg) {
   cat(crayon::blue(title_msg), sep = "\n")
 }
 
+pretty_print <- function(my_text, my_title,
+                         the_end = "---") {
+  # Print out to console
+  title_message_print(my_title)
+  cat(c(my_text, the_end),
+      sep = "\n")
+}
 
-# Define a helper function 'my_tee' to print the message to the console and a file.
+# ===
+# Explanations:
+# - This function, `my_tee`, is designed to print messages to both the console and a log file.
+# - The function takes four parameters:
+#   - `my_text`: The text message to print and log.
+#   - `my_title`: An optional title for the message. If not provided, the function will default to `NA`.
+#   - `stat_log_file_path`: The file path where the message should be logged. If not provided, a default path is created.
+#   - `date_range`: An optional date range used to customize the log file's name. The default value is `2022`.
+#
+# - The function includes three main operations:
+#   - Print the message to the console with a title.
+#   - Create a log file path and write the message to the log file.
+#
+# Here's what's happening in detail:
+#
+# 1. The function `my_tee` is defined with four parameters: `my_text`, `my_title`, `stat_log_file_path`, and `date_range`.
+#
+# 2. The function initializes a constant `the_end` with the value `"---"`, which is used to mark the end of each message.
+#
+# 3. If the `date_range` parameter is not provided, it defaults to `2022`.
+#
+# 4. The function prints the title and message to the console. It uses the function `title_message_print` (not defined in the provided code) to print the title. Then, it prints the text of the message followed by the end mark (`the_end`).
+#
+# 5. If the `stat_log_file_path` parameter is not provided, the function constructs a default file path using the `Path` and `Outputs` variables (not defined in the provided code) and the current date (`today()`). The file path is constructed with the title, date range, and date as part of the file name.
+#
+# 6. Finally, the function writes the title, message, and end mark to the log file at the specified path. The function appends the new message to the file if it already exists.
 my_tee <- function(my_text,
                    my_title = NA,
                    stat_log_file_path = NA,
@@ -1045,6 +1099,33 @@ my_tee <- function(my_text,
 
 # The read_rds_or_run function is designed to read data from an RDS file if it exists or run an SQL query to pull the data from Oracle db if the file doesn't exist.
 # See usage below at the `Grab compliance file from Oracle` section
+
+# Explanations:
+# - This function, `read_rds_or_run`, is designed to read data from an RDS file if it exists or run a specified function to obtain the data and save it as an RDS file if the file does not exist or if the `force_from_db` parameter is set.
+#
+# Here's what's happening in detail:
+#
+# 1. **Function Definition**: The function takes four parameters:
+#    - `my_file_path`: The path to the RDS file to be read or saved.
+#    - `my_data`: The data to be used with the function. Default is an empty data frame.
+#    - `my_function`: The function to be run to obtain the data if necessary.
+#    - `force_from_db`: A flag that, when set, will force the function to run the specified function instead of reading from the file, even if the file exists.
+#
+# 2. **Check File Existence**: The function first checks if the file specified by `my_file_path` exists and, if so, retrieves its modification time.
+#
+# 3. **Read or Run**: Depending on the existence of the file and the `force_from_db` flag:
+#     - **File Exists and `force_from_db` is not set**: If the file exists and `force_from_db` is not set, the function reads the data from the RDS file using `readr::read_rds(my_file_path)` and assigns it to `my_result`.
+#     - **File Does Not Exist or `force_from_db` is set**: If the file does not exist or `force_from_db` is set, the function follows these steps:
+#         - Prints a message indicating the file doesn't exist and data will be pulled from the database.
+#         - Times the function execution using `tictoc::tic()` and starts with a message indicating the date and purpose of the run.
+#         - Runs the specified function (`my_function`) on the provided `my_data` to generate the result (`my_result`), e.g., downloading data from the Oracle database.
+#         - Stops timing the function execution using `tictoc::toc()`.
+#         - Saves the result as an RDS file to the specified `my_file_path` for future use using `readr::write_rds(my_result, my_file_path)`. A `try` block is used to handle potential errors in writing the file.
+#         - Prints a message indicating that the new data is being saved into a file.
+#
+# 4. **Print File Information**: After obtaining the data, the function prints the file name and modification time to provide information on when the data was last downloaded or modified.
+#
+# 5. **Return**: The function returns the generated or read data (`my_result`).
 read_rds_or_run <- function(my_file_path,
                             my_data = as.data.frame(""),
                             my_function,
@@ -1107,20 +1188,6 @@ read_rds_or_run <- function(my_file_path,
     # Return the generated or read data.
     return(my_result)
 }
-
-
-# Usage:
-# select(-all_of(names(empty_cols)))
-# empty_cols <-
-#   function(my_df) {
-#     my_df |>
-#       purrr::map_df(function(x) {
-#         if (length(unique(x)) == 1) {
-#           return(unique(x))
-#         }
-#       }) %>%
-#     return()
-#   }
 
 # ===
 # Function to remove empty columns from a data frame
@@ -1238,25 +1305,24 @@ read_an_answer <- function(my_prompt) {
 # if (interactive()) read_an_answer(my_prompt)
 
 # make it "NO_YES" if both compliant and not compliant
-# Explanations:
-# The function 'get_compl_by' performs the following operations:
-# 1. Groups the data frame by the specified columns using 'group_by_at'.
-# 2. Selects unique rows based on the grouping columns since we are looking at vessels, not weeks.
-# 3. Pivots the data wider, creating a column for each vessel.
-# 4. Combines values if there are multiple entries for the same vessel using a custom function that sorts and concatenates them.
-# 5. Removes the grouping to return the data to its original structure.
-# 6. Returns the modified data frame.
-get_compl_by <- function(my_df, group_by_for_compl) {
-  my_df %>%
+# Not tested with overridden
+get_compl_by <-
+  function(my_df,
+           group_by_for_compl =
+             vars(-c("vessel_official_number", "compliant_", "overridden_")),
+           names_from_list = c("vessel_official_number")) {
+    browser()
+    my_df %>%
     dplyr::group_by_at(group_by_for_compl) %>%
     # can unique, because we are looking at vessels, not weeks
     unique() %>%
     # more columns, a column per vessel
     tidyr::pivot_wider(
-      names_from = vessel_official_number,
-      values_from = compliant_,
+      names_from = all_of(names_from_list),
+      values_from = c("compliant_", "overridden_"),
+        # compliant_,
       # make it "NO_YES" if both
-      values_fn = ~ paste0(sort(.x), collapse = "_")
+      values_fn = ~ paste0(unique(sort(.x)), collapse = "_")
     ) %>%
     dplyr::ungroup() %>%
     return()
@@ -1267,7 +1333,17 @@ get_compl_by <- function(my_df, group_by_for_compl) {
 group_by_for_compl <-
   vars(-c("vessel_official_number", "compliant_"))
 
+# ---
+# Explanations:
+# The function 'compl__back_to_longer_format' performs the following operations:
+# 1. Turns the data frame back to a longer format with vessel IDs in one column.
+# 2. Specifies the columns to pivot. All columns except those specified in 'cols_names' are treated as vessel IDs.
+# 3. Sets the values to the column 'is_compl_or_both'.
+# 4. Sets the names to the column 'vessel_official_number'.
+# 5. Returns the modified data frame.
+
 # Usage example:
+# cols_names are all names except vessel_official_numbers
 # cols_names <-
 #   c("year",
 #     "permit_sa_gom_dual",
@@ -1280,14 +1356,6 @@ group_by_for_compl <-
 #     compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide__both,
 #     cols_names
 #   )
-
-# Explanations:
-# The function 'compl__back_to_longer_format' performs the following operations:
-# 1. Turns the data frame back to a longer format with vessel IDs in one column.
-# 2. Specifies the columns to pivot. All columns except those specified in 'cols_names' are treated as vessel IDs.
-# 3. Sets the values to the column 'is_compl_or_both'.
-# 4. Sets the names to the column 'vessel_official_number'.
-# 5. Returns the modified data frame.
 compl__back_to_longer_format <-
   function(my_df,
            cols_names) {
@@ -1327,3 +1395,125 @@ add_cnt_in_gr <-
       ungroup() %>%
       return()
   }
+
+# ---
+clean_names_and_addresses <- function(my_df) {
+
+  my_df_cleaned <-
+    my_df |>
+    mutate(
+      across(where(is.character),
+             ~ str_squish(.x)),
+      across(where(is.character),
+             ~ replace_na(.x, "")),
+      across(where(is.character),
+             ~ str_replace_all(.x, ", ;", ";")),
+      across(where(is.character),
+             ~ str_replace_all(.x, "\\s+[,;]", ",")),
+      across(where(is.character),
+             ~ str_replace_all(.x, ";,+", ";")),
+      across(where(is.character),
+             ~ str_replace_all(.x, ";;+", ";")),
+      across(where(is.character),
+             ~ str_replace_all(.x, ",,+", ",")),
+      across(where(is.character),
+             ~ str_replace_all(.x, "[,;] *\\bUN\\b *", "")),
+      across(where(is.character),
+                          ~ str_replace_all(.x, "\\bUN\\b", "")),
+      across(where(is.character),
+             ~ str_replace_all(.x, "\\s*\\bUN\\b\\s*", "")),
+      across(where(is.character),
+             ~ str_replace_all(.x, "^[,;] ", "")),
+      across(where(is.character),
+             ~ str_replace_all(.x, "^[,;]$", "")),
+      across(where(is.character),
+             ~ str_replace_all(.x, "[,;]$", "")),
+      across(where(is.character),
+             ~ str_squish(.x))
+    )
+
+  return(my_df_cleaned)
+}
+
+# ---
+# combine columns into one
+# Usage:
+# db_participants_address__needed_short__phone2 <-
+#   db_participants_address__needed_short__phone0 |>
+#   group_by(official_number) |>
+#   mutate(db_phone = pmap(across(ends_with("_phone")),
+#                          ~ list_sort_uniq(.))) |>
+#   ungroup()
+# ---
+# back to chr
+# summarise(db_mailing_state1 =
+              # paste(sort(unique(str_trim(flatten(db_mailing_state)))), collapse = ", ")) |>
+
+# flatten(list(sort(unique(str_trim(my_lists)))))
+list_sort_uniq <- function(my_lists) {
+  # browser()
+  res <-
+    my_lists |>
+    str_trim() |>
+    unique() |>
+    sort() |>
+    list() |>
+    flatten()
+  return(res)
+}
+
+# ---
+# another usage example
+# also uses mutate within a loop to create multiple new columns and binds each one back to the original df.
+# db_participants_address__needed_short__erv_erb_combined <-
+#   col_part_names |>
+#   map(\(curr_col_part)  {
+#     new_col_name <- str_glue("db_{curr_col_part}")
+#     # cat(new_col_name, sep = "\n")
+#
+#     db_participants_address__needed_short__phone0 |>
+#       group_by(official_number) |>
+#       mutate(!!new_col_name :=
+#                pmap(across(ends_with(curr_col_part)),
+#                     ~ list_sort_uniq(.)),
+#              .keep = "none") |>
+#       ungroup() |>
+#       select(-official_number)
+#
+#   }) |>
+#   bind_cols(db_participants_address__needed_short__phone0, .)
+
+# ===
+# Explanations:
+# 1. Create a new variable 'res' to store the result.
+# 2. Use 'rowwise' to perform operations row by row.
+# 3. Use 'mutate' to create a new column 'compliant_after_override' based on conditions specified in 'case_when'.
+#    - If 'is_comp' is 0 and 'overridden' is 0, set 'compliant_after_override' to "no".
+#    - If 'is_comp' is 1 or 'overridden' is 1, set 'compliant_after_override' to "yes".
+#    - If 'is_comp' is NA, set 'compliant_after_override' to NA.
+#    - For all other cases, set 'compliant_after_override' to the string representation of 'is_comp'.
+# 4. Use 'ungroup' to remove grouping from the data frame.
+
+add_compliant_after_override <-
+  function(my_compl_df,
+           overridden_col_name = "overridden",
+           compliance_col_name = "is_comp") {
+  # browser()
+  res <-
+    my_compl_df |>
+    rowwise() |>
+    mutate(
+      compliant_after_override =
+        case_when(
+          !!sym(compliance_col_name) %in% c(0, "NO") &
+            !!sym(overridden_col_name) %in% c(0, "NO")  ~ "no",
+          !!sym(compliance_col_name) %in% c(1, "YES") ~ "yes",
+          !!sym(overridden_col_name) %in% c(1, "YES") ~ "yes",
+          is.na(!!sym(compliance_col_name)) ~ NA,
+          .default = toString(!!sym(compliance_col_name))
+        )
+    ) |>
+    ungroup()
+
+  return(res)
+}
