@@ -105,6 +105,8 @@ all_vessel_in_names_list__combinations__in_one_list <-
 
     }
 
+    # length(res_inters)
+    # return(all_vessel_in_names_list__combinations__res)
   })
 
 names(all_vessel_in_names_list__combinations__in_one_list) <-
@@ -114,4 +116,3 @@ names(all_vessel_in_names_list__combinations__in_one_list) <-
 
 map(all_vessel_in_names_list__combinations__in_one_list,
     length)
-
