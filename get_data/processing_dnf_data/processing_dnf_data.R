@@ -1,83 +1,100 @@
 # processing_DNF_data
 
-# The result will be in
-# SEFHIER_processed_DNFs_{my_year}.rds
+# Files to create prior to running this script:
+# 1) SEFHIER_permitted_vessels_nonSRHS_{my_year}.rds
+       # use processing_metrics_tracking.R to create this file before running this script
 
-# Files to read or create:
+# Files this script will create:
 # 1) Raw_Oracle_Downloaded_compliance_2021_plus.rds
-# 2) Raw_Oracle_Downloaded_logbook_{my_date_beg}__{my_date_end}.rds
-# 3) SEFHIER_permitted_vessels_nonSRHS_{my_year}.rds
+# 2) Raw_Oracle_Downloaded_dnf_{my_compliance_date_beg}__{my_compliance_date_end}.rds
+# 3) SEFHIER_processed_dnfs_{my_year}.rds
+       # this is the final processed data set that you can then use in further analyses
+# 4) processing_auxiliary_methods.R
+       # get from Google Drive R code folder (R code / Processed data, https://docs.google.com/document/d/1U5cYuEGITcHrwDLgkHtyMvoUsS7nZeONyHt2yelpbNA/edit?usp=drive_link), put in path directory with this script
 
-# This code processes DNF data from Oracle database ready for FHIER,
+# This code processes DNF data from SEFSC’s Oracle database,
 # then cleans it up, so that we can use it in any DNF data analysis:
 # (1) (a) pull all DNF and compliance/override data from Oracle database
 #     (b) get Metrics Tracking from FHIER
-#     (c) get SRHS list from Ken Brennan (SRHS branch chief) and reformat to one sheet file
 # (2) clean up DNF data set
-#   (a) remove records from SRHS vessels
-#   (b) remove records where start date/time is after end date/time
-#   (c) remove records for trips neg lasting more than 10 days
-# (3) remove all trips neg that were received > 30 days after trip end date, by using compliance data and time of submission
-#   (a) remove all overridden data, because the submission date is unknown
-# (4) Mark late submission data
-# (5) Add permit region information (GOM, SA, or dual), using permit names (optional)
+#     (a) remove records from SRHS vessels
+# (3) flag all overridden data.
+       # Depending on the analysis question, we may want to remove DNFs for weeks that
+       # were overridden because we don't have a timestamp for when the DNF was submitted to
+       # the app, only when it was submitted to Oracle/SAFIS, and we can't differentiate between
+       # turning a DNF in on time- in the app, and it then taking two months to get it into FHIER vs
+       # turning in a DNF two months late.
+       # E.g. user submitted Jan 1, 2022, but SEFHIER team found it missing in FHIER (and
+       # SAFIS) in March, 2022 (at permit renewal)... user submitted on time in app (VESL) but we
+       # may not get that report in SAFIS for months later (when its found as a "missing report" and
+       # then requeued for transmission)
+# (4) flag all DNFs (trips neg) that were received > 30 days after trip end date, by using time of
+       # submission
+       # Depending on the analysis question, we may want to remove DNF’s that were more than
+       # 30 days late. Reports submitted more than 30 days late are often not used due to recall
+       # bias.
 
-# For 2022 we don't keep trips neg starting in 2021 and ending in 2022. We only keep trips neg starting in 2022.
+# Notes:
+# For this analysis, a fishing week starts on Monday and ends on Sunday (following the regs).
+# For 2022 we don't keep DNFs starting in 2021 and ending in 2022. We only keep DNFs starting in 2022.
 
 # Caveats:
-# 1) The way COMP_WEEK is calculated could get messed up depending on a given year time frame. It's due to something
-# internal called the ISO number and how the function calculates the start of a week. If you are running this on a
-# new data set, check your weeks to make sure it's calculating correctly.
+# 1) The way COMP_WEEK is calculated could get messed up depending on a given year's time frame.
+  # It's due to something internal called the ISO number and how the function calculates the start of a week.
+  # If you are running this on a new data set, check your weeks to make sure it's calculating correctly.
 
 # Running the code
-# To run the file as a whole, you can type this in the console: source('Processing DNF Data.R') and hit enter.
+# To run the file as a whole, you can type this in the console: source('processing_dnf_data.R') and hit enter.
 # Pressing F2 when the custom function name is under the cursor will show the function definition.
-# Pressing F1 when the R function name is under the cursor will show the function definition
-# and examples in the help panel.
+# Pressing F1 when the R function name is under the cursor will show the function definition and examples in the help panel.
 
 # General set up ----
 
-# load required packages
+# load required packages (install first if needed)
 library(ROracle)
-library(xlsx)
 library(tidyverse)
 # see the list of packages: tidyverse_packages()
-
 library(tictoc) # Functions for timing
 library(crayon) # Colored terminal output
 
 # set working and output directory - where do you keep the data and analysis folder on your computer?
-michelles_path <- "C:/Users/michelle.masi/Documents/SEFHIER/R code/DNF related analyses/DNF Processing (Do this before all DNF Analyses)/"
+michelles_path <-
+  "C:/Users/michelle.masi/Documents/SEFHIER/R code/Processed data/"
 
 jennys_path <-
   "//ser-fs1/sf/LAPP-DM Documents/Ostroff/SEFHIER/Rcode/ProcessingDNFData/"
+# r"(C:\Users\jenny.ostroff\Desktop\Backups\Rcode\ProcessingDNFData)"
 
 # Input files are the same here
 annas_path <-
-  r"(C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\processing_logbook_data/)"
+  r"(~\R_files_local\my_inputs\processing_logbook_data/)"
 
+# !! Change to your path !!
 # Change to use another path instead:
 # Path <- michelles_path
 Path <- annas_path
 
-Inputs <- "Inputs/"
-Outputs <- "Outputs/"
+Inputs <- "Inputs"
+Outputs <- "Outputs"
+
+output_file_path <-
+  file.path(Path, Outputs)
 
 # Set the date ranges for the DNF and compliance data you are pulling
 # this is the year to assign to the output file name
-# my_year <- "2022"
-# my_date_beg <- '01-JAN-2022'
-# my_date_end <- '31-DEC-2022'
+my_year <- "2022"
+# my_year <- "2023"
+# my_year <- "2024"
 
-my_year <- "2023"
-my_date_beg <- '01-JAN-2023'
-my_date_end <- '31-DEC-2023'
+# years range for srfh_vessel_comp db download, see below
+db_year_1 <- "2021"
+db_year_2 <- "2024"
 
 # Auxiliary methods ----
-annas_git_path <-
-r"(~\R_code_github\get_data)"
-
 if (Path == annas_path) {
+  annas_git_path <-
+    r"(~\R_code_github\get_data)"
+
   auxiliary_methods_file_path <-
     file.path(annas_git_path,
               "processing_auxiliary_methods.R")
@@ -91,7 +108,11 @@ if (Path == annas_path) {
 
 source(auxiliary_methods_file_path)
 
-# Start the log ----
+curr_dates <- get_the_dates(my_year)
+my_compliance_date_beg <- curr_dates$my_compliance_date_beg
+my_compliance_date_end <- curr_dates$my_compliance_date_end
+
+# Create DNF processing start date and time (for version control tracking) ----
 my_tee(date(),
        my_title = str_glue("Start DNF processing for {my_year}"))
 
@@ -102,10 +123,17 @@ my_tee(date(),
 # for me instructions: https://docs.google.com/document/d/1qSVoqKV0YPhNZAZA-XBi_c6BesnH_i2XcLDfNpG9InM/edit#
 
 # set up an Oracle connection
+# Sys.getenv("ORA_SDTZ")
+
+# You have to set up the same time zones for ROracle and RStudio. By default, they use different ones, and this difference causes dates and times to round up in R Studio, pushing some date timestamps to the next day, and making them incorrect.
+Sys.setenv(TZ = Sys.timezone())
+Sys.setenv(ORA_SDTZ = Sys.timezone())
+
+# test if you are connected to VPN
 tic("try_connection")
 try(con <- connect_to_secpr())
 toc()
-# try_connection: 21.7 sec elapsed if no connection
+# try_connection: 21.7 sec elapsed if no connection (i.e. not on VPN)
 # try_connection: 1.63 sec elapsed if works normally
 
 ## Import and prep compliance/override data ----
@@ -118,100 +146,118 @@ compl_override_data_file_path <-
   file.path(Path,
             Outputs,
             str_glue("Raw_Oracle_Downloaded_compliance_2021_plus.rds"))
+# File: Raw_Oracle_Downloaded_compliance_2021_plus.rds modified 2024-02-05 09:52:06.996529
+
+# Check if the file path is correct, optional
+# file.exists(compl_override_data_file_path)
 
 # 2) Create a variable with a table name to call data from, define year.
-# >= 2021 because of when the program started
+# >= 2021 because of when the program started or between 2 years defined above
 compl_err_query <-
+  str_glue(
   "SELECT
   *
 FROM
   srh.srfh_vessel_comp@secapxdv_dblk.sfsc.noaa.gov
 WHERE
-  comp_year >= '2021'"
-
-# Check if the file path is correct, optional
-# file.exists(compl_override_data_file_path)
+  comp_year >= '{db_year_1}' AND comp_year <= '{db_year_2}'")
 
 # Create the compliance/overridden data frame
 # using the function pre-defined above to check if there is a file saved already,
 # read it
 # or run the query and write the file for future use
-
+# Use force_from_db = TRUE to pull again from the DB
 compl_override_data <-
   read_rds_or_run_query(compl_override_data_file_path,
-                        compl_err_query)
-# 2024-02-05 run for Compliance_raw_data_2021_plus.rds: 104.5 sec elapsed
-# File: Compliance_raw_data_2021_plus.rds modified Mon Feb  5 09:52:06 2024
+                        compl_err_query,
+                        force_from_db = NULL)
+
+# check a week start day, should be Monday
+compl_override_data |>
+  filter(COMP_YEAR == '2023' &
+         COMP_WEEK == '50') |>
+  select(COMP_WEEK_START_DT) |>
+  distinct() |>
+  mutate(week_day = weekdays(COMP_WEEK_START_DT)) |>
+  str()
+# $ COMP_WEEK_START_DT: POSIXct, format: "2023-12-11".
+# $ week_day          : chr "Monday"
+# Monday - correct (https://calendar.online/calendar-weeks/2023/50)
 
 ### prep the compliance/override data ----
 
 # Change column names for consistency with other datasets
-compl_override_data <-
+compl_override_data__renamed <-
   compl_override_data |>
   dplyr::rename(VESSEL_OFFICIAL_NUMBER =
                   "VESSEL_OFFICIAL_NBR",
                 OVERRIDDEN = "IS_COMP_OVERRIDE")
 
 # stats
-my_stats(compl_override_data)
+my_stats(compl_override_data__renamed)
 # rows: 460724
 # columns: 23
 # Unique vessels: 4390
 
-# stats
-min(compl_override_data$COMP_WEEK_START_DT)
+# Check min date in DNF data
+min(compl_override_data__renamed$COMP_WEEK_START_DT)
 # [1] "2021-01-04 EST"
 
-# keep only year of analysis, including the week 52 of the previous year
-compl_override_data_this_year <-
-  compl_override_data |>
-  filter(COMP_WEEK_END_DT >= as.Date(my_date_beg, "%d-%b-%Y") &
-           COMP_WEEK_START_DT <= as.Date(my_date_end, "%d-%b-%Y"))
+# keep only my_year of analysis, including week 52 of the previous year if needed
+compl_override_data__renamed__this_year <-
+  compl_override_data__renamed |>
+  filter(COMP_WEEK_END_DT >= as.Date(my_compliance_date_beg, "%d-%b-%Y",
+                                     tz = Sys.timezone()) &
+           COMP_WEEK_START_DT <= as.Date(my_compliance_date_end, "%d-%b-%Y",
+                                         tz = Sys.timezone()))
 
 # check
-# That's the week 52 of my_year-1:
-min(compl_override_data_this_year$COMP_WEEK_START_DT)
-# [1] "2021-12-27 EST" #this should be the last week in the year before my_year, to account for compliance week that overlaps last week of the year and first week of my_year
-min(compl_override_data_this_year$COMP_WEEK_END_DT)
-# [1] "2022-01-02 EST" #this should be the 1st date in my_year
+# That's the week 52 of the previous year (my_year - 1):
+min(compl_override_data__renamed__this_year$COMP_WEEK_START_DT)
+# [1] "2021-12-27 EST" # this might contain the last week in the year before my_year, to account for a compliance week that overlaps last week of the previous year and first week of my_year
+min(compl_override_data__renamed__this_year$COMP_WEEK_END_DT)
+# [1] "2022-01-02 EST" # this might contain the last week in the year before my_year, to account for a compliance week that overlaps last week of the previous year and first week of my_year
+
 
 # change data type of this column if needed
-if (!class(compl_override_data_this_year$VESSEL_OFFICIAL_NUMBER) == "character") {
-  compl_override_data_this_year$VESSEL_OFFICIAL_NUMBER <-
-    as.character(compl_override_data_this_year$VESSEL_OFFICIAL_NUMBER)
+if (!class(compl_override_data__renamed__this_year$VESSEL_OFFICIAL_NUMBER) == "character") {
+  compl_override_data__renamed__this_year$VESSEL_OFFICIAL_NUMBER <-
+    as.character(compl_override_data__renamed__this_year$VESSEL_OFFICIAL_NUMBER)
 }
 
 ## Import the permit data ----
+# Use file.path to construct the path to a file from components. It will add the correct slashes between path parts.
 processed_metrics_tracking_path <-
   file.path(Path,
             Outputs,
             str_glue("SEFHIER_permitted_vessels_nonSRHS_{my_year}.rds"))
 
+# optional
 # file.exists(processed_metrics_tracking_path)
 
-SEFHIER_permit_info_short_this_year <-
+# reads the file in the path into a data frame
+processed_metrics_tracking <-
   read_rds(processed_metrics_tracking_path)
 
-## Import and prep the dnf data ####
+## Import and prep the DNF data ----
 
-# Import the dnf data from file or database
+# Import the DNF data from file or database
 # Prepare 2 variables to use as parameters for read_rds_or_run_query()
 
-# 1) create a variable with file path to read or write the dnf file
-
+# 1) create a variable with file path to read or write the DNF file
 dnfs_file_path <-
   file.path(Path,
             Outputs,
-            str_glue("Raw_Oracle_Downloaded_dnf_{my_date_beg}__{my_date_end}.rds"))
+            str_glue("Raw_Oracle_Downloaded_dnf_{my_compliance_date_beg}__{my_compliance_date_end}.rds"))
 # Was "SAFIS_TripsDownload_"
 
 # 2) create a variable with an SQL query to call data from the database
 
+# Explanation:
 # stringr::str_glue:
 # Interpolation with glue to include variable names
 
 # Need to join safis.trips_neg to safis.vessels because the vessel_ID in safis.trips_neg is not the official number
-
 dnfs_download_query <-
   str_glue(
     "SELECT
@@ -219,6 +265,7 @@ dnfs_download_query <-
   trip_date,
   tn.vessel_id vessel_id,
   tn.de,
+  tn.ue,
   coast_guard_nbr,
   state_reg_nbr,
   sero_official_number vessel_official_number
@@ -227,119 +274,73 @@ FROM
   JOIN safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
   ON ( tn.vessel_id = v.vessel_id )
 WHERE
-    trip_date BETWEEN TO_DATE('{my_date_beg}', 'dd-mon-yy') AND
-TO_DATE('{my_date_end}', 'dd-mon-yy')
+    trip_date BETWEEN TO_DATE('{my_compliance_date_beg}', 'yyyy-mm-dd') AND
+TO_DATE('{my_compliance_date_end}', 'yyyy-mm-dd')
 "
   )
 
-# Use 'read_rds_or_run_query' defined above to either read dnf information from an RDS file or execute a query to obtain it and write a file for future use.
+# Use 'read_rds_or_run_query' defined above to either read DNF information from an RDS file or execute a query to obtain it and write a file for future use.
+# Use force_from_db = TRUE to pull again from the DB
 dnfs <-
   read_rds_or_run_query(dnfs_file_path,
-                        dnfs_download_query)
-# 2024-02-05 run for Raw_Oracle_Downloaded_dnf_01-JAN-2022__31-DEC-2022.rds: 104.7 sec elapsed
+                        dnfs_download_query,
+                        force_from_db = NULL)
 
-# check
-get_dnfs_check_ids <- function(dnfs) {
-  dnfs_check_ids <-
-    dnfs |> filter(!is.na(COAST_GUARD_NBR) & !is.na(STATE_REG_NBR)) |>
-    select(COAST_GUARD_NBR, STATE_REG_NBR, VESSEL_OFFICIAL_NUMBER) |>
-    distinct()
-}
+# from scratch (with the parameter "force_from_db = TRUE")
+# 2024-03-25 run for Raw_Oracle_Downloaded_dnf_01-JAN-2022__31-DEC-2022.rds: 120.43 sec elapsed
+# 2024-03-25 run for Raw_Oracle_Downloaded_dnf_01-JAN-2023__31-DEC-2023.rds: 125.17 sec elapsed
 
-# dnfs_check_ids <- get_dnfs_check_ids(dnfs)
-# View(dnfs_check_ids)
-# 116
+### add COAST_GUARD_NBR or STATE_REG_NBR, if no VESSEL_OFFICIAL_NUMBER ----
 
-### Fewer columns ----
-# names(dnfs)
-dnfs_short <-
+
+# Explanations:
+# 1. Use 'mutate' to create or modify a column named 'VESSEL_OFFICIAL_NUMBER'.
+# 2. Use 'case_when' to conditionally assign values to the column based on conditions.
+# 3. Check if 'VESSEL_OFFICIAL_NUMBER' is NA (missing).
+#    - If true, use 'coalesce' to select the first non-missing value among 'COAST_GUARD_NBR' and 'STATE_REG_NBR'.
+#    - If 'VESSEL_OFFICIAL_NUMBER' is not missing, keep its original value.
+# 4. The resulting DataFrame will have the 'VESSEL_OFFICIAL_NUMBER' column filled with non-missing values from 'COAST_GUARD_NBR' or 'STATE_REG_NBR'.
+dnfs_v_all_ids <-
   dnfs |>
+  mutate(VESSEL_OFFICIAL_NUMBER =
+           case_when(
+             is.na(VESSEL_OFFICIAL_NUMBER) ~
+               coalesce(COAST_GUARD_NBR, STATE_REG_NBR), # first grab coast guard number and then state reg (if coast guard numbers is not available)
+             .default = VESSEL_OFFICIAL_NUMBER
+           ))
+
+# check if all vessels have ids now
+# dnfs_v_all_ids |>
+#   filter(is.na(VESSEL_OFFICIAL_NUMBER)) |>
+#   distinct() |>
+#   nrow()
+# 0 - OK, it means that all NA vessel official numbers have been replaced with either a Coast Guard or State Registration number
+
+### Remove State Reg # and Coast Guard # fields, as no longer needed ----
+dnfs_short <-
+  dnfs_v_all_ids |>
   select(-c(STATE_REG_NBR, COAST_GUARD_NBR))
 
-# stats
+# check # of records (rows) and unique vessels/trips, after replacing NAs above
 my_stats(dnfs_short, "dnfs from the db")
 # 2022
-# rows: 790839
-# columns: 5
-# Unique vessels: 2241
-# Unique trips neg (dnfs): 790839
+# rows: 796804
+# columns: 6
+# Unique vessels: 3576
+# Unique trips: 796804
 
-### reformat trip date ----
-# Explanation:
-#
-# 1. **Create New Dataframe:**
-#    - `dnfs <- dnfs |> ...`: Create a new dataframe 'dnfs' by using the pipe operator '|>' on the existing 'dnfs'.
-#
-# 2. **Use 'mutate' to Convert Columns:**
-#    - `mutate(across(..., as.Date))`: Utilize the 'mutate' function with 'across' to apply a transformation to multiple columns.
-#
-# 3. **Column Selection with 'across':**
-#    - `c(!where(is.Date) & ends_with("_DATE"))`: Select columns that meet the specified conditions:
-#      - `!where(is.Date)`: Columns that are not already of type 'Date'.
-#      - `ends_with("_DATE")`: Columns whose names end with "_DATE".
-#
-# 4. **Convert Columns to Date:**
-#    - `as.Date`: Use the 'as.Date' function to convert the selected columns to the 'Date' format.
+# 2023 with ue
+# rows: 948977
+# columns: 6
+# Unique vessels: 3860
+# Unique trips: 948977
 
-dnfs_short_date <-
-  dnfs_short |>
-  mutate(TRIP_DATE = as.Date(TRIP_DATE))
+### Prepare data to determine what weeks were overridden, so we can flag DNFs from those weeks later ----
 
-# Check
-# dnfs_short$TRIP_DATE |>
-#   class()
-# dnfs_short_date$TRIP_DATE |>
-#   class()
-# before
-# "POSIXct" "POSIXt"
-# after
-# "Date"
-
-# Now:
-# dnfs_short_date$TRIP_DATE |>
-#   head(1)
-# [1] "2022-09-19"
-
-### Filter out just my_analysis_year dnf entries ----
-
-# check
-min(dnfs$TRIP_DATE)
-# [1] "2022-01-01"
-# [1] "2023-01-01"
-max(dnfs$TRIP_DATE)
-# [1] "2022-12-31"
-# [1] "2023-12-31"
-
-dnfs <-
-  dnfs_short_date |>
-  filter(TRIP_DATE >= as.Date(my_date_beg, "%d-%b-%Y") &
-           TRIP_DATE <= as.Date(my_date_end, "%d-%b-%Y"))
-
-# stats, to compare with the end result
-dnfs_stat_correct_dates_before_filtering <-
-  c(dim(dnfs),
-    n_distinct(dnfs$VESSEL_OFFICIAL_NUMBER),
-    n_distinct(dnfs$TRIP_ID)
-  )
-
-my_stats(dnfs, "dnfs after filtering by dates")
-# rows: 790839
-# columns: 5
-# Unique vessels: 2241
-# Unique trips neg (dnfs): 790839
-
-# check
-min(dnfs$TRIP_DATE)
-# [1] "2022-01-01"
-max(dnfs$TRIP_DATE)
-# [1] "2022-12-31"
-
-### Prepare data to determine what weeks were overridden, so we can exclude dnfs from those weeks later ----
-
-# assign each dnf a week designation (first day of the reporting week is a Monday)
+# assign each DNF a week designation (first day of the reporting week is a Monday)
 # use the end date to calculate this, it won't matter for most trips, but for some trips neg that
 # happen overnight on a Sunday, it might affect what week they are assigned to
-#https://stackoverflow.com/questions/60475358/convert-daily-data-into-weekly-data-in-r
+# https://stackoverflow.com/questions/60475358/convert-daily-data-into-weekly-data-in-r
 
 # Calculate the ISO week number for each date in the 'TRIP_DATE2' column.
 # lubridate package has following methods:
@@ -348,288 +349,292 @@ max(dnfs$TRIP_DATE)
 # isoweek() returns the week as it would appear in the ISO 8601 system, which uses a reoccurring leap week.
 #
 # epiweek() is the US CDC version of epidemiological week. It follows same rules as isoweek() but starts on Sunday. In other parts of the world the convention is to start epidemiological weeks on Monday, which is the same as isoweek.
-#
 
 # Needed to adjust for week 52 of the previous year
-dnfs <-
-  dnfs |>
-  mutate(COMP_WEEK = isoweek(TRIP_DATE), # puts it in week num
-         TRIP_END_YEAR = isoyear(TRIP_DATE)) # adds a year
+dnfs_short_date__iso <-
+  dnfs_short |>
+  mutate(TRIP_DATE_WEEK = isoweek(TRIP_DATE), # puts it in week num
+         TRIP_DATE_YEAR = isoyear(TRIP_DATE)) # adds a year
 
-# to see the respective data in compl_override_data_this_year, note the last week of 2021
+# to see the respective data in compl_override_data__renamed__this_year, note the last week of 2021
 # not needed for processing
-compl_override_data_this_year |>
+compl_override_data__renamed__this_year |>
   select(COMP_YEAR,
          COMP_WEEK_END_DT,
          COMP_WEEK) |>
   distinct() |>
   arrange(COMP_WEEK_END_DT) |>
   head(3)
+# 2022
 #   COMP_YEAR COMP_WEEK_END_DT COMP_WEEK
 # 1      2021       2022-01-02        52
 # 2      2022       2022-01-09         1
 # 3      2022       2022-01-16         2
 
-## add override data to dnfs ----
-my_stats(compl_override_data_this_year,
-         "Compl/override data from the db")
+# 2023
+#   COMP_YEAR COMP_WEEK_END_DT COMP_WEEK
+# 1      2022       2023-01-01        52
+# 2      2023       2023-01-08         1
+# 3      2023       2023-01-15         2
+
+# Adding flags to the DNF data ----
+
+## Filter out vessels not in Metrics tracking ----
+SEFHIER_dnfs_short_date__iso <-
+  dnfs_short_date__iso |>
+  filter(VESSEL_OFFICIAL_NUMBER %in% processed_metrics_tracking$VESSEL_OFFICIAL_NUMBER)
+
+# Check the number of records (rows), vessels and trips after filtering vessels not in Metrics Tracking
+my_stats(SEFHIER_dnfs_short_date__iso)
+# compare numbers with DF prior to filtering out non-SEFHIER permitted vessels
+my_stats(dnfs_short_date__iso)
+
+
+# Create DF of vessels not in Metrics Tracking
+vessels_not_in_metrics <-
+  n_distinct(dnfs_short_date__iso$VESSEL_OFFICIAL_NUMBER) -
+  n_distinct(SEFHIER_dnfs_short_date__iso$VESSEL_OFFICIAL_NUMBER)
+
+# Total number of vessels in Oracle raw data but not in Metrics Tracking
+my_tee(vessels_not_in_metrics,
+       "Vessels removed if a vessel is not in Metrics tracking")
+# 1556 (2022)
+# 1857 (2023)
+
+# Create DF of DNFs that get excluded, because the vessel is not in Metrics Tracking (submitted by non-SEFHIER permitted vessels)
+dnfs_not_in_metrics <-
+  n_distinct(dnfs_short_date__iso$TRIP_ID) -
+  n_distinct(SEFHIER_dnfs_short_date__iso$TRIP_ID)
+
+# Total DNFs that get excluded, after removing non-SEFHIER permitted vessels
+my_tee(dnfs_not_in_metrics,
+       "DNFs removed if a vessel is not in Metrics tracking")
+# 356497 (2022)
+# 446859 (2023)
+
+## add compliance/override data to dnfs ----
+# We add data from the compliance module to the DNF data frame to associate weeks where compliance was overridden with the corresponding DNFs.
+# Depending on the analysis question, we may want to remove DNFs for weeks that
+# were overridden because we don't have a timestamp for when the DNF was submitted to
+# the app, only when it was submitted to Oracle/SAFIS, and we can't differentiate between
+# turning a DNF in on time- in the app, and it then taking two months to get it into FHIER vs
+# turning in a DNF two months late.
+# E.g. user submitted Jan 1, 2022, but SEFHIER team found it missing in FHIER (and
+# SAFIS) in March, 2022 (at permit renewal)... user submitted on time in app (VESL) but we
+# may not get that report in SAFIS for months later (when its found as a "missing report" and
+# then requeued for transmission)
+my_stats(compl_override_data__renamed__this_year,
+         "Compliance and override data from the db")
+# 2022
 # rows: 150029
 # columns: 23
 # Unique vessels: 3626
 
-# We need 'relationship = "many-to-many"' because
-# TODO: 1)
-# 2) 1 row of `y` matches multiple rows in `x`:
-# We need the many to many relationship because the DNFs represent a single day in a 7 day week, while the compliance represents a single week. So the relationship between DNFs to Compliance is 7 to 1.
+### check if DNFs and compliance data have the same week dates ----
+# Both datasets should define a week as Mon-Sun, and place each date in the correct week.
+# The first two functions define a week for the DNF dataset, then there is an explanation for the next two functions that define a week for the compliance dataset.
+# The final line in this section compares the two, and they should be equal. See the comment after the line (diffdf::diffdf).
 
+trip_date_1 <-
+  SEFHIER_dnfs_short_date__iso |>
+  filter(TRIP_DATE_WEEK == 1,
+         TRIP_DATE_YEAR == my_year) |>
+  select(TRIP_DATE)
 
-dnfs_join_overr <-
-  left_join(dnfs,
-            compl_override_data_this_year,
-            join_by(TRIP_END_YEAR == COMP_YEAR,
-                    VESSEL_OFFICIAL_NUMBER,
-                    COMP_WEEK),
-            relationship = "many-to-many"
-  )
+dnfs_first_week_my_year <-
+  tibble(min1 = as.Date(min(trip_date_1$TRIP_DATE),
+                        tz = Sys.timezone()),
+    # [1] "2022-01-03 23:00:00 EST"
+    max1 = as.Date(max(trip_date_1$TRIP_DATE),
+                   tz = Sys.timezone())
+    # [1] "2022-01-09 23:00:00 EST"
+    )
 
-# ℹ Row 104686 of `x` matches multiple rows in `y`.
-
-dnfs[104686, ] |> glimpse()
-# 1242820
-
-compl_override_data_this_year |>
-  filter(VESSEL_OFFICIAL_NUMBER == "1242820" &
-           COMP_WEEK == 32 &
-           COMP_YEAR == 2022) |>
-  View()
-
-# FL9558PU
-
-# dnfs |>
-#   filter(VESSEL_OFFICIAL_NUMBER == "FL9558PU")
-# 0
-
-# ℹ Row 43081 of `y` matches multiple rows in `x`.
-
-compl_override_data_this_year[43081, ] |> glimpse()
-# 1228073
-
-# dnfs |>
-#   filter(VESSEL_OFFICIAL_NUMBER == "1228073" &
-#            TRIP_END_YEAR == 2022 &
-#            COMP_WEEK == 20) |>
-  # View()
-
-
-# stats
-my_stats(dnfs)
-my_stats(dnfs_join_overr)
-# dnfs
-# rows: 790839
-# columns: 7
-# Unique vessels: 2241
-# Unique trips neg (dnfs): 790839
-# ---
-# dnfs_join_overr
-# rows: 791534
-# columns: 27
-# Unique vessels: 2241
-# Unique trips neg (dnfs): 790839
-
-# Make lists of overridden or not vessels
-# If a week for a vessel was overridden (compl_override_data_this_year), remove the trip reports from the corresponding week in the dnf data
-# We have to remove dnfs for weeks that were overridden because we don't have a timestamp for when the dnf was submitted to the app, only when it was submitted to Oracle/SAFIS, and we can't differentiate that time laps.
-# We can't differentiate between turning a dnf in on time in the app, and it taking two months to get it vs turning in a dnf two months late.
-# E.g. user submitted Jan 1, 2022, but SEFHIER team found it missing in FHIER (and SAFIS) in March, 2022 (At permit renewal)... user submitted on time in app (VESL) but we may not get that report in SAFIS for months later (when its found as a "missing report" and then requeued for transmission)
-
-dnfs_overridden <-
-  filter(dnfs_join_overr, OVERRIDDEN == 1) #data frame of dnfs that were overridden
-
-# stats
-my_stats(dnfs_overridden)
-# rows: 17642
-# columns: 27
-# Unique vessels: 379
-# Unique trips neg (dnfs): 17432
-
-dnfs_notoverridden <-
-  filter(dnfs_join_overr, OVERRIDDEN == 0) #data frame of dnfs that weren't overridden
-
-# stats
-my_stats(dnfs_notoverridden)
-# rows: 369465
-# columns: 27
-# Unique vessels: 2005
-# Unique trips neg (dnfs): 369316
-
-dnfs_NA <-
-  filter(dnfs_join_overr, is.na(OVERRIDDEN)) #dnfs with an Overridden value of NA, because they were
-# 1) submitted by a vessel that is missing from the Compliance report and therefore has no associated override data, or
-# 2) submitted by a vessel during a period in which the permit was inactive, and the report was not required
-
-# stats
-my_stats(dnfs_NA)
-# rows: 404427
-# columns: 27
-# Unique vessels: 1103
-# Unique trips neg (dnfs): 404427
-
-## Add vessels missing from the Compliance report ----
-# SEFHIER vessels missing from the Compliance report
-
-# Finds vessels in the permit data that are missing from the compliance data
-# So if a vessel is in the Metrics tracking report, but not in the compliance report we want to add them back.
-
-vessels_missing <-
-  setdiff(
-    SEFHIER_permit_info_short_this_year$VESSEL_OFFICIAL_NUMBER,
-    compl_override_data_this_year$VESSEL_OFFICIAL_NUMBER
-  )
-
-# stats
-my_tee(n_distinct(vessels_missing),
-       "vessels_missing")
-# vessels_missing 8
-# 61
-
-# SEFHIER dnfs from vessels missing from the Compliance report
-vessels_missing_dnfs <-
-  dnfs_NA |>
-  filter(VESSEL_OFFICIAL_NUMBER %in% vessels_missing)
-
-# add missing dnfs back to the not overridden data frame
-dnfs_notoverridden <-
-  rbind(dnfs_notoverridden,
-        vessels_missing_dnfs) |>
+# Explanations:
+# 1. Use 'filter' to select rows where 'COMP_WEEK' is equal to 1 and 'COMP_YEAR' is equal to "my_year".
+# 2. Use the pipe operator ('|>') to pass the resulting DataFrame to the next operation.
+# 3. Use 'select' to keep only the columns that start with "COMP_WEEK_".
+# 4. Use 'distinct' to keep only unique rows after selecting columns.
+# 5. The resulting DataFrame will contain only the columns that start with "COMP_WEEK_" from the filtered rows.
+trip_date_2 <-
+  compl_override_data__renamed__this_year |>
+  filter(COMP_WEEK == 1,
+         COMP_YEAR == my_year) |>
+  select(starts_with("COMP_WEEK_")) |>
   distinct()
 
-my_stats(dnfs_notoverridden)
-# rows: 371755
-# columns: 27
-# Unique vessels: 2018
-# Unique trips neg (dnfs): 371606
-
-# remove missing dnfs from NA dataset, the NA dataset is now only those that were submitted when not needed
-
-my_stats(dnfs_NA)
-# Unique vessels: 1103
-# Unique trips neg (dnfs): 404427
-
-# Subset the dnfs_NA dataframe by excluding rows with VESSEL_OFFICIAL_NUMBER
-# present in the vessels_missing vector.
-dnfs_NA__rm_missing_vsls <- dnfs_NA |>
-  filter(!VESSEL_OFFICIAL_NUMBER %in% vessels_missing)
-
-my_stats(dnfs_NA__rm_missing_vsls,
-         "dnfs_NA after removing missing dnfs")
-# rows: 402137
-# columns: 27
-# Unique vessels: 1090
-# Unique trips neg (dnfs): 402137
-
-# We have decided to throw out dnfs that were submitted when the permit was inactive, the logic
-# being we shouldn't include dnfs that weren't required in the first place. Alternatively,
-# deciding to keep in the NAs means we would be keeping reports that were submitted by a vessel
-# during a period in which the permit was inactive, and the report was not required.
-# rbind(dnfs_notoverridden, dnfs_NA) this is the alternative
-
-# Use trip end date to calculate the usable date 30 days later
-
-# Add a correct timezone to TRIP_DATE (EST vs. EDT)
-dnfs_notoverridden <-
-  dnfs_notoverridden |>
-  mutate(TRIP_DATE_E =
-           ymd_hms(TRIP_DATE,
-                   truncated = 3,
+compl_first_week_my_year <-
+  tibble(min1 = as.Date(min(trip_date_2$COMP_WEEK_START_DT),
+                        tz = Sys.timezone()),
+    # [1] "2022-01-03 EST"
+    max1 = as.Date(max(trip_date_2$COMP_WEEK_END_DT),
                    tz = Sys.timezone()))
+    # [1] "2022-01-09 EST"
 
-# add a date 30 days later with a time
-dnfs_notoverridden <-
-  dnfs_notoverridden |>
+diffdf::diffdf(dnfs_first_week_my_year, compl_first_week_my_year)
+# if the two df’s are the same, no issues were found! This means that both df’s are showing the same Mon-Sun week pattern.
+
+### join the dfs ----
+dnfs_join_overr <-
+  full_join(
+    SEFHIER_dnfs_short_date__iso,
+    compl_override_data__renamed__this_year,
+    join_by(
+      TRIP_DATE_YEAR == COMP_YEAR,
+      VESSEL_OFFICIAL_NUMBER,
+      TRIP_DATE_WEEK == COMP_WEEK
+    ),
+    relationship = "many-to-many"
+  )
+# We need the “many-to-many” relationship. There will be many DNFs that match a compliance week, because a DNF is submitted for every day of the week.
+# to see the many-to-many relationship see find_duplicates_in_compl.R
+
+# check the difference
+# This list of vessels is not concerning, it’s just an extra step in providing a thorough analysis. It's possible that a vessel submitted a logbook for every week they were permitted, so that they remained compliant but never submitted a DNF.
+in_compl_not_in_dnfs <-
+  dnfs_join_overr |>
+  filter(is.na(TRIP_ID)) |>
+  select(VESSEL_OFFICIAL_NUMBER) |>
+  distinct()
+
+nrow(in_compl_not_in_dnfs)
+
+## This list of vessels is not concerning, it’s just an extra step in providing a thorough analysis.
+# This tells us that these vessels submitted a DNF for a week when they were not permitted. It can happen when a captain is unaware that his permit has expired, but reports anyway.
+in_dnfs_not_in_compl <-
+  dnfs_join_overr |>
+  filter(is.na(IS_COMP)) |>
+  select(VESSEL_OFFICIAL_NUMBER) |>
+  distinct()
+
+nrow(in_dnfs_not_in_compl)
+
+# TODO: validate in_compl_not_in_dnfs and in_dnfs_not_in_compl
+# my_year
+# View(in_dnfs_not_in_compl)
+
+# Total # of records, vessels and trips, comparing the df before and after joining DNF and compliance data
+my_stats(SEFHIER_dnfs_short_date__iso)
+# 2022
+# rows: 440307
+# columns: 8
+# Unique vessels: 2020
+# Unique trips: 440307
+my_stats(dnfs_join_overr)
+# 2022
+# rows: 441000
+# columns: 28
+# Unique vessels: 2020
+# Unique trips: 440307
+
+### Remove rows with NA DNFs and entries in Compliance ----
+# this just means that no DNFs were submitted for that compliance week, i.e. the vessel submitted a logbook instead
+dnfs_join_overr__all_dnfs <-
+  dnfs_join_overr |>
+  filter(!is.na(TRIP_ID))
+
+# dim(dnfs_join_overr)
+# dim(dnfs_join_overr__all_dnfs)
+
+# This shows the different scenarios we should account for in the case_when statement below. If the results differ from what is shown in the comments here, we will need to adapt the code.
+dnfs_join_overr__all_dnfs |>
+  select(IS_COMP,
+         OVERRIDDEN) |>
+  distinct()
+#   IS_COMP OVERRIDDEN
+# 1       1          0
+# 2      NA         NA
+# 3       0          1
+# 4       0          0
+
+# this is a check that we do not have any scenarios where IS_COMP = 1 and OVERRIDDEN = 1, NA means that we don’t, and that is what we want
+dnfs_join_overr__all_dnfs |>
+  filter(IS_COMP == 1 & OVERRIDDEN == 1) |>
+  select(TRIP_ID) |>
+  distinct()
+# NA
+
+
+### Add a compliant_after_override column ----
+# This is needed so that we can easily filter out compliant or non-compliant vessels in the dataset, by adding an extra column that states yes or no regarding compliance. The NA represents one of two possible scenarios: 1) a DNF was submitted for a vessel that is missing from the compliance module but is in metrics tracking, or 2) a DNF was submitted for a week when the vessel was not permitted. It is not simple to determine which. Deciding what to do with these DNFs will depend on the individual analysis question, and so is not addressed here, but simply left as NA.
+## NOTE: IF “Is_Overriden == 1 & is_Comp == 0, then the vessel should be considered compliant in any compliance analyses
+tic("Add a compliant_after_override column")
+dnfs_join_overr__compl <-
+  dnfs_join_overr__all_dnfs |>
+  rowwise() |>
+  mutate(
+    compliant_after_override =
+      case_when(IS_COMP == 0 & OVERRIDDEN == 0  ~ "no",
+                IS_COMP == 1 ~ "yes",
+                OVERRIDDEN == 1 ~ "yes",
+                is.na(IS_COMP) ~ NA,
+                .default = toString(IS_COMP))
+  ) |>
+  ungroup()
+toc()
+
+# Add a compliant_after_override column: 108.74 sec elapsed
+
+# check distinct values in new ‘compliant_after_override’, ‘is_comp’ and ‘overridden’ columns
+dnfs_join_overr__compl |>
+  select(compliant_after_override,
+         IS_COMP,
+         OVERRIDDEN) |>
+  distinct()
+#   compliant_after_override IS_COMP OVERRIDDEN
+#   <chr>                      <int>      <int>
+# 1 yes                            1          0
+# 2 NA                            NA         NA
+# 3 yes                            0          1
+# 4 no                             0          0
+# 5 yes                            1          1
+
+## Flag trips neg that were received > 30 days after the trip date, by using compliance data and time of submission ----
+
+### Use trip end date to calculate the usable date 30 days later ----
+
+### add a date 30 days later and set time to 23:59:59 ----
+
+# Explanations:
+# 1. Use 'mutate' to create a new column named 'USABLE_DATE_TIME' by adding 30 days to the 'TRIP_DATE' column.
+# 2. Use the `hour<-` function from lubridate package to set the hour component of 'USABLE_DATE_TIME' to 23.
+# 3. Use 'mutate' to update 'USABLE_DATE_TIME' with the hour modification.
+# 4. Use the `minute<-` function from lubridate package to set the minute component of 'USABLE_DATE_TIME' to 59.
+# 5. Use 'mutate' to update 'USABLE_DATE_TIME' with the minute modification.
+# 6. Use the `second<-` function from lubridate package to set the second component of 'USABLE_DATE_TIME' to 59.
+# 7. Use 'mutate' to update 'USABLE_DATE_TIME' with the second modification.
+dnfs_join_overr__compl__usable <-
+  dnfs_join_overr__compl |>
   mutate(USABLE_DATE_TIME =
-           TRIP_DATE_E +
-           days(30) +
-           hours(23) +
-           minutes(59) +
-           seconds(59))
+           TRIP_DATE + days(30)) |>
+  mutate(USABLE_DATE_TIME =
+           `hour<-`(USABLE_DATE_TIME, 23)) |>
+  mutate(USABLE_DATE_TIME =
+           `minute<-`(USABLE_DATE_TIME, 59)) |>
+  mutate(USABLE_DATE_TIME =
+           `second<-`(USABLE_DATE_TIME, 59))
 
-# format the submission date (DE)
-dnfs_notoverridden_all <-
-  dnfs_notoverridden |>
-  mutate(DE =
-           as.POSIXct(DE, format = "%Y-%m-%d %H:%M:%S"))
+# this checks to see if the code above that creates the variable USABLE_DATE_TIME works, the format of the variable should be: (TRIP_DATE+ 30 days) 23:59:59
+dnfs_join_overr__compl__usable |>
+  select(TRIP_DATE, USABLE_DATE_TIME) |>
+  head(1) |>
+  glimpse()
+# $ TRIP_DATE        <dttm> 2023-03-27
+# $ USABLE_DATE_TIME <dttm> 2023-04-26 23:59:59
 
-# Drop empty columns
-dnfs_notoverridden <-
-  dnfs_notoverridden_all |>
+### Drop empty columns ----
+dnfs_join_overr__compl__usable__not_empty <-
+  dnfs_join_overr__compl__usable |>
   select(where(not_all_na))
 
-# diffdf::diffdf(dnfs_notoverridden,
-#                dnfs_notoverridden_all)
-# dropped, bc they were all NAs:
-# SRH_VESSEL_ID
-# COMP_OVERRIDE_DT
-# COMP_OVERRIDE_USER_ID
-# COMP_OVERRIDE_CMT
-# SRFH_ASSIGNMENT_ID
-
-# stats
-uniq_vessels_num_was <-
-  n_distinct(dnfs[["VESSEL_OFFICIAL_NUMBER"]])
-uniq_vessels_num_now <-
-  n_distinct(dnfs_notoverridden[["VESSEL_OFFICIAL_NUMBER"]])
-
-uniq_trips_num_was <- n_distinct(dnfs[["TRIP_ID"]])
-uniq_trips_num_now <-
-  n_distinct(dnfs_notoverridden[["TRIP_ID"]])
-
-uniq_vessels_lost_by_overr <-
-  uniq_vessels_num_was - uniq_vessels_num_now
-# 12
-
-uniq_trips_lost_by_overr <-
-  uniq_trips_num_was - uniq_trips_num_now
-# 2981
-
-my_tee(uniq_vessels_lost_by_overr,
-       "Thrown away vessels by overridden weeks")
-# 223
-
-my_tee(uniq_trips_lost_by_overr,
-       "Thrown away trips neg by overridden weeks")
-# 419233
-
-# Filtering dnf data ----
-# Use dnfs_notoverridden from the previous section
-
-## Filter out vessels not in Metrics tracking ----
-SEFHIER_dnfs_notoverridden <-
-  dnfs_notoverridden |>
-  filter(VESSEL_OFFICIAL_NUMBER %in% SEFHIER_permit_info_short_this_year$VESSEL_OFFICIAL_NUMBER)
-
-my_stats(dnfs_notoverridden)
-my_stats(SEFHIER_dnfs_notoverridden)
-
-vessels_not_in_metrics <-
-  n_distinct(dnfs_notoverridden$VESSEL_OFFICIAL_NUMBER) -
-  n_distinct(SEFHIER_dnfs_notoverridden$VESSEL_OFFICIAL_NUMBER)
-
-my_tee(vessels_not_in_metrics,
-       "Removed if a vessel is not in Metrics tracking")
-# 47
-
-## Mark all trips neg that were received > 30 days after the trip date, by using compliance data and time of submission ----
-
-# subtract the usable date from the date of submission
-# value is true if the dnf was submitted within 30 days, false if the dnf was not
-
+# create a function to produce some stats for the next analysis step, assessing late submission
 late_submission_filter_stats <-
   function(my_df) {
     my_stats(my_df)
 
     late_submission <-
       my_df |>
-      filter(MORE_THAN_30_DAYS_LATE == FALSE)
+      filter(MORE_THAN_30_DAYS_LATE == TRUE)
 
     my_tee(n_distinct(late_submission$TRIP_ID),
            "Count late_submission (dnfs num)")
@@ -648,146 +653,89 @@ late_submission_filter_stats <-
     # [1] "2022-12-31"
   }
 
-# glimpse(SEFHIER_dnfs_notoverridden)
+# subtract the usable date from the date of submission
+# value is true if the dnf was submitted within 30 days, false if the dnf was not
+# The logic should be that when the DE is less than the USABLE_DATE_TIME, the answer to the question MORE_THAN_30_DAYS_LATE should be No.
+
+# Explanations for the function below:
+# 1. Use 'mutate' to create a new column named 'MORE_THAN_30_DAYS_LATE'.
+# 2. Use 'case_when' to conditionally assign values to the new column based on the comparison of 'DE' and 'USABLE_DATE_TIME'.
+# 3. If 'DE' is less than or equal to 'USABLE_DATE_TIME', assign FALSE to 'MORE_THAN_30_DAYS_LATE'.
+# 4. If the condition in step 3 is not met (i.e., 'DE' is greater than 'USABLE_DATE_TIME'), assign TRUE to 'MORE_THAN_30_DAYS_LATE'.
 late_submission_filter <-
-  function() {
-    SEFHIER_dnfs_notoverridden__temp <-
-       SEFHIER_dnfs_notoverridden |>
+  function(dnf_df) {
+    dnf_df__temp <-
+      dnf_df |>
       mutate(MORE_THAN_30_DAYS_LATE =
-               ifelse(USABLE_DATE_TIME >= DE, TRUE, FALSE))
+               case_when(DE <= USABLE_DATE_TIME ~ FALSE,
+                         .default = TRUE))
 
-    late_submission_filter_stats(SEFHIER_dnfs_notoverridden__temp)
+    late_submission_filter_stats(dnf_df__temp)
 
-    return(SEFHIER_dnfs_notoverridden__temp)
+    return(dnf_df__temp)
   }
 
-### Filter (mark only): data frame of dnfs that were usable ----
-SEFHIER_processed_dnfs__late_subm <- late_submission_filter()
-# rows: 366565
-# columns: 25
-# Unique vessels: 1971
-# Unique trips neg (dnfs): 366417
+### Add a column with late submission ----
+SEFHIER_processed_dnfs__late_subm <-
+  late_submission_filter(dnfs_join_overr__compl__usable__not_empty)
+# 2022
+# rows: 369816
+# columns: 26
+# Unique vessels: 1991
+# Unique trips: 369667
 # ---
 # Count late_submission (dnfs num)
-# 268497
+# 272217
 # ---
 # Count late_submission (vessels num)
-# 1904
+# 1926
 
-# Add all columns from processed metrics tracking to obtain the Permit region.
-
-SEFHIER_processed_dnfs_with_all_metrics_vessels <-
-  left_join(SEFHIER_permit_info_short_this_year,
-            SEFHIER_processed_dnfs__late_subm)
-
-SEFHIER_processed_dnfs <-
+# Add more columns from processed metrics tracking to obtain the Permit region ----
+SEFHIER_processed_dnfs__late_subm__metrics <-
   left_join(SEFHIER_processed_dnfs__late_subm,
-            SEFHIER_permit_info_short_this_year)
-
-# > my_stats(SEFHIER_processed_dnfs)
-# SEFHIER_processed_dnfs
-# rows: 366565
-# columns: 26
-# Unique vessels: 1971
-# Unique trips neg (dnfs): 366416
-# ---
-# > my_stats(SEFHIER_processed_dnfs_1)
-# SEFHIER_processed_dnfs_1
-# rows: 368037
-# columns: 33
-# Unique vessels: 3443
-# Unique trips neg (dnfs): 366417
+            processed_metrics_tracking)
 
 # stats
-my_stats(SEFHIER_processed_dnfs)
-
-dnfs_before_filtering <-
-  n_distinct(dnfs$TRIP_ID)
-
-my_tee(dnfs_before_filtering,
-        "dnfs before filtering")
-# 790839 2022
-# 52393 2023
-
-dnfs_after_filtering <-
-  n_distinct(SEFHIER_processed_dnfs$TRIP_ID)
-
-my_tee(dnfs_after_filtering,
-        "dnfs after filtering")
-# 51340 2023
-# 366416 2022
-
-percent_of_removed_dnfs <-
-  (dnfs_before_filtering - dnfs_after_filtering) * 100 / dnfs_before_filtering
- cat(percent_of_removed_dnfs, sep = "\n")
-# 53.66743 2022
-
-# removed_vessels
-vessels_before_filtering <-
-  n_distinct(dnfs$VESSEL_OFFICIAL_NUMBER)
- cat(vessels_before_filtering)
-# 1646 2023
-# 2241 2022
-
-vessels_after_filtering <-
-  n_distinct(SEFHIER_processed_dnfs$VESSEL_OFFICIAL_NUMBER)
- cat(vessels_after_filtering)
-# 1597 2023
-# 1971 2022
-
-removed_vessels <-
-  vessels_before_filtering - vessels_after_filtering
-# 270
-
-percent_of_removed_vessels <-
-  (vessels_before_filtering - vessels_after_filtering) * 100 / vessels_before_filtering
-
-removed_dnfs_and_vessels_text <- c(
-  crayon::blue("percent_of_removed_dnfs"),
-  str_glue("{round(percent_of_removed_dnfs)}%"),
-  crayon::blue("removed_vessels"),
-  removed_vessels,
-  crayon::blue("percent_of_removed_vessels"),
-  str_glue("{round(percent_of_removed_vessels)}%")
-)
-
-my_tee(removed_dnfs_and_vessels_text,
-       "\nRemoved dnfs and vessels stats")
-
-# Removed dnfs and vessels stats
-# percent_of_removed_dnfs
-# 54%
-# removed_vessels
-# 270
-# percent_of_removed_vessels
-# 12%
+my_stats(SEFHIER_processed_dnfs__late_subm__metrics)
+# rows: 369816
+# columns: 34
+# Unique vessels: 1991
+# Unique trips: 369667
 
 # Export usable dnfs ----
 
+# define file name
 SEFHIER_processed_dnfs_file_name <-
   str_glue("SEFHIER_processed_dnfs_{my_year}.rds")
 
-annas_file_path <-
-  file.path(Path,
-            "Outputs",
-            SEFHIER_processed_dnfs_file_name)
-
-jennys_file_path <-
-  file.path(Path,
-            Outputs,
-            SEFHIER_processed_dnfs_file_name)
-
-michelles_file_path <-
-  file.path(Path,
-            Outputs,
-            SEFHIER_processed_dnfs_file_name)
-
-# !! Change to the correct path !!
-output_file_path <-
-  annas_file_path
-
+# write dataframe to file path location, using defined file name
 write_rds(
-  SEFHIER_processed_dnfs,
-  file = output_file_path
+  SEFHIER_processed_dnfs__late_subm__metrics,
+  file = file.path(output_file_path, SEFHIER_processed_dnfs_file_name)
 )
 
+# calendar dates
+my_calendar_date_beg <- curr_dates$my_calendar_date_beg
+my_calendar_date_end <- curr_dates$my_calendar_date_end
+
+SEFHIER_processed_dnfs__calendar_year <-
+  SEFHIER_processed_dnfs__late_subm__metrics |>
+  filter(between(
+    TRIP_DATE,
+    as.Date(my_calendar_date_beg, "%d-%b-%Y",
+            tz = Sys.timezone()),
+    as.Date(my_calendar_date_end, "%d-%b-%Y",
+            tz = Sys.timezone())
+  ))
+
+# check
+min(SEFHIER_processed_dnfs__calendar_year$TRIP_DATE)
+max(SEFHIER_processed_dnfs__calendar_year$TRIP_DATE)
+
+SEFHIER_processed_dnfs__calendar_year_file_name <-
+  str_glue("SEFHIER_processed_dnfs_calendar_{my_year}.rds")
+
+write_rds(
+  SEFHIER_processed_dnfs__calendar_year,
+  file = file.path(output_file_path, SEFHIER_processed_dnfs__calendar_year_file_name)
+)
