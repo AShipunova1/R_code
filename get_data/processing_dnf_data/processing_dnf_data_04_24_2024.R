@@ -617,7 +617,6 @@ my_stats(SEFHIER_dnfs_short_date__iso)
 # compare numbers with DF prior to filtering out non-SEFHIER permitted vessels
 my_stats(dnfs_short_date__iso)
 
-
 # Create DF of vessels not in Metrics Tracking
 vessels_not_in_metrics <-
   n_distinct(dnfs_short_date__iso$VESSEL_OFFICIAL_NUMBER) -
