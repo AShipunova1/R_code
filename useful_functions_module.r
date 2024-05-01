@@ -174,14 +174,13 @@ if (get_username() == "anna.shipunova") {
 }
 
 # Define a function named 'load_csv_names' that takes two parameters: 'my_paths' and 'csv_names_list'
-load_csv_names <- function(my_paths, csv_names_list) {
-
-  # Extract the 'inputs' directory path from 'my_paths' and store it in 'my_inputs'
-  my_inputs <- my_paths$inputs
-
-  # Use 'lapply' to prepend the 'my_inputs' directory path to each file name in 'csv_names_list'
+load_csv_names <- function(csv_files_paths, csv_names_list) {
+ # Use 'lapply' to add the 'my_inputs' directory path in front of each file name in 'csv_names_list'
   # This creates a list of full file paths for the CSV files
-  myfiles <- lapply(csv_names_list, function(x) file.path(my_inputs, x))
+  myfiles <- lapply(csv_names_list, function(x) file.path(csv_files_paths, x))
+
+  # browser()
+  print(myfiles)
 
   # Use 'lapply' again to read all CSV files listed in 'myfiles'
   # The 'read_csv' function from the 'readr' package is used, specifying default column types as 'c' ('character')
@@ -420,18 +419,32 @@ join_all_csvs <- function(corresp_arr, compl_arr) {
 # It returns the 'result_df', which is the input data frame with the specified column converted to dates according to the specified 'date_format'.
 
 # ===
-change_to_dates <- function(my_df, field_name, date_format) {
+change_to_dates <- function(my_df, field_name, date_format = "") {
   # Convert the specified column ('field_name') in 'my_df' to POSIXct date format using 'as.POSIXct'
   # Within the mutate function, it uses pull to extract the column specified by 'field_name' and then applies as.POSIXct to convert the values in that column to POSIXct date format using the provided 'date_format'.
 
+  # browser()
+  if (date_format == "") {
+    my_tryFormats = c(
+      "%m/%d/%Y %I:%M%p",
+      "%m/%d/%Y %I:%M %p",
+      "%m/%d/%Y %R%OS",
+      "%Y-%m-%d %H:%M:%OS",
+      "%Y/%m/%d %H:%M:%OS",
+      "%Y-%m-%d %H:%M",
+      "%Y/%m/%d %H:%M",
+      "%Y-%m-%d",
+      "%Y/%m/%d"
+    )
+  }
+
+  new_field_name <- str_glue("{field_name}_dttm")
+
   result_df <-
     my_df |>
-    mutate(!!field_name := as.POSIXct(!!field_name, format = date_format))
-    # dplyr::mutate({
-    #   {
-    #     field_name
-    #   }
-    # } := as.POSIXct(dplyr::pull(my_df[field_name]), format = date_format))
+    mutate(!!new_field_name := as.POSIXct(!!field_name,
+                                      tryFormats = my_tryFormats,
+                                      format = date_format))
 
   # Return the data frame with the specified column converted to dates
   return(result_df)
@@ -559,9 +572,10 @@ data_overview <- function(my_df) {
 # concat_unique <- function(x){paste(unique(x),  collapse=', ')}
 
 # Define a function 'concat_unique' to concatenate unique non-NA values from a vector x into a single character string.
+# Use 'unique' to extract unique values, '!is.na(x)' to remove NA values, and 'collapse = ", "' to concatenate with a comma and space.
+# Finally, paste0 is used to concatenate the unique non-NA values with a comma and space separator (", ").
+
 concat_unique <- function(x) {
-  # Use 'unique' to extract unique values, '!is.na(x)' to remove NA values, and 'collapse = ", "' to concatenate with a comma and space.
-  # Finally, paste0 is used to concatenate the unique non-NA values with a comma and space separator (", ").
   paste0(unique(x[!is.na(x)]), collapse = ", ")
 }
 
@@ -617,7 +631,8 @@ concat_unique_sorted <- function(x) {
 # unique values sorted within each group.
 # This function takes a data frame 'my_df' and a vector of column names
 # 'group_by_arr' as input.
-combine_rows_based_on_multiple_columns_and_keep_all_unique_sorted_values <- function(my_df, group_by_arr) {
+combine_rows_based_on_multiple_columns_and_keep_all_unique_sorted_values <-
+  function(my_df, group_by_arr) {
   # Group the data frame 'my_df' by the columns specified in 'group_by_arr'.
   # This step ensures that we create groups based on unique combinations of
   # values in the specified columns.
@@ -653,8 +668,8 @@ csv_names_list_22_23 = c("Correspondence.csv",
 # This function takes a vector of 'filenames' as input.
 prepare_csv_names <- function(filenames) {
   # Define subdirectory names for correspondence and compliance files.
-  add_path_corresp <- "Correspondence"
-  add_path_compl <- "FHIER Compliance"
+  add_path_corresp <- "from_Fhier/Correspondence"
+  add_path_compl <- "from_Fhier/FHIER Compliance"
 
   # Use 'sapply' to process each filename in the 'filenames' vector.
   my_list <- sapply(filenames, function(x) {
@@ -731,12 +746,10 @@ corresp_cleaning <- function(csvs_clean1) {
   # Change the data types of 'createdon' and 'contactdate' columns to POSIXct.
   corresp_arr_contact_cnts <-
     change_to_dates(corresp_arr_contact_cnts,
-                    createdon_field_name,
-                    "%m/%d/%Y %H:%M")
+                    createdon_field_name)
   corresp_arr_contact_cnts <-
     change_to_dates(corresp_arr_contact_cnts,
-                    contactdate_field_name,
-                    "%m/%d/%Y %I:%M %p")
+                    contactdate_field_name)
 
   # Return the cleaned and processed correspondence data.
   return(corresp_arr_contact_cnts)
@@ -1246,14 +1259,18 @@ read_an_answer <- function(my_prompt) {
 # 4. Combines values if there are multiple entries for the same vessel using a custom function that sorts and concatenates them.
 # 5. Removes the grouping to return the data to its original structure.
 # 6. Returns the modified data frame.
-get_compl_by <- function(my_df, group_by_for_compl) {
-  my_df %>%
+get_compl_by <-
+  function(my_df,
+           group_by_for_compl =
+               vars(-c("vessel_official_number", "compliant_")),
+           names_from_list = c("vessel_official_number")) {
+    my_df %>%
     dplyr::group_by_at(group_by_for_compl) %>%
     # can unique, because we are looking at vessels, not weeks
     unique() %>%
     # more columns, a column per vessel
     tidyr::pivot_wider(
-      names_from = vessel_official_number,
+      names_from = all_of(names_from_list),
       values_from = compliant_,
       # make it "NO_YES" if both
       values_fn = ~ paste0(sort(.x), collapse = "_")
@@ -1267,7 +1284,17 @@ get_compl_by <- function(my_df, group_by_for_compl) {
 group_by_for_compl <-
   vars(-c("vessel_official_number", "compliant_"))
 
+# ---
+# Explanations:
+# The function 'compl__back_to_longer_format' performs the following operations:
+# 1. Turns the data frame back to a longer format with vessel IDs in one column.
+# 2. Specifies the columns to pivot. All columns except those specified in 'cols_names' are treated as vessel IDs.
+# 3. Sets the values to the column 'is_compl_or_both'.
+# 4. Sets the names to the column 'vessel_official_number'.
+# 5. Returns the modified data frame.
+
 # Usage example:
+# cols_names are all names except vessel_official_numbers
 # cols_names <-
 #   c("year",
 #     "permit_sa_gom_dual",
@@ -1280,14 +1307,6 @@ group_by_for_compl <-
 #     compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide__both,
 #     cols_names
 #   )
-
-# Explanations:
-# The function 'compl__back_to_longer_format' performs the following operations:
-# 1. Turns the data frame back to a longer format with vessel IDs in one column.
-# 2. Specifies the columns to pivot. All columns except those specified in 'cols_names' are treated as vessel IDs.
-# 3. Sets the values to the column 'is_compl_or_both'.
-# 4. Sets the names to the column 'vessel_official_number'.
-# 5. Returns the modified data frame.
 compl__back_to_longer_format <-
   function(my_df,
            cols_names) {
@@ -1327,3 +1346,121 @@ add_cnt_in_gr <-
       ungroup() %>%
       return()
   }
+
+# ---
+clean_names_and_addresses <- function(my_df) {
+
+  my_df_cleaned <-
+    my_df |>
+    mutate(
+      across(where(is.character),
+             ~ str_squish(.x)),
+      across(where(is.character),
+             ~ replace_na(.x, "")),
+      across(where(is.character),
+             ~ str_replace_all(.x, ", ;", ";")),
+      across(where(is.character),
+             ~ str_replace_all(.x, "\\s+[,;]", ",")),
+      across(where(is.character),
+             ~ str_replace_all(.x, ";,+", ";")),
+      across(where(is.character),
+             ~ str_replace_all(.x, ";;+", ";")),
+      across(where(is.character),
+             ~ str_replace_all(.x, ",,+", ",")),
+      across(where(is.character),
+             ~ str_replace_all(.x, "[,;] *\\bUN\\b *", "")),
+      across(where(is.character),
+                          ~ str_replace_all(.x, "\\bUN\\b", "")),
+      across(where(is.character),
+             ~ str_replace_all(.x, "\\s*\\bUN\\b\\s*", "")),
+      across(where(is.character),
+             ~ str_replace_all(.x, "^[,;] ", "")),
+      across(where(is.character),
+             ~ str_replace_all(.x, "^[,;]$", "")),
+      across(where(is.character),
+             ~ str_replace_all(.x, "[,;]$", "")),
+      across(where(is.character),
+             ~ str_squish(.x))
+    )
+
+  return(my_df_cleaned)
+}
+
+# ---
+# combine columns into one
+# Usage:
+# db_participants_address__needed_short__phone2 <-
+#   db_participants_address__needed_short__phone0 |>
+#   group_by(official_number) |>
+#   mutate(db_phone = pmap(across(ends_with("_phone")),
+#                          ~ list_sort_uniq(.))) |>
+#   ungroup()
+# ---
+# back to chr
+# summarise(db_mailing_state1 =
+              # paste(sort(unique(str_trim(flatten(db_mailing_state)))), collapse = ", ")) |>
+
+# flatten(list(sort(unique(str_trim(my_lists)))))
+list_sort_uniq <- function(my_lists) {
+  # browser()
+  res <-
+    my_lists |>
+    str_trim() |>
+    unique() |>
+    sort() |>
+    list() |>
+    flatten()
+  return(res)
+}
+
+# ---
+# another usage example
+# also uses mutate within a loop to create multiple new columns and binds each one back to the original df.
+# db_participants_address__needed_short__erv_erb_combined <-
+#   col_part_names |>
+#   map(\(curr_col_part)  {
+#     new_col_name <- str_glue("db_{curr_col_part}")
+#     # cat(new_col_name, sep = "\n")
+#
+#     db_participants_address__needed_short__phone0 |>
+#       group_by(official_number) |>
+#       mutate(!!new_col_name :=
+#                pmap(across(ends_with(curr_col_part)),
+#                     ~ list_sort_uniq(.)),
+#              .keep = "none") |>
+#       ungroup() |>
+#       select(-official_number)
+#
+#   }) |>
+#   bind_cols(db_participants_address__needed_short__phone0, .)
+
+# ===
+# Explanations:
+# 1. Create a new variable 'res' to store the result.
+# 2. Use 'rowwise' to perform operations row by row.
+# 3. Use 'mutate' to create a new column 'compliant_after_override' based on conditions specified in 'case_when'.
+#    - If 'is_comp' is 0 and 'overridden' is 0, set 'compliant_after_override' to "no".
+#    - If 'is_comp' is 1 or 'overridden' is 1, set 'compliant_after_override' to "yes".
+#    - If 'is_comp' is NA, set 'compliant_after_override' to NA.
+#    - For all other cases, set 'compliant_after_override' to the string representation of 'is_comp'.
+# 4. Use 'ungroup' to remove grouping from the data frame.
+
+add_compliant_after_override <- function(my_compl_df) {
+  # browser()
+  res <-
+    my_compl_df |>
+    rowwise() |>
+    mutate(
+      compliant_after_override =
+        case_when(
+          is_comp == 0 & overridden == 0  ~ "no",
+          is_comp == 1 ~ "yes",
+          overridden == 1 ~ "yes",
+          is.na(is_comp) ~ NA,
+          .default = toString(is_comp)
+        )
+    ) |>
+    ungroup()
+
+  return(res)
+}
