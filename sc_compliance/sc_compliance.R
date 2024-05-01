@@ -538,13 +538,13 @@ compl_override_data__renamed_m_short__m_compl |>
 ## get processed logbooks ----
 
 # set the path to processed logbook data
-logbooks_path <-
+logbook_file_path <-
   file.path(processed_data_path,
             str_glue("SEFHIER_processed_Logbooks_{my_year}.rds"))
 
 # read in logbook data, clean up headers
 logbooks <-
-  read_rds(logbooks_path) |>
+  read_rds(logbook_file_path) |>
   clean_headers()
 
 # checks dimensions of the dataframe
@@ -553,13 +553,13 @@ dim(logbooks)
 ## get dnfs ----
 
 # set the path to processed DNF data
-dnfs_path <-
+dnf_file_path <-
   file.path(processed_data_path,
             str_glue("SEFHIER_processed_dnfs_{my_year}.rds"))
 
 # read in DNF data, clean up headers
 dnfs <-
-  read_rds(dnfs_path) |>
+  read_rds(dnf_file_path) |>
   clean_headers()
 
 # checks dimensions of the dataframe
@@ -1028,7 +1028,7 @@ get_each_df_colnames <-
 # Use column definitions saved in a csv file
 
 # define a path
-column_definitions_path <-
+column_definitions_file_path <-
     file.path(input_path,
             "column_definitions.csv")
 
@@ -1037,7 +1037,7 @@ column_definitions_path <-
 
 # read csv
 column_definitions <-
-  read_csv(column_definitions_path)
+  read_csv(column_definitions_file_path)
 
 # combine 3 dfs and convert to a type needed for output.
 readme_text <-
