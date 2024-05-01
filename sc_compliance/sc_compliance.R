@@ -462,6 +462,15 @@ compl_override_data__renamed_m_short__compl_overr_by_week |>
 
 ### Combine weekly compliance to create monthly compliance ----
 
+# Explanations:
+# - This code snippet combines weekly compliance data to create monthly compliance data for each vessel.
+# - The process is timed using `tic()` and `toc()` to measure its execution time.
+# - The `compl_override_data__renamed_m_short__compl_overr_by_week` dataframe is used as input.
+# - The data is first grouped by `vessel_official_number`, `comp_year`, and `comp_month_min` (the month of the compliance week start).
+# - For each group, the unique compliant statuses after override are calculated and concatenated into a string (`all_m_comp_min`).
+# - Monthly compliance (`month_comp_min`) is determined based on the concatenated compliant statuses.
+# - The process is repeated for `comp_month_max` to get the monthly compliance for the month of the end of the compliance week.
+# - Finally, the `compl_override_data__renamed_m_short__m_compl__both_months` dataframe is created with both `comp_month_min` and `comp_month_max` data.
 tic("get month_comp")
 compl_override_data__renamed_m_short__m_compl__both_months <-
   compl_override_data__renamed_m_short__compl_overr_by_week |>
