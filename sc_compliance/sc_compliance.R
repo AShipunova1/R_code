@@ -758,7 +758,6 @@ n_distinct(sc__fhier_compl__join_w_month$vesselreg_uscg_)
 # 207 (rm SRHS)
 # glimpse(sc__fhier_compl__join_w_month)
 
-
 sc__fhier_compl__join_w_month |>
   select(contains("month")) |>
   distinct() |>
@@ -1148,10 +1147,13 @@ worksheetOrder(wb) <- c(length_of_wb, 1:(length_of_wb - 1))
 
 # Write the Excel file ----
 
+timestamp()
 # define the path
+today_output_file_name <-
+  str_glue("sc_compliance_{today()}.xlsx")
 output_file_name <-
   file.path(output_path,
-            "sc_compliance.xlsx")
+            today_output_file_name)
 
 # write the workbook unto file
 saveWorkbook(wb, output_file_name, overwrite = T)
