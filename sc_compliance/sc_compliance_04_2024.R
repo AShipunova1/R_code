@@ -167,7 +167,7 @@ current_project_dir_name <- this.path::this.dir()
 current_project_basename <-
   basename(current_project_dir_name)
 
-# set the path to SC vessels data on Anna’s computer
+# need a comment line here
 annas_sc_mismatch_file_path <-
   file.path(annas_path$inputs,
             r"(sc_mismatches\2024_04)",
