@@ -336,7 +336,7 @@ corrected_n_fhier_short_w_n_clean_short <-
 # read PIMS csv ----
 # https://www.fisheries.noaa.gov/southeast/resources-fishing/frequent-freedom-information-act-requests-southeast-region
 
-"C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\from_Fhier\FOIA+Vessels+All.csv"
+# "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\from_Fhier\FOIA+Vessels+All.csv"
 
 all_permits_url <- "https://noaa-sero.s3.amazonaws.com/drop-files/pims/FOIA+Vessels+All.csv"
   
