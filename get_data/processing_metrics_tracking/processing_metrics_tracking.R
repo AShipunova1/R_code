@@ -38,8 +38,8 @@ Outputs <- "Outputs/"
 # Set the date ranges for the logbook and compliance data you are pulling
 # this is the year to assign to the output file name
 # my_year <- '2022'
-my_year <- '2023'
-# my_year <- '2024'
+# my_year <- '2023'
+my_year <- '2024'
 
 # ---
 # Explanations:
@@ -337,6 +337,7 @@ my_stats(processed_metrics_permit_info_short)
 my_stats(processed_metrics_permit_info_short_this_year)
 
 # Save to a file ----
+# TODO: Add the creating of a dir by today's date
 all_metrics_tracking_vessels_path <-
   file.path(Path,
             Outputs,
