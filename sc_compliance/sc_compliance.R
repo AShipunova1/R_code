@@ -171,7 +171,7 @@ current_project_basename <-
 annas_sc_mismatch_file_path <-
   file.path(annas_path$inputs,
             r"(sc_mismatches\2024_04)",
-            "scdnrFedVessels_04012024.xlsx")
+            "scdnrFedVessels_04302024.xlsx")
 
 # check that the file exists
 file.exists(annas_sc_mismatch_file_path)
