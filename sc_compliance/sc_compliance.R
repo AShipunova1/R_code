@@ -293,6 +293,7 @@ read_rds_or_run <- function(my_file_path,
 }
 
 # Run the function
+# Use force_from_db = TRUE to get fresh data from the db
 compl_override_data <-
   read_rds_or_run(compl_override_data_file_path,
                   my_function = compl_err_query)
