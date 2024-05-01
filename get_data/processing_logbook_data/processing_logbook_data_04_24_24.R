@@ -626,7 +626,6 @@ my_stats(Logbooks_raw_renamed__to_date_time4__my_year,
 # Unique vessels: 1885
 # Unique trips: 94733
 
-
 # check the min and max start dates, after filtering DF to just my analysis year
 min(Logbooks_raw_renamed__to_date_time4__my_year$TRIP_START_DATE)
 # [1] "2022-01-01"
