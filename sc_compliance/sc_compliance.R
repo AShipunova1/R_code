@@ -144,6 +144,41 @@ set_work_dir_local <- function() {
   return(my_paths)
 }
 
+#this function sets the correct paths for running this script on Jenny’s computer
+set_work_dir_jenny_local <- function() {
+
+
+  # Set the working directory to the user's home directory (~)
+  setwd("C:/Users/jenny.ostroff/Desktop/Backups/Rcode/SC_compliance")
+  base_dir <- getwd()
+
+
+  # Define 'in_dir'
+  in_dir <- "Inputs"
+
+
+  # Construct the full path to 'my_inputs' directory
+  full_path_to_in_dir <- file.path(base_dir, in_dir)
+
+
+  # Define 'out_dir'
+  out_dir <- "Outputs"
+
+
+  # Construct the full path to 'my_outputs' directory
+  full_path_to_out_dir <- file.path(base_dir, out_dir)
+
+
+  # Create a list of directory paths for 'Inputs', 'Outputs'
+  my_paths <- list("Inputs" = full_path_to_in_dir,
+                   "Outputs" = full_path_to_out_dir)
+
+
+  # Return the list of directory paths
+  return(my_paths)
+}
+
+
 # ===
 # Change the behavior of the set_work_dir function based on the username. If the username matches "anna.shipunova," it reassigns set_work_dir to the set_work_dir_local function, effectively using a different directory structure for Anna compared to other users.
 
