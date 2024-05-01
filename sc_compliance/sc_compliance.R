@@ -24,9 +24,11 @@
           # this file comes from running the DNF processing code for a given year, it should be available to download on Google Drive
 #   4) "SEFHIER_processed_Logbooks_{my_year}.rds"
           # this file comes from running the logbook processing code for a given year, it should be available to download on Google Drive
-#   5) "Vessel_List_{my_year}.csv" (Southeast Region Headboat Survey, SRHS)
+#   5) "SEFHIER_processed_dnfs_{my_year}.rds"
+          # this file comes from running the dnf processing code for a given year, it should be available to download on Google Drive
+#   6) "Vessel_List_{my_year}.csv" (Southeast Region Headboat Survey, SRHS)
           # this file comes from Ken Brennan at the SRHS program, it should be available to download on Google Drive
-#   6) “column_definitions.csv” (csv file of column definitions written by Anna, used for the ReadMe tab of the output Excel spreadsheet, it should be available to download on Google Drive)
+#   7) “column_definitions.csv” (csv file of column definitions written by Michelle, used for the ReadMe tab of the output Excel spreadsheet, it should be available to download on Google Drive)
 
 # set up ----
 # Load the 'ROracle' library, which provides an interface for working with Oracle databases in R.
@@ -185,7 +187,7 @@ annas_srhs_2024_file_path <-
 # check that the file exists
 file.exists(annas_srhs_2024_file_path)
 
-# Add correct paths for your environment in the next 5 lines
+## Add correct paths for your environment in the next 5 lines ----
 
 input_path <- file.path(annas_path$inputs, current_project_basename)
 output_path <- file.path(annas_path$outputs, current_project_basename)
