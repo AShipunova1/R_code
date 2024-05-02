@@ -1182,7 +1182,6 @@ worksheetOrder(wb) <- c(length_of_wb, 1:(length_of_wb - 1))
 
 # Write the Excel file ----
 
-timestamp()
 # define the path
 today_output_file_name <-
   str_glue("sc_compliance_{today()}.xlsx")
