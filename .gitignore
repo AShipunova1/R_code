@@ -10,7 +10,6 @@ __packages
 *.jpg
 *.js
 *.png
-*.pper
 *.RData
 *.RDataTmp
 *.rdb
