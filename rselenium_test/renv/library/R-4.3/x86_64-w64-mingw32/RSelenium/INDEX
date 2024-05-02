@@ -1,0 +1,9 @@
+RSelenium-package       An R client for Selenium Remote Webdriver
+errorHandler-class      CLASS errorHandler
+getChromeProfile        Get Chrome profile.
+getFirefoxProfile       Get Firefox profile.
+makeFirefoxProfile      Make Firefox profile.
+remoteDriver-class      CLASS remoteDriver
+rsDriver                Start a selenium server and browser
+selKeys                 Selenium key mappings
+webElement-class        CLASS webElement

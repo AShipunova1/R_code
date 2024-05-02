@@ -1,0 +1,13 @@
+RSelenium-package	RSelenium-package
+errorHandler	errorHandler-class
+errorHandler-class	errorHandler-class
+getChromeProfile	getChromeProfile
+getFirefoxProfile	getFirefoxProfile
+makeFirefoxProfile	makeFirefoxProfile
+remoteDriver	remoteDriver-class
+remoteDriver-class	remoteDriver-class
+rsDriver	rsDriver
+RSelenium	RSelenium-package
+selKeys	selKeys
+webElement	webElement-class
+webElement-class	webElement-class

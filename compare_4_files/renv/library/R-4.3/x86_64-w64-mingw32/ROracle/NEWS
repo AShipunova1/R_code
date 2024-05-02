@@ -1,0 +1,443 @@
+Version 1.3-1  (2016-02-16)
+
+* Handled both upper and lower cases in ora.type, ora.parameter_mode and 
+  ora.encoding attributes.
+
+* Support for OCIBindByName has been added for SQL and PL/SQL calls by 
+  specifying ora.parameter_name attribute and bind valiables used in SQL or 
+  PL/SQL calls must be bound by the name specified in ora.parameter_name.
+
+* Support for PL/SQL stored procedure/function and REF cursors have been added.
+  The OUT bind parameter must be initialized with 'NA' or 'NA' coerced to any 
+  other vector type .
+
+* Use OCIArrayDescriptorAlloc instead of OCIDescriptorAlloc for performance
+  improvements when Oracle client release 11.1 or higher is used to build and
+  run ROracle.
+
+* Removed unused variables
+
+* Removed functions (dbSetDataMappings and dbCallProc) that will not be
+  available in 0.3.1 DBI specifications.
+
+Version 1.2-2  (2015-06-20)
+
+* Performance improvements for fetching date, timestamp, timstamp with time zone
+  and time stamp with local time zone.
+
+* Atlantic Azores and America Scoresbysund timezone regions have an issue with
+  overlap times and hence these timezones are not supported with ROracle. The
+  issue is being investigated by Oracle. Bug #22558537 filed for this.
+
+Version 1.2-1  (2014-12-05)
+
+* ROracle on client now supports NATIVE, UTF8 and LATIN1 encoded data in query
+  and results. Please refer to man page. ROracle works with character sets that
+  are supported by both R and Oracle NLS on the host platform. UTF-8 encoded
+  character sets are usually supported on many Unix-like platforms.
+
+* bug 16017358 - Misuse of Extproc driver in embedded R can cause a
+                 segmentation fault
+
+* enhancement 20603162 - CLOB/BLOB enhancement on ROracle. Please refer to man
+                         page regarding the following attributes:
+   1) Attribute Name: ora.type
+   2) Attribute Name: ora.encoding
+   3) Attribute Name: ora.maxlength
+   4) Attribute Name: ora.fractional_seconds_precision
+
+* bug 15937661 - Allow mapping BLOB, CLOB, NCLOB, NCHAR, NVARCHAR2,  TIME STAMP
+                 WITH TIME ZONE, TIME STAMP WITH LOCAL TIME ZONE columns
+                 correctly for dbWriteTable
+
+* bug 16907374 - ROracle creates time stamp column for R Date with dbWriteTable
+
+* ROracle now displays NCHAR, NVARCHAR2 and NCLOB data types defined for
+  columns in the server using dbColumnInfo and dbGetInfo
+
+Version 1.1-12 (2014-06-04)
+
+* Add bulk_write parameter to specify number of rows to bind at a time to
+  improve performance for dbWriteTable and DML operations.
+
+* Date, Timestamp, Timestamp with time zone and Timestamp with local time zone
+  data are maintained in R and Oracle's session time zone. Oracle session time
+  zone environment variable ORA_SDTZ and R's environment variable TZ must be
+  the same for this to work else an error is reported when operating on any of
+  these column types.
+
+* bug 16198839 - Allow selecting data from time stamp with time zone and time
+                 stamp with local time zone without reporting error 1805
+
+* bug 18316008 - increases the bind limit from 4000 to 2GB for inserting data
+                 into BLOB, CLOB and 32K VARCHAR and RAW data types. Changes
+                 describe lengths to NA for all types except for CHAR,
+                 VARCHAR2, and RAW
+
+* Fix unnecessary adjustment to UTC when converting from epoch to Oracle types
+  and vice versa
+ 
+* Performance improvements and address issue with fetch
+
+* bug 18404532 - Fetching LOB data with an empty BLOB/CLOB (0 LENGTH) results
+                 in ORA-24801 error
+
+* bug 18404569 - Fetch method will result in extra instructions when size
+                 exceeds bulk read limit
+
+* bug 18908645 - Follow base::.set_row_names convention when forming data.frame
+                 objects at the C level.
+
+* bug 16686948 - Updated ROracle document with use of ora.number argument of 
+                 dbWriteTable()
+
+Version 1.1-11 (2014-01-09)
+
+* Performance improvements for RAW data type and large result sets
+
+* Cache resultset in memory before transferring to R to avoid unnecessary alloc
+  and free using allocVector when result exceeds bulk_read rows
+
+* Updated INSTALL with restrictions on using Basic Lite package
+
+* added session mode to connect as SYSDBA or external credentials
+  NOTE: authentication using SYSDBA is only available by default in 11.2 and
+        later releases, for earlier releases please obtain patch for
+        bug# 7000451 in Oracle Client
+
+* bug 17383542: Enhanced dbWritetable() & dbRemoveTable() to work on global
+  schema.
+
+Version 1.1-10 (2013-04-30)
+
+* Oracle number columns are now fetched using SQLT_FLT data type
+
+Version 1.1-9 (2013-03-29)
+
+* bug 16570993: Fix platform-porting issue for supporting datastore
+
+Version 1.1-8 (2013-01-30)
+
+* bug 16188612: Setting of OCI_LIB32 and/or OCI_LIB64 environment variables
+  on Windows is mandatory, see INSTALL for details.
+
+Version 1.1-7 (2012-11-25)
+
+* bug 15900089: Fixed ORA-1805 error when accessing date or time stamp columns
+  when the time zone versions on the client and server differ. ROracle returns
+  the date, time stamp, time stamp with time zone and time stamp with local
+  time zone in POSIXct format. Please refer to man page
+
+Version 1.1-6 (2012-09-18)
+
+* dbWriteTable now uses timestamp with time zone for POSIXct
+  columns
+
+* dbWriteTable now support Date columns
+
+* Oracle interval day to second data type now maps to R's difftime
+
+Version 1.1-5 (2012-09-11)
+
+* Fixed build issues of ROracle driver with 10.2 OCI client 
+
+* Removed references to OCIArrayDescriptorAlloc() and LOB prefetch 
+  attributes to make ROracle driver compatible with 10.2 OCI client.
+
+Version 1.1-4 (2012-07-27)
+
+* Corrected buffer length issue to get Server Release Version
+
+Version 1.1-3 (2012-07-15)
+
+* add support for Oracle TimesTen In-Memory Database
+
+* Date time (time stamp, date, time stamp with time zone and time stamp with
+  local time zone) now uses POSIXct/POSIXlt
+
+* RAW data type support
+
+* BLOB and BFILE support
+
+* Prefetching support
+
+* soft parameter (bulk_read) to specify number of rows to fetch per
+  execute/fetch operation from DB
+
+* Whether to prefetch LOB data
+
+* Break Ctrl-C handler
+
+* Windows now uses .def file instead of binaries
+
+* Statement caching support 
+
+Version 1.1-2 (2012-03-29)
+
+* add support for Oracle Wallet (connect with blank username and password)
+
+* bug 13880813: incorrectly classifying NUMBER columns as integer
+
+* bug 13904056: wrong result in dbWriteTable when inserting NAs
+
+* add support for datetime and interval types (selects)
+
+Version 1.1-1 (2012-02-01)
+
+* Pass ownership and maintenance of ROracle to the Oracle R team.
+
+* Drop Splus support.
+
+* Totally reimplemented from the ground up using OCI.
+
+Version 0.5-12
+
+* Code and cleanup.
+
+Version 0.5-11
+
+* Added namespace to package.
+
+Version 0.5-10
+
+* Increased maximum SQL statement length from 20000 to 200000.
+
+* Fixed buffer sizes when copying data frame to Oracle.
+
+* Fixed casting of pointer assignments in C.
+
+* Fixed broken links in man pages.
+
+Version 0.5-9
+
+* Trivial changes to make "R CMD check" happy.
+
+Version 0.5-7
+
+* Remove install.R (to be deprecated as of R 2.3.0).
+
+* Allow empty username/passwords, as per ProC/C++ convention, fixed a 
+  memory leak when extracting char data, and added a workaround for the
+  incorrect Oracle 9.2 sgls() that reports no select on the first query
+  (thanks to David Hinds for all these patches).  
+
+* Modified the configure.in to define the C macro RS_ORA_SQLGLS_WORKAROUND
+  when the Oracle version is 9* (should we restirict it to 9i and >9.2?).
+  If the macro is defined, we use David Hinds' patch to guess whether the 
+  SQL statement being prepared is a select or not.
+
+* Yet another Pro C/C++ bug workaround.  Added --enable-prefetch=1 to the 
+  configure script to allow a workaround to the ProC/C++ bug when building 
+  on an Oracle 8i but connecting to a Oracle 9i server (thanks to Marco Kienzle 
+  for the very informative Pro C/C++ bug report).
+  
+* Trivial changes to Makefile.win to create windows binaries for 2.2.1.
+
+* Fixed documentation typos.
+
+Version 0.5-6
+
+* After trial and error (under Linux, older Oracle 8), the size for the
+  internal dynamic statment (RS_ORA_STATEMENT_LEN) was increased to 20000 
+  characters (the Oracle documentation is apparently silent on how big 
+  the statement string can be).  This should allow exporting data.frames 
+  up to ~255 columns.  Your mileage may vary.
+
+* Include a workaround in oraQuickSQL() to the Pro C/C++ 9.2 bug or 
+  "feature" that causes sqlgls() to return the wrong SQL function code 
+  (we rely on the value 04 to identify SELECT statements).  See the 
+  Pro C/C++ Readme file.
+
+* Thanks to Sunny Ho's painstaking detective work, ROracle now includes 
+  SQLCA.H and SQLDA.H (all uppercase) to avoid the nasty PostgreSQL/Oracle 
+  co-existance problem (at least) on Red Hat linux systems.  For details, 
+  see Sunny's 2004-11-23 posting to R-help "ROracle: fetch return zero rows 
+  or empty dataset (a workaround)".
+
+* Fixed the problem of leaving connections open upon disconnection (thanks
+  to Rebeca Steffan for the hint.)
+
+* Fixed bug where the indicator variables for prepared statements
+  were not re-initialized (thanks to David Hinds for the patch).
+
+* Fixed typo in oraRollbackback().
+
+* Fixed bug in dbReadTable's method that incorrectly processed the default
+  for detecting row names.
+
+Version 0.5-5
+
+* Fixed documentation typos.
+
+Version 0.5-4
+
+* Fixed a bug in configure.in that was statically linking 
+  by default when it should have been dynamically linking
+  and ignoring --enable-static=no.  I also changed the default
+  to static linking (this avoids having to set the LD_LIBRARY_PATH).
+
+* Added the configure arg --enable-extralibs (-lsqlplus by default)
+  to append oracle libraries to PKG_LIBS.  This, of course, should
+  never be needed, but on some Linux Oracle 9 systems the libcnltsh.so 
+  library apparently does not include the sqlca symbol.  This argument
+  works around this problem.  For details see the file README.Oracle9.
+
+* added the missing PACKAGE= argument to a couple .Call invocations.
+Version 0.5-3
+
+* Yet many more changes to the documentation structure (not the
+  contents) due to changes in the R help system.
+
+Version 0.5-2 
+
+* Ported to Windows 2000 (see src/Makefile.win for details).
+
+* Fixed a bug in RS_Ora_cpyOraToDataFrame that manifest (apparently)
+  only in 64-bit version of R *and* Oracle when copying integers from
+  Oracle's buffers to the output data.frame (thanks to Joerg Shaber
+  for helping identifying this one).
+
+* Added  --enable-oracle32=[default|yes|no] to the configure script
+  to allow R 32-bit binaries to access Oracle's 64-lib installations
+  (thanks to Don MacQueen for finding the right incantation).
+  See the file INSTALL for more details.  
+
+* Added a patch to work around a bug in (what I think) is in the
+  Oracle 9 Pro C/C++ sqlgls() function.  See the file README.Oracle9.
+
+Version 0.5-1
+
+* Fixed a bug in oraQuickSQL() that would incorrectly return an
+  OraPrepareStatement object instead of plain OraResult with
+  select statements.
+
+* Fixed a typo in dbExistsTable().
+
+* Fixed a bug where an invalid connection string of the form 
+  "user@password" (instead of the correct "user/password[@dbname]") 
+  would cause a crash.
+
+Version 0.5-0
+
+* This version has an experimental dynamic SQL binding to data frame
+  columns.  SQL statements can be "prepared" (parsed and cached
+  for improved performance), and columns of data frames bound to
+  them for automatic data transfer).  For details see the help()
+  for "Oracle", "dbPrepareStatement" and "dbExecStatement".
+
+  (Note, dbPrepareStatement() and dbExecStatement() are extension to
+  the DBI package.)
+
+* Host arrays are now operational. These are buffers used by Oracle's
+  internal implementation to reduce network traffic and speed
+  up fetches and prepared statements.  Currently fetches use a
+  default buffer size (host arrays) of size 500 (previous version
+  did no buffering).  **Very preliminary** results suggest performance
+  improvements on fetching of about a factor of 2.
+  (Note that the maximum size of these buffers is limited to about 
+  65K bytes per column.)
+ 
+* dbCommit() and dbRollback() are now explicitly implemented,
+  but save points are not (you may code them through dynamic SQL).
+
+* The precompiler ProC/C++ is now used with the option PARSE=none
+  to avoid bogus C errors with some compilers and/or platforms
+  (e.g., Mac OS X).
+
+Version 0.4-0
+
+* The package is now compliant with the R/S Database interface (DBI), 
+  see package DBI 0.1-4.  This means that almost all functions have
+  new names, but the functionality is exactly the same as the last version.
+
+* Simplified the underlying (support) functions by deleting more than a few,
+  and changing their names to start with "ora" (the previous function and
+  their names where a vestige of S3 style methods, which we no longer need).
+
+* No changes to the C code (except for minor changes to RS_DBI.c to
+  generate more helpful error messages in case of internal errors).
+
+Version 0.3-3
+
+   NOTE: Next major version will comply with the emerging common
+         database interface DBI, if agreed by the R-SIG-DB.  This 
+         will probably change the function names, but not the basic 
+         functionality.
+
+
+* Some minor clean up of the RS-DBI C code.
+
+* Updated the use of NAs in strings in the C code, according to the new 
+  1.5.0 stricter rules.
+
+* added a PROTECT() when re-setting the length of output data.frame 
+  during fetching that could lead to random core dumps (thanks to 
+  Don MacQueen for reporting this pesky bug).
+
+* getInfo() on a connection object now also returns the password used
+  on the connection (needed, e.g., in assignTable, see below).
+
+* A few fixes to assignTable.OraConnection:
+
+    A bug in the SQL*Loader script that assignTable() creates to
+    efficiently transfer data.frames to Oracle (the bug was that NAs in
+    the last column caused SQL*Loader to fail);
+
+    assingTable() now also provides the password in the call to SQL*Loader 
+    to avoid being prompted for it.
+
+    Added an argument "batch=10000"; this is used to write.table() these
+    many rows at a time from the data.frame in order to avoid huge memory 
+    build ups.  It's still shamefully slow (due to write.table), but at least
+    it won't exhaust memory. [Need to find an efficient alternative to 
+    write.table(), perhaps we need to write our own specialized C code?]
+
+* Extended the size of the internal connections parameters (user, password 
+  and dbname) to 1024 to allow users to embed the tnsnames.ora string, e.g.,
+
+     con <- dbConnect(Oracle(), 
+             "user/passwd@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=foo.misc.de)(PORT=1521))(CONNECT_DATA=(SID=TEST))
+
+  [this seems to be an undocumented "feature" that Oracle gurus use quite
+  commonly when they don't have privileges to update the network config
+  file $ORALCE_HOME/network/admin/tnsname.ora (thanks to Michael Mader for 
+  this trick!]
+
+* ifdef all S4/Splus' idioms if(IS_LIST(x)) x = AS_LIST(x).  I'm not sure
+  whether these should be PROTECTED in R, but since the idiom is only
+  needed in S4/Splus5+, it's better not to have it in R.
+
+* Fixed a bug in SQLDataType.OraConnection (wrong signature).
+
+* Added dbObject validity checks to a bunch of the meta-data functions.
+
+Version 0.3-2
+
+* Added code to be able to copy data.frames to Oracle, see
+  assignTable().
+
+Version 0.3-1
+
+* Note that if you statically link against the Oracle libraries
+  you may move the resulting package to systems w.o. Oracle (of
+  course, subject to the other system being binary compatible).
+  If you do this, you may need to provide additional Oracle
+  configuration parameters to ROracle.  See the file "README.client"
+  for details.
+
+* Ported to R, added a configure script.  
+
+* Implemented a workaround to the very nasty bug in the linux
+  implementation of the ProC/C++ (as of 8.1.[567]) (see the function
+  filter_buggy_error() in RS-Oracle.pc) The sign was that Oracle
+  would give a "fetch out of order" error when there was no fetching
+  going on.
+
+* Modified the documentation to pass R CMD check. Unfortunately we now
+  have two separate versions of the help (one for Splus, another for R).
+
+Splus-specific
+
+* It nows does the  #include "S.h" conditionally, for the sake of 
+  Splus 6.0 (you need to define the macro SPLUS6 in the makefile).
+
