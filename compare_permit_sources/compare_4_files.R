@@ -133,10 +133,12 @@ get_permit_info <-
 
 permit_info <- get_permit_info()
 # File: permit_info_2022.rds modified 2024-01-23 12:43:12.146822
+# File: permit_info_2022.rds modified 2024-02-27 09:55:09.126511
 
 nrow(permit_info)
 # [1] 183855
 # [1] 20777    2022 only
+# [1] 15807
 
 ### check dates ----
 # dates_filter <- " (end_date >= TO_DATE('01-JAN-22', 'dd-mon-yy')
@@ -146,22 +148,27 @@ nrow(permit_info)
 
 min(permit_info$EXPIRATION_DATE)
 # [1] "2007-01-31 EST"
+# [1] "2007-02-28 EST"
 
 permit_info |>
-  filter(EXPIRATION_DATE == "2007-01-31 EST") |>
-  glimpse()
+  filter(EXPIRATION_DATE == "2007-02-28 EST") |>
+  # $ VESSEL_ID            <chr> "FL3270FN"
+  # $ END_DATE             <dttm> 2022-08-25 01:00:00
+  # filter(EXPIRATION_DATE == "2007-01-31 EST") |>
 # $ VESSEL_ID            <chr> "514001"
 # END_DATE == 2022-02-24 !!!
+  glimpse()
 
 # TODO why min() doesn't work?
 permit_info$END_DATE |>
   sort() |>
   unique() |>
   head(1)
-# [1] "2021-01-19 EST"
+# [1] "2021-01-21 EST"
 
 max(permit_info$EFFECTIVE_DATE)
 # [1] "2023-01-01 EST"
+# [1] "2022-12-30 EST"
 
 ## all 4 dataframes ----
 # llist is like list except that it preserves the names or labels of the component variables in the variables label attribute.
