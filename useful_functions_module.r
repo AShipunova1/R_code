@@ -1271,7 +1271,8 @@ get_compl_by <-
     # more columns, a column per vessel
     tidyr::pivot_wider(
       names_from = all_of(names_from_list),
-      values_from = compliant_,
+      values_from = c("compliant_", "overridden_"),
+        # compliant_,
       # make it "NO_YES" if both
       values_fn = ~ paste0(unique(sort(.x)), collapse = "_")
     ) %>%
