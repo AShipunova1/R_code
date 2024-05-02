@@ -1273,7 +1273,7 @@ get_compl_by <-
       names_from = all_of(names_from_list),
       values_from = compliant_,
       # make it "NO_YES" if both
-      values_fn = ~ paste0(sort(.x), collapse = "_")
+      values_fn = ~ paste0(unique(sort(.x)), collapse = "_")
     ) %>%
     dplyr::ungroup() %>%
     return()
