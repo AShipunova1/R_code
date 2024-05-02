@@ -1262,7 +1262,7 @@ read_an_answer <- function(my_prompt) {
 get_compl_by <-
   function(my_df,
            group_by_for_compl =
-               vars(-c("vessel_official_number", "compliant_")),
+             vars(-c("vessel_official_number", "compliant_", "overridden_")),
            names_from_list = c("vessel_official_number")) {
     my_df %>%
     dplyr::group_by_at(group_by_for_compl) %>%
