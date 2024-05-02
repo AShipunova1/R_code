@@ -1,0 +1,18 @@
+ExtDriver-class         Class ExtDriver
+OraConnection-class     Class OraConnection
+OraDriver-class         Class OraDriver
+OraResult-class         Class OraResult
+Oracle                  Instantiate an Oracle client from the current R
+                        session
+dbCommit                DBMS Transaction Management
+dbConnect               Create a Connection Object to an Oracle DBMS
+dbGetInfo               Database interface Metadata
+dbListConnections       List items from Oracle objects
+dbReadTable             Convenience Functions for Manipulating DBMS
+                        Tables
+dbSendQuery             Execute a Statement on a Given Database
+                        Connection
+dbUnloadDriver          Oracle Implementation of the Database Interface
+                        (DBI) Classes and Drivers
+fetch                   Fetch records from a previously executed query
+show,OraDriver-method   Summarize an Oracle object

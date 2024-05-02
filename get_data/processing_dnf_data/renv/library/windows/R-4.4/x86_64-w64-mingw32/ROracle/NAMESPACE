@@ -1,0 +1,35 @@
+useDynLib(ROracle)
+
+import(methods)
+import(DBI)
+importFrom(utils, globalVariables, head)
+
+exportClasses(
+  OraDriver, ExtDriver, OraConnection, OraResult)
+
+exportMethods(
+  ## General
+  dbGetInfo, summary, show,
+
+  ## DBIDriver
+  dbUnloadDriver, dbListConnections,
+
+  ## DBIConnection
+  dbConnect, dbDisconnect, dbSendQuery, dbGetQuery, dbGetException,
+  dbListResults, oracleProc,
+
+  ## DBIConnection: Convenience
+  dbListTables, dbReadTable, dbWriteTable, dbExistsTable, dbRemoveTable,
+  dbListFields,
+
+  ## DBIConnection: Transaction management
+  dbCommit, dbRollback,
+
+  ## DBIResult
+  fetch, dbClearResult, dbColumnInfo, dbGetStatement, dbHasCompleted,
+  dbGetRowsAffected, dbGetRowCount,
+
+  ## DBIResult: DBI extensions
+  execute)
+
+export(Oracle, Extproc)
