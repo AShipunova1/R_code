@@ -491,7 +491,7 @@ join_compliance_from_fhier__db_logbooks__perm <-
 ### vessel is in compliance_from_fhier, not in db_logbooks ----
 
 vessel_in_compl_not_in_logb <-
-  join_compliance_from_fhier__db_logbooks |>
+  join_compliance_from_fhier__db_logbooks__perm |>
   filter(is.na(db_logbooks_vessel_id)) |>
   select(vessel_official_number) |>
   distinct()
