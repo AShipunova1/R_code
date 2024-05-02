@@ -187,7 +187,7 @@ prev_result_path <-
 # file.exists(prev_result_path)
 
 prev_result <-
-  read_xlsx(prev_result_path) |> 
+  read.xlsx(prev_result_path) |> 
   remove_empty_cols() |> 
   clean_headers()
 
