@@ -289,7 +289,7 @@ fix_names <- function(x) {
     my_headers_case_function()
 }
 
-## functions to clean FHIER compliance and correspondense reports ----
+## functions to clean FHIER compliance and correspondence reports ----
 
 # split week column ("52: 12/26/2022 - 01/01/2023") into 3 columns with proper classes, week_num (week order number), week_start and week_end
 # Define a function named 'clean_weeks' that takes a data frame 'my_df' as input.
@@ -571,9 +571,9 @@ data_overview <- function(my_df) {
 # from https://stackoverflow.com/questions/53781563/combine-rows-based-on-multiple-columns-and-keep-all-unique-values
 # concat_unique <- function(x){paste(unique(x),  collapse=', ')}
 
-# Define a function 'concat_unique' to concatenate unique non-NA values from a vector x into a single character string.
-# Use 'unique' to extract unique values, '!is.na(x)' to remove NA values, and 'collapse = ", "' to concatenate with a comma and space.
-# Finally, paste0 is used to concatenate the unique non-NA values with a comma and space separator (", ").
+# Explanations:
+# 1. Extract unique non-NA elements from the input vector 'x' using 'unique'.
+# 2. Concatenate these unique elements into a single string with ", " as the separator using 'paste0' and 'collapse'.
 
 concat_unique <- function(x) {
   paste0(unique(x[!is.na(x)]), collapse = ", ")
@@ -998,31 +998,64 @@ read_rds_or_run_no_db <-
     return(my_df)
   }
 
-# Pretty message print
+# ===
+# Explanations:
+# 
+# 1. The function `function_message_print` is defined, which takes one argument `text_msg` (the text message to be printed).
+# 2. Inside the function, the `cat` function is used to print `text_msg` to the console.
+# 3. The function applies custom styling to `text_msg` using the `crayon` package:
+#    - `crayon::bgCyan$bold(text_msg)` applies a cyan background color and bold styling to `text_msg`.
+# 4. The `sep = "\n"` argument to `cat` ensures that the output is followed by a new line, so each message is printed on a separate line.
+# 5. The function prints the styled `text_msg` to the console and does not return any value (`NULL` by default).
 function_message_print <- function(text_msg) {
   cat(crayon::bgCyan$bold(text_msg),
       sep = "\n")
 }
 
+# ===
+# Explanations:
+# 1. The function `get_df_name_as_text` is defined, which takes one argument `my_df` (the data frame for which the name should be retrieved as text).
+# 2. The function uses the `substitute` function to capture the expression used to pass the data frame as `my_df`.
+# 3. The `deparse` function is then used to convert the expression from `substitute` into a character string, which represents the name of the data frame.
+# 4. The resulting character string (`df_name`) is stored in a variable of the same name.
+# 5. The function returns the name of `my_df` as a string (`df_name`).
 get_df_name_as_text <-
   function(my_df) {
     df_name = deparse(substitute(my_df))
     return(df_name)
   }
 
-# # A title
-# if (is.na(title_msg))  {
-#   df_name = deparse(substitute(my_df))
-#   title_msg <- df_name
-# }
-
 # to print the title message in blue.
 title_message_print <- function(title_msg) {
   cat(crayon::blue(title_msg), sep = "\n")
 }
 
-
-# Define a helper function 'my_tee' to print the message to the console and a file.
+# ===
+# Explanations:
+# - This function, `my_tee`, is designed to print messages to both the console and a log file.
+# - The function takes four parameters: 
+#   - `my_text`: The text message to print and log.
+#   - `my_title`: An optional title for the message. If not provided, the function will default to `NA`.
+#   - `stat_log_file_path`: The file path where the message should be logged. If not provided, a default path is created.
+#   - `date_range`: An optional date range used to customize the log file's name. The default value is `2022`.
+# 
+# - The function includes three main operations:
+#   - Print the message to the console with a title.
+#   - Create a log file path and write the message to the log file.
+#   
+# Here's what's happening in detail:
+# 
+# 1. The function `my_tee` is defined with four parameters: `my_text`, `my_title`, `stat_log_file_path`, and `date_range`.
+# 
+# 2. The function initializes a constant `the_end` with the value `"---"`, which is used to mark the end of each message.
+# 
+# 3. If the `date_range` parameter is not provided, it defaults to `2022`.
+# 
+# 4. The function prints the title and message to the console. It uses the function `title_message_print` (not defined in the provided code) to print the title. Then, it prints the text of the message followed by the end mark (`the_end`).
+# 
+# 5. If the `stat_log_file_path` parameter is not provided, the function constructs a default file path using the `Path` and `Outputs` variables (not defined in the provided code) and the current date (`today()`). The file path is constructed with the title, date range, and date as part of the file name.
+# 
+# 6. Finally, the function writes the title, message, and end mark to the log file at the specified path. The function appends the new message to the file if it already exists.
 my_tee <- function(my_text,
                    my_title = NA,
                    stat_log_file_path = NA,
@@ -1058,6 +1091,33 @@ my_tee <- function(my_text,
 
 # The read_rds_or_run function is designed to read data from an RDS file if it exists or run an SQL query to pull the data from Oracle db if the file doesn't exist.
 # See usage below at the `Grab compliance file from Oracle` section
+
+# Explanations:
+# - This function, `read_rds_or_run`, is designed to read data from an RDS file if it exists or run a specified function to obtain the data and save it as an RDS file if the file does not exist or if the `force_from_db` parameter is set.
+# 
+# Here's what's happening in detail:
+# 
+# 1. **Function Definition**: The function takes four parameters: 
+#    - `my_file_path`: The path to the RDS file to be read or saved.
+#    - `my_data`: The data to be used with the function. Default is an empty data frame.
+#    - `my_function`: The function to be run to obtain the data if necessary.
+#    - `force_from_db`: A flag that, when set, will force the function to run the specified function instead of reading from the file, even if the file exists.
+# 
+# 2. **Check File Existence**: The function first checks if the file specified by `my_file_path` exists and, if so, retrieves its modification time. 
+# 
+# 3. **Read or Run**: Depending on the existence of the file and the `force_from_db` flag:
+#     - **File Exists and `force_from_db` is not set**: If the file exists and `force_from_db` is not set, the function reads the data from the RDS file using `readr::read_rds(my_file_path)` and assigns it to `my_result`.
+#     - **File Does Not Exist or `force_from_db` is set**: If the file does not exist or `force_from_db` is set, the function follows these steps:
+#         - Prints a message indicating the file doesn't exist and data will be pulled from the database.
+#         - Times the function execution using `tictoc::tic()` and starts with a message indicating the date and purpose of the run.
+#         - Runs the specified function (`my_function`) on the provided `my_data` to generate the result (`my_result`), e.g., downloading data from the Oracle database.
+#         - Stops timing the function execution using `tictoc::toc()`.
+#         - Saves the result as an RDS file to the specified `my_file_path` for future use using `readr::write_rds(my_result, my_file_path)`. A `try` block is used to handle potential errors in writing the file.
+#         - Prints a message indicating that the new data is being saved into a file.
+# 
+# 4. **Print File Information**: After obtaining the data, the function prints the file name and modification time to provide information on when the data was last downloaded or modified.
+# 
+# 5. **Return**: The function returns the generated or read data (`my_result`).
 read_rds_or_run <- function(my_file_path,
                             my_data = as.data.frame(""),
                             my_function,
@@ -1120,20 +1180,6 @@ read_rds_or_run <- function(my_file_path,
     # Return the generated or read data.
     return(my_result)
 }
-
-
-# Usage:
-# select(-all_of(names(empty_cols)))
-# empty_cols <-
-#   function(my_df) {
-#     my_df |>
-#       purrr::map_df(function(x) {
-#         if (length(unique(x)) == 1) {
-#           return(unique(x))
-#         }
-#       }) %>%
-#     return()
-#   }
 
 # ===
 # Function to remove empty columns from a data frame
@@ -1251,14 +1297,7 @@ read_an_answer <- function(my_prompt) {
 # if (interactive()) read_an_answer(my_prompt)
 
 # make it "NO_YES" if both compliant and not compliant
-# Explanations:
-# The function 'get_compl_by' performs the following operations:
-# 1. Groups the data frame by the specified columns using 'group_by_at'.
-# 2. Selects unique rows based on the grouping columns since we are looking at vessels, not weeks.
-# 3. Pivots the data wider, creating a column for each vessel.
-# 4. Combines values if there are multiple entries for the same vessel using a custom function that sorts and concatenates them.
-# 5. Removes the grouping to return the data to its original structure.
-# 6. Returns the modified data frame.
+# Not tested with overridden
 get_compl_by <-
   function(my_df,
            group_by_for_compl =
