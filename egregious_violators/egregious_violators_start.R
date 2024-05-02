@@ -54,6 +54,14 @@ half_year_ago <-
   data_file_date - days_in_non_compl_weeks - grace_period
 # [1] "2023-10-04"
 
+# check week and day of the period's start
+# week("2023-10-04") 
+# 40
+
+# wday("2023-10-04",
+#      label = T)
+# Wed
+
 # 30 days from today
 permit_expired_check_date <- data_file_date + 30
 
