@@ -1,5 +1,3 @@
-
-__packages
 .RData
 .Rhistory
 .Rproj.user
@@ -11,10 +9,10 @@ __packages
 *.jpg
 *.js
 *.png
-*.pper
 *.RData
 *.RDataTmp
 *.rdb
+*.rds
 *.rdx
 *.rmarkdown
 *.sql
@@ -24,6 +22,7 @@ __packages
 bootstrap-icons.css
 bootstrap.min.css
 butterfish_pull_and_analysis_v2A.Rmd
+compare_4_files/compare_4_files.qmd
 compare_catch/compare_catch_plots0.R
 connect.r
 db_compliance/dnf_2022.R
@@ -37,7 +36,6 @@ home-button.css
 jquery-3.6.0.min.map
 leaflet.css
 leafletfix.css
-LICENSE
 mapview-popup.css
 mapview.css
 non_compliant_areas/.RDataTmp2
@@ -45,9 +43,6 @@ quantify_compliance_2023/quantify_compliance_for_2022
 quantify_compliance/quantify_compliance_cache/html/__packages
 quantify_compliance/SA_non_compliant_and_has_logbooks.csv
 quarto-syntax-highlighting.css
-renv
 rstudio_leaflet.css
 temp*
 tippy.css
-compare_4_files/compare_4_files.qmd
-*.rds
