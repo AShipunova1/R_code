@@ -5,9 +5,9 @@ my_paths <- set_work_dir()
 # from FHIER
 # https://grunt.sefsc.noaa.gov/apex/f?p=162...
 
-csv_names_list = list(r"(sc_mismatches\2024_04\fhier_report_04_01_2024.csv)")
+csv_names_list = list(r"(sc_mismatches\2024_05\fhier_report_05_06_2024.csv)")
 
-xsl_names_list = list(r"(sc_mismatches\2024_04\scdnrFedVessels_04012024.xlsx)")
+xsl_names_list = list(r"(sc_mismatches\2024_04\scdnrFedVessels_04302024.xlsx)")
 
 SC_vessels_FHIERData_0 <- load_csv_names(my_paths$inputs, csv_names_list)[[1]]
 
@@ -31,9 +31,6 @@ FHIER_vessel_officialnumber <-
   data.frame(Official_number = tolower(SC_vessels_FHIERData_enabled$vessel_official_number))
 
 dim(FHIER_vessel_officialnumber)
-# 199
-# 88
-# [1] 187   1
 # [1] 189   1
 # 188
 
