@@ -2,10 +2,10 @@
 \alias{get_compl_by}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A Capitalized Title (ideally limited to 65 characters)
+Get Compliance by
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+This function is designed to organize compliance data by grouping it based on specified variables and spreading unique values into separate columns, providing a more structured and readable format for analysis.
 }
 \usage{
 get_compl_by(my_df, group_by_for_compl = vars(-c("vessel_official_number", "compliant_", "overridden_")), names_from_list = c("vessel_official_number"))
@@ -13,18 +13,35 @@ get_compl_by(my_df, group_by_for_compl = vars(-c("vessel_official_number", "comp
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{my_df}{
-%%     ~~Describe \code{my_df} here~~
+The data frame containing compliance data.
 }
   \item{group_by_for_compl}{
-%%     ~~Describe \code{group_by_for_compl} here~~
-A list of column names to group by
+A list of column names to group the data by for compliance.
 }
   \item{names_from_list}{
-%%     ~~Describe \code{names_from_list} here~~
+List of variable names for which unique values will be spread into columns.
 }
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+The `get_compl_by` function aims to organize compliance data by grouping and pivoting it into a wider format.
+
+1. **Function Definition:**
+   - `get_compl_by <- function(my_df, group_by_for_compl = vars(-c("vessel_official_number", "compliant_", "overridden_")), names_from_list = c("vessel_official_number")) { ... }`: Defines a function named `get_compl_by` that takes three arguments: `my_df` (the data frame containing compliance data), `group_by_for_compl` (variables to group the data by for compliance), and `names_from_list` (list of variable names for which unique values will be spread into columns).
+
+2. **Grouping Data:**
+   - `my_df %>% dplyr::group_by_at(group_by_for_compl)`: Groups the data frame `my_df` by the variables specified in `group_by_for_compl` using `group_by_at` from `dplyr`.
+
+3. **Removing Duplicates:**
+   - `unique()`: Removes duplicate rows from the grouped data frame, ensuring each combination of grouped variables appears only once.
+
+4. **Pivoting Data:**
+   - `tidyr::pivot_wider(names_from = all_of(names_from_list), values_from = c("compliant_", "overridden_"), values_fn = ~paste0(unique(sort(.x)), collapse = "_"))`: Transforms the data from long to wide format using `pivot_wider` from `tidyr`. It spreads unique values of variables specified in `names_from_list` into separate columns, with values from columns "compliant_" and "overridden_" concatenated into a single value.
+
+5. **Ungrouping Data:**
+   - `dplyr::ungroup()`: Ungroups the data frame, removing the grouping previously applied.
+
+6. **Return Result:**
+   - `return()`: Returns the processed data frame containing compliance information.
 }
 \value{
 %%  ~Describe the value returned
