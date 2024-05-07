@@ -21,10 +21,8 @@ SC_vessels_FHIERData_enabled <-
   SC_vessels_FHIERData %>%
   filter(tolower(enabled) == "yes")
 dim(SC_vessels_FHIERData_enabled)
-# 199 8
-# [1] 187   8
-# 189
 # 188
+# 214
 
 #create new dataframe with just enabled vessel official # for analysis
 FHIER_vessel_officialnumber <-
@@ -33,6 +31,7 @@ FHIER_vessel_officialnumber <-
 dim(FHIER_vessel_officialnumber)
 # [1] 189   1
 # 188
+# 214
 
 #---
 SC_permittedVessels  <- load_xls_names(my_paths, xsl_names_list, 1)
@@ -41,11 +40,12 @@ dim(SC_permittedVessels)
 # 213
 # 188
 # 200
+# 219
 
-# SC_permittedVessels1 <- read_excel(paste(my_paths$inputs, xsl_names_list[[1]], sep = "/"), 1)
+glimpse(SC_permittedVessels)
 
 #---
-# names(SC_permittedVessels)
+names(SC_permittedVessels)[1]
 # vessel_reg_uscg_
 #create new dataframe with just official # codes for analysis
 SC_vessel_officalnumber <-
@@ -57,7 +57,7 @@ mismatched_officialnumbers_FHIERvsSC <-
             SC_vessel_officalnumber,
             by = "Official_number") #to ID rows that exist in FHIER but not in SC file
 
-#NOTE - now do in reverse to ensure no vessels are in SC list that are not in FHIER list
+# NOTE - now do in reverse to ensure no vessels are in SC list that are not in FHIER list
 mismatched_officialnumbers_SCvsFHIER <-
   anti_join(SC_vessel_officalnumber,
             FHIER_vessel_officialnumber,
@@ -76,6 +76,7 @@ sc_to_fh_diff <-
     SC_vessel_officalnumber$Official_number,
     FHIER_vessel_officialnumber$Official_number
   )
+
 identical(sort(mismatched_officialnumbers_SCvsFHIER$Official_number),
           sort(sc_to_fh_diff))
 # T
