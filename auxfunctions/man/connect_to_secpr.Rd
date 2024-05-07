@@ -2,24 +2,37 @@
 \alias{connect_to_secpr}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A Capitalized Title (ideally limited to 65 characters)
+Connect to "SECPR" Oracle database from R
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+This function encapsulates the process of connecting to the "SECPR" Oracle database securely by retrieving credentials from the keyring and establishing a connection using the ROracle package. It ensures that sensitive information such as passwords is not exposed in the code, enhancing security.
 }
 \usage{
-connect_to_secpr()
+con <- connect_to_secpr()
 }
 %- maybe also 'usage' for other objects documented here.
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+This `connect_to_secpr` function establishes a connection to an Oracle database named "SECPR" using credentials stored securely.
+
+1. **Function Definition:**
+   - `connect_to_secpr <- function() { ... }`: Defines a function named `connect_to_secpr` with no input parameters.
+
+2. **Retrieve Username:**
+   - `my_username <- keyring::key_list("SECPR")[1, 2]`: Retrieves the username associated with the Oracle database "SECPR" from the keyring package. It accesses the first entry (row) and the second column, assuming the username is stored in the second column.
+
+3. **Establish Database Connection:**
+   - `con <- dbConnect(...)`:
+     - `dbDriver("Oracle")`: Creates a database driver object specifically for Oracle databases.
+     - `username = my_username`: Specifies the retrieved username for the database connection.
+     - `password = keyring::key_get("SECPR", my_username)`: Retrieves the corresponding password for the username from the keyring package, ensuring secure access to the credentials.
+     - `dbname = "SECPR"`: Specifies the name of the Oracle database to connect to, which is "SECPR" in this case.
+     - `dbConnect(...)`: Establishes a connection to the Oracle database using the provided driver, username, password, and database name.
+
+4. **Return Statement:**
+   - `return(con)`: Returns the established database connection (`con`) as the output of the function.
 }
 \value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
+It returns the established database connection (con), which can be used to interact with the "SECPR" Oracle database.
 }
 \references{
 %% ~put references to the literature/web site here ~
