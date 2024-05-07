@@ -2,10 +2,12 @@
 \alias{create_dir_if_not}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A Capitalized Title (ideally limited to 65 characters)
+Create a directory if it doesn't exist
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+The `create_dir_if_not` function ensures the existence of a directory by creating it if it does not already exist.
+
+This function provides a convenient way to ensure that a directory exists before performing operations such as writing files or storing data.
 }
 \usage{
 create_dir_if_not(curr_dir_name)
@@ -17,7 +19,18 @@ create_dir_if_not(curr_dir_name)
 }
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+1. **Function Definition:**
+   - `create_dir_if_not <- function(curr_dir_name) { ... }`: Defines a function named `create_dir_if_not` that takes a single argument, `curr_dir_name`, representing the name of the directory to be created.
+
+2. **Checking Directory Existence:**
+   - `if (!dir.exists(curr_dir_name)) { ... }`: Checks if the directory specified by `curr_dir_name` does not exist.
+   - `dir.exists(curr_dir_name)`: Checks whether the directory specified by `curr_dir_name` exists. The `!` negates the result, so the code block inside the `if` statement executes only if the directory does not exist.
+
+3. **Creating Directory:**
+   - `dir.create(curr_dir_name)`: If the directory does not exist, this line creates the directory specified by `curr_dir_name` using the `dir.create` function.
+
+4. **Return Statement:**
+   - The function does not have a specific return value. It either creates the directory if it does not exist or takes no action if the directory already exists.
 }
 \value{
 %%  ~Describe the value returned
