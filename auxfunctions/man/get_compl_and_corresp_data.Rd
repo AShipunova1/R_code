@@ -2,10 +2,10 @@
 \alias{get_compl_and_corresp_data}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A Capitalized Title (ideally limited to 65 characters)
+Get compliance and correspondence data
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+This function facilitates the extraction, cleaning, and organization of compliance and correspondence data from files, downloaded from FHIER, providing a convenient way to preprocess the data for further analysis or visualization.
 }
 \usage{
 get_compl_and_corresp_data(my_paths, filenames = csv_names_list_22_23, vessel_id_field_name = NA)
@@ -13,24 +13,47 @@ get_compl_and_corresp_data(my_paths, filenames = csv_names_list_22_23, vessel_id
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{my_paths}{
-%%     ~~Describe \code{my_paths} here~~
+Paths to the files.
 }
   \item{filenames}{
-%%     ~~Describe \code{filenames} here~~
+A list of filenames.
 }
   \item{vessel_id_field_name}{
-%%     ~~Describe \code{vessel_id_field_name} here~~
+A column name for vessel id, like "vessel_official_number"
 }
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+The `get_compl_and_corresp_data` function is responsible for processing and cleaning compliance and correspondence data from CSV files.
+
+It uses other functions from this package.
+
+1. **Function Definition:**
+   - `get_compl_and_corresp_data <- function(my_paths, filenames = csv_names_list_22_23, vessel_id_field_name = NA) { ... }`: Defines a function named `get_compl_and_corresp_data` that takes three arguments: `my_paths` (paths to the CSV files), `filenames` (list of CSV filenames), and `vessel_id_field_name` (name of the vessel ID field).
+
+2. **Prepare CSV Names:**
+   - `csv_names_list <- prepare_csv_names(filenames)`: Prepares a list of CSV filenames based on the input list `filenames` using the `prepare_csv_names` function.
+
+3. **Load CSV Contents:**
+   - `csv_contents <- load_csv_names(my_paths, csv_names_list)`: Loads the contents of CSV files specified by `my_paths` and `csv_names_list` using the `load_csv_names` function.
+
+4. **Clean CSVs:**
+   - `csvs_clean1 <- clean_all_csvs(csv_contents, vessel_id_field_name)`: Cleans all CSV files in `csv_contents` using the `clean_all_csvs` function, with an optional argument `vessel_id_field_name` to specify the vessel ID field.
+
+5. **Clean Correspondence Data:**
+   - `corresp_arr_contact_cnts_clean <- corresp_cleaning(csvs_clean1)`: Cleans the correspondence data in `csvs_clean1` using the `corresp_cleaning` function.
+
+6. **Extract Compliance Data:**
+   - `compl_arr <- csvs_clean1[2:length(csvs_clean1)]`: Extracts compliance data from `csvs_clean1` by excluding the first element (assumed to be correspondence data).
+
+7. **Clean Compliance Data:**
+   - `compl_clean <- compliance_cleaning(compl_arr)`: Cleans the compliance data in `compl_arr` using the `compliance_cleaning` function.
+
+8. **Return Result:**
+   - `return(list(compl_clean, corresp_arr_contact_cnts_clean))`: Returns a list containing the cleaned compliance data (`compl_clean`) and cleaned correspondence data (`corresp_arr_contact_cnts_clean`).
 }
 \value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
+\item{compl_clean }{Cleaned compliance data}
+\item{corresp_arr_contact_cnts_clean }{Cleaned correspondence data}
 }
 \references{
 %% ~put references to the literature/web site here ~
@@ -45,6 +68,16 @@ get_compl_and_corresp_data(my_paths, filenames = csv_names_list_22_23, vessel_id
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
+%% \code{\link[auxfunctions]{prepare_csv_names}}
+\code{\link{prepare_csv_names}},
+
+\code{\link{load_csv_names}},
+
+\code{\link{clean_all_csvs}},
+
+\code{\link{corresp_cleaning}},
+
+\code{\link{compliance_cleaning}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
