@@ -2,10 +2,12 @@
 \alias{concat_unique_sorted}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A Capitalized Title (ideally limited to 65 characters)
+Concatenate unique sorted values
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+Define a function to concatenate unique values in a sorted manner.
+This function takes a vector 'x', removes NA values, sorts the unique values,
+and then concatenates them with a comma separator.
 }
 \usage{
 concat_unique_sorted(x)
@@ -17,7 +19,24 @@ concat_unique_sorted(x)
 }
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+This `concat_unique_sorted` function combines the unique non-NA values of a vector into a single string with the values sorted in ascending order and separated by commas.
+
+1. **Input Parameter:**
+   - `x`: Represents the input vector from which unique non-NA values will be extracted and concatenated.
+
+2. **Extract Non-NA Values:**
+   - `non_na_values <- x[!is.na(x)]`: This line extracts the non-NA values from the input vector `x` using logical indexing. It ensures that only non-missing values are considered for concatenation.
+
+3. **Sort Unique Values:**
+   - `sorted_unique <- unique(sort(non_na_values))`: Here, the non-NA values are sorted in ascending order and duplicates are removed using the `unique` and `sort` functions. This ensures that the resulting concatenated string will have unique values in sorted order.
+
+4. **Concatenate Values:**
+   - `result <- paste0(sorted_unique, collapse = ", ")`: The sorted unique values are concatenated into a single string using `paste0`, where the `collapse` argument specifies that the values should be separated by a comma followed by a space.
+
+5. **Return Statement:**
+   - `return(result)`: Finally, the concatenated string `result` is returned as the output of the function.
+
+This function is useful for creating a concise representation of unique non-NA values from a vector, particularly when presenting or summarizing data.
 }
 \value{
 %%  ~Describe the value returned
