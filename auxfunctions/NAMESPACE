@@ -1,6 +1,6 @@
 export("add_cnt_in_gr", "add_compliant_after_override",
        "add_count_contacts", "aux_fun_for_dates",
-       "cat_filter_for_fhier", "change_fields_arr_to_dates",
+       "change_fields_arr_to_dates",
        "change_to_dates", "clean_all_csvs", "clean_headers",
        "clean_names_and_addresses", "clean_weeks",
        "combine_rows_based_on_multiple_columns_and_keep_all_unique_sorted_values",
