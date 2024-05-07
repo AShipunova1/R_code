@@ -2,10 +2,10 @@
 \alias{print_df_names}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A Capitalized Title (ideally limited to 65 characters)
+Print DF names to console
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+This function prints the comma separated column names of a dataframe, with an option to limit the number of names displayed. It's useful for quickly inspecting the structure of a dataframe, especially when dealing with datasets with a large number of columns.
 }
 \usage{
 print_df_names(my_df, names_num = 100)
@@ -20,7 +20,20 @@ print_df_names(my_df, names_num = 100)
 }
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+1. **Function Definition:**
+   - `print_df_names <- function (my_df, names_num = 100) { ... }`: Defines a function named `print_df_names` with two arguments: `my_df` (the dataframe whose column names will be printed) and `names_num` (the maximum number of names to display, defaulted to 100).
+
+2. **Extracting Column Names:**
+   - `names(my_df)`: Retrieves the column names of the input dataframe `my_df`.
+
+3. **Selecting Subset of Names:**
+   - `%>% head(names_num)`: Uses the pipe operator (`%>%`) to pass the column names to the `head` function, which selects the first `names_num` names. This is useful when the dataframe has a large number of columns, and we want to limit the display to a manageable number.
+
+4. **Formatting as a String:**
+   - `%>% paste0(collapse = ", ")`: Concatenates the selected column names into a single string, separated by commas. This creates a more readable output.
+
+5. **Returning the Result:**
+   - `%>% return()`: Returns the concatenated string of column names as the output of the function.
 }
 \value{
 %%  ~Describe the value returned
