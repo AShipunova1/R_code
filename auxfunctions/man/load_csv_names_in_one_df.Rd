@@ -2,10 +2,10 @@
 \alias{load_csv_names_in_one_df}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A Capitalized Title (ideally limited to 65 characters)
+Load Csv Names in One Dataframe
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+This function is useful for loading multiple CSV files into a single data frame, handling different column types, missing values, and repairing column names if necessary.
 }
 \usage{
 load_csv_names_in_one_df(path_to_files, csv_names_list)
@@ -20,7 +20,24 @@ load_csv_names_in_one_df(path_to_files, csv_names_list)
 }
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+The `load_csv_names_in_one_df` function is designed to load multiple CSV files into a single data frame. Here's a detailed explanation of each part of the function:
+
+1. **Function Definition:**
+   - `load_csv_names_in_one_df <- function(path_to_files, csv_names_list) { ... }`: Defines a function named `load_csv_names_in_one_df` with two arguments: `path_to_files` (the directory path where CSV files are located) and `csv_names_list` (a list of CSV file names).
+
+2. **Variable Initialization:**
+   - `myfiles <- csv_names_list`: Initializes a variable `myfiles` with the list of CSV file names.
+
+3. **Conditional Path Handling:**
+   - `if (length(path_to_files) > 0) { ... }`: Checks if the `path_to_files` argument is not empty.
+   - `lapply(csv_names_list, function(x) file.path(path_to_files, x))`: If `path_to_files` is not empty, constructs the full file paths by concatenating `path_to_files` with each file name from `csv_names_list`. This is done using `lapply` to apply the `file.path` function to each element of `csv_names_list`.
+
+4. **Reading CSV Files:**
+   - `purrr::map_df(myfiles, function(file_name) { ... })`: Reads each CSV file specified in `myfiles` into a data frame and combines them into a single data frame using `map_df` from the `purrr` package.
+   - `readr::read_csv(file_name, col_types = cols(.default = "c"), trim_ws = TRUE, na = c("", "NA", "NaN"), name_repair = "universal")`: Reads each CSV file specified by `file_name` using the `read_csv` function from the `readr` package. It specifies the column types to read as characters, trims whitespace from column values, specifies the values to interpret as missing (`""`, `"NA"`, `"NaN"`), and repairs column names to make them syntactically valid.
+
+5. **Return Result:**
+   - `return(csv_content)`: Returns the combined data frame containing the contents of all CSV files.
 }
 \value{
 %%  ~Describe the value returned
