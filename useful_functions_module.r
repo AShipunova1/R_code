@@ -368,7 +368,7 @@ trim_all_vessel_ids_simple <- function(csvs_clean_ws, col_name_to_trim = NA) {
 }
 
 # ===
-# cleaning, regularly done for csvs downloaded from PHIER
+# cleaning, regularly done for csvs downloaded from FHIER
 # The clean_all_csvs function is defined to clean a list of CSVs (csvs) and has an optional parameter vessel_id_field_name, which specifies the column to trim.
 # It returns the list of cleaned CSVs, where each CSV has had its headers unified and the vessel ID column (if specified) trimmed for consistency.
 
