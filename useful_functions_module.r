@@ -235,6 +235,21 @@ load_csv_names_in_one_df <- function(path_to_files, csv_names_list) {
 #
 # 6. Finally, the function returns the concatenated data frame containing the contents of all CSV files, making it easier to work with them as a single data structure.
 
+my_read_xlsx <- function(file_path, sheet_n, start_row = 1) {
+  res_df <-
+    read.xlsx(
+      file_path,
+      sheet_n,
+      startRow = start_row,
+      detectDates = TRUE,
+      colNames = TRUE,
+      sep.names = "_"
+    ) |>
+    clean_headers()
+
+  return(res_df)
+}
+
 # ===
 # The function load_xls_names returns the concatenated data frame containing data from all Excel files. This allows you to work with the combined data more easily.
 load_xls_names <- function(my_paths, xls_names_list, sheet_n = 1) {
