@@ -2,10 +2,9 @@
 \alias{clean_headers}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A Capitalized Title (ideally limited to 65 characters)
-}
+Clean headers}
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+The clean_headers function is designed to clean and fix the column names (using fix_names()) of a given dataframe (my_df).
 }
 \usage{
 clean_headers(my_df)
@@ -40,6 +39,7 @@ clean_headers(my_df)
 
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
+%% \code{\link{auxfunctions/man/fix_names.Rd}}
 }
 \examples{
 ##---- Should be DIRECTLY executable !! ----
