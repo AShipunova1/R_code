@@ -2,10 +2,9 @@
 \alias{join_same_kind_csvs}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A Capitalized Title (ideally limited to 65 characters)
-}
+Join the same kind csvs}
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+This function is helpful when you have multiple data frames with the same structure (i.e., same column names and types) and you want to combine them into a single data frame for analysis or further processing.
 }
 \usage{
 join_same_kind_csvs(csvs_list_2_plus)
@@ -17,7 +16,16 @@ join_same_kind_csvs(csvs_list_2_plus)
 }
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+The `join_same_kind_csvs` function is designed to bind together multiple data frames into a single data frame.
+
+1. **Function Definition:**
+   - `join_same_kind_csvs <- function(csvs_list_2_plus) { ... }`: Defines a function named `join_same_kind_csvs` with one argument, `csvs_list_2_plus`, which is a list containing two or more data frames.
+
+2. **Binding Data Frames:**
+   - `result_df <- dplyr::bind_rows(csvs_list_2_plus)`: Uses `bind_rows` from the `dplyr` package to stack the data frames vertically (row-wise). This function concatenates the data frames in the list `csvs_list_2_plus` into a single data frame, aligning columns by name.
+
+3. **Return Result:**
+   - The function returns the resulting data frame `result_df`.
 }
 \value{
 %%  ~Describe the value returned
@@ -33,7 +41,7 @@ join_same_kind_csvs(csvs_list_2_plus)
 %%  Anna Shipunova
 }
 \note{
-%%  ~~further notes~~
+Mostly used inside another functions.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
