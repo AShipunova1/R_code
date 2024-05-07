@@ -2,10 +2,14 @@
 \alias{add_count_contacts}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A Capitalized Title (ideally limited to 65 characters)
+Count contacts
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+# The add_count_contacts function is defined to add two new columns ('was_contacted' and 'contact_freq') to the input data frame ('all_data_df_clean') based on the presence of contact dates.
+
+# It returns the 'result_df', which is the input data frame with the added columns indicating whether a vessel was contacted ('was_contacted') and the frequency of contacts ('contact_freq').
+
+# Use for contacts in the setup function before combining with compliant dataframes
 }
 \usage{
 add_count_contacts(all_data_df_clean)
@@ -17,14 +21,15 @@ add_count_contacts(all_data_df_clean)
 }
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+Explanations:
+- The `add_count_contacts` function takes a dataframe `all_data_df_clean` as input.
+- It first finds the column names for "contact date" and "vessel number" using the `find_col_name` function.
+- Then, it adds a new column named "was_contacted", which indicates whether a contact was made with each vessel based on the presence of a contact date. If the contact date is missing (`NA`), it assigns "no"; otherwise, it assigns "yes".
+- The `add_count` function is then used to count the number of contacts per vessel, distinguishing between vessels that were contacted and those that were not. The result is stored in a new column named "contact_freq".
+- Finally, the function returns the dataframe with the added columns.
 }
 \value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
+A dataframe with the added columns.
 }
 \references{
 %% ~put references to the literature/web site here ~
