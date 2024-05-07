@@ -33,7 +33,7 @@ my_to_sf(my_df, my_crs = sf::st_crs(sa_shp))
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  ~~who you are~~
+%%  Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

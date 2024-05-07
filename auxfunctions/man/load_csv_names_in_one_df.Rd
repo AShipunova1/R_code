@@ -33,7 +33,7 @@ load_csv_names_in_one_df(path_to_files, csv_names_list)
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  ~~who you are~~
+%%  Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

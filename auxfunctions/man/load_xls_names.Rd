@@ -36,7 +36,7 @@ load_xls_names(my_paths, xls_names_list, sheet_n = 1)
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  ~~who you are~~
+%%  Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

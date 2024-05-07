@@ -33,7 +33,7 @@ combine_rows_based_on_multiple_columns_and_keep_all_unique_values(my_df, group_b
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  ~~who you are~~
+%%  Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

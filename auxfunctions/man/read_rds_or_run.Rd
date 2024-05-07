@@ -39,7 +39,7 @@ read_rds_or_run(my_file_path, my_data = as.data.frame(""), my_function, force_fr
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  ~~who you are~~
+%%  Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

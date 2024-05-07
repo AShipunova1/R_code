@@ -36,7 +36,7 @@ read_rds_or_run_no_db(my_file_path, my_data_list_of_dfs, my_function)
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  ~~who you are~~
+%%  Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

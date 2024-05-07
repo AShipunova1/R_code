@@ -36,7 +36,7 @@ change_to_dates(my_df, field_name, date_format = "")
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  ~~who you are~~
+%%  Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

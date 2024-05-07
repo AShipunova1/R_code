@@ -33,7 +33,7 @@ read_csv_w_eofs(my_paths, csv_names_list)
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  ~~who you are~~
+%%  Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

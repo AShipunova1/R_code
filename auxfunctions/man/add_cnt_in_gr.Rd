@@ -44,7 +44,7 @@ a new column name
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  ~~who you are~~
+%%  Anna Shipunova
 Anna Shipunova
 }
 \note{

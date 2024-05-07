@@ -30,7 +30,7 @@ add_count_contacts(all_data_df_clean)
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  ~~who you are~~
+%%  Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

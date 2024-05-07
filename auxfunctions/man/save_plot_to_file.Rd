@@ -33,7 +33,7 @@ save_plot_to_file(file_full_name, plot_name)
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  ~~who you are~~
+%%  Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

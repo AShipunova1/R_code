@@ -36,7 +36,7 @@ get_compl_by(my_df, group_by_for_compl = vars(-c("vessel_official_number", "comp
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  ~~who you are~~
+%%  Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

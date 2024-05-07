@@ -33,7 +33,7 @@ count_by_column_arr(my_df, group_by_arr)
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  ~~who you are~~
+%%  Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

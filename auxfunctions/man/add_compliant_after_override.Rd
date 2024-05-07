@@ -2,10 +2,18 @@
 \alias{add_compliant_after_override}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A Capitalized Title (ideally limited to 65 characters)
+Create a new column 'compliant_after_override' based on compliance and override status
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+Explanations:
+1. Create a new variable 'res' to store the result.
+2. Use 'rowwise' to perform operations row by row.
+3. Use 'mutate' to create a new column 'compliant_after_override' based on conditions specified in 'case_when'.
+   - If 'is_comp' is 0 and 'overridden' is 0, set 'compliant_after_override' to "no".
+   - If 'is_comp' is 1 or 'overridden' is 1, set 'compliant_after_override' to "yes".
+   - If 'is_comp' is NA, set 'compliant_after_override' to NA.
+   - For all other cases, set 'compliant_after_override' to the string representation of 'is_comp'.
+4. Use 'ungroup' to remove grouping from the data frame.
 }
 \usage{
 add_compliant_after_override(my_compl_df, overridden_col_name = "overridden", compliance_col_name = "is_comp")
@@ -36,7 +44,7 @@ add_compliant_after_override(my_compl_df, overridden_col_name = "overridden", co
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  ~~who you are~~
+%%  Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

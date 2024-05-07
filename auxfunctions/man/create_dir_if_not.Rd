@@ -30,7 +30,7 @@ create_dir_if_not(curr_dir_name)
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  ~~who you are~~
+%%  Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

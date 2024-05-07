@@ -33,7 +33,7 @@ write_to_1_flat_file(flat_file_name, file_name_to_write)
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  ~~who you are~~
+%%  Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

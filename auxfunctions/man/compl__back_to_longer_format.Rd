@@ -33,7 +33,7 @@ compl__back_to_longer_format(my_df, cols_names)
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  ~~who you are~~
+%%  Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

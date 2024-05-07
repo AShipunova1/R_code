@@ -39,7 +39,7 @@ my_tee(my_text, my_title = NA, stat_log_file_path = NA, date_range = NA)
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  ~~who you are~~
+%%  Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

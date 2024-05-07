@@ -30,7 +30,7 @@ cat_filter_for_fhier(my_characters)
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  ~~who you are~~
+%%  Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

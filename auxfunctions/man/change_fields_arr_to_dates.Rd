@@ -36,7 +36,7 @@ change_fields_arr_to_dates(my_df, field_names_arr, date_format)
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  ~~who you are~~
+%%  Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

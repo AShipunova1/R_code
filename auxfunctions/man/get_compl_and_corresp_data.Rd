@@ -36,7 +36,7 @@ get_compl_and_corresp_data(my_paths, filenames = csv_names_list_22_23, vessel_id
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  ~~who you are~~
+%%  Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

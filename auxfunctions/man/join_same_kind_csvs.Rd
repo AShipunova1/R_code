@@ -30,7 +30,7 @@ join_same_kind_csvs(csvs_list_2_plus)
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  ~~who you are~~
+%%  Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

@@ -30,7 +30,7 @@ legend_for_grid_arrange(legend_plot)
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  ~~who you are~~
+%%  Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

@@ -33,7 +33,7 @@ load_csv_names(csv_files_paths, csv_names_list)
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  ~~who you are~~
+%%  Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

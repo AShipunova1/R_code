@@ -33,7 +33,7 @@ trim_all_vessel_ids_simple(csvs_clean_ws, col_name_to_trim = NA)
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  ~~who you are~~
+%%  Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

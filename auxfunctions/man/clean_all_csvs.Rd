@@ -33,7 +33,7 @@ clean_all_csvs(csvs, vessel_id_field_name = NA)
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  ~~who you are~~
+%%  Anna Shipunova
 }
 \note{
 %%  ~~further notes~~
