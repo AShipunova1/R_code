@@ -1530,3 +1530,8 @@ add_compliant_after_override <-
 
   return(res)
 }
+
+# package.skeleton(
+#   name = "auxfunctions",
+#   path = ".."
+# )
