@@ -45,12 +45,12 @@ dim(SC_permittedVessels)
 
 glimpse(SC_permittedVessels)
 
-#---
-names(SC_permittedVessels)[1]
+vessel_id_field_name <- names(SC_permittedVessels)[1]
 # vessel_reg_uscg_
-#create new dataframe with just official # codes for analysis
+
+# create new dataframe with just official # codes for analysis
 SC_vessel_officalnumber <-
-  data.frame(Official_number = tolower(SC_permittedVessels$vessel_reg_uscg_))
+  data.frame(Official_number = tolower(SC_permittedVessels[[vessel_id_field_name]]))
 
 # check for mismatching fields
 mismatched_officialnumbers_FHIERvsSC <-
