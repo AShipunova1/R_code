@@ -2,10 +2,13 @@
 \alias{combine_rows_based_on_multiple_columns_and_keep_all_unique_values}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A Capitalized Title (ideally limited to 65 characters)
+Combine rows based on multiple columns
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+Define a function to combine rows based on multiple columns while keeping all unique values.
+This function groups the data frame by specified columns,
+applies 'concat_unique' to combine values in each column,
+and returns the result.
 }
 \usage{
 combine_rows_based_on_multiple_columns_and_keep_all_unique_values(my_df, group_by_arr)
