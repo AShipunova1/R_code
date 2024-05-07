@@ -52,12 +52,15 @@ vessel_id_field_name <- names(SC_permittedVessels)[1]
 SC_vessel_officalnumber <-
   data.frame(Official_number = tolower(SC_permittedVessels[[vessel_id_field_name]]))
 
-# check for mismatching fields
+# check for mismatching fields (in FHIER, but not in SC)
 mismatched_officialnumbers_FHIERvsSC <-
   setdiff(
     FHIER_vessel_officialnumber$Official_number,
     SC_vessel_officalnumber$Official_number
   )
+
+length(mismatched_officialnumbers_FHIERvsSC)
+# 0
 
 # Now do in reverse to ensure no vessels are in SC list that are not in FHIER list
 mismatched_officialnumbers_SCvsFHIER <-
@@ -65,6 +68,9 @@ mismatched_officialnumbers_SCvsFHIER <-
     SC_vessel_officalnumber$Official_number,
     FHIER_vessel_officialnumber$Official_number
   )
+
+length(mismatched_officialnumbers_SCvsFHIER)
+# 5
 
 # create output files - use these to update FHIER maintenance list ----
 ## make output file names ----
