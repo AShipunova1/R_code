@@ -2,10 +2,16 @@
 \alias{clean_all_csvs}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A Capitalized Title (ideally limited to 65 characters)
+Cleans sn uploaded csv
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+Cleaning, regularly done for csvs downloaded from FHIER,
+usually from inside other functions.
+
+The clean_all_csvs function is defined to clean a list of CSVs (csvs) and has an optional parameter vessel_id_field_name, which specifies the column to trim.
+
+It returns the list of cleaned CSVs, where each CSV has had its headers unified and the vessel ID column (if specified) trimmed for consistency.
+
 }
 \usage{
 clean_all_csvs(csvs, vessel_id_field_name = NA)
