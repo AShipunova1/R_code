@@ -17,6 +17,7 @@ get_compl_by(my_df, group_by_for_compl = vars(-c("vessel_official_number", "comp
 }
   \item{group_by_for_compl}{
 %%     ~~Describe \code{group_by_for_compl} here~~
+A list of column names to group by
 }
   \item{names_from_list}{
 %%     ~~Describe \code{names_from_list} here~~
@@ -52,6 +53,9 @@ get_compl_by(my_df, group_by_for_compl = vars(-c("vessel_official_number", "comp
 ##-- ==>  Define data, use random,
 ##--	or standard data sets, see data().
 
+group_by_for_compl <-
+  vars(-c("vessel_official_number", "compliant_", "overridden_"))
+  
 ## The function is currently defined as
 function (my_df, group_by_for_compl = vars(-c("vessel_official_number", 
     "compliant_", "overridden_")), names_from_list = c("vessel_official_number")) 
