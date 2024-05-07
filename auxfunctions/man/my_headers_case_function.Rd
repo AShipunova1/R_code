@@ -2,10 +2,12 @@
 \alias{my_headers_case_function}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A Capitalized Title (ideally limited to 65 characters)
+Headers case
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+Use this aux function in case we want to change the case in all functions.
+
+Used in other functions.
 }
 \usage{
 my_headers_case_function(x)
