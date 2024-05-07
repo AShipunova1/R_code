@@ -2,11 +2,15 @@
 \alias{clean_names_and_addresses}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A Capitalized Title (ideally limited to 65 characters)
+Cleans the strings in character columns
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
-}
+- This function `clean_names_and_addresses` cleans the strings in character columns of a dataframe.
+- It uses `mutate` with `across` to apply multiple string cleaning operations to all character columns.
+- The `str_squish` function is used to remove leading, trailing, and extra internal whitespace from each string.
+- `replace_na` function replaces missing values with empty strings.
+- The `str_replace_all` function is used to perform multiple replacements using regular expressions to clean up commas, semicolons, and unwanted substrings like "UN".
+- Finally, it returns the cleaned dataframe.}
 \usage{
 clean_names_and_addresses(my_df)
 }
@@ -20,12 +24,7 @@ clean_names_and_addresses(my_df)
 %%  ~~ If necessary, more details than the description above ~~
 }
 \value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
-}
+Returns the cleaned dataframe.}
 \references{
 %% ~put references to the literature/web site here ~
 }
