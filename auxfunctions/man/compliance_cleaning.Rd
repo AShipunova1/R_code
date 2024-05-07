@@ -18,36 +18,28 @@ compliance_cleaning(compl_arr)
 }
 }
 \details{
-1. **Function Definition**: 
-   - `compliance_cleaning <- function(compl_arr) {`: Defines a function named `compliance_cleaning` that takes one argument `compl_arr`.
+1. **Initialization of Variables:**
+   - `compl <- compl_arr`: This line initializes a variable `compl` with the same value as `compl_arr`, which likely represents a list of compliance data frames.
 
-2. **Variable Assignment**:
-   - `compl <- compl_arr`: Assigns the value of `compl_arr` to a new variable `compl`.
+2. **Data Cleaning with `map`:**
+   - `compl_clean <- map(compl, clean_weeks)`: Here, each data frame in the list `compl` undergoes cleaning using the `clean_weeks` function. The `map` function applies `clean_weeks` to each element of `compl`, returning a list of cleaned data frames stored in `compl_clean`.
 
-3. **Map Function**:
-   - `compl_clean <- map(compl, clean_weeks)`: Applies the `clean_weeks` function to each element of `compl` using the `map` function from the `purrr` package.
+3. **Column Name Extraction with `map`:**
+   - `permitgroupexpirations <- map(compl, ...`: This line iterates over each data frame in `compl` using `map`.
+   - `\(x) { ... }`: An anonymous function is defined to operate on each data frame `x`.
+   - Within the anonymous function:
+      - `grep("permit.*group.*expiration", tolower(names(x)), value = TRUE)`: This function call searches for column names containing the pattern "permit", "group", and "expiration" (case-insensitive) within the names of the current data frame `x`. It returns the matching column names.
 
-4. **Mapping to Extract Specific Field Names**:
-   - `permitgroupexpirations <- map(compl, \(x) { ... })`: Maps over each element of `compl` and extracts specific field names that contain "permit", "group", and "expiration".
+4. **Data Transformation with `imap`:**
+   - `compl_dates <- compl_clean |>`: The cleaned data frames in `compl_clean` are processed further using the pipe (`|>`) operator.
+   - `imap(\(x, idx) { ... }`: The `imap` function iterates over each element of `compl_clean`, providing both the element (`x`, a data frame) and its index (`idx`).
+   - Within the `imap` function:
+      - `field_name <- permitgroupexpirations[[idx]]`: The variable `field_name` is assigned the column name extracted earlier, corresponding to the current data frame `x`.
+      - `mutate({{field_name}} := ...)`: This line adds a new column to the data frame `x`, where the column name is dynamically determined by `field_name`.
+      - `as.POSIXct(pull(x[field_name]), format = "%m/%d/%Y")`: The values of the selected column are converted to POSIXct date-time format using the specified date format.
 
-5. **Regular Expression Search**:
-   - `grep("permit.*group.*expiration", ... , value = TRUE)`: Searches for field names containing "permit", "group", and "expiration" using a regular expression. It returns the matched field names as a vector.
-
-6. **Mapping with Index**:
-   - `imap(\(x, idx) { ... })`: Maps over each element of `compl_clean` along with its corresponding index.
-
-7. **Accessing Field Names**:
-   - `field_name <- permitgroupexpirations[[idx]]`: Retrieves the field name corresponding to the current index from `permitgroupexpirations`.
-
-8. **Data Transformation**:
-   - `x |> mutate(...)`:
-     - Pipes the data frame `x` into the `mutate` function.
-     - Adds a new column to `x` with the name specified by `field_name`.
-     - Converts the values of the selected column to POSIXct date format using `as.POSIXct`.
-     - The `format` argument specifies the format of the date strings ("%m/%d/%Y").
-
-9. **Return Statement**:
-   - `return(compl_dates)`: Returns the modified list of data frames containing cleaned and transformed dates.
+5. **Return Statement:**
+   - `return(compl_dates)`: Finally, the function returns a list of data frames (`compl_dates`), where each data frame has undergone the necessary cleaning and transformation steps.
 
 }
 \value{
