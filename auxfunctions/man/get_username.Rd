@@ -2,24 +2,33 @@
 \alias{get_username}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A Capitalized Title (ideally limited to 65 characters)
+Get Username
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
-}
+This function provides a simple way to obtain the username of the user executing the R code, which can be useful for personalization, authentication, or logging purposes.}
 \usage{
 get_username()
 }
 %- maybe also 'usage' for other objects documented here.
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+The `get_username` function is designed to retrieve the username of the current user.
+
+1. **Function Definition:**
+   - `get_username <- function() { ... }`: Defines a function named `get_username` with no arguments.
+
+2. **Using System Information:**
+   - `Sys.info()`: Calls the `Sys.info` function, which provides various system information about the current R session.
+   - `Sys.info()["user"]`: Retrieves the username of the current user from the system information.
+
+3. **Converting to Character:**
+   - `as.character()`: Converts the username to a character vector. This step ensures consistency in the data type of the returned value.
+
+4. **Return Result:**
+   - The function returns the username of the current user as a character string.
 }
 \value{
 %%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
+The username of the current user as a character string.
 }
 \references{
 %% ~put references to the literature/web site here ~
