@@ -5,7 +5,13 @@
 A Capitalized Title (ideally limited to 65 characters)
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+Change a column class to POSIXct in the "my_df" for the field "field_name" using the "date_format"
+
+The change_to_dates function is defined to convert a specific column ('field_name') in the input data frame ('my_df') to POSIXct date format using the specified 'date_format'.
+
+Inside the function, it uses the mutate function from the dplyr package to modify 'my_df'. The {{field_name}} syntax is used to refer to the column specified by 'field_name'.
+
+It returns the 'result_df', which is the input data frame with the specified column converted to dates according to the specified 'date_format'.
 }
 \usage{
 change_to_dates(my_df, field_name, date_format = "")
@@ -26,11 +32,7 @@ change_to_dates(my_df, field_name, date_format = "")
 %%  ~~ If necessary, more details than the description above ~~
 }
 \value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
+It returns the 'result_df', which is the input data frame with the specified column converted to dates according to the specified 'date_format'.
 }
 \references{
 %% ~put references to the literature/web site here ~
@@ -51,6 +53,9 @@ change_to_dates(my_df, field_name, date_format = "")
 ##---- Should be DIRECTLY executable !! ----
 ##-- ==>  Define data, use random,
 ##--	or standard data sets, see data().
+
+change_to_dates(createdon_field_name, "%m/%d/%Y %H:%M") %>%
+    change_to_dates(contactdate_field_name, "%m/%d/%Y %I:%M %p")
 
 ## The function is currently defined as
 function (my_df, field_name, date_format = "") 
