@@ -2,17 +2,29 @@
 \alias{get_current_file_directory}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A Capitalized Title (ideally limited to 65 characters)
+Get the current file directory
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+Overall, this function provides a convenient way to programmatically obtain the directory path of the file being edited in RStudio.
 }
 \usage{
 get_current_file_directory()
 }
 %- maybe also 'usage' for other objects documented here.
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+The `get_current_file_directory` function is designed to retrieve the directory of the currently opened file in RStudio.
+
+1. **Function Definition:**
+   - `get_current_file_directory <- function() { ... }`: Defines a function named `get_current_file_directory` with no arguments.
+
+2. **Using RStudio API:**
+   - `rstudioapi::getSourceEditorContext()`: Utilizes the `getSourceEditorContext` function from the RStudio API to access information about the current source editor context, including the path of the currently open file.
+
+3. **Extracting Directory Name:**
+   - `dirname()`: Takes the path obtained from `getSourceEditorContext()` and extracts the directory portion, removing the filename. This function returns the directory path of the currently open file.
+
+4. **Return Result:**
+   - The function returns the directory path where the currently open file is located.
 }
 \value{
 %%  ~Describe the value returned
@@ -28,7 +40,9 @@ get_current_file_directory()
 %%  Anna Shipunova
 }
 \note{
-%%  ~~further notes~~
+Doesn't work everywhere, use 
+this.path::this.dir()
+instead.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
