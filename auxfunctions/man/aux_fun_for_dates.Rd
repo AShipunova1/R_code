@@ -2,10 +2,9 @@
 \alias{aux_fun_for_dates}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A Capitalized Title (ideally limited to 65 characters)
-}
+Convert columns in the list to Data}
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+# The aux_fun_for_dates function is defined as a utility function to convert a given vector 'x' to POSIXct date format using the specified 'date_format'.
 }
 \usage{
 aux_fun_for_dates(x, date_format)
@@ -36,7 +35,7 @@ aux_fun_for_dates(x, date_format)
 %%  Anna Shipunova
 }
 \note{
-%%  ~~further notes~~
+Not used anymore, in the old code only.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
@@ -49,6 +48,7 @@ aux_fun_for_dates(x, date_format)
 ##-- ==>  Define data, use random,
 ##--	or standard data sets, see data().
 
+mutate(across(all_of(field_names_arr), aux_fun_for_dates, date_format))
 ## The function is currently defined as
 function (x, date_format) 
 {
