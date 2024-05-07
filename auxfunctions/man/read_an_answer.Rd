@@ -2,10 +2,13 @@
 \alias{read_an_answer}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A Capitalized Title (ideally limited to 65 characters)
+Read A Users Input
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+The function 'read_an_answer' performs the following operations:
+1. Reads user input with the provided prompt using 'readline'.
+2. Checks if the first character of the input is 'n'. If true, sets 'ANSWER' to "no"; otherwise, sets it to "yes".
+3. Returns the processed answer.
 }
 \usage{
 read_an_answer(my_prompt)
@@ -33,7 +36,7 @@ read_an_answer(my_prompt)
 %%  Anna Shipunova
 }
 \note{
-%%  ~~further notes~~
+Is not used.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
