@@ -2,10 +2,12 @@
 \alias{function_message_print}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A Capitalized Title (ideally limited to 65 characters)
+Print a Function Message
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+Pretty message print in the console.
+
+Provides a way to print messages with enhanced visual formatting, making them stand out for better readability or emphasis.
 }
 \usage{
 function_message_print(text_msg)
@@ -17,7 +19,14 @@ function_message_print(text_msg)
 }
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+The `function_message_print` function is a utility function for printing messages with a cyan background color.
+
+1. **Function Definition:**
+   - `function_message_print <-function (text_msg) { ... }`: Defines a function named `function_message_print` that takes one argument, `text_msg`, representing the message to be printed.
+
+2. **Printing Message with Cyan Background:**
+   - `crayon::bgCyan$bold(text_msg)`: Formats the `text_msg` with a cyan background color and bold font using the `crayon` package. This creates a visually distinct message when printed.
+   - `cat(..., sep = "\n")`: Prints the formatted message to the console. `cat` is a function used for printing, and `sep = "\n"` specifies that each message should be printed on a new line.
 }
 \value{
 %%  ~Describe the value returned
