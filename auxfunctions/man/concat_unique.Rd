@@ -2,10 +2,11 @@
 \alias{concat_unique}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A Capitalized Title (ideally limited to 65 characters)
+Conactenate unique non-NA values
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+1. Extract unique non-NA elements from the input vector 'x' using 'unique'.
+2. Concatenate these unique elements into a single string with ", " as the separator using 'paste0' and 'collapse'.
 }
 \usage{
 concat_unique(x)
@@ -28,6 +29,7 @@ concat_unique(x)
 }
 \references{
 %% ~put references to the literature/web site here ~
+From https://stackoverflow.com/questions/53781563/combine-rows-based-on-multiple-columns-and-keep-all-unique-values
 }
 \author{
 %%  Anna Shipunova
