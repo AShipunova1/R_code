@@ -52,6 +52,10 @@ get_compl_and_corresp_data(my_paths, filenames = csv_names_list_22_23, vessel_id
 ##-- ==>  Define data, use random,
 ##--	or standard data sets, see data().
 
+csv_names_list_22_23 = c("Correspondence.csv",
+                         "FHIER_Compliance_22.csv",
+                         "FHIER_Compliance_23.csv")
+
 ## The function is currently defined as
 function (my_paths, filenames = csv_names_list_22_23, vessel_id_field_name = NA) 
 {
