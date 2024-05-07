@@ -5,10 +5,30 @@
 A Capitalized Title (ideally limited to 65 characters)
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+Explanations:
+The function 'compl__back_to_longer_format' performs the following operations:
+1. Turns the data frame back to a longer format with vessel IDs in one column.
+2. Specifies the columns to pivot. All columns except those specified in 'cols_names' are treated as vessel IDs.
+3. Sets the values to the column 'is_compl_or_both'.
+4. Sets the names to the column 'vessel_official_number'.
+5. Returns the modified data frame.
 }
 \usage{
-compl__back_to_longer_format(my_df, cols_names)
+Usage example:
+cols_names are all names except vessel_official_numbers
+cols_names <-
+  c("year",
+    "permit_sa_gom_dual",
+    "total_vsl_y_by_year_perm",
+    "year_permit_sa_gom_dual"
+    )
+#
+compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_both <-
+  compl__back_to_longer_format(
+    compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide__both,
+    cols_names
+  )
+
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -45,10 +65,6 @@ compl__back_to_longer_format(my_df, cols_names)
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
-
 ## The function is currently defined as
 function (my_df, cols_names) 
 {
