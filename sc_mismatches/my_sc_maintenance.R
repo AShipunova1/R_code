@@ -77,45 +77,11 @@ mismatched_officialnumbers_SCvsFHIER <-
 #           sort(sc_to_fh_diff))
 # T
 
-# check if not in sc report at all ----
-not_it_fhier_sc_report <-
-  setdiff(
-    tolower(SC_vessel_officalnumber$Official_number),
-    tolower(SC_vessels_FHIERData$vessel_official_number)
-  )
-
-grep("1079265",
-     tolower(SC_vessel_officalnumber$Official_number),
-     value = T)
-
-grep("1079265",
-     SC_vessels_FHIERData$vessel_official_number,
-     value = T)
-
-# length(SC_vessels_FHIERData$vessel_official_number)
-# 243
-# 254
-# 256
-
-# length(FHIER_vessel_officialnumber$Official_number)
-# 209 enabled
-# 187
-# 189
-
-length(not_it_fhier_sc_report)
-# 4
-# 1
-# 0
-# 11
-# 14 "2024-04-06"
-# 5
-
 #create output files - use these to update FHIER maintenance list ----
 ## make output file names ----
-project_dir_name <- "mismatched fields SC"
+project_dir_name <- "mismatched_fields_sc"
 output_file_names <- c("remove_from_FHIER",
-                       "enable_in_FHIER",
-                       "add_to_FHIER")
+                       "add_or_enable_in_FHIER")
 
 output_file_path_list <-
   output_file_names |>
