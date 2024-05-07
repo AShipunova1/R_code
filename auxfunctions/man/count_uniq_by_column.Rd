@@ -2,10 +2,16 @@
 \alias{count_uniq_by_column}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A Capitalized Title (ideally limited to 65 characters)
+Count unique values in each column
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+Define a function 'count_uniq_by_column' to count the number of unique values in each column of a data frame.
+
+Within the function, the sapply function is used to apply another function to each column of the input data frame. Specifically, it counts the number of unique values in each column using the length(unique(x)) expression, where x represents each column of the data frame.
+
+The result of sapply is a vector containing the counts of unique values for each column.
+
+It returns the resulting data frame, which provides a summary of the counts of unique values for each column in the input data frame.
 }
 \usage{
 count_uniq_by_column(my_df)
