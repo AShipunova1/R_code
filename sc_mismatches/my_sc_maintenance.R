@@ -51,34 +51,30 @@ names(SC_permittedVessels)[1]
 SC_vessel_officalnumber <-
   data.frame(Official_number = tolower(SC_permittedVessels$vessel_reg_uscg_))
 
-#check for mistmatching fields using dplyr packages anti_join function
-mismatched_officialnumbers_FHIERvsSC <-
-  anti_join(FHIER_vessel_officialnumber,
-            SC_vessel_officalnumber,
-            by = "Official_number") #to ID rows that exist in FHIER but not in SC file
-
+# #check for mistmatching fields using dplyr packages anti_join function
+# mismatched_officialnumbers_FHIERvsSC <-
+#   anti_join(FHIER_vessel_officialnumber,
+#             SC_vessel_officalnumber,
+#             by = "Official_number") #to ID rows that exist in FHIER but not in SC file
+#
 # NOTE - now do in reverse to ensure no vessels are in SC list that are not in FHIER list
-mismatched_officialnumbers_SCvsFHIER <-
-  anti_join(SC_vessel_officalnumber,
-            FHIER_vessel_officialnumber,
-            by = "Official_number") #to ID rows that exist in SC but not in FHIER
+# mismatched_officialnumbers_SCvsFHIER <-
+#   anti_join(SC_vessel_officalnumber,
+#             FHIER_vessel_officialnumber,
+#             by = "Official_number") #to ID rows that exist in SC but not in FHIER
 
 #---
 # identical?
-fh_to_sc_diff <- setdiff(FHIER_vessel_officialnumber$Official_number, SC_vessel_officalnumber$Official_number)
+mismatched_officialnumbers_FHIERvsSC <- setdiff(FHIER_vessel_officialnumber$Official_number, SC_vessel_officalnumber$Official_number)
 
-identical(sort(mismatched_officialnumbers_FHIERvsSC$Official_number),
-          sort(fh_to_sc_diff))
-# T
-
-sc_to_fh_diff <-
+mismatched_officialnumbers_SCvsFHIER <-
   setdiff(
     SC_vessel_officalnumber$Official_number,
     FHIER_vessel_officialnumber$Official_number
   )
 
-identical(sort(mismatched_officialnumbers_SCvsFHIER$Official_number),
-          sort(sc_to_fh_diff))
+# identical(sort(mismatched_officialnumbers_SCvsFHIER$Official_number),
+#           sort(sc_to_fh_diff))
 # T
 
 # check if not in sc report at all ----
@@ -87,6 +83,14 @@ not_it_fhier_sc_report <-
     tolower(SC_vessel_officalnumber$Official_number),
     tolower(SC_vessels_FHIERData$vessel_official_number)
   )
+
+grep("1079265",
+     tolower(SC_vessel_officalnumber$Official_number),
+     value = T)
+
+grep("1079265",
+     SC_vessels_FHIERData$vessel_official_number,
+     value = T)
 
 # length(SC_vessels_FHIERData$vessel_official_number)
 # 243
@@ -104,6 +108,7 @@ length(not_it_fhier_sc_report)
 # 0
 # 11
 # 14 "2024-04-06"
+# 5
 
 #create output files - use these to update FHIER maintenance list ----
 ## make output file names ----
