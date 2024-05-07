@@ -2,10 +2,10 @@
 \alias{my_to_sf}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A Capitalized Title (ideally limited to 65 characters)
+Dataframe to SF object
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+This function converts a data frame with longitude and latitude columns into a spatial object (such as a Simple Features object) using the specified CRS. The resulting spatial object retains the original data frame's structure and includes the spatial attributes specified by the longitude and latitude columns.
 }
 \usage{
 my_to_sf(my_df, my_crs = sf::st_crs(sa_shp))
@@ -13,17 +13,27 @@ my_to_sf(my_df, my_crs = sf::st_crs(sa_shp))
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{my_df}{
-%%     ~~Describe \code{my_df} here~~
+The data frame to convert to a spatial object.
 }
   \item{my_crs}{
-%%     ~~Describe \code{my_crs} here~~
+the coordinate reference system to use, with a default value of `sf::st_crs(sa_shp)`
 }
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+1. **Function Definition:**
+   - `my_to_sf <- function(my_df, my_crs = sf::st_crs(sa_shp)) { ... }`: Defines a function named `my_to_sf` with two arguments: `my_df` (the data frame to convert to a spatial object) and `my_crs` (the coordinate reference system to use, with a default value of `sf::st_crs(sa_shp)`).
+
+2. **Converting to Spatial Object:**
+   - `%>% sf::st_as_sf(coords = c("longitude", "latitude"), crs = my_crs, remove = FALSE)`: Pipes the input data frame `my_df` into the `st_as_sf` function from the `sf` package, converting it to a spatial object.
+     - `coords`: Specifies which columns in the data frame represent the longitude and latitude coordinates. Here, it indicates that the columns named "longitude" and "latitude" contain the spatial coordinates.
+     - `crs`: Specifies the coordinate reference system (CRS) for the spatial object. This argument defaults to `my_crs`, which is the CRS defined in the function arguments.
+     - `remove`: A logical value indicating whether to remove the columns used as coordinates from the resulting spatial object. Here, it's set to `FALSE` to retain these columns in the output.
+
+3. **Return Result:**
+   - `%>% return()`: The `%>%` pipe forwards the resulting spatial object to the `return()` function, which returns the spatial object as the output of the `my_to_sf` function.
 }
 \value{
-%%  ~Describe the value returned
+A spatial object.
 %%  If it is a LIST, use
 %%  \item{comp1 }{Description of 'comp1'}
 %%  \item{comp2 }{Description of 'comp2'}
