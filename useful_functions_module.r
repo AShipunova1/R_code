@@ -261,14 +261,11 @@ load_xls_names <- function(my_paths, xls_names_list, sheet_n = 1) {
   myfiles <- lapply(xls_names_list, function(x) file.path(my_inputs, x))
 
   # Read Excel files listed in 'myfiles' into one data frame using 'map_df'
-  contents <- purrr::map_df(myfiles, ~read.xlsx(
-    .x,                           # File path
-    sheet = sheet_n              # Sheet number to read (default is 1)
-  ))
-    #   .name_repair = fix_names,     # Repair column names
-    # guess_max = 21474836,         # Maximum number of rows to guess data types
-    # col_types = "text"           # Specify all columns as 'text' type
-
+  contents <-
+    map_df(myfiles,
+           ~ my_read_xlsx(.x, # File path
+                          sheet_n, # Sheet number to read)
+    ))
 
   # Return the concatenated data frame containing data from all Excel files
   return(contents)
