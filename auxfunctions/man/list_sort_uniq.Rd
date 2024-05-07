@@ -2,10 +2,10 @@
 \alias{list_sort_uniq}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A Capitalized Title (ideally limited to 65 characters)
+List sort unique
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+Overall, this function ensures that the elements in the input list are cleaned, unique, and sorted, providing a tidy and organized output.
 }
 \usage{
 list_sort_uniq(my_lists)
@@ -17,7 +17,23 @@ list_sort_uniq(my_lists)
 }
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+The `list_sort_uniq` function is designed to take a list of character vectors, clean them, remove duplicates, sort them, and return a single vector with unique, sorted elements.
+
+1. **Function Definition:**
+   - `list_sort_uniq <- function(my_lists) { ... }`: Defines a function named `list_sort_uniq` with one argument, `my_lists`, representing the list of character vectors to process.
+
+2. **Data Transformation Pipeline:**
+   - `my_lists |> ...`: Utilizes the pipe operator (`|>`) to pass the `my_lists` argument through a series of data transformation steps.
+   
+3. **Cleaning and Transformation:**
+   - `str_trim()`: Removes leading and trailing whitespace from each element of the list.
+   - `unique()`: Removes duplicate elements from the list.
+   - `sort()`: Sorts the elements of the list in ascending order.
+   - `list()`: Converts the sorted vector into a list.
+   - `flatten()`: Flattens the resulting list into a single vector.
+
+4. **Return Result:**
+   - The function returns the processed vector stored in `res`.
 }
 \value{
 %%  ~Describe the value returned
@@ -45,6 +61,9 @@ list_sort_uniq(my_lists)
 ##---- Should be DIRECTLY executable !! ----
 ##-- ==>  Define data, use random,
 ##--	or standard data sets, see data().
+mutate(!!new_col_name := pmap(across(ends_with(curr_col_part)),
+                              ~ list_sort_uniq(.)),
+       .keep = "none" )
 
 ## The function is currently defined as
 function (my_lists) 
