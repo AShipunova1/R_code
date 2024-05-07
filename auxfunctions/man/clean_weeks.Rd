@@ -2,10 +2,10 @@
 \alias{clean_weeks}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A Capitalized Title (ideally limited to 65 characters)
+Spleet the compliance week column
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+Split week column ("52: 12/26/2022 - 01/01/2023") into 3 columns with proper classes, week_num (week order number), week_start and week_end.
 }
 \usage{
 clean_weeks(my_df)
@@ -17,8 +17,12 @@ clean_weeks(my_df)
 }
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+Explanation:
+- The `clean_weeks` function is designed to clean up the "week" column in a complinace dataframe.
+- It first separates the "week" column into two separate columns using ":" as the delimiter, resulting in columns "week_num" and "week_rest".
+- Then, it further separates the "week_rest" column into "week_start" and "week_end" columns using " - " as the delimiter.
+- The function then converts the "week_num" column to integers and the "week_start" and "week_end" columns to Date objects using `as.integer` and `as.Date` functions, respectively.
+- Finally, it returns the modified dataframe.}
 \value{
 %%  ~Describe the value returned
 %%  If it is a LIST, use
