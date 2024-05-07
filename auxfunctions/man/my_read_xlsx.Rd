@@ -2,10 +2,10 @@
 \alias{my_read_xlsx}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A Capitalized Title (ideally limited to 65 characters)
+Read xlsx shortcut
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+This function reads data from an Excel file, optionally starting from a specified row, and applies header cleaning to ensure consistent formatting of column names.
 }
 \usage{
 my_read_xlsx(file_path, sheet_n, start_row = 1)
@@ -23,7 +23,24 @@ my_read_xlsx(file_path, sheet_n, start_row = 1)
 }
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+1. **Function Definition:**
+   - `my_read_xlsx <- function(file_path, sheet_n, start_row = 1) { ... }`: Defines a function named `my_read_xlsx` with three arguments: `file_path` (the path to the Excel file), `sheet_n` (the index of the sheet to read), and `start_row` (the starting row from which to read data, with a default value of 1).
+
+2. **Reading Excel File:**
+   - `read.xlsx(file_path, sheet_n, startRow = start_row, detectDates = TRUE, colNames = TRUE, sep.names = "_")`: Uses the `read.xlsx` function from the `openxlsx` package to read data from the specified Excel file.
+     - `file_path`: The path to the Excel file to be read.
+     - `sheet_n`: The index of the sheet to read from.
+     - `startRow`: The row number from which to start reading data.
+     - `detectDates`: A logical value indicating whether to automatically detect and convert date-like columns to date format.
+     - `colNames`: A logical value indicating whether the first row of the Excel sheet contains column names.
+     - `sep.names`: A character used to separate column names with multiple parts (e.g., spaces or underscores).
+
+3. **Cleaning Headers:**
+   - `clean_headers(...)`: Applies the `clean_headers` function to the data frame read from the Excel file. This function likely performs tasks such as removing leading/trailing spaces, converting column names to lowercase, and replacing spaces with underscores.
+
+4. **Return Result:**
+   - `return(res_df)`: Returns the cleaned data frame obtained from reading the Excel file. This data frame contains the data read from the specified Excel sheet, with any necessary header cleaning applied.
+
 }
 \value{
 %%  ~Describe the value returned
@@ -45,7 +62,7 @@ my_read_xlsx(file_path, sheet_n, start_row = 1)
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
+\code{\link{clean_headers}}
 }
 \examples{
 ##---- Should be DIRECTLY executable !! ----
