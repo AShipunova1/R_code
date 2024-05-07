@@ -2,10 +2,10 @@
 \alias{pretty_print}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A Capitalized Title (ideally limited to 65 characters)
+Pretty Print with a Title
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+This function is designed to print text with a specified title and an optional ending marker. It first prints the title, then the main text, and finally the ending marker.
 }
 \usage{
 pretty_print(my_text, my_title, the_end = "---")
@@ -23,7 +23,17 @@ pretty_print(my_text, my_title, the_end = "---")
 }
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+1. **Function Definition:**
+   - `pretty_print <- function(my_text, my_title, the_end = "---") { ... }`: Defines a function named `pretty_print` with three arguments: `my_text`, `my_title`, and `the_end`.
+
+2. **Printing the Title:**
+   - `title_message_print(my_title)`: Calls a function `title_message_print` to print the title `my_title`. This function formats and prints the title message.
+   
+3. **Printing the Text:**
+   - `cat(c(my_text, the_end), sep = "\n")`: Concatenates `my_text` and `the_end` into a character vector and prints them using `cat`. Each element is separated by a newline (`\n`). This line prints the main text followed by the ending marker.
+
+4. **Default Argument:**
+   - `the_end = "---"`: Defines a default value for the argument `the_end`. If the argument is not provided when calling the function, it defaults to `"---"`. This is used as a marker to denote the end of the printed content.
 }
 \value{
 %%  ~Describe the value returned
@@ -45,13 +55,14 @@ pretty_print(my_text, my_title, the_end = "---")
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
+\code{\link{title_message_print}}
 }
 \examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
-
+df |> 
+  count(wt = n) |>
+  unlist() |>
+  pretty_print("Total cnt in groups")
+      
 ## The function is currently defined as
 function (my_text, my_title, the_end = "---") 
 {
