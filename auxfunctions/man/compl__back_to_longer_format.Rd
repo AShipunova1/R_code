@@ -2,7 +2,7 @@
 \alias{compl__back_to_longer_format}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A Capitalized Title (ideally limited to 65 characters)
+Return compliance dataframe back to longer format (auxiliary)
 }
 \description{
 Explanations:
@@ -14,21 +14,6 @@ The function 'compl__back_to_longer_format' performs the following operations:
 5. Returns the modified data frame.
 }
 \usage{
-Usage example:
-cols_names are all names except vessel_official_numbers
-cols_names <-
-  c("year",
-    "permit_sa_gom_dual",
-    "total_vsl_y_by_year_perm",
-    "year_permit_sa_gom_dual"
-    )
-#
-compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_both <-
-  compl__back_to_longer_format(
-    compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide__both,
-    cols_names
-  )
-
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -56,7 +41,21 @@ compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_both <-
 %%  Anna Shipunova
 }
 \note{
-%%  ~~further notes~~
+Usage example:
+cols_names are all names except vessel_official_numbers
+
+cols_names <-
+  c("year",
+    "permit_sa_gom_dual",
+    "total_vsl_y_by_year_perm",
+    "year_permit_sa_gom_dual"
+    )
+
+compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_both <-
+  compl__back_to_longer_format(
+    compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide__both,
+    cols_names
+  )
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
