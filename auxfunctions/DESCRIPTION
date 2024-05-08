@@ -7,4 +7,18 @@ Author: Anna Shipunova
 Maintainer: Anna Shipunova <anna.shipunova@noaa.gov>
 Description: Functions for preparing and analyzing SEFHIER Data.
 License: GPL-2
+Imports:
+  cowplot,
+  crayon,
+  dplyr,
+  ggplot2,
+  keyring,
+  purrr,
+  readr,
+  rlang,
+  rstudioapi,
+  sf,
+  tictoc,
+  tidyr
+
 RoxygenNote: 7.3.1
