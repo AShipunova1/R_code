@@ -42,3 +42,14 @@ tictoc,
 purrr,
 tidyr
 )
+
+importFrom("magrittr", "%<>%")
+importFrom("DBI", "dbConnect")
+importFrom("DBI", "dbDriver")
+importFrom("data.table", "fread")
+importFrom("utils", "head")
+importFrom("openxlsx", "read.xlsx")
+importFrom("stringr", "str_glue")
+importFrom("stringr", "str_replace_all")
+importFrom("stringr", "str_trim")
+importFrom("lubridate", "today")
