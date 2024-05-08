@@ -2,7 +2,7 @@
 \alias{change_to_dates}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A Capitalized Title (ideally limited to 65 characters)
+Change to the Date Format
 }
 \description{
 Change a column class to POSIXct in the "my_df" for the field "field_name" using the "date_format"
