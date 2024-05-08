@@ -62,29 +62,7 @@ Here's the breakdown of the `set_work_dir_local` function:
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
-
-## The function is currently defined as
-function ()
-{
-    setwd("~/")
-    base_dir <- getwd()
-    main_r_dir <- "R_files_local"
-    in_dir <- "my_inputs"
-    full_path_to_in_dir <- file.path(base_dir, main_r_dir, in_dir)
-    out_dir <- "my_outputs"
-    full_path_to_out_dir <- file.path(base_dir, main_r_dir, out_dir)
-    git_r_dir <- "R_code_github"
-    full_path_to_r_git_dir <- file.path(base_dir, git_r_dir)
-    setwd(file.path(base_dir, main_r_dir))
-    my_paths <- list(inputs = full_path_to_in_dir, outputs = full_path_to_out_dir,
-        git_r = full_path_to_r_git_dir)
-    return(my_paths)
-  }
-}
+\examples{}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 % \keyword{ ~kwd1 }

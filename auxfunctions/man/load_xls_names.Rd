@@ -62,21 +62,7 @@ Here's a detailed explanation of the `load_xls_names` function:
 \code{\link{my_read_xlsx}}
 
 }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
-
-## The function is currently defined as
-function (my_paths, xls_names_list, sheet_n = 1) 
-{
-    my_inputs <- my_paths$inputs
-    myfiles <- lapply(xls_names_list, function(x) file.path(my_inputs, 
-        x))
-    contents <- map_df(myfiles, ~my_read_xlsx(.x, sheet_n, ))
-    return(contents)
-  }
-}
+\examples{}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 % \keyword{ ~kwd1 }

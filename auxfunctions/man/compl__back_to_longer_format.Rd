@@ -64,15 +64,7 @@ compl_clean_sa_vs_gom_m_int_c_cnt_tot_wide_long_both <-
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
-## The function is currently defined as
-function (my_df, cols_names) 
-{
-    my_df \%>\% tidyr::pivot_longer(cols = !any_of(cols_names), 
-        values_to = "is_compl_or_both", names_to = "vessel_official_number") \%>\% 
-        return()
-  }
-}
+\examples{}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 % \keyword{ ~kwd1 }

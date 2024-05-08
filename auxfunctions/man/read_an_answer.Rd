@@ -44,20 +44,7 @@ Is not used.
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
-
-## The function is currently defined as
-function (my_prompt) 
-{
-    ANSWER <- readline(my_prompt)
-    if (tolower(substr(ANSWER, 1, 1)) == "n") 
-        ANSWER = "no"
-    else ANSWER = "yes"
-  }
-}
+\examples{}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 % \keyword{ ~kwd1 }

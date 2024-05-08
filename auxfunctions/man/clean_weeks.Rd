@@ -45,23 +45,7 @@ Explanation:
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
-
-## The function is currently defined as
-function (my_df) 
-{
-    temp_df <- my_df \%>\% separate_wider_delim(week, ":", names = c("week_num", 
-        "week_rest")) \%>\% separate_wider_delim(week_rest, " - ", 
-        names = c("week_start", "week_end"))
-    my_df$week_num <- as.integer(trimws(temp_df$week_num))
-    my_df$week_start <- as.Date(trimws(temp_df$week_start), "\%m/\%d/\%Y")
-    my_df$week_end <- as.Date(trimws(temp_df$week_end), "\%m/\%d/\%Y")
-    return(my_df)
-  }
-}
+\examples{}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 % \keyword{ ~kwd1 }

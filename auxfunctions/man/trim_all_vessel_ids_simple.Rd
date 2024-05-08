@@ -57,26 +57,7 @@ Usually used from auxfunctions::clean_all_csvs()
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
-
-## The function is currently defined as
-function (csvs_clean_ws, col_name_to_trim = NA)
-{
-    csvs_clean <- lapply(csvs_clean_ws, function(x) {
-        if (is.na(col_name_to_trim)) {
-            col_name_to_trim <- grep("vessel.*official.*number",
-                tolower(names(x)), value = TRUE)
-        }
-        col_name_to_trim_s <- rlang::sym(col_name_to_trim)
-        x \%>\% dplyr::mutate(vessel_official_number = trimws(!!col_name_to_trim_s)) \%>\%
-            return()
-    })
-    return(csvs_clean)
-  }
-}
+\examples{}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 % \keyword{ ~kwd1 }

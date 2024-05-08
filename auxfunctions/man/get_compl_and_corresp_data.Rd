@@ -80,27 +80,7 @@ It uses other functions from this package.
 \code{\link{compliance_cleaning}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
-
-csv_names_list_22_23 = c("Correspondence.csv",
-                         "FHIER_Compliance_22.csv",
-                         "FHIER_Compliance_23.csv")
-
-## The function is currently defined as
-function (my_paths, filenames = csv_names_list_22_23, vessel_id_field_name = NA) 
-{
-    csv_names_list <- prepare_csv_names(filenames)
-    csv_contents <- load_csv_names(my_paths, csv_names_list)
-    csvs_clean1 <- clean_all_csvs(csv_contents, vessel_id_field_name)
-    corresp_arr_contact_cnts_clean <- corresp_cleaning(csvs_clean1)
-    compl_arr <- csvs_clean1[2:length(csvs_clean1)]
-    compl_clean <- compliance_cleaning(compl_arr)
-    return(list(compl_clean, corresp_arr_contact_cnts_clean))
-  }
-}
+\examples{}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 % \keyword{ ~kwd1 }

@@ -57,18 +57,7 @@ print_df_names(my_df, names_num = 100)
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
-
-## The function is currently defined as
-function (my_df, names_num = 100) 
-{
-    names(my_df) \%>\% head(names_num) \%>\% paste0(collapse = ", ") \%>\% 
-        return()
-  }
-}
+\examples{}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 % \keyword{ ~kwd1 }

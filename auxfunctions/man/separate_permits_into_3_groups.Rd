@@ -55,20 +55,7 @@ separate_permits_into_3_groups(my_df, permit_group_field_name = "permitgroup")
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
-
-## The function is currently defined as
-function (my_df, permit_group_field_name = "permitgroup")
-{
-    my_df \%>\% mutate(permit_sa_gom = dplyr::case_when(!grepl("RCG|HRCG|CHG|HCHG",
-        !!sym(permit_group_field_name)) ~ "sa_only", !grepl("CDW|CHS|SC",
-        !!sym(permit_group_field_name)) ~ "gom_only", .default = "dual")) \%>\%
-        return()
-  }
-}
+\examples{}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 % \keyword{ ~kwd1 }

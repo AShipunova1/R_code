@@ -61,27 +61,7 @@ This is one of the steps in auxfunctions::get_compl_and_corresp_data()
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
-
-## The function is currently defined as
-function (csvs_clean1) 
-{
-    corresp_arr <- csvs_clean1[[1]]
-    corresp_arr_contact_cnts <- add_count_contacts(corresp_arr)
-    createdon_field_name <- find_col_name(corresp_arr, "created", 
-        "on")[1]
-    contactdate_field_name <- find_col_name(corresp_arr, "contact", 
-        "date")[1]
-    corresp_arr_contact_cnts <- change_to_dates(corresp_arr_contact_cnts, 
-        createdon_field_name)
-    corresp_arr_contact_cnts <- change_to_dates(corresp_arr_contact_cnts, 
-        contactdate_field_name)
-    return(corresp_arr_contact_cnts)
-  }
-}
+\examples{}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 % \keyword{ ~kwd1 }

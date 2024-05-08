@@ -54,18 +54,7 @@ A spatial object.
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
-
-## The function is currently defined as
-function (my_df, my_crs = sf::st_crs(sa_shp)) 
-{
-    my_df \%>\% sf::st_as_sf(coords = c("longitude", "latitude"), 
-        crs = my_crs, remove = FALSE) \%>\% return()
-  }
-}
+\examples{}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 % \keyword{ ~kwd1 }

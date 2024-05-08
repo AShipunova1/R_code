@@ -40,32 +40,7 @@ Returns the cleaned dataframe.}
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
-
-## The function is currently defined as
-function (my_df) 
-{
-    my_df_cleaned <- mutate(my_df, across(where(is.character), 
-        ~str_squish(.x)), across(where(is.character), ~replace_na(.x, 
-        "")), across(where(is.character), ~str_replace_all(.x, 
-        ", ;", ";")), across(where(is.character), ~str_replace_all(.x, 
-        "\\s+[,;]", ",")), across(where(is.character), ~str_replace_all(.x, 
-        ";,+", ";")), across(where(is.character), ~str_replace_all(.x, 
-        ";;+", ";")), across(where(is.character), ~str_replace_all(.x, 
-        ",,+", ",")), across(where(is.character), ~str_replace_all(.x, 
-        "[,;] *\\bUN\\b *", "")), across(where(is.character), 
-        ~str_replace_all(.x, "\\bUN\\b", "")), across(where(is.character), 
-        ~str_replace_all(.x, "\\s*\\bUN\\b\\s*", "")), across(where(is.character), 
-        ~str_replace_all(.x, "^[,;] ", "")), across(where(is.character), 
-        ~str_replace_all(.x, "^[,;]$", "")), across(where(is.character), 
-        ~str_replace_all(.x, "[,;]$", "")), across(where(is.character), 
-        ~str_squish(.x)))
-    return(my_df_cleaned)
-  }
-}
+\examples{}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 % \keyword{ ~kwd1 }

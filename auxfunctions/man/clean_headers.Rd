@@ -41,18 +41,7 @@ clean_headers(my_df)
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 %% \code{\link{auxfunctions/man/fix_names.Rd}}
 }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
-
-## The function is currently defined as
-function (my_df) 
-{
-    colnames(my_df) \%<>\% fix_names()
-    return(my_df)
-  }
-}
+\examples{}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 % \keyword{ ~kwd1 }

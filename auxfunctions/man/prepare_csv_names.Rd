@@ -58,25 +58,7 @@ Here's an explanation of the `prepare_csv_names` function:
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
-
-## The function is currently defined as
-function (filenames) 
-{
-    add_path_corresp <- "from_Fhier/Correspondence"
-    add_path_compl <- "from_Fhier/FHIER Compliance"
-    my_list <- sapply(filenames, function(x) {
-        dplyr::case_when(startsWith(my_headers_case_function(x), 
-            "correspond") ~ file.path(add_path_corresp, x), startsWith(my_headers_case_function(x), 
-            "fhier_compliance") ~ file.path(add_path_compl, x), 
-            .default = file.path(add_path_compl, x))
-    })
-    return(paste(my_list) \%>\% as.list())
-  }
-}
+\examples{}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 % \keyword{ ~kwd1 }

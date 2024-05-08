@@ -58,17 +58,10 @@ pretty_print(my_text, my_title, the_end = "---")
 \code{\link{title_message_print}}
 }
 \examples{
-df |> 
-  count(wt = n) |>
-  unlist() |>
-  pretty_print("Total cnt in groups")
-      
-## The function is currently defined as
-function (my_text, my_title, the_end = "---") 
-{
-    title_message_print(my_title)
-    cat(c(my_text, the_end), sep = "\\n")
-  }
+%% df |> 
+%%   count(wt = n) |>
+%%   unlist() |>
+%%   pretty_print("Total cnt in groups")
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):

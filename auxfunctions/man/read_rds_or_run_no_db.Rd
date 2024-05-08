@@ -65,26 +65,7 @@ read_rds_or_run_no_db(my_file_path, my_data_list_of_dfs, my_function)
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
-
-## The function is currently defined as
-function (my_file_path, my_data_list_of_dfs, my_function)
-{
-    if (file.exists(my_file_path)) {
-        my_df <- readr::read_rds(my_file_path)
-    }
-    else {
-        tic("run the function")
-        my_df <- my_function(my_data_list_of_dfs[[1]], my_data_list_of_dfs[[2]])
-        toc()
-        readr::write_rds(my_df, my_file_path)
-    }
-    return(my_df)
-  }
-}
+\examples{}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 % \keyword{ ~kwd1 }

@@ -50,19 +50,7 @@ clean_all_csvs(csvs, vessel_id_field_name = NA)
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
-
-## The function is currently defined as
-function (csvs, vessel_id_field_name = NA) 
-{
-    csvs_clean0 <- lapply(csvs, clean_headers)
-    csvs_clean1 <- trim_all_vessel_ids_simple(csvs_clean0, vessel_id_field_name)
-    return(csvs_clean1)
-  }
-}
+\examples{}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 % \keyword{ ~kwd1 }

@@ -60,31 +60,7 @@ The list of dataframes (`compl_dates`)
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
-
-## The function is currently defined as
-function (compl_arr) 
-{
-    compl <- compl_arr
-    compl_clean <- map(compl, clean_weeks)
-    permitgroupexpirations <- map(compl, function(x) {
-        grep("permit.*group.*expiration", tolower(names(x)), 
-            value = TRUE)
-    })
-    compl_dates <- imap(compl_clean, function(x, idx) {
-        field_name <- permitgroupexpirations[[idx]]
-        mutate(x, `:=`({
-            {
-                field_name
-            }
-        }, as.POSIXct(pull(x[field_name]), format = "\%m/\%d/\%Y")))
-    })
-    return(compl_dates)
-  }
-}
+\examples{}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 % \keyword{ ~kwd1 }

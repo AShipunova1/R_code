@@ -57,18 +57,7 @@ The `fix_names` function is designed to clean and standardize column names withi
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
-
-## The function is currently defined as
-function (x) 
-{
-    x \%>\% str_replace_all("\\.", "") \%>\% str_replace_all("[^A-z0-9]", 
-        "_") \%>\% str_replace_all("^(_*)(.+)", "\\2\\1") \%>\% my_headers_case_function()
-  }
-}
+\examples{}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 % \keyword{ ~kwd1 }

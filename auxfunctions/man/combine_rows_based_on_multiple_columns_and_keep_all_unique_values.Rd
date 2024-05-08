@@ -47,18 +47,7 @@ combine_rows_based_on_multiple_columns_and_keep_all_unique_values(my_df, group_b
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
-
-## The function is currently defined as
-function (my_df, group_by_arr) 
-{
-    my_df \%>\% dplyr::group_by_at(group_by_arr) \%>\% dplyr::summarise_all(concat_unique) \%>\% 
-        return()
-  }
-}
+\examples{}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 % \keyword{ ~kwd1 }

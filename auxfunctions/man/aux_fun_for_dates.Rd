@@ -43,19 +43,7 @@ Not used anymore, in the old code only.
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
-
-mutate(across(all_of(field_names_arr), aux_fun_for_dates, date_format))
-## The function is currently defined as
-function (x, date_format) 
-{
-    out <- as.POSIXct(x, format = date_format)
-    return(out)
-  }
-}
+% \examples{}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 % \keyword{ ~kwd1 }

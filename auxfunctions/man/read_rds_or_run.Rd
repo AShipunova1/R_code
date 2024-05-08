@@ -60,39 +60,7 @@ read_rds_or_run(my_file_path, my_data = as.data.frame(""), my_function, force_fr
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
-
-## The function is currently defined as
-function (my_file_path, my_data = as.data.frame(""), my_function,
-    force_from_db = NULL)
-{
-    if (file.exists(my_file_path)) {
-        modif_time <- file.info(my_file_path)$mtime
-    }
-    if (file.exists(my_file_path) & is.null(force_from_db)) {
-        function_message_print("File already exists, reading.")
-        my_result <- readr::read_rds(my_file_path)
-    }
-    else {
-        function_message_print(c("File", my_file_path, "doesn't exists, pulling data from database.",
-            "Must be on VPN."))
-        msg_text <- paste(today(), "run for", basename(my_file_path))
-        tictoc::tic(msg_text)
-        my_result <- my_function(my_data)
-        tictoc::toc()
-        function_message_print(c("Saving new data into a file here: ",
-            my_file_path))
-        try(readr::write_rds(my_result, my_file_path))
-        modif_time <- date()
-    }
-    my_file_name <- basename(my_file_path)
-    function_message_print(str_glue("File: {my_file_name} modified {modif_time}"))
-    return(my_result)
-  }
-}
+\examples{}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 % \keyword{ ~kwd1 }

@@ -60,25 +60,7 @@ Here's the breakdown of the `write_to_1_flat_file` function:
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
-
-## write_to_1_flat_file(flat_file_name, current_file_name)
-
-
-## The function is currently defined as
-function (flat_file_name, file_name_to_write)
-{
-    sink(flat_file_name, append = TRUE)
-    current_file_text <- readr::read_lines(file_name_to_write)
-    cat("\\n\\n#### Current file:", basename(file_name_to_write),
-        "----\\n\\n")
-    cat(current_file_text, sep = "\\n")
-    sink()
-  }
-}
+\examples{}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 % \keyword{ ~kwd1 }

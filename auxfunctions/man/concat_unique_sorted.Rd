@@ -60,20 +60,7 @@ This function is useful for creating a concise representation of unique non-NA v
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
-
-## The function is currently defined as
-function (x) 
-{
-    non_na_values <- x[!is.na(x)]
-    sorted_unique <- unique(sort(non_na_values))
-    result <- paste0(sorted_unique, collapse = ", ")
-    return(result)
-  }
-}
+\examples{}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 % \keyword{ ~kwd1 }

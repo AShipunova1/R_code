@@ -65,25 +65,7 @@ The `get_compl_by` function aims to organize compliance data by grouping and piv
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
-
-group_by_for_compl <-
-  vars(-c("vessel_official_number", "compliant_", "overridden_"))
-  
-## The function is currently defined as
-function (my_df, group_by_for_compl = vars(-c("vessel_official_number", 
-    "compliant_", "overridden_")), names_from_list = c("vessel_official_number")) 
-{
-    browser()
-    my_df \%>\% dplyr::group_by_at(group_by_for_compl) \%>\% unique() \%>\% 
-        tidyr::pivot_wider(names_from = all_of(names_from_list), 
-            values_from = c("compliant_", "overridden_"), values_fn = ~paste0(unique(sort(.x)), 
-                collapse = "_")) \%>\% dplyr::ungroup() \%>\% return()
-  }
-}
+\examples{}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 % \keyword{ ~kwd1 }

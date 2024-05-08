@@ -51,18 +51,7 @@ save_plot_to_file(file_full_name, plot_name)
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
-
-## The function is currently defined as
-function (file_full_name, plot_name)
-{
-    ggplot2::ggsave(file_full_name, plot_name, width = 30, height = 20,
-        units = "cm")
-  }
-}
+\examples{}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 % \keyword{ ~kwd1 }

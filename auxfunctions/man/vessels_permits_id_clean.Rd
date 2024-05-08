@@ -53,19 +53,7 @@ my_df usually comes from join of Oracle database tables with vessels and permits
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
-
-## The function is currently defined as
-function (my_df)
-{
-    vessels_permits <- rename(rename(my_df, PERMIT_VESSEL_ID = "QCSJ_C000000000300000"),
-        VESSEL_VESSEL_ID = "QCSJ_C000000000300001")
-    return(vessels_permits)
-  }
-}
+\examples{}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 % \keyword{ ~kwd1 }

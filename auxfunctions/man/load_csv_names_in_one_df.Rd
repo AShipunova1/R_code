@@ -61,26 +61,7 @@ The `load_csv_names_in_one_df` function is designed to load multiple CSV files i
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
-
-## The function is currently defined as
-function (path_to_files, csv_names_list) 
-{
-    myfiles <- csv_names_list
-    if (length(path_to_files) > 0) {
-        myfiles <- lapply(csv_names_list, function(x) file.path(path_to_files, 
-            x))
-    }
-    csv_content <- purrr::map_df(myfiles, function(file_name) {
-        readr::read_csv(file_name, col_types = cols(.default = "c"), 
-            trim_ws = TRUE, na = c("", "NA", "NaN"), name_repair = "universal")
-    })
-    return(csv_content)
-  }
-}
+\examples{}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 % \keyword{ ~kwd1 }

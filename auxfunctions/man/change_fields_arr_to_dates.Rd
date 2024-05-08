@@ -48,19 +48,7 @@ It returns the 'result_df', which is the input data frame with the specified col
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
-
-## The function is currently defined as
-function (my_df, field_names_arr, date_format) 
-{
-    result_df <- my_df \%>\% dplyr::mutate(dplyr::across(all_of(field_names_arr), 
-        ~as.POSIXct(.x, format = date_format)))
-    return(result_df)
-  }
-}
+\examples{}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 % \keyword{ ~kwd1 }

@@ -49,20 +49,7 @@ It returns the established database connection (con), which can be used to inter
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
-
-## The function is currently defined as
-function () 
-{
-    my_username <- keyring::key_list("SECPR")[1, 2]
-    con <- dbConnect(dbDriver("Oracle"), username = my_username, 
-        password = keyring::key_get("SECPR", my_username), dbname = "SECPR")
-    return(con)
-  }
-}
+\examples{}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 % \keyword{ ~kwd1 }

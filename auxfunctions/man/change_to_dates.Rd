@@ -49,28 +49,7 @@ It returns the 'result_df', which is the input data frame with the specified col
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
-
-change_to_dates(createdon_field_name, "%m/%d/%Y %H:%M") %>%
-    change_to_dates(contactdate_field_name, "%m/%d/%Y %I:%M %p")
-
-## The function is currently defined as
-function (my_df, field_name, date_format = "") 
-{
-    if (date_format == "") {
-        my_tryFormats = c("\%m/\%d/\%Y \%I:\%M\%p", "\%m/\%d/\%Y \%I:\%M \%p", 
-            "\%m/\%d/\%Y \%R\%OS", "\%Y-\%m-\%d \%H:\%M:\%OS", "\%Y/\%m/\%d \%H:\%M:\%OS", 
-            "\%Y-\%m-\%d \%H:\%M", "\%Y/\%m/\%d \%H:\%M", "\%Y-\%m-\%d", "\%Y/\%m/\%d")
-    }
-    new_field_name <- str_glue("{field_name}_dttm")
-    result_df <- mutate(my_df, `:=`(!!new_field_name, as.POSIXct(!!field_name, 
-        tryFormats = my_tryFormats, format = date_format)))
-    return(result_df)
-  }
-}
+\examples{}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 % \keyword{ ~kwd1 }

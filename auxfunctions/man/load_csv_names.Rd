@@ -56,21 +56,7 @@ load_csv_names(csv_files_paths, csv_names_list)
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
-
-## The function is currently defined as
-function (csv_files_paths, csv_names_list) 
-{
-    myfiles <- lapply(csv_names_list, function(x) file.path(csv_files_paths, 
-        x))
-    print(myfiles)
-    contents <- lapply(myfiles, read_csv, col_types = cols(.default = "c"))
-    return(contents)
-  }
-}
+\examples{}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 % \keyword{ ~kwd1 }

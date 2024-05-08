@@ -55,27 +55,7 @@ It returns the resulting data frame ('result_df') containing the merged data fro
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
-
-## The function is currently defined as
-function (corresp_arr, compl_arr) 
-{
-    corresp <- corresp_arr
-    if (!is.data.frame(corresp_arr)) {
-        corresp <- join_same_kind_csvs(corresp_arr)
-    }
-    compl <- compl_arr
-    if (!is.data.frame(compl_arr)) {
-        compl <- join_same_kind_csvs(compl_arr)
-    }
-    result_df <- compl \%>\% full_join(corresp, by = c("vesselofficialnumber"), 
-        multiple = "all")
-    return(result_df)
-  }
-}
+\examples{}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 % \keyword{ ~kwd1 }

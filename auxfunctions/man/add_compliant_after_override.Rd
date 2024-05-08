@@ -55,22 +55,6 @@ add_compliant_after_override(my_compl_df, overridden_col_name = "overridden", co
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
-
-## The function is currently defined as
-function (my_compl_df, overridden_col_name = "overridden", compliance_col_name = "is_comp") 
-{
-    res <- ungroup(mutate(rowwise(my_compl_df), compliant_after_override = case_when(!!sym(compliance_col_name) \%in\% 
-        c(0, "NO") & !!sym(overridden_col_name) \%in\% c(0, "NO") ~ 
-        "no", !!sym(compliance_col_name) \%in\% c(1, "YES") ~ "yes", 
-        !!sym(overridden_col_name) \%in\% c(1, "YES") ~ "yes", 
-        is.na(!!sym(compliance_col_name)) ~ NA, .default = toString(!!sym(compliance_col_name)))))
-    return(res)
-  }
-}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 % \keyword{ ~kwd1 }

@@ -46,24 +46,7 @@ A dataframe with the added columns.
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
-
-## The function is currently defined as
-function (all_data_df_clean) 
-{
-    contactdate_field_name <- find_col_name(all_data_df_clean, 
-        "contact", "date")[1]
-    vessel_id_field_name <- find_col_name(all_data_df_clean, 
-        "vessel", "number")[1]
-    result_df <- all_data_df_clean \%>\% dplyr::mutate(was_contacted = dplyr::if_else(is.na(contactdate_field_name), 
-        "no", "yes")) \%>\% dplyr::add_count(!!dplyr::sym(vessel_id_field_name), 
-        was_contacted, name = "contact_freq")
-    return(result_df)
-  }
-}
+% \examples{}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 % \keyword{ ~kwd1 }

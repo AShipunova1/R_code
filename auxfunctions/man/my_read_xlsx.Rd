@@ -64,19 +64,7 @@ my_read_xlsx(file_path, sheet_n, start_row = 1)
 \seealso{
 \code{\link{clean_headers}}
 }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
-
-## The function is currently defined as
-function (file_path, sheet_n, start_row = 1) 
-{
-    res_df <- clean_headers(read.xlsx(file_path, sheet_n, startRow = start_row, 
-        detectDates = TRUE, colNames = TRUE, sep.names = "_"))
-    return(res_df)
-  }
-}
+\examples{}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 % \keyword{ ~kwd1 }

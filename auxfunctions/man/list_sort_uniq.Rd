@@ -57,21 +57,7 @@ The `list_sort_uniq` function is designed to take a list of character vectors, c
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
-mutate(!!new_col_name := pmap(across(ends_with(curr_col_part)),
-                              ~ list_sort_uniq(.)),
-       .keep = "none" )
-
-## The function is currently defined as
-function (my_lists) 
-{
-    res <- flatten(list(sort(unique(str_trim(my_lists)))))
-    return(res)
-  }
-}
+\examples{}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 % \keyword{ ~kwd1 }
