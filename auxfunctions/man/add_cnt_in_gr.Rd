@@ -8,8 +8,8 @@ Add counts in a group
 Explanations:
 The function 'add_cnt_in_gr' performs the following operations:
 1. Groups the data frame by the specified columns using `group_by_at(group_by_col)`. `group_by_col` is defined above.
-2. Adds a new column named 'cnt_col_name' representing the count of distinct vessel official numbers in each group using `mutate({cnt_col_name} := n_distinct(vessel_official_number))`.
-The syntax `{cnt_col_name} :=` is used to create a new column dynamically with the name provided in the `cnt_col_name` argument.
+2. Adds a new column named 'cnt_col_name' representing the count of distinct vessel official numbers in each group using `mutate(\{cnt_col_name\} := n_distinct(vessel_official_number))`.
+The syntax `\{cnt_col_name\} :=` is used to create a new column dynamically with the name provided in the `cnt_col_name` argument.
 3. Removes the grouping to return the data to its original structure with `ungroup()`.
 4. Returns the modified data frame.
 }

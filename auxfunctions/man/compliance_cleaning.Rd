@@ -35,7 +35,7 @@ compliance_cleaning(compl_arr)
    - `imap(\(x, idx) \{ .. \}`: The `imap` function iterates over each element of `compl_clean`, providing both the element (`x`, a data frame) and its index (`idx`).
    - Within the `imap` function:
       - `field_name <- permitgroupexpirations[[idx]]`: The variable `field_name` is assigned the column name extracted earlier, corresponding to the current data frame `x`.
-      - `mutate({{field_name}} := ...)`: This line adds a new column to the data frame `x`, where the column name is dynamically determined by `field_name`.
+      - `mutate(\{\{field_name\}\} := ...)`: This line adds a new column to the data frame `x`, where the column name is dynamically determined by `field_name`.
       - `as.POSIXct(pull(x[field_name]), format = "%m/%d/%Y")`: The values of the selected column are converted to POSIXct date-time format using the specified date format.
 
 5. **Return Statement:**
