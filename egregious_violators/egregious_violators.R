@@ -5,6 +5,7 @@
 #                  type = "source")
 
 library(auxfunctions)
+library(dplyr)
 
 library(zoo)
 # library(RColorBrewer)
@@ -14,7 +15,6 @@ my_paths <- set_work_dir()
 current_project_name <- "egregious_violators"
 current_project_path <-
   file.path(my_paths$git_r, current_project_name)
-
 
 source(file.path(current_project_path, "get_data_egregious_violators.R"))
 
