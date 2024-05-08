@@ -28,3 +28,6 @@ export("add_cnt_in_gr", "add_compliant_after_override",
        "trim_all_vessel_ids_simple",
        "vessels_permits_id_clean",
        "write_to_1_flat_file")
+
+import(cowplot, crayon, dplyr, ggplot2, keyring, purrr, readr,
+  rlang, rstudioapi, sf, tictoc, tidyr)
