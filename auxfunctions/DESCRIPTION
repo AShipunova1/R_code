@@ -1,9 +1,9 @@
 Package: auxfunctions
 Type: Package
-Title: What the Package Does (Short Line)
+Title: Auxiliary Functions for SEFHIER Data Analysis
 Version: 1.0
 Date: 2024-05-07
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line).
-License: What license is it under?
+Author: Anna Shipunova
+Maintainer: anna.shipunova@noaa.gov
+Description: Functions for preparing and analyzing SEFHIER Data.
+License: MIT
