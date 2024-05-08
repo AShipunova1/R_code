@@ -8,7 +8,6 @@ Connect to "SECPR" Oracle database from R
 This function encapsulates the process of connecting to the "SECPR" Oracle database securely by retrieving credentials from the keyring and establishing a connection using the ROracle package. It ensures that sensitive information such as passwords is not exposed in the code, enhancing security.
 }
 \usage{
-con <- connect_to_secpr()
 }
 %- maybe also 'usage' for other objects documented here.
 \details{
@@ -41,7 +40,7 @@ It returns the established database connection (con), which can be used to inter
 %%  Anna Shipunova
 }
 \note{
-%%  ~~further notes~~
+con <- connect_to_secpr()
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
