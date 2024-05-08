@@ -2,10 +2,10 @@
 \alias{save_plot_to_file}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A Capitalized Title (ideally limited to 65 characters)
+Save a plot to a file
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+This function allows you to save a plot object to a specified file location with custom dimensions.
 }
 \usage{
 save_plot_to_file(file_full_name, plot_name)
@@ -20,7 +20,14 @@ save_plot_to_file(file_full_name, plot_name)
 }
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+1. **Function Definition:**
+   - `save_plot_to_file <- function(file_full_name, plot_name)`: Defines a function named `save_plot_to_file` that takes two arguments: `file_full_name`, which represents the full path and filename where the plot will be saved, and `plot_name`, which is the plot object to be saved.
+
+2. **Saving the Plot:**
+   - `ggplot2::ggsave(...)`: Uses the `ggsave` function from the ggplot2 package to save the plot to a file.
+   - `file_full_name`: Specifies the full path and filename where the plot will be saved.
+   - `plot_name`: Specifies the plot object to be saved.
+   - `width = 30, height = 20, units = "cm"`: Specifies the dimensions of the saved plot. The width is set to 30 centimeters, the height to 20 centimeters, and the units are specified as centimeters.
 }
 \value{
 %%  ~Describe the value returned
@@ -50,9 +57,9 @@ save_plot_to_file(file_full_name, plot_name)
 ##--	or standard data sets, see data().
 
 ## The function is currently defined as
-function (file_full_name, plot_name) 
+function (file_full_name, plot_name)
 {
-    ggplot2::ggsave(file_full_name, plot_name, width = 30, height = 20, 
+    ggplot2::ggsave(file_full_name, plot_name, width = 30, height = 20,
         units = "cm")
   }
 }
