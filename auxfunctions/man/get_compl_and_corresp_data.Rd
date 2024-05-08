@@ -64,7 +64,11 @@ It uses other functions from this package.
 %%  Anna Shipunova
 }
 \note{
-%%  ~~further notes~~
+Example: 
+csv_names_list_22_23 = c("Correspondence.csv",
+                         "FHIER_Compliance_22.csv",
+                         "FHIER_Compliance_23.csv")
+
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
