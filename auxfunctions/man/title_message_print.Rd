@@ -2,10 +2,10 @@
 \alias{title_message_print}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A Capitalized Title (ideally limited to 65 characters)
+Print a Colored Message in Console
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+This function is designed to print a title message in blue color to the console. It enhances the visual presentation of the message for better readability.
 }
 \usage{
 title_message_print(title_msg)
@@ -17,7 +17,12 @@ title_message_print(title_msg)
 }
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+1. **Function Definition:**
+   - `title_message_print <- function (title_msg)`: Defines a function named `title_message_print` that takes one argument, `title_msg`, which represents the title message to be printed.
+
+2. **Printing Title Message:**
+   - `crayon::blue(title_msg)`: Formats the `title_msg` with blue color using the `crayon` package. This function enhances the visual appearance of the printed message.
+   - `cat(..., sep = "\n")`: Prints the formatted `title_msg` to the console. The `sep` argument specifies the separator between multiple messages, here set to a newline character (`"\n"`).
 }
 \value{
 %%  ~Describe the value returned
@@ -47,7 +52,7 @@ title_message_print(title_msg)
 ##--	or standard data sets, see data().
 
 ## The function is currently defined as
-function (title_msg) 
+function (title_msg)
 {
     cat(crayon::blue(title_msg), sep = "\n")
   }
