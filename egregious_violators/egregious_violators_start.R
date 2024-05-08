@@ -15,7 +15,12 @@
 
 library(auxfunctions)
 library(dplyr)
-
+library(stringr)
+library(lubridate)
+library(purrr)
+library(readr)
+library(ROracle)
+library(tictoc)
 library(zoo)
 library(diffdf)
 # library(RColorBrewer)
