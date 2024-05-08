@@ -13,12 +13,11 @@ Imports:
   dplyr,
   ggplot2,
   keyring,
-  purrr,
   readr,
   rlang,
   rstudioapi,
   sf,
   tictoc,
+  purrr,
   tidyr
-
 RoxygenNote: 7.3.1
