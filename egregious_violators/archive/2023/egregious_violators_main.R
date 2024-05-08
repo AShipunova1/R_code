@@ -6,7 +6,13 @@
 # ----set up----
 
 # Get common functions
-source("~/R_code_github/useful_functions_module.r")
+# source("~/R_code_github/useful_functions_module.r")
+# install.packages("~/R_code_github/auxfunctions_1.0.tar.gz",
+#                  repos = NULL,
+#                  type = "source")
+
+library(auxfunctions)
+library(dplyr)
 
 library(zoo)
 library(diffdf)
