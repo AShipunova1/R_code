@@ -2,10 +2,11 @@
 \alias{read_csv_w_eofs}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A Capitalized Title (ideally limited to 65 characters)
+Read .csvs with End Of File
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+Define a function to read CSV files with EOFs (End of File) from a specified directory.
+This function reads multiple CSV files located in a specified directory path, combines them into a single data frame (specifically, taking the first column from each file), and returns the resulting data frame.
 }
 \usage{
 read_csv_w_eofs(my_paths, csv_names_list)
@@ -20,14 +21,30 @@ read_csv_w_eofs(my_paths, csv_names_list)
 }
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+
+1. **Function Definition:**
+   - `read_csv_w_eofs <- function (my_paths, csv_names_list) { ... }`: Defines a function named `read_csv_w_eofs` with two arguments: `my_paths` (a list containing directory paths) and `csv_names_list` (a vector of CSV file names to read).
+
+2. **Extracting Input Paths:**
+   - `my_inputs <- my_paths$inputs`: Retrieves the directory path from the `my_paths` list where the CSV files are located.
+
+3. **Generating File Paths:**
+   - `myfiles <- sapply(csv_names_list, function(x) file.path(my_inputs, add_csv_path, x))`: Uses `sapply` to iterate over each CSV file name in `csv_names_list`, and for each name, constructs the full file path by combining the input directory path (`my_inputs`), an additional CSV path (`add_csv_path`), and the file name (`x`). This assumes `add_csv_path` is defined elsewhere.
+
+4. **Reading CSV Files:**
+   - `contents <- sapply(myfiles, fread, header = TRUE)`: Uses `sapply` to read each CSV file into a data.table using `fread` from the `data.table` package. The argument `header = TRUE` indicates that the first row of each file contains column names.
+
+5. **Converting to Data Frame:**
+   - `contents[, 1] %>% as.data.frame()`:
+Convert the first CSV file into a data frame.
+TODO: Consider changing this function to handle multiple files.
+For now, it returns the first CSV file as a data frame.
+
+6. **Returning the Result:**
+   - `%>% return()`: Returns the resulting data frame obtained from the first column of the `contents` data.table.
 }
 \value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
+A data frame
 }
 \references{
 %% ~put references to the literature/web site here ~
@@ -50,10 +67,10 @@ read_csv_w_eofs(my_paths, csv_names_list)
 ##--	or standard data sets, see data().
 
 ## The function is currently defined as
-function (my_paths, csv_names_list) 
+function (my_paths, csv_names_list)
 {
     my_inputs <- my_paths$inputs
-    myfiles <- sapply(csv_names_list, function(x) file.path(my_inputs, 
+    myfiles <- sapply(csv_names_list, function(x) file.path(my_inputs,
         add_csv_path, x))
     contents <- sapply(myfiles, fread, header = TRUE)
     contents[, 1] \%>\% as.data.frame() \%>\% return()
