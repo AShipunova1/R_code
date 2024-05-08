@@ -30,10 +30,10 @@ Here's the breakdown of the `write_to_1_flat_file` function:
    - `current_file_text <- readr::read_lines(file_name_to_write)`: Reads the content of the file specified by `file_name_to_write` using `readr::read_lines()` and stores it in the variable `current_file_text`.
 
 4. **Printing Header:**
-   - `cat("\n\n#### Current file:", basename(file_name_to_write), "----\n\n")`: Prints a header indicating the current file being written to the flat file. `basename(file_name_to_write)` extracts the base name of the file.
+   - `cat("\\n\\n#### Current file:", basename(file_name_to_write), "----\\n\\n")`: Prints a header indicating the current file being written to the flat file. `basename(file_name_to_write)` extracts the base name of the file.
 
 5. **Writing File Content:**
-   - `cat(current_file_text, sep = "\n")`: Writes the content of `current_file_text` to the flat file using `cat()`. The `sep = "\n"` argument ensures that each line is separated by a newline character.
+   - `cat(current_file_text, sep = "\\n")`: Writes the content of `current_file_text` to the flat file using `cat()`. The `sep = "\\n"` argument ensures that each line is separated by a newline character.
 
 6. **Restoring Output:**
    - `sink()`: Closes the output redirection, restoring the standard output behavior.
@@ -73,9 +73,9 @@ function (flat_file_name, file_name_to_write)
 {
     sink(flat_file_name, append = TRUE)
     current_file_text <- readr::read_lines(file_name_to_write)
-    cat("\n\n#### Current file:", basename(file_name_to_write),
-        "----\n\n")
-    cat(current_file_text, sep = "\n")
+    cat("\\n\\n#### Current file:", basename(file_name_to_write),
+        "----\\n\\n")
+    cat(current_file_text, sep = "\\n")
     sink()
   }
 }

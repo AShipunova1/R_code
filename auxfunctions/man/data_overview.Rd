@@ -27,7 +27,7 @@ The `data_overview` function provides an overview of the data contained within a
    - `summary(my_df)`: Computes summary statistics such as minimum, 1st quartile, median, mean, 3rd quartile, and maximum for each column of the dataframe.
 
 3. **Count Unique Values:**
-   - `cat("\nCount unique values in each column:\n")`: Prints a message indicating that the unique values in each column will be counted.
+   - `cat("\\nCount unique values in each column:\\n")`: Prints a message indicating that the unique values in each column will be counted.
    - `count_uniq_by_column(my_df)`: Calls the `count_uniq_by_column` function to count the number of unique values in each column of the dataframe. The result is printed to the console.
 }
 \value{
@@ -54,10 +54,10 @@ The function does not explicitly return any value. It prints summary statistics 
 ##--	or standard data sets, see data().
 
 ## The function is currently defined as
-function (my_df) 
+function (my_df)
 {
     summary(my_df) \%>\% print()
-    cat("\nCount unique values in each column:\n")
+    cat("\\nCount unique values in each column:\\n")
     count_uniq_by_column(my_df)
   }
 }

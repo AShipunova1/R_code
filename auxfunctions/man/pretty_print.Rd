@@ -30,7 +30,7 @@ pretty_print(my_text, my_title, the_end = "---")
    - `title_message_print(my_title)`: Calls a function `title_message_print` to print the title `my_title`. This function formats and prints the title message.
    
 3. **Printing the Text:**
-   - `cat(c(my_text, the_end), sep = "\n")`: Concatenates `my_text` and `the_end` into a character vector and prints them using `cat`. Each element is separated by a newline (`\n`). This line prints the main text followed by the ending marker.
+   - `cat(c(my_text, the_end), sep = "\\n")`: Concatenates `my_text` and `the_end` into a character vector and prints them using `cat`. Each element is separated by a newline (`\\n`). This line prints the main text followed by the ending marker.
 
 4. **Default Argument:**
    - `the_end = "---"`: Defines a default value for the argument `the_end`. If the argument is not provided when calling the function, it defaults to `"---"`. This is used as a marker to denote the end of the printed content.
@@ -67,7 +67,7 @@ df |>
 function (my_text, my_title, the_end = "---") 
 {
     title_message_print(my_title)
-    cat(c(my_text, the_end), sep = "\n")
+    cat(c(my_text, the_end), sep = "\\n")
   }
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

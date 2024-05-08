@@ -22,7 +22,7 @@ title_message_print(title_msg)
 
 2. **Printing Title Message:**
    - `crayon::blue(title_msg)`: Formats the `title_msg` with blue color using the `crayon` package. This function enhances the visual appearance of the printed message.
-   - `cat(..., sep = "\n")`: Prints the formatted `title_msg` to the console. The `sep` argument specifies the separator between multiple messages, here set to a newline character (`"\n"`).
+   - `cat(..., sep = "\\n")`: Prints the formatted `title_msg` to the console. The `sep` argument specifies the separator between multiple messages, here set to a newline character (`"\\n"`).
 }
 \value{
 %%  ~Describe the value returned
@@ -54,7 +54,7 @@ title_message_print(title_msg)
 ## The function is currently defined as
 function (title_msg)
 {
-    cat(crayon::blue(title_msg), sep = "\n")
+    cat(crayon::blue(title_msg), sep = "\\n")
   }
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

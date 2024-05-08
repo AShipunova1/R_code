@@ -26,7 +26,7 @@ The `function_message_print` function is a utility function for printing message
 
 2. **Printing Message with Cyan Background:**
    - `crayon::bgCyan$bold(text_msg)`: Formats the `text_msg` with a cyan background color and bold font using the `crayon` package. This creates a visually distinct message when printed.
-   - `cat(..., sep = "\n")`: Prints the formatted message to the console. `cat` is a function used for printing, and `sep = "\n"` specifies that each message should be printed on a new line.
+   - `cat(..., sep = "\\n")`: Prints the formatted message to the console. `cat` is a function used for printing, and `sep = "\\n"` specifies that each message should be printed on a new line.
 }
 \value{
 %%  ~Describe the value returned
@@ -58,7 +58,7 @@ The `function_message_print` function is a utility function for printing message
 ## The function is currently defined as
 function (text_msg) 
 {
-    cat(crayon::bgCyan$bold(text_msg), sep = "\n")
+    cat(crayon::bgCyan$bold(text_msg), sep = "\\n")
   }
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
