@@ -1,5 +1,5 @@
 read_csv_w_eofs <-
-function(my_paths, csv_names_list) {
+function(my_paths, csv_names_list, add_csv_path = "other") {
   # Get the input directory path from 'my_paths'.
   my_inputs <- my_paths$inputs
 

@@ -23,13 +23,14 @@ read_csv_w_eofs(my_paths, csv_names_list)
 \details{
 
 1. **Function Definition:**
-   - `read_csv_w_eofs <- function (my_paths, csv_names_list) \{ ... \}`: Defines a function named `read_csv_w_eofs` with two arguments: `my_paths` (a list containing directory paths) and `csv_names_list` (a vector of CSV file names to read).
+   - `read_csv_w_eofs <- function (my_paths, csv_names_list, add_csv_path = "other") \{ ... \}`: Defines a function named `read_csv_w_eofs` with three arguments: `my_paths` (a list containing directory paths), `csv_names_list` (a vector of CSV file names to read),
+    and `add_csv_path` (an additional directory name, default "other").
 
 2. **Extracting Input Paths:**
    - `my_inputs <- my_paths$inputs`: Retrieves the directory path from the `my_paths` list where the CSV files are located.
 
 3. **Generating File Paths:**
-   - `myfiles <- sapply(csv_names_list, function(x) file.path(my_inputs, add_csv_path, x))`: Uses `sapply` to iterate over each CSV file name in `csv_names_list`, and for each name, constructs the full file path by combining the input directory path (`my_inputs`), an additional CSV path (`add_csv_path`), and the file name (`x`). This assumes `add_csv_path` is defined elsewhere.
+   - `myfiles <- sapply(csv_names_list, function(x) file.path(my_inputs, add_csv_path, x))`: Uses `sapply` to iterate over each CSV file name in `csv_names_list`, and for each name, constructs the full file path by combining the input directory path (`my_inputs`), an additional CSV path (`add_csv_path`), and the file name (`x`). 
 
 4. **Reading CSV Files:**
    - `contents <- sapply(myfiles, fread, header = TRUE)`: Uses `sapply` to read each CSV file into a data.table using `fread` from the `data.table` package. The argument `header = TRUE` indicates that the first row of each file contains column names.
