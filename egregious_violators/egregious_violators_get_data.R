@@ -184,11 +184,11 @@ prev_result_path <-
             current_project_basename,
             "egregious violators for investigation_2023-08-15_to_2024-02-13_OLE.xlsx")
 
-# file.exists(prev_result_path)
+file.exists(prev_result_path)
 
 prev_result <-
-  read_xlsx(prev_result_path) |> 
-  remove_empty_cols() |> 
+  my_read_xlsx(prev_result_path) |> 
+  remove_empty_cols() |>
   clean_headers()
 
 dim(prev_result)
