@@ -11,8 +11,6 @@ Provides a comprehensive approach to cleaning and standardizing column names wit
 }
 \usage{
 fix_names(x)
-
-fix_names(end_port_county) %in% fix_names(fl_counties$SA)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -49,7 +47,8 @@ The `fix_names` function is designed to clean and standardize column names withi
 %%  Anna Shipunova
 }
 \note{
-%%  ~~further notes~~
+Example:
+fix_names(end_port_county) %%in%% fix_names(fl_counties$SA)
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
