@@ -56,22 +56,6 @@ Anna Shipunova
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
-
-## The function is currently defined as
-function (my_df, group_by_col, cnt_col_name = "total_vsl_m_by_year_perm") 
-{
-    my_df \%>\% group_by_at(group_by_col) \%>\% mutate(`:=`({
-        {
-            cnt_col_name
-        }
-    }, n_distinct(vessel_official_number))) \%>\% ungroup() \%>\% 
-        return()
-  }
-}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory (show via RShowDoc("KEYWORDS")):
 % \keyword{ ~kwd1 }
