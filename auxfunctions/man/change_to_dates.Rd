@@ -9,7 +9,7 @@ Change a column class to POSIXct in the "my_df" for the field "field_name" using
 
 The change_to_dates function is defined to convert a specific column ('field_name') in the input data frame ('my_df') to POSIXct date format using the specified 'date_format'.
 
-Inside the function, it uses the mutate function from the dplyr package to modify 'my_df'. The {{field_name}} syntax is used to refer to the column specified by 'field_name'.
+Inside the function, it uses the mutate function from the dplyr package to modify 'my_df'. The \{\{field_name\}\} syntax is used to refer to the column specified by 'field_name'.
 
 It returns the 'result_df', which is the input data frame with the specified column converted to dates according to the specified 'date_format'.
 }
