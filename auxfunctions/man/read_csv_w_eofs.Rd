@@ -9,7 +9,7 @@ Define a function to read CSV files with EOFs (End of File) from a specified dir
 This function reads multiple CSV files located in a specified directory path, combines them into a single data frame (specifically, taking the first column from each file), and returns the resulting data frame.
 }
 \usage{
-read_csv_w_eofs(my_paths, csv_names_list)
+read_csv_w_eofs(my_paths, csv_names_list, add_csv_path = "other")
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -18,6 +18,9 @@ read_csv_w_eofs(my_paths, csv_names_list)
 }
   \item{csv_names_list}{
 %%     ~~Describe \code{csv_names_list} here~~
+}
+\item{add_csv_path}{
+ An additional directory in the path, e.g. "other"
 }
 }
 \details{
