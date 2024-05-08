@@ -25,7 +25,7 @@ trim_all_vessel_ids_simple(csvs_clean_ws, col_name_to_trim = NA)
    - `trim_all_vessel_ids_simple <- function (csvs_clean_ws, col_name_to_trim = NA)`: Defines a function named `trim_all_vessel_ids_simple` that takes two arguments: `csvs_clean_ws`, a list of data frames to process, and `col_name_to_trim`, the name of the column containing vessel IDs to be trimmed. This argument is set to `NA` by default.
 
 2. **Column Name Detection:**
-   - `if (is.na(col_name_to_trim)) { ... }`: Checks if the `col_name_to_trim` argument is not provided. If it's not provided, the function attempts to detect the column name containing vessel IDs.
+   - `if (is.na(col_name_to_trim)) \{ ... \}`: Checks if the `col_name_to_trim` argument is not provided. If it's not provided, the function attempts to detect the column name containing vessel IDs.
    - `col_name_to_trim <- grep("vessel.*official.*number", tolower(names(x)), value = TRUE)`: Uses `grep` to search for column names containing variations of "vessel official number" (case-insensitive) within the column names of the first data frame (`x`) in the list. This is assigned to `col_name_to_trim`.
 
 3. **Column Trimming:**
