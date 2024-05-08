@@ -2,10 +2,10 @@
 \alias{separate_permits_into_3_groups}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A Capitalized Title (ideally limited to 65 characters)
+Separate Permits into 3 Groups
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+This function separates permit groups into three categories ("sa_only", "gom_only", "dual") based on specified patterns found in the permit group field.
 }
 \usage{
 separate_permits_into_3_groups(my_df, permit_group_field_name = "permitgroup")
@@ -20,7 +20,18 @@ separate_permits_into_3_groups(my_df, permit_group_field_name = "permitgroup")
 }
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+1. **Function Definition:**
+   - `separate_permits_into_3_groups <- function (my_df, permit_group_field_name = "permitgroup")`: Defines a function named `separate_permits_into_3_groups` that takes two arguments: `my_df`, which is the input data frame containing permit information, and `permit_group_field_name`, which is the name of the field containing permit group information. By default, it assumes the field name is "permitgroup".
+
+2. **Mutating Permit Groups:**
+   - `my_df %>% mutate(...)`: Uses the pipe operator to mutate the input data frame.
+   - `permit_sa_gom = dplyr::case_when(...)`: Creates a new column named "permit_sa_gom" based on conditions defined in the `case_when` function.
+   - `!grepl("RCG|HRCG|CHG|HCHG", !!sym(permit_group_field_name)) ~ "sa_only"`: Checks if the permit group does not contain certain patterns (e.g., "RCG", "HRCG", "CHG", "HCHG"). If true, assigns the value "sa_only" to the new column.
+   - `!grepl("CDW|CHS|SC", !!sym(permit_group_field_name)) ~ "gom_only"`: Checks if the permit group does not contain certain patterns (e.g., "CDW", "CHS", "SC"). If true, assigns the value "gom_only" to the new column.
+   - `.default = "dual"`: If none of the above conditions are met, assigns the value "dual" to the new column.
+
+3. **Return Statement:**
+   - `%>% return()`: Uses the pipe operator to return the mutated data frame.
 }
 \value{
 %%  ~Describe the value returned
@@ -50,11 +61,11 @@ separate_permits_into_3_groups(my_df, permit_group_field_name = "permitgroup")
 ##--	or standard data sets, see data().
 
 ## The function is currently defined as
-function (my_df, permit_group_field_name = "permitgroup") 
+function (my_df, permit_group_field_name = "permitgroup")
 {
-    my_df \%>\% mutate(permit_sa_gom = dplyr::case_when(!grepl("RCG|HRCG|CHG|HCHG", 
-        !!sym(permit_group_field_name)) ~ "sa_only", !grepl("CDW|CHS|SC", 
-        !!sym(permit_group_field_name)) ~ "gom_only", .default = "dual")) \%>\% 
+    my_df \%>\% mutate(permit_sa_gom = dplyr::case_when(!grepl("RCG|HRCG|CHG|HCHG",
+        !!sym(permit_group_field_name)) ~ "sa_only", !grepl("CDW|CHS|SC",
+        !!sym(permit_group_field_name)) ~ "gom_only", .default = "dual")) \%>\%
         return()
   }
 }
