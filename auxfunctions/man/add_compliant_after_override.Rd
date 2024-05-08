@@ -16,7 +16,9 @@ Explanations:
 4. Use 'ungroup' to remove grouping from the data frame.
 }
 \usage{
-add_compliant_after_override(my_compl_df, overridden_col_name = "overridden", compliance_col_name = "is_comp")
+add_compliant_after_override(my_compl_df, 
+   overridden_col_name = "overridden", 
+   compliance_col_name = "is_comp")
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

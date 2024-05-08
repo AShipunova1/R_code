@@ -8,7 +8,11 @@ Get Compliance by
 This function is designed to organize compliance data by grouping it based on specified variables and spreading unique values into separate columns, providing a more structured and readable format for analysis.
 }
 \usage{
-get_compl_by(my_df, group_by_for_compl = vars(-c("vessel_official_number", "compliant_", "overridden_")), names_from_list = c("vessel_official_number"))
+get_compl_by(my_df,
+  group_by_for_compl = vars(-c("vessel_official_number",
+   "compliant_",
+   "overridden_")),
+  names_from_list = c("vessel_official_number"))
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

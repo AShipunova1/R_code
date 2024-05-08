@@ -8,7 +8,10 @@ Read an .rds file or run an SQL query
 This function, `read_rds_or_run`, is designed to read data from an RDS file if it exists or run a specified function to obtain the data from the Oracle database and save it as an RDS file if the file does not exist or if the `force_from_db` parameter is set.
 }
 \usage{
-read_rds_or_run(my_file_path, my_data = as.data.frame(""), my_function, force_from_db = NULL)
+read_rds_or_run(my_file_path, 
+  my_data = as.data.frame(""), 
+  my_function, 
+  force_from_db = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

@@ -8,7 +8,9 @@ Get compliance and correspondence data
 This function facilitates the extraction, cleaning, and organization of compliance and correspondence data from files, downloaded from FHIER, providing a convenient way to preprocess the data for further analysis or visualization.
 }
 \usage{
-get_compl_and_corresp_data(my_paths, filenames = csv_names_list_22_23, vessel_id_field_name = NA)
+get_compl_and_corresp_data(my_paths, 
+  filenames = csv_names_list_22_23,
+  vessel_id_field_name = NA)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
