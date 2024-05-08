@@ -46,3 +46,4 @@ quarto-syntax-highlighting.css
 rstudio_leaflet.css
 temp*
 tippy.css
+/auxfunctions.Rcheck
