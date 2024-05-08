@@ -1302,6 +1302,7 @@ save_plot_to_file <-
     )
   }
 
+# ===
 # Explanations:
 # The function 'read_an_answer' performs the following operations:
 # 1. Reads user input with the provided prompt using 'readline'.
