@@ -2,10 +2,10 @@
 \alias{vessels_permits_id_clean}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A Capitalized Title (ideally limited to 65 characters)
+Vessel Permit IDs Clean
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+This function is responsible for renaming specific columns in the input dataframe `my_df` to more descriptive names ("PERMIT_VESSEL_ID" and "VESSEL_VESSEL_ID").
 }
 \usage{
 vessels_permits_id_clean(my_df)
@@ -17,7 +17,19 @@ vessels_permits_id_clean(my_df)
 }
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+Here's the breakdown of the `vessels_permits_id_clean` function:
+
+1. **Function Definition:**
+   - `vessels_permits_id_clean <- function (my_df)`: Defines a function named `vessels_permits_id_clean` that takes one argument, `my_df`, which is the input dataframe containing vessel permits data as it comes from the Oracle database.
+
+2. **Column Renaming:**
+   - `vessels_permits <- rename(rename(my_df, PERMIT_VESSEL_ID = "QCSJ_C000000000300000"), VESSEL_VESSEL_ID = "QCSJ_C000000000300001")`: This line renames two columns in the input dataframe `my_df`.
+     - The first `rename` function renames the column named "QCSJ_C000000000300000" to "PERMIT_VESSEL_ID".
+     - The second `rename` function (nested within the first) renames the column named "QCSJ_C000000000300001" to "VESSEL_VESSEL_ID".
+     - The resulting dataframe with renamed columns is assigned to `vessels_permits`.
+
+3. **Returning Processed Dataframe:**
+   - `return(vessels_permits)`: Returns the dataframe `vessels_permits` with the renamed columns.
 }
 \value{
 %%  ~Describe the value returned
@@ -33,7 +45,7 @@ vessels_permits_id_clean(my_df)
 %%  Anna Shipunova
 }
 \note{
-%%  ~~further notes~~
+my_df usually comes from join of Oracle database tables with vessels and permits
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
@@ -47,9 +59,9 @@ vessels_permits_id_clean(my_df)
 ##--	or standard data sets, see data().
 
 ## The function is currently defined as
-function (my_df) 
+function (my_df)
 {
-    vessels_permits <- rename(rename(my_df, PERMIT_VESSEL_ID = "QCSJ_C000000000300000"), 
+    vessels_permits <- rename(rename(my_df, PERMIT_VESSEL_ID = "QCSJ_C000000000300000"),
         VESSEL_VESSEL_ID = "QCSJ_C000000000300001")
     return(vessels_permits)
   }
