@@ -2,10 +2,10 @@
 \alias{remove_empty_cols}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A Capitalized Title (ideally limited to 65 characters)
+Remove Empty Columns
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+This function effectively removes columns from the input data frame `my_df` that contain only missing values.
 }
 \usage{
 remove_empty_cols(my_df)
@@ -17,7 +17,17 @@ remove_empty_cols(my_df)
 }
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+1. **Function Definition:**
+   - `remove_empty_cols <- function (my_df)`: Defines a function named `remove_empty_cols` that takes a single argument `my_df`, which is expected to be a data frame.
+
+2. **Inner Function Definition:**
+   - `not_all_na <- function(x) any(!is.na(x))`: Defines an inner function named `not_all_na`. This function takes a vector `x` as input and returns `TRUE` if there is at least one non-missing value in the vector, otherwise it returns `FALSE`. This function will be used as a predicate to check if any column contains non-missing values.
+
+3. **Selecting Columns:**
+   - `select(my_df, where(not_all_na))`: Uses the `dplyr` function `select` to filter columns of `my_df` based on a condition. The condition is specified using the `where` function, which applies the `not_all_na` function to each column of `my_df`. Columns for which `not_all_na` returns `TRUE` (i.e., columns with at least one non-missing value) are retained, while columns with all missing values are removed.
+
+4. **Returning Result:**
+   - `\%>\% return()`: Pipes the result of the `select` operation into the `return` function, which ensures that the modified data frame is returned as the output of the `remove_empty_cols` function.
 }
 \value{
 %%  ~Describe the value returned
@@ -47,7 +57,7 @@ remove_empty_cols(my_df)
 ##--	or standard data sets, see data().
 
 ## The function is currently defined as
-function (my_df) 
+function (my_df)
 {
     not_all_na <- function(x) any(!is.na(x))
     select(my_df, where(not_all_na)) \%>\% return()
