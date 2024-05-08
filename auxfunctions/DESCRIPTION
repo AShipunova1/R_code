@@ -19,5 +19,11 @@ Imports:
   sf,
   tictoc,
   purrr,
-  tidyr
+  tidyr,
+  DBI, 
+  data.table,
+  lubridate,
+  magrittr,
+  openxlsx,
+  stringr
 RoxygenNote: 7.3.1
