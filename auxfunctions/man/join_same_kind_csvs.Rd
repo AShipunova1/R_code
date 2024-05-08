@@ -19,7 +19,7 @@ join_same_kind_csvs(csvs_list_2_plus)
 The `join_same_kind_csvs` function is designed to bind together multiple data frames into a single data frame.
 
 1. **Function Definition:**
-   - `join_same_kind_csvs <- function(csvs_list_2_plus) { ... }`: Defines a function named `join_same_kind_csvs` with one argument, `csvs_list_2_plus`, which is a list containing two or more data frames.
+   - `join_same_kind_csvs <- function(csvs_list_2_plus) \{ .. \}`: Defines a function named `join_same_kind_csvs` with one argument, `csvs_list_2_plus`, which is a list containing two or more data frames.
 
 2. **Binding Data Frames:**
    - `result_df <- dplyr::bind_rows(csvs_list_2_plus)`: Uses `bind_rows` from the `dplyr` package to stack the data frames vertically (row-wise). This function concatenates the data frames in the list `csvs_list_2_plus` into a single data frame, aligning columns by name.

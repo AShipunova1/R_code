@@ -19,14 +19,14 @@ prepare_csv_names(filenames)
 Here's an explanation of the `prepare_csv_names` function:
 
 1. **Function Definition:**
-   - `prepare_csv_names <- function(filenames) { ... }`: Defines a function named `prepare_csv_names` with one argument `filenames`, which is a vector containing the names of CSV files.
+   - `prepare_csv_names <- function(filenames) \{ ... \}`: Defines a function named `prepare_csv_names` with one argument `filenames`, which is a vector containing the names of CSV files.
 
 2. **Adding File Paths:**
    - `add_path_corresp <- "from_Fhier/Correspondence"`: Defines a variable `add_path_corresp` to hold the directory path for correspondence files.
    - `add_path_compl <- "from_Fhier/FHIER Compliance"`: Defines a variable `add_path_compl` to hold the directory path for FHIER compliance files.
 
 3. **Creating File Paths:**
-   - `my_list <- sapply(filenames, function(x) { ... })`: Uses `sapply` to iterate over each filename in the `filenames` vector and apply a function.
+   - `my_list <- sapply(filenames, function(x) \{ ... \})`: Uses `sapply` to iterate over each filename in the `filenames` vector and apply a function.
    - Within the function:
      - `my_headers_case_function(x)`: Calls a function `my_headers_case_function` (not defined in the provided code) with each filename `x` as an argument. This function likely adjusts the case of the filename.
      - `startsWith(...)`: Checks if the adjusted filename starts with specific prefixes.

@@ -28,7 +28,7 @@ The `get_compl_and_corresp_data` function is responsible for processing and clea
 It uses other functions from this package.
 
 1. **Function Definition:**
-   - `get_compl_and_corresp_data <- function(my_paths, filenames = csv_names_list_22_23, vessel_id_field_name = NA) { ... }`: Defines a function named `get_compl_and_corresp_data` that takes three arguments: `my_paths` (paths to the CSV files), `filenames` (list of CSV filenames), and `vessel_id_field_name` (name of the vessel ID field).
+   - `get_compl_and_corresp_data <- function(my_paths, filenames = csv_names_list_22_23, vessel_id_field_name = NA) \{ .. \}`: Defines a function named `get_compl_and_corresp_data` that takes three arguments: `my_paths` (paths to the CSV files), `filenames` (list of CSV filenames), and `vessel_id_field_name` (name of the vessel ID field).
 
 2. **Prepare CSV Names:**
    - `csv_names_list <- prepare_csv_names(filenames)`: Prepares a list of CSV filenames based on the input list `filenames` using the `prepare_csv_names` function.

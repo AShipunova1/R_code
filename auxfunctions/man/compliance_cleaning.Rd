@@ -26,13 +26,13 @@ compliance_cleaning(compl_arr)
 
 3. **Column Name Extraction with `map`:**
    - `permitgroupexpirations <- map(compl, ...`: This line iterates over each data frame in `compl` using `map`.
-   - `\(x) { ... }`: An anonymous function is defined to operate on each data frame `x`.
+   - `\(x) \{ .. \}`: An anonymous function is defined to operate on each data frame `x`.
    - Within the anonymous function:
       - `grep("permit.*group.*expiration", tolower(names(x)), value = TRUE)`: This function call searches for column names containing the pattern "permit", "group", and "expiration" (case-insensitive) within the names of the current data frame `x`. It returns the matching column names.
 
 4. **Data Transformation with `imap`:**
    - `compl_dates <- compl_clean |>`: The cleaned data frames in `compl_clean` are processed further using the pipe (`|>`) operator.
-   - `imap(\(x, idx) { ... }`: The `imap` function iterates over each element of `compl_clean`, providing both the element (`x`, a data frame) and its index (`idx`).
+   - `imap(\(x, idx) \{ .. \}`: The `imap` function iterates over each element of `compl_clean`, providing both the element (`x`, a data frame) and its index (`idx`).
    - Within the `imap` function:
       - `field_name <- permitgroupexpirations[[idx]]`: The variable `field_name` is assigned the column name extracted earlier, corresponding to the current data frame `x`.
       - `mutate({{field_name}} := ...)`: This line adds a new column to the data frame `x`, where the column name is dynamically determined by `field_name`.

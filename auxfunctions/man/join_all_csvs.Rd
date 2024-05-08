@@ -25,7 +25,7 @@ join_all_csvs(corresp_arr, compl_arr)
 The `join_all_csvs` function is designed to join multiple data frames containing correspondence and compliance data into a single data frame.
 
 1. **Function Definition:**
-   - `join_all_csvs <- function(corresp_arr, compl_arr) { ... }`: Defines a function named `join_all_csvs` with two arguments: `corresp_arr` for the correspondence data and `compl_arr` for the compliance data.
+   - `join_all_csvs <- function(corresp_arr, compl_arr) \{ .. \}`: Defines a function named `join_all_csvs` with two arguments: `corresp_arr` for the correspondence data and `compl_arr` for the compliance data.
 
 2. **Data Frame Initialization:**
    - `corresp <- corresp_arr`: Initializes a variable `corresp` to hold the correspondence data. If `corresp_arr` is not already a data frame, it is converted to one using the `join_same_kind_csvs` function.

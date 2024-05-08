@@ -18,13 +18,13 @@ read_rds_or_run_no_db(my_file_path, my_data_list_of_dfs, my_function)
 }
 \details{
 1. **Function Definition:**
-   - `read_rds_or_run_no_db <- function(my_file_path, my_data_list_of_dfs, my_function) { ... }`: Defines a function named `read_rds_or_run_no_db` with three arguments:
+   - `read_rds_or_run_no_db <- function(my_file_path, my_data_list_of_dfs, my_function) \{ ... \}`: Defines a function named `read_rds_or_run_no_db` with three arguments:
      - `my_file_path`: The file path to read from or write to.
      - `my_data_list_of_dfs`: A list containing the data frames needed for the function.
      - `my_function`: The function to be executed if the file doesn't exist.
 
 2. **File Existence Check:**
-   - `if (file.exists(my_file_path)) { ... } else { ... }`: Checks if the file specified by `my_file_path` exists.
+   - `if (file.exists(my_file_path)) \{ ... \} else \{ ... \}`: Checks if the file specified by `my_file_path` exists.
 
 3. **Read or Execute Function:**
    - If the file exists:

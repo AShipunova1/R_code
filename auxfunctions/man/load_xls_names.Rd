@@ -26,7 +26,7 @@ load_xls_names(my_paths, xls_names_list, sheet_n = 1)
 Here's a detailed explanation of the `load_xls_names` function:
 
 1. **Function Definition:**
-   - `load_xls_names <- function(my_paths, xls_names_list, sheet_n = 1) { ... }`: Defines a function named `load_xls_names` with three arguments: `my_paths` (a list containing file paths), `xls_names_list` (a list of Excel file names), and `sheet_n` (the index of the sheet to read from each Excel file, with a default value of 1).
+   - `load_xls_names <- function(my_paths, xls_names_list, sheet_n = 1) \{ ... \}`: Defines a function named `load_xls_names` with three arguments: `my_paths` (a list containing file paths), `xls_names_list` (a list of Excel file names), and `sheet_n` (the index of the sheet to read from each Excel file, with a default value of 1).
 
 2. **Constructing File Paths:**
    - `my_inputs <- my_paths$inputs`: Extracts the path to the directory where Excel files are located from the `my_paths` list and assigns it to `my_inputs`.

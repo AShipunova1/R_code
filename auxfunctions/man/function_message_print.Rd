@@ -22,7 +22,7 @@ function_message_print(text_msg)
 The `function_message_print` function is a utility function for printing messages with a cyan background color.
 
 1. **Function Definition:**
-   - `function_message_print <-function (text_msg) { ... }`: Defines a function named `function_message_print` that takes one argument, `text_msg`, representing the message to be printed.
+   - `function_message_print <-function (text_msg) \{ .. \}`: Defines a function named `function_message_print` that takes one argument, `text_msg`, representing the message to be printed.
 
 2. **Printing Message with Cyan Background:**
    - `crayon::bgCyan$bold(text_msg)`: Formats the `text_msg` with a cyan background color and bold font using the `crayon` package. This creates a visually distinct message when printed.

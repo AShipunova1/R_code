@@ -21,7 +21,7 @@ print_df_names(my_df, names_num = 100)
 }
 \details{
 1. **Function Definition:**
-   - `print_df_names <- function (my_df, names_num = 100) { ... }`: Defines a function named `print_df_names` with two arguments: `my_df` (the dataframe whose column names will be printed) and `names_num` (the maximum number of names to display, defaulted to 100).
+   - `print_df_names <- function (my_df, names_num = 100) \{ ... \}`: Defines a function named `print_df_names` with two arguments: `my_df` (the dataframe whose column names will be printed) and `names_num` (the maximum number of names to display, defaulted to 100).
 
 2. **Extracting Column Names:**
    - `names(my_df)`: Retrieves the column names of the input dataframe `my_df`.

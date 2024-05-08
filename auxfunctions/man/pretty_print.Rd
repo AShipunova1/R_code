@@ -24,7 +24,7 @@ pretty_print(my_text, my_title, the_end = "---")
 }
 \details{
 1. **Function Definition:**
-   - `pretty_print <- function(my_text, my_title, the_end = "---") { ... }`: Defines a function named `pretty_print` with three arguments: `my_text`, `my_title`, and `the_end`.
+   - `pretty_print <- function(my_text, my_title, the_end = "---") \{ ... \}`: Defines a function named `pretty_print` with three arguments: `my_text`, `my_title`, and `the_end`.
 
 2. **Printing the Title:**
    - `title_message_print(my_title)`: Calls a function `title_message_print` to print the title `my_title`. This function formats and prints the title message.

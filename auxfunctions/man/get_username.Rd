@@ -14,7 +14,7 @@ get_username()
 The `get_username` function is designed to retrieve the username of the current user.
 
 1. **Function Definition:**
-   - `get_username <- function() { ... }`: Defines a function named `get_username` with no arguments.
+   - `get_username <- function() \{ .. \}`: Defines a function named `get_username` with no arguments.
 
 2. **Using System Information:**
    - `Sys.info()`: Calls the `Sys.info` function, which provides various system information about the current R session.

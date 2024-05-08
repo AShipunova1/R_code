@@ -20,7 +20,7 @@ load_csv_names(csv_files_paths, csv_names_list)
 }
 \details{
 1. **Function Definition:**
-   - `load_csv_names <- function(csv_files_paths, csv_names_list) { ... }`: Defines a function named `load_csv_names` with two arguments: `csv_files_paths` (the directory path where CSV files are located) and `csv_names_list` (a list of CSV file names).
+   - `load_csv_names <- function(csv_files_paths, csv_names_list) \{ ... \}`: Defines a function named `load_csv_names` with two arguments: `csv_files_paths` (the directory path where CSV files are located) and `csv_names_list` (a list of CSV file names).
 
 2. **Constructing File Paths:**
    - `myfiles <- lapply(csv_names_list, function(x) file.path(csv_files_paths, x))`: Uses `lapply` to iterate over each file name in `csv_names_list`. For each file name `x`, it constructs the full file path by combining `csv_files_paths` with `x` using `file.path`. The resulting list of file paths is stored in `myfiles`.

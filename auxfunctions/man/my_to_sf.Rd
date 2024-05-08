@@ -21,7 +21,7 @@ the coordinate reference system to use, with a default value of `sf::st_crs(sa_s
 }
 \details{
 1. **Function Definition:**
-   - `my_to_sf <- function(my_df, my_crs = sf::st_crs(sa_shp)) { ... }`: Defines a function named `my_to_sf` with two arguments: `my_df` (the data frame to convert to a spatial object) and `my_crs` (the coordinate reference system to use, with a default value of `sf::st_crs(sa_shp)`).
+   - `my_to_sf <- function(my_df, my_crs = sf::st_crs(sa_shp)) \{ ... \}`: Defines a function named `my_to_sf` with two arguments: `my_df` (the data frame to convert to a spatial object) and `my_crs` (the coordinate reference system to use, with a default value of `sf::st_crs(sa_shp)`).
 
 2. **Converting to Spatial Object:**
    - `%>% sf::st_as_sf(coords = c("longitude", "latitude"), crs = my_crs, remove = FALSE)`: Pipes the input data frame `my_df` into the `st_as_sf` function from the `sf` package, converting it to a spatial object.

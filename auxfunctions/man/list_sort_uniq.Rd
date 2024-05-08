@@ -20,7 +20,7 @@ list_sort_uniq(my_lists)
 The `list_sort_uniq` function is designed to take a list of character vectors, clean them, remove duplicates, sort them, and return a single vector with unique, sorted elements.
 
 1. **Function Definition:**
-   - `list_sort_uniq <- function(my_lists) { ... }`: Defines a function named `list_sort_uniq` with one argument, `my_lists`, representing the list of character vectors to process.
+   - `list_sort_uniq <- function(my_lists) \{ .. \}`: Defines a function named `list_sort_uniq` with one argument, `my_lists`, representing the list of character vectors to process.
 
 2. **Data Transformation Pipeline:**
    - `my_lists |> ...`: Utilizes the pipe operator (`|>`) to pass the `my_lists` argument through a series of data transformation steps.

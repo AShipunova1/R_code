@@ -23,7 +23,7 @@ read_csv_w_eofs(my_paths, csv_names_list)
 \details{
 
 1. **Function Definition:**
-   - `read_csv_w_eofs <- function (my_paths, csv_names_list) { ... }`: Defines a function named `read_csv_w_eofs` with two arguments: `my_paths` (a list containing directory paths) and `csv_names_list` (a vector of CSV file names to read).
+   - `read_csv_w_eofs <- function (my_paths, csv_names_list) \{ ... \}`: Defines a function named `read_csv_w_eofs` with two arguments: `my_paths` (a list containing directory paths) and `csv_names_list` (a vector of CSV file names to read).
 
 2. **Extracting Input Paths:**
    - `my_inputs <- my_paths$inputs`: Retrieves the directory path from the `my_paths` list where the CSV files are located.

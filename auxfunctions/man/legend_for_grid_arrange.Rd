@@ -19,7 +19,7 @@ The plot containing the legend}
 The `legend_for_grid_arrange` function is responsible for extracting a legend plot from a grid arrangement of plots.
 
 1. **Function Definition:**
-   - `legend_for_grid_arrange <- function(legend_plot) { ... }`: Defines a function named `legend_for_grid_arrange` with one argument, `legend_plot`, which represents the plot containing the legend.
+   - `legend_for_grid_arrange <- function(legend_plot) \{ .. \}`: Defines a function named `legend_for_grid_arrange` with one argument, `legend_plot`, which represents the plot containing the legend.
 
 2. **Extracting the Legend:**
    - `my_legend <- cowplot::get_legend(legend_plot)`: Uses the `get_legend` function from the `cowplot` package to extract the legend from the provided `legend_plot`. This function retrieves the legend associated with a plot.

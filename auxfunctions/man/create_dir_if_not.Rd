@@ -20,10 +20,10 @@ create_dir_if_not(curr_dir_name)
 }
 \details{
 1. **Function Definition:**
-   - `create_dir_if_not <- function(curr_dir_name) { ... }`: Defines a function named `create_dir_if_not` that takes a single argument, `curr_dir_name`, representing the name of the directory to be created.
+   - `create_dir_if_not <- function(curr_dir_name) \{ .. \}`: Defines a function named `create_dir_if_not` that takes a single argument, `curr_dir_name`, representing the name of the directory to be created.
 
 2. **Checking Directory Existence:**
-   - `if (!dir.exists(curr_dir_name)) { ... }`: Checks if the directory specified by `curr_dir_name` does not exist.
+   - `if (!dir.exists(curr_dir_name)) \{ .. \}`: Checks if the directory specified by `curr_dir_name` does not exist.
    - `dir.exists(curr_dir_name)`: Checks whether the directory specified by `curr_dir_name` exists. The `!` negates the result, so the code block inside the `if` statement executes only if the directory does not exist.
 
 3. **Creating Directory:**

@@ -20,7 +20,7 @@ data_overview(my_df)
 The `data_overview` function provides an overview of the data contained within a dataframe.
 
 1. **Function Definition:**
-   - `data_overview <- function(my_df) { ... }`: Defines a function named `data_overview` that takes a single argument `my_df`, representing the dataframe to be analyzed.
+   - `data_overview <- function(my_df) \{ .. \}`: Defines a function named `data_overview` that takes a single argument `my_df`, representing the dataframe to be analyzed.
 
 2. **Summary Statistics:**
    - `summary(my_df) \%>\% print()`: Generates summary statistics for the dataframe using the `summary` function. The `%>%` pipe operator is used to pass the summary to the `print` function for display.

@@ -20,7 +20,7 @@ corresp_cleaning(csvs_clean1)
 The `corresp_cleaning` function processes a list of cleaned CSV files related to correspondence data.
 
 1. **Function Definition:**
-   - `corresp_cleaning <- function(csvs_clean1) { ... }`: Defines a function named `corresp_cleaning` that takes a single argument, `csvs_clean1`, which is assumed to be a list containing cleaned CSV files.
+   - `corresp_cleaning <- function(csvs_clean1) \{ .. \}`: Defines a function named `corresp_cleaning` that takes a single argument, `csvs_clean1`, which is assumed to be a list containing cleaned CSV files.
 
 2. **Extracting Data:**
    - `corresp_arr <- csvs_clean1[[1]]`: Extracts the first element from the `csvs_clean1` list and assigns it to the `corresp_arr` variable.

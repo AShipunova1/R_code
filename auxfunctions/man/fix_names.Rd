@@ -22,7 +22,7 @@ fix_names(x)
 The `fix_names` function is designed to clean and standardize column names within a dataframe.
 
 1. **Function Definition:**
-   - `fix_names <- function (x) { ... }`: Defines a function named `fix_names` that takes one argument, `x`, which represents the input dataframe.
+   - `fix_names <- function (x) \{ .. \}`: Defines a function named `fix_names` that takes one argument, `x`, which represents the input dataframe.
 
 2. **Cleaning Column Names:**
    - `x %>% str_replace_all("\\.", "")`: Removes all occurrences of periods (`.`) from the column names using `str_replace_all` from the `stringr` package.

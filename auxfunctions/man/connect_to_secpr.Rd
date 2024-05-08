@@ -14,7 +14,7 @@ This function encapsulates the process of connecting to the "SECPR" Oracle datab
 This `connect_to_secpr` function establishes a connection to an Oracle database named "SECPR" using credentials stored securely.
 
 1. **Function Definition:**
-   - `connect_to_secpr <- function() { ... }`: Defines a function named `connect_to_secpr` with no input parameters.
+   - `connect_to_secpr <- function() \{ .. \}`: Defines a function named `connect_to_secpr` with no input parameters.
 
 2. **Retrieve Username:**
    - `my_username <- keyring::key_list("SECPR")[1, 2]`: Retrieves the username associated with the Oracle database "SECPR" from the keyring package. It accesses the first entry (row) and the second column, assuming the username is stored in the second column.

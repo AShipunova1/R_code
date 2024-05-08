@@ -26,7 +26,7 @@ the ending pattern of the column names to search for
 The function is designed to search for column names within a dataframe that contain a specific pattern defined by `start_part` and `end_part`.
 
 1. **Function Definition:**
-   -`function (mydf, start_part, end_part) { ... }`: Defines a function with three arguments: `mydf` (the dataframe to search), `start_part` (the starting pattern of the column names to search for), and `end_part` (the ending pattern of the column names to search for).
+   -`function (mydf, start_part, end_part) \{ .. \}`: Defines a function with three arguments: `mydf` (the dataframe to search), `start_part` (the starting pattern of the column names to search for), and `end_part` (the ending pattern of the column names to search for).
 
 2. **Constructing Regular Expression:**
    - `to_search <- paste0(start_part, ".*", end_part)`: Constructs a regular expression pattern by concatenating `start_part`, ".*" (which matches any characters zero or more times), and `end_part`. This pattern will be used to search for matching column names.

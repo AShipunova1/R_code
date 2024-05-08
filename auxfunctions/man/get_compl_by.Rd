@@ -26,7 +26,7 @@ List of variable names for which unique values will be spread into columns.
 The `get_compl_by` function aims to organize compliance data by grouping and pivoting it into a wider format.
 
 1. **Function Definition:**
-   - `get_compl_by <- function(my_df, group_by_for_compl = vars(-c("vessel_official_number", "compliant_", "overridden_")), names_from_list = c("vessel_official_number")) { ... }`: Defines a function named `get_compl_by` that takes three arguments: `my_df` (the data frame containing compliance data), `group_by_for_compl` (variables to group the data by for compliance), and `names_from_list` (list of variable names for which unique values will be spread into columns).
+   - `get_compl_by <- function(my_df, group_by_for_compl = vars(-c("vessel_official_number", "compliant_", "overridden_")), names_from_list = c("vessel_official_number")) \{ .. \}`: Defines a function named `get_compl_by` that takes three arguments: `my_df` (the data frame containing compliance data), `group_by_for_compl` (variables to group the data by for compliance), and `names_from_list` (list of variable names for which unique values will be spread into columns).
 
 2. **Grouping Data:**
    - `my_df %>% dplyr::group_by_at(group_by_for_compl)`: Groups the data frame `my_df` by the variables specified in `group_by_for_compl` using `group_by_at` from `dplyr`.

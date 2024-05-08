@@ -15,7 +15,7 @@ get_current_file_directory()
 The `get_current_file_directory` function is designed to retrieve the directory of the currently opened file in RStudio.
 
 1. **Function Definition:**
-   - `get_current_file_directory <- function() { ... }`: Defines a function named `get_current_file_directory` with no arguments.
+   - `get_current_file_directory <- function() \{ .. \}`: Defines a function named `get_current_file_directory` with no arguments.
 
 2. **Using RStudio API:**
    - `rstudioapi::getSourceEditorContext()`: Utilizes the `getSourceEditorContext` function from the RStudio API to access information about the current source editor context, including the path of the currently open file.
