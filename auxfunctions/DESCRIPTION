@@ -4,6 +4,7 @@ Title: Auxiliary Functions for SEFHIER Data Analysis
 Version: 1.0
 Date: 2024-05-07
 Author: Anna Shipunova
-Maintainer: anna.shipunova@noaa.gov
+Maintainer: Anna Shipunova <anna.shipunova@noaa.gov>
 Description: Functions for preparing and analyzing SEFHIER Data.
-License: MIT
+License: GPL-2
+RoxygenNote: 7.3.1
