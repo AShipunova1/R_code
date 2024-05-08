@@ -46,7 +46,9 @@ A spatial object.
 %%  Anna Shipunova
 }
 \note{
-%%  ~~further notes~~
+Example:
+sa_shp <- sf::read_sf(sa_path)
+
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
