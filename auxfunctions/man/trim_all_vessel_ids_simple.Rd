@@ -2,10 +2,11 @@
 \alias{trim_all_vessel_ids_simple}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A Capitalized Title (ideally limited to 65 characters)
+Trim All Vessel IDs
 }
+
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+This auxiliary function processes vessel ID columns in each data frame by trimming leading and trailing whitespace, making the data more consistent and easier to work with. If the column name is not provided, it attempts to detect it automatically.
 }
 \usage{
 trim_all_vessel_ids_simple(csvs_clean_ws, col_name_to_trim = NA)
@@ -20,7 +21,19 @@ trim_all_vessel_ids_simple(csvs_clean_ws, col_name_to_trim = NA)
 }
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+1. **Function Definition:**
+   - `trim_all_vessel_ids_simple <- function (csvs_clean_ws, col_name_to_trim = NA)`: Defines a function named `trim_all_vessel_ids_simple` that takes two arguments: `csvs_clean_ws`, a list of data frames to process, and `col_name_to_trim`, the name of the column containing vessel IDs to be trimmed. This argument is set to `NA` by default.
+
+2. **Column Name Detection:**
+   - `if (is.na(col_name_to_trim)) { ... }`: Checks if the `col_name_to_trim` argument is not provided. If it's not provided, the function attempts to detect the column name containing vessel IDs.
+   - `col_name_to_trim <- grep("vessel.*official.*number", tolower(names(x)), value = TRUE)`: Uses `grep` to search for column names containing variations of "vessel official number" (case-insensitive) within the column names of the first data frame (`x`) in the list. This is assigned to `col_name_to_trim`.
+
+3. **Column Trimming:**
+   - `col_name_to_trim_s <- rlang::sym(col_name_to_trim)`: Converts `col_name_to_trim` to a symbol using `rlang::sym`. Symbols are used to refer to columns in a non-standard evaluation context.
+   - `x %>% dplyr::mutate(vessel_official_number = trimws(!!col_name_to_trim_s))`: Applies the `trimws` function to the column specified by `col_name_to_trim_s` within each data frame (`x`) in the list. This removes leading and trailing whitespace from the vessel IDs.
+
+4. **Returning Processed Data Frames:**
+   - `return(csvs_clean)`: Returns the list of data frames with trimmed vessel IDs.
 }
 \value{
 %%  ~Describe the value returned
@@ -36,7 +49,7 @@ trim_all_vessel_ids_simple(csvs_clean_ws, col_name_to_trim = NA)
 %%  Anna Shipunova
 }
 \note{
-%%  ~~further notes~~
+Usually used from auxfunctions::clean_all_csvs()
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
@@ -50,15 +63,15 @@ trim_all_vessel_ids_simple(csvs_clean_ws, col_name_to_trim = NA)
 ##--	or standard data sets, see data().
 
 ## The function is currently defined as
-function (csvs_clean_ws, col_name_to_trim = NA) 
+function (csvs_clean_ws, col_name_to_trim = NA)
 {
     csvs_clean <- lapply(csvs_clean_ws, function(x) {
         if (is.na(col_name_to_trim)) {
-            col_name_to_trim <- grep("vessel.*official.*number", 
+            col_name_to_trim <- grep("vessel.*official.*number",
                 tolower(names(x)), value = TRUE)
         }
         col_name_to_trim_s <- rlang::sym(col_name_to_trim)
-        x \%>\% dplyr::mutate(vessel_official_number = trimws(!!col_name_to_trim_s)) \%>\% 
+        x \%>\% dplyr::mutate(vessel_official_number = trimws(!!col_name_to_trim_s)) \%>\%
             return()
     })
     return(csvs_clean)
