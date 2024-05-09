@@ -30,21 +30,15 @@ export("add_cnt_in_gr", "add_compliant_after_override",
        "write_to_1_flat_file")
 
 import(
-dplyr,
-keyring,
-readr,
-rlang,
-stringr,
-rstudioapi,
-sf,
-tictoc,
-purrr,
-tidyr
+  dplyr
 )
 
 importFrom("crayon", "bgCyan")
 importFrom("crayon", "blue")
 importFrom("cowplot", "get_legend")
+importFrom("keyring", "key_list")
+importFrom("keyring", "key_list")
+importFrom("keyring", "key_get")
 importFrom("magrittr", "%<>%")
 importFrom("DBI", "dbConnect")
 importFrom("DBI", "dbDriver")
@@ -53,3 +47,25 @@ importFrom("utils", "head")
 importFrom("openxlsx", "read.xlsx")
 importFrom("lubridate", "today")
 importFrom("ggplot2", "ggsave")
+importFrom("rstudioapi", "getSourceEditorContext")
+importFrom("sf", "st_crs")
+importFrom("sf", "st_as_sf")
+importFrom("tictoc", "tic")
+importFrom("tictoc", "toc")
+importFrom("purrr", "map")
+importFrom("purrr", "imap")
+importFrom("purrr", "map_df")
+importFrom("readr", "read_csv")
+importFrom("readr", "read_rds")
+importFrom("readr", "write_rds")
+importFrom("readr", "read_lines")
+importFrom("rlang", "sym")
+importFrom("rlang", ":=").
+importFrom("tidyr", "pivot_longer")
+importFrom("tidyr", "pivot_wider")
+importFrom("stringr", "str_glue")
+importFrom("stringr", "str_squish")
+importFrom("stringr", "str_replace_all")
+importFrom("stringr", "str_trim")
+
+
