@@ -396,7 +396,7 @@ head(corresp_contact_cnts_clean_direct_cnt_2atmps$contact_date, 1) |> str()
 
 corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates <-
   corresp_contact_cnts_clean_direct_cnt_2atmps |>
-  mutate(
+  dplyr::mutate(
     created_on_dttm =
       lubridate::parse_date_time(created_on,
                                  c("mdY R")),
@@ -422,7 +422,7 @@ str(corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates$contact_date_dttm)
 # 2. Pass the column names and other parameters to the 'by', 'multiple', and 'relationship' arguments.
 
 compl_corr_to_investigation <-
-  inner_join(
+  dplyr::inner_join(
     corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates,
     compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present,
     by = c("vessel_official_number"),
@@ -433,13 +433,13 @@ compl_corr_to_investigation <-
 dim(compl_corr_to_investigation)
 
 # check
-n_distinct(compl_corr_to_investigation$vesselofficial_number)
+dplyr::n_distinct(compl_corr_to_investigation$vesselofficial_number)
 
 # View(compl_corr_to_investigation)
 
 ## save number of vessels to investigate for checks ----
 num_of_vsl_to_investigate <- 
-  n_distinct(compl_corr_to_investigation$vesselofficial_number)
+  dplyr::n_distinct(compl_corr_to_investigation$vesselofficial_number)
 
 # Results: Compl & corresondence together are in
 # compl_corr_to_investigation
@@ -499,14 +499,14 @@ unused_fields <- c(
 compl_corr_to_investigation_short <-
   compl_corr_to_investigation |>
   # compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id |>
-  select(-any_of(unused_fields)) |>
-  group_by(vessel_official_number) |>
-  summarise_all(concat_unique) |>
-  ungroup()
+  dplyr::select(-any_of(unused_fields)) |>
+  dplyr::group_by(vessel_official_number) |>
+  dplyr::summarise_all(concat_unique) |>
+  dplyr::ungroup()
 
 # print_df_names(compl_corr_to_investigation_short)
 
-compl_corr_to_investigation_short |> glimpse()
+compl_corr_to_investigation_short |> dplyr::glimpse()
 
 dim(compl_corr_to_investigation_short)
 
@@ -535,21 +535,26 @@ contactphonenumber_field_name <-
 # 7. Return the resulting dataframe.
 get_date_contacttype <-
   function(my_df) {
-    my_df |>
+  
+    res <-
+      my_df |>
       # add a new column date__contacttype with contactdate and contacttype
-      mutate(date__contacttype =
-                      paste(!!sym(contactdate_field_name),
-                            !!sym(contacttype_field_name))) |>
+      dplyr::mutate(date__contacttype =
+                      paste(
+                        !!rlang::sym(contactdate_field_name),
+                        !!rlang::sym(contacttype_field_name)
+                      )) |>
       # use 2 columns only
-      select(vessel_official_number, date__contacttype) |>
+      dplyr::select(vessel_official_number, date__contacttype) |>
       # sort
-      arrange(vessel_official_number, date__contacttype) |>
-      distinct() |>
-      group_by(vessel_official_number) |>
+      dplyr::arrange(vessel_official_number, date__contacttype) |>
+      dplyr::distinct() |>
+      dplyr::group_by(vessel_official_number) |>
       # for each vessel id combine all date__contacttypes separated by comma in one cell
-      summarise(date__contacttypes = 
-                  paste(date__contacttype, collapse = ", ")) %>%
-      return()
+      dplyr::summarise(date__contacttypes =
+                         paste(date__contacttype, collapse = ", "))
+    
+    return(res)
   }
 
 # use the function
@@ -558,32 +563,32 @@ date__contacttype_per_id <-
 
 dim(date__contacttype_per_id)
 
-# glimpse(date__contacttype_per_id)
+dplyr::glimpse(date__contacttype_per_id)
 
 #### add the new column back ----
 compl_corr_to_investigation__corr_date <-
-  left_join(compl_corr_to_investigation_short,
+  dplyr::left_join(compl_corr_to_investigation_short,
             date__contacttype_per_id) |>
   # Joining with `by = join_by(vessel_official_number)`
   # this columns are not longer needed
-  select(-all_of(c(
+  dplyr::select(-dplyr::all_of(c(
     contactdate_field_name,
     contacttype_field_name
   )))
   
 # check
 compl_corr_to_investigation__corr_date |> 
-  glimpse()
+  dplyr::glimpse()
 
 ### add pims home port info ----
 # compl_corr_to_investigation_short_dup_marked__hailing_port <-
 compl_corr_to_investigation__corr_date__hailing_port <- 
-  left_join(
+  dplyr::left_join(
     compl_corr_to_investigation__corr_date,
     processed_pims_home_ports,
-    join_by(vessel_official_number)
+    dplyr::join_by(vessel_official_number)
   ) |> 
-  rename("hailing_port_city" = city_fixed,
+  dplyr::rename("hailing_port_city" = city_fixed,
          "hailing_port_state" = state_fixed)
 
 # stopped here with compl_corr_to_investigation__corr_date__hailing_port
@@ -592,7 +597,7 @@ compl_corr_to_investigation__corr_date__hailing_port <-
 
 prep_addresses_path <-
   file.path(current_project_path,
-            str_glue("{current_project_basename}_prep_addresses.R"))
+            stringr::str_glue("{current_project_basename}_prep_addresses.R"))
 
 file.exists(prep_addresses_path)
 
