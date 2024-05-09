@@ -8,9 +8,10 @@ Maintainer: Anna Shipunova <anna.shipunova@noaa.gov>
 Description: Functions for preparing and analyzing SEFHIER Data.
 License: GPL (>= 3)
 Depends:
+  dplyr
+Imports:
   cowplot,
   crayon,
-  dplyr,
   ggplot2,
   keyring,
   readr,
