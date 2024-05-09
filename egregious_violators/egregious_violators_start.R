@@ -121,11 +121,11 @@ compl_clean_w_permit_exp <-
 compl_clean_w_permit_exp__not_exp <-
   compl_clean_w_permit_exp |>
   # the last 27 week
-  filter(week_start > half_year_ago) |>
+  dplyr::filter(week_start > half_year_ago) |>
   # before the last week (a report's grace period)
-  filter(week_end < last_week_start) |>
+  dplyr::filter(week_end < last_week_start) |>
   # not expired
-  filter(tolower(permit_expired) == "no")
+  dplyr::filter(tolower(permit_expired) == "no")
 
 min(compl_clean_w_permit_exp__not_exp$permit_groupexpiration)
 # [1] "2024-02-29 EST"
@@ -143,9 +143,9 @@ max(compl_clean_w_permit_exp__not_exp$week_end)
 
 compl_clean_w_permit_exp_last_half_year <-
   compl_clean_w_permit_exp__not_exp |>
-  mutate(year_month = as.yearmon(week_start)) |>
+  dplyr::mutate(year_month = as.yearmon(week_start)) |>
   # keep entries for the last check period
-  filter(year_month >= as.yearmon(half_year_ago))
+  dplyr::filter(year_month >= as.yearmon(half_year_ago))
 
 dim(compl_clean_w_permit_exp)
 
@@ -155,7 +155,7 @@ dim(compl_clean_w_permit_exp_last_half_year)
 # Use 'filter' to select rows where 'permitgroup' contains "CDW", "CHS", or "SC".
 compl_clean_w_permit_exp_last_half_year__sa <-
   compl_clean_w_permit_exp_last_half_year |>
-  filter(grepl("CDW|CHS|SC", permitgroup))
+  dplyr::filter(grepl("CDW|CHS|SC", permitgroup))
 
 # today()
 # [1] "2023-08-01"
@@ -186,26 +186,26 @@ remove_columns <- c(
 # 2. Use 'distinct' to keep only unique rows in the resulting data frame.
 compl_clean_w_permit_exp_last_half_year__sa__short <-
   compl_clean_w_permit_exp_last_half_year__sa |>
-  select(-any_of(remove_columns)) |> 
-  distinct()
+  dplyr::select(-dplyr::any_of(remove_columns)) |> 
+  dplyr::distinct()
 
 dim(compl_clean_w_permit_exp_last_half_year__sa__short)
 
 ## work with the whole period ----
 ## add compliant_after_overr ----
 
-tic("compl_overr")
+tictoc::tic("compl_overr")
 compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr <-
   compl_clean_w_permit_exp_last_half_year__sa__short |>
   add_compliant_after_override(overridden_col_name = "overridden_",
                                compliance_col_name = "compliant_")
-toc()
+tictoc::toc()
 # compl_overr: 8.76 sec elapsed
 
 # check
 compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr |> 
-  select(compliant_, overridden_, compliant_after_override) |>
-  count(compliant_, overridden_, compliant_after_override)
+  dplyr::select(compliant_, overridden_, compliant_after_override) |>
+  dplyr::count(compliant_, overridden_, compliant_after_override)
 #   compliant_ overridden_ compliant_after_override     n
 #   <chr>      <chr>       <chr>                    <int>
 # 1 NO         NO          no                       11258
@@ -220,8 +220,8 @@ compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr$compliant_a
 dim(compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr)
 
 # check
-n_distinct(compl_clean_w_permit_exp_last_half_year__sa$vessel_official_number) ==
-  n_distinct(
+dplyr::n_distinct(compl_clean_w_permit_exp_last_half_year__sa$vessel_official_number) ==
+  dplyr::n_distinct(
     compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr$vessel_official_number
   )
 # T
@@ -230,15 +230,15 @@ n_distinct(compl_clean_w_permit_exp_last_half_year__sa$vessel_official_number) =
 compl_clean_w_permit_exp_last_half_year__sa_non_c <-
   compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr |>
   # not compliant
-  filter(tolower(compliant_after_override) == "no")
+  dplyr::filter(tolower(compliant_after_override) == "no")
 
 dim(compl_clean_w_permit_exp_last_half_year__sa_non_c)
 
 ## keep only vessels with info for all weeks in the period ----
 all_weeks_num <-
   compl_clean_w_permit_exp_last_half_year__sa_non_c |>
-  select(week) |>
-  distinct() |>
+  dplyr::select(week) |>
+  dplyr::distinct() |>
   nrow()
 
 # Explanations:
@@ -249,10 +249,10 @@ all_weeks_num <-
 
 compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present <-
   compl_clean_w_permit_exp_last_half_year__sa_non_c |>
-  group_by(vessel_official_number) |>
-  filter(n_distinct(week) >= all_weeks_num) |> 
-  ungroup() |> 
-  select(-week)
+  dplyr::group_by(vessel_official_number) |>
+  dplyr::filter(dplyr::n_distinct(week) >= all_weeks_num) |> 
+  dplyr::ungroup() |> 
+  dplyr::select(-week)
 
 compl_clean_w_permit_exp_last_half_year__sa_non_c |> dim()
 
@@ -262,21 +262,21 @@ dim(compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present)
 ### get ids only ----
 compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present__vesl_ids <-
   compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present |>
-  select(vessel_official_number) |>
-  distinct()
+  dplyr::select(vessel_official_number) |>
+  dplyr::distinct()
 
 dim(compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present__vesl_ids)
 
 ### check these ids in the full compliance information ----
 compl_clean_w_permit_exp_last_half_year__sa |>
-  filter(
+  dplyr::filter(
     vessel_official_number %in% compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present__vesl_ids$vessel_official_number
   ) |>
   # dim()
   # [1] 3146   23
   # [1] 1938   22
-  group_by(vessel_official_number) |>
-  filter(
+  dplyr::group_by(vessel_official_number) |>
+  dplyr::filter(
     tolower(compliant_) == "yes" &
       tolower(overridden_) == "yes" &
       # not the current month
@@ -295,9 +295,9 @@ compl_clean_w_permit_exp_last_half_year__sa |>
 # 1. Use 'filter' to select rows where 'vessel_official_number' does not start with "99999".
 corresp_contact_cnts_clean <-
   corresp_contact_cnts_clean0 |>
-  filter(!grepl("^99999", vessel_official_number))
+  dplyr::filter(!grepl("^99999", vessel_official_number))
 
-n_distinct(corresp_contact_cnts_clean$vesselofficial_number)
+dplyr::n_distinct(corresp_contact_cnts_clean$vesselofficial_number)
 
 # "2023-08-09"
 # Michelle
@@ -314,18 +314,18 @@ n_distinct(corresp_contact_cnts_clean$vesselofficial_number)
 
 # check
 corresp_contact_cnts_clean |>
-  select(calltype, voicemail, contacttype) |>
-  distinct() |> head(10)
+  dplyr::select(calltype, voicemail, contacttype) |>
+  dplyr::distinct() |> head(10)
 
 ## Filters ----
 # The functions below are creating filter conditions using quosures. Quosures are a part of tidy evaluation in R, allowing expressions to be captured without evaluation, which is useful for creating functions with flexible inputs.
 
 we_called_filter <-
-  quo(any(tolower(contacttype) == "call" &
+  dplyr::quo(any(tolower(contacttype) == "call" &
         tolower(calltype) == "outgoing"))
 
 we_emailed_once_filter <-
-  quo(any(
+  dplyr::quo(any(
     tolower(contacttype) %in% c("email", "other") &
       tolower(calltype) == "outgoing"
   ))
@@ -339,13 +339,13 @@ we_emailed_once_filter <-
 # 
 # The `exclude_no_contact_made_filter` function effectively creates a filter condition that can be used to exclude rows where "No contact made" is found in the `contactcomments` column when applied to a dataset.
 exclude_no_contact_made_filter <-
-  quo(!grepl("No contact made", 
+  dplyr::quo(!grepl("No contact made", 
             contactcomments, 
             ignore.case = TRUE))
 
 # don't need a second contact
 they_contacted_direct_filter <-
-  quo(
+  dplyr::quo(
     any(
       tolower(calltype) == "incoming"
       )
@@ -369,18 +369,18 @@ they_contacted_direct_filter <-
 corresp_contact_cnts_clean_direct_cnt_2atmps <-
   corresp_contact_cnts_clean |>
   # select(calltype) |> distinct()
-  filter(tolower(calltype) == "incoming" |
+  dplyr::filter(tolower(calltype) == "incoming" |
            (
              contact_freq > 1 &
                (!!we_called_filter &
                   !!we_emailed_once_filter)
            )) |> 
-  filter(!!no_contact_made_filter)
+  dplyr::filter(!!exclude_no_contact_made_filter)
 
 dim(corresp_contact_cnts_clean)
 dim(corresp_contact_cnts_clean_direct_cnt_2atmps)
 
-n_distinct(corresp_contact_cnts_clean_direct_cnt_2atmps$vesselofficial_number)
+dplyr::n_distinct(corresp_contact_cnts_clean_direct_cnt_2atmps$vesselofficial_number)
 
 ## fix dates ----
 # check
