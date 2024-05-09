@@ -228,15 +228,15 @@ db_participants_address__needed_short__erv_erb_combined_short |>
 
 db_participants_address__needed_short__erv_erb_combined_short__u <-
   col_part_names |>
-  map(\(curr_col_part)  {
     # browser()
-    old_col_name <- str_glue("db_{curr_col_part}")
-    new_col_name <- str_glue("db_{curr_col_part}_u")
+  purrr::map(\(curr_col_part)  {
+    old_col_name <- stringr::str_glue("db_{curr_col_part}")
+    new_col_name <- stringr::str_glue("db_{curr_col_part}_u")
     cat(new_col_name, sep = "\n")
     
     db_participants_address__needed_short__erv_erb_combined_short |>
-      group_by(official_number) |>
       mutate(!!new_col_name := list(paste(sort(unique(str_trim(flatten(!!sym(old_col_name))))))),
+      dplyr::group_by(official_number) |>
              .keep = "none" ) |>
       ungroup() |>
       select(-official_number)
