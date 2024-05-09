@@ -79,11 +79,11 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>
 # print_df_names(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
 no_addr_vsl_ids <- 
   compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |> 
-  filter(physical_address_1 %in% is_empty) |> 
-  select(vessel_official_number) |> 
-  distinct()
+  dplyr::filter(physical_address_1 %in% is_empty) |> 
+  dplyr::select(vessel_official_number) |> 
+  dplyr::distinct()
 
-n_distinct(no_addr_vsl_ids$vessel_official_number)
+dplyr::n_distinct(no_addr_vsl_ids$vessel_official_number)
 # 109
 # 71
 # [1] "656222"   "FL0450JN"
@@ -91,19 +91,19 @@ n_distinct(no_addr_vsl_ids$vessel_official_number)
 # From Oracle db ----
 db_participants_address__needed <-
   db_participants_address |>
-  filter(official_number %in% no_addr_vsl_ids$vessel_official_number) |>
-  distinct()
+  dplyr::filter(official_number %in% no_addr_vsl_ids$vessel_official_number) |>
+  dplyr::distinct()
 
 dim(db_participants_address__needed)
 # [1] 139  37
 
-n_distinct(db_participants_address__needed$official_number)
+dplyr::n_distinct(db_participants_address__needed$official_number)
 # 71
 
 ## keep fewer columns ----
 db_participants_address__needed_short <-
   db_participants_address__needed |>
-  select(
+  dplyr::select(
     official_number,
     all_of(ends_with("entity_name")),
     all_of(ends_with("primary_email")),
@@ -123,24 +123,24 @@ db_participants_address__needed_short <-
     all_of(ends_with("mailing_state")),
     all_of(ends_with("mailing_zip_code"))
   ) |>
-  distinct()
+  dplyr::distinct()
 
 nrow(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
 # 199
-n_distinct(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr$vessel_official_number)
+dplyr::n_distinct(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr$vessel_official_number)
 # 199
 # one vessel per row
 
 # have to combine rows
 dim(db_participants_address__needed_short)
 # 106
-n_distinct(db_participants_address__needed_short$official_number)
+dplyr::n_distinct(db_participants_address__needed_short$official_number)
 # 71
 
 ## combine area and phone numbers ----
 db_participants_address__needed_short__phone0 <- 
   db_participants_address__needed_short |> 
-  mutate(erv_phone = paste0(erv_ph_area, erv_ph_number),
+  dplyr::mutate(erv_phone = paste0(erv_ph_area, erv_ph_number),
          erb_phone = paste0(erb_ph_area, erb_ph_number))
 
 ## make erv and erb combinations ----
@@ -164,42 +164,43 @@ col_part_names <-
     "mailing_zip_code"
   )
 
-tic("map all pairs")
+tictoc::tic("map all pairs")
 db_participants_address__needed_short__erv_erb_combined3 <-
   col_part_names |>
-  map(\(curr_col_part)  {
-    new_col_name <- str_glue("db_{curr_col_part}")
+  purrr::map(\(curr_col_part)  {
+    new_col_name <- stringr::str_glue("db_{curr_col_part}")
     # cat(new_col_name, sep = "\n")
     
     db_participants_address__needed_short__phone0 |>
-      group_by(official_number) |>
-      mutate(!!new_col_name := pmap(across(ends_with(curr_col_part)),
+      dplyr::group_by(official_number) |>
+      dplyr::mutate(!!new_col_name := 
+                      purrr::pmap(dplyr::across(dplyr::ends_with(curr_col_part)),
                                     ~ list_sort_uniq(.)),
              .keep = "none" ) |>
-      ungroup() |>
-      select(-official_number)
+      dplyr::ungroup() |>
+      dplyr::select(-official_number)
     
   }) %>%
-  bind_cols(db_participants_address__needed_short__phone0, .)
-toc()
+  dplyr::bind_cols(db_participants_address__needed_short__phone0, .)
+tictoc::toc()
 # map all pairs: 14.31 sec elapsed
 
 ### shorten ----
 db_participants_address__needed_short__erv_erb_combined_short <-
   db_participants_address__needed_short__erv_erb_combined3 |>
-  select(official_number,
-         all_of(starts_with("db_"))) |> 
-  distinct()
+  dplyr::select(official_number,
+         dplyr::all_of(dplyr::starts_with("db_"))) |> 
+  dplyr::distinct()
 
 dim(db_participants_address__needed_short__erv_erb_combined_short)
 # 94 17
 
-n_distinct(db_participants_address__needed_short__erv_erb_combined_short$official_number)
+dplyr::n_distinct(db_participants_address__needed_short__erv_erb_combined_short$official_number)
 # 71
 
 db_participants_address__needed_short__erv_erb_combined_short |> 
-  filter(official_number == "1235397") |>
-  glimpse()
+  dplyr::filter(official_number == "1235397") |>
+  dplyr::glimpse()
 # $ official_number      <chr> "1235397", "1235397"
 # $ db_entity_name       <list> ["DC SERVICE AND MAINTENANCE"], ["DAVID A RUBINO"]
 # $ db_primary_email     <list> ["Acemechanicalcd@aol.com"], ["Acemechanicalcd@aol.…
