@@ -54,7 +54,7 @@ corresp_contact_cnts_clean0 <- temp_var[[2]]
 names(compl_clean_list) <- c(my_year1, my_year2)
 
 # check
-map(compl_clean_list, dim)
+purrr::map(compl_clean_list, dim)
 
 # combine years in one df
 compl_clean <-
@@ -90,8 +90,8 @@ processed_metrics_tracking_file_names <-
 
 # read the rest
 processed_metrics_tracking_permits <-
-  map_df(processed_metrics_tracking_file_names,
-         read_rds)
+  purrr::map_df(processed_metrics_tracking_file_names,
+         readr::read_rds)
 
 # lower names case
 names(processed_metrics_tracking_permits) <-
@@ -114,9 +114,9 @@ fhier_addresses_path <-
 file.exists(fhier_addresses_path)
 
 fhier_addresses <-
-  read_csv(fhier_addresses_path,
+  readr::read_csv(fhier_addresses_path,
            # read all as characters
-           col_types = cols(.default = 'c'),
+           col_types = readr::cols(.default = 'c'),
            name_repair = fix_names)
 
 # View(fhier_addresses)
@@ -130,7 +130,7 @@ processed_pims_home_ports_path <-
               "vessels_from_pims_ports.csv")
 
 processed_pims_home_ports <- 
-  read_csv(processed_pims_home_ports_path)
+  readr::read_csv(processed_pims_home_ports_path)
 
 # View(processed_pims_home_ports)
 # View(vessels_from_pims) - more fields
