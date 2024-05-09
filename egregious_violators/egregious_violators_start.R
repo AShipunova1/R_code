@@ -316,6 +316,8 @@ corresp_contact_cnts_clean |>
   distinct() |> head(10)
 
 ## Filters ----
+# The functions below are creating filter conditions using quosures. Quosures are a part of tidy evaluation in R, allowing expressions to be captured without evaluation, which is useful for creating functions with flexible inputs.
+
 we_called_filter <-
   quo(any(tolower(contacttype) == "call" &
         tolower(calltype) == "outgoing"))
@@ -326,6 +328,14 @@ we_emailed_once_filter <-
       tolower(calltype) == "outgoing"
   ))
 
+# Explanations:
+# 
+# **Expression inside quo()**:
+#    - `!grepl("No contact made", contactcomments, ignore.case = TRUE)`: This expression is a negation of the `grepl` function, which is used to search for a pattern ("No contact made") in the `contactcomments` column.
+#    - `grepl()` returns `TRUE` for each element of `contactcomments` that contains the pattern, and `FALSE` otherwise.
+#    - The `!` operator negates the result, so the filter condition will be `TRUE` for rows where "No contact made" is not found in the `contactcomments` column.
+# 
+# The `exclude_no_contact_made_filter` function effectively creates a filter condition that can be used to exclude rows where "No contact made" is found in the `contactcomments` column when applied to a dataset.
 exclude_no_contact_made_filter <-
   quo(!grepl("No contact made", 
             contactcomments, 
@@ -354,7 +364,7 @@ they_contacted_direct_filter <-
 #         any(tolower(contacttype) == "call"))
 
 ### use the filters ----
-corresp_contact_cnts_clean_direct_cnt_2atmps_a <-
+corresp_contact_cnts_clean_direct_cnt_2atmps <-
   corresp_contact_cnts_clean |>
   # select(calltype) |> distinct()
   filter(tolower(calltype) == "incoming" |
@@ -364,6 +374,7 @@ corresp_contact_cnts_clean_direct_cnt_2atmps_a <-
                   !!we_emailed_once_filter)
            )) |> 
   filter(!!no_contact_made_filter)
+
   # filter(tolower(calltype) == "incoming" |
   #          (contact_freq > 1 &
   #             (
