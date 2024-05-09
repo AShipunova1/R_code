@@ -226,24 +226,32 @@ db_participants_address__needed_short__erv_erb_combined_short |>
 # 8. Keep only distinct rows in the final DataFrame using 'distinct'.
 # 9. The resulting DataFrame is stored in 'db_participants_address__needed_short__erv_erb_combined_short__u'.
 
-db_participants_address__needed_short__erv_erb_combined_short__u <-
+db_participants_address__needed_short__erv_erb_combined_short__u_temp <-
   col_part_names |>
-    # browser()
   purrr::map(\(curr_col_part)  {
+    # browser()
     old_col_name <- stringr::str_glue("db_{curr_col_part}")
     new_col_name <- stringr::str_glue("db_{curr_col_part}_u")
     cat(new_col_name, sep = "\n")
     
     db_participants_address__needed_short__erv_erb_combined_short |>
-      mutate(!!new_col_name := list(paste(sort(unique(str_trim(flatten(!!sym(old_col_name))))))),
       dplyr::group_by(official_number) |>
+      dplyr::mutate(!!new_col_name := list(paste(sort(unique(stringr::str_trim(purrr::list_flatten(!!sym(old_col_name))))))),
              .keep = "none" ) |>
-  }) %>%
-  bind_cols(db_participants_address__needed_short__erv_erb_combined_short, .) |> 
-  select(official_number, all_of(ends_with("_u"))) |> 
-  distinct()
       dplyr::ungroup() |>
       dplyr::select(-official_number)
+  })
+
+# glimpse(db_participants_address__needed_short__erv_erb_combined_short__u)
+# glimpse(db_participants_address__needed_short__erv_erb_combined_short)
+
+db_participants_address__needed_short__erv_erb_combined_short__u <-
+  dplyr::bind_cols(
+    db_participants_address__needed_short__erv_erb_combined_short,
+    db_participants_address__needed_short__erv_erb_combined_short__u_temp
+  ) |>
+  dplyr::select(official_number, dplyr::all_of(dplyr::ends_with("_u"))) |> 
+  dplyr::distinct()
 
 # db_participants_address__needed_short__erv_erb_combined_short__u |>
 #   filter(official_number == "1235397") |>
