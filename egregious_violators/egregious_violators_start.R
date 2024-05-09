@@ -14,10 +14,9 @@
 #                  repos = NULL,
 #                  type = "source")
 
-# update.packages("~/R_code_github/auxfunctions_1.0.tar.gz")
 library(auxfunctions)
 library(ROracle)
-# library(dplyr)
+library(dplyr)
 # library(stringr)
 # library(lubridate)
 # library(purrr)
@@ -590,8 +589,6 @@ compl_corr_to_investigation__corr_date__hailing_port <-
   ) |> 
   dplyr::rename("hailing_port_city" = city_fixed,
          "hailing_port_state" = state_fixed)
-
-# stopped here with compl_corr_to_investigation__corr_date__hailing_port
 
 ### add prepared addresses ----
 
