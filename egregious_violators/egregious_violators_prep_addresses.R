@@ -7,7 +7,7 @@ is_empty <- c(NA, "NA", "", "UN", "N/A")
 # fhier_addresses are from get_data (For-hire Primary Physical Address List)
 fhier_addr_short <-
   fhier_addresses |>
-  select(
+  dplyr::select(
     vessel_official_number,
     permit_holder_names,
     physical_address_1,
@@ -23,7 +23,7 @@ fhier_addr_short <-
 fhier_addr_short_clean <-
   fhier_addr_short |>
   clean_names_and_addresses() |> 
-  distinct()
+  dplyr::distinct()
 
 # nrow(fhier_addr_short_clean)
 
