@@ -14,6 +14,7 @@
 #                  repos = NULL,
 #                  type = "source")
 
+# update.packages("~/R_code_github/auxfunctions_1.0.tar.gz")
 library(auxfunctions)
 library(ROracle)
 # library(dplyr)
@@ -46,15 +47,15 @@ current_project_name <- current_project_basename
 all_inputs <- my_paths$inputs
 
 my_year1 <- "2023"
-my_beginning1 <- str_glue("{my_year1}-01-01")
-my_end1 <- str_glue("{my_year1}-12-31")
+my_beginning1 <- stringr::str_glue("{my_year1}-01-01")
+my_end1 <- stringr::str_glue("{my_year1}-12-31")
 
 my_year2 <- "2024"
-my_beginning2 <- str_glue("{my_year2}-01-01")
-my_end2 <- str_glue("{my_year2}-12-31")
+my_beginning2 <- stringr::str_glue("{my_year2}-01-01")
+my_end2 <- stringr::str_glue("{my_year2}-12-31")
 
 data_file_date <- 
-  today()
+  lubridate::today()
   # lubridate::ymd("2024-02-21")
   
 number_of_weeks_for_non_compliancy = 26
@@ -108,8 +109,8 @@ source(get_data_path)
 compl_clean_w_permit_exp <-
   compl_clean |>
   # if permit group expiration is after permit_expired_check_date than "not expired"
-  mutate(permit_expired =
-           case_when(
+  dplyr::mutate(permit_expired =
+           dplyr::case_when(
              permit_groupexpiration > permit_expired_check_date ~ "no",
              .default = "yes"
            ))
