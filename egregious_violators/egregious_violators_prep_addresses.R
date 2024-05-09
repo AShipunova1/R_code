@@ -260,22 +260,20 @@ db_participants_address__needed_short__erv_erb_combined_short__u <-
 ### convert to characters ----
 db_participants_address__needed_short__erv_erb_combined_short__u_no_c <-
   db_participants_address__needed_short__erv_erb_combined_short__u |>
-  rowwise() |>
-  mutate_if(is.list, ~ paste(unlist(.), collapse = '; ')) |>
-  ungroup()
+  dplyr::rowwise() |>
+  dplyr::mutate_if(is.list, ~ paste(unlist(.), collapse = '; ')) |>
+  dplyr::ungroup()
 
 # db_participants_address__needed_short__erv_erb_combined_short__u_no_c |>
 #   filter(official_number == "1235397") |>
 #   glimpse()
 # $ db_mailing_state_u     <chr> "NY"
-# $ db_mailing_zip_code_u  <chr> "11749; 11749-5010"
+# $ db_mailing_zip_code_u  <chr> "..; ..-.."
 
 ## rename fields ----
 db_participants_address__needed_short__erv_erb_combined_short__u_ok <-
   db_participants_address__needed_short__erv_erb_combined_short__u_no_c |>
-  rename_with(~ stringr::str_replace(.x,
-                                      pattern = "_u$",
-                                      replacement = ""))
+  dplyr::rename_with( ~ stringr::str_replace(.x, pattern = "_u$", replacement = ""))
 
 # Join fhier and Oracle db addresses ----
 compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr <-
