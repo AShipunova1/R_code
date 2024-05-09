@@ -1,5 +1,11 @@
 # to run this file ----
-source("~/R_code_github/useful_functions_module.r")
+# install.packages("~/R_code_github/auxfunctions_1.0.tar.gz",
+#                  repos = NULL,
+#                  type = "source")
+
+library(auxfunctions)
+
+# source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 
 # Get the current project directory name using the 'this.path' package.
@@ -12,7 +18,7 @@ curr_proj_output_path <- file.path(my_paths$outputs,
                          current_project_basename)
 
 flat_file_name <-
-  file.path(current_project_dir_name, 
+  file.path(current_project_dir_name,
             str_glue("{current_project_basename}_flat.R"))
 
 if (file.exists(flat_file_name)) {
