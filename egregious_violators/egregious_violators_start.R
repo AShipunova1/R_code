@@ -305,14 +305,17 @@ n_distinct(corresp_contact_cnts_clean$vesselofficial_number)
 # at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough
 
 ## new requirement 2024-02-26 ----
-# Michelle
 # It needs to be that we called at least 1 time and emailed at least 1 time. Or they contacted us at least once.
+
+## new requirement 2024-05-06 ----
+# Exclude any correspondence (regardless of the type - email/call, voicemail or not) that includes "No contact made" in the text of the entry as a actual "direct" contact for any egregious vessel.
 
 # check
 corresp_contact_cnts_clean |>
   select(calltype, voicemail, contacttype) |>
   distinct() |> head(10)
 
+## Filters ----
 we_called_filter <-
   quo(any(tolower(contacttype) == "call" &
         tolower(calltype) == "outgoing"))
@@ -322,6 +325,11 @@ we_emailed_once_filter <-
     tolower(contacttype) %in% c("email", "other") &
       tolower(calltype) == "outgoing"
   ))
+
+exclude_no_contact_made_filter <-
+  quo(!grepl("No contact made", 
+            contactcomments, 
+            ignore.case = TRUE))
 
 # don't need a second contact
 they_contacted_direct_filter <-
@@ -345,8 +353,8 @@ they_contacted_direct_filter <-
 #   quo(contact_freq > 1 &
 #         any(tolower(contacttype) == "call"))
 
-# use the filter
-corresp_contact_cnts_clean_direct_cnt_2atmps <-
+### use the filters ----
+corresp_contact_cnts_clean_direct_cnt_2atmps_a <-
   corresp_contact_cnts_clean |>
   # select(calltype) |> distinct()
   filter(tolower(calltype) == "incoming" |
@@ -354,7 +362,8 @@ corresp_contact_cnts_clean_direct_cnt_2atmps <-
              contact_freq > 1 &
                (!!we_called_filter &
                   !!we_emailed_once_filter)
-           ))
+           )) |> 
+  filter(!!no_contact_made_filter)
   # filter(tolower(calltype) == "incoming" |
   #          (contact_freq > 1 &
   #             (
@@ -368,6 +377,8 @@ corresp_contact_cnts_clean_direct_cnt_2atmps <-
   # filter(vesselofficial_number == '1149600') |>
   # glimpse()
 # filter(!!corresp_filter)
+
+diffdf(corresp_contact_cnts_clean_direct_cnt_2atmps, corresp_contact_cnts_clean_direct_cnt_2atmps_a)
 
 corresp_contact_cnts_clean_direct_cnt_2atmps |> 
   filter(vesselofficial_number == '1168661') |> 
