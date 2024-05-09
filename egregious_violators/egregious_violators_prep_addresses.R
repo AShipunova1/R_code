@@ -238,12 +238,12 @@ db_participants_address__needed_short__erv_erb_combined_short__u <-
       mutate(!!new_col_name := list(paste(sort(unique(str_trim(flatten(!!sym(old_col_name))))))),
       dplyr::group_by(official_number) |>
              .keep = "none" ) |>
-      ungroup() |>
-      select(-official_number)
   }) %>%
   bind_cols(db_participants_address__needed_short__erv_erb_combined_short, .) |> 
   select(official_number, all_of(ends_with("_u"))) |> 
   distinct()
+      dplyr::ungroup() |>
+      dplyr::select(-official_number)
 
 # db_participants_address__needed_short__erv_erb_combined_short__u |>
 #   filter(official_number == "1235397") |>
