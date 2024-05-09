@@ -375,33 +375,6 @@ corresp_contact_cnts_clean_direct_cnt_2atmps <-
            )) |> 
   filter(!!no_contact_made_filter)
 
-  # filter(tolower(calltype) == "incoming" |
-  #          (contact_freq > 1 &
-  #             (
-  #               any(
-  #                 tolower(contacttype) == "call" &
-  #                   tolower(calltype) == "outgoing" &
-  #                   tolower(contacttype) %in% c("email", "other") &
-  #                   tolower(calltype) == "outcoming"
-  #               )
-  #             ))) |>
-  # filter(vesselofficial_number == '1149600') |>
-  # glimpse()
-# filter(!!corresp_filter)
-
-diffdf(corresp_contact_cnts_clean_direct_cnt_2atmps, corresp_contact_cnts_clean_direct_cnt_2atmps_a)
-
-corresp_contact_cnts_clean_direct_cnt_2atmps |> 
-  filter(vesselofficial_number == '1168661') |> 
-  glimpse()
-
-# corresp_contact_cnts_clean |>
-#   filter(!!they_contacted_direct_filter |
-#   (contact_freq > 1 &
-#             (!!we_called_filter &
-#                !!we_emailed_once_filter))) |> 
-#   glimpse()
-
 dim(corresp_contact_cnts_clean)
 dim(corresp_contact_cnts_clean_direct_cnt_2atmps)
 
