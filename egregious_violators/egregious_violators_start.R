@@ -607,7 +607,7 @@ source(prep_addresses_path)
 
 vessels_to_mark_ids <-
   prev_result |>
-  select(vessel_official_number)
+  dplyr::select(vessel_official_number)
 
 dim(vessels_to_mark_ids)
 
@@ -618,9 +618,9 @@ dim(vessels_to_mark_ids)
 # For all other rows, it is marked as "new".
 compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked <-
   compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr |>
-  mutate(
+  dplyr::mutate(
     duplicate_w_last_time =
-      case_when(
+      dplyr::case_when(
         vessel_official_number %in%
           vessels_to_mark_ids$vessel_official_number ~ "duplicate",
         .default = "new"
@@ -630,10 +630,10 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_m
 dim(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked)
 
 ### check ----
-n_distinct(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked$vessel_official_number)
+dplyr::n_distinct(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked$vessel_official_number)
 
 compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked |>
-  count(duplicate_w_last_time)
+  dplyr::count(duplicate_w_last_time)
 # 1 duplicate               108
 # 2 new                      48
 
@@ -650,8 +650,8 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_m
 compl_corr_to_investigation_short_dup_marked__permit_region <-
   compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked |> 
   # compl_corr_to_investigation_short_dup_marked__permit_region__fhier_names__fhier_addr__mv_cols |>
-  mutate(permit_region =
-           case_when(
+  dplyr::mutate(permit_region =
+           dplyr::case_when(
              grepl("RCG|HRCG|CHG|HCHG", permitgroup) ~ "dual",
              !grepl("RCG|HRCG|CHG|HCHG", permitgroup) ~ "sa_only",
              .default = "other"
@@ -665,11 +665,11 @@ compl_corr_to_investigation_short_dup_marked__permit_region <-
 # The resulting count provides the frequency of each 'permit_region'.
 region_counts <-
   compl_corr_to_investigation_short_dup_marked__permit_region |>
-  select(vessel_official_number, permit_region) |>
-  distinct() |>
-  count(permit_region)
+  dplyr::select(vessel_official_number, permit_region) |>
+  dplyr::distinct() |>
+  dplyr::count(permit_region)
 
-n_distinct(compl_corr_to_investigation_short_dup_marked__permit_region$vessel_official_number)
+dplyr::n_distinct(compl_corr_to_investigation_short_dup_marked__permit_region$vessel_official_number)
 
 ### dual permitted cnts ----
 
@@ -679,13 +679,13 @@ region_counts$n[[1]] / (region_counts$n[[2]] + region_counts$n[[1]]) * 100
 ## add additional columns in front ----
 
 additional_column_name1 <-
-  str_glue(
+  stringr::str_glue(
     "Confirmed Egregious? (permits must still be active till {permit_expired_check_date}, missing past 6 months, and (1) they called/emailed us (incoming), or (2) at least 2 contacts (outgoing) with at least 1 call/other (voicemail counts) and at least 1 email)"
   )
 
 compl_corr_to_investigation_short_dup_marked__permit_region__add_columns <-
   compl_corr_to_investigation_short_dup_marked__permit_region |>
-  add_column(
+  tibble::add_column(
     !!(additional_column_name1) := NA,
     Notes = NA,
     .before = 2
@@ -696,14 +696,13 @@ compl_corr_to_investigation_short_dup_marked__permit_region__add_columns <-
 result_path <- 
   file.path(my_paths$outputs,
             current_project_basename,
-            str_glue("egregious_violators_to_investigate_{today()}.csv"))
+            stringr::str_glue("egregious_violators_to_investigate_{lubridate::today()}.csv"))
 
 compl_corr_to_investigation_short_dup_marked__permit_region__add_columns |>
-write_csv(result_path)
+readr::write_csv(result_path)
 
 cat("Result:",
     "compl_corr_to_investigation_short_dup_marked__permit_region__add_columns",
     "and",
-    str_glue("egregious_violators_to_investigate_{today()}.csv"),
+    stringr::str_glue("egregious_violators_to_investigate_{lubridate::today()}.csv"),
     sep = "\n")
-
