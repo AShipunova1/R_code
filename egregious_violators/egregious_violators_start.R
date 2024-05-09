@@ -2,6 +2,7 @@
 # 2) permits have not expired and were active for the same period as (1);
 # 3) the grace period is 7 days back from today.
 # 4) It needs to be that we called at least 1 time and emailed at least 1 time. Or they contacted us at least once.
+# 5) not counting any correspondence (regardless of the type - email/call, voicemail or not) that includes "No contact made" in the text of the entry as a actual "direct" contact for any egregious vessel (May 6 2024)
 
 # NB. Update (download) all input files every time before run.
 
