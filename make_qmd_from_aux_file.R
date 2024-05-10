@@ -6,15 +6,13 @@ curent_file_name_no_ext <- readline(prompt = "Print you file name: ")
 # In the input .R file:
 # add "#' " in front of comments to be shown as text
 # and #' as the last line of the visible comments
-# add #' ```{r, file = prep_addresses_path}
-# ```
+# add #' ```{r, file = prep_addresses_path} ```
 #  instead of source
 
 # In the output .qmd:
 # *) comment out "source" as needed (or turn on comment_out_sources to suppress all)
 # *) merge "# save setup chunk options to use later" with the next chunk
-# *) add
-# |>
+# *) add |>
 #   knitr::kable(caption = "My Caption")
 # for pretty tables
 
@@ -304,13 +302,13 @@ cat(
 # ---
 # add in front
 
-# tabset doesn't work with TOC
-cat(
-  '::: {.panel-tabset}',
-  file = file_paths$qmd,
-  append = TRUE,
-  sep = "\n"
-)
+# # tabset doesn't work with TOC
+# cat(
+#   '::: {.panel-tabset}',
+#   file = file_paths$qmd,
+#   append = TRUE,
+#   sep = "\n"
+# )
 
 # Don't use in the auxiliary file
 cat(
@@ -327,10 +325,10 @@ cat(
   sep = "\n"
 )
 
-# for tabset only
-cat(
-  ':::',
-  file = file_paths$qmd,
-  append = TRUE,
-  sep = "\n"
-)
+# # for tabset only
+# cat(
+#   ':::',
+#   file = file_paths$qmd,
+#   append = TRUE,
+#   sep = "\n"
+# )
