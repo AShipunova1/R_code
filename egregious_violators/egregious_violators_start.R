@@ -98,10 +98,10 @@ source(get_data_path)
 # db_participants_address
 # vessels_permits_participants
 
-# ---- Preparing compliance info ----
+# Preparing compliance info ----
 
 ## Permit Expiration ----
-### ---- add permit_expired column ----
+### add permit_expired column ----
 # Explanations:
 # 1. Add a new column 'permit_expired' using 'mutate'.
 # 2. Use 'case_when' to determine if 'permit_groupexpiration' is greater than permit_expired_check_date.
@@ -140,7 +140,7 @@ max(compl_clean_w_permit_exp__not_exp$week_start)
 max(compl_clean_w_permit_exp__not_exp$week_end)
 # [1] "2024-02-04"
 
-## ---- add year_month column ----
+## add year_month column ----
 
 compl_clean_w_permit_exp_last_half_year <-
   compl_clean_w_permit_exp__not_exp |>
@@ -152,7 +152,7 @@ dim(compl_clean_w_permit_exp)
 
 dim(compl_clean_w_permit_exp_last_half_year)
 
-## ---- Have only SA and dual permits ----
+## Have only SA and dual permits ----
 # Use 'filter' to select rows where 'permitgroup' contains "CDW", "CHS", or "SC".
 compl_clean_w_permit_exp_last_half_year__sa <-
   compl_clean_w_permit_exp_last_half_year |>
@@ -288,9 +288,9 @@ compl_clean_w_permit_exp_last_half_year__sa |>
 
 # Results: prepared Compliance is in compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present
 
-# ---- Preparing Correspondence ----
+# Preparing Correspondence ----
 
-## ---- remove 999999 ----
+## remove 999999 ----
 # Explanations:
 # Create a new data frame 'corresp_contact_cnts_clean' by filtering 'corresp_contact_cnts_clean0' based on the condition.
 # 1. Use 'filter' to select rows where 'vessel_official_number' does not start with "99999".
@@ -445,7 +445,7 @@ num_of_vsl_to_investigate <-
 # Results: Compl & corresondence together are in
 # compl_corr_to_investigation
 
-# ---- output needed investigation ----
+# output needed investigation ----
 #' %%%%% Prepare output
 #' 
 # 1. remove unused columns
