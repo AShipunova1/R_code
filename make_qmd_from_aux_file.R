@@ -1,6 +1,6 @@
 # change dir name!
 curent_project_name <- readline(prompt = "Print you project name: ")
-egregious_violators
+# egregious_violators
 curent_file_name <- readline(prompt = "Print you file name: ")
 
 # In the input .R file:
@@ -120,7 +120,7 @@ comment_out_sources <-
     return(flat_file_r_text)
   }
 
-# flat_file_r_text <- comment_out_sources(flat_file_r_text)
+flat_file_r_text <- comment_out_sources(flat_file_r_text)
 
 # It searches for lines starting with "#+" followed by a space and captures the content after that.
 # It captures a single quote or a slash.
@@ -203,12 +203,12 @@ flat_file_r_text <-
 # convert to Rmd ----
 # The 'knitr::spin' function is used to create an R Markdown (Rmd) file, but the 'knit' argument is set to 'FALSE', indicating that the document should not be fully knitted. Instead, this function generates an Rmd file from the R script without executing the code chunks.
 
-tic("rmd_text")
+tictoc::tic("rmd_text")
 rmd_text <-
   knitr::spin(text = flat_file_r_text,
               knit = FALSE,
               format = 'qmd')
-toc()
+tictoc::toc()
 # rmd_text: 0.11 sec elapsed
 
 # str(rmd_text)
@@ -273,43 +273,43 @@ registerS3method(
 # combine pieces into a Quarto file ----
 
 # Don't use in the auxiliary file
-# cat(
-#   pre_text,
-#   file = file_paths$qmd,
-#   # append = TRUE,
-#   sep = "\n"
-# )
-
-# ---
-# add in front
-
-# tabset doesn't work with TOC
-# cat(
-#   '::: {.panel-tabset}',
-#   file = file_paths$qmd,
-#   append = TRUE,
-#   sep = "\n"
-# )
-
-# Don't use in the auxiliary file
-# cat(
-#   setup_text,
-#   file = file_paths$qmd,
-#   append = TRUE,
-#   sep = "\n"
-# )
-
 cat(
-  rmd_text,
+  pre_text,
   file = file_paths$qmd,
   # append = TRUE,
   sep = "\n"
 )
 
+# ---
+# add in front
+
+# tabset doesn't work with TOC
+cat(
+  '::: {.panel-tabset}',
+  file = file_paths$qmd,
+  append = TRUE,
+  sep = "\n"
+)
+
+# Don't use in the auxiliary file
+cat(
+  setup_text,
+  file = file_paths$qmd,
+  append = TRUE,
+  sep = "\n"
+)
+
+cat(
+  rmd_text,
+  file = file_paths$qmd,
+  append = TRUE,
+  sep = "\n"
+)
+
 # for tabset only
-# cat(
-#   ':::',
-#   file = file_paths$qmd,
-#   append = TRUE,
-#   sep = "\n"
-# )
+cat(
+  ':::',
+  file = file_paths$qmd,
+  append = TRUE,
+  sep = "\n"
+)
