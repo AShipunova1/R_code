@@ -152,7 +152,7 @@ flat_file_r_text <-
 # like #' %%%%% Prepare data
 # not used in the auxiliary files
 
-add_2_top_sections <- function(flat_file_r_text) {
+add_topmost_sections <- function(flat_file_r_text) {
   flat_file_r_text <-
     gsub("(%%%%%+) ", # was defined in the original .R
          "# ",
@@ -162,7 +162,7 @@ add_2_top_sections <- function(flat_file_r_text) {
 }
 
 flat_file_r_text <-
-  add_2_top_sections(flat_file_r_text)
+  add_topmost_sections(flat_file_r_text)
 
 ## add layouts
 add_layouts <- function(flat_file_r_text) {
