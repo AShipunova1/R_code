@@ -3,14 +3,12 @@ curent_project_name <- readline(prompt = "Print you project name: ")
 # egregious_violators
 curent_file_name_no_ext <- readline(prompt = "Print you file name: ")
 
-# In the input .R file:
+# In the input .R script:
 # add "#' " in front of comments to be shown as text
 # and #' as the last line of the visible comments
-# add #' ```{r, file = prep_addresses_path} ```
-#  instead of source
+# add #+, file = prep_addresses_path, instead of a source, to be converted in a chunk
 
 # In the output .qmd:
-# *) comment out "source" as needed (or turn on comment_out_sources to suppress all)
 # *) merge "# save setup chunk options to use later" with the next chunk
 # *) add |>
 #   knitr::kable(caption = "My Caption")
@@ -130,14 +128,12 @@ flat_file_r_text <-
 # grep("file =", flat_file_r_text, value = T)
 
 # replace sourcing files with "file = "
-
 comment_out_sources <-
   function(my_text) {
     my_res_text <-
       stringr::str_replace(my_text,
         "^\\s*[^#]*source\\((.+)\\)", 
-"#+, file = \\1
-"
+"#+, file = \\1"
       )
     return(my_res_text)
   }
