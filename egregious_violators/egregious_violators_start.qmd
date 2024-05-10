@@ -1,5 +1,7 @@
 ---
 title: egregious_violators
+editor_options: 
+  chunk_output_type: console
 ---
 ::: {.panel-tabset}
 
@@ -72,7 +74,7 @@ registerS3method(
 
 ```{r}
 # Get common functions
-# # source("~/R_code_github/useful_functions_module.r")
+# source("~/R_code_github/useful_functions_module.r")
 # install.packages("~/R_code_github/auxfunctions_1.0.tar.gz",
 #                  repos = NULL,
 #                  type = "source")
@@ -157,7 +159,11 @@ last_week_start <- data_file_date - grace_period
 ```{r}
 get_data_path <- 
   file.path(current_project_path, "egregious_violators_get_data.R")
-# source(get_data_path)
+```
+
+
+```{r, file = get_data_path}
+
 
 # compl_clean
 # corresp_contact_cnts_clean0
@@ -804,7 +810,11 @@ prep_addresses_path <-
 
 file.exists(prep_addresses_path)
 
-# source(prep_addresses_path)
+```
+
+
+```{r, file = prep_addresses_path}
+
 
 # result: compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr
 ```
