@@ -1,6 +1,6 @@
 # change dir name!
 curent_project_name <- readline(prompt = "Print you project name: ")
-  # "boats_number"
+egregious_violators
 curent_file_name <- readline(prompt = "Print you file name: ")
 
 # In the input .R file:
