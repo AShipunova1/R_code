@@ -1,7 +1,7 @@
 # change dir name!
 curent_project_name <- readline(prompt = "Print you project name: ")
 # egregious_violators
-curent_file_name <- readline(prompt = "Print you file name: ")
+curent_file_name_no_ext <- readline(prompt = "Print you file name: ")
 
 # In the input .R file:
 # add "#' " in front of comments to be shown as text
@@ -27,7 +27,8 @@ dir_to_comb <-
 
 dir.exists(dir_to_comb)
 
-file_name <- curent_project_name
+file_name <- curent_file_name_no_ext
+  # curent_project_name
 file_ext <- c("R", "Rmd", "qmd")
 
 # Create a list of file paths for each file extension.
@@ -38,19 +39,6 @@ file_paths <-
 
 # Set the names of the list elements to 'file_ext'.
 names(file_paths) <- file_ext
-
-# provide custom file names if nessesary
-# list.files(dir_to_comb, pattern = ".R")  
-
-additional_file_names <- c("egregious_violators_start.R",
-                           "egregious_violators_get_data.R",
-                           "egregious_violators_prep_addresses.R")
-
-# change file_paths$R if needed
-different_R_script_name <- file.path(dir_to_comb, additional_file_names[[1]])
-# file.exists(different_R_script_name)
-
-file_paths$R <- different_R_script_name
 
 # prepare all pieces ----
 ## read the main file content ----
