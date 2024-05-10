@@ -6,7 +6,7 @@
 
 # NB. Update (download) all input files every time before run.
 
-# ----set up----
+# set up----
 #' %%%%% Set Up
 #' 
 # Get common functions
