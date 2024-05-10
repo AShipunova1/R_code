@@ -108,11 +108,11 @@ flat_file_r_text <-
 clean_chunk_titles <-
   function(flat_file_r_text) {
     
-    while (any(str_detect(flat_file_r_text, 
+    while (any(stringr::str_detect(flat_file_r_text, 
                           "#\\+[^#]*[^A-z0-9#+ ]+[^#]+"))) {
       flat_file_r_text <-
         flat_file_r_text |>
-        str_replace_all("(#\\+[^#]*)[^A-z0-9#+ ]+([^#]+)", "\\1\\2")
+        stringr::str_replace_all("(#\\+[^#]*)[^A-z0-9#+ ]+([^#]+)", "\\1\\2")
       
     }
     
@@ -127,36 +127,25 @@ grep("how many are duals", flat_file_r_text, value = T)
 
 ## find sourced files ----
 # grep("source", flat_file_r_text, value = T)
-# TODO: convert file to qmd and include
 
 # comment out sourcing for flat files
 comment_out_sources <-
   function(flat_file_r_text) {
     flat_file_r_text <-
-      str_replace(flat_file_r_text,
-        "source\\((.+)\\)", 
-" ```{r, file = \\1}
- 
- ```"
+      stringr::str_replace(flat_file_r_text,
+        "^[^#]*source\\((.+)\\)", 
+"```
+\n
+```{r, file = \\1}
+"
       )
       # gsub("source\\(", "# source(", flat_file_r_text)
     return(flat_file_r_text)
   }
 
 flat_file_r_text <- comment_out_sources(flat_file_r_text)
-# str_extract_all(flat_file_r_text,
-#             "source.+```") |> 
-res1 <-
-  str_extract(flat_file_r_text, 
-              # "source.+"
-              "file ="
-              ) |> 
-  as.data.frame()
 
-names(res1) <- "source_found"
-
-filter(res1,
-       !is.na(source_found))
+# grep("file =", flat_file_r_text, value = T)
 
 ## Change all sections to a level lower ----
 # works with the next step, convert %%%%% to the level 1
