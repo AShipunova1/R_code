@@ -123,28 +123,12 @@ flat_file_r_text <-
   clean_chunk_titles(flat_file_r_text)
 
 # check
-grep("how many are duals", flat_file_r_text, value = T)
+# grep("how many are duals", flat_file_r_text, value = T)
 
 ## find sourced files ----
 # grep("source", flat_file_r_text, value = T)
 
-# comment out sourcing for flat files
-comment_out_sources <-
-  function(flat_file_r_text) {
-    flat_file_r_text <-
-      stringr::str_replace(flat_file_r_text,
-        "^[^#]*source\\((.+)\\)", 
-"```
-\n
-```{r, file = \\1}
-"
-      )
-      # gsub("source\\(", "# source(", flat_file_r_text)
-    return(flat_file_r_text)
-  }
-
-flat_file_r_text <- comment_out_sources(flat_file_r_text)
-
+# check
 # grep("file =", flat_file_r_text, value = T)
 
 ## Change all sections to a level lower ----
@@ -219,14 +203,43 @@ rmd_text <-
 tictoc::toc()
 # rmd_text: 0.11 sec elapsed
 
+rmd_text |>
+  stringr::str_extract("````") |>
+  as.data.frame() |>
+  setNames(nm = "found") |> 
+  filter(!is.na(found)) |> dim()
+# 86
+
+# comment out sourcing for flat files
+comment_out_sources <-
+  function(rmd_text) {
+    rmd_text <-
+      stringr::str_replace(rmd_text,
+        "^\\s*[^#]*source\\((.+)\\)", 
+"```
+```{r, file = \\1}
+"
+      )
+    return(rmd_text)
+  }
+
+rmd_text <- comment_out_sources(rmd_text)
+
+# check
+# rmd_text |>
+#   stringr::str_extract("file = .{10}") |>
+#   as.data.frame() |>
+#   setNames(nm = "found") |> 
+#   filter(!is.na(found))
+
 # str(rmd_text)
 #  chr [1:12684] "## Current file: useful_functions_module.r" ...
 
 # Don't use in the auxiliary file
-pre_text <- stringr::str_glue('---
+pre_text <- stringr::str_glue("---
 title: {curent_project_name}
 ---
-')
+")
 
 # Don't use in the auxiliary file
 # Setup
@@ -241,7 +254,6 @@ library(kableExtra)
 
 # Format R code automatically
 library(styler)
-
 ```
 
 ```{r df format setup}
@@ -273,6 +285,7 @@ registerS3method(
 
 
 ```
+
 # save setup chunk options to use later
 ```{r setup current project, results='hide', message=FALSE, warning=FALSE}
 ```
