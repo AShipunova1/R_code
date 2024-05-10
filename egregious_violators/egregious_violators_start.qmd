@@ -1,9 +1,6 @@
 ---
 title: egregious_violators
-editor_options: 
-  chunk_output_type: console
 ---
-::: {.panel-tabset}
 
 ```{r no cache setup, results='hide', message=FALSE, warning=FALSE, cache=FALSE, include=FALSE}
 
@@ -15,7 +12,6 @@ library(kableExtra)
 
 # Format R code automatically
 library(styler)
-
 ```
 
 ```{r df format setup}
@@ -48,12 +44,16 @@ registerS3method(
 
 
 ```
+
 # save setup chunk options to use later
 ```{r setup current project, results='hide', message=FALSE, warning=FALSE}
 ```
 
+# Set Up
+
 
 ```{r}
+# Read me
 # 1) NO reports for all 26 weeks back from week ago today;
 # 2) permits have not expired and were active for the same period as (1);
 # 3) the grace period is 7 days back from today.
@@ -63,16 +63,10 @@ registerS3method(
 # NB. Update (download) all input files every time before run.
 ```
 
-## set up
+## set up 
 
 ```{r set up}
-# set up----
-```
-
-# Set Up
-
-
-```{r}
+# set up ----
 # Get common functions
 # source("~/R_code_github/useful_functions_module.r")
 # install.packages("~/R_code_github/auxfunctions_1.0.tar.gz",
@@ -160,8 +154,6 @@ last_week_start <- data_file_date - grace_period
 get_data_path <- 
   file.path(current_project_path, "egregious_violators_get_data.R")
 ```
-
-
 ```{r, file = get_data_path}
 
 
@@ -493,11 +485,11 @@ we_emailed_once_filter <-
 # Explanations:
 # 
 # **Expression inside quo()**:
-#    - `!grepl("No contact made", contactcomments, ignore.case = TRUE)`: This expression is a negation of the `grepl` function, which is used to search for a pattern ("No contact made") in the `contactcomments` column.
-#    - `grepl()` returns `TRUE` for each element of `contactcomments` that contains the pattern, and `FALSE` otherwise.
-#    - The `!` operator negates the result, so the filter condition will be `TRUE` for rows where "No contact made" is not found in the `contactcomments` column.
+#    - '!grepl("No contact made", contactcomments, ignore.case = TRUE)': This expression is a negation of the 'grepl' function, which is used to search for a pattern ("No contact made") in the 'contactcomments' column.
+#    - 'grepl()' returns 'TRUE' for each element of 'contactcomments' that contains the pattern, and 'FALSE' otherwise.
+#    - The '!' operator negates the result, so the filter condition will be 'TRUE' for rows where "No contact made" is not found in the 'contactcomments' column.
 # 
-# The `exclude_no_contact_made_filter` function effectively creates a filter condition that can be used to exclude rows where "No contact made" is found in the `contactcomments` column when applied to a dataset.
+# The 'exclude_no_contact_made_filter' function effectively creates a filter condition that can be used to exclude rows where "No contact made" is found in the 'contactcomments' column when applied to a dataset.
 exclude_no_contact_made_filter <-
   dplyr::quo(!grepl("No contact made", 
             contactcomments, 
@@ -772,7 +764,7 @@ dplyr::glimpse(date__contacttype_per_id)
 compl_corr_to_investigation__corr_date <-
   dplyr::left_join(compl_corr_to_investigation_short,
             date__contacttype_per_id) |>
-  # Joining with `by = join_by(vessel_official_number)`
+  # Joining with 'by = join_by(vessel_official_number)'
   # this columns are not longer needed
   dplyr::select(-dplyr::all_of(c(
     contactdate_field_name,
@@ -811,8 +803,6 @@ prep_addresses_path <-
 file.exists(prep_addresses_path)
 
 ```
-
-
 ```{r, file = prep_addresses_path}
 
 
@@ -953,4 +943,3 @@ cat("Result:",
     sep = "\n")
 ```
 
-:::
