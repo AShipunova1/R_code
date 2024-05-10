@@ -15,6 +15,15 @@ curent_file_name_no_ext <- readline(prompt = "Print you file name: ")
 # for pretty tables
 
 # setup ----
+# test_function
+check_str <- function(my_string, my_pattern) {
+  my_string |>
+    stringr::str_extract(my_pattern) |>
+    as.data.frame() |>
+    setNames(nm = "found") |>
+    filter(!is.na(found))
+}
+
 # source("~/R_code_github/useful_functions_module.r")
 library(auxfunctions)
 my_paths <- set_work_dir()
