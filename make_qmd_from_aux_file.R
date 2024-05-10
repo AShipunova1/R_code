@@ -149,17 +149,6 @@ comment_out_sources <-
 
 flat_file_r_text <- comment_out_sources(flat_file_r_text)
 
-# check
-# text |>
-#   stringr::str_extract("file = .{10}") |>
-#   as.data.frame() |>
-#   setNames(nm = "found") |>
-#   filter(!is.na(found))
-# text |> write(file = r"(C:\Users\anna.shipunova\Documents\R_code_github\egregious_violators\temp.tmp)")
-
-# str(rmd_text)
-#  chr [1:12684] "## Current file: useful_functions_module.r" ...
-
 ## Change all sections to a level lower ----
 # works with the next step, convert %%%%% to the level 1
 lower_section_level <-
@@ -221,6 +210,41 @@ flat_file_r_text
 flat_file_r_text <-
   add_pretty_table(flat_file_r_text)
 
+# add my functions' descriptions
+auxfunctions_list <- getNamespaceExports("auxfunctions")
+
+flat_file_r_text |> 
+  stringr::str_locate("\\b\\w+\\(%") |> head()
+
+# lsf.str("package:dplyr")[10] %>%
+#   help("dplyr") %>%
+#   utils:::.getHelpFile() %>%
+#   purrr::keep( ~ attr(.x, "Rd_tag") == "\\description") %>%
+#   purrr::map(as.character) %>%
+#   purrr::flatten_chr() %>%
+#   paste0(., collapse = "")
+
+used_naked_functions <-
+  check_str(flat_file_r_text, "\\w+\\(")$found |>
+  strsplit(",") |>
+  stringr::str_sub(end = -2) |>
+  unique()
+
+# TODO: use on qmd file with included aux files
+dplyr::intersect(auxfunctions_list, used_naked_functions)
+
+# text |>
+#   stringr::str_extract("file = .{10}") |>
+#   as.data.frame() |>
+#   setNames(nm = "found") |>
+#   filter(!is.na(found))
+# text |> write(file = r"(C:\Users\anna.shipunova\Documents\R_code_github\egregious_violators\temp.tmp)")
+
+# str(rmd_text)
+#  chr [1:12684] "## Current file: useful_functions_module.r" ...
+
+
+
 # convert to Rmd ----
 # The 'knitr::spin' function is used to create an R Markdown (Rmd) file, but the 'knit' argument is set to 'FALSE', indicating that the document should not be fully knitted. Instead, this function generates an Rmd file from the R script without executing the code chunks.
 
@@ -238,7 +262,6 @@ rmd_text |>
   setNames(nm = "found") |> 
   filter(!is.na(found)) |> dim()
 # 86
-
 
 # Don't use in the auxiliary file
 pre_text <- stringr::str_glue("---
