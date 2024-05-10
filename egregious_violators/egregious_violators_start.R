@@ -7,7 +7,8 @@
 # NB. Update (download) all input files every time before run.
 
 # ----set up----
-
+#' %%%%% Set Up
+#' 
 # Get common functions
 # source("~/R_code_github/useful_functions_module.r")
 # install.packages("~/R_code_github/auxfunctions_1.0.tar.gz",
@@ -82,7 +83,8 @@ permit_expired_check_date <- data_file_date + 30
 last_week_start <- data_file_date - grace_period
 
 # get_data ----
-
+#' %%%%% Prepare data
+#' 
 get_data_path <- 
   file.path(current_project_path, "egregious_violators_get_data.R")
 source(get_data_path)
@@ -444,6 +446,8 @@ num_of_vsl_to_investigate <-
 # compl_corr_to_investigation
 
 # ---- output needed investigation ----
+#' %%%%% Prepare output
+#' 
 # 1. remove unused columns
 # 2. create additional columns
 # 3. mark vessels already in the know list (prev_result)
