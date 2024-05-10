@@ -101,32 +101,28 @@ flat_file_r_text <-
 # It captures more content.
 # It captures a newline character.
 # Remove all "odd" characters from chunk titles for knitr to work with.
+# repeat twice
+# 
 clean_chunk_titles <-
   function(flat_file_r_text) {
+    # browser()
     flat_file_r_text <-
-      gsub("(#\\+ )(.+)\\W+(.+)",
-           "\\1\\2\\3",
-           flat_file_r_text)
+      flat_file_r_text |>
+      str_replace_all("(#\\+[^#]*)[^A-z0-9#+ ]+([^#]+)", "\\1\\2")
+    if (any(str_detect(flat_file_r_text,
+                       "#\\+[^#]*[^A-z0-9#+ ]+[^#]+"))) {
+      flat_file_r_text <-
+        flat_file_r_text |>
+        str_replace_all("(#\\+[^#]*)[^A-z0-9#+ ]+([^#]+)", "\\1\\2")
+    }
     return(flat_file_r_text)
   }
 
 flat_file_r_text <-
   clean_chunk_titles(flat_file_r_text)
 
-grep("how many are duals", flat_file_r_text, value = T) |>
-  # str_replace_all("(#\\+ )(\\w*)[^A-z0-9# ]+([^#]+)", "\\1\\2\\3") |>
-  str_replace_all("(#\\+[^#]*)[^A-z0-9#+ ]+([^#]+)", "\\1\\2") |> 
-  # str_replace_all("(#\\+[^#]*)[^A-z0-9#+ ]+([^#]+)", "\\1\\2") |> 
-  str_detect("#\\+[^#]*[^A-z0-9#+ ]+[^#]+")
-  # str_extract("#\\+[^#]*[^A-z0-9#+ ]+[^#]+")
-
-qq <- "#+ 4 how many are duals? \n"
-str_detect(qq, "#\\+\\w*[^A-z0-9#+ ]+[^#]+")
-
-
-# gsub("(#\\+ )([^'/]+)(['/])(.+)(\\\n)",
-#    "\\1\\2_\\4\\5",
-#          flat_file_r_text)
+# check
+# grep("how many are duals", flat_file_r_text, value = T) 
 
 ## find sourced files ----
 # grep("source", flat_file_r_text, value = T)
