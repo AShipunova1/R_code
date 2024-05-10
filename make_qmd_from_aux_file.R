@@ -6,7 +6,9 @@ curent_file_name_no_ext <- readline(prompt = "Print you file name: ")
 # In the input .R file:
 # add "#' " in front of comments to be shown as text
 # and #' as the last line of the visible comments
-# add #' {{< include FILE_NAME.qmd >}} instead of source
+# add #' ```{r, file = prep_addresses_path}
+# ```
+#  instead of source
 
 # In the output .qmd:
 # *) comment out "source" as needed (or turn on comment_out_sources to suppress all)
@@ -131,11 +133,30 @@ grep("how many are duals", flat_file_r_text, value = T)
 comment_out_sources <-
   function(flat_file_r_text) {
     flat_file_r_text <-
-      gsub("source\\(", "# source(", flat_file_r_text)
+      str_replace(flat_file_r_text,
+        "source\\((.+)\\)", 
+" ```{r, file = \\1}
+ 
+ ```"
+      )
+      # gsub("source\\(", "# source(", flat_file_r_text)
     return(flat_file_r_text)
   }
 
 flat_file_r_text <- comment_out_sources(flat_file_r_text)
+# str_extract_all(flat_file_r_text,
+#             "source.+```") |> 
+res1 <-
+  str_extract(flat_file_r_text, 
+              # "source.+"
+              "file ="
+              ) |> 
+  as.data.frame()
+
+names(res1) <- "source_found"
+
+filter(res1,
+       !is.na(source_found))
 
 ## Change all sections to a level lower ----
 # works with the next step, convert %%%%% to the level 1
