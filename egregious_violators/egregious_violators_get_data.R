@@ -41,7 +41,7 @@ all_csv_names_list = c("Correspondence_2024_04_09.csv",
                          r"(2024_04_09\FHIER_Compliance_2023__04_09_2024.csv)",
                          r"(2024_04_09\FHIER_Compliance_2024__04_09_2024.csv)")
 
-## ---- get compliance and correspondence csv data into variables ----
+## get compliance and correspondence csv data into variables ----
 from_fhier_data_path <-
   file.path(my_paths$inputs)
 
