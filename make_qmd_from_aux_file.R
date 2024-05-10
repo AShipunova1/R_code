@@ -105,16 +105,15 @@ flat_file_r_text <-
 # 
 clean_chunk_titles <-
   function(flat_file_r_text) {
-    # browser()
-    flat_file_r_text <-
-      flat_file_r_text |>
-      str_replace_all("(#\\+[^#]*)[^A-z0-9#+ ]+([^#]+)", "\\1\\2")
-    if (any(str_detect(flat_file_r_text,
-                       "#\\+[^#]*[^A-z0-9#+ ]+[^#]+"))) {
+    
+    while (any(str_detect(flat_file_r_text, 
+                          "#\\+[^#]*[^A-z0-9#+ ]+[^#]+"))) {
       flat_file_r_text <-
         flat_file_r_text |>
         str_replace_all("(#\\+[^#]*)[^A-z0-9#+ ]+([^#]+)", "\\1\\2")
+      
     }
+    
     return(flat_file_r_text)
   }
 
@@ -122,7 +121,7 @@ flat_file_r_text <-
   clean_chunk_titles(flat_file_r_text)
 
 # check
-# grep("how many are duals", flat_file_r_text, value = T) 
+grep("how many are duals", flat_file_r_text, value = T)
 
 ## find sourced files ----
 # grep("source", flat_file_r_text, value = T)
