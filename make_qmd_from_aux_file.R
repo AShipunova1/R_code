@@ -129,6 +129,32 @@ flat_file_r_text <-
 # check
 # grep("file =", flat_file_r_text, value = T)
 
+# replace sourcing files with "file = "
+
+comment_out_sources <-
+  function(my_text) {
+    my_res_text <-
+      stringr::str_replace(my_text,
+        "^\\s*[^#]*source\\((.+)\\)", 
+"#+, file = \\1
+"
+      )
+    return(my_res_text)
+  }
+
+flat_file_r_text <- comment_out_sources(flat_file_r_text)
+
+# check
+# text |>
+#   stringr::str_extract("file = .{10}") |>
+#   as.data.frame() |>
+#   setNames(nm = "found") |>
+#   filter(!is.na(found))
+# text |> write(file = r"(C:\Users\anna.shipunova\Documents\R_code_github\egregious_violators\temp.tmp)")
+
+# str(rmd_text)
+#  chr [1:12684] "## Current file: useful_functions_module.r" ...
+
 ## Change all sections to a level lower ----
 # works with the next step, convert %%%%% to the level 1
 lower_section_level <-
@@ -208,30 +234,6 @@ rmd_text |>
   filter(!is.na(found)) |> dim()
 # 86
 
-# comment out sourcing for flat files
-comment_out_sources <-
-  function(rmd_text) {
-    rmd_text <-
-      stringr::str_replace(rmd_text,
-        "^\\s*[^#]*source\\((.+)\\)", 
-"```
-```{r, file = \\1}
-"
-      )
-    return(rmd_text)
-  }
-
-rmd_text <- comment_out_sources(rmd_text)
-
-# check
-# rmd_text |>
-#   stringr::str_extract("file = .{10}") |>
-#   as.data.frame() |>
-#   setNames(nm = "found") |> 
-#   filter(!is.na(found))
-
-# str(rmd_text)
-#  chr [1:12684] "## Current file: useful_functions_module.r" ...
 
 # Don't use in the auxiliary file
 pre_text <- stringr::str_glue("---
