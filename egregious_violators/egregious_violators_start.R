@@ -1,3 +1,7 @@
+#' %%%%% Set Up
+#' 
+
+# Read me
 # 1) NO reports for all 26 weeks back from week ago today;
 # 2) permits have not expired and were active for the same period as (1);
 # 3) the grace period is 7 days back from today.
@@ -6,9 +10,7 @@
 
 # NB. Update (download) all input files every time before run.
 
-# set up----
-#' %%%%% Set Up
-#' 
+# set up ----
 # Get common functions
 # source("~/R_code_github/useful_functions_module.r")
 # install.packages("~/R_code_github/auxfunctions_1.0.tar.gz",
