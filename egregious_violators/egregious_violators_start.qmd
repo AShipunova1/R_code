@@ -63,7 +63,7 @@ registerS3method(
 # NB. Update (download) all input files every time before run.
 ```
 
-## set up 
+### set up 
 
 ```{r set up}
 # set up ----
@@ -141,7 +141,7 @@ permit_expired_check_date <- data_file_date + 30
 last_week_start <- data_file_date - grace_period
 ```
 
-## get_data 
+### get_data 
 
 ```{r get_data}
 # get_data ----
@@ -154,7 +154,7 @@ last_week_start <- data_file_date - grace_period
 get_data_path <- 
   file.path(current_project_path, "egregious_violators_get_data.R")
 ```
-```{r, file = get_data_path}
+```{r , file = get_data_path}
 
 
 # compl_clean
@@ -167,19 +167,19 @@ get_data_path <-
 # vessels_permits_participants
 ```
 
-## Preparing compliance info 
+### Preparing compliance info 
 
 ```{r Preparing compliance info}
 # Preparing compliance info ----
 ```
 
-### Permit Expiration 
+#### Permit Expiration 
 
 ```{r Permit Expiration}
 ## Permit Expiration ----
 ```
 
-#### add permit_expired column 
+##### add permit_expired column 
 
 ```{r add permit_expired column}
 ### add permit_expired column ----
@@ -200,7 +200,7 @@ compl_clean_w_permit_exp <-
 # glimpse(compl_clean_w_permit_exp)
 ```
 
-#### get only not expired last 27 weeks of data minus grace period 
+##### get only not expired last 27 weeks of data minus grace period 
 
 ```{r get only not expired last 27 weeks of data minus grace period}
 ### get only not expired last 27 weeks of data minus grace period ----
@@ -226,7 +226,7 @@ max(compl_clean_w_permit_exp__not_exp$week_end)
 # [1] "2024-02-04"
 ```
 
-### add year_month column 
+#### add year_month column 
 
 ```{r add year_month column}
 ## add year_month column ----
@@ -242,7 +242,7 @@ dim(compl_clean_w_permit_exp)
 dim(compl_clean_w_permit_exp_last_half_year)
 ```
 
-### Have only SA and dual permits 
+#### Have only SA and dual permits 
 
 ```{r Have only SA and dual permits}
 ## Have only SA and dual permits ----
@@ -261,7 +261,7 @@ compl_clean_w_permit_exp_last_half_year__sa <-
 dim(compl_clean_w_permit_exp_last_half_year__sa)
 ```
 
-### fewer columns 
+#### fewer columns 
 
 ```{r fewer columns}
 ## fewer columns ----
@@ -290,13 +290,13 @@ compl_clean_w_permit_exp_last_half_year__sa__short <-
 dim(compl_clean_w_permit_exp_last_half_year__sa__short)
 ```
 
-### work with the whole period 
+#### work with the whole period 
 
 ```{r work with the whole period}
 ## work with the whole period ----
 ```
 
-### add compliant_after_overr 
+#### add compliant_after_overr 
 
 ```{r add compliant_after_overr}
 ## add compliant_after_overr ----
@@ -334,7 +334,7 @@ dplyr::n_distinct(compl_clean_w_permit_exp_last_half_year__sa$vessel_official_nu
 # T
 ```
 
-### get only non-compliant for the past half year 
+#### get only non-compliant for the past half year 
 
 ```{r get only noncompliant for the past half year}
 ## get only non-compliant for the past half year ----
@@ -346,7 +346,7 @@ compl_clean_w_permit_exp_last_half_year__sa_non_c <-
 dim(compl_clean_w_permit_exp_last_half_year__sa_non_c)
 ```
 
-### keep only vessels with info for all weeks in the period 
+#### keep only vessels with info for all weeks in the period 
 
 ```{r keep only vessels with info for all weeks in the period}
 ## keep only vessels with info for all weeks in the period ----
@@ -374,13 +374,13 @@ compl_clean_w_permit_exp_last_half_year__sa_non_c |> dim()
 dim(compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present)
 ```
 
-### check the last report date 
+#### check the last report date 
 
 ```{r check the last report date}
 ## check the last report date ----
 ```
 
-#### get ids only 
+##### get ids only 
 
 ```{r get ids only}
 ### get ids only ----
@@ -392,7 +392,7 @@ compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present__vesl_ids <
 dim(compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present__vesl_ids)
 ```
 
-#### check these ids in the full compliance information 
+##### check these ids in the full compliance information 
 
 ```{r check these ids in the full compliance information}
 ### check these ids in the full compliance information ----
@@ -416,13 +416,13 @@ compl_clean_w_permit_exp_last_half_year__sa |>
 # Results: prepared Compliance is in compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present
 ```
 
-## Preparing Correspondence 
+### Preparing Correspondence 
 
 ```{r Preparing Correspondence}
 # Preparing Correspondence ----
 ```
 
-### remove 999999 
+#### remove 999999 
 
 ```{r remove 999999}
 ## remove 999999 ----
@@ -440,21 +440,21 @@ dplyr::n_distinct(corresp_contact_cnts_clean$vesselofficial_number)
 # It should be at least 2 contact "attempts". i.e., if they are ignoring our calls and emails then they cannot continue to go on in perpetuity without reporting and never be seen as egregious. So, at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough at this point and they need to be passed to OLE.
 ```
 
-### new requirement 2023-08-09 
+#### new requirement 2023-08-09 
 
 ```{r new requirement 20230809}
 ## new requirement 2023-08-09 ----
 # at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough
 ```
 
-### new requirement 2024-02-26 
+#### new requirement 2024-02-26 
 
 ```{r new requirement 20240226}
 ## new requirement 2024-02-26 ----
 # It needs to be that we called at least 1 time and emailed at least 1 time. Or they contacted us at least once.
 ```
 
-### new requirement 2024-05-06 
+#### new requirement 2024-05-06 
 
 ```{r new requirement 20240506}
 ## new requirement 2024-05-06 ----
@@ -466,7 +466,7 @@ corresp_contact_cnts_clean |>
   dplyr::distinct() |> head(10)
 ```
 
-### Filters 
+#### Filters 
 
 ```{r Filters}
 ## Filters ----
@@ -518,7 +518,7 @@ they_contacted_direct_filter <-
 #         any(tolower(contacttype) == "call"))
 ```
 
-#### use the filters 
+##### use the filters 
 
 ```{r use the filters}
 ### use the filters ----
@@ -539,7 +539,7 @@ dim(corresp_contact_cnts_clean_direct_cnt_2atmps)
 dplyr::n_distinct(corresp_contact_cnts_clean_direct_cnt_2atmps$vesselofficial_number)
 ```
 
-### fix dates 
+#### fix dates 
 
 ```{r fix dates}
 ## fix dates ----
@@ -573,7 +573,7 @@ str(corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates$contact_date_dttm)
 # corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates
 ```
 
-## Join correspondence with compliance 
+### Join correspondence with compliance 
 
 ```{r Join correspondence with compliance}
 # Join correspondence with compliance ----
@@ -602,7 +602,7 @@ dplyr::n_distinct(compl_corr_to_investigation$vesselofficial_number)
 # View(compl_corr_to_investigation)
 ```
 
-### save number of vessels to investigate for checks 
+#### save number of vessels to investigate for checks 
 
 ```{r save number of vessels to investigate for checks}
 ## save number of vessels to investigate for checks ----
@@ -613,7 +613,7 @@ num_of_vsl_to_investigate <-
 # compl_corr_to_investigation
 ```
 
-## output needed investigation 
+### output needed investigation 
 
 ```{r output needed investigation}
 # output needed investigation ----
@@ -629,7 +629,7 @@ num_of_vsl_to_investigate <-
 # 4. duals vs. sa_only
 ```
 
-### 1. remove extra columns 
+#### 1. remove extra columns 
 
 ```{r 1 remove extra columns}
 ## 1. remove extra columns ----
@@ -693,13 +693,13 @@ compl_corr_to_investigation_short |> dplyr::glimpse()
 dim(compl_corr_to_investigation_short)
 ```
 
-### 2. create additional columns 
+#### 2. create additional columns 
 
 ```{r 2 create additional columns}
 ## 2. create additional columns ----
 ```
 
-#### add list of contact dates and contact type in parentheses  -
+##### add list of contact dates and contact type in parentheses  -
 
 ```{r add list of contact dates and contact type in parentheses}
 ### add list of contact dates and contact type in parentheses  -----
@@ -757,7 +757,7 @@ dim(date__contacttype_per_id)
 dplyr::glimpse(date__contacttype_per_id)
 ```
 
-##### add the new column back 
+###### add the new column back 
 
 ```{r add the new column back}
 #### add the new column back ----
@@ -776,7 +776,7 @@ compl_corr_to_investigation__corr_date |>
   dplyr::glimpse()
 ```
 
-#### add pims home port info 
+##### add pims home port info 
 
 ```{r add pims home port info}
 ### add pims home port info ----
@@ -791,7 +791,7 @@ compl_corr_to_investigation__corr_date__hailing_port <-
          "hailing_port_state" = state_fixed)
 ```
 
-#### add prepared addresses 
+##### add prepared addresses 
 
 ```{r add prepared addresses}
 ### add prepared addresses ----
@@ -803,13 +803,13 @@ prep_addresses_path <-
 file.exists(prep_addresses_path)
 
 ```
-```{r, file = prep_addresses_path}
+```{r , file = prep_addresses_path}
 
 
 # result: compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr
 ```
 
-### 3. mark vessels already in the know list 
+#### 3. mark vessels already in the know list 
 
 ```{r 3 mark vessels already in the know list}
 ## 3. mark vessels already in the know list ----
@@ -822,7 +822,7 @@ vessels_to_mark_ids <-
 dim(vessels_to_mark_ids)
 ```
 
-##### mark these vessels 
+###### mark these vessels 
 
 ```{r mark these vessels}
 #### mark these vessels ----
@@ -844,7 +844,7 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_m
 dim(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked)
 ```
 
-#### check 
+##### check 
 
 ```{r check}
 ### check ----
@@ -856,7 +856,7 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_m
 # 2 new                      48
 ```
 
-### 4. how many are duals? 
+#### 4. how many are duals? 
 
 ```{r 4 how many are duals}
 ## 4. how many are duals? ----
@@ -894,7 +894,7 @@ region_counts <-
 dplyr::n_distinct(compl_corr_to_investigation_short_dup_marked__permit_region$vessel_official_number)
 ```
 
-#### dual permitted cnts 
+##### dual permitted cnts 
 
 ```{r dual permitted cnts}
 ### dual permitted cnts ----
@@ -902,13 +902,13 @@ dplyr::n_distinct(compl_corr_to_investigation_short_dup_marked__permit_region$ve
 region_counts$n[[1]] / (region_counts$n[[2]] + region_counts$n[[1]]) * 100
 ```
 
-## Print out results 
+### Print out results 
 
 ```{r Print out results}
 # Print out results ----
 ```
 
-### add additional columns in front 
+#### add additional columns in front 
 
 ```{r add additional columns in front}
 ## add additional columns in front ----
