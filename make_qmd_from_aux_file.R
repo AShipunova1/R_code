@@ -3,7 +3,6 @@ curent_project_name <- readline(prompt = "Print you project name: ")
   # "boats_number"
 curent_file_name <- readline(prompt = "Print you file name: ")
 
-# Manually.
 # In the input .R file:
 # add "#' " in front of comments to be shown as text
 # and #' as the last line of the visible comments
@@ -18,7 +17,8 @@ curent_file_name <- readline(prompt = "Print you file name: ")
 # for pretty tables
 
 # setup ----
-source("~/R_code_github/useful_functions_module.r")
+# source("~/R_code_github/useful_functions_module.r")
+library(auxfunctions)
 my_paths <- set_work_dir()
 
 dir_to_comb <-
@@ -32,7 +32,7 @@ file_ext <- c("R", "Rmd", "qmd")
 
 # Create a list of file paths for each file extension.
 file_paths <-
-  map(file_ext,
+  purrr::map(file_ext,
       ~ file.path(dir_to_comb,
                   paste0(file_name, ".", .x)))
 
