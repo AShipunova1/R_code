@@ -1,0 +1,10 @@
+knitr
+kableExtra
+styler
+dplyr
+auxfunctions
+DBI
+ROracle
+rlang
+zoo
+diffdf
