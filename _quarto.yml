@@ -2,7 +2,8 @@ date: today
 knitr:
   opts_chunk:
     tidy: 'styler'
-    tidy.opts: list(scope = "line_breaks")
+    tidy.opts: 'line_breaks'
+    # tidy.opts: list(scope = "line_breaks")
     # style = tidyverse_style, scope = "spaces")
 # opts_chunk$set(tidy.opts=list(width.cutoff=60),tidy=TRUE)
 #     knitr.duplicate.label: 'allow'
