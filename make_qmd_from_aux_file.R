@@ -96,6 +96,38 @@ make_chunk_titles_from_comments <-
 flat_file_r_text <-
   make_chunk_titles_from_comments(flat_file_r_text)
 
+# It searches for lines starting with "#+" followed by a space and captures the content after that.
+# It captures a single quote or a slash.
+# It captures more content.
+# It captures a newline character.
+# Remove all "odd" characters from chunk titles for knitr to work with.
+clean_chunk_titles <-
+  function(flat_file_r_text) {
+    flat_file_r_text <-
+      gsub("(#\\+ )(.+)\\W+(.+)",
+           "\\1\\2\\3",
+           flat_file_r_text)
+    return(flat_file_r_text)
+  }
+
+flat_file_r_text <-
+  clean_chunk_titles(flat_file_r_text)
+
+grep("how many are duals", flat_file_r_text, value = T) |>
+  # str_replace_all("(#\\+ )(\\w*)[^A-z0-9# ]+([^#]+)", "\\1\\2\\3") |>
+  str_replace_all("(#\\+[^#]*)[^A-z0-9#+ ]+([^#]+)", "\\1\\2") |> 
+  # str_replace_all("(#\\+[^#]*)[^A-z0-9#+ ]+([^#]+)", "\\1\\2") |> 
+  str_detect("#\\+[^#]*[^A-z0-9#+ ]+[^#]+")
+  # str_extract("#\\+[^#]*[^A-z0-9#+ ]+[^#]+")
+
+qq <- "#+ 4 how many are duals? \n"
+str_detect(qq, "#\\+\\w*[^A-z0-9#+ ]+[^#]+")
+
+
+# gsub("(#\\+ )([^'/]+)(['/])(.+)(\\\n)",
+#    "\\1\\2_\\4\\5",
+#          flat_file_r_text)
+
 ## find sourced files ----
 # grep("source", flat_file_r_text, value = T)
 # TODO: convert file to qmd and include
@@ -109,23 +141,6 @@ comment_out_sources <-
   }
 
 flat_file_r_text <- comment_out_sources(flat_file_r_text)
-
-# It searches for lines starting with "#+" followed by a space and captures the content after that.
-# It captures a single quote or a slash.
-# It captures more content.
-# It captures a newline character.
-# Remove all "odd" characters from chunk titles for knitr to work with.
-clean_chunk_titles <-
-  function(flat_file_r_text) {
-    flat_file_r_text <-
-      gsub("(#\\+ )([^'/]+)(['/])(.+)(\\\n)",
-           "\\1\\2_\\4\\5",
-           flat_file_r_text)
-    return(flat_file_r_text)
-  }
-
-flat_file_r_text <-
-  clean_chunk_titles(flat_file_r_text)
 
 ## Change all sections to a level lower ----
 # works with the next step, convert %%%%% to the level 1
