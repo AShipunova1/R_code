@@ -252,15 +252,18 @@ get_help_text <- function(function_name) {
 
 # rr <- get_help_text("load_xls_names")
 
-# lsf.str("package:auxfunctions")[10]
-  help("remove_empty_cols", "auxfunctions") %>%
-  utils:::.getHelpFile() %>%
-  purrr::keep( ~ attr(.x, "Rd_tag") == "\\description") %>%
-  purrr::map(as.character) %>%
-  purrr::flatten_chr() %>%
-  paste0(., collapse = "") |> 
-    str_replace_all("[\n]", "\n")
+## get function obj as a text ----
+function_obj_as_text <- function(function_name) {
+  # remove environment descriptions
+  fun_body <- paste(capture.output(function_name), collapse = "\n") |>
+    str_replace_all("\\n<.+", "")
+  
+  return(fun_body)
+}
 
+# function_obj_as_text(find_col_name)
+
+## list of used functions ----
 used_naked_functions <-
   check_str(flat_file_r_text, "\\w+\\(")$found |>
   strsplit(",") |>
