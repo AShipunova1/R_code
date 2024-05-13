@@ -217,12 +217,19 @@ flat_file_r_text <-
 ## get all auxfunctions names ----
 auxfunctions_list <- getNamespaceExports("auxfunctions")
 
-## get function names from the main file ----
-flat_file_r_text |> 
-  stringr::str_locate("\\b\\w+\\(%") |> head()
+## list of used functions ----
+used_naked_functions <-
+  check_str(flat_file_r_text, "\\w+\\(")$found |>
+  strsplit(",") |>
+  stringr::str_sub(end = -2) |>
+  unique()
 
-one_tag <- "description"
-function_name <- "remove_empty_cols"
+## find which used functions are from the auxfunctions package ----
+# TODO: use on qmd file with included aux files?
+my_used_function_names <-
+  dplyr::intersect(auxfunctions_list, used_naked_functions)
+
+# my_used_function_names
 
 ## get function help as a text ----
 get_help_text <- function(function_name) {
@@ -263,20 +270,6 @@ function_obj_as_text <- function(function_name) {
 
 # function_obj_as_text(find_col_name)
 
-## list of used functions ----
-used_naked_functions <-
-  check_str(flat_file_r_text, "\\w+\\(")$found |>
-  strsplit(",") |>
-  stringr::str_sub(end = -2) |>
-  unique()
-
-## find which used functions are from the auxfunctions package ----
-# TODO: use on qmd file with included aux files?
-my_used_function_names <-
-  dplyr::intersect(auxfunctions_list, used_naked_functions)
-
-my_used_function_names
-# function_obj_as_text(find_col_name)
 
 my_used_function_texts <-
   my_used_function_names |>
@@ -286,17 +279,16 @@ my_used_function_texts <-
     function_as_text <-
       function_list$objs[[1]] |> function_obj_as_text()
     
-    return(function_as_text)
+    with_first_line <- 
+      paste(one_f_name, " <- ",
+            function_as_text)
+    
+    return(with_first_line)
   })
 
 
-my_used_function_texts
-my_fun_name <- "print_df_names"
-rr <- getAnywhere("print_df_names")
-rr$objs[[1]] |> function_obj_as_text()
+# my_used_function_texts
 
-# function_obj_as_text({{"print_df_names"}})
-# rr <- get_help_text("load_xls_names")
 
 ## repeat the same for each source files ----
 
