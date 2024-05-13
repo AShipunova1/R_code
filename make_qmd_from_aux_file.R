@@ -229,9 +229,7 @@ used_naked_functions <-
 my_used_function_names <-
   dplyr::intersect(auxfunctions_list, used_naked_functions)
 
-# my_used_function_names
-
-## get function help as a text ----
+## a function to get function help as a text ----
 get_help_text <- function(function_name) {
   used_tags <- c("description", "details")
   help_text <-
@@ -257,9 +255,7 @@ get_help_text <- function(function_name) {
   return(used_tags_help)
 }
 
-# rr <- get_help_text("load_xls_names")
-
-## get function obj as a text ----
+## a function to get function obj as a text ----
 function_obj_as_text <- function(function_name) {
   # remove environment descriptions
   fun_body <- paste(capture.output(function_name), collapse = "\n") |>
@@ -268,9 +264,7 @@ function_obj_as_text <- function(function_name) {
   return(fun_body)
 }
 
-# function_obj_as_text(find_col_name)
-
-
+## get all my_used_function_texts ----
 my_used_function_texts <-
   my_used_function_names |>
   map(\(one_f_name) {
@@ -284,10 +278,17 @@ my_used_function_texts <-
             function_as_text)
     
     return(with_first_line)
-  })
+  }) |> 
+  set_names(my_used_function_names)
 
+## get all my used function helps ----
+my_used_function_helps <-
+  my_used_function_names |>
+  map(\(one_f_name) {
+    get_help_text(one_f_name)
+  }) |>
+  set_names(my_used_function_names)
 
-# my_used_function_texts
 
 
 ## repeat the same for each source files ----
