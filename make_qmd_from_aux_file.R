@@ -1,7 +1,9 @@
+library(tidyverse)
 # change dir name!
 curent_project_name <- readline(prompt = "Print you project name: ")
-# egregious_violators
+egregious_violators
 curent_file_name_no_ext <- readline(prompt = "Print you file name: ")
+egregious_violators_start
 
 # In the input .R script:
 # add "#' " in front of comments to be shown as text
@@ -210,9 +212,11 @@ flat_file_r_text
 flat_file_r_text <-
   add_pretty_table(flat_file_r_text)
 
-# add my functions' descriptions
+# add my functions' descriptions ----
+## get all auxfunctions names ----
 auxfunctions_list <- getNamespaceExports("auxfunctions")
 
+## get function names from the main file ----
 flat_file_r_text |> 
   stringr::str_locate("\\b\\w+\\(%") |> head()
 
@@ -230,8 +234,10 @@ used_naked_functions <-
   stringr::str_sub(end = -2) |>
   unique()
 
-# TODO: use on qmd file with included aux files
-dplyr::intersect(auxfunctions_list, used_naked_functions)
+## find which used functions are from the auxfunctions package ----
+# TODO: use on qmd file with included aux files?
+used_function_names <-
+  dplyr::intersect(auxfunctions_list, used_naked_functions)
 
 # text |>
 #   stringr::str_extract("file = .{10}") |>
@@ -243,6 +249,11 @@ dplyr::intersect(auxfunctions_list, used_naked_functions)
 # str(rmd_text)
 #  chr [1:12684] "## Current file: useful_functions_module.r" ...
 
+## repeat the same for each source files ----
+
+## Copy function code and description before it is used ----
+used_function_names |> 
+  map
 
 
 # convert to Rmd ----
