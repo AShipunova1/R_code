@@ -289,33 +289,27 @@ my_used_function_helps <-
   }) |>
   set_names(my_used_function_names)
 
-## add function explanations before the first use ----
-  # str_c(collapse = "---") %>%
-  # str_replace_all(c("one" = "1", "two" = "2", "three" = "3"))
+## repeat the same for each source files ----
 
-# Reduce(
-#   function(txt, i)
-#     gsub(subst$regex[i], subst$replacement[i], txt, perl = TRUE),
-#   seq_len(nrow(subst)),
-#   init = text,
-#   accumulate = TRUE
-# )
-
-# my_used_function_names
-Reduce(
-  function(txt, i) {
-    gsub(subst$regex[i], subst$replacement[i], txt, perl = TRUE)},
-  seq_len(nrow(subst)),
-  init = text,
-  accumulate = TRUE
-)
-
-
-flat_file_r_text <-
+## Paste function code and description before it is used ----
+flat_file_r_text1 <-
   Reduce(function(flat_file_r_text, i) {
     # browser()
-    gsub(my_used_function_names[[i]],
-         my_used_function_texts[[i]],
+    to_find <- str_glue("(#[^#]+{my_used_function_names[[i]]})")
+    to_replace_with <- 
+      paste(
+        "\n# <<<<",
+        my_used_function_texts[[i]],
+        "\nExplanations:",
+        my_used_function_helps[[i]],
+        "# >>>>",
+        "\\1",
+        #to keep in place what's found
+        sep = "\n"
+      )
+    
+    gsub(to_find,
+         to_replace_with,
          flat_file_r_text,
          perl = TRUE)
   },
@@ -325,16 +319,10 @@ flat_file_r_text <-
   # accumulate = TRUE
   )
 
-# outfile <- tempfile(fileext = ".txt")
-# cat(res, file = outfile)
-# file.show(outfile)
+outfile <- tempfile(fileext = ".txt")
+cat(flat_file_r_text1, file = outfile)
+file.show(outfile)
 
-    # replace_with_text <-
-    #   paste(my_used_function_texts[[one_f_name]],
-    #         "\nExplanations:",
-    #         my_used_function_helps[[one_f_name]],
-    #         one_f_name, #to keep in place what's found
-    #         sep = "\n")
     
 #     flat_file_r_text <- 
 #     flat_file_r_text |>
@@ -362,76 +350,6 @@ flat_file_r_text <-
 #     
 #     return(flat_file_r_text)
 #   })
-
-## repeat the same for each source files ----
-
-## Copy function code and description before it is used ----
-# getAnywhere(find_col_name)
-# methods(find_col_name)
-
-### create an empty result list ----
-
-used_functions_res <-
-  vector("list", length(used_function_names)) |>
-  setNames(used_function_names)
-
-# declaring an empty data frame 
-res_df <- data.frame(
-  fun_name = character(),
-  fun_text = character(),
-  fun_help = character(),
-  stringsAsFactors = FALSE
-)
-
-
-used_function_names |>
-  map_df(\(one_f_name) {
-    # browser()
-    function_code_as_text <- getAnywhere(find_col_name)
-    help_text_0 <- help(one_f_name)
-    help_text <- capture.output(
-      tools:::Rd2txt(utils:::.getHelpFile(help_text_0))
-    )
-
-    curr_rd <- Rd_db("auxfunctions")[[4]]
-    # [["Rd2HTML.Rd"]]
-    
-    # outfile <- tempfile(fileext = ".txt")
-    # Rd2txt(curr_rd, outfile, package = "auxfunctions") |> file.show()
-    
-db <- Rd_db("auxfunctions")
-View(db)
-# grep("find_col_name", names(db), value = TRUE)
-# db[["find_col_name.Rd"]] |> View()
-lapply(db, tools:::.Rd_get_metadata, "name")
-
-descriptions <- lapply(db, tools:::.Rd_get_metadata, "description")
-
-details <- lapply(db, tools:::.Rd_get_metadata, "details")
-
-
-    # help_text <-
-    #   tools:::Rd2txt(utils:::.getHelpFile(as.character(help_text_0)))
-    help_text_all <- 
-      function_code_as_text$objs$`package:auxfunctions`
-    res_vec <- 
-    # c(one_f_name, function_code_as_text, help_text)
-    new <- data.frame(one_f_name, 
-                      function_code_as_text,
-                      help_text)
-    df1  <- rbind(res_df, new)
-
-    rbind(res_df,
-          )
-    res_df$fun_name <- one_f_name
-    # res_df[["fun_help"]] <- help_text
-    # res_df[["fun_code"]] <- function_code_as_text
-    
-    # res_df = rbind(res_df,
-    return(res_vec)
-  })
-
-View(used_functions_list)
 
 # convert to Rmd ----
 # The 'knitr::spin' function is used to create an R Markdown (Rmd) file, but the 'knit' argument is set to 'FALSE', indicating that the document should not be fully knitted. Instead, this function generates an Rmd file from the R script without executing the code chunks.
