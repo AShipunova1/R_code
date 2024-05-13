@@ -223,48 +223,35 @@ flat_file_r_text |>
 
 one_tag <- "description"
 function_name <- "remove_empty_cols"
+
 ## get function help as a text ----
 get_help_text <- function(function_name) {
-  
   used_tags <- c("description", "details")
-  help_text <-   
-    help(function_name, "auxfunctions") |> 
+  help_text <-
+    help(function_name, "auxfunctions") |>
     utils:::.getHelpFile()
   
-  used_tags_help <-
+  used_tags_help_list <-
     map(used_tags, \(one_tag) {
       help_text |>
-        purrr::keep( ~ attr(.x, "Rd_tag") == paste0("\\", one_tag))
-    }) |> 
+        purrr::keep( ~ attr(.x, "Rd_tag") == paste0("\\", one_tag)) |>
+        purrr::map(as.character) %>%
+        purrr::flatten_chr() %>%
+        paste0(., collapse = "")
+      
+    }) |>
     setNames(used_tags)
   
-  # View(used_tags_help)
+  used_tags_help <- 
+    paste(used_tags_help_list[[1]],
+          "\n",
+          used_tags_help_list[[2]])
   
-
-
-details_text <- 
-  help(function_name, "auxfunctions") %>%
-  utils:::.getHelpFile() %>%
-  purrr::keep( ~ attr(.x, "Rd_tag") == "\\details")
-
-
-%>%
-  purrr::map(as.character) %>%
-  purrr::flatten_chr() %>%
-  paste0(., collapse = "")
-  # |> 
-  #   str_replace_all("[\n]", "\n")
-
-description_text <- 
-  help(function_name, "auxfunctions") %>%
-  utils:::.getHelpFile() %>%
-  purrr::keep( ~ attr(.x, "Rd_tag") == "\\description") %>%
-  purrr::map(as.character) %>%
-  purrr::flatten_chr() %>%
-  paste0(., collapse = "")
-
-  
+  return(used_tags_help)
 }
+
+# rr <- get_help_text("load_xls_names")
+
 # lsf.str("package:auxfunctions")[10]
   help("remove_empty_cols", "auxfunctions") %>%
   utils:::.getHelpFile() %>%
