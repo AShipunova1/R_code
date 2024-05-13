@@ -292,9 +292,10 @@ my_used_function_helps <-
 ## repeat the same for each source files ----
 
 ## Paste function code and description before it is used ----
-flat_file_r_text1 <-
-  Reduce(function(flat_file_r_text, i) {
-    # browser()
+
+replace_one_in_each <- 
+  function(flat_file_r_text, i) {
+    browser()
     to_find <- str_glue("(^.+{my_used_function_names[[i]]})")
     to_replace_with <-
       paste(
@@ -316,12 +317,21 @@ flat_file_r_text1 <-
     #      to_replace_with,
     #      flat_file_r_text,
     #      perl = TRUE)
-  }, 
-  seq_len(length(my_used_function_names)), 
-  init = flat_file_r_text
+  }
+
+flat_file_r_text1 <-
+  # flat_file_r_text |> 
+  purrr::reduce(seq_len(length(my_used_function_names)),
+                \(acc, nxt) replace_one_in_each(acc, nxt), 
+                .init = flat_file_r_text)
+
+  # purrr::reduce(replace_one_in_each(),
+      +          # init = flat_file_r_text)
+  # seq_len(length(my_used_function_names)), 
+  # init = flat_file_r_text
   # ,
   # accumulate = TRUE
-  )
+  # )
   
 outfile <- tempfile(fileext = ".txt")
 cat(flat_file_r_text1, file = outfile)
