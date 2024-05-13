@@ -294,9 +294,9 @@ my_used_function_helps <-
 ## Paste function code and description before it is used ----
 flat_file_r_text1 <-
   Reduce(function(flat_file_r_text, i) {
-    browser()
+    # browser()
     to_find <- str_glue("(^.+{my_used_function_names[[i]]})")
-    to_replace_with <- 
+    to_replace_with <-
       paste(
         "\n# <<<<",
         my_used_function_texts[[i]],
@@ -308,19 +308,21 @@ flat_file_r_text1 <-
         sep = "\n"
       )
     
-    grep(to_find, flat_file_r_text, value = T) |> 
+    grep(to_find, flat_file_r_text, value = T) |>
       cat()
-    gsub(to_find,
-         to_replace_with,
-         flat_file_r_text,
-         perl = TRUE)
-  },
-  seq_len(length(my_used_function_names)),
+    
+    str_replace(flat_file_r_text, to_find, to_replace_with)
+    # gsub(to_find,
+    #      to_replace_with,
+    #      flat_file_r_text,
+    #      perl = TRUE)
+  }, 
+  seq_len(length(my_used_function_names)), 
   init = flat_file_r_text
   # ,
   # accumulate = TRUE
   )
-
+  
 outfile <- tempfile(fileext = ".txt")
 cat(flat_file_r_text1, file = outfile)
 file.show(outfile)
