@@ -362,12 +362,12 @@ rmd_text <-
 tictoc::toc()
 # rmd_text: 0.11 sec elapsed
 
-rmd_text |>
-  stringr::str_extract("````") |>
-  as.data.frame() |>
-  setNames(nm = "found") |> 
-  filter(!is.na(found)) |> dim()
-# 86
+# rmd_text |>
+#   stringr::str_extract("````") |>
+#   as.data.frame() |>
+#   setNames(nm = "found") |> 
+#   filter(!is.na(found)) |> dim()
+# # 86
 
 # Don't use in the auxiliary file
 pre_text <- stringr::str_glue("---
