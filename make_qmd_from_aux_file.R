@@ -1,4 +1,5 @@
 library(tidyverse)
+library(tools)
 # change dir name!
 curent_project_name <- readline(prompt = "Print you project name: ")
 egregious_violators
@@ -220,13 +221,18 @@ auxfunctions_list <- getNamespaceExports("auxfunctions")
 flat_file_r_text |> 
   stringr::str_locate("\\b\\w+\\(%") |> head()
 
-# lsf.str("package:dplyr")[10] %>%
-#   help("dplyr") %>%
-#   utils:::.getHelpFile() %>%
-#   purrr::keep( ~ attr(.x, "Rd_tag") == "\\description") %>%
-#   purrr::map(as.character) %>%
-#   purrr::flatten_chr() %>%
-#   paste0(., collapse = "")
+## get function help as a text ----
+get_help_text <- function(function_name) {
+  
+}
+# lsf.str("package:auxfunctions")[10]
+  help("remove_empty_cols", "auxfunctions") %>%
+  utils:::.getHelpFile() %>%
+  purrr::keep( ~ attr(.x, "Rd_tag") == "\\description") %>%
+  purrr::map(as.character) %>%
+  purrr::flatten_chr() %>%
+  paste0(., collapse = "") |> 
+    str_replace_all("[\n]", "\n")
 
 used_naked_functions <-
   check_str(flat_file_r_text, "\\w+\\(")$found |>
@@ -269,6 +275,7 @@ res_df <- data.frame(
   stringsAsFactors = FALSE
 )
 
+
 used_function_names |>
   map_df(\(one_f_name) {
     browser()
@@ -284,7 +291,6 @@ used_function_names |>
     # outfile <- tempfile(fileext = ".txt")
     # Rd2txt(curr_rd, outfile, package = "auxfunctions") |> file.show()
     
-    library(tools)
 db <- Rd_db("auxfunctions")
 View(db)
 # grep("find_col_name", names(db), value = TRUE)
