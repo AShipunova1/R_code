@@ -221,17 +221,26 @@ auxfunctions_list <- getNamespaceExports("auxfunctions")
 flat_file_r_text |> 
   stringr::str_locate("\\b\\w+\\(%") |> head()
 
+one_tag <- "description"
+function_name <- "remove_empty_cols"
 ## get function help as a text ----
 get_help_text <- function(function_name) {
   
   used_tags <- c("description", "details")
   help_text <-   
-    help(function_name, "auxfunctions") %>%
+    help(function_name, "auxfunctions") |> 
     utils:::.getHelpFile()
-    
-description_text <- 
-  help_text
-  purrr::keep( ~ attr(.x, "Rd_tag") == "\\description")
+  
+  used_tags_help <-
+    map(used_tags, \(one_tag) {
+      help_text |>
+        purrr::keep( ~ attr(.x, "Rd_tag") == paste0("\\", one_tag))
+    }) |> 
+    setNames(used_tags)
+  
+  # View(used_tags_help)
+  
+
 
 details_text <- 
   help(function_name, "auxfunctions") %>%
