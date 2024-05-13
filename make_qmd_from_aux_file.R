@@ -290,15 +290,18 @@ my_used_function_helps <-
   set_names(my_used_function_names)
 
 ## add function explanations before the first use ----
-flat_file_r_text1 <-
+flat_file_r_text <-
   my_used_function_names |>
   map(\(one_f_name) {
+    # browser()
     replace_with_text <-
       paste(my_used_function_texts[[one_f_name]],
+            "\nExplanations:",
             my_used_function_helps[[one_f_name]],
-            one_f_name,
+            one_f_name, #to keep in place what's found
             sep = "\n")
     
+    flat_file_r_text <- 
     flat_file_r_text |>
       str_replace(one_f_name, 
                   replace_with_text)
@@ -329,7 +332,7 @@ res_df <- data.frame(
 
 used_function_names |>
   map_df(\(one_f_name) {
-    browser()
+    # browser()
     function_code_as_text <- getAnywhere(find_col_name)
     help_text_0 <- help(one_f_name)
     help_text <- capture.output(
