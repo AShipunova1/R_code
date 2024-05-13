@@ -294,8 +294,8 @@ my_used_function_helps <-
 ## Paste function code and description before it is used ----
 flat_file_r_text1 <-
   Reduce(function(flat_file_r_text, i) {
-    # browser()
-    to_find <- str_glue("(#[^#]+{my_used_function_names[[i]]})")
+    browser()
+    to_find <- str_glue("(^.+{my_used_function_names[[i]]})")
     to_replace_with <- 
       paste(
         "\n# <<<<",
@@ -308,6 +308,8 @@ flat_file_r_text1 <-
         sep = "\n"
       )
     
+    grep(to_find, flat_file_r_text, value = T) |> 
+      cat()
     gsub(to_find,
          to_replace_with,
          flat_file_r_text,
