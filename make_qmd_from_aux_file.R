@@ -257,20 +257,55 @@ used_function_names <-
 
 ### create an empty result list ----
 
-used_functions_list <-
+used_functions_res <-
   vector("list", length(used_function_names)) |>
   setNames(used_function_names)
 
+# declaring an empty data frame 
+res_df <- data.frame(
+  fun_name = character(),
+  fun_text = character(),
+  fun_help = character(),
+  stringsAsFactors = FALSE
+)
+
 used_function_names |>
-  map(\(one_f_name) {
-    function_code_as_text <- one_f_name
+  map_df(\(one_f_name) {
+    browser()
+    function_code_as_text <- getAnywhere(find_col_name)
     help_text_0 <- help(one_f_name)
-    help_text <-
-      tools:::Rd2txt(utils:::.getHelpFile(as.character(help_text_0)))
+    help_text <- capture.output(
+      tools:::Rd2txt(utils:::.getHelpFile(help_text_0))
+    )
+
+    curr_rd <- Rd_db("auxfunctions")[[4]]
+    # [["Rd2HTML.Rd"]]
     
+    outfile <- tempfile(fileext = ".txt")
+    Rd2txt(curr_rd, outfile, package = "auxfunctions") |> file.show()
     
+    # help_text <-
+    #   tools:::Rd2txt(utils:::.getHelpFile(as.character(help_text_0)))
+    help_text_all <- 
+      function_code_as_text$objs$`package:auxfunctions`
+    res_vec <- 
+    # c(one_f_name, function_code_as_text, help_text)
+    new <- data.frame(one_f_name, 
+                      function_code_as_text,
+                      help_text)
+    df1  <- rbind(res_df, new)
+
+    rbind(res_df,
+          )
+    res_df$fun_name <- one_f_name
+    # res_df[["fun_help"]] <- help_text
+    # res_df[["fun_code"]] <- function_code_as_text
+    
+    # res_df = rbind(res_df,
+    return(res_vec)
   })
 
+View(used_functions_list)
 
 # convert to Rmd ----
 # The 'knitr::spin' function is used to create an R Markdown (Rmd) file, but the 'knit' argument is set to 'FALSE', indicating that the document should not be fully knitted. Instead, this function generates an Rmd file from the R script without executing the code chunks.
