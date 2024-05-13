@@ -289,7 +289,22 @@ my_used_function_helps <-
   }) |>
   set_names(my_used_function_names)
 
-
+## add function explanations before the first use ----
+flat_file_r_text1 <-
+  my_used_function_names |>
+  map(\(one_f_name) {
+    replace_with_text <-
+      paste(my_used_function_texts[[one_f_name]],
+            my_used_function_helps[[one_f_name]],
+            one_f_name,
+            sep = "\n")
+    
+    flat_file_r_text |>
+      str_replace(one_f_name, 
+                  replace_with_text)
+    
+    return(flat_file_r_text)
+  })
 
 ## repeat the same for each source files ----
 
