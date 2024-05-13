@@ -252,17 +252,24 @@ used_function_names <-
 ## repeat the same for each source files ----
 
 ## Copy function code and description before it is used ----
-fin1_text <- find_col_name
-fin1_help
+# getAnywhere(find_col_name)
+# methods(find_col_name)
 
-# helptext <- help(truehist, package=MASS)
-# tools:::Rd2txt(utils:::.getHelpFile(as.character(helptext)))
+### create an empty result list ----
 
+used_functions_list <-
+  vector("list", length(used_function_names)) |>
+  setNames(used_function_names)
 
-getAnywhere(find_col_name)
-methods(find_col_name)
-used_function_names |> 
-  map(getAnywhere )
+used_function_names |>
+  map(\(one_f_name) {
+    function_code_as_text <- one_f_name
+    help_text_0 <- help(one_f_name)
+    help_text <-
+      tools:::Rd2txt(utils:::.getHelpFile(as.character(help_text_0)))
+    
+    
+  })
 
 
 # convert to Rmd ----
