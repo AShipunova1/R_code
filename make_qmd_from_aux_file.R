@@ -281,9 +281,21 @@ used_function_names |>
     curr_rd <- Rd_db("auxfunctions")[[4]]
     # [["Rd2HTML.Rd"]]
     
-    outfile <- tempfile(fileext = ".txt")
-    Rd2txt(curr_rd, outfile, package = "auxfunctions") |> file.show()
+    # outfile <- tempfile(fileext = ".txt")
+    # Rd2txt(curr_rd, outfile, package = "auxfunctions") |> file.show()
     
+    library(tools)
+db <- Rd_db("auxfunctions")
+View(db)
+# grep("find_col_name", names(db), value = TRUE)
+# db[["find_col_name.Rd"]] |> View()
+lapply(db, tools:::.Rd_get_metadata, "name")
+
+descriptions <- lapply(db, tools:::.Rd_get_metadata, "description")
+
+details <- lapply(db, tools:::.Rd_get_metadata, "details")
+
+
     # help_text <-
     #   tools:::Rd2txt(utils:::.getHelpFile(as.character(help_text_0)))
     help_text_all <- 
