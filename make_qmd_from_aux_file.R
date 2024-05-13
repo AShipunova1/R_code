@@ -272,18 +272,31 @@ used_naked_functions <-
 
 ## find which used functions are from the auxfunctions package ----
 # TODO: use on qmd file with included aux files?
-used_function_names <-
+my_used_function_names <-
   dplyr::intersect(auxfunctions_list, used_naked_functions)
 
-# text |>
-#   stringr::str_extract("file = .{10}") |>
-#   as.data.frame() |>
-#   setNames(nm = "found") |>
-#   filter(!is.na(found))
-# text |> write(file = r"(C:\Users\anna.shipunova\Documents\R_code_github\egregious_violators\temp.tmp)")
+my_used_function_names
+# function_obj_as_text(find_col_name)
 
-# str(rmd_text)
-#  chr [1:12684] "## Current file: useful_functions_module.r" ...
+my_used_function_texts <-
+  my_used_function_names |>
+  map(\(one_f_name) {
+    function_list <- getAnywhere(one_f_name)
+    
+    function_as_text <-
+      function_list$objs[[1]] |> function_obj_as_text()
+    
+    return(function_as_text)
+  })
+
+
+my_used_function_texts
+my_fun_name <- "print_df_names"
+rr <- getAnywhere("print_df_names")
+rr$objs[[1]] |> function_obj_as_text()
+
+# function_obj_as_text({{"print_df_names"}})
+# rr <- get_help_text("load_xls_names")
 
 ## repeat the same for each source files ----
 
