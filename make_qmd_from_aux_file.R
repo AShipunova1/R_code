@@ -290,24 +290,78 @@ my_used_function_helps <-
   set_names(my_used_function_names)
 
 ## add function explanations before the first use ----
+  # str_c(collapse = "---") %>%
+  # str_replace_all(c("one" = "1", "two" = "2", "three" = "3"))
+
+# Reduce(
+#   function(txt, i)
+#     gsub(subst$regex[i], subst$replacement[i], txt, perl = TRUE),
+#   seq_len(nrow(subst)),
+#   init = text,
+#   accumulate = TRUE
+# )
+
+# my_used_function_names
+Reduce(
+  function(txt, i) {
+    gsub(subst$regex[i], subst$replacement[i], txt, perl = TRUE)},
+  seq_len(nrow(subst)),
+  init = text,
+  accumulate = TRUE
+)
+
+
 flat_file_r_text <-
-  my_used_function_names |>
-  map(\(one_f_name) {
+  Reduce(function(flat_file_r_text, i) {
     # browser()
-    replace_with_text <-
-      paste(my_used_function_texts[[one_f_name]],
-            "\nExplanations:",
-            my_used_function_helps[[one_f_name]],
-            one_f_name, #to keep in place what's found
-            sep = "\n")
+    gsub(my_used_function_names[[i]],
+         my_used_function_texts[[i]],
+         flat_file_r_text,
+         perl = TRUE)
+  },
+  seq_len(length(my_used_function_names)),
+  init = flat_file_r_text
+  # ,
+  # accumulate = TRUE
+  )
+
+# outfile <- tempfile(fileext = ".txt")
+# cat(res, file = outfile)
+# file.show(outfile)
+
+    # replace_with_text <-
+    #   paste(my_used_function_texts[[one_f_name]],
+    #         "\nExplanations:",
+    #         my_used_function_helps[[one_f_name]],
+    #         one_f_name, #to keep in place what's found
+    #         sep = "\n")
     
-    flat_file_r_text <- 
-    flat_file_r_text |>
-      str_replace(one_f_name, 
-                  replace_with_text)
-    
-    return(flat_file_r_text)
-  })
+#     flat_file_r_text <- 
+#     flat_file_r_text |>
+#       str_replace(one_f_name, 
+#                   replace_with_text)
+#     
+# 
+# 
+# flat_file_r_text1 <-
+# flat_file_r_text |> 
+#   my_used_function_names |>
+#   map(\(one_f_name) {
+#     # browser()
+#     replace_with_text <-
+#       paste(my_used_function_texts[[one_f_name]],
+#             "\nExplanations:",
+#             my_used_function_helps[[one_f_name]],
+#             one_f_name, #to keep in place what's found
+#             sep = "\n")
+#     
+#     flat_file_r_text <- 
+#     flat_file_r_text |>
+#       str_replace(one_f_name, 
+#                   replace_with_text)
+#     
+#     return(flat_file_r_text)
+#   })
 
 ## repeat the same for each source files ----
 
