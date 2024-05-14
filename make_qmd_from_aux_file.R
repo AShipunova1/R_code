@@ -294,15 +294,15 @@ my_used_function_helps <-
 ## Paste function code and description before it is used ----
 
 replace_one_in_each <- 
-  function(flat_file_r_text, i) {
+  function(flat_file_r_text, idx) {
     browser()
-    to_find <- str_glue("(^.+{my_used_function_names[[i]]})")
+    to_find <- str_glue("(^.+{my_used_function_names[[idx]]})")
     to_replace_with <-
       paste(
         "\n# <<<<",
-        my_used_function_texts[[i]],
+        my_used_function_texts[[idx]],
         "\nExplanations:",
-        my_used_function_helps[[i]],
+        my_used_function_helps[[idx]],
         "# >>>>",
         "\\1",
         #to keep in place what's found
@@ -312,8 +312,16 @@ replace_one_in_each <-
     grep(to_find, flat_file_r_text, value = T) |>
       cat()
     
-    stringi::stri_replace_last(flat_file_r_text, to_replace_with, to_find)
+    # stringi::stri_replace_last(flat_file_r_text, 
+    #                            regex = to_find, 
+    #                            replacement = to_replace_with)
+    # 
+    # stri_replace_last_regex(str, regex, replacement, ...)
 
+    stringi::stri_replace_last_regex(flat_file_r_text, 
+                            to_find, 
+                            to_replace_with)
+    
     # str_replace(flat_file_r_text, to_find, to_replace_with)
     # gsub(to_find,
     #      to_replace_with,
@@ -323,7 +331,9 @@ replace_one_in_each <-
 
 flat_file_r_text1 <-
   # flat_file_r_text |> 
-  purrr::reduce(my_used_function_names,
+  purrr::reduce(seq_len(length(my_used_function_names)),
+# 
+#   purrr::reduce(my_used_function_names,
                 \(acc, nxt) replace_one_in_each(acc, nxt), 
                 .init = flat_file_r_text)
 
@@ -335,9 +345,9 @@ flat_file_r_text1 <-
   # accumulate = TRUE
   # )
   
-# outfile <- tempfile(fileext = ".txt")
-# cat(flat_file_r_text1, file = outfile)
-# file.show(outfile)
+outfile <- tempfile(fileext = ".txt")
+cat(flat_file_r_text1, file = outfile)
+file.show(outfile)
 
     
 #     flat_file_r_text <- 
