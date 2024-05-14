@@ -328,16 +328,16 @@ flat_file_r_text1 <-
                 .init = flat_file_r_text)
 
   # purrr::reduce(replace_one_in_each(),
-      +          # init = flat_file_r_text)
+  # init = flat_file_r_text)
   # seq_len(length(my_used_function_names)), 
   # init = flat_file_r_text
   # ,
   # accumulate = TRUE
   # )
   
-outfile <- tempfile(fileext = ".txt")
-cat(flat_file_r_text1, file = outfile)
-file.show(outfile)
+# outfile <- tempfile(fileext = ".txt")
+# cat(flat_file_r_text1, file = outfile)
+# file.show(outfile)
 
     
 #     flat_file_r_text <- 
