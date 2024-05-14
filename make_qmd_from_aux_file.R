@@ -295,21 +295,26 @@ my_used_function_helps <-
 
 # grep("@", flat_file_r_text, value = T)
 # 0
-to_one_line <- function(my_text_with_newline) {
-  my_text_with_newline |> 
-    paste(collapse = "@@@")
-}
 
-split_one_line_text_back <- function(my_text_with_at) {
-  strsplit(my_text_with_at, "@@@")
-}
+my_split_newline_char <- "@@@"
 
-flat_file_r_text11 <- to_one_line(flat_file_r_text)
-length(flat_file_r_text11)
-head(flat_file_r_text11)
+to_one_line <-
+  function(my_text_with_newline, glue_by = my_split_newline_char) {
+    my_text_with_newline |>
+      paste(collapse = glue_by)
+  }
 
-flat_file_r_text12 <- split_one_line_text_back(flat_file_r_text11)
-head(flat_file_r_text12)
+split_one_line_text_back <-
+  function(my_text_with_at, split_by = my_split_newline_char) {
+    strsplit(my_text_with_at, split_by)[[1]]
+  }
+
+# flat_file_r_text11 <- to_one_line(flat_file_r_text)
+# length(flat_file_r_text11)
+# head(flat_file_r_text11)
+
+# flat_file_r_text12 <- split_one_line_text_back(flat_file_r_text11)
+# head(flat_file_r_text12)
 # str_count(flat_file_r_text, pattern = "\\n") |> sum()
 # [1] 80
 # nchar(gsub("\\n", "", flat_file_r_text)) + 1
@@ -318,8 +323,10 @@ head(flat_file_r_text12)
 
 replace_one_in_each <- 
   function(flat_file_r_text, idx) {
-    browser()
-    to_find <- str_glue("(^.+{my_used_function_names[[idx]]})")
+    # browser()
+    to_find <- str_glue("(",
+                        my_split_newline_char,
+                        ".+{my_used_function_names[[idx]]})")
     to_replace_with <-
       paste(
         "\n# <<<<",
@@ -332,10 +339,19 @@ replace_one_in_each <-
         sep = "\n"
       )
     
-    grep(to_find, flat_file_r_text, value = T) |>
-      cat()
+    one_line_text <- to_one_line(flat_file_r_text)
     
-    str_replace(flat_file_r_text, to_find, to_replace_with)
+    # grep(to_find, one_line_text, value = T) |>
+    #   cat()
+    # 
+    one_line_text_replaced <-
+      str_replace(one_line_text, to_find, to_replace_with)
+    
+    text_replaced <-
+      split_one_line_text_back(one_line_text_replaced)
+    
+    return(text_replaced)
+    
   }
 
 flat_file_r_text1 <-
@@ -360,6 +376,7 @@ see_res_in_outfile <- function(text_to_output) {
   file.show(outfile)
 }
 
+see_res_in_outfile(flat_file_r_text1)
 #     flat_file_r_text <- 
 #     flat_file_r_text |>
 #       str_replace(one_f_name, 
