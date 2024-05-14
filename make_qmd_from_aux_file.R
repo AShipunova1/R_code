@@ -323,7 +323,7 @@ replace_one_in_each <-
 
 flat_file_r_text1 <-
   # flat_file_r_text |> 
-  purrr::reduce(seq_len(length(my_used_function_names)),
+  purrr::reduce(my_used_function_names,
                 \(acc, nxt) replace_one_in_each(acc, nxt), 
                 .init = flat_file_r_text)
 
