@@ -117,7 +117,7 @@ read_source_files <- function(source_paths) {
 }
 
 source_files_content <- read_source_files(source_paths) |>
-  set_names(source_path_var_names)
+  set_names(source_paths_matches)
 
 # View(source_files_content)
 
