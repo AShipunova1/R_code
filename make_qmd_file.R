@@ -134,6 +134,24 @@ comment_out_sources <-
 
     # View(source_files_content)
     
+    to_find <- str_c("\\b", str_escape(unlist(source_paths_matches)), "\\b",
+                     collapse = "|")
+    # str(to_find)
+
+    # one_match <- "source(get_data_path)"
+    to_replace1 <-
+      function(one_match) {
+        browser()
+        paste("<<<@1@>>>", one_match)
+        # str_escape(source_files_content[[one_match]])
+      }
+
+    rrr <-
+      str_replace_all(flat_file_r_text, to_find, to_replace1)
+    
+    View(rrr)
+    
+    grep("<<@", rrr, value = T)
     # str_escape(source_paths_matches[[1]])
     my_res_text <-
       str_replace_all(flat_file_r_text, 
