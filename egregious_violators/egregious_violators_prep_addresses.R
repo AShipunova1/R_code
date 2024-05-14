@@ -22,7 +22,7 @@ fhier_addr_short <-
 
 fhier_addr_short_clean <-
   fhier_addr_short |>
-  clean_names_and_addresses() |> 
+  auxfunctions::clean_names_and_addresses() |> 
   dplyr::distinct()
 
 # nrow(fhier_addr_short_clean)
@@ -175,7 +175,7 @@ db_participants_address__needed_short__erv_erb_combined3 <-
       dplyr::group_by(official_number) |>
       dplyr::mutate(!!new_col_name := 
                       purrr::pmap(dplyr::across(dplyr::ends_with(curr_col_part)),
-                                    ~ list_sort_uniq(.)),
+                                    ~ auxfunctions::list_sort_uniq(.)),
              .keep = "none" ) |>
       dplyr::ungroup() |>
       dplyr::select(-official_number)
@@ -292,3 +292,4 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr <-
 cat("Result: ",
     "compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr",
     sep = "\n")
+

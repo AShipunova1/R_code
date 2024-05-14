@@ -46,7 +46,7 @@ from_fhier_data_path <-
   file.path(my_paths$inputs)
 
 temp_var <-
-  get_compl_and_corresp_data(from_fhier_data_path, all_csv_names_list)
+  auxfunctions::get_compl_and_corresp_data(from_fhier_data_path, all_csv_names_list)
 
 compl_clean_list <- temp_var[[1]]
 corresp_contact_cnts_clean0 <- temp_var[[2]]
@@ -117,7 +117,7 @@ fhier_addresses <-
   readr::read_csv(fhier_addresses_path,
            # read all as characters
            col_types = readr::cols(.default = 'c'),
-           name_repair = fix_names)
+           name_repair = auxfunctions::fix_names)
 
 # View(fhier_addresses)
 
@@ -152,7 +152,7 @@ db_participants_address_file_path <-
 
 # err msg if no connection, but keep running
 if (!exists("con")) {
-  try(con <- connect_to_secpr())
+  try(con <- auxfunctions::connect_to_secpr())
 }
 
 db_participants_address_fun <-
@@ -163,14 +163,14 @@ db_participants_address_fun <-
   }
 
 db_participants_address <-
-  read_rds_or_run(
+  auxfunctions::read_rds_or_run(
     db_participants_address_file_path,
     db_participants_address_query,
     db_participants_address_fun
     # force_from_db = "yes"
   ) |>
-  remove_empty_cols() |>
-  clean_headers()
+  auxfunctions::remove_empty_cols() |>
+  auxfunctions::clean_headers()
 # 2024-04-09 run for db_participants_address.rds: 52.22 sec elapsed
 
 dim(db_participants_address)
@@ -187,9 +187,9 @@ prev_result_path <-
 file.exists(prev_result_path)
 
 prev_result <-
-  my_read_xlsx(prev_result_path) |> 
-  remove_empty_cols() |>
-  clean_headers()
+  auxfunctions::my_read_xlsx(prev_result_path) |> 
+  auxfunctions::remove_empty_cols() |>
+  auxfunctions::clean_headers()
 
 dim(prev_result)
 

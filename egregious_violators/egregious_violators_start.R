@@ -17,7 +17,7 @@
 #                  repos = NULL,
 #                  type = "source")
 
-library(auxfunctions)
+# library(auxfunctions)
 library(ROracle)
 library(dplyr)
 library(rlang)
@@ -31,7 +31,7 @@ library(zoo)
 library(diffdf)
 # library(RColorBrewer)
 
-my_paths <- set_work_dir()
+my_paths <- auxfunctions::set_work_dir()
 
 current_project_path <- this.path::this.dir()
 
@@ -200,7 +200,7 @@ dim(compl_clean_w_permit_exp_last_half_year__sa__short)
 tictoc::tic("compl_overr")
 compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr <-
   compl_clean_w_permit_exp_last_half_year__sa__short |>
-  add_compliant_after_override(overridden_col_name = "overridden_",
+  auxfunctions::add_compliant_after_override(overridden_col_name = "overridden_",
                                compliance_col_name = "compliant_")
 tictoc::toc()
 # compl_overr: 8.76 sec elapsed
@@ -506,7 +506,7 @@ compl_corr_to_investigation_short <-
   # compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id |>
   dplyr::select(-any_of(unused_fields)) |>
   dplyr::group_by(vessel_official_number) |>
-  dplyr::summarise_all(concat_unique) |>
+  dplyr::summarise_all(auxfunctions::concat_unique) |>
   dplyr::ungroup()
 
 # print_df_names(compl_corr_to_investigation_short)
@@ -520,13 +520,13 @@ dim(compl_corr_to_investigation_short)
 
 # put names into vars (needed, bc spaces and underscores placements vary from source to source)
 contactdate_field_name <-
-  find_col_name(compl_corr_to_investigation_short, "contact", "date")[1]
+  auxfunctions::find_col_name(compl_corr_to_investigation_short, "contact", "date")[1]
 
 contacttype_field_name <-
-  find_col_name(compl_corr_to_investigation_short, "contact", "type")[1]
+  auxfunctions::find_col_name(compl_corr_to_investigation_short, "contact", "type")[1]
 
 contactphonenumber_field_name <-
-  find_col_name(compl_corr_to_investigation_short, ".*contact", "number.*")[1]
+  auxfunctions::find_col_name(compl_corr_to_investigation_short, ".*contact", "number.*")[1]
 
 # Explanations:
 # Define a function 'get_date_contacttype' that takes a dataframe 'compl_corr_to_investigation' as input.
@@ -712,3 +712,4 @@ cat("Result:",
     "and",
     stringr::str_glue("egregious_violators_to_investigate_{lubridate::today()}.csv"),
     sep = "\n")
+
