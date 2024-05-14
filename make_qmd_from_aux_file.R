@@ -312,21 +312,7 @@ replace_one_in_each <-
     grep(to_find, flat_file_r_text, value = T) |>
       cat()
     
-    # stringi::stri_replace_last(flat_file_r_text, 
-    #                            regex = to_find, 
-    #                            replacement = to_replace_with)
-    # 
-    # stri_replace_last_regex(str, regex, replacement, ...)
-
-    stringi::stri_replace_last_regex(flat_file_r_text, 
-                            to_find, 
-                            to_replace_with)
-    
-    # str_replace(flat_file_r_text, to_find, to_replace_with)
-    # gsub(to_find,
-    #      to_replace_with,
-    #      flat_file_r_text,
-    #      perl = TRUE)
+    str_replace(flat_file_r_text, to_find, to_replace_with)
   }
 
 flat_file_r_text1 <-
