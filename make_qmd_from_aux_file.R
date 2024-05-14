@@ -1,10 +1,10 @@
 library(tidyverse)
 library(tools)
 # change dir name!
-curent_project_name <- readline(prompt = "Print you project name: ")
-egregious_violators
-curent_file_name_no_ext <- readline(prompt = "Print you file name: ")
-egregious_violators_start
+curent_project_name <- readline(prompt = "Print your project name: ")
+# egregious_violators
+curent_file_name_no_ext <- readline(prompt = "Print your file name: ")
+# egregious_violators_start
 
 # In the input .R script:
 # add "#' " in front of comments to be shown as text
@@ -293,13 +293,15 @@ my_used_function_helps <-
 
 ## Paste function code and description before it is used ----
 
+# check
 # grep("@", flat_file_r_text, value = T)
 # 0
 
 my_split_newline_char <- "@@@"
 
 to_one_line <-
-  function(my_text_with_newline, glue_by = my_split_newline_char) {
+  function(my_text_with_newline, 
+           glue_by = my_split_newline_char) {
     my_text_with_newline |>
       paste(collapse = glue_by)
   }
@@ -309,21 +311,8 @@ split_one_line_text_back <-
     strsplit(my_text_with_at, split_by)[[1]]
   }
 
-# flat_file_r_text11 <- to_one_line(flat_file_r_text)
-# length(flat_file_r_text11)
-# head(flat_file_r_text11)
-
-# flat_file_r_text12 <- split_one_line_text_back(flat_file_r_text11)
-# head(flat_file_r_text12)
-# str_count(flat_file_r_text, pattern = "\\n") |> sum()
-# [1] 80
-# nchar(gsub("\\n", "", flat_file_r_text)) + 1
-# flat_file_r_text |> length()
-# 714
-
 replace_one_in_each <- 
   function(flat_file_r_text, idx) {
-    # browser()
     to_find <- str_glue("(",
                         my_split_newline_char,
                         ".+{my_used_function_names[[idx]]})")
@@ -334,16 +323,12 @@ replace_one_in_each <-
         "\nExplanations:",
         my_used_function_helps[[idx]],
         "# >>>>",
-        "\\1",
-        #to keep in place what's found
+        "\\1", #to keep in place what's found
         sep = "\n"
       )
     
     one_line_text <- to_one_line(flat_file_r_text)
     
-    # grep(to_find, one_line_text, value = T) |>
-    #   cat()
-    # 
     one_line_text_replaced <-
       str_replace(one_line_text, to_find, to_replace_with)
     
@@ -351,24 +336,12 @@ replace_one_in_each <-
       split_one_line_text_back(one_line_text_replaced)
     
     return(text_replaced)
-    
   }
 
-flat_file_r_text1 <-
-  # flat_file_r_text |> 
+flat_file_r_text <-
   purrr::reduce(seq_len(length(my_used_function_names)),
-# 
-#   purrr::reduce(my_used_function_names,
                 \(acc, nxt) replace_one_in_each(acc, nxt), 
                 .init = flat_file_r_text)
-
-  # purrr::reduce(replace_one_in_each(),
-  # init = flat_file_r_text)
-  # seq_len(length(my_used_function_names)), 
-  # init = flat_file_r_text
-  # ,
-  # accumulate = TRUE
-  # )
 
 see_res_in_outfile <- function(text_to_output) {
   outfile <- tempfile(fileext = ".txt")
@@ -376,33 +349,7 @@ see_res_in_outfile <- function(text_to_output) {
   file.show(outfile)
 }
 
-see_res_in_outfile(flat_file_r_text1)
-#     flat_file_r_text <- 
-#     flat_file_r_text |>
-#       str_replace(one_f_name, 
-#                   replace_with_text)
-#     
-# 
-# 
-# flat_file_r_text1 <-
-# flat_file_r_text |> 
-#   my_used_function_names |>
-#   map(\(one_f_name) {
-#     # browser()
-#     replace_with_text <-
-#       paste(my_used_function_texts[[one_f_name]],
-#             "\nExplanations:",
-#             my_used_function_helps[[one_f_name]],
-#             one_f_name, #to keep in place what's found
-#             sep = "\n")
-#     
-#     flat_file_r_text <- 
-#     flat_file_r_text |>
-#       str_replace(one_f_name, 
-#                   replace_with_text)
-#     
-#     return(flat_file_r_text)
-#   })
+# see_res_in_outfile(flat_file_r_text)
 
 # convert to Rmd ----
 # The 'knitr::spin' function is used to create an R Markdown (Rmd) file, but the 'knit' argument is set to 'FALSE', indicating that the document should not be fully knitted. Instead, this function generates an Rmd file from the R script without executing the code chunks.
