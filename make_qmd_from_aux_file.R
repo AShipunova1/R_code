@@ -2,9 +2,9 @@ library(tidyverse)
 library(tools)
 # change dir name!
 curent_project_name <- readline(prompt = "Print your project name: ")
-# egregious_violators
+egregious_violators
 curent_file_name_no_ext <- readline(prompt = "Print your file name: ")
-# egregious_violators_start
+egregious_violators_start
 
 # In the input .R script:
 # add "#' " in front of comments to be shown as text
@@ -231,6 +231,7 @@ my_used_function_names <-
 
 ## a function to get function help as a text ----
 get_help_text <- function(function_name) {
+  # browser()
   used_tags <- c("description", "details")
   help_text <-
     help(function_name, "auxfunctions") |>
@@ -243,7 +244,6 @@ get_help_text <- function(function_name) {
         purrr::map(as.character) %>%
         purrr::flatten_chr() %>%
         paste0(., collapse = "")
-      
     }) |>
     setNames(used_tags)
   
@@ -252,7 +252,11 @@ get_help_text <- function(function_name) {
           "\n",
           used_tags_help_list[[2]])
   
-  return(used_tags_help)
+  used_tags_help_commented <- 
+    used_tags_help |> 
+    str_replace_all("\n", "\n# ")
+  
+  return(used_tags_help_commented)
 }
 
 ## a function to get function obj as a text ----
@@ -313,6 +317,7 @@ split_one_line_text_back <-
 
 replace_one_in_each <- 
   function(flat_file_r_text, idx) {
+    # browser()
     to_find <- str_glue("(",
                         my_split_newline_char,
                         ".+{my_used_function_names[[idx]]})")
@@ -320,14 +325,15 @@ replace_one_in_each <-
       paste(
         "\n# <<<<",
         my_used_function_texts[[idx]],
-        "\nExplanations:",
+        "\n# Explanations:",
         my_used_function_helps[[idx]],
         "# >>>>",
         "\\1", #to keep in place what's found
         sep = "\n"
       )
     
-    one_line_text <- to_one_line(flat_file_r_text)
+    one_line_text <-
+      to_one_line(flat_file_r_text, my_split_newline_char)
     
     one_line_text_replaced <-
       str_replace(one_line_text, to_find, to_replace_with)
