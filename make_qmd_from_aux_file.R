@@ -293,6 +293,21 @@ my_used_function_helps <-
 
 ## Paste function code and description before it is used ----
 
+# grep("@", flat_file_r_text, value = T)
+# 0
+to_one_line <- function(my_text_with_newline) {
+  str_replace_all(my_text_with_newline, "\\n", "@@@")
+}
+split_one_line_text_back <- function(my_text_with_at) {
+  str_replace_all(my_text_with_at, "@@@", "\\n")
+}
+
+# str_count(flat_file_r_text, pattern = "\\n") |> sum()
+# [1] 80
+# nchar(gsub("\\n", "", flat_file_r_text)) + 1
+# flat_file_r_text |> length()
+# 714
+
 replace_one_in_each <- 
   function(flat_file_r_text, idx) {
     browser()
