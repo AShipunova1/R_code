@@ -296,25 +296,20 @@ my_used_function_helps <-
 # grep("@", flat_file_r_text, value = T)
 # 0
 to_one_line <- function(my_text_with_newline) {
-  cat(sep = "@@@")
+  my_text_with_newline |> 
+    paste(collapse = "@@@")
 }
 
 split_one_line_text_back <- function(my_text_with_at) {
-  str_replace_all(my_text_with_at, "@@@", "\\n")
+  strsplit(my_text_with_at, "@@@")
 }
-
-grep(".{10}\n.{10}", flat_file_r_text, value = T) |> 
-  head() |> 
-  str_replace_all("\n", "@@@") |> 
-  cat(sep = "@@@@@")
-
-
-sub("\n", "@@@", flat_file_r_text) |> head()
 
 flat_file_r_text11 <- to_one_line(flat_file_r_text)
 length(flat_file_r_text11)
 head(flat_file_r_text11)
 
+flat_file_r_text12 <- split_one_line_text_back(flat_file_r_text11)
+head(flat_file_r_text12)
 # str_count(flat_file_r_text, pattern = "\\n") |> sum()
 # [1] 80
 # nchar(gsub("\\n", "", flat_file_r_text)) + 1
