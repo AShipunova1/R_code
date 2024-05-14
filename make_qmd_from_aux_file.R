@@ -224,14 +224,28 @@ get_my_func_names_w_prefix <- function(in_text) {
               "auxfunctions::\\w+\\(") |> 
     unique() |> 
     na.omit()
-  
+
   # my_used_function_names <-
   #   grep("auxfunctions::\\w+\\(", in_text, value = TRUE) |> 
   #   unique()
   # 
   return(my_used_function_names)
-
 }
+
+find_all_input_files <-
+  function(in_text, search_str = "file = ") {
+    # grep("file = ", in_text, value = T)
+    to_search <- str_glue("{search_str}(\\w+)")
+    
+    in_text |>
+      str_extract(to_search) |>
+      unique() |>
+      na.omit() |>
+      str_replace_all(to_search, "\\1")
+    
+  }
+
+my_used_function_names <- find_all_input_files(flat_file_r_text)
 
 ## through "naked" functions ----
   
