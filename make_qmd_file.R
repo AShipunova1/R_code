@@ -60,28 +60,35 @@ head(flat_file_r_text)
 ## read all sourced files ----
 # grep("source", flat_file_r_text, value = T)
 
-find_source_path_vars <- function(my_text = flat_file_r_text) {
-  # browser()
-  source_path_vars_0 <-
+find_source_paths <- function(my_text = flat_file_r_text) {
+  source_path_all_list <-
     my_text |>
     str_extract_all("^\\s*[^#]*source\\((.+)\\)") |>
     unique()
   
-  source_path_vars_1 <-
-    purrr::discard(source_path_vars_0, ~ length(.x) == 0)
+  source_path_list <-
+    purrr::discard(source_path_all_list, ~ length(.x) == 0)
   
-  source_path_vars_2 <- 
-    source_path_vars_1 |> 
-    map(\(one_var) {
-      stringr::str_replace(one_var, "\\w+\\((.+)\\)", "\\1") |> 
-        stringr::str_remove("_path")
-    }) 
-  
-    return(source_path_vars_2)
+  return(source_path_list)
 }
 
+source_paths_matches <- find_source_paths()
+
+find_source_path_vars <-
+  function(my_text = flat_file_r_text,
+           source_paths_matches = source_paths_matches) {
+    source_path_vars <-
+      source_paths_matches |>
+      map(\(one_var) {
+        stringr::str_replace(one_var, "\\w+\\((.+)_path\\)", "\\1")
+      })
+    
+    return(source_path_vars)
+  }
+
 source_path_var_names <- 
-  find_source_path_vars()
+  find_source_path_vars(my_text = flat_file_r_text, 
+           source_paths_matches = source_paths_matches)
 
 # assuming files are named by convention:
 # FILE_NAME_PART_path
