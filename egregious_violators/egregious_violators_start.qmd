@@ -67,6 +67,81 @@ registerS3method(
 
 ```{r set up}
 # set up ----
+# <<<<
+set_work_dir  <-  function() {
+
+  # Set the working directory to the user's home directory (~)
+  setwd("~/")
+  base_dir <- getwd()
+
+  # Define 'main_r_dir' as "R_files_local"
+  main_r_dir <- "R_files_local"
+
+  # Define 'in_dir' as "my_inputs"
+  in_dir <- "my_inputs"
+
+  # Construct the full path to 'my_inputs' directory
+  full_path_to_in_dir <- file.path(base_dir, main_r_dir, in_dir)
+
+  # Define 'out_dir' as "my_outputs"
+  out_dir <- "my_outputs"
+
+  # Construct the full path to 'my_outputs' directory
+  full_path_to_out_dir <- file.path(base_dir, main_r_dir, out_dir)
+
+  # Define 'git_r_dir' as "R_code_github"
+  git_r_dir <- "R_code_github"
+
+  # Construct the full path to 'R_code_github' directory
+  full_path_to_r_git_dir <- file.path(base_dir, git_r_dir)
+
+  # Change the working directory to 'R_files_local'
+  setwd(file.path(base_dir, main_r_dir))
+
+  # Create a list of directory paths for 'inputs,' 'outputs,' and 'git_r'
+  my_paths <- list("inputs" = full_path_to_in_dir,
+                   "outputs" = full_path_to_out_dir,
+                   "git_r" = full_path_to_r_git_dir)
+
+  # Return the list of directory paths
+  return(my_paths)
+}
+
+# Explanations:
+
+# This function sets the working directory to the user's home directory, defines directory paths for inputs, outputs, and GitHub R code, changes the working directory to the main R directory, and returns these paths as a list.
+#  
+#  
+# Here's the breakdown of the `set_work_dir_local` function:
+# 
+# 1. **Function Definition:**
+#    - `set_work_dir_local <- function ()`: Defines a function named `set_work_dir_local` that takes no arguments.
+# 
+# 2. **Setting Working Directory:**
+#    - `setwd("~/")`: Sets the working directory to the user's home directory.
+#    - `base_dir <- getwd()`: Retrieves the current working directory and assigns it to the variable `base_dir`.
+# 
+# 3. **Defining Directory Paths:**
+#    - `main_r_dir <- "R_files_local"`: Specifies the directory name for local R files.
+#    - `in_dir <- "my_inputs"`: Specifies the directory name for input files.
+#    - `full_path_to_in_dir <- file.path(base_dir, main_r_dir, in_dir)`: Combines the base directory, main R directory, and input directory to create the full path to the input directory.
+#    - `out_dir <- "my_outputs"`: Specifies the directory name for output files.
+#    - `full_path_to_out_dir <- file.path(base_dir, main_r_dir, out_dir)`: Combines the base directory, main R directory, and output directory to create the full path to the output directory.
+#    - `git_r_dir <- "R_code_github"`: Specifies the directory name for the GitHub repository containing R code.
+#    - `full_path_to_r_git_dir <- file.path(base_dir, git_r_dir)`: Combines the base directory and GitHub R directory to create the full path to the GitHub R directory.
+# 
+# 4. **Changing Working Directory:**
+#    - `setwd(file.path(base_dir, main_r_dir))`: Sets the working directory to the main R directory.
+# 
+# 5. **Creating Paths List:**
+#    - `my_paths <- list(...)`: Creates a list named `my_paths` containing the paths to the input directory, output directory, and GitHub R directory.
+# 
+# 6. **Returning Paths List:**
+#    - `return(my_paths)`: Returns the `my_paths` list containing the paths to the input directory, output directory, and GitHub R directory.
+# 
+# 
+# >>>>
+
 # Get common functions
 # source("~/R_code_github/useful_functions_module.r")
 # install.packages("~/R_code_github/auxfunctions_1.0.tar.gz",
@@ -299,6 +374,45 @@ dim(compl_clean_w_permit_exp_last_half_year__sa__short)
 
 ```{r add compliant_after_overr}
 ## add compliant_after_overr ----
+# <<<<
+add_compliant_after_override  <-  function(my_compl_df,
+           overridden_col_name = "overridden",
+           compliance_col_name = "is_comp") {
+  # browser()
+  res <-
+    my_compl_df |>
+    rowwise() |>
+    mutate(
+      compliant_after_override =
+        case_when(
+          !!sym(compliance_col_name) %in% c(0, "NO") &
+            !!sym(overridden_col_name) %in% c(0, "NO")  ~ "no",
+          !!sym(compliance_col_name) %in% c(1, "YES") ~ "yes",
+          !!sym(overridden_col_name) %in% c(1, "YES") ~ "yes",
+          is.na(!!sym(compliance_col_name)) ~ NA,
+          .default = toString(!!sym(compliance_col_name))
+        )
+    ) |>
+    ungroup()
+
+  return(res)
+}
+
+# Explanations:
+
+# Explanations:
+# 1. Create a new variable 'res' to store the result.
+# 2. Use 'rowwise' to perform operations row by row.
+# 3. Use 'mutate' to create a new column 'compliant_after_override' based on conditions specified in 'case_when'.
+#    - If 'is_comp' is 0 and 'overridden' is 0, set 'compliant_after_override' to "no".
+#    - If 'is_comp' is 1 or 'overridden' is 1, set 'compliant_after_override' to "yes".
+#    - If 'is_comp' is NA, set 'compliant_after_override' to NA.
+#    - For all other cases, set 'compliant_after_override' to the string representation of 'is_comp'.
+# 4. Use 'ungroup' to remove grouping from the data frame.
+#  
+#  
+# >>>>
+
 
 tictoc::tic("compl_overr")
 compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr <-
@@ -632,6 +746,39 @@ num_of_vsl_to_investigate <-
 
 ```{r 1 remove extra columns}
 ## 1. remove extra columns ----
+# <<<<
+print_df_names  <-  function(my_df, names_num = 100) {
+  # Use 'names' to get column names,
+  # 'head' to limit the number of names to 'names_num',
+  # 'paste0' to concatenate them with a comma separator, and return the result.
+  names(my_df) %>%
+    head(names_num) %>%
+    paste0(collapse = ", ") %>%
+    return()
+}
+
+# Explanations:
+
+# This function prints the comma separated column names of a dataframe, with an option to limit the number of names displayed. It's useful for quickly inspecting the structure of a dataframe, especially when dealing with datasets with a large number of columns.
+#  
+#  
+# 1. **Function Definition:**
+#    - `print_df_names <- function (my_df, names_num = 100) { ... }`: Defines a function named `print_df_names` with two arguments: `my_df` (the dataframe whose column names will be printed) and `names_num` (the maximum number of names to display, defaulted to 100).
+# 
+# 2. **Extracting Column Names:**
+#    - `names(my_df)`: Retrieves the column names of the input dataframe `my_df`.
+# 
+# 3. **Selecting Subset of Names:**
+#    - `%>% head(names_num)`: Uses the pipe operator (`%>%`) to pass the column names to the `head` function, which selects the first `names_num` names. This is useful when the dataframe has a large number of columns, and we want to limit the display to a manageable number.
+# 
+# 4. **Formatting as a String:**
+#    - `%>% paste0(collapse = ", ")`: Concatenates the selected column names into a single string, separated by commas. This creates a more readable output.
+# 
+# 5. **Returning the Result:**
+#    - `%>% return()`: Returns the concatenated string of column names as the output of the function.
+# 
+# >>>>
+
 
 # Explanations:
 # Group the dataframe by the 'vessel_official_number' column and then apply the 'summarise_all' function.
@@ -702,6 +849,40 @@ dim(compl_corr_to_investigation_short)
 
 ```{r add list of contact dates and contact type in parentheses}
 ### add list of contact dates and contact type in parentheses  -----
+# <<<<
+find_col_name  <-  function(mydf, start_part, end_part) {
+  # Create a regular expression pattern to search for column names that start with 'start_part'
+  # and end with 'end_part'.
+  to_search <- paste0(start_part, ".*", end_part)
+
+  # Use 'grep' to search for column names in lowercase that match the pattern.
+  # 'value = TRUE' returns the matching column names as a character vector.
+  matching_names <- grep(to_search, tolower(names(mydf)), value = TRUE)
+
+  # Return the matching column name(s) as a character vector.
+  return(matching_names)
+}
+
+# Explanations:
+
+# This function provides a flexible way to search for column names within a dataframe based on specified starting and ending patterns. It is useful for identifying columns that match a particular naming convention or pattern. 
+#  
+# The function is designed to search for column names within a dataframe that contain a specific pattern defined by `start_part` and `end_part`.
+# 
+# 1. **Function Definition:**
+#    -`function (mydf, start_part, end_part) { .. }`: Defines a function with three arguments: `mydf` (the dataframe to search), `start_part` (the starting pattern of the column names to search for), and `end_part` (the ending pattern of the column names to search for).
+# 
+# 2. **Constructing Regular Expression:**
+#    - `to_search <- paste0(start_part, ".*", end_part)`: Constructs a regular expression pattern by concatenating `start_part`, ".*" (which matches any characters zero or more times), and `end_part`. This pattern will be used to search for matching column names.
+# 
+# 3. **Searching for Matching Column Names:**
+#    - `matching_names <- grep(to_search, tolower(names(mydf)), value = TRUE)`: Searches for column names in the dataframe `mydf` that match the regular expression pattern `to_search`. The `tolower` function is used to convert the column names to lowercase for case-insensitive matching. The `grep` function returns the matching column names as a vector.
+# 
+# 4. **Return Statement:**
+#    - `return(matching_names)`: Returns the vector of matching column names found in the dataframe that satisfy the specified pattern.
+# 
+# >>>>
+
 
 # put names into vars (needed, bc spaces and underscores placements vary from source to source)
 contactdate_field_name <-
