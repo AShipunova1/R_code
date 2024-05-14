@@ -17,14 +17,13 @@
 #                  repos = NULL,
 #                  type = "source")
 
-# library(auxfunctions)
+library(auxfunctions)
 library(ROracle)
 library(dplyr)
 library(rlang)
 # library(lubridate)
 # library(purrr)
 # library(readr)
-# library(ROracle)
 # library(tictoc)
 # library(tibble)
 library(zoo)
