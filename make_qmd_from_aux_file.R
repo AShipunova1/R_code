@@ -330,12 +330,13 @@ flat_file_r_text1 <-
   # ,
   # accumulate = TRUE
   # )
-  
-outfile <- tempfile(fileext = ".txt")
-cat(flat_file_r_text1, file = outfile)
-file.show(outfile)
 
-    
+see_res_in_outfile <- function(text_to_output) {
+  outfile <- tempfile(fileext = ".txt")
+  cat(text_to_output, file = outfile)
+  file.show(outfile)
+}
+
 #     flat_file_r_text <- 
 #     flat_file_r_text |>
 #       str_replace(one_f_name, 
