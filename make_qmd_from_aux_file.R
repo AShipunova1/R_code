@@ -214,20 +214,31 @@ flat_file_r_text <-
   add_pretty_table(flat_file_r_text)
 
 # add my functions' descriptions ----
-## get all auxfunctions names ----
-auxfunctions_list <- getNamespaceExports("auxfunctions")
 
-## list of used functions ----
-used_naked_functions <-
-  check_str(flat_file_r_text, "\\w+\\(")$found |>
-  strsplit(",") |>
-  stringr::str_sub(end = -2) |>
-  unique()
+## if with auxfunctions:: prefix ----
 
-## find which used functions are from the auxfunctions package ----
-# TODO: use on qmd file with included aux files?
-my_used_function_names <-
-  dplyr::intersect(auxfunctions_list, used_naked_functions)
+## through "naked" functions ----
+  
+get_my_func_names_naked <- function() {
+  ### get all auxfunctions names ----
+  auxfunctions_list <- getNamespaceExports("auxfunctions")
+  
+  ### list of used functions ----
+  used_naked_functions <-
+    check_str(flat_file_r_text, "\\w+\\(")$found |>
+    strsplit(",") |>
+    stringr::str_sub(end = -2) |>
+    unique()
+  
+  ### find which used functions are from the auxfunctions package ----
+  # TODO: use on qmd file with included aux files?
+  my_used_function_names <-
+    dplyr::intersect(auxfunctions_list, used_naked_functions)
+  
+  return(my_used_function_names)
+}
+
+my_used_function_names <- get_my_func_names_naked()
 
 ## a function to get function help as a text ----
 get_help_text <- function(function_name) {
