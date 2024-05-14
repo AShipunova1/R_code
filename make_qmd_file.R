@@ -129,24 +129,35 @@ source_files_content <- read_source_files(source_paths) |>
 
 # replace sourcing files with file content
 comment_out_sources <-
-  function(my_text) {
-    browser()
-    
-    my_text |> 
-    str_extract_all("^\\s*[^#]*source\\((.+)\\)") |> 
-      unique()
+  function(my_text = flat_file_r_text) {
+    # browser()
 
-    create_file_content_name <- 
-      
+    # View(source_files_content)
+    
+    # str_escape(source_paths_matches[[1]])
     my_res_text <-
+      str_replace_all(flat_file_r_text, 
+                      c("source\\(get_data_path\\)" = "<<<@1@>>>",
+                        "source\\(prep_addresses_path\\)" = "<<<@2@>>>")
+                      # c(source_paths_matches[[1]] = "<<<@1@>>>",
+                      #   source_paths_matches[[2]] = "<<<@2@>>>")
+                      #     # source_files_content[[2]])
+                      )
+
+    grep("<<@", my_res_text, value = T)
+    
+    my_res_text <-
+        # str_replace_all(c("one" = "1", "two" = "2", "three" = "3"))
+
       stringr::str_replace(my_text,
-        "(^\\s*[^#]*source\\((.+)\\))",  
-        # "(^\\s*[^#]*source\\(.+\\))", 
-        str_glue("#' \\1", 
-                 {""})
+        source_paths_matches,  
+        "<<<@@>>>"
+        # str_glue("#' \\1", 
+        #          {""})
         
 # "#+, file = \\1"
       )
+    
     return(my_res_text)
   }
 
