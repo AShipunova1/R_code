@@ -35,12 +35,15 @@ to_one_line <-
   function(my_text_with_newline, 
            glue_by = my_split_newline_char) {
     my_text_with_newline |>
-      paste(collapse = glue_by)
+      str_flatten(collapse = glue_by)
+    # paste(collapse = glue_by)
   }
 
 split_one_line_text_back <-
   function(my_text_with_at, split_by = my_split_newline_char) {
-    strsplit(my_text_with_at, split_by)[[1]]
+    my_text_with_at |>
+      unlist() |>
+      str_split(split_by)
   }
 
 # source("~/R_code_github/useful_functions_module.r")
@@ -143,8 +146,9 @@ source_files_content <- read_source_files(source_paths) |>
 source_files_content_one_line <-
   source_files_content |>
   map(to_one_line)
+
 # to_one_line(flat_file_r_text, my_split_newline_char)
-# View(source_files_content_one_line)
+# str(source_files_content_one_line)
 
 ## combine all files ----
 
@@ -180,23 +184,44 @@ flat_file_r_text <-
 
 ### split one line text back ----
 # Otherwise it is too long and breaks the RStudio
-eee <-
-  str_split(flat_file_r_text, "@@@")
+# eee <-
+  # str_split(flat_file_r_text, "@@@")
 
   # eee[[91]] |> 
-eee1 <-
-  eee |>
-  unlist() 
+# eee1 <-
+#   eee |>
+#   unlist() 
   # str()
   # str_extract("get data") |> 
   # head()
 
-eee1[[92]]
+# eee1[[92]]
+split_by <- "@@@"
 
-# length(eee)
+flat_file_r_text11 <-
+  flat_file_r_text |>
+  unlist() |>
+  str_split(split_by)
+
+# length()
+glue_by <- "@@@"
+source_files_content[[1]] |>
+  str_flatten(collapse = glue_by) |>
+  # length()
+  head()
+
+flat_file_r_text11[[91]]
+flat_file_r_text |> as.list() |>  str()
+
+flat_file_r_text1 <-
+  flat_file_r_text |> unlist() |> split_one_line_text_back()
+
+View(flat_file_r_text1)
+
 flat_file_r_text1 <- 
   split_one_line_text_back(flat_file_r_text)
-grep("get data for egregious violators", eee, value = T)
+
+grep("get data for egregious violators", flat_file_r_text1, value = T)
 tail(flat_file_r_text1)
 length(flat_file_r_text)
 
