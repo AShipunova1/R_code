@@ -6,11 +6,11 @@ function(compl_arr) {
 
   # Clean the 'week' column by splitting it into three columns with proper classes: 'week_num' (week order number), 'week_start', and 'week_end'.
   compl_clean <-
-    map(compl, clean_weeks)
+    purrr:::map(compl, clean_weeks)
 
   # Find a column name containing 'permit', 'group', and 'expiration' (permitgroupexpiration).
   permitgroupexpirations <-
-    map(compl,
+    purrr::map(compl,
         \(x) {
           grep("permit.*group.*expiration",
                tolower(names(x)),
@@ -20,10 +20,10 @@ function(compl_arr) {
   # Change the classes of dates in the 'permitgroupexpiration' columns from character to POSIXct.
   compl_dates <-
     compl_clean |>
-    imap(\(x, idx) {
+    purrr::imap(\(x, idx) {
       field_name <- permitgroupexpirations[[idx]]
       x |>
-        mutate({{field_name}} := as.POSIXct(pull(x[field_name]),
+        dplyr::mutate({{field_name}} := as.POSIXct(dplyr::pull(x[field_name]),
                                             format = "%m/%d/%Y"))
       # change_to_dates(x, permitgroupexpirations[[idx]], "%m/%d/%Y")
     })
