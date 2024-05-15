@@ -60,7 +60,6 @@ registerS3method(
 
 # options(knitr.table.format = 'HTML')
 
-
 ```
 
 # save setup chunk options to use later
@@ -166,7 +165,7 @@ set_work_dir  <-  function() {
 #                  repos = NULL,
 #                  type = "source")
 
-# library(auxfunctions)
+library(auxfunctions)
 library(ROracle)
 library(dplyr)
 library(rlang)
@@ -179,7 +178,7 @@ library(zoo)
 library(diffdf)
 # library(RColorBrewer)
 
-my_paths <- set_work_dir()
+my_paths <- auxfunctions::set_work_dir()
 
 current_project_path <- this.path::this.dir()
 
@@ -364,7 +363,7 @@ from_fhier_data_path <-
   file.path(my_paths$inputs)
 
 temp_var <-
-  get_compl_and_corresp_data(from_fhier_data_path, all_csv_names_list)
+  auxfunctions::get_compl_and_corresp_data(from_fhier_data_path, all_csv_names_list)
 
 compl_clean_list <- temp_var[[1]]
 corresp_contact_cnts_clean0 <- temp_var[[2]]
@@ -443,7 +442,7 @@ fhier_addresses <-
   readr::read_csv(fhier_addresses_path,
            # read all as characters
            col_types = readr::cols(.default = 'c'),
-           name_repair = fix_names)
+           name_repair = auxfunctions::fix_names)
 
 # View(fhier_addresses)
 ```
@@ -676,7 +675,7 @@ db_participants_address_file_path <-
 
 # err msg if no connection, but keep running
 if (!exists("con")) {
-  try(con <- connect_to_secpr())
+  try(con <- auxfunctions::connect_to_secpr())
 }
 
 db_participants_address_fun <-
@@ -687,14 +686,14 @@ db_participants_address_fun <-
   }
 
 db_participants_address <-
-  read_rds_or_run(
+  auxfunctions::read_rds_or_run(
     db_participants_address_file_path,
     db_participants_address_query,
     db_participants_address_fun
     # force_from_db = "yes"
   ) |>
-  remove_empty_cols() |>
-  clean_headers()
+  auxfunctions::remove_empty_cols() |>
+  auxfunctions::clean_headers()
 # 2024-04-09 run for db_participants_address.rds: 52.22 sec elapsed
 
 dim(db_participants_address)
@@ -757,9 +756,9 @@ prev_result_path <-
 file.exists(prev_result_path)
 
 prev_result <-
-  my_read_xlsx(prev_result_path) |> 
-  remove_empty_cols() |>
-  clean_headers()
+  auxfunctions::my_read_xlsx(prev_result_path) |> 
+  auxfunctions::remove_empty_cols() |>
+  auxfunctions::clean_headers()
 
 dim(prev_result)
 ```
@@ -970,7 +969,7 @@ add_compliant_after_override  <-  function(my_compl_df,
 tictoc::tic("compl_overr")
 compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr <-
   compl_clean_w_permit_exp_last_half_year__sa__short |>
-  add_compliant_after_override(overridden_col_name = "overridden_",
+  auxfunctions::add_compliant_after_override(overridden_col_name = "overridden_",
                                compliance_col_name = "compliant_")
 tictoc::toc()
 # compl_overr: 8.76 sec elapsed
@@ -1349,7 +1348,7 @@ compl_corr_to_investigation_short <-
   # compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id |>
   dplyr::select(-any_of(unused_fields)) |>
   dplyr::group_by(vessel_official_number) |>
-  dplyr::summarise_all(concat_unique) |>
+  dplyr::summarise_all(auxfunctions::concat_unique) |>
   dplyr::ungroup()
 
 # print_df_names(compl_corr_to_investigation_short)
@@ -1406,13 +1405,13 @@ find_col_name  <-  function(mydf, start_part, end_part) {
 
 # put names into vars (needed, bc spaces and underscores placements vary from source to source)
 contactdate_field_name <-
-  find_col_name(compl_corr_to_investigation_short, "contact", "date")[1]
+  auxfunctions::find_col_name(compl_corr_to_investigation_short, "contact", "date")[1]
 
 contacttype_field_name <-
-  find_col_name(compl_corr_to_investigation_short, "contact", "type")[1]
+  auxfunctions::find_col_name(compl_corr_to_investigation_short, "contact", "type")[1]
 
 contactphonenumber_field_name <-
-  find_col_name(compl_corr_to_investigation_short, ".*contact", "number.*")[1]
+  auxfunctions::find_col_name(compl_corr_to_investigation_short, ".*contact", "number.*")[1]
 
 # Explanations:
 # Define a function 'get_date_contacttype' that takes a dataframe 'compl_corr_to_investigation' as input.
@@ -1584,7 +1583,7 @@ fhier_addr_short <-
 
 fhier_addr_short_clean <-
   fhier_addr_short |>
-  clean_names_and_addresses() |> 
+  auxfunctions::clean_names_and_addresses() |> 
   dplyr::distinct()
 
 # nrow(fhier_addr_short_clean)
@@ -1799,7 +1798,7 @@ db_participants_address__needed_short__erv_erb_combined3 <-
       dplyr::group_by(official_number) |>
       dplyr::mutate(!!new_col_name := 
                       purrr::pmap(dplyr::across(dplyr::ends_with(curr_col_part)),
-                                    ~ list_sort_uniq(.)),
+                                    ~ auxfunctions::list_sort_uniq(.)),
              .keep = "none" ) |>
       dplyr::ungroup() |>
       dplyr::select(-official_number)
