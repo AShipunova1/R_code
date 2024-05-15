@@ -443,16 +443,18 @@ my_used_function_helps <-
   }) |>
   set_names(my_used_function_names)
 
-## repeat the same for each source files ----
+# glimpse(my_used_function_helps)
 
 ## Paste function code and description before it is used ----
 
 # check
-# grep("@", flat_file_r_text, value = T)
+# grep("@@", flat_file_r_text, value = T)
 # 0
 
-replace_one_in_each <- 
-  function(flat_file_r_text, idx) {
+# my_used_function_names[[3]]
+
+replace_function_with_def <- 
+  function(one_line_text, idx) {
     # browser()
     to_find <- str_glue("(",
                         my_split_newline_char,
@@ -468,22 +470,32 @@ replace_one_in_each <-
         sep = "\n"
       )
     
-    one_line_text <-
-      to_one_line(flat_file_r_text, my_split_newline_char)
-    
     one_line_text_replaced <-
       str_replace(one_line_text, to_find, to_replace_with)
     
-    text_replaced <-
-      split_one_line_text_back(one_line_text_replaced)
-    
-    return(text_replaced)
+    return(one_line_text_replaced)
   }
 
-flat_file_r_text <-
+one_line_text <-
+  to_one_line(flat_file_r_text, my_split_newline_char)
+
+# length(one_line_text)
+# 1
+
+one_line_text_replaced <-
   purrr::reduce(seq_len(length(my_used_function_names)),
-                \(acc, nxt) replace_one_in_each(acc, nxt), 
-                .init = flat_file_r_text)
+                \(acc, nxt) replace_function_with_def(acc, nxt),
+                .init = one_line_text)
+
+text_replaced <-
+  split_one_line_text_back(one_line_text_replaced)
+
+length(text_replaced)
+# 1218
+
+# check
+# grep(my_used_function_names[[1]],
+#      text_replaced, value = T)
 
 see_res_in_outfile <- function(text_to_output) {
   outfile <- tempfile(fileext = ".txt")
@@ -491,10 +503,17 @@ see_res_in_outfile <- function(text_to_output) {
   file.show(outfile)
 }
 
-# see_res_in_outfile(flat_file_r_text)
+# see_res_in_outfile(text_replaced)
+
+# TODO: check if newlines are correct now
 
 # convert to Rmd ----
 # The 'knitr::spin' function is used to create an R Markdown (Rmd) file, but the 'knit' argument is set to 'FALSE', indicating that the document should not be fully knitted. Instead, this function generates an Rmd file from the R script without executing the code chunks.
+
+# check
+# identical(length(text_replaced), length(flat_file_r_text))
+
+flat_file_r_text <- text_replaced
 
 tictoc::tic("rmd_text")
 rmd_text <-
