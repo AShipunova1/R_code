@@ -2,9 +2,9 @@ library(tidyverse)
 library(tools)
 # change dir name!
 curent_project_name <- readline(prompt = "Print your project name: ")
-egregious_violators
+# egregious_violators
 curent_file_name_no_ext <- readline(prompt = "Print your file name: ")
-egregious_violators_start
+# egregious_violators_start
 
 # In the input .R script:
 # add "#' " in front of comments to be shown as text
@@ -128,58 +128,103 @@ source_files_content <- read_source_files(source_paths) |>
 # grep("file =", flat_file_r_text, value = T)
 
 # replace sourcing files with file content
-comment_out_sources <-
-  function(my_text = flat_file_r_text) {
+
+to_find <- str_c("\\b", str_escape(unlist(source_paths_matches)), 
+                 "\\b", collapse = "|")
+str(to_find)
+
+to_replace1 <-
+  function(one_match) {
     # browser()
-
-    # View(source_files_content)
     
-    to_find <- str_c("\\b", str_escape(unlist(source_paths_matches)), "\\b",
-                     collapse = "|")
-    # str(to_find)
-
-    # one_match <- "source(get_data_path)"
-    to_replace1 <-
-      function(one_match) {
-        browser()
-        paste("<<<@1@>>>", one_match)
-        # str_escape(source_files_content[[one_match]])
-      }
-
-    rrr <-
-      str_replace_all(flat_file_r_text, to_find, to_replace1)
-    
-    View(rrr)
-    
-    grep("<<@", rrr, value = T)
-    # str_escape(source_paths_matches[[1]])
-    my_res_text <-
-      str_replace_all(flat_file_r_text, 
-                      c("source\\(get_data_path\\)" = "<<<@1@>>>",
-                        "source\\(prep_addresses_path\\)" = "<<<@2@>>>")
-                      # c(source_paths_matches[[1]] = "<<<@1@>>>",
-                      #   source_paths_matches[[2]] = "<<<@2@>>>")
-                      #     # source_files_content[[2]])
-                      )
-
-    grep("<<@", my_res_text, value = T)
-    
-    my_res_text <-
-        # str_replace_all(c("one" = "1", "two" = "2", "three" = "3"))
-
-      stringr::str_replace(my_text,
-        source_paths_matches,  
-        "<<<@@>>>"
-        # str_glue("#' \\1", 
-        #          {""})
-        
-# "#+, file = \\1"
-      )
-    
-    return(my_res_text)
+    if (one_match == source_paths_matches[[1]])
+      y <- source_files_content[[1]]
+    if (one_match == source_paths_matches[[2]])
+      y <- source_files_content[[2]]
+    # paste("<<<@1@>>>", one_match)
+    # str_escape(source_files_content[[1]])
+    # head(source_files_content[[1]])
+    return(y)
   }
 
-flat_file_r_text <- comment_out_sources(flat_file_r_text)
+rrr <-
+  str_replace_all(flat_file_r_text, to_find, to_replace1)
+
+# comment_out_sources <-
+#   function(my_text = flat_file_r_text) {
+#     # browser()
+# 
+#     # View(source_files_content)
+#     
+#     to_find <- str_c("\\b", str_escape(unlist(source_paths_matches)), "\\b",
+#                      collapse = "|")
+#     # str(to_find)
+# 
+#     # 000
+#     library(stringr)
+#     text_string = "developer"
+#     pattern <- "p|e"
+#     fun <- function(query) {
+#       if (query == "e")
+#         y <- "p"
+#       if (query == "p")
+#         y <- "e"
+#       return(y)
+#     }
+#     
+#     str_replace_all(text_string, pattern, fun)
+#     
+#     # 000
+#     
+#     # one_match <- "source(get_data_path)"
+#     to_replace1 <-
+#       function(one_match) {
+#         browser()
+#         
+#         if (one_match == source_paths_matches[[1]])
+#           y <- source_files_content[[1]]
+#         if (one_match == source_paths_matches[[2]])
+#           y <- source_files_content[[2]]
+#         # paste("<<<@1@>>>", one_match)
+#         # str_escape(source_files_content[[1]])
+#         # head(source_files_content[[1]])
+#         return(y)
+#       }
+# 
+#     rrr <-
+#       str_replace_all(flat_file_r_text, to_find, to_replace1)
+#     
+#     View(rrr)
+#     
+#     grep("<<@", rrr, value = T)
+#     # str_escape(source_paths_matches[[1]])
+#     my_res_text <-
+#       str_replace_all(flat_file_r_text, 
+#                       c("source\\(get_data_path\\)" = "<<<@1@>>>",
+#                         "source\\(prep_addresses_path\\)" = "<<<@2@>>>")
+#                       # c(source_paths_matches[[1]] = "<<<@1@>>>",
+#                       #   source_paths_matches[[2]] = "<<<@2@>>>")
+#                       #     # source_files_content[[2]])
+#                       )
+# 
+#     grep("<<@", my_res_text, value = T)
+#     
+#     my_res_text <-
+#         # str_replace_all(c("one" = "1", "two" = "2", "three" = "3"))
+# 
+#       stringr::str_replace(my_text,
+#         source_paths_matches,  
+#         "<<<@@>>>"
+#         # str_glue("#' \\1", 
+#         #          {""})
+#         
+# # "#+, file = \\1"
+#       )
+#     
+#     return(my_res_text)
+#   }
+# 
+# flat_file_r_text <- comment_out_sources(flat_file_r_text)
 
 
 ## Add headers to the flat file to be converted by knitr ----
