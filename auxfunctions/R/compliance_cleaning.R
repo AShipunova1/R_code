@@ -6,7 +6,7 @@ function(compl_arr) {
 
   # Clean the 'week' column by splitting it into three columns with proper classes: 'week_num' (week order number), 'week_start', and 'week_end'.
   compl_clean <-
-    purrr:::map(compl, clean_weeks)
+    purrr::map(compl, clean_weeks)
 
   # Find a column name containing 'permit', 'group', and 'expiration' (permitgroupexpiration).
   permitgroupexpirations <-
