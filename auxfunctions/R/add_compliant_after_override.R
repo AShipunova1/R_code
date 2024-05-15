@@ -5,10 +5,10 @@ function(my_compl_df,
   # browser()
   res <-
     my_compl_df |>
-    rowwise() |>
-    mutate(
+    dplyr::rowwise() |>
+    dplyr::mutate(
       compliant_after_override =
-        case_when(
+        dplyr::case_when(
           !!sym(compliance_col_name) %in% c(0, "NO") &
             !!sym(overridden_col_name) %in% c(0, "NO")  ~ "no",
           !!sym(compliance_col_name) %in% c(1, "YES") ~ "yes",
