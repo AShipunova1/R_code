@@ -4,6 +4,11 @@ title: egregious_violators
 
 ```{r no cache setup, results='hide', message=FALSE, warning=FALSE, cache=FALSE, include=FALSE}
 
+library(tidyr)
+library(magrittr)
+library(stringr)
+library(openxlsx)
+
 # A general-purpose tool for dynamic report generation in R
 library(knitr)
 
@@ -148,14 +153,13 @@ set_work_dir  <-  function() {
 #                  repos = NULL,
 #                  type = "source")
 
-library(auxfunctions)
+# library(auxfunctions)
 library(ROracle)
 library(dplyr)
 library(rlang)
 # library(lubridate)
 # library(purrr)
 # library(readr)
-# library(ROracle)
 # library(tictoc)
 # library(tibble)
 library(zoo)
@@ -228,8 +232,544 @@ last_week_start <- data_file_date - grace_period
 ```{r}
 get_data_path <- 
   file.path(current_project_path, "egregious_violators_get_data.R")
+# get data for egregious violators
+# use from egregious_violators_start.R
+
+# 1) compliance data
+# Download files from FHIER / Reports / FHIER COMPLIANCE REPORT 
+# For the last 6 month
+# FHIER_Compliance_...csv
+
+# 2) correspondence data
+# Download files from FHIER / Home / Correspondence
+# Actions / Download 
+# For the whole period, starting 01/01/2021
+# "~\my_inputs\from_Fhier\Correspondence\Correspondence_2024_02_15.csv"
+
+# 3) processed Metrics tracking
+# For the last 6 month
+# SEFHIER_permitted_vessels_nonSRHS_YEAR.csv
+
+# 4) Physical Address List from FHIER
+# Downloaded from REPORTS / For-hire Primary Physical Address List
+# For the whole period, starting 01/01/2021
+# "For-hire Primary Physical Address List.csv"
+
+# 5) home port processed city and state from PIMS
+# "~\R_files_local\my_outputs\home_ports\vessels_from_pims_ports.csv"
+
+# 6) address information from Oracle db
+# "db_participants_address.rds"
+
+# 7) Previous results (from google drive)
+# ~\R_files_local\my_inputs\egregious_violators\egregious violators for investigation_DATES...xlsx"
 ```
-```{r, file = get_data_path}
+
+## FHIER 
+
+```{r FHIER}
+# FHIER ----
+
+# Compliance
+# Correspondence
+# permit info from processed metrics tracking
+
+# Download from FHIER first
+all_csv_names_list = c("Correspondence_2024_04_09.csv",
+                         r"(2024_04_09\FHIER_Compliance_2023__04_09_2024.csv)",
+                         r"(2024_04_09\FHIER_Compliance_2024__04_09_2024.csv)")
+```
+
+### get compliance and correspondence csv data into variables 
+
+```{r get compliance and correspondence csv data into variables}
+## get compliance and correspondence csv data into variables ----
+# <<<<
+get_compl_and_corresp_data  <-  function(my_paths,
+           filenames = csv_names_list_22_23,
+           vessel_id_field_name = NA) {
+    # Add folder names and categorize CSV files into correspondence and compliance.
+    csv_names_list <- prepare_csv_names(filenames)
+
+    # Read the contents of all CSV files.
+    csv_contents <- load_csv_names(my_paths, csv_names_list)
+
+    # Clean and standardize headers, and trim 'vesselofficialnumber' field if needed.
+    csvs_clean1 <- clean_all_csvs(csv_contents, vessel_id_field_name)
+
+    # Specific correspondence manipulations ----
+    # Perform cleaning and processing specific to correspondence data.
+    corresp_arr_contact_cnts_clean <- corresp_cleaning(csvs_clean1)
+
+    ## Specific compliance manipulations ----
+    # Extract compliance data from the cleaned CSVs.
+    compl_arr <- csvs_clean1[2:length(csvs_clean1)]
+
+    # Clean and process compliance data.
+    compl_clean <- compliance_cleaning(compl_arr)
+
+    # Return a list containing cleaned compliance and correspondence data.
+    return(list(compl_clean, corresp_arr_contact_cnts_clean))
+  }
+
+# Explanations:
+
+# This function facilitates the extraction, cleaning, and organization of compliance and correspondence data from files, downloaded from FHIER, providing a convenient way to preprocess the data for further analysis or visualization.
+#  
+#  
+# The `get_compl_and_corresp_data` function is responsible for processing and cleaning compliance and correspondence data from CSV files.
+# 
+# It uses other functions from this package.
+# 
+# 1. **Function Definition:**
+#    - `get_compl_and_corresp_data <- function(my_paths, filenames = csv_names_list_22_23, vessel_id_field_name = NA) { .. }`: Defines a function named `get_compl_and_corresp_data` that takes three arguments: `my_paths` (paths to the CSV files), `filenames` (list of CSV filenames), and `vessel_id_field_name` (name of the vessel ID field).
+# 
+# 2. **Prepare CSV Names:**
+#    - `csv_names_list <- prepare_csv_names(filenames)`: Prepares a list of CSV filenames based on the input list `filenames` using the `prepare_csv_names` function.
+# 
+# 3. **Load CSV Contents:**
+#    - `csv_contents <- load_csv_names(my_paths, csv_names_list)`: Loads the contents of CSV files specified by `my_paths` and `csv_names_list` using the `load_csv_names` function.
+# 
+# 4. **Clean CSVs:**
+#    - `csvs_clean1 <- clean_all_csvs(csv_contents, vessel_id_field_name)`: Cleans all CSV files in `csv_contents` using the `clean_all_csvs` function, with an optional argument `vessel_id_field_name` to specify the vessel ID field.
+# 
+# 5. **Clean Correspondence Data:**
+#    - `corresp_arr_contact_cnts_clean <- corresp_cleaning(csvs_clean1)`: Cleans the correspondence data in `csvs_clean1` using the `corresp_cleaning` function.
+# 
+# 6. **Extract Compliance Data:**
+#    - `compl_arr <- csvs_clean1[2:length(csvs_clean1)]`: Extracts compliance data from `csvs_clean1` by excluding the first element (assumed to be correspondence data).
+# 
+# 7. **Clean Compliance Data:**
+#    - `compl_clean <- compliance_cleaning(compl_arr)`: Cleans the compliance data in `compl_arr` using the `compliance_cleaning` function.
+# 
+# 8. **Return Result:**
+#    - `return(list(compl_clean, corresp_arr_contact_cnts_clean))`: Returns a list containing the cleaned compliance data (`compl_clean`) and cleaned correspondence data (`corresp_arr_contact_cnts_clean`).
+# 
+# >>>>
+
+from_fhier_data_path <-
+  file.path(my_paths$inputs)
+
+temp_var <-
+  get_compl_and_corresp_data(from_fhier_data_path, all_csv_names_list)
+
+compl_clean_list <- temp_var[[1]]
+corresp_contact_cnts_clean0 <- temp_var[[2]]
+
+names(compl_clean_list) <- c(my_year1, my_year2)
+
+# check
+purrr::map(compl_clean_list, dim)
+
+# combine years in one df
+compl_clean <-
+  rbind(compl_clean_list[[my_year1]], compl_clean_list[[my_year2]])
+
+dim(compl_clean)
+
+dim(corresp_contact_cnts_clean0)
+```
+
+### get Metric Tracking (permits from FHIER) 
+
+```{r get Metric Tracking permits from FHIER}
+## get Metric Tracking (permits from FHIER) ----
+processed_input_data_path <- 
+  file.path(my_paths$inputs,
+            "processing_logbook_data",
+            "Outputs")
+dir.exists(processed_input_data_path)
+# T  
+
+# file names for all years
+processed_metrics_tracking_file_names_all <-
+  list.files(path = processed_input_data_path,
+             pattern = "SEFHIER_permitted_vessels_nonSRHS_*",
+             recursive = TRUE,
+             full.names = TRUE)
+
+# exclude links
+processed_metrics_tracking_file_names <-
+  grep(
+    processed_metrics_tracking_file_names_all,
+    pattern = "Shortcut.lnk",
+    invert = TRUE,
+    value = TRUE
+  )
+
+# read the rest
+processed_metrics_tracking_permits <-
+  purrr::map_df(processed_metrics_tracking_file_names,
+         readr::read_rds)
+
+# lower names case
+names(processed_metrics_tracking_permits) <-
+  names(processed_metrics_tracking_permits) |>
+  tolower()
+
+# [1] "vessel_official_number, vessel_name, effective_date, end_date, permits, sa_permits_, gom_permits_, permit_region, permit_sa_gom_dual"
+
+dim(processed_metrics_tracking_permits)
+```
+
+### get Physical Address List from FHIER 
+
+```{r get Physical Address List from FHIER}
+## get Physical Address List from FHIER ----
+# REPORTS / For-hire Primary Physical Address List
+
+fhier_addresses_path <-
+  file.path(
+    my_paths$inputs,
+    r"(from_Fhier\address\For-hire Primary Physical Address List_04_09_2024.csv)"
+  )
+
+file.exists(fhier_addresses_path)
+
+fhier_addresses <-
+  readr::read_csv(fhier_addresses_path,
+           # read all as characters
+           col_types = readr::cols(.default = 'c'),
+           name_repair = fix_names)
+
+# View(fhier_addresses)
+```
+
+## PIMS 
+
+```{r PIMS}
+# PIMS ----
+```
+
+### get home port processed city and state 
+
+```{r get home port processed city and state}
+## get home port processed city and state ----
+
+processed_pims_home_ports_path <-
+  file.path(my_paths$outputs,
+              "home_ports",
+              "vessels_from_pims_ports.csv")
+
+processed_pims_home_ports <- 
+  readr::read_csv(processed_pims_home_ports_path)
+
+# View(processed_pims_home_ports)
+# View(vessels_from_pims) - more fields
+```
+
+## Oracle db 
+
+```{r Oracle db}
+# Oracle db ----
+```
+
+### get owners addresses 
+
+```{r get owners addresses}
+## get owners addresses ----
+# <<<<
+connect_to_secpr  <-  function() {
+    # Retrieve the username associated with the "SECPR" database from the keyring.
+    my_username <- keyring::key_list("SECPR")[1, 2]
+
+    # Use 'dbConnect' to establish a database connection with the specified credentials.
+    con <- dbConnect(
+        dbDriver("Oracle"),  # Use the Oracle database driver.
+        username = my_username,  # Use the retrieved username.
+        password = keyring::key_get("SECPR", my_username),  # Retrieve the password from the keyring.
+        dbname = "SECPR"  # Specify the name of the database as "SECPR."
+    )
+
+    # Return the established database connection.
+    return(con)
+}
+
+# Explanations:
+
+# This function encapsulates the process of connecting to the "SECPR" Oracle database securely by retrieving credentials from the keyring and establishing a connection using the ROracle package. It ensures that sensitive information such as passwords is not exposed in the code, enhancing security.
+#  
+#  
+# This `connect_to_secpr` function establishes a connection to an Oracle database named "SECPR" using credentials stored securely.
+# 
+# 1. **Function Definition:**
+#    - `connect_to_secpr <- function() { .. }`: Defines a function named `connect_to_secpr` with no input parameters.
+# 
+# 2. **Retrieve Username:**
+#    - `my_username <- keyring::key_list("SECPR")[1, 2]`: Retrieves the username associated with the Oracle database "SECPR" from the keyring package. It accesses the first entry (row) and the second column, assuming the username is stored in the second column.
+# 
+# 3. **Establish Database Connection:**
+#    - `con <- dbConnect(...)`:
+#      - `dbDriver("Oracle")`: Creates a database driver object specifically for Oracle databases.
+#      - `username = my_username`: Specifies the retrieved username for the database connection.
+#      - `password = keyring::key_get("SECPR", my_username)`: Retrieves the corresponding password for the username from the keyring package, ensuring secure access to the credentials.
+#      - `dbname = "SECPR"`: Specifies the name of the Oracle database to connect to, which is "SECPR" in this case.
+#      - `dbConnect(...)`: Establishes a connection to the Oracle database using the provided driver, username, password, and database name.
+# 
+# 4. **Return Statement:**
+#    - `return(con)`: Returns the established database connection (`con`) as the output of the function.
+# 
+# >>>>
+
+# <<<<
+read_rds_or_run  <-  function(my_file_path,
+                            my_data = as.data.frame(""),
+                            my_function,
+                            force_from_db = NULL) {
+
+  if (file.exists(my_file_path)) {
+    modif_time <- file.info(my_file_path)$mtime
+  }
+
+    # Check if the file specified by 'my_file_path' exists and 'force_from_db' is not set.
+    if (file.exists(my_file_path) &
+        is.null(force_from_db)) {
+        # If the file exists and 'force_from_db' is not set, read the data from the RDS file.
+
+        function_message_print("File already exists, reading.")
+
+        my_result <- readr::read_rds(my_file_path)
+
+    } else {
+
+      # If the file doesn't exist or 'force_from_db' is set, perform the following steps:
+
+      # 0. Print this message.
+      function_message_print(c(
+        "File",
+        my_file_path,
+        "doesn't exists, pulling data from database.",
+        "Must be on VPN."
+      ))
+
+      # 1. Generate a message indicating the date and the purpose of the run for "tic".
+      msg_text <-
+        paste(today(), "run for", basename(my_file_path))
+      tictoc::tic(msg_text)  # Start timing the operation.
+
+      # 2. Run the specified function 'my_function' on the provided 'my_data' to generate the result. I.e. download data from the Oracle database. Must be on VPN.
+
+      my_result <- my_function(my_data)
+
+      tictoc::toc()  # Stop timing the operation.
+
+      # 3. Save the result as an RDS binary file to 'my_file_path' for future use.
+      # try is a wrapper to run an expression that might fail and allow the user's code to handle error-recovery.
+
+      # 4. Print this message.
+      function_message_print(c("Saving new data into a file here: ",
+                       my_file_path))
+
+      try(readr::write_rds(my_result,
+                           my_file_path))
+
+      modif_time <- date()
+    }
+
+  # Print out the formatted string with the file name ('my_file_name') and the modification time ('modif_time') to keep track of when the data were downloaded.
+  my_file_name <- basename(my_file_path)
+  function_message_print(
+    str_glue("File: {my_file_name} modified {modif_time}"))
+
+    # Return the generated or read data.
+    return(my_result)
+}
+
+# Explanations:
+
+# This function, `read_rds_or_run`, is designed to read data from an RDS file if it exists or run a specified function to obtain the data from the Oracle database and save it as an RDS file if the file does not exist or if the `force_from_db` parameter is set.
+#  
+#  
+# 1. **Check File Existence**: The function first checks if the file specified by `my_file_path` exists and, if so, retrieves its modification time.
+# 
+# 2. **Read or Run**: Depending on the existence of the file and the `force_from_db` flag:
+#     - **File Exists and `force_from_db` is not set**: If the file exists and `force_from_db` is not set, the function reads the data from the RDS file using `readr::read_rds(my_file_path)` and assigns it to `my_result`.
+#     - **File Does Not Exist or `force_from_db` is set**: If the file does not exist or `force_from_db` is set, the function follows these steps:
+#         - Prints a message indicating the file doesn't exist and data will be pulled from the database.
+#         - Times the function execution using `tictoc::tic()` and starts with a message indicating the date and purpose of the run.
+#         - Runs the specified function (`my_function`) on the provided `my_data` to generate the result (`my_result`), e.g., downloading data from the Oracle database.
+#         - Stops timing the function execution using `tictoc::toc()`.
+#         - Saves the result as an RDS file to the specified `my_file_path` for future use using `readr::write_rds(my_result, my_file_path)`. A `try` block is used to handle potential errors in writing the file.
+#         - Prints a message indicating that the new data is being saved into a file.
+# 
+# 3. **Print File Information**: After obtaining the data, the function prints the file name and modification time to provide information on when the data was last downloaded or modified.
+# 
+# 4. **Return**: The function returns the generated or read data (`my_result`).
+# 
+# 
+# >>>>
+
+# <<<<
+remove_empty_cols  <-  function(my_df) {
+  # Define an inner function "not_all_na" that checks if any value in a vector is not NA.
+  not_all_na <- function(x) any(!is.na(x))
+
+  my_df |>
+    # Select columns from "my_df" where the result of the "not_all_na" function is true,
+    # i.e., select columns that have at least one non-NA value.
+    select(where(not_all_na)) %>%
+    # Return the modified data frame, which contains only the selected columns.
+    return()
+}
+
+# Explanations:
+
+# This function effectively removes columns from the input data frame `my_df` that contain only missing values.
+#  
+#  
+# 1. **Function Definition:**
+#    - `remove_empty_cols <- function (my_df)`: Defines a function named `remove_empty_cols` that takes a single argument `my_df`, which is expected to be a data frame.
+# 
+# 2. **Inner Function Definition:**
+#    - `not_all_na <- function(x) any(!is.na(x))`: Defines an inner function named `not_all_na`. This function takes a vector `x` as input and returns `TRUE` if there is at least one non-missing value in the vector, otherwise it returns `FALSE`. This function will be used as a predicate to check if any column contains non-missing values.
+# 
+# 3. **Selecting Columns:**
+#    - `select(my_df, where(not_all_na))`: Uses the `dplyr` function `select` to filter columns of `my_df` based on a condition. The condition is specified using the `where` function, which applies the `not_all_na` function to each column of `my_df`. Columns for which `not_all_na` returns `TRUE` (i.e., columns with at least one non-missing value) are retained, while columns with all missing values are removed.
+# 
+# 4. **Returning Result:**
+#    - `%>% return()`: Pipes the result of the `select` operation into the `return` function, which ensures that the modified data frame is returned as the output of the `remove_empty_cols` function.
+# 
+# >>>>
+
+# <<<<
+clean_headers  <-  function(my_df) {
+    # Use the 'fix_names' function to clean and fix the column names of the dataframe.
+    colnames(my_df) %<>%
+        fix_names()
+
+    # Return the dataframe with cleaned and fixed column names.
+    return(my_df)
+}
+
+# Explanations:
+
+# The clean_headers function is designed to clean and fix the column names (using fix_names()) of a given dataframe (my_df).
+#  
+#  
+# >>>>
+
+db_participants_address_query <-
+  "select * from
+SRH.MV_SERO_VESSEL_ENTITY@secapxdv_dblk
+"
+
+db_participants_address_file_path <-
+  file.path(my_paths$inputs,
+            current_project_name,
+            "db_participants_address.rds")
+ 
+# dir.exists(file.path(my_paths$inputs,
+#             current_project_name))
+
+# err msg if no connection, but keep running
+if (!exists("con")) {
+  try(con <- connect_to_secpr())
+}
+
+db_participants_address_fun <-
+  function(db_participants_address) {
+    # browser()
+    return(dbGetQuery(con,
+                      db_participants_address))
+  }
+
+db_participants_address <-
+  read_rds_or_run(
+    db_participants_address_file_path,
+    db_participants_address_query,
+    db_participants_address_fun
+    # force_from_db = "yes"
+  ) |>
+  remove_empty_cols() |>
+  clean_headers()
+# 2024-04-09 run for db_participants_address.rds: 52.22 sec elapsed
+
+dim(db_participants_address)
+```
+
+## Data from the previous results of "egregious violators for investigation" 
+
+```{r Data from the previous results of egregious violators for investigation}
+# Data from the previous results of "egregious violators for investigation" ----
+# <<<<
+my_read_xlsx  <-  function(file_path, sheet_n, start_row = 1) {
+  res_df <-
+    read.xlsx(
+      file_path,
+      sheet_n,
+      startRow = start_row,
+      detectDates = TRUE,
+      colNames = TRUE,
+      sep.names = "_"
+    ) |>
+    clean_headers()
+
+  return(res_df)
+}
+
+# Explanations:
+
+# This function reads data from an Excel file, optionally starting from a specified row, and applies header cleaning to ensure consistent formatting of column names.
+#  
+#  
+# 1. **Function Definition:**
+#    - `my_read_xlsx <- function(file_path, sheet_n, start_row = 1) { ... }`: Defines a function named `my_read_xlsx` with three arguments: `file_path` (the path to the Excel file), `sheet_n` (the index of the sheet to read), and `start_row` (the starting row from which to read data, with a default value of 1).
+# 
+# 2. **Reading Excel File:**
+#    - `read.xlsx(file_path, sheet_n, startRow = start_row, detectDates = TRUE, colNames = TRUE, sep.names = "_")`: Uses the `read.xlsx` function from the `openxlsx` package to read data from the specified Excel file.
+#      - `file_path`: The path to the Excel file to be read.
+#      - `sheet_n`: The index of the sheet to read from.
+#      - `startRow`: The row number from which to start reading data.
+#      - `detectDates`: A logical value indicating whether to automatically detect and convert date-like columns to date format.
+#      - `colNames`: A logical value indicating whether the first row of the Excel sheet contains column names.
+#      - `sep.names`: A character used to separate column names with multiple parts (e.g., spaces or underscores).
+# 
+# 3. **Cleaning Headers:**
+#    - `clean_headers(...)`: Applies the `clean_headers` function to the data frame read from the Excel file. This function likely performs tasks such as removing leading/trailing spaces, converting column names to lowercase, and replacing spaces with underscores.
+# 
+# 4. **Return Result:**
+#    - `return(res_df)`: Returns the cleaned data frame obtained from reading the Excel file. This data frame contains the data read from the specified Excel sheet, with any necessary header cleaning applied.
+# 
+# 
+# >>>>
+
+# Download first as .xlsx
+
+# get previous results ---
+prev_result_path <- 
+  file.path(my_paths$inputs,
+            current_project_basename,
+            "egregious violators for investigation_2023-08-15_to_2024-02-13_OLE.xlsx")
+
+file.exists(prev_result_path)
+
+prev_result <-
+  my_read_xlsx(prev_result_path) |> 
+  remove_empty_cols() |>
+  clean_headers()
+
+dim(prev_result)
+```
+
+## Results 
+
+```{r Results}
+# Results ----
+results <-
+  c(
+    "compl_clean",
+    "corresp_contact_cnts_clean0",
+    "prev_result",
+    "processed_metrics_tracking_permits",
+    "fhier_addresses",
+    "processed_pims_home_ports",
+    "db_participants_address"
+  )
+
+cat(c("Data are in:",
+      results),
+    sep = "\n")
+
 
 # compl_clean
 # corresp_contact_cnts_clean0
@@ -746,39 +1286,6 @@ num_of_vsl_to_investigate <-
 
 ```{r 1 remove extra columns}
 ## 1. remove extra columns ----
-# <<<<
-print_df_names  <-  function(my_df, names_num = 100) {
-  # Use 'names' to get column names,
-  # 'head' to limit the number of names to 'names_num',
-  # 'paste0' to concatenate them with a comma separator, and return the result.
-  names(my_df) %>%
-    head(names_num) %>%
-    paste0(collapse = ", ") %>%
-    return()
-}
-
-# Explanations:
-
-# This function prints the comma separated column names of a dataframe, with an option to limit the number of names displayed. It's useful for quickly inspecting the structure of a dataframe, especially when dealing with datasets with a large number of columns.
-#  
-#  
-# 1. **Function Definition:**
-#    - `print_df_names <- function (my_df, names_num = 100) { ... }`: Defines a function named `print_df_names` with two arguments: `my_df` (the dataframe whose column names will be printed) and `names_num` (the maximum number of names to display, defaulted to 100).
-# 
-# 2. **Extracting Column Names:**
-#    - `names(my_df)`: Retrieves the column names of the input dataframe `my_df`.
-# 
-# 3. **Selecting Subset of Names:**
-#    - `%>% head(names_num)`: Uses the pipe operator (`%>%`) to pass the column names to the `head` function, which selects the first `names_num` names. This is useful when the dataframe has a large number of columns, and we want to limit the display to a manageable number.
-# 
-# 4. **Formatting as a String:**
-#    - `%>% paste0(collapse = ", ")`: Concatenates the selected column names into a single string, separated by commas. This creates a more readable output.
-# 
-# 5. **Returning the Result:**
-#    - `%>% return()`: Returns the concatenated string of column names as the output of the function.
-# 
-# >>>>
-
 
 # Explanations:
 # Group the dataframe by the 'vessel_official_number' column and then apply the 'summarise_all' function.
@@ -982,8 +1489,441 @@ prep_addresses_path <-
 
 file.exists(prep_addresses_path)
 
+# Manually check missing addresses
+is_empty <- c(NA, "NA", "", "UN", "N/A")
 ```
-```{r, file = prep_addresses_path}
+
+## From FHIER 
+
+```{r From FHIER}
+# From FHIER ----
+```
+
+### fewer fields 
+
+```{r fewer fields}
+## fewer fields ----
+# <<<<
+clean_names_and_addresses  <-  function(my_df) {
+
+  my_df_cleaned <-
+    my_df |>
+    mutate(
+      across(where(is.character),
+             ~ str_squish(.x)),
+      across(where(is.character),
+             ~ replace_na(.x, "")),
+      across(where(is.character),
+             ~ str_replace_all(.x, ", ;", ";")),
+      across(where(is.character),
+             ~ str_replace_all(.x, "\\s+[,;]", ",")),
+      across(where(is.character),
+             ~ str_replace_all(.x, ";,+", ";")),
+      across(where(is.character),
+             ~ str_replace_all(.x, ";;+", ";")),
+      across(where(is.character),
+             ~ str_replace_all(.x, ",,+", ",")),
+      across(where(is.character),
+             ~ str_replace_all(.x, "[,;] *\\bUN\\b *", "")),
+      across(where(is.character),
+                          ~ str_replace_all(.x, "\\bUN\\b", "")),
+      across(where(is.character),
+             ~ str_replace_all(.x, "\\s*\\bUN\\b\\s*", "")),
+      across(where(is.character),
+             ~ str_replace_all(.x, "^[,;] ", "")),
+      across(where(is.character),
+             ~ str_replace_all(.x, "^[,;]$", "")),
+      across(where(is.character),
+             ~ str_replace_all(.x, "[,;]$", "")),
+      across(where(is.character),
+             ~ str_squish(.x))
+    )
+
+  return(my_df_cleaned)
+}
+
+# Explanations:
+
+# - This function `clean_names_and_addresses` cleans the strings in character columns of a dataframe.
+# - It uses `mutate` with `across` to apply multiple string cleaning operations to all character columns.
+# - The `str_squish` function is used to remove leading, trailing, and extra internal whitespace from each string.
+# - `replace_na` function replaces missing values with empty strings.
+# - The `str_replace_all` function is used to perform multiple replacements using regular expressions to clean up commas, semicolons, and unwanted substrings like "UN".
+# - Finally, it returns the cleaned dataframe. 
+#  
+# >>>>
+
+# fhier_addresses are from get_data (For-hire Primary Physical Address List)
+fhier_addr_short <-
+  fhier_addresses |>
+  dplyr::select(
+    vessel_official_number,
+    permit_holder_names,
+    physical_address_1,
+    physical_address_2,
+    physical_city,
+    physical_county,
+    physical_state,
+    physical_zip_code,
+    phone_number,
+    primary_email
+  )
+
+fhier_addr_short_clean <-
+  fhier_addr_short |>
+  clean_names_and_addresses() |> 
+  dplyr::distinct()
+
+# nrow(fhier_addr_short_clean)
+
+# don't combine address
+# fhier_addr_short__comb_addr <- 
+#   fhier_addr_short |> 
+#   clean_names_and_addresses() |> 
+#   mutate(
+#     fhier_address =
+#       str_glue(
+#         "
+#         {physical_address_1}, {physical_address_2}, {physical_city}, {physical_county}, {physical_state}, {physical_zip_code}
+#       "
+#       )
+#   ) |>
+#   select(
+#     -c(
+#       physical_address_1,
+#       physical_address_2,
+#       physical_city,
+#       physical_county,
+#       physical_state,
+#       physical_zip_code
+#     )
+#   ) |>
+#   clean_names_and_addresses() |> 
+#   distinct()
+
+# dim(fhier_addr_short__comb_addr)
+# [1] 2390    5
+
+# dim(fhier_addr_short_clean)
+```
+
+### 1. add addresses from FHIER 
+
+```{r 1 add addresses from FHIER}
+## 1. add addresses from FHIER ----
+compl_corr_to_investigation__corr_date__hailing_port__fhier_addr <-
+  left_join(compl_corr_to_investigation__corr_date__hailing_port,
+            fhier_addr_short_clean)
+# Joining with `by = join_by(vessel_official_number)`
+
+# View(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
+
+# check if no name, phone or email
+compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>
+  filter(
+    is.na(contactrecipientname) |
+      is.na(contactphone_number) |
+      is.na(contactemailaddress)
+  ) |> nrow()
+# 0
+```
+
+### vessels with no addresses 
+
+```{r vessels with no addresses}
+## vessels with no addresses ----
+
+# print_df_names(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
+no_addr_vsl_ids <- 
+  compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |> 
+  dplyr::filter(physical_address_1 %in% is_empty) |> 
+  dplyr::select(vessel_official_number) |> 
+  dplyr::distinct()
+
+dplyr::n_distinct(no_addr_vsl_ids$vessel_official_number)
+# 109
+# 71
+# [1] "656222"   "FL0450JN"
+```
+
+## From Oracle db 
+
+```{r From Oracle db}
+# From Oracle db ----
+db_participants_address__needed <-
+  db_participants_address |>
+  dplyr::filter(official_number %in% no_addr_vsl_ids$vessel_official_number) |>
+  dplyr::distinct()
+
+dim(db_participants_address__needed)
+# [1] 139  37
+
+dplyr::n_distinct(db_participants_address__needed$official_number)
+# 71
+```
+
+### keep fewer columns 
+
+```{r keep fewer columns}
+## keep fewer columns ----
+db_participants_address__needed_short <-
+  db_participants_address__needed |>
+  dplyr::select(
+    official_number,
+    all_of(ends_with("entity_name")),
+    all_of(ends_with("primary_email")),
+    # all_of(ends_with("is_primary")),
+    all_of(ends_with("ph_area")),
+    all_of(ends_with("ph_number")),
+    all_of(ends_with("entity_name")),
+    all_of(ends_with("physical_city")),
+    all_of(ends_with("physical_county")),
+    all_of(ends_with("physical_state")),
+    all_of(ends_with("physical_zip_code")),
+    all_of(ends_with("mailing_address1")),
+    all_of(ends_with("mailing_address2")),
+    all_of(ends_with("mailing_city")),
+    all_of(ends_with("mailing_county")),
+    all_of(ends_with("mailing_country")),
+    all_of(ends_with("mailing_state")),
+    all_of(ends_with("mailing_zip_code"))
+  ) |>
+  dplyr::distinct()
+
+nrow(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
+# 199
+dplyr::n_distinct(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr$vessel_official_number)
+# 199
+# one vessel per row
+
+# have to combine rows
+dim(db_participants_address__needed_short)
+# 106
+dplyr::n_distinct(db_participants_address__needed_short$official_number)
+# 71
+```
+
+### combine area and phone numbers 
+
+```{r combine area and phone numbers}
+## combine area and phone numbers ----
+db_participants_address__needed_short__phone0 <- 
+  db_participants_address__needed_short |> 
+  dplyr::mutate(erv_phone = paste0(erv_ph_area, erv_ph_number),
+         erb_phone = paste0(erb_ph_area, erb_ph_number))
+```
+
+### make erv and erb combinations 
+
+```{r make erv and erb combinations}
+## make erv and erb combinations ----
+# <<<<
+list_sort_uniq  <-  function(my_lists) {
+  # browser()
+  res <-
+    my_lists |>
+    str_trim() |>
+    unique() |>
+    sort() |>
+    list() |>
+    flatten()
+  return(res)
+}
+
+# Explanations:
+
+# Overall, this function ensures that the elements in the input list are cleaned, unique, and sorted, providing a tidy and organized output.
+#  
+#  
+# The `list_sort_uniq` function is designed to take a list of character vectors, clean them, remove duplicates, sort them, and return a single vector with unique, sorted elements.
+# 
+# 1. **Function Definition:**
+#    - `list_sort_uniq <- function(my_lists) { .. }`: Defines a function named `list_sort_uniq` with one argument, `my_lists`, representing the list of character vectors to process.
+# 
+# 2. **Data Transformation Pipeline:**
+#    - `my_lists |> ...`: Utilizes the pipe operator (`|>`) to pass the `my_lists` argument through a series of data transformation steps.
+#    
+# 3. **Cleaning and Transformation:**
+#    - `str_trim()`: Removes leading and trailing whitespace from each element of the list.
+#    - `unique()`: Removes duplicate elements from the list.
+#    - `sort()`: Sorts the elements of the list in ascending order.
+#    - `list()`: Converts the sorted vector into a list.
+#    - `flatten()`: Flattens the resulting list into a single vector.
+# 
+# 4. **Return Result:**
+#    - The function returns the processed vector stored in `res`.
+# 
+# >>>>
+
+col_part_names <-
+  c(
+    "entity_name",
+    "primary_email",
+    # "ph_is_primary",
+    # "ph_area",
+    # "ph_number",
+    "physical_city",
+    "physical_county",
+    "physical_state",
+    "physical_zip_code",
+    "mailing_address1",
+    "mailing_address2",
+    "mailing_city",
+    "mailing_county",
+    # "mailing_country",
+    "mailing_state",
+    "mailing_zip_code"
+  )
+
+tictoc::tic("map all pairs")
+db_participants_address__needed_short__erv_erb_combined3 <-
+  col_part_names |>
+  purrr::map(\(curr_col_part)  {
+    new_col_name <- stringr::str_glue("db_{curr_col_part}")
+    # cat(new_col_name, sep = "\n")
+    
+    db_participants_address__needed_short__phone0 |>
+      dplyr::group_by(official_number) |>
+      dplyr::mutate(!!new_col_name := 
+                      purrr::pmap(dplyr::across(dplyr::ends_with(curr_col_part)),
+                                    ~ list_sort_uniq(.)),
+             .keep = "none" ) |>
+      dplyr::ungroup() |>
+      dplyr::select(-official_number)
+    
+  }) %>%
+  dplyr::bind_cols(db_participants_address__needed_short__phone0, .)
+tictoc::toc()
+# map all pairs: 14.31 sec elapsed
+```
+
+#### shorten 
+
+```{r shorten}
+### shorten ----
+db_participants_address__needed_short__erv_erb_combined_short <-
+  db_participants_address__needed_short__erv_erb_combined3 |>
+  dplyr::select(official_number,
+         dplyr::all_of(dplyr::starts_with("db_"))) |> 
+  dplyr::distinct()
+
+dim(db_participants_address__needed_short__erv_erb_combined_short)
+# 94 17
+
+dplyr::n_distinct(db_participants_address__needed_short__erv_erb_combined_short$official_number)
+# 71
+
+db_participants_address__needed_short__erv_erb_combined_short |> 
+  dplyr::filter(official_number == "1235397") |>
+  dplyr::glimpse()
+# $ official_number      <chr> "1235397", "1235397"
+# $ db_entity_name       <list> ["DC SERVICE AND MAINTENANCE"], ["DAVID A RUBINO"]
+# $ db_primary_email     <list> ["Acemechanicalcd@aol.com"], ["Acemechanicalcd@aol.…
+# $ db_ph_is_primary     <list> ["1"], ["1"]
+# $ db_physical_city     <list> ["SOUTH ISLANDIA"], ["ISLANDIA"]
+```
+
+### combine similar fields 
+
+```{r combine similar fields}
+## combine similar fields ----
+
+# Explanations:
+# 1. Iterate over each participant column using 'col_part_names'.
+#    - 'map' applies the provided function to each element of the list.
+# 2. Define the old and new column names based on the current participant column.
+#    - 'str_glue' is used for string interpolation to create column names.
+# 3. Group the DataFrame by 'official_number' using 'group_by'.
+# 4. For each group, create a new column with unique sorted values for the current participant.
+#    - 'list_sort_uniq' ensures unique values and sorts them.
+# 5. Ungroup the DataFrame and remove the 'official_number' column.
+#    - 'ungroup' removes grouping structure.
+#    - 'select' is used to exclude the 'official_number' column and keep only the new column.
+# 6. Bind the resulting columns to 'db_participants_address__needed_short__erv_erb_combined_short'.
+#    - 'bind_cols' combines columns horizontally.
+# 7. Select only the 'official_number' and columns ending with '_u'.
+# 8. Keep only distinct rows in the final DataFrame using 'distinct'.
+# 9. The resulting DataFrame is stored in 'db_participants_address__needed_short__erv_erb_combined_short__u'.
+
+db_participants_address__needed_short__erv_erb_combined_short__u_temp <-
+  col_part_names |>
+  purrr::map(\(curr_col_part)  {
+    # browser()
+    old_col_name <- stringr::str_glue("db_{curr_col_part}")
+    new_col_name <- stringr::str_glue("db_{curr_col_part}_u")
+    cat(new_col_name, sep = "\n")
+    
+    db_participants_address__needed_short__erv_erb_combined_short |>
+      dplyr::group_by(official_number) |>
+      dplyr::mutate(!!new_col_name := list(paste(sort(unique(stringr::str_trim(purrr::list_flatten(!!sym(old_col_name))))))),
+             .keep = "none" ) |>
+      dplyr::ungroup() |>
+      dplyr::select(-official_number)
+  })
+
+# glimpse(db_participants_address__needed_short__erv_erb_combined_short__u)
+# glimpse(db_participants_address__needed_short__erv_erb_combined_short)
+
+db_participants_address__needed_short__erv_erb_combined_short__u <-
+  dplyr::bind_cols(
+    db_participants_address__needed_short__erv_erb_combined_short,
+    db_participants_address__needed_short__erv_erb_combined_short__u_temp
+  ) |>
+  dplyr::select(official_number, dplyr::all_of(dplyr::ends_with("_u"))) |> 
+  dplyr::distinct()
+
+# db_participants_address__needed_short__erv_erb_combined_short__u |>
+#   filter(official_number == "1235397") |>
+#   glimpse()
+```
+
+#### convert to characters 
+
+```{r convert to characters}
+### convert to characters ----
+db_participants_address__needed_short__erv_erb_combined_short__u_no_c <-
+  db_participants_address__needed_short__erv_erb_combined_short__u |>
+  dplyr::rowwise() |>
+  dplyr::mutate_if(is.list, ~ paste(unlist(.), collapse = '; ')) |>
+  dplyr::ungroup()
+
+# db_participants_address__needed_short__erv_erb_combined_short__u_no_c |>
+#   filter(official_number == "1235397") |>
+#   glimpse()
+# $ db_mailing_state_u     <chr> "NY"
+# $ db_mailing_zip_code_u  <chr> "..; ..-.."
+```
+
+### rename fields 
+
+```{r rename fields}
+## rename fields ----
+db_participants_address__needed_short__erv_erb_combined_short__u_ok <-
+  db_participants_address__needed_short__erv_erb_combined_short__u_no_c |>
+  dplyr::rename_with( ~ stringr::str_replace(.x, pattern = "_u$", replacement = ""))
+```
+
+## Join fhier and Oracle db addresses 
+
+```{r Join fhier and Oracle db addresses}
+# Join fhier and Oracle db addresses ----
+compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr <-
+  compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>
+  left_join(
+    db_participants_address__needed_short__erv_erb_combined_short__u_ok,
+    join_by(vessel_official_number == official_number)
+  )
+
+# compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr |>
+#   filter(vessel_official_number == "1235397") |>
+#   glimpse()
+# $ db_mailing_state       <chr> "NY"
+# $ db_mailing_zip_code    <chr> "11749; 11749-5010"
+
+cat("Result: ",
+    "compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr",
+    sep = "\n")
+
 
 # result: compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr
 ```
