@@ -1,7 +1,7 @@
 my_read_xlsx <-
 function(file_path, sheet_n, start_row = 1) {
   res_df <-
-    read.xlsx(
+    openxlsx::read.xlsx(
       file_path,
       sheet_n,
       startRow = start_row,
