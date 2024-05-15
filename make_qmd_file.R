@@ -335,7 +335,8 @@ flat_file_r_text <-
 
 in_text <- flat_file_r_text
 
-get_my_func_names_wo_prefix <- function(in_text, search_str = "auxfunctions::") {
+get_my_func_names_wo_prefix <- 
+  function(in_text, search_str = "auxfunctions::") {
   to_search <- str_glue("{search_str}(\\w+)\\(")
   
   my_used_function_names <-
@@ -347,22 +348,10 @@ get_my_func_names_wo_prefix <- function(in_text, search_str = "auxfunctions::") 
   return(my_used_function_names)
 }
 
-# find_all_input_files <-
-#   function(in_text, search_str = "file = ") {
-#     # grep("file = ", in_text, value = T)
-#     to_search <- str_glue("{search_str}(\\w+)")
-#     
-#     in_text |>
-#       str_extract(to_search) |>
-#       unique() |>
-#       na.omit() |>
-#       str_replace_all(to_search, "\\1")
-#     
-#   }
+my_used_function_names <- 
+  get_my_func_names_wo_prefix(flat_file_r_text)
 
-my_used_function_names <- get_my_func_names_w_prefix(flat_file_r_text)
-
-# View(my_used_function_names)
+# glimpse(my_used_function_names)
 
 ## through "naked" functions ----
   
@@ -430,6 +419,7 @@ function_obj_as_text <- function(function_name) {
 my_used_function_texts <-
   my_used_function_names |>
   map(\(one_f_name) {
+    # browser()
     function_list <- getAnywhere(one_f_name)
     
     function_as_text <-
@@ -442,6 +432,8 @@ my_used_function_texts <-
     return(with_first_line)
   }) |> 
   set_names(my_used_function_names)
+
+# View(my_used_function_texts)
 
 ## get all my used function helps ----
 my_used_function_helps <-
