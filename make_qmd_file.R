@@ -137,6 +137,13 @@ source_files_content <- read_source_files(source_paths) |>
 
 # View(source_files_content)
 
+### sorce_files_content to one line ----
+source_files_content_one_line <-
+  source_files_content |>
+  map(to_one_line)
+# to_one_line(flat_file_r_text, my_split_newline_char)
+# View(source_files_content_one_line)
+
 ## combine all files ----
 
 ## find sourced files ----
