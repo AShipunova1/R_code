@@ -1,6 +1,10 @@
 library(tidyverse)
 library(tools)
 
+# How to use the result qmd:
+# To see the report .html - render the .qmd
+# to run - "run all" in the .qmd tab (Ctrl-Alt-R)
+
 # change dir name
 # comment out the "answers" for the next to readline()
 curent_project_name <- readline(prompt = "Print your project name: ")
