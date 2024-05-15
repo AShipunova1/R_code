@@ -2,9 +2,9 @@ library(tidyverse)
 library(tools)
 # change dir name!
 curent_project_name <- readline(prompt = "Print your project name: ")
-# egregious_violators
+egregious_violators
 curent_file_name_no_ext <- readline(prompt = "Print your file name: ")
-# egregious_violators_start
+egregious_violators_start
 
 # In the input .R script:
 # add "#' " in front of comments to be shown as text
@@ -70,6 +70,8 @@ flat_file_r_text <-
   readLines(file_paths$R)
 
 head(flat_file_r_text)
+
+# main_file_one_line
 
 ## read all sourced files ----
 # grep("source", flat_file_r_text, value = T)
@@ -501,20 +503,6 @@ my_used_function_helps <-
 # check
 # grep("@", flat_file_r_text, value = T)
 # 0
-
-my_split_newline_char <- "@@@"
-
-to_one_line <-
-  function(my_text_with_newline, 
-           glue_by = my_split_newline_char) {
-    my_text_with_newline |>
-      paste(collapse = glue_by)
-  }
-
-split_one_line_text_back <-
-  function(my_text_with_at, split_by = my_split_newline_char) {
-    strsplit(my_text_with_at, split_by)[[1]]
-  }
 
 replace_one_in_each <- 
   function(flat_file_r_text, idx) {
