@@ -129,21 +129,16 @@ source_files_content <- read_source_files(source_paths) |>
 
 # replace sourcing files with file content
 
-to_find <- str_c("\\b", str_escape(unlist(source_paths_matches)), 
-                 "\\b", collapse = "|")
+to_find <- str_c(str_escape(unlist(source_paths_matches)), 
+                 collapse = "|")
 str(to_find)
 
 to_replace1 <-
   function(one_match) {
-    # browser()
-    
     if (one_match == source_paths_matches[[1]])
       y <- source_files_content[[1]]
     if (one_match == source_paths_matches[[2]])
       y <- source_files_content[[2]]
-    # paste("<<<@1@>>>", one_match)
-    # str_escape(source_files_content[[1]])
-    # head(source_files_content[[1]])
     return(y)
   }
 
