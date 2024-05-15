@@ -56,7 +56,7 @@ function(my_file_path,
   # Print out the formatted string with the file name ('my_file_name') and the modification time ('modif_time') to keep track of when the data were downloaded.
   my_file_name <- basename(my_file_path)
   function_message_print(
-    str_glue("File: {my_file_name} modified {modif_time}"))
+    stringr::str_glue("File: {my_file_name} modified {modif_time}"))
 
     # Return the generated or read data.
     return(my_result)
