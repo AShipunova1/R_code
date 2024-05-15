@@ -15,7 +15,7 @@ function(corresp_arr, compl_arr) {
 
   # Perform a full join of 'compl' and 'corresp' data frames on the 'vesselofficialnumber' column, retaining all rows
   result_df <- compl %>%
-    full_join(corresp,
+    dplyr::full_join(corresp,
               by = c("vesselofficialnumber"),
               multiple = "all")
 
