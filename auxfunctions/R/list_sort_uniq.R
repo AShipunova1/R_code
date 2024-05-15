@@ -3,10 +3,10 @@ function(my_lists) {
   # browser()
   res <-
     my_lists |>
-    str_trim() |>
+    stringr::str_trim() |>
     unique() |>
     sort() |>
     list() |>
-    flatten()
+    purrr::flatten()
   return(res)
 }
