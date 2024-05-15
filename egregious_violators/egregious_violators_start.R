@@ -16,6 +16,9 @@
 # install.packages("~/R_code_github/auxfunctions_1.0.tar.gz",
 #                  repos = NULL,
 #                  type = "source")
+install.packages("devtools")
+library(devtools)
+devtools::install_github("AShipunova1/R_code/auxfunctions")
 
 library(auxfunctions)
 library(ROracle)
