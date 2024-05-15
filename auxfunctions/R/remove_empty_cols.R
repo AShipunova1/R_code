@@ -6,7 +6,7 @@ function(my_df) {
   my_df |>
     # Select columns from "my_df" where the result of the "not_all_na" function is true,
     # i.e., select columns that have at least one non-NA value.
-    select(where(not_all_na)) %>%
+    select(tidyselect::where(not_all_na)) %>%
     # Return the modified data frame, which contains only the selected columns.
     return()
 }
