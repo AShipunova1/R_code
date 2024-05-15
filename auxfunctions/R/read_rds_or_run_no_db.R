@@ -8,11 +8,11 @@ function(my_file_path,
       my_df <-
         readr::read_rds(my_file_path)
     } else {
-      tic("run the function")
+      tictoc::tic("run the function")
       my_df <-
         my_function(my_data_list_of_dfs[[1]],
                     my_data_list_of_dfs[[2]])
-      toc()
+      tictoc::toc()
 
       # write all as binary
       readr::write_rds(my_df,
