@@ -9,7 +9,7 @@ function(my_paths, xls_names_list, sheet_n = 1) {
 
   # Read Excel files listed in 'myfiles' into one data frame using 'map_df'
   contents <-
-    map_df(myfiles,
+    purrr::map_df(myfiles,
            ~ my_read_xlsx(.x, # File path
                           sheet_n, # Sheet number to read)
     ))
