@@ -159,14 +159,19 @@ str(to_find)
 to_replace1 <-
   function(one_match) {
     if (one_match == source_paths_matches[[1]])
-      y <- source_files_content[[1]]
+      y <- source_files_content_one_line[[1]]
     if (one_match == source_paths_matches[[2]])
-      y <- source_files_content[[2]]
+      y <- source_files_content_one_line[[2]]
     return(y)
   }
 
 rrr <-
-  str_replace_all(flat_file_r_text, to_find, to_replace1)
+  stringr::str_replace_all(flat_file_r_text, to_find, to_replace1)
+
+# View(rrr)
+
+grep("egregious_violators_start.R", rrr, value = T)
+
 
 # comment_out_sources <-
 #   function(my_text = flat_file_r_text) {
