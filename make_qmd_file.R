@@ -415,6 +415,9 @@ function_obj_as_text <- function(function_name) {
   return(fun_body)
 }
 
+# for \s and \b in the cited functions
+my_slash_replacement <- "QQQ"
+
 ## get all my_used_function_texts ----
 my_used_function_texts <-
   my_used_function_names |>
@@ -423,7 +426,9 @@ my_used_function_texts <-
     function_list <- getAnywhere(one_f_name)
     
     function_as_text <-
-      function_list$objs[[1]] |> function_obj_as_text()
+      function_list$objs[[1]] |> 
+      function_obj_as_text() |> 
+      str_replace_all("\\\\", my_slash_replacement)
     
     with_first_line <- 
       paste(one_f_name, " <- ",
@@ -433,7 +438,7 @@ my_used_function_texts <-
   }) |> 
   set_names(my_used_function_names)
 
-# View(my_used_function_texts)
+View(my_used_function_texts)
 
 ## get all my used function helps ----
 my_used_function_helps <-
@@ -497,13 +502,18 @@ length(text_replaced)
 # grep(my_used_function_names[[1]],
 #      text_replaced, value = T)
 
+# grep("\\\\s", str_escape(my_used_function_texts), value = T)
+# clean_names_and_addresses 
+
+# grep("\\\\s", text_replaced, value = T)
+
 see_res_in_outfile <- function(text_to_output) {
   outfile <- tempfile(fileext = ".txt")
   cat(text_to_output, file = outfile)
   file.show(outfile)
 }
 
-# see_res_in_outfile(text_replaced)
+see_res_in_outfile(text_replaced)
 
 # TODO: check if newlines are correct now
 
@@ -529,6 +539,14 @@ tictoc::toc()
 #   setNames(nm = "found") |> 
 #   filter(!is.na(found)) |> dim()
 # # 86
+
+# Change back to \s and \b in functions
+# TODO: move it to where the text is the one line
+rmd_text <- 
+  rmd_text |>
+  # stringr::str_extract_all(".+QQQ.+") |> 
+  str_replace_all(my_slash_replacement, "\\\\")
+  # unique()
 
 # Don't use in the auxiliary file
 pre_text <- stringr::str_glue("---
