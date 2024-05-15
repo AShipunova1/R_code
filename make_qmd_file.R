@@ -567,6 +567,19 @@ library(kableExtra)
 
 # Format R code automatically
 library(styler)
+
+# Load the tidyr package for data manipulation
+library(tidyr)
+
+# Load the magrittr package for piping operations
+library(magrittr)
+
+# Load the stringr package for string manipulation
+library(stringr)
+
+# Load the openxlsx package for reading and writing Excel files
+library(openxlsx)
+
 ```
 
 ```{r df format setup}
@@ -595,7 +608,6 @@ registerS3method(
 # knitr::opts_chunk$set(echo = TRUE)
 
 # options(knitr.table.format = 'HTML')
-
 
 ```
 
