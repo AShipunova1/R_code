@@ -18,11 +18,11 @@ function(my_df, field_name, date_format = "") {
     )
   }
 
-  new_field_name <- str_glue("{field_name}_dttm")
+  new_field_name <- stringr::str_glue("{field_name}_dttm")
 
   result_df <-
     my_df |>
-    mutate(!!new_field_name := as.POSIXct(!!field_name,
+    dplyr::mutate(!!new_field_name := as.POSIXct(!!field_name,
                                       tryFormats = my_tryFormats,
                                       format = date_format))
 
