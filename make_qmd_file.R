@@ -27,6 +27,20 @@ check_str <- function(my_string, my_pattern) {
     filter(!is.na(found))
 }
 
+my_split_newline_char <- "@@@"
+
+to_one_line <-
+  function(my_text_with_newline, 
+           glue_by = my_split_newline_char) {
+    my_text_with_newline |>
+      paste(collapse = glue_by)
+  }
+
+split_one_line_text_back <-
+  function(my_text_with_at, split_by = my_split_newline_char) {
+    strsplit(my_text_with_at, split_by)[[1]]
+  }
+
 # source("~/R_code_github/useful_functions_module.r")
 library(auxfunctions)
 my_paths <- set_work_dir()
