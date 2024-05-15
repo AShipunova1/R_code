@@ -3,10 +3,10 @@ function(my_df) {
   my_df %>%
 
     # Separate the 'week' column using ":" as the delimiter and create new columns 'week_num' and 'week_rest'
-    separate_wider_delim(week, ":", names = c("week_num", "week_rest")) %>%
+    tidyr::separate_wider_delim(week, ":", names = c("week_num", "week_rest")) %>%
 
     # Further separate 'week_rest' using " - " as the delimiter and create 'week_start' and 'week_end' columns
-    separate_wider_delim(week_rest, " - ", names = c("week_start", "week_end")) ->
+    tidyr::separate_wider_delim(week_rest, " - ", names = c("week_start", "week_end")) ->
     temp_df
 
   # Convert 'week_num' to integer and update 'my_df' with the result
