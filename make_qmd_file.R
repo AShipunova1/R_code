@@ -51,8 +51,13 @@ split_one_line_text_back <-
   }
 
 # source("~/R_code_github/useful_functions_module.r")
+
+# install.packages("devtools")
+# library(devtools)
+# devtools::install_github("AShipunova1/R_code/auxfunctions")
 library(auxfunctions)
-my_paths <- set_work_dir()
+
+my_paths <- auxfunctions::set_work_dir()
 
 dir_to_comb <-
   file.path(my_paths$git_r,
@@ -442,7 +447,7 @@ my_used_function_texts <-
   }) |> 
   set_names(my_used_function_names)
 
-View(my_used_function_texts)
+# View(my_used_function_texts)
 
 ## get all my used function helps ----
 my_used_function_helps <-
@@ -517,7 +522,7 @@ see_res_in_outfile <- function(text_to_output) {
   file.show(outfile)
 }
 
-see_res_in_outfile(text_replaced)
+# see_res_in_outfile(text_replaced)
 
 # TODO: check if newlines are correct now
 
