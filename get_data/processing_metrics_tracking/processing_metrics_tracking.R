@@ -37,8 +37,8 @@ Outputs <- "Outputs/"
 
 # Set the date ranges for the logbook and compliance data you are pulling
 # this is the year to assign to the output file name
-my_year <- '2022'
-# my_year <- '2023'
+# my_year <- '2022'
+my_year <- '2023'
 # my_year <- '2024'
 
 # Auxiliary methods ----
