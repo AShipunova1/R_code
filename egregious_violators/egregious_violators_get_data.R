@@ -38,7 +38,7 @@
 
 # Download from FHIER first
 all_csv_names_list = c("Correspondence_2024_05_15.csv",
-                         r"(2024_05_15\FHIER_Compliance_2023__05_15_2024.csvv)",
+                         r"(2024_05_15\FHIER_Compliance_2023__05_15_2024.csv)",
                          r"(2024_05_15\FHIER_Compliance_2024__05_15_2024.csv)")
 
 ## get compliance and correspondence csv data into variables ----
