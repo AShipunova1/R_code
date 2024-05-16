@@ -148,12 +148,14 @@ permits_from_pims__split1_short__split2 <-
 
 ## vessels clean and shorten  ----
 hailing_port_col_name <- 
-  
+  auxfunctions::find_col_name(vessels_from_pims, "hailing", "port") |>
+  sym()
+
 vessels_from_pims_short <-
   vessels_from_pims |>
   dplyr::rename("vessel_official_number" = official_) |>
   select(vessel_official_number,
-         hailingport) |>
+         !!hailing_port_col_name) |>
   distinct()
 
 # print_df_names(vessels_from_pims)
@@ -215,15 +217,15 @@ vessels_from_pims_double_bind <-
 vessels_from_pims_ok <-
   vessels_from_pims_double_bind |>
   dplyr::mutate(hailing_port =
-           stringr::str_replace(hailing_port,
+           stringr::str_replace(!!hailing_port_col_name,
                        ",",
                        ", ")) |>
   dplyr::mutate(hailing_port =
-           stringr::str_replace(hailing_port,
+           stringr::str_replace(!!hailing_port_col_name,
                        " ,",
                        ",")) |>
   dplyr::mutate(hailing_port =
-           stringr::str_squish(hailing_port)) |> 
+           stringr::str_squish(!!hailing_port_col_name)) |> 
   distinct()
 
 dim(vessels_from_pims_ok)
@@ -234,6 +236,7 @@ grep(",[a-zA-Z]",
      vessels_from_pims_ok$hailing_port,
      value = T)
 # 0
+# [1] "PEMBROKE,PINES, FL"
 
 grep("  +",
      vessels_from_pims_ok$hailing_port,
