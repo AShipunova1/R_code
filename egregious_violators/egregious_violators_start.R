@@ -29,7 +29,7 @@ devtools::install_github("AShipunova1/R_code/auxfunctions@development",
                          build_manual = TRUE)
 
 library(auxfunctions)
-# library(ROracle)
+library(ROracle)
 # library(dplyr)
 # library(rlang)
 # library(lubridate)
