@@ -119,7 +119,7 @@ fhier_addresses <-
            col_types = readr::cols(.default = 'c'),
            name_repair = auxfunctions::fix_names)
 
-# View(fhier_addresses)
+dim(fhier_addresses)
 
 # PIMS ----
 ## get home port processed city and state ----
@@ -167,6 +167,7 @@ db_participants_address <-
     db_participants_address_file_path,
     db_participants_address_query,
     db_participants_address_fun
+    # ,
     # force_from_db = "yes"
   ) |>
   auxfunctions::remove_empty_cols() |>
@@ -182,7 +183,7 @@ dim(db_participants_address)
 prev_result_path <- 
   file.path(my_paths$inputs,
             current_project_basename,
-            "egregious violators for investigation_2023-08-15_to_2024-02-13_OLE.xlsx")
+            "egregious_violators_to_investigate_2024-04-10.xlsx")
 
 file.exists(prev_result_path)
 
