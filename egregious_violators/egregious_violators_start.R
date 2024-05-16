@@ -740,3 +740,66 @@ cat("Result:",
     out_file_name,
     sep = "\n")
 
+# compare info with old
+compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked |> 
+  dplyr::glimpse()
+
+old_n_new_results <-
+  dplyr::left_join(
+    prev_result,
+    compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked,
+    by = dplyr::join_by(
+      vessel_official_number
+      # ,
+      # permitgroup,
+      # permit_groupexpiration,
+      # contactrecipientname,
+      # permit_holder_names,
+      # contactphone_number,
+      # contactemailaddress,
+      # date__contacttypes,
+      # duplicate_w_last_time,
+      # hailing_port_city,
+      # hailing_port_state
+    ),
+      suffix = c("_old", "_new")
+  )
+
+# View(old_n_new_results)
+
+old_n_new_cols <-
+  c(
+    "permitgroup_old",
+    "permit_groupexpiration_old",
+    "contactrecipientname_old",
+    "permit_holder_names_old",
+    "contactphone_number_old",
+    "contactemailaddress_old",
+    "date__contacttypes_old",
+    "duplicate_w_last_time_old",
+    "hailing_port_city_old",
+    "hailing_port_state_old"
+  )
+
+res <- list()
+
+old_n_new_cols |> 
+  purrr::map(\(old_col_name){
+    browser()
+    new_col_name <- 
+      stringr::str_replace(old_col_name, "_old$", "_new")
+    
+    not_the_same <-
+      old_n_new_results |>
+      filter(!(!!sym(old_col_name)) == !!sym(new_col_name))
+    
+    if (!length(not_the_same) > 0)
+    {
+      res[new_col_name] <- not_the_same
+        
+    }
+    
+    return(res)
+  })
+  
+  
