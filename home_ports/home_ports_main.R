@@ -60,19 +60,22 @@ source(get_data_file_path)
 # 3. Trimming leading and trailing whitespaces from all character columns using 'mutate(across(where(is.character), str_trim))'.
 vessels_from_pims_split_addr <-
   vessels_from_pims_ok |>
-  filter(!length(hailing_port) < 1) |> 
-  tidyr::separate_wider_delim(hailing_port,
-                              delim = ",",
-                              names = c("city", "state"),
-                              too_many = "merge",
-                              too_few = "align_start") |> 
-    dplyr::mutate(dplyr::across(tidyselect::where(is.character),
-                                stringr::str_squish))
-  # too_few = c("error", "debug", "align_start", "align_end"),
+  tidyr::separate_wider_delim(
+    hailing_port,
+    delim = ",",
+    names = c("city", "state"),
+    too_many = "merge",
+    too_few = "align_start"
+  ) |>
+  dplyr::mutate(dplyr::across(tidyselect::where(is.character), 
+                              stringr::str_squish))
 
-View(vessels_from_pims_split_addr)
-vessels_from_pims_ok |>
-  filter(grepl("\\d", hailing_port))
+# View(vessels_from_pims_split_addr)
+
+addresses_w_digit <- 
+  vessels_from_pims_ok |>
+  filter(grepl("\\d", hailing_port)) |> 
+  distinct()
    # vessel_official_number hailing_port            
 #    <chr>                  <chr>                   
 #  1 574500                 HO0MASASSA, FL          
@@ -88,9 +91,9 @@ vessels_from_pims_ok |>
 # 11 1301930                22411 GENO LANE, AL     
 # 12 GA1769JL               117 HAWK LANDING LN, GA 
 
-
-# vessels_from_pims_ok |>
-#   filter(grepl(",.+,", hailing_port))
+vessels_from_pims_ok |>
+  filter(grepl(",.+,", hailing_port)) |> 
+  distinct()
 # 1 945114                 REDINGTON SHORES, FL, FL
 # 2 919225                 CHAUVIN, LA, LA         
 # 3 AL6468LL               ALEXANDER CITY, AL, AL  
@@ -218,11 +221,6 @@ vessels_from_pims_split_addr__city_state <-
            ))
 
 ## check numbers in an address ----
-# vessels_from_pims |> 
-#   filter(official__ %in% c("1301930",
-# "GA1769JL")) |> 
-#   View()
-
 vessels_from_pims_split_addr__city_state |>
   filter(grepl("\\d", city_state)) |> 
   select(city_state) |> 
