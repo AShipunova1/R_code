@@ -99,13 +99,14 @@ permits_from_pims <-
 
 # Clean data ----
 vessel_or_dealer_col_name <- 
-  auxfunctions::find_col_name(permits_from_pims, "vessel", "dealer")
+  auxfunctions::find_col_name(permits_from_pims, "vessel", "dealer") |> 
+  rlang::sym()
 # print_df_names(permits_from_pims)
 
 ## permits split vessel_or_dealer ----
 permits_from_pims__split1 <-
   permits_from_pims |>
-  tidyr::separate(!!sym(vessel_or_dealer_col_name),
+  tidyr::separate(!!vessel_or_dealer_col_name,
            c('vessel_official_number', 'dealer'),
            sep = " / ") |>
   dplyr::mutate(dplyr::across(c('vessel_official_number', 'dealer'),
@@ -149,7 +150,7 @@ permits_from_pims__split1_short__split2 <-
 ## vessels clean and shorten  ----
 hailing_port_col_name <- 
   auxfunctions::find_col_name(vessels_from_pims, "hailing", "port") |>
-  sym()
+  rlang::sym()
 
 vessels_from_pims_short <-
   vessels_from_pims |>
