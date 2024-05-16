@@ -102,6 +102,7 @@ get_data_path <-
   file.path(current_project_path, "egregious_violators_get_data.R")
 source(get_data_path)
 
+# Data are in:
 # compl_clean
 # corresp_contact_cnts_clean0
 # prev_result
@@ -109,7 +110,6 @@ source(get_data_path)
 # fhier_addresses
 # processed_pims_home_ports
 # db_participants_address
-# vessels_permits_participants
 
 # Preparing compliance info ----
 
@@ -171,12 +171,13 @@ compl_clean_w_permit_exp_last_half_year__sa <-
   compl_clean_w_permit_exp_last_half_year |>
   dplyr::filter(grepl("CDW|CHS|SC", permitgroup))
 
-# today()
+# lubridate::today()
 # [1] "2023-08-01"
 # [1] "2023-07-10"
 # [1] "2023-08-10"
 # [1] "2024-02-16"
 # [1] "2024-04-09"
+# [1] "2024-05-16"
 
 dim(compl_clean_w_permit_exp_last_half_year__sa)
 
@@ -200,7 +201,7 @@ remove_columns <- c(
 # 2. Use 'distinct' to keep only unique rows in the resulting data frame.
 compl_clean_w_permit_exp_last_half_year__sa__short <-
   compl_clean_w_permit_exp_last_half_year__sa |>
-  dplyr::select(-dplyr::any_of(remove_columns)) |> 
+  dplyr::select(-tidyselect::any_of(remove_columns)) |> 
   dplyr::distinct()
 
 dim(compl_clean_w_permit_exp_last_half_year__sa__short)
@@ -212,7 +213,7 @@ tictoc::tic("compl_overr")
 compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr <-
   compl_clean_w_permit_exp_last_half_year__sa__short |>
   auxfunctions::add_compliant_after_override(overridden_col_name = "overridden_",
-                               compliance_col_name = "compliant_")
+                                             compliance_col_name = "compliant_")
 tictoc::toc()
 # compl_overr: 8.76 sec elapsed
 
@@ -471,8 +472,6 @@ num_of_vsl_to_investigate <-
 # Explanations:
 # Group the dataframe by the 'vessel_official_number' column and then apply the 'summarise_all' function.
 # The 'summarise_all' function applies the specified function (in this case, 'concat_unique') to each column.
-
-# Note: 'concat_unique' is not a standard R function, it is a custom function defined previously.
 
 colnames(compl_corr_to_investigation) |> 
   cat(sep = '",\n"')
