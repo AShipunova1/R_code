@@ -45,7 +45,7 @@ convert_to_dates <-
       my_df |>
       dplyr::mutate(dplyr::across(
         tidyselect::where(is.character) &
-          (tidyselect::ends_with("_date")),
+          (tidyselect::ends_with("date")),
         ~ lubridate::parse_date_time(.x, orders = c("mdY"))
       ))
     return(my_df_w_dates)
@@ -97,10 +97,14 @@ permits_from_pims <-
                      startRow = 5)
 
 # Clean data ----
+vessel_or_dealer_col_name <- 
+  auxfunctions::find_col_name(permits_from_pims, "vessel", "dealer")
+# print_df_names(permits_from_pims)
+
 ## permits split vessel_or_dealer ----
 permits_from_pims__split1 <-
   permits_from_pims |>
-  separate(vessel_or_dealer,
+  tidyr::separate(!!sym(vessel_or_dealer_col_name),
            c('vessel_official_number', 'dealer'),
            sep = " / ") |>
   mutate(across(c('vessel_official_number', 'dealer'),
