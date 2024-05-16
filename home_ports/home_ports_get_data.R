@@ -14,19 +14,21 @@
 # 2) same for vessels, skip first 3 lines
 # "Vessels - 2024-02-28_0930.xlsx"
 
+library(openxlsx)
+
 # Colored terminal output
 library(crayon)
 
 # auxiliary functions ----
 get_xlsx_data_pims <-
   function(my_file_path,
-           to_skip = 0,
+           startRow = 1,
            my_sheet = "Sheet 1") {
     
     data_from_pims_raw <-
-      read_xlsx(my_file_path,
+      openxlsx::read.xlsx(my_file_path,
                 sheet = my_sheet,
-                skip = to_skip)
+                startRow = startRow)
     
     # clean_headers
     data_from_pims <-
@@ -57,7 +59,7 @@ vessel_names_file_path <-
 # file.exists(vessel_names_file_path)
 vessels_from_pims <- 
   get_xlsx_data_pims(vessel_names_file_path,
-                     to_skip = 3)
+                     startRow = 4)
 
 # print_df_names(vessels_from_pims)
 
@@ -89,7 +91,7 @@ permits_names_file_path <-
 # file.exists(permits_names_file_path)
 permits_from_pims <- 
   get_xlsx_data_pims(permits_names_file_path,
-                     to_skip = 4)
+                     startRow = 5)
 
 # Clean data ----
 ## permits split vessel_or_dealer ----
