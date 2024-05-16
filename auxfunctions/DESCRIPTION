@@ -26,5 +26,6 @@ Imports:
   lubridate,
   magrittr,
   openxlsx,
-  stringr
+  stringr,
+  tidyselect
 RoxygenNote: 7.3.1
