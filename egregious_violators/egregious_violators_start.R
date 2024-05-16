@@ -21,11 +21,12 @@
 
 # install.packages("remotes")
 # library(remotes)
-remotes::install_local(path = "~/R_code_github/auxfunctions_1.1.tar.gz",
-                       build_manual = TRUE)
+# remotes::install_local(path = "~/R_code_github/auxfunctions_1.1.tar.gz",
+#                        build_manual = TRUE)
 # install.packages("devtools")
 # library(devtools)
-# devtools::install_github("AShipunova1/R_code/auxfunctions")
+devtools::install_github("AShipunova1/R_code/auxfunctions@development",
+                         build_manual = TRUE)
 
 library(auxfunctions)
 # library(ROracle)
@@ -96,6 +97,7 @@ last_week_start <- data_file_date - grace_period
 # get_data ----
 #' %%%%% Prepare data
 #' 
+#' half_year_ago
 get_data_path <- 
   file.path(current_project_path, "egregious_violators_get_data.R")
 source(get_data_path)
