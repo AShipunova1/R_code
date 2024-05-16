@@ -15,15 +15,22 @@
 # source("~/R_code_github/useful_functions_module.r")
 # install.packages("~/R_code_github/auxfunctions_1.0.tar.gz",
 #                  repos = NULL,
-#                  type = "source")
-install.packages("devtools")
-library(devtools)
-devtools::install_github("AShipunova1/R_code/auxfunctions")
+#                  type = "source",
+#                    ref = "HEAD",
+# )
+
+# install.packages("remotes")
+# library(remotes)
+remotes::install_local(path = "~/R_code_github/auxfunctions_1.1.tar.gz",
+                       build_manual = TRUE)
+# install.packages("devtools")
+# library(devtools)
+# devtools::install_github("AShipunova1/R_code/auxfunctions")
 
 library(auxfunctions)
-library(ROracle)
-library(dplyr)
-library(rlang)
+# library(ROracle)
+# library(dplyr)
+# library(rlang)
 # library(lubridate)
 # library(purrr)
 # library(readr)
