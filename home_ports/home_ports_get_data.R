@@ -41,6 +41,7 @@ get_xlsx_data_pims <-
 
 convert_to_dates <-
   function(my_df) {
+    # browser()
     my_df_w_dates <-
       my_df |>
       dplyr::mutate(dplyr::across(
@@ -122,10 +123,6 @@ Sys.setenv(TZ = Sys.timezone())
 Sys.setenv(ORA_SDTZ = Sys.timezone())
 
 program_start_date <- lubridate::dmy("04/01/2021")
-
-permits_from_pims__split1 |>
-  convert_to_dates() |> dplyr::select(tidyselect::ends_with("date")) |> 
-  glimpse()
 
 permits_from_pims__split1_short <-
   permits_from_pims__split1 |>
