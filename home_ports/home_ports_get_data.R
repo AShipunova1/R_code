@@ -28,7 +28,8 @@ get_xlsx_data_pims <-
     data_from_pims_raw <-
       openxlsx::read.xlsx(my_file_path,
                 sheet = my_sheet,
-                startRow = startRow)
+                startRow = startRow,
+                detectDates = TRUE)
     
     # clean_headers
     data_from_pims <-
