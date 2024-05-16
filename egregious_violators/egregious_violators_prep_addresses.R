@@ -209,8 +209,8 @@ tictoc::toc()
 ### shorten ----
 db_participants_address__needed_short__erv_erb_combined_short <-
   db_participants_address__needed_short__erv_erb_combined3 |>
-  dplyr::select(official_number,
-         dplyr::all_of(dplyr::starts_with("db_"))) |> 
+  dplyr::select(official_number, 
+                tidyselect::all_of(tidyselect::starts_with("db_"))) |>
   dplyr::distinct()
 
 dim(db_participants_address__needed_short__erv_erb_combined_short)
@@ -222,10 +222,7 @@ dplyr::n_distinct(db_participants_address__needed_short__erv_erb_combined_short$
 db_participants_address__needed_short__erv_erb_combined_short |> 
   dplyr::filter(official_number == "1235397") |>
   dplyr::glimpse()
-# $ official_number      <chr> "1235397", "1235397"
 # $ db_entity_name       <list> ["DC SERVICE AND MAINTENANCE"], ["DAVID A RUBINO"]
-# $ db_primary_email     <list> ["Acemechanicalcd@aol.com"], ["Acemechanicalcd@aol.…
-# $ db_ph_is_primary     <list> ["1"], ["1"]
 # $ db_physical_city     <list> ["SOUTH ISLANDIA"], ["ISLANDIA"]
 
 ## combine similar fields ----
@@ -263,8 +260,22 @@ db_participants_address__needed_short__erv_erb_combined_short__u_temp <-
       dplyr::select(-official_number)
   })
 
-# glimpse(db_participants_address__needed_short__erv_erb_combined_short__u)
 # glimpse(db_participants_address__needed_short__erv_erb_combined_short)
+
+# Explanation:
+# 
+# This code creates a new dataframe by combining columns with suffix "_u" from two existing dataframes (`db_participants_address__needed_short__erv_erb_combined_short` and `db_participants_address__needed_short__erv_erb_combined_short__u_temp`). Here's a detailed breakdown:
+# 
+# 1. **Binding Columns Together:**
+#    - `dplyr::bind_cols(...)`: It binds columns from two dataframes together. The columns from `db_participants_address__needed_short__erv_erb_combined_short` and `db_participants_address__needed_short__erv_erb_combined_short__u_temp` are combined horizontally.
+# 
+# 2. **Selecting Columns:**
+#    - `dplyr::select(official_number, dplyr::all_of(dplyr::ends_with("_u")))`: After binding columns, it selects the `official_number` column along with all columns that end with "_u" using `select` from dplyr. 
+#    
+# 3. **Removing Duplicate Rows:**
+#    - `dplyr::distinct()`: It removes duplicate rows from the dataframe to ensure each row is unique.
+# 
+# This code essentially creates a new dataframe containing selected columns from two existing dataframes and ensures that there are no duplicate rows in the resulting dataframe.
 
 db_participants_address__needed_short__erv_erb_combined_short__u <-
   dplyr::bind_cols(
