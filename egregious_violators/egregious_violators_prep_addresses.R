@@ -290,6 +290,23 @@ db_participants_address__needed_short__erv_erb_combined_short__u <-
 #   glimpse()
 
 ### convert to characters ----
+# Explanation:
+# 
+# This code modifies the dataframe `db_participants_address__needed_short__erv_erb_combined_short__u` by concatenating the elements of list-type columns into a single string separated by semicolons. Here's a detailed explanation:
+# 
+# 1. **Row-wise Operation:**
+#    - `dplyr::rowwise()`: It sets the dataframe to be processed row-wise, meaning each operation will be applied independently to each row.
+# 
+# 2. **Mutating List-type Columns:**
+#    - `dplyr::mutate_if(is.list, ~ paste(unlist(.), collapse = '; '))`: This line applies a mutation to each column of the dataframe that is of list type. 
+#      - `is.list`: Checks if a column is of list type.
+#      - `paste(unlist(.), collapse = '; ')`: For each list-type column, it converts the list elements into a single string by unlisting them and concatenating them together with a semicolon as the separator.
+# 
+# 3. **Ungrouping:**
+#    - `dplyr::ungroup()`: It removes the grouping previously applied to the dataframe, returning it to its original state.
+# 
+# This code effectively transforms list-type columns in the dataframe into character vectors, concatenating their elements into a single string with semicolons as separators.
+
 db_participants_address__needed_short__erv_erb_combined_short__u_no_c <-
   db_participants_address__needed_short__erv_erb_combined_short__u |>
   dplyr::rowwise() |>
@@ -300,26 +317,39 @@ db_participants_address__needed_short__erv_erb_combined_short__u_no_c <-
 #   filter(official_number == "1235397") |>
 #   glimpse()
 # $ db_mailing_state_u     <chr> "NY"
-# $ db_mailing_zip_code_u  <chr> "..; ..-.."
-
+# $ db_mailing_city_u      <chr> "ISLANDIA; SOUTH ISLANDIA"
+# 
 ## rename fields ----
+
+# Explanation:
+# 
+# This code renames the columns in the dataframe `db_participants_address__needed_short__erv_erb_combined_short__u_no_c` by removing the suffix "_u" from their names. Here's a breakdown:
+# 
+# 1. **Renaming Columns:**
+#    - `dplyr::rename_with( ~ stringr::str_replace(.x, pattern = "_u$", replacement = ""))`: It renames the columns of the dataframe using a function provided by `rename_with`.
+#      - `~`: It indicates the start of an anonymous function.
+#      - `stringr::str_replace(.x, pattern = "_u$", replacement = "")`: For each column name (`x`), it applies the `str_replace` function from the `stringr` package to replace the pattern "_u" at the end of the column name with an empty string, effectively removing it.
+# 
+# This code removes the "_u" suffix from the column names in the dataframe.
+
 db_participants_address__needed_short__erv_erb_combined_short__u_ok <-
   db_participants_address__needed_short__erv_erb_combined_short__u_no_c |>
-  dplyr::rename_with( ~ stringr::str_replace(.x, pattern = "_u$", replacement = ""))
+  dplyr::rename_with(~ stringr::str_replace(.x, pattern = "_u$", 
+                                            replacement = ""))
 
 # Join fhier and Oracle db addresses ----
 compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr <-
   compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>
-  left_join(
+  dplyr::left_join(
     db_participants_address__needed_short__erv_erb_combined_short__u_ok,
-    join_by(vessel_official_number == official_number)
+    dplyr::join_by(vessel_official_number == official_number)
   )
 
 # compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr |>
 #   filter(vessel_official_number == "1235397") |>
 #   glimpse()
 # $ db_mailing_state       <chr> "NY"
-# $ db_mailing_zip_code    <chr> "11749; 11749-5010"
+# $ db_mailing_city        <chr> "ISLANDIA; SOUTH ISLANDIA"
 
 cat("Result: ",
     "compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr",
