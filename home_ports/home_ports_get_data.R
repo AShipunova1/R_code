@@ -139,21 +139,22 @@ dim(permits_from_pims__split1_short)
 ## permits split permit number ----
 permits_from_pims__split1_short__split2 <- 
   permits_from_pims__split1_short |> 
-  separate(permit__,
+  tidyr::separate(permit_,
            c('permit', 'permit_number'),
            sep = "-") |>
-  mutate(across(starts_with('permit'),
-                str_squish))
+  dplyr::mutate(dplyr::across(tidyselect::starts_with('permit'),
+                stringr::str_squish))
 # View(permits_from_pims__split1_short__split2)
 
 ## vessels clean and shorten  ----
+hailing_port_col_name <- 
+  
 vessels_from_pims_short <-
   vessels_from_pims |>
-  rename("vessel_official_number" = official__) |>
+  dplyr::rename("vessel_official_number" = official_) |>
   select(vessel_official_number,
-         hailing_port) |>
+         hailingport) |>
   distinct()
-  # convert_to_dates() |> 
 
 # print_df_names(vessels_from_pims)
 
@@ -163,7 +164,7 @@ dim(vessels_from_pims_short)
 ## vessels remove "NOVESID" ----
 vessels_from_pims_short_ok <-
   vessels_from_pims_short |>
-  filter(!grepl("^NOVESID", vessel_official_number))
+  dplyr::filter(!grepl("^NOVESID", vessel_official_number))
 
 dim(vessels_from_pims_short_ok)
 # [1] 22510     2
@@ -173,11 +174,11 @@ dim(vessels_from_pims_short_ok)
 ## vessel split double names ----
 vessels_from_pims_short_ok__split1 <-
   vessels_from_pims_short_ok |>
-  separate(vessel_official_number,
+  tidyr::separate(vessel_official_number,
            c('vessel_official_number', 'vessel_official_number2'),
            sep = " / ") |>
-  mutate(across(starts_with('vessel_official_number'),
-                str_squish))
+  dplyr::mutate(dplyr::across(tidyselect::starts_with('vessel_official_number'),
+                stringr::str_squish))
 
 # Expected 2 pieces. Missing pieces filled with `NA` in 21895 rows [1, 2, 3, 4, 5,
 
@@ -190,12 +191,12 @@ vessels_from_pims_short_ok__split1 <-
 
 vessels_from_pims_double_1 <-
   vessels_from_pims_short_ok__split1 |> 
-  select(-vessel_official_number2)
+  dplyr::select(-vessel_official_number2)
 
 vessels_from_pims_double_2 <-
   vessels_from_pims_short_ok__split1 |> 
-  select(-vessel_official_number) |>
-  rename("vessel_official_number" = vessel_official_number2)
+  dplyr::select(-vessel_official_number) |>
+  dplyr::rename("vessel_official_number" = vessel_official_number2)
 
 ### combine in one df ----
 vessels_from_pims_double_bind <-
@@ -203,8 +204,8 @@ vessels_from_pims_double_bind <-
     vessels_from_pims_double_1,
     vessels_from_pims_double_2
   ) |> 
-  distinct() |> 
-  filter(!is.na(vessel_official_number))
+  dplyr::distinct() |> 
+  dplyr::filter(!is.na(vessel_official_number))
 
 # View(vessels_from_pims_double_bind)
 # [1] 23086     2
@@ -213,16 +214,16 @@ vessels_from_pims_double_bind <-
 
 vessels_from_pims_ok <-
   vessels_from_pims_double_bind |>
-  mutate(hailing_port =
-           str_replace(hailing_port,
+  dplyr::mutate(hailing_port =
+           stringr::str_replace(hailing_port,
                        ",",
                        ", ")) |>
-  mutate(hailing_port =
-           str_replace(hailing_port,
+  dplyr::mutate(hailing_port =
+           stringr::str_replace(hailing_port,
                        " ,",
                        ",")) |>
-  mutate(hailing_port =
-           str_squish(hailing_port)) |> 
+  dplyr::mutate(hailing_port =
+           stringr::str_squish(hailing_port)) |> 
   distinct()
 
 dim(vessels_from_pims_ok)
