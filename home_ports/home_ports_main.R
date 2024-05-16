@@ -60,12 +60,17 @@ source(get_data_file_path)
 # 3. Trimming leading and trailing whitespaces from all character columns using 'mutate(across(where(is.character), str_trim))'.
 vessels_from_pims_split_addr <-
   vessels_from_pims_ok |>
+  filter(!length(hailing_port) < 1) |> 
   tidyr::separate_wider_delim(hailing_port,
                               delim = ",",
                               names = c("city", "state"),
-                              too_many = "merge") |> 
-    mutate(across(where(is.character), str_squish))
+                              too_many = "merge",
+                              too_few = "align_start") |> 
+    dplyr::mutate(dplyr::across(tidyselect::where(is.character),
+                                stringr::str_squish))
+  # too_few = c("error", "debug", "align_start", "align_end"),
 
+View(vessels_from_pims_split_addr)
 vessels_from_pims_ok |>
   filter(grepl("\\d", hailing_port))
    # vessel_official_number hailing_port            
