@@ -107,22 +107,27 @@ permits_from_pims__split1 <-
   tidyr::separate(!!sym(vessel_or_dealer_col_name),
            c('vessel_official_number', 'dealer'),
            sep = " / ") |>
-  mutate(across(c('vessel_official_number', 'dealer'),
-                str_squish))
+  dplyr::mutate(dplyr::across(c('vessel_official_number', 'dealer'),
+                stringr::str_squish))
 
+# View(permits_from_pims__split1)
 # Expected 2 pieces. Missing pieces filled with `NA` in 3038 rows [229, 244, 294,
 
-permits_from_pims[229,] |> 
-  glimpse()
+# permits_from_pims[229,] |> 
+#   glimpse()
 # $ vessel_or_dealer <chr> "BARNACLE SEAFOOD INC"
 
 ## permits clean and shorten ----
 program_start_date <- lubridate::dmy("04/01/2021")
 
+permits_from_pims__split1 |>
+  convert_to_dates() |> dplyr::select(tidyselect::ends_with("date")) |> 
+  glimpse()
+
 permits_from_pims__split1_short <-
   permits_from_pims__split1 |>
   convert_to_dates() |> 
-  filter(if_any(ends_with("_date"), 
+  dplyr::filter(dplyr::if_any(tidyselect::ends_with("date"), 
                 ~ . > program_start_date))
 
 dim(permits_from_pims)
