@@ -3,7 +3,12 @@
 # [1] "2024-02-28"
 
 # setup ----
-source("~/R_code_github/useful_functions_module.r")
+# source("~/R_code_github/useful_functions_module.r")
+devtools::install_github("AShipunova1/R_code/auxfunctions@development",
+                         build_manual = TRUE)
+
+library(auxfunctions)
+
 my_paths <- set_work_dir()
 
 current_project_dir_path <- this.path::this.dir()
