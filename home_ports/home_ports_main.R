@@ -291,20 +291,20 @@ get_correct_addr_by_wrong <-
 # 2. Separating the 'city_state_fixed' column into two columns ('city_fixed' and 'state_fixed') using '#' as the delimiter.
 vessels_from_pims_split_addr__city_state__fix1 <-
   vessels_from_pims_split_addr__city_state |>
-  rowwise() |>
-  mutate(city_state_fixed =
+  dplyr::rowwise() |>
+  dplyr::mutate(city_state_fixed =
            if (city_state %in% wrong_port_addr)
              get_correct_addr_by_wrong(city_state)
          else
            city_state) |>
-  ungroup() |>
+  dplyr::ungroup() |>
   tidyr::separate_wider_delim(city_state_fixed,
                               delim = "#",
                               names = c("city_fixed",
                                         "state_fixed")) |> 
-  distinct()
+  dplyr::distinct()
 
-n_distinct(vessels_from_pims_split_addr__city_state__fix1$vessel_official_number)
+dplyr::n_distinct(vessels_from_pims_split_addr__city_state__fix1$vessel_official_number)
 # [1] 23045
 
 dim(vessels_from_pims_split_addr__city_state__fix1)
@@ -342,30 +342,29 @@ manual_fixes <-
   )
     # list("139403", "MIAMI", "FL"), # no!
 
-
 vessels_from_pims_split_addr__city_state__fix2 <-
-  map_df(manual_fixes,
+  purrr::map_df(manual_fixes,
          \(x) {
            # browser()
            res <-
              vessels_from_pims_split_addr__city_state__fix1 |>
-             mutate(
+             dplyr::mutate(
                city_fixed1 =
-                 case_when(vessel_official_number == x[[1]] ~ x[[2]]),
+                 dplyr::case_when(vessel_official_number == x[[1]] ~ x[[2]]),
                state_fixed1 =
-                 case_when(vessel_official_number == x[[1]] ~ x[[3]])
+                 dplyr::case_when(vessel_official_number == x[[1]] ~ x[[3]])
              )
            return(res)
          }) |>
-  distinct()
+  dplyr::distinct()
 
 dim(vessels_from_pims_split_addr__city_state__fix2)
 # [1] 23110     8
 # [1] 23109     8
 
 vessels_from_pims_split_addr__city_state__fix2 |>
-  filter(vessel_official_number == "FL1431JU") |>
-  glimpse()
+  dplyr::filter(vessel_official_number == "FL1431JU") |>
+  dplyr::glimpse()
 # $ city_fixed             <chr> "KEY WEST", "MARATHON", "KEY WEST", "MARATHON"
 # $ state_fixed            <chr> "FL", "FL", "FL", "FL"
 # $ city_fixed1            <chr> NA, NA, "MARATHON", "MARATHON"
@@ -377,34 +376,34 @@ new_f_vsl <-
   unlist()
 
 both <-
-  intersect(
+  dplyr::intersect(
     vessels_from_pims_split_addr__city_state__fix1$vessel_official_number,
     new_f_vsl
   )
-cat(both)
+
+length(both)
 # 15
-# 581260 531549 FL8252JK 646818 FL0146BH FL7549PJ 1185107 FL5011MX FL1431JU FL3976FH TX9606KA FL2615MT FL5029RM FL1553TM FL3119EE
 
 vessels_from_pims_split_addr__city_state__fix2 |>
-  filter(vessel_official_number %in% both) |>
-  select(vessel_official_number,
+  dplyr::filter(vessel_official_number %in% both) |>
+  dplyr::select(vessel_official_number,
          city_fixed1,
          state_fixed1) |>
-  filter(!is.na(city_fixed1) & !is.na(city_fixed1)) |>
-  distinct() |>
-  glimpse()
+  dplyr::filter(!is.na(city_fixed1) & !is.na(city_fixed1)) |>
+  dplyr::distinct() |>
+  dplyr::glimpse()
 # 16 ok
 
 vessels_from_pims_split_addr__city_state__fix2 |>
-  filter(vessel_official_number %in% both) |>
-  select(vessel_official_number,
+  dplyr::filter(vessel_official_number %in% both) |>
+  dplyr::select(vessel_official_number,
          city_fixed,
          state_fixed,
          city_fixed1,
          state_fixed1) |>
-  filter(!is.na(city_fixed1) & !is.na(city_fixed1)) |>
-  distinct() |>
-  glimpse()
+  dplyr::filter(!is.na(city_fixed1) & !is.na(city_fixed1)) |>
+  dplyr::distinct() |>
+  dplyr::glimpse()
 
 ## replace duplicated values ----
 # Explanations:
@@ -416,30 +415,30 @@ vessels_from_pims_split_addr__city_state__fix2 |>
 # 4. Keeping only distinct rows in the final result to avoid duplications.
 vessels_from_pims_split_addr__city_state__fix2_ok <-
   vessels_from_pims_split_addr__city_state__fix2 |>
-  mutate(
+  dplyr::mutate(
     city_fixed =
-      case_when(!is.na(city_fixed1) ~ city_fixed1,
+      dplyr::case_when(!is.na(city_fixed1) ~ city_fixed1,
                 .default = city_fixed),
     state_fixed =
-      case_when(!is.na(state_fixed1) ~ state_fixed1,
+      dplyr::case_when(!is.na(state_fixed1) ~ state_fixed1,
                 .default = state_fixed)
   ) |> 
-  filter((!vessel_official_number %in% both) |
+  dplyr::filter((!vessel_official_number %in% both) |
            !is.na(state_fixed1)) |> 
-  select(-c("city_fixed1", "state_fixed1")) |> 
-  distinct()
+  dplyr::select(-c("city_fixed1", "state_fixed1")) |> 
+  dplyr::distinct()
 
 dim(vessels_from_pims_split_addr__city_state__fix2_ok)
 # [1] 23086     6
 
 # check
 vessels_from_pims_split_addr__city_state__fix2_ok |>
-  filter(vessel_official_number %in% both) |>
-  select(vessel_official_number,
+  dplyr::filter(vessel_official_number %in% both) |>
+  dplyr::select(vessel_official_number,
          city_fixed,
          state_fixed) |> 
-  distinct() |>
-  glimpse()
+  dplyr::distinct() |>
+  dplyr::glimpse()
 # 15
 
 ## remove empty and bad vessel ids ----
@@ -451,23 +450,23 @@ normal_length = 4
 
 vessels_from_pims_split_addr__city_state__fix2_ok__good_ids <-
   vessels_from_pims_split_addr__city_state__fix2_ok |>
-  filter(!vessel_official_number %in% is_empty) |>
-  filter(!vessel_official_number %in% wrong_vessel_ids) |>
-  filter(!str_length(vessel_official_number) < normal_length)
+  dplyr::filter(!vessel_official_number %in% is_empty) |>
+  dplyr::filter(!vessel_official_number %in% wrong_vessel_ids) |>
+  dplyr::filter(!stringr::str_length(vessel_official_number) < normal_length)
 
 # TODO:
 ## check id_len != 6 ----
 # check ids with spaces
 vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__len <-
   vessels_from_pims_split_addr__city_state__fix2_ok__good_ids |>
-  group_by(vessel_official_number) |>
-  mutate(id_len = str_length(vessel_official_number)) |>
-  ungroup()
+  dplyr::group_by(vessel_official_number) |>
+  dplyr::mutate(id_len = stringr::str_length(vessel_official_number)) |>
+  dplyr::ungroup()
 
 vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__len |> 
-  filter(!id_len == 6) |> 
-  arrange(id_len) |> 
-  glimpse()
+  dplyr::filter(!id_len == 6) |> 
+  dplyr::arrange(id_len) |> 
+  dplyr::glimpse()
 
 dim(vessels_from_pims_split_addr__city_state__fix2_ok)
 # [1] 23086     6
@@ -478,14 +477,14 @@ dim(vessels_from_pims_split_addr__city_state__fix2_ok__good_ids)
 ## check no address ----
 vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__no_addr <-
   vessels_from_pims_split_addr__city_state__fix2_ok__good_ids |>
-  filter(is.na(city))
+  dplyr::filter(is.na(city))
 
 nrow(vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__no_addr)
 # 6
 
 vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__no_state <-
   vessels_from_pims_split_addr__city_state__fix2_ok__good_ids |>
-  filter(is.na(state_fixed))
+  dplyr::filter(is.na(state_fixed))
 
 nrow(vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__no_state)
 # 0
@@ -493,8 +492,9 @@ nrow(vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__no_state)
 # remove extra cols ----
 vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short <-
   vessels_from_pims_split_addr__city_state__fix2_ok__good_ids |>
-  select(vessel_official_number, ends_with("_fixed")) |> 
-  distinct()
+  dplyr::select(vessel_official_number, 
+                tidyselect::ends_with("_fixed")) |> 
+  dplyr::distinct()
 
 # check
 # vessels_from_pims_split_addr__city_state__fix2_ok__good_ids |> 
@@ -511,10 +511,10 @@ vessels_from_pims_split_addr__city_state__fix2_ok__good_ids |>
 
 ## check for double ids/ports ----
 vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short |> 
-  distinct() |>
-  select(vessel_official_number) |>
-  count(vessel_official_number) |>
-  filter(n > 1) |>
+  dplyr::distinct() |>
+  dplyr::select(vessel_official_number) |>
+  dplyr::count(vessel_official_number) |>
+  dplyr::filter(n > 1) |>
   nrow()
 # 0, ok
 
@@ -527,7 +527,7 @@ dir.create(out_dir)
 out_path <- file.path(out_dir,
             "vessels_from_pims_ports.csv")
 
-write_csv(
+readr::write_csv(
   vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short,
   out_path
 )
