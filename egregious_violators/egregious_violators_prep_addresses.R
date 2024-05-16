@@ -86,7 +86,6 @@ no_addr_vsl_ids <-
 dplyr::n_distinct(no_addr_vsl_ids$vessel_official_number)
 # 109
 # 71
-# [1] "656222"   "FL0450JN"
 
 # From Oracle db ----
 db_participants_address__needed <-
@@ -129,7 +128,7 @@ nrow(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
 # 199
 dplyr::n_distinct(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr$vessel_official_number)
 # 199
-# one vessel per row
+# one vessel per row, OK
 
 # have to combine rows
 dim(db_participants_address__needed_short)
@@ -163,6 +162,28 @@ col_part_names <-
     "mailing_state",
     "mailing_zip_code"
   )
+
+# Explanation:
+
+# 1. **Mapping Over Column Parts:**
+#    - `col_part_names |> purrr::map(\(curr_col_part) { ... })`: It iterates over each element in `col_part_names` using the `map` function from the purrr package. For each column part (`curr_col_part`), it executes the code inside the curly braces `{ ... }`.
+# 
+# 2. **Generating New Column Names:**
+#    - `new_col_name <- stringr::str_glue("db_{curr_col_part}")`: It creates a new column name by combining the prefix "db_" with the current column part (`curr_col_part`) using `str_glue` from the stringr package.
+# 
+# 3. **Grouping and Mutating Data:**
+#    - `db_participants_address__needed_short__phone0 |> dplyr::group_by(official_number) |> ...`: It groups the dataframe `db_participants_address__needed_short__phone0` by the column `official_number` using `group_by` from dplyr. Then, it proceeds with further data manipulation operations.
+# 
+# 4. **Applying Purrr::pmap Function:**
+#    - `purrr::pmap(dplyr::across(dplyr::ends_with(curr_col_part)), ...)`: It applies the `pmap` function from the purrr package to iterate over columns that end with the current column part (`curr_col_part`). Within the `pmap` call, a custom function (`auxfunctions::list_sort_uniq`) is applied to each corresponding set of columns.
+# 
+# 5. **Ungrouping and Selecting Columns:**
+#    - `... |> dplyr::ungroup() |> dplyr::select(-official_number)`: After the mutation step, it ungroups the dataframe and removes the `official_number` column using `ungroup()` and `select()` functions from dplyr, respectively.
+# 
+# 6. **Binding Columns Together:**
+#    - `dplyr::bind_cols(db_participants_address__needed_short__phone0, .)`: Finally, it binds the original dataframe `db_participants_address__needed_short__phone0` with the transformed columns obtained from the mapping operation using `bind_cols` from dplyr.
+# 
+# This code dynamically generates new columns in the dataframe based on the provided column parts, applies a custom function to each set of corresponding columns, and then binds the resulting columns back to the original dataframe.
 
 tictoc::tic("map all pairs")
 db_participants_address__needed_short__erv_erb_combined3 <-
