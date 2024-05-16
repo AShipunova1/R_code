@@ -25,8 +25,7 @@
 #                        build_manual = TRUE)
 # install.packages("devtools")
 # library(devtools)
-devtools::install_github("AShipunova1/R_code/auxfunctions@development",
-                         build_manual = TRUE)
+# devtools::install_github("AShipunova1/R_code/auxfunctions@development)
 
 library(auxfunctions)
 library(ROracle)
@@ -699,6 +698,21 @@ additional_column_name1 <-
     "Confirmed Egregious? (permits must still be active till {permit_expired_check_date}, missing past 6 months, and (1) they called/emailed us (incoming), or (2) at least 2 contacts (outgoing) with at least 1 call/other (voicemail counts) and at least 1 email)"
   )
 
+# Explanation:
+# 
+# This code adds new columns to the dataframe `compl_corr_to_investigation_short_dup_marked__permit_region`. Here's what each part does:
+# 
+# 1. **Add Columns Function:**
+#    - `tibble::add_column()`: This function from the `tibble` package is used to add new columns to a dataframe.
+# 
+# 2. **Column Specifications:**
+#    - `!!(additional_column_name1) := NA`: Adds a new column named `additional_column_name1` filled with NA values.
+#      - `!!`: This is a tidy evaluation feature that allows the use of non-standard evaluation. It evaluates the expression `additional_column_name1` dynamically.
+#      - `:= NA`: Assigns NA values to the new column.
+#    - `Notes = NA`: Adds another new column named "Notes" filled with NA values.
+#    - `.before = 2`: Specifies that the new columns should be inserted before the second column in the dataframe.
+# 
+# This code effectively adds two new columns, "additional_column_name1" and "Notes", filled with NA values, to the dataframe.
 compl_corr_to_investigation_short_dup_marked__permit_region__add_columns <-
   compl_corr_to_investigation_short_dup_marked__permit_region |>
   tibble::add_column(
@@ -709,10 +723,13 @@ compl_corr_to_investigation_short_dup_marked__permit_region__add_columns <-
 
 # print_df_names(compl_corr_to_investigation_short_dup_marked__permit_region__add_columns)
 
+out_file_name <-
+  stringr::str_glue("egregious_violators_to_investigate_{lubridate::today()}.csv")
+
 result_path <- 
   file.path(my_paths$outputs,
             current_project_basename,
-            stringr::str_glue("egregious_violators_to_investigate_{lubridate::today()}.csv"))
+            out_file_name)
 
 compl_corr_to_investigation_short_dup_marked__permit_region__add_columns |>
 readr::write_csv(result_path)
@@ -720,6 +737,6 @@ readr::write_csv(result_path)
 cat("Result:",
     "compl_corr_to_investigation_short_dup_marked__permit_region__add_columns",
     "and",
-    stringr::str_glue("egregious_violators_to_investigate_{lubridate::today()}.csv"),
+    out_file_name,
     sep = "\n")
 
