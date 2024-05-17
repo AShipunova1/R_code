@@ -754,11 +754,10 @@ old_n_new_result_list <-
 
 old_n_new_result_list_short_col_name <-
   old_n_new_result_list |>
-  purrr::map(\(a) {
-    browser()
-    a |>
-      dplyr::rename(confirmed_egr = !!2) |>
-  })
+  purrr::map(~ dplyr::rename(.x, confirmed_egr = !!2))
+
+old_n_new_result_list_short_col_name |> 
+purrr::map(print_df_names)
 
 old_result <- 
   prev_result |> 
