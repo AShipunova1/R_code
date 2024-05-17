@@ -791,10 +791,17 @@ old_n_new_results$confirmed_egr_old |> unique()
 # [1] "Yes" "No" 
 
 old_n_new_cols <-
-  names(old_n_new_results) |> 
-  stringr::str_extract(".+_old$") |> 
-  unique() |> 
+  names(old_n_new_results) |>
+  stringr::str_extract(".+_old$") |>
+  stringr::str_remove(".*week|year.*") |>
+  # stringr::str_remove(".*week.*") |>
+  # stringr::str_remove(".*year.*") |>
+  stringr::str_remove("duplicate_w_last_time_.+") |>
+  unique() |>
   na.omit()
+
+grep("week", old_n_new_cols, value = T)
+old_n_new_cols
   
   # c(
   #   "confirmed_egr_old",
@@ -827,8 +834,9 @@ old_new_func <- function(old_col_name) {
   return(diff_result)
 }
 
-res_diff_old_n_new_cols <-
+res_diff_old_n_new <-
   purrr::map(old_n_new_cols, old_new_func) |>
   purrr::reduce(full_join, by = "vessel_official_number")
 
-# View(res_diff_old_n_new_cols)
+res_diff_old_n_new |> 
+  filter()
