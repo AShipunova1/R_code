@@ -790,7 +790,7 @@ old_n_new_results <-
 old_n_new_results$confirmed_egr_old |> unique()
 # [1] "Yes" "No" 
 
-old_n_new_cols <-
+old_n_new_cols_39 <-
   names(old_n_new_results) |>
   stringr::str_extract(".+_old$") |>
   stringr::str_remove(".*week|year.*") |>
@@ -801,7 +801,9 @@ old_n_new_cols <-
   na.omit()
 
 grep("week", old_n_new_cols, value = T)
-old_n_new_cols
+dplyr::setdiff(old_n_new_cols_39, old_n_new_cols_36)
+# [1] "_num_old"   "_start_old" "_end_old"  
+
   
   # c(
   #   "confirmed_egr_old",
