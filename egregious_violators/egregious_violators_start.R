@@ -752,26 +752,20 @@ old_n_new_result_list <-
 
 # View(cc)
 
+# unify col names
 old_n_new_result_list_short_col_name <-
   old_n_new_result_list |>
-  purrr::map(~ dplyr::rename(.x, confirmed_egr = !!2))
+  purrr::map(~ dplyr::rename(.x, confirmed_egr = !!2)) |> 
+  purrr::map(~ dplyr::rename(.x, notes = !!3))
 
-old_n_new_result_list_short_col_name |> 
-purrr::map(print_df_names)
-
-old_result <- 
-  prev_result |> 
-  dplyr::rename(confirmed_egr = !!2)
-
-old_result <- 
-  prev_result |> 
-  dplyr::rename(confirmed_egr = !!2)
-
+# check
+# old_n_new_result_list_short_col_name |> 
+# purrr::map(print_df_names)
 
 old_n_new_results <-
   dplyr::left_join(
-    prev_result,
-    compl_corr_to_investigation_short_dup_marked__permit_region__add_columns,
+    old_n_new_result_list_short_col_name[[1]],
+    old_n_new_result_list_short_col_name[[2]],
     by = dplyr::join_by(
       vessel_official_number
       # ,
@@ -793,27 +787,28 @@ old_n_new_results <-
 
 # auxfunctions::print_df_names(old_n_new_results)
 
-old_n_new_results <- 
-  old_n_new_results |> 
-  dplyr::rename(confirmed_egr = !!2)
-
-old_n_new_results$confirmed_egr |> unique()
+old_n_new_results$confirmed_egr_old |> unique()
 # [1] "Yes" "No" 
 
-confirmed_egr
 old_n_new_cols <-
-  c(
-    "permitgroup_old",
-    "permit_groupexpiration_old",
-    "contactrecipientname_old",
-    "permit_holder_names_old",
-    "contactphone_number_old",
-    "contactemailaddress_old",
-    "date__contacttypes_old",
-    "duplicate_w_last_time_old",
-    "hailing_port_city_old",
-    "hailing_port_state_old"
-  )
+  names(old_n_new_results) |> 
+  stringr::str_extract(".+_old$") |> 
+  unique() |> 
+  na.omit()
+  
+  # c(
+  #   "confirmed_egr_old",
+  #   "permitgroup_old",
+  #   "permit_groupexpiration_old",
+  #   "contactrecipientname_old",
+  #   "permit_holder_names_old",
+  #   "contactphone_number_old",
+  #   "contactemailaddress_old",
+  #   "date__contacttypes_old",
+  #   "duplicate_w_last_time_old",
+  #   "hailing_port_city_old",
+  #   "hailing_port_state_old"
+  # )
 
 old_new_func <- function(old_col_name) {
   new_col_name <-
