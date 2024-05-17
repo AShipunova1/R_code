@@ -790,21 +790,22 @@ old_n_new_results <-
 old_n_new_results$confirmed_egr_old |> unique()
 # [1] "Yes" "No" 
 
-old_n_new_cols_39 <-
+old_n_new_cols_0 <-
   names(old_n_new_results) |>
   stringr::str_extract(".+_old$") |>
-  stringr::str_remove(".*week|year.*") |>
-  # stringr::str_remove(".*week.*") |>
-  # stringr::str_remove(".*year.*") |>
+  stringr::str_remove(".*week.*") |>
+  stringr::str_remove(".*year.*") |>
   stringr::str_remove("duplicate_w_last_time_.+") |>
   unique() |>
   na.omit()
 
-grep("week", old_n_new_cols, value = T)
-dplyr::setdiff(old_n_new_cols_39, old_n_new_cols_36)
-# [1] "_num_old"   "_start_old" "_end_old"  
+old_n_new_cols <- 
+  old_n_new_cols[old_n_new_cols != ""]
 
-  
+grep("^$", old_n_new_cols, value = T)
+
+old_n_new_cols
+
   # c(
   #   "confirmed_egr_old",
   #   "permitgroup_old",
@@ -820,6 +821,8 @@ dplyr::setdiff(old_n_new_cols_39, old_n_new_cols_36)
   # )
 
 old_new_func <- function(old_col_name) {
+  # browser()
+  
   new_col_name <-
     stringr::str_replace(old_col_name, "_old$", "_new")
   
