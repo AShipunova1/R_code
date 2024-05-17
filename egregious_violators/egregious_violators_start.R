@@ -825,15 +825,10 @@ old_new_func <- function(old_col_name) {
                   !!new_col_name)
   
   return(diff_result)
-  # res_diff_old_n_new_cols[[new_col_name]] <-
-  #   diff_result
-  
 }
 
 res_diff_old_n_new_cols <-
   purrr::map(old_n_new_cols, old_new_func) |>
   purrr::reduce(full_join, by = "vessel_official_number")
 
-
-glimpse(res_diff_old_n_new_cols)
-
+# View(res_diff_old_n_new_cols)
