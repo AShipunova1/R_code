@@ -740,7 +740,9 @@ cat("Result:",
     out_file_name,
     sep = "\n")
 
-# compare info with old
+# Check the difference between old and new results ----
+
+## Find chande info ----
 compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked |> 
   dplyr::glimpse()
 
@@ -767,13 +769,16 @@ old_n_new_results <-
 
 # View(old_n_new_results)
 
-auxfunctions::print_df_names(old_n_new_results)
-old_n_new_results |> 
-  dplyr::rename(confirmed_egr = !!2) |> print_df_names()
+# auxfunctions::print_df_names(old_n_new_results)
 
-setnames(my_data_table, old = c("oldName1", "oldName2", "oldName3"), new = new_names)
+old_n_new_results <- 
+  old_n_new_results |> 
+  dplyr::rename(confirmed_egr = !!2)
 
+old_n_new_results$confirmed_egr |> unique()
+# [1] "Yes" "No" 
 
+confirmed_egr
 old_n_new_cols <-
   c(
     "permitgroup_old",
