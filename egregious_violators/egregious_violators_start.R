@@ -742,14 +742,37 @@ cat("Result:",
 
 # Check the difference between old and new results ----
 
-## Find chande info ----
-compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked |> 
-  dplyr::glimpse()
+## Find changded info ----
+
+### rename long col names ----
+
+old_n_new_result_list <-
+  list("old_res" = prev_result, 
+       "new_res" = compl_corr_to_investigation_short_dup_marked__permit_region__add_columns)
+
+# View(cc)
+
+old_n_new_result_list_short_col_name <-
+  old_n_new_result_list |>
+  purrr::map(\(a) {
+    browser()
+    a |>
+      dplyr::rename(confirmed_egr = !!2) |>
+  })
+
+old_result <- 
+  prev_result |> 
+  dplyr::rename(confirmed_egr = !!2)
+
+old_result <- 
+  prev_result |> 
+  dplyr::rename(confirmed_egr = !!2)
+
 
 old_n_new_results <-
   dplyr::left_join(
     prev_result,
-    compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked,
+    compl_corr_to_investigation_short_dup_marked__permit_region__add_columns,
     by = dplyr::join_by(
       vessel_official_number
       # ,
