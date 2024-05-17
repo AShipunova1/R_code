@@ -767,6 +767,13 @@ old_n_new_results <-
 
 # View(old_n_new_results)
 
+auxfunctions::print_df_names(old_n_new_results)
+old_n_new_results |> 
+  dplyr::rename(confirmed_egr = !!2) |> print_df_names()
+
+setnames(my_data_table, old = c("oldName1", "oldName2", "oldName3"), new = new_names)
+
+
 old_n_new_cols <-
   c(
     "permitgroup_old",
@@ -780,13 +787,6 @@ old_n_new_cols <-
     "hailing_port_city_old",
     "hailing_port_state_old"
   )
-
-res_diff_old_n_new_cols <- vector('list')
-
-# old_new_func <- function(acc, old_col_name_idx) {
-#   
-#     browser()
-#     old_col_name <- old_n_new_cols[[old_col_name_idx]]
 
 old_new_func <- function(old_col_name) {
   new_col_name <-
@@ -808,17 +808,10 @@ old_new_func <- function(old_col_name) {
   
 }
 
-rr <-
+res_diff_old_n_new_cols <-
   purrr::map(old_n_new_cols, old_new_func) |>
   purrr::reduce(full_join, by = "vessel_official_number")
 
 
-glimpse(rr)
+glimpse(res_diff_old_n_new_cols)
 
-#   purrr::reduce(seq_len(length(old_n_new_cols)),
-#                 \(acc, nxt) old_new_func(acc, nxt))
-# # ,
-#                 .init = res_diff_old_n_new_cols)
-
-View(res_diff_old_n_new_cols)  
-  
