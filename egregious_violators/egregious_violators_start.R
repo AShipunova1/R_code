@@ -781,25 +781,44 @@ old_n_new_cols <-
     "hailing_port_state_old"
   )
 
-res <- list()
+res_diff_old_n_new_cols <- vector('list')
 
-old_n_new_cols |> 
-  purrr::map(\(old_col_name){
-    browser()
-    new_col_name <- 
-      stringr::str_replace(old_col_name, "_old$", "_new")
-    
-    not_the_same <-
-      old_n_new_results |>
-      filter(!(!!sym(old_col_name)) == !!sym(new_col_name))
-    
-    if (!length(not_the_same) > 0)
-    {
-      res[new_col_name] <- not_the_same
-        
-    }
-    
-    return(res)
-  })
+# old_new_func <- function(acc, old_col_name_idx) {
+#   
+#     browser()
+#     old_col_name <- old_n_new_cols[[old_col_name_idx]]
+
+old_new_func <- function(old_col_name) {
+  new_col_name <-
+    stringr::str_replace(old_col_name, "_old$", "_new")
   
+  not_the_same <-
+    old_n_new_results |>
+    filter(!(!!sym(old_col_name)) == !!sym(new_col_name))
+  
+  diff_result <-
+    not_the_same |>
+    dplyr::select(vessel_official_number, 
+                  !!old_col_name, 
+                  !!new_col_name)
+  
+  return(diff_result)
+  # res_diff_old_n_new_cols[[new_col_name]] <-
+  #   diff_result
+  
+}
+
+rr <-
+  purrr::map(old_n_new_cols, old_new_func) |>
+  purrr::reduce(full_join, by = "vessel_official_number")
+
+
+glimpse(rr)
+
+#   purrr::reduce(seq_len(length(old_n_new_cols)),
+#                 \(acc, nxt) old_new_func(acc, nxt))
+# # ,
+#                 .init = res_diff_old_n_new_cols)
+
+View(res_diff_old_n_new_cols)  
   
