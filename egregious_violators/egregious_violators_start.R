@@ -742,7 +742,7 @@ cat("Result:",
 
 # Check the difference between old and new results ----
 
-## Find changded info ----
+## Find changed info ----
 
 ### rename long col names ----
 
@@ -800,9 +800,10 @@ old_n_new_cols_0 <-
   na.omit()
 
 old_n_new_cols <- 
-  old_n_new_cols[old_n_new_cols != ""]
+  old_n_new_cols_0[old_n_new_cols_0 != ""]
 
-grep("^$", old_n_new_cols, value = T)
+# grep("^$", old_n_new_cols, value = T)
+# 0 ok
 
 old_n_new_cols
 
@@ -839,9 +840,24 @@ old_new_func <- function(old_col_name) {
   return(diff_result)
 }
 
+### get differencies ----
 res_diff_old_n_new <-
   purrr::map(old_n_new_cols, old_new_func) |>
-  purrr::reduce(full_join, by = "vessel_official_number")
+  purrr::reduce(full_join, by = "vessel_official_number") |> 
+  auxfunctions::remove_empty_cols()
 
-res_diff_old_n_new |> 
-  filter()
+res_diff_old_n_new |> View()
+  
+## check marked as not egregious previously ----
+old_n_new_results |>
+  dplyr::select(confirmed_egr_old) |>
+  dplyr::distinct()
+# 1               Yes
+# 2                No
+
+old_n_new_results_not_egr <-
+  old_n_new_results |>
+  dplyr::filter(tolower(confirmed_egr_old) == "no")
+
+dim(old_n_new_results_not_egr)
+# [1] 23 82
