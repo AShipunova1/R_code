@@ -97,9 +97,42 @@ db_year_2 <- "2024"
 # The compliance dates include the "fringe" weeks if needed.
 #
 # 1. **Generating Calendar Dates**:
+#     - The function first creates two strings representing the start and end dates of the calendar year based on the provided `my_year` parameter.
+#     - `my_calendar_date_beg` is set to "01-JAN-{my_year}" and `my_calendar_date_end` is set to "31-DEC-{my_year}" using string interpolation (`str_glue`).
+#
+# 2. **Calculating Compliance Date Boundaries**:
+#     - The function calculates the compliance start and end dates based on the provided `week_start_day` option.
+#     - It uses `lubridate` functions to convert the calendar date strings to date objects (`dmy`) and then adjust them to the nearest week boundaries.
+#     - `my_compliance_date_beg` is calculated as the beginning of the week containing the calendar start date.
+#     - `my_compliance_date_end` is calculated as the end of the week containing the calendar end date, minus one day.
+#     - The `getOption` function is used to ensure the start of the week is set according to `week_start_day`.
+#
+# 3. **Creating the List of Dates**:
+#     - The function combines the four calculated dates (`my_calendar_date_beg`, `my_calendar_date_end`, `my_compliance_date_beg`, and `my_compliance_date_end`) into a list using the `lst` function.
+#
+week_start_day = "Monday"
+
+get_the_dates <-
+  function(my_year = "2023",
+           week_start_day = "Monday") {
+    my_calendar_date_beg <- str_glue("01-JAN-{my_year}")
+    my_calendar_date_end <- str_glue("31-DEC-{my_year}")
+    my_compliance_date_beg <-
+      dmy(my_calendar_date_beg) |>
+      floor_date('weeks', week_start = getOption("lubridate.week.start", week_start_day))
+    my_compliance_date_end <-
+      dmy(my_calendar_date_end) |>
+      ceiling_date('weeks',
+                   week_start = getOption("lubridate.week.start", week_start_day)) - 1
+
+    my_dates <- lst(
+      my_calendar_date_beg,
+      my_calendar_date_end,
+      my_compliance_date_beg,
+      my_compliance_date_end
     )
 
-source(auxiliary_methods_file_path)
+    return(my_dates)
   }
 
 curr_dates <- get_the_dates(my_year)
@@ -832,7 +865,6 @@ logbooks_join_overr__compl <-
 toc()
 # Add a compliant_after_override column: 91.81 sec elapsed
 
-
 # check the number of distinct trips that are compliant and overridden
 logbooks_join_overr |>
   filter(IS_COMP == 1 & OVERRIDDEN == 1) |>
@@ -1076,6 +1108,7 @@ my_stats(SEFHIER_logbooks_processed)
 logbooks_before_filtering <-
   n_distinct(Logbooks_raw$TRIP_ID)
 # 94737 (2022)
+
 # call out to console the # of logbooks before filtering
 my_tee(logbooks_before_filtering,
         "Logbooks before filtering")
@@ -1084,6 +1117,7 @@ my_tee(logbooks_before_filtering,
 logbooks_after_filtering <-
   n_distinct(SEFHIER_logbooks_processed$TRIP_ID)
 # 94060 (2022)
+
 # call out to console the # of logbooks before filtering
 my_tee(logbooks_after_filtering,
         "Logbooks after filtering")
@@ -1139,13 +1173,6 @@ removed_logbooks_and_vessels_text <- c(
 # call to the consolve the text established above
 my_tee(removed_logbooks_and_vessels_text,
        "\nRemoved logbooks and vessels stats")
-# Removed logbooks and vessels stats
-# percent_of_removed_logbooks
-# 1%
-# removed_vessels
-# 0
-# percent_of_removed_vessels
-# 0%
 
 # Export processed logbooks ----
 
