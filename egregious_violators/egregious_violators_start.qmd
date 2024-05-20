@@ -1470,10 +1470,10 @@ fhier_addr_short_clean <-
 # dim(fhier_addr_short_clean)
 ```
 
-### 1. add addresses from FHIER 
+### add addresses from FHIER 
 
-```{r 1 add addresses from FHIER}
-## 1. add addresses from FHIER ----
+```{r add addresses from FHIER}
+## add addresses from FHIER ----
 compl_corr_to_investigation__corr_date__hailing_port__fhier_addr <-
   left_join(compl_corr_to_investigation__corr_date__hailing_port,
             fhier_addr_short_clean)
