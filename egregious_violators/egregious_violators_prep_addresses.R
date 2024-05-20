@@ -1,5 +1,4 @@
 # Manually check missing addresses
-is_empty <- c(NA, "NA", "", "UN", "N/A")
 
 # From FHIER ----
 
@@ -96,6 +95,8 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>
 #    - `dplyr::distinct()`: Removes duplicate rows from the dataframe, ensuring that each `vessel_official_number` appears only once in the final result.
 # 
 # The resulting `no_addr_vsl_ids` dataframe contains unique `vessel_official_number` values where the corresponding `physical_address_1` column is empty in the `compl_corr_to_investigation__corr_date__hailing_port__fhier_addr` dataframe.
+is_empty <- c(NA, "NA", "", "UN", "N/A")
+
 no_addr_vsl_ids <- 
   compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |> 
   dplyr::filter(physical_address_1 %in% is_empty) |> 
