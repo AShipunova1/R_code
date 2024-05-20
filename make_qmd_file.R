@@ -8,9 +8,9 @@ library(tools)
 # change dir name
 # comment out the "answers" for the next to readline()
 curent_project_name <- readline(prompt = "Print your project name: ")
-egregious_violators
+# egregious_violators
 curent_file_name_no_ext <- readline(prompt = "Print your file name: ")
-egregious_violators_start
+# egregious_violators_start
 
 # In the input .R script:
 # add "#' " in front of comments to be shown as text
@@ -170,7 +170,7 @@ source_files_content_one_line <-
 to_find <- 
   str_c(str_escape(unlist(source_paths_matches)), 
         collapse = "|")
-str(to_find)
+# str(to_find)
 
 # TODO: make it more than 2
 to_replace_source <-
