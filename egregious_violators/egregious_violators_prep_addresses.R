@@ -100,6 +100,38 @@ dplyr::n_distinct(db_participants_address__needed$official_number)
 # 71
 
 ## keep fewer columns ----
+col_names_to_keep <-
+  c(
+    "official_number",
+    "entity_name",
+    "primary_email",
+    # "is_primary",
+    "ph_area",
+    "ph_number",
+    "entity_name",
+    "physical_city",
+    "physical_county",
+    "physical_state",
+    "physical_zip_code",
+    "mailing_address1",
+    "mailing_address2",
+    "mailing_city",
+    "mailing_county",
+    "mailing_country",
+    "mailing_state",
+    "mailing_zip_code"
+  )
+
+my_cols_ends <- paste0(col_names_to_keep, 
+                  '$', 
+                  collapse = '|')
+
+db_participants_address__needed_short1 <-
+  db_participants_address__needed |>
+  dplyr::select(tidyselect::matches(my_cols_ends)) |>
+  dplyr::distinct() |>
+  dplyr::arrange(official_number)
+
 db_participants_address__needed_short <-
   db_participants_address__needed |>
   dplyr::select(
@@ -122,7 +154,11 @@ db_participants_address__needed_short <-
     all_of(ends_with("mailing_state")),
     all_of(ends_with("mailing_zip_code"))
   ) |>
-  dplyr::distinct()
+  dplyr::distinct() |> 
+  dplyr::arrange(official_number)
+
+diffdf::diffdf(db_participants_address__needed_short,
+               db_participants_address__needed_short1)
 
 nrow(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
 # 199
