@@ -10,8 +10,6 @@ library(devtools)
 devtools::install_github('AShipunova1/R_code/auxfunctions')
 library(auxfunctions)
 
-library(ROracle)
-
 # A general-purpose tool for dynamic report generation in R
 library(knitr)
 
@@ -66,7 +64,6 @@ registerS3method(
 ```
 
 # Set Up
-
 ```{r setup current project, results='hide', message=FALSE, warning=FALSE}
 # Read me
 # 1) NO reports for all 26 weeks back from week ago today;
@@ -134,6 +131,10 @@ set_work_dir  <-  function()
 # 
 # 
 # >>>>
+
+library(ROracle)
+library(zoo)
+library(diffdf)
 
 my_paths <- auxfunctions::set_work_dir()
 
