@@ -57,7 +57,7 @@ fhier_addr_short_clean <-
 
 # dim(fhier_addr_short_clean)
 
-## 1. add addresses from FHIER ----
+## add addresses from FHIER ----
 compl_corr_to_investigation__corr_date__hailing_port__fhier_addr <-
   left_join(compl_corr_to_investigation__corr_date__hailing_port,
             fhier_addr_short_clean)
@@ -77,6 +77,25 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>
 ## vessels with no addresses ----
 
 # print_df_names(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
+
+### Explanation:
+
+# This code snippet creates a dataframe `no_addr_vsl_ids` containing unique `vessel_official_number` values based on certain conditions.
+# 
+# 1. **Starting with the DataFrame:**
+#    - `compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>`: Pipes the dataframe `compl_corr_to_investigation__corr_date__hailing_port__fhier_addr` into the next function.
+# 
+# 2. **Filtering Rows:**
+#    - `dplyr::filter(physical_address_1 %in% is_empty)`: Uses the `filter` function from the `dplyr` package to keep rows where the `physical_address_1` column is empty.
+#      - `physical_address_1 %in% is_empty`: This condition checks if the values in the `physical_address_1` column are empty.
+# 
+# 3. **Selecting Columns:**
+#    - `dplyr::select(vessel_official_number)`: Selects only the `vessel_official_number` column from the filtered dataframe.
+# 
+# 4. **Removing Duplicate Rows:**
+#    - `dplyr::distinct()`: Removes duplicate rows from the dataframe, ensuring that each `vessel_official_number` appears only once in the final result.
+# 
+# The resulting `no_addr_vsl_ids` dataframe contains unique `vessel_official_number` values where the corresponding `physical_address_1` column is empty in the `compl_corr_to_investigation__corr_date__hailing_port__fhier_addr` dataframe.
 no_addr_vsl_ids <- 
   compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |> 
   dplyr::filter(physical_address_1 %in% is_empty) |> 
@@ -414,7 +433,7 @@ db_participants_address__needed_short__erv_erb_combined_short__u_ok <-
   dplyr::rename_with(~ stringr::str_replace(.x, pattern = "_u$", 
                                             replacement = ""))
 
-# Join fhier and Oracle db addresses ----
+# Join FHIER and Oracle db addresses ----
 compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr <-
   compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>
   dplyr::left_join(
