@@ -1190,7 +1190,7 @@ SEFHIER_processed_Logbooks_file_name <-
   str_glue("SEFHIER_processed_Logbooks_{my_year}.rds")
 
 write_rds(
-  SEFHIER_logbooks_processed,
+  SEFHIER_logbooks_processed_p_regions,
   file = file.path(output_file_path, SEFHIER_processed_Logbooks_file_name)
 )
 
