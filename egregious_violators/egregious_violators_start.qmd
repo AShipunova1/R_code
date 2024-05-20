@@ -4,12 +4,6 @@ title: egregious_violators
 
 ```{r no cache setup, results='hide', message=FALSE, warning=FALSE, cache=FALSE, include=FALSE}
 
-# Get common functions
-install.packages('devtools')
-library(devtools)
-devtools::install_github('AShipunova1/R_code/auxfunctions')
-library(auxfunctions)
-
 # A general-purpose tool for dynamic report generation in R
 library(knitr)
 
@@ -132,6 +126,12 @@ set_work_dir  <-  function()
 # 
 # >>>>
 
+# Get common functions
+install.packages("devtools")
+library(devtools)
+devtools::install_github("AShipunova1/R_code/auxfunctions")
+
+library(auxfunctions)
 library(ROracle)
 library(zoo)
 library(diffdf)
