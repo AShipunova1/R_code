@@ -133,10 +133,26 @@ dplyr::n_distinct(compl_corr_to_investigation__corr_date__hailing_port__fhier_ad
 # have to combine rows
 dim(db_participants_address__needed_short)
 # 106
+# check
 dplyr::n_distinct(db_participants_address__needed_short$official_number)
 # 71
 
 ## combine area and phone numbers ----
+
+# Explanation:
+
+# This code creates a new dataframe `db_participants_address__needed_short__phone0` by modifying the `db_participants_address__needed_short` dataframe. It adds two new columns (`erv_phone` and `erb_phone`) that concatenate existing columns.
+# 
+# 1. **Starting with the Original Dataframe:**
+#    - `db_participants_address__needed_short |>`: Begins with the `db_participants_address__needed_short` dataframe and pipes it into the next function.
+# 
+# 2. **Adding New Columns:**
+#    - `dplyr::mutate(...)`: The `mutate` function from the `dplyr` package is used to add or modify columns in the dataframe.
+#      - `erv_phone = paste0(erv_ph_area, erv_ph_number)`: Creates a new column `erv_phone` by concatenating the `erv_ph_area` and `erv_ph_number` columns using `paste0`, which combines strings without any separator.
+#      - `erb_phone = paste0(erb_ph_area, erb_ph_number)`: Similarly, creates a new column `erb_phone` by concatenating the `erb_ph_area` and `erb_ph_number` columns.
+# 
+# The result is a new dataframe `db_participants_address__needed_short__phone0` that contains all the original columns from `db_participants_address__needed_short` plus two new columns (`erv_phone` and `erb_phone`) that contain concatenated phone numbers.
+
 db_participants_address__needed_short__phone0 <- 
   db_participants_address__needed_short |> 
   dplyr::mutate(erv_phone = paste0(erv_ph_area, erv_ph_number),
@@ -207,6 +223,22 @@ tictoc::toc()
 # map all pairs: 14.31 sec elapsed
 
 ### shorten ----
+
+# Explanation:
+
+# This code processes the `db_participants_address__needed_short__erv_erb_combined3` dataframe to create a new dataframe named `db_participants_address__needed_short__erv_erb_combined_short` by selecting specific columns and ensuring the rows are distinct.
+# 
+# 1. **Dataframe Selection and Transformation:**
+#    - `db_participants_address__needed_short__erv_erb_combined3 |>`: Starts with the input dataframe `db_participants_address__needed_short__erv_erb_combined3` and pipes it into the subsequent functions.
+# 
+# 2. **Selecting Specific Columns:**
+#    - `dplyr::select(official_number, tidyselect::all_of(tidyselect::starts_with("db_")))`: Uses `dplyr::select` to retain only the `official_number` column and any columns whose names start with "db_".
+#      - `tidyselect::all_of(tidyselect::starts_with("db_"))`: Uses the `tidyselect` package to identify all column names that start with "db_". The `all_of` function ensures that the selected columns exist within the dataframe.
+# 
+# 3. **Ensuring Unique Rows:**
+#    - `dplyr::distinct()`: Ensures that the resulting dataframe contains only unique rows, removing any duplicate rows based on the selected columns.
+# 
+# The result is a new dataframe `db_participants_address__needed_short__erv_erb_combined_short` that contains only the `official_number` column and columns starting with "db_", with all duplicate rows removed.
 db_participants_address__needed_short__erv_erb_combined_short <-
   db_participants_address__needed_short__erv_erb_combined3 |>
   dplyr::select(official_number, 
@@ -219,10 +251,10 @@ dim(db_participants_address__needed_short__erv_erb_combined_short)
 dplyr::n_distinct(db_participants_address__needed_short__erv_erb_combined_short$official_number)
 # 71
 
-db_participants_address__needed_short__erv_erb_combined_short |> 
-  dplyr::filter(official_number == "1235397") |>
-  dplyr::glimpse()
-# $ db_entity_name       <list> ["DC SERVICE AND MAINTENANCE"], ["DAVID A RUBINO"]
+# check
+# db_participants_address__needed_short__erv_erb_combined_short |> 
+#   dplyr::filter(official_number == "1235397") |>
+#   dplyr::glimpse()
 # $ db_physical_city     <list> ["SOUTH ISLANDIA"], ["ISLANDIA"]
 
 ## combine similar fields ----
@@ -285,6 +317,7 @@ db_participants_address__needed_short__erv_erb_combined_short__u <-
   dplyr::select(official_number, dplyr::all_of(dplyr::ends_with("_u"))) |> 
   dplyr::distinct()
 
+# check
 # db_participants_address__needed_short__erv_erb_combined_short__u |>
 #   filter(official_number == "1235397") |>
 #   glimpse()
@@ -313,12 +346,13 @@ db_participants_address__needed_short__erv_erb_combined_short__u_no_c <-
   dplyr::mutate_if(is.list, ~ paste(unlist(.), collapse = '; ')) |>
   dplyr::ungroup()
 
+# check
 # db_participants_address__needed_short__erv_erb_combined_short__u_no_c |>
 #   filter(official_number == "1235397") |>
 #   glimpse()
 # $ db_mailing_state_u     <chr> "NY"
 # $ db_mailing_city_u      <chr> "ISLANDIA; SOUTH ISLANDIA"
-# 
+
 ## rename fields ----
 
 # Explanation:
@@ -345,6 +379,7 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr <-
     dplyr::join_by(vessel_official_number == official_number)
   )
 
+# check
 # compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr |>
 #   filter(vessel_official_number == "1235397") |>
 #   glimpse()
