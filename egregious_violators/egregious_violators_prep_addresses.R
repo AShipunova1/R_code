@@ -122,44 +122,35 @@ col_names_to_keep <-
     "mailing_zip_code"
   )
 
+# Explanation:
+
+# This code snippet processes the `db_participants_address__needed` dataframe by selecting specific columns, removing duplicate rows, and arranging the rows based on the `official_number` column.
+# 
+# 1. **Creating a Regular Expression Pattern for Column Names:**
+#    - `my_cols_ends <- paste0(col_names_to_keep, '$', collapse = '|')`:
+#      - `col_names_to_keep`: This variable contains a list or vector of column name prefixes you want to keep.
+#      - `paste0(...)`: This function concatenates the elements of `col_names_to_keep` with a `$` at the end of each element, creating a regular expression pattern to match column names that end with any of the specified prefixes.
+#      - `collapse = '|'`: The `collapse` parameter ensures that the elements are joined by a `|`, which is the OR operator in regular expressions.
+# 
+# 2. **Selecting Specific Columns:**
+#    - `db_participants_address__needed |>`: Starts with the `db_participants_address__needed` dataframe and pipes it into the next function.
+#    - `dplyr::select(tidyselect::matches(my_cols_ends))`: Uses the `select` function from `dplyr` and the `matches` function from `tidyselect` to select columns whose names match the regular expression pattern stored in `my_cols_ends`.
+# 
+# 3. **Removing Duplicate Rows:**
+#    - `dplyr::distinct()`: Removes duplicate rows from the selected columns.
+# 
+# The result is a new dataframe `db_participants_address__needed_short1` that contains only the columns matching the specified pattern, with duplicates removed.
+
 my_cols_ends <- paste0(col_names_to_keep, 
                   '$', 
                   collapse = '|')
 
-db_participants_address__needed_short1 <-
-  db_participants_address__needed |>
-  dplyr::select(tidyselect::matches(my_cols_ends)) |>
-  dplyr::distinct() |>
-  dplyr::arrange(official_number)
-
 db_participants_address__needed_short <-
   db_participants_address__needed |>
-  dplyr::select(
-    official_number,
-    all_of(ends_with("entity_name")),
-    all_of(ends_with("primary_email")),
-    # all_of(ends_with("is_primary")),
-    all_of(ends_with("ph_area")),
-    all_of(ends_with("ph_number")),
-    all_of(ends_with("entity_name")),
-    all_of(ends_with("physical_city")),
-    all_of(ends_with("physical_county")),
-    all_of(ends_with("physical_state")),
-    all_of(ends_with("physical_zip_code")),
-    all_of(ends_with("mailing_address1")),
-    all_of(ends_with("mailing_address2")),
-    all_of(ends_with("mailing_city")),
-    all_of(ends_with("mailing_county")),
-    all_of(ends_with("mailing_country")),
-    all_of(ends_with("mailing_state")),
-    all_of(ends_with("mailing_zip_code"))
-  ) |>
-  dplyr::distinct() |> 
-  dplyr::arrange(official_number)
+  dplyr::select(tidyselect::matches(my_cols_ends)) |>
+  dplyr::distinct()
 
-diffdf::diffdf(db_participants_address__needed_short,
-               db_participants_address__needed_short1)
-
+# check
 nrow(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
 # 199
 dplyr::n_distinct(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr$vessel_official_number)
@@ -169,7 +160,6 @@ dplyr::n_distinct(compl_corr_to_investigation__corr_date__hailing_port__fhier_ad
 # have to combine rows
 dim(db_participants_address__needed_short)
 # 106
-# check
 dplyr::n_distinct(db_participants_address__needed_short$official_number)
 # 71
 
