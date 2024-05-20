@@ -29,16 +29,8 @@
 
 library(auxfunctions)
 library(ROracle)
-# library(dplyr)
-# library(rlang)
-# library(lubridate)
-# library(purrr)
-# library(readr)
-# library(tictoc)
-# library(tibble)
 library(zoo)
 library(diffdf)
-# library(RColorBrewer)
 
 my_paths <- auxfunctions::set_work_dir()
 
