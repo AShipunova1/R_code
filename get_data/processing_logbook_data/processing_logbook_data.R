@@ -10,6 +10,8 @@
 # 1) SEFHIER_permitted_vessels_nonSRHS_{my_year}.rds
        # use processing_metrics_tracking.R to create this file or download it from Google Drive
        # before running this code
+# 2) processing_auxiliary_methods.R
+       # get from Google Drive R code folder, put in path directory with this code
 
 # Files this code will pull from Oracle:
 # 1) Raw_Oracle_Downloaded_compliance_2021_plus.rds
@@ -87,21 +89,6 @@ my_year <- "2022"
 db_year_1 <- "2021"
 db_year_2 <- "2024"
 
-# Auxiliary methods ----
-if (Path == annas_path) {
-  annas_git_path <-
-    r"(~\R_code_github\get_data)"
-
-  auxiliary_methods_file_path <-
-    file.path(annas_git_path,
-              "processing_auxiliary_methods.R")
-} else {
-  auxiliary_methods_file_path <-
-    file.path(Path,
-              "processing_auxiliary_methods.R")
-}
-
-# file.exists(auxiliary_methods_file_path)
 
 source(auxiliary_methods_file_path)
 
