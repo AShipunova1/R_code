@@ -568,11 +568,6 @@ title: {curent_project_name}
 setup_text <- "
 ```{r no cache setup, results='hide', message=FALSE, warning=FALSE, cache=FALSE, include=FALSE}
 
-install.packages('devtools')
-library(devtools)
-devtools::install_github('AShipunova1/R_code/auxfunctions')
-library(auxfunctions)
-
 # A general-purpose tool for dynamic report generation in R
 library(knitr)
 
