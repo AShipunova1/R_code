@@ -11,6 +11,11 @@ old_n_new_result_list <-
 # View(cc)
 
 # unify col names
+# Explanations:
+# - The `map` function from the `purrr` package is used twice in a pipeline.
+# - In the first `map` call, it iterates over each element of `old_n_new_result_list`. Within the iteration, the `rename` function from the `dplyr` package is applied using the tilde (~) notation to rename the second column of each data frame to "confirmed_egr". The !!2 is used for non-standard evaluation to reference the second column dynamically.
+# - Then, another `map` call is used to iterate over the modified list from the previous step. Within this iteration, the `rename` function is applied again to rename the third column of each data frame to "notes", using !!3 for non-standard evaluation.
+# - The result is a list of data frames with modified column names, where the second and third columns are renamed to "confirmed_egr" and "notes", respectively.
 old_n_new_result_list_short_col_name <-
   old_n_new_result_list |>
   purrr::map(~ dplyr::rename(.x, confirmed_egr = !!2)) |> 
