@@ -88,6 +88,23 @@ dplyr::n_distinct(no_addr_vsl_ids$vessel_official_number)
 # 71
 
 # From Oracle db ----
+# Explanation:
+
+# This code snippet processes the `db_participants_address` dataframe by filtering rows based on the `official_number` and ensuring distinct rows in the resulting dataframe.
+# 
+# 1. **Starting with the DataFrame:**
+#    - `db_participants_address |>`: Starts with the `db_participants_address` dataframe and pipes it into the next function.
+# 
+# 2. **Filtering Rows:**
+#    - `dplyr::filter(official_number %in% no_addr_vsl_ids$vessel_official_number)`:
+#      - `dplyr::filter(...)`: The `filter` function from the `dplyr` package is used to keep rows that meet certain conditions.
+#      - `official_number %in% no_addr_vsl_ids$vessel_official_number`: This condition keeps only the rows where the `official_number` is found in the `vessel_official_number` column of the `no_addr_vsl_ids` dataframe.
+#        - `%in%`: The `%in%` operator checks if elements of `official_number` are present in `no_addr_vsl_ids$vessel_official_number`.
+# 
+# 3. **Removing Duplicate Rows:**
+#    - `dplyr::distinct()`: The `distinct` function from the `dplyr` package removes duplicate rows from the filtered dataframe, ensuring each row is unique.
+# 
+# The result is a new dataframe `db_participants_address__needed` that contains only the rows from `db_participants_address` where the `official_number` is present in the `no_addr_vsl_ids$vessel_official_number` column, and all duplicate rows are removed.
 db_participants_address__needed <-
   db_participants_address |>
   dplyr::filter(official_number %in% no_addr_vsl_ids$vessel_official_number) |>
@@ -322,7 +339,7 @@ db_participants_address__needed_short__erv_erb_combined_short__u_temp <-
 
 # Explanation:
 # 
-# This code creates a new dataframe by combining columns with suffix "_u" from two existing dataframes (`db_participants_address__needed_short__erv_erb_combined_short` and `db_participants_address__needed_short__erv_erb_combined_short__u_temp`). Here's a detailed breakdown:
+# This code creates a new dataframe by combining columns with suffix "_u" from two existing dataframes (`db_participants_address__needed_short__erv_erb_combined_short` and `db_participants_address__needed_short__erv_erb_combined_short__u_temp`). 
 # 
 # 1. **Binding Columns Together:**
 #    - `dplyr::bind_cols(...)`: It binds columns from two dataframes together. The columns from `db_participants_address__needed_short__erv_erb_combined_short` and `db_participants_address__needed_short__erv_erb_combined_short__u_temp` are combined horizontally.
@@ -383,7 +400,7 @@ db_participants_address__needed_short__erv_erb_combined_short__u_no_c <-
 
 # Explanation:
 # 
-# This code renames the columns in the dataframe `db_participants_address__needed_short__erv_erb_combined_short__u_no_c` by removing the suffix "_u" from their names. Here's a breakdown:
+# This code renames the columns in the dataframe `db_participants_address__needed_short__erv_erb_combined_short__u_no_c` by removing the suffix "_u" from their names.
 # 
 # 1. **Renaming Columns:**
 #    - `dplyr::rename_with( ~ stringr::str_replace(.x, pattern = "_u$", replacement = ""))`: It renames the columns of the dataframe using a function provided by `rename_with`.
