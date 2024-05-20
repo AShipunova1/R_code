@@ -23,9 +23,9 @@
 # library(remotes)
 # remotes::install_local(path = "~/R_code_github/auxfunctions_1.1.tar.gz",
 #                        build_manual = TRUE)
-# install.packages("devtools")
-# library(devtools)
-# devtools::install_github("AShipunova1/R_code/auxfunctions@development)
+install.packages("devtools")
+library(devtools)
+devtools::install_github("AShipunova1/R_code/auxfunctions@development")
 
 library(auxfunctions)
 library(ROracle)
