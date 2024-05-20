@@ -79,6 +79,12 @@ old_n_new_cols
   #   "hailing_port_state_old"
   # )
 
+# Explanations:
+# - The function `old_new_func` takes the name of an old column as input and returns a data frame containing the differences between the old and new columns.
+# - The `str_replace` function from the `stringr` package is used to generate the new column name by replacing "_old" with "_new" in the input old column name.
+# - The `filter` function from the `dplyr` package is used to filter rows where the value of the old column is not equal to the value of the new column. The `!!sym()` function is used for non-standard evaluation to evaluate the column names dynamically.
+# - After filtering, the `select` function from the `dplyr` package is used to select specific columns (vessel_official_number, old column, new column) from the filtered data.
+# - Finally, the function returns the resulting data frame containing the differences between the old and new columns.
 old_new_func <- function(old_col_name) {
   # browser()
   
@@ -99,12 +105,17 @@ old_new_func <- function(old_col_name) {
 }
 
 ### get differencies ----
+
+# Explanations:
+# - The `map` function from the `purrr` package is used to apply the `old_new_func` function to each element in the list `old_n_new_cols`. This creates a list of data frames with differences between old and new columns for each column in `old_n_new_cols`.
+# - The `reduce` function from the `purrr` package is then applied to the list of data frames. It performs a full join operation using the `full_join` function from the `dplyr` package, joining the data frames by the common column "vessel_official_number". This merges all the data frames into a single data frame, combining the differences between old and new columns for each vessel.
+# - Finally, the `remove_empty_cols` function from the `auxfunctions` package is applied. This function removes any empty columns from the resulting data frame, ensuring a clean output without unnecessary columns.
 res_diff_old_n_new <-
   purrr::map(old_n_new_cols, old_new_func) |>
   purrr::reduce(full_join, by = "vessel_official_number") |> 
   auxfunctions::remove_empty_cols()
 
-res_diff_old_n_new |> View()
+res_diff_old_n_new |> glimpse()
   
 ## check marked as not egregious previously ----
 old_n_new_results |>
