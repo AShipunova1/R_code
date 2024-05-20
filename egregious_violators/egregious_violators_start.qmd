@@ -1369,7 +1369,6 @@ prep_addresses_path <-
 file.exists(prep_addresses_path)
 
 # Manually check missing addresses
-is_empty <- c(NA, "NA", "", "UN", "N/A")
 ```
 
 ## From FHIER 
