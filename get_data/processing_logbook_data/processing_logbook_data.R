@@ -1176,8 +1176,8 @@ my_tee(removed_logbooks_and_vessels_text,
 
 # Export processed logbooks ----
 
-# create 2 different dfs by a) compliance and
-# b) calendar date separately
+# create 2 different dfs by a) compliance weeks and
+# b) calendar dates separately
 
 # check
 # compliance dates:
@@ -1199,7 +1199,7 @@ my_calendar_date_beg <- curr_dates$my_calendar_date_beg
 my_calendar_date_end <- curr_dates$my_calendar_date_end
 
 SEFHIER_logbooks_processed__calendar_year <-
-  SEFHIER_logbooks_processed |>
+  SEFHIER_logbooks_processed_p_regions |>
   filter(
     TRIP_END_DATE >=
       as.Date(my_calendar_date_beg, "%d-%b-%Y",
