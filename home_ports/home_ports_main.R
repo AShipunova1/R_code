@@ -539,6 +539,20 @@ vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short |>
   dplyr::count(city_fixed) |> 
   View()
 
+# find more not fixed cities ----
+
+vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short |>
+  dplyr::count(city_fixed) |>
+  # dplyr::distinct()
+  left_join(
+    vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short,
+    join_by(city_fixed)
+  ) |>
+  select(city_fixed, state_fixed, n) |>
+  distinct() |>
+  auxfunctions::see_res_in_outfile()
+  # View()
+
 # print out ----
 out_dir <- file.path(my_paths$outputs,
             current_project_basename)
