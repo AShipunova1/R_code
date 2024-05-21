@@ -540,24 +540,6 @@ vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short |>
   dplyr::count(city_fixed) |> 
   View()
 
-# check feb fixes
-check_feb_fixes <-
-  c(
-    "TX9606KA",
-    "646818",
-    "FL5029RM",
-    "1185107",
-    "FL3119EE",
-    "FL2720RN",
-    "FL2615MT",
-    "581260",
-    "531549"
-  )
-
-vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short |>
-  filter(vessel_official_number %in% check_feb_fixes) |> 
-  View()
-
 # find more not fixed cities ----
 
 vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short |>
