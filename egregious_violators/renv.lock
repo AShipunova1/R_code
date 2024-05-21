@@ -22,14 +22,14 @@
     },
     "KernSmooth": {
       "Package": "KernSmooth",
-      "Version": "2.23-22",
+      "Version": "2.23-24",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "R",
         "stats"
       ],
-      "Hash": "2fecebc3047322fa5930f74fae5de70f"
+      "Hash": "9f33a1ee37bbe8919eb2ec4b9f2473a5"
     },
     "MASS": {
       "Package": "MASS",
@@ -183,12 +183,16 @@
     "auxfunctions": {
       "Package": "auxfunctions",
       "Version": "1.1",
-      "Source": "Local",
-      "RemoteType": "local",
-      "RemoteUrl": "C:\\Users\\anna.shipunova\\Documents\\R_code_github\\auxfunctions_1.1.tar.gz",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteUsername": "AShipunova1",
+      "RemoteRepo": "R_code",
+      "RemoteSubdir": "auxfunctions",
+      "RemoteRef": "HEAD",
+      "RemoteSha": "fccafb38615aded4bc77fe0f1b23f338b7f27590",
+      "RemoteHost": "api.github.com",
       "Requirements": [
         "DBI",
-        "R",
         "cowplot",
         "crayon",
         "data.table",
@@ -208,7 +212,7 @@
         "tidyr",
         "tidyselect"
       ],
-      "Hash": "4cef6aaca2752501b73e3921316d02fb"
+      "Hash": "d9b648f47d95bac51e9df590086ca36d"
     },
     "backports": {
       "Package": "backports",
@@ -285,14 +289,13 @@
     },
     "broom": {
       "Package": "broom",
-      "Version": "1.0.5",
+      "Version": "1.0.6",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "R",
         "backports",
         "dplyr",
-        "ellipsis",
         "generics",
         "glue",
         "lifecycle",
@@ -302,7 +305,7 @@
         "tibble",
         "tidyr"
       ],
-      "Hash": "fd25391c3c4f6ecf0fa95f1e6d15378c"
+      "Hash": "a4652c36d1f8abfc3ddf4774f768c934"
     },
     "bslib": {
       "Package": "bslib",
@@ -1393,13 +1396,13 @@
     },
     "openssl": {
       "Package": "openssl",
-      "Version": "2.1.2",
+      "Version": "2.2.0",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "askpass"
       ],
-      "Hash": "ea2475b073243d9d338aa8f086ce973e"
+      "Hash": "2bcca3848e4734eb3b16103bc9aa4b8e"
     },
     "openxlsx": {
       "Package": "openxlsx",
@@ -1788,7 +1791,7 @@
     },
     "rmarkdown": {
       "Package": "rmarkdown",
-      "Version": "2.26",
+      "Version": "2.27",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -1807,7 +1810,7 @@
         "xfun",
         "yaml"
       ],
-      "Hash": "9b148e7f95d33aac01f31282d49e4f44"
+      "Hash": "27f9502e1cdbfa195f94e03b0f517484"
     },
     "roxygen2": {
       "Package": "roxygen2",
