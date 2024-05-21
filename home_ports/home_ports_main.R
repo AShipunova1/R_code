@@ -71,6 +71,7 @@ vessels_from_pims_split_addr <-
 
 # View(vessels_from_pims_split_addr)
 
+# check
 addresses_w_digit <- 
   vessels_from_pims_ok |>
   filter(grepl("\\d", hailing_port)) |> 
@@ -361,6 +362,7 @@ dim(vessels_from_pims_split_addr__city_state__fix2)
 # [1] 23110     8
 # [1] 23109     8
 
+# check
 vessels_from_pims_split_addr__city_state__fix2 |>
   dplyr::filter(vessel_official_number == "FL1431JU") |>
   dplyr::glimpse()
@@ -370,10 +372,18 @@ vessels_from_pims_split_addr__city_state__fix2 |>
 # $ state_fixed1           <chr> NA, NA, "FL", "FL"
 
 # check
+# get all vessel ids from manual_fixes
+# Explanations:
+# - The `sapply` function is applied to `manual_fixes`. This function applies a specified function to each element of a list (or vector) and simplifies the result.
+# - The function `"[", 1` is used within `sapply` to extract the first element of each element in `manual_fixes`. Here, `"[", 1` is a shorthand for extracting the first item from a list or vector.
+# - The result of `sapply` is a list where each element is the first item of the corresponding element in `manual_fixes`.
+# - The `unlist` function is then used to flatten the resulting list into a single vector. This removes the list structure and creates a simple atomic vector containing all the first elements from `manual_fixes`.
+# - The resulting vector is assigned to the variable `new_f_vsl`.
 new_f_vsl <-
   sapply(manual_fixes, "[", 1) |> 
   unlist()
 
+# vessels both in vessels_from_pims_split_addr__city_state__fix1 and in the manual fixes new_f_vsl
 both <-
   dplyr::intersect(
     vessels_from_pims_split_addr__city_state__fix1$vessel_official_number,
@@ -447,6 +457,7 @@ wrong_vessel_ids <- c("FL", "FLORIDA", "MD", "NO", "NONE")
 
 normal_length = 4
 
+# check if a vessel id is empty, wrong or too short
 vessels_from_pims_split_addr__city_state__fix2_ok__good_ids <-
   vessels_from_pims_split_addr__city_state__fix2_ok |>
   dplyr::filter(!vessel_official_number %in% is_empty) |>
@@ -454,8 +465,9 @@ vessels_from_pims_split_addr__city_state__fix2_ok__good_ids <-
   dplyr::filter(!stringr::str_length(vessel_official_number) < normal_length)
 
 # TODO:
-## check id_len != 6 ----
 # check ids with spaces
+
+## check id_len != 6 ----
 vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__len <-
   vessels_from_pims_split_addr__city_state__fix2_ok__good_ids |>
   dplyr::group_by(vessel_official_number) |>
@@ -474,6 +486,7 @@ dim(vessels_from_pims_split_addr__city_state__fix2_ok__good_ids)
 # [1] 23050     6
 
 ## check no address ----
+# no city
 vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__no_addr <-
   vessels_from_pims_split_addr__city_state__fix2_ok__good_ids |>
   dplyr::filter(is.na(city))
@@ -481,6 +494,7 @@ vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__no_addr <-
 nrow(vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__no_addr)
 # 6
 
+# no state
 vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__no_state <-
   vessels_from_pims_split_addr__city_state__fix2_ok__good_ids |>
   dplyr::filter(is.na(state_fixed))
@@ -516,6 +530,14 @@ vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short |>
   dplyr::filter(n > 1) |>
   nrow()
 # 0, ok
+
+vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short |> 
+  dplyr::filter(vessel_official_number == "558651") |> 
+  View()
+
+vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short |> 
+  dplyr::count(city_fixed) |> 
+  View()
 
 # print out ----
 out_dir <- file.path(my_paths$outputs,
