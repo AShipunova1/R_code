@@ -4,7 +4,8 @@
 
 # setup ----
 # source("~/R_code_github/useful_functions_module.r")
-devtools::install_github("AShipunova1/R_code/auxfunctions")
+devtools::install_github("AShipunova1/R_code/auxfunctions@development",
+                         force = TRUE)
 
 library(auxfunctions)
 
@@ -550,8 +551,19 @@ vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short |>
   ) |>
   select(city_fixed, state_fixed, n) |>
   distinct() |>
-  auxfunctions::see_res_in_outfile()
+  see_csv_in_outfile()
   # View()
+
+see_csv_in_outfile <- function(df_to_output) {
+  # Creates a temporary file with the extension ".txt" and assigns its path to the variable `outfile`.
+  outfile <- tempfile(fileext = ".txt")
+  sink(file = outfile)
+  # Writes the content of `text_to_output` to the temporary file specified by `outfile`.
+  print(df_to_output, n = nrow(df_to_output))
+  # Opens the temporary file in the default text editor for viewing.
+  file.show(outfile)
+  sink()
+}
 
 # print out ----
 out_dir <- file.path(my_paths$outputs,
