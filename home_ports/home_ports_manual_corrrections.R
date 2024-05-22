@@ -113,6 +113,59 @@ get_vessel_id_2 <-
 # find ids
 vessels_w_ports_01 <-
   vessels_from_pims_short_ok |>
+  left_join(get_vessel_id_2,
+            join_by(hailingport == city_state_typo))
+
+# vessels_w_ports_01 |> 
+#   select(city_state_typo_space) |> 
+#   distinct()
+
+vessels_w_ports_02 <-
+  vessels_from_pims_short_ok |>
+  left_join(get_vessel_id_2,
+            join_by(hailingport == city_state_typo_space))
+# ℹ Row 5174 of `x` matches multiple rows in `y`.
+# ℹ Row 15255 of `y` matches multiple rows in `x`.
+
+vessels_w_ports_all <-
+  vessels_w_ports_01 |>
+  inner_join(vessels_w_ports_02, join_by(vessel_official_number))
+
+v_id_in_x <-
+  vessels_w_ports_01[5174, ]$vessel_official_number
+
+v_id_in_y <-
+  vessels_w_ports_02[15255, ]$vessel_official_number
+
+vessels_w_ports_02 |> 
+  filter(vessel_official_number == v_id_in_x) |> 
+  glimpse()
+
+vessels_from_pims_short_ok |>
+  filter(vessel_official_number == v_id_in_x) |> 
+  glimpse()
+
+v_id_in_y <-
+  vessels_w_ports_02[15255, ]$vessel_official_number
+
+vessels_w_ports_01 |> 
+  filter(vessel_official_number == v_id_in_y) |> 
+  glimpse()
+
+vessels_from_pims_short_ok |>
+  filter(vessel_official_number == v_id_in_y) |> 
+  glimpse()
+
+
+  # dplyr::filter((hailingport %in% get_vessel_id_2$city_state_typo) |
+  #                 hailingport %in% get_vessel_id_2$city_state_typo_space ) |>
+  # dplyr::arrange(hailingport)
+
+
+
+
+vessels_w_ports_01 <-
+  vessels_from_pims_short_ok |>
   dplyr::filter((hailingport %in% get_vessel_id_2$city_state_typo) |
                   hailingport %in% get_vessel_id_2$city_state_typo_space ) |>
   dplyr::arrange(hailingport)
