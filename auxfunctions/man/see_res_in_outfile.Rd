@@ -13,15 +13,20 @@ see_res_in_outfile(text_to_output)
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{text_to_output}{
-  string
+  string or dataframe
 }
 }
 \details{
 - The `see_res_in_outfile` function is designed to output the content of a variable to a temporary text file and then display that file.
+
 - `tempfile(fileext = ".txt")` creates a temporary file with the extension ".txt" and assigns its path to the variable `outfile`.
+
 - `sink(file = outfile)` redirects R output to the file specified by `outfile`, meaning subsequent output will be written to this file.
+
 - `print(var_to_output, na.print = "", n = nrow(var_to_output))` writes the content of `var_to_output` to the temporary file. The `na.print = ""` argument specifies that NA values should be printed as an empty string, and `n = nrow(var_to_output)` ensures all rows of the data frame are printed.
+
 - `file.show(outfile)` opens the temporary file in the default text editor for viewing.
+
 - `sink()` restores the normal R output to the console, stopping the redirection of output to the temporary file.}
 \value{
 Instead of an output shows a temp file.
