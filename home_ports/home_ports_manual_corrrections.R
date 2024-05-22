@@ -95,7 +95,8 @@ vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short |>
 get_vessel_id <- 
   my_read_xlsx(r"(C:\Users\anna.shipunova\Documents\R_code_github\home_ports\temp.xlsx)")
 
-print_df_names(get_vessel_id)
+dim(get_vessel_id)
+# 207
 
 get_vessel_id_1 <-
   get_vessel_id |>
@@ -133,15 +134,16 @@ vessel_id_join1 |> dim()
 vessel_id_join11 <-
   vessel_id_join1 |>
   filter(!is.na(city_state_change_to))
-# dim()
-# 1215
+
+dim(vessel_id_join11)
+# 1001
 
 vessel_id_join2 <-
   vessels_from_pims_short_ok |>
   full_join(get_vessel_id_2, 
             join_by(hailingport == city_state_typo_space)) 
 
-# dim(vessel_id_join2)
+dim(vessel_id_join2)
 # [1] 22896     9
 
 vessel_id_join22 <-
@@ -177,112 +179,26 @@ vessel_id_join00 <-
     relationship = "many-to-many"
   )
 
-vessel_id_join00 |> 
-  View()
+vessel_id_typo_correction <-
+  vessel_id_join00 |>
+  filter(!is.na(vessel_official_number)) |>
+  mutate(hailingport_typo = coalesce(hailingport.x, hailingport.y)) |>
+  select(vessel_official_number,
+         hailingport_typo,
+         city_state_change_to,
+         city,
+         state_from) |>
+  filter(!hailingport_typo == city_state_change_to) |> 
+  arrange(vessel_official_number) |> 
+  rename("city_from" = "city")
 
- # |>
-  # left_join(get_vessel_id_2,
-  #           join_by(hailingport == city_state_typo_space)) |>
-  # filter(!(is.na(city.x) & is.na(city.y)))
+n_distinct(vessel_id_typo_correction$hailingport_typo)
+# 218
 
-# vessels_w_ports_01 |> 
-#   select(city_state_typo_space) |> 
-#   distinct()
+# see in csv
+outfile <- tempfile(fileext = ".csv")
 
-vessels_w_ports_02 <-
-  vessels_from_pims_short_ok |>
-  left_join(get_vessel_id_2,
-            join_by(hailingport == city_state_typo_space))
-# ℹ Row 5174 of `x` matches multiple rows in `y`.
-# ℹ Row 15255 of `y` matches multiple rows in `x`.
+vessel_id_typo_correction |> 
+  readr::write_csv(outfile)
 
-vessels_w_ports_all <-
-  vessels_w_ports_01 |>
-  inner_join(vessels_w_ports_02, join_by(vessel_official_number))
-
-v_id_in_x <-
-  vessels_w_ports_01[5174, ]$vessel_official_number
-
-v_id_in_y <-
-  vessels_w_ports_02[15255, ]$vessel_official_number
-
-vessels_w_ports_02 |> 
-  filter(vessel_official_number == v_id_in_x) |> 
-  glimpse()
-
-vessels_from_pims_short_ok |>
-  filter(vessel_official_number == v_id_in_x) |> 
-  glimpse()
-
-v_id_in_y <-
-  vessels_w_ports_02[15255, ]$vessel_official_number
-
-vessels_w_ports_01 |> 
-  filter(vessel_official_number == v_id_in_y) |> 
-  glimpse()
-
-vessels_from_pims_short_ok |>
-  filter(vessel_official_number == v_id_in_y) |> 
-  glimpse()
-
-
-  # dplyr::filter((hailingport %in% get_vessel_id_2$city_state_typo) |
-  #                 hailingport %in% get_vessel_id_2$city_state_typo_space ) |>
-  # dplyr::arrange(hailingport)
-
-
-
-
-vessels_w_ports_01 <-
-  vessels_from_pims_short_ok |>
-  dplyr::filter((hailingport %in% get_vessel_id_2$city_state_typo) |
-                  hailingport %in% get_vessel_id_2$city_state_typo_space ) |>
-  dplyr::arrange(hailingport)
-
-diffdf::diffdf(vessels_w_ports_0,
-               vessels_w_ports_01)
-
-# dplyr::left_join(get_vessel_id_2,
-  #                  dplyr::join_by(hailingport == city_state_typo))
-# head()
-  # auxfunctions::see_res_in_outfile()
-
-n_distinct(vessels_w_ports_0$hailingport)
-# 200
-n_distinct(vessels_w_ports_01$hailingport)
-# 220
-n_distinct(get_vessel_id_2$city_state_typo)
-# 207
-
-not_found1 <-
-  dplyr::setdiff(unique(get_vessel_id_2$city_state_typo_space),
-                 unique(vessels_w_ports_01$hailingport)) |> 
-  sort()
-
-# [1] "NEW SYMNRA, FL"               "OCEAN SPRIGS, MS"            
-# [3] "PORT CANAVERAL CANAVERAL, FL" "PORT ST. JOHN, FL"           
-# [5] "RINCÓN, PR"                   "ROCK PORT, TX"               
-# [7] "SOUTH PORT, NC"              
-
-# 
-# not_found_1 <-
-#   not_found |>
-#   stringr::str_split(pattern = ", ") |>
-#   purrr::map( ~ stringr::str_c(., collapse = " , "))
-
-# vessels_w_ports_1 <-
-#   vessels_from_pims_short_ok |>
-#   dplyr::filter(hailingport %in% not_found_1) |>
-#   dplyr::arrange(hailingport)
-
-# get_vessel_id_5 <- 
-#   rbind(get_vessel_id_3, get_vessel_id_4)
-
-
-# dplyr::left_join(get_vessel_id_2,
-  #                  dplyr::join_by(hailingport == city_state_typo))
-# head()
-  # auxfunctions::see_res_in_outfile()
-
-View(vessels_w_ports_01)
-  
+file.show(outfile)
