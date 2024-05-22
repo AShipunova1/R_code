@@ -135,19 +135,16 @@ not_found <-
 # [5] "RINCÓN, PR"                   "ROCK PORT, TX"               
 # [7] "SOUTH PORT, NC"              
 
-not_found |> 
-  stringr::str_split(pattern = ", ") |> 
-  purrr::map(~stringr::str_c(., collapse = " , ")) |>
-  head()
+not_found_1 <-
+  not_found |>
+  stringr::str_split(pattern = ", ") |>
+  purrr::map( ~ stringr::str_c(., collapse = " , "))
 
-  vessels_from_pims_short_ok |>
-  dplyr::filter(hailingport %in% get_vessel_id_2$city_state_typo) |>
+vessels_from_pims_short_ok |>
+  dplyr::filter(hailingport %in% not_found_1) |>
   dplyr::arrange(hailingport)
 
-
-  
-
-  # map(samples_ID, ~ str_c(., collapse = '_'))
+# map(samples_ID, ~ str_c(., collapse = '_'))
 
 # vessels_from_pims_short_ok |>
 #   dplyr::filter(stringr::str_detect(hailingport, ".*, PR.*")) |> 
