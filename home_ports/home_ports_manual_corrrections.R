@@ -59,8 +59,8 @@ vessels_from_pims_short_ok |>
   # auxfunctions::print_df_names()
   dplyr::filter(hailingport %in% typo_addresses) |>
   dplyr::arrange(hailingport) |> 
-  # head()
-  auxfunctions::see_res_in_outfile()
+  head()
+  # auxfunctions::see_res_in_outfile()
   
   # filter(
   #     str_detect(letters, "a|f|o")
@@ -69,7 +69,8 @@ vessels_from_pims_short_ok |>
 xml_ports <-
   vessels_from_pims_short_ok |>
   dplyr::filter(stringr::str_detect(hailingport, ".*xml.*")) |> 
-  auxfunctions::see_res_in_outfile()
+  glimpse()
+  # auxfunctions::see_res_in_outfile()
 
 # find more not fixed cities ----
 
@@ -82,8 +83,8 @@ vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short |>
   ) |>
   select(city_fixed, state_fixed, n) |>
   distinct() |>
-  auxfunctions::see_res_in_outfile()
-  # View()
+  # auxfunctions::see_res_in_outfile()
+  glimpse()
 
 vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short |> 
   # filter(state_fixed == "AL, AL")
@@ -110,11 +111,55 @@ get_vessel_id_2 <-
     city_state_typo_space = paste(city, state_from, sep = " , ")
   )
 
-# find ids
-vessels_w_ports_01 <-
-  vessels_from_pims_short_ok |>
+## add ids ----
+# View(get_vessel_id_2)
+# left_join(x, y[-2], by = "id_1") %>% 
+#   left_join(y[-1], by = "id_2") %>% 
+#   mutate(region = coalesce(region.x, region.y)) %>% 
+#   select(-c(region.x, region.y))
+
+vessels_w_ports_3 <-
   left_join(get_vessel_id_2,
             join_by(hailingport == city_state_typo))
+
+vessel_id_join1 <-
+  vessels_from_pims_short_ok |>
+  full_join(get_vessel_id_2, 
+            join_by(hailingport == city_state_typo)) 
+
+vessel_id_join2 <-
+  vessels_from_pims_short_ok |>
+  full_join(get_vessel_id_2, 
+            join_by(hailingport == city_state_typo_space)) 
+
+setdiff(names(vessel_id_join1),
+        names(vessel_id_join2))
+# [1] "city_state_typo_space"
+
+setdiff(names(vessel_id_join2),
+        names(vessel_id_join1))
+# [1] "city_state_typo"
+
+vessel_id_join0 <-
+  vessel_id_join1 |>
+  full_join(
+    vessel_id_join2,
+    join_by(
+      city,
+      city_change_to,
+      state_from,
+      state_to,
+      city_repeated,
+      city_state_change_to
+    )
+  )
+
+vessel_id_join0 |> View()
+
+ # |>
+  # left_join(get_vessel_id_2,
+  #           join_by(hailingport == city_state_typo_space)) |>
+  # filter(!(is.na(city.x) & is.na(city.y)))
 
 # vessels_w_ports_01 |> 
 #   select(city_state_typo_space) |> 
