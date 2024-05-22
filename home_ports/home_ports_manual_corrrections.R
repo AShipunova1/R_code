@@ -118,43 +118,67 @@ get_vessel_id_2 <-
 #   mutate(region = coalesce(region.x, region.y)) %>% 
 #   select(-c(region.x, region.y))
 
-vessels_w_ports_3 <-
-  left_join(get_vessel_id_2,
-            join_by(hailingport == city_state_typo))
+# vessels_w_ports_3 <-
+#   left_join(get_vessel_id_2,
+#             join_by(hailingport == city_state_typo))
 
 vessel_id_join1 <-
   vessels_from_pims_short_ok |>
   full_join(get_vessel_id_2, 
             join_by(hailingport == city_state_typo)) 
 
+vessel_id_join1 |> dim()
+# 22716     
+
+vessel_id_join11 <-
+  vessel_id_join1 |>
+  filter(!is.na(city_state_change_to))
+# dim()
+# 1215
+
 vessel_id_join2 <-
   vessels_from_pims_short_ok |>
   full_join(get_vessel_id_2, 
             join_by(hailingport == city_state_typo_space)) 
 
-setdiff(names(vessel_id_join1),
-        names(vessel_id_join2))
+# dim(vessel_id_join2)
+# [1] 22896     9
+
+vessel_id_join22 <-
+  vessel_id_join2 |>
+  filter(!is.na(city_state_change_to))
+
+dim(vessel_id_join22)
+# 216
+
+print_df_names(vessel_id_join11)
+
+setdiff(names(vessel_id_join11),
+        names(vessel_id_join22))
 # [1] "city_state_typo_space"
 
-setdiff(names(vessel_id_join2),
-        names(vessel_id_join1))
+setdiff(names(vessel_id_join22),
+        names(vessel_id_join11))
 # [1] "city_state_typo"
 
-vessel_id_join0 <-
-  vessel_id_join1 |>
+vessel_id_join00 <-
+  vessel_id_join11 |>
   full_join(
-    vessel_id_join2,
+    vessel_id_join22,
     join_by(
+      vessel_official_number,
       city,
       city_change_to,
       state_from,
       state_to,
       city_repeated,
       city_state_change_to
-    )
+    ),
+    relationship = "many-to-many"
   )
 
-vessel_id_join0 |> View()
+vessel_id_join00 |> 
+  View()
 
  # |>
   # left_join(get_vessel_id_2,
