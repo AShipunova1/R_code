@@ -532,39 +532,6 @@ vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short |>
   nrow()
 # 0, ok
 
-vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short |> 
-  dplyr::filter(vessel_official_number == "558651") |> 
-  View()
-
-vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short |> 
-  dplyr::count(city_fixed) |> 
-  View()
-
-# find more not fixed cities ----
-
-vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short |>
-  dplyr::count(city_fixed) |>
-  # dplyr::distinct()
-  left_join(
-    vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short,
-    join_by(city_fixed)
-  ) |>
-  select(city_fixed, state_fixed, n) |>
-  distinct() |>
-  see_csv_in_outfile()
-  # View()
-
-see_csv_in_outfile <- function(df_to_output) {
-  # Creates a temporary file with the extension ".txt" and assigns its path to the variable `outfile`.
-  outfile <- tempfile(fileext = ".txt")
-  sink(file = outfile)
-  # Writes the content of `text_to_output` to the temporary file specified by `outfile`.
-  print(df_to_output, n = nrow(df_to_output))
-  # Opens the temporary file in the default text editor for viewing.
-  file.show(outfile)
-  sink()
-}
-
 # print out ----
 out_dir <- file.path(my_paths$outputs,
             current_project_basename)
