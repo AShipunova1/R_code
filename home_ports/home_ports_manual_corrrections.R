@@ -1,21 +1,3 @@
-mylongtext <- 
-  "asfds9v  sd9fvzsdxvmzx.,3q rweafzxcv0qawwer sdv\nq3REFXZDCV,1Q"
-
-see_outfile(mylongtext)
-
-see_outfile <- function(var_to_output) {
-  # Creates a temporary file with the extension ".txt" and assigns its path to the variable `outfile`.
-  outfile <- tempfile(fileext = ".txt")
-  sink(file = outfile)
-  # Writes the content of `text_to_output` to the temporary file specified by `outfile`.
-  print(var_to_output, 
-        na.print = "",
-        n = nrow(var_to_output))
-  # Opens the temporary file in the default text editor for viewing.
-  file.show(outfile)
-  sink()
-}
-
 # vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short |> 
 #   dplyr::filter(vessel_official_number == "558651") |> 
 #   View()
@@ -76,7 +58,7 @@ vessels_from_pims_short_ok |>
   dplyr::filter(hailingport %in% typo_addresses) |>
   dplyr::arrange(hailingport) |> 
   # head()
-  see_df_in_outfile()
+  auxfunctions::see_res_in_outfile()
   
   # filter(
   #     str_detect(letters, "a|f|o")
