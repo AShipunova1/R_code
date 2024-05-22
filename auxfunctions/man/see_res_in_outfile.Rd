@@ -17,17 +17,12 @@ see_res_in_outfile(text_to_output)
 }
 }
 \details{
-This function, `see_res_in_outfile`, is designed to display text content in an external text file for easy viewing. Here's a detailed breakdown of its functionality:
-
-1. **Creating a Temporary File:**
-   - `outfile <- tempfile(fileext = ".txt")`: It generates a temporary file with the extension ".txt" using the `tempfile` function. The path to this file is stored in the variable `outfile`.
-
-2. **Writing Text Content to File:**
-   - `cat(text_to_output, file = outfile)`: The `cat` function is used to write the content of the `text_to_output` parameter to the file specified by `outfile`. This effectively saves the provided text content to the temporary file.
-
-3. **Displaying the File:**
-   - `file.show(outfile)`: This command opens the temporary file in the default text editor of the system, allowing the user to view the contents of the file.
-}
+- The `see_res_in_outfile` function is designed to output the content of a variable to a temporary text file and then display that file.
+- `tempfile(fileext = ".txt")` creates a temporary file with the extension ".txt" and assigns its path to the variable `outfile`.
+- `sink(file = outfile)` redirects R output to the file specified by `outfile`, meaning subsequent output will be written to this file.
+- `print(var_to_output, na.print = "", n = nrow(var_to_output))` writes the content of `var_to_output` to the temporary file. The `na.print = ""` argument specifies that NA values should be printed as an empty string, and `n = nrow(var_to_output)` ensures all rows of the data frame are printed.
+- `file.show(outfile)` opens the temporary file in the default text editor for viewing.
+- `sink()` restores the normal R output to the console, stopping the redirection of output to the temporary file.}
 \value{
 Instead of an output shows a temp file.
 %%  ~Describe the value returned
