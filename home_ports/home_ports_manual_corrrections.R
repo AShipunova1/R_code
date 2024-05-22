@@ -140,21 +140,24 @@ not_found_1 <-
   stringr::str_split(pattern = ", ") |>
   purrr::map( ~ stringr::str_c(., collapse = " , "))
 
-vessels_from_pims_short_ok |>
+get_vessel_id_4 <-
+  vessels_from_pims_short_ok |>
   dplyr::filter(hailingport %in% not_found_1) |>
   dplyr::arrange(hailingport)
 
-# map(samples_ID, ~ str_c(., collapse = '_'))
+get_vessel_id_5 <- 
+  rbind(get_vessel_id_3, get_vessel_id_4)
 
-# vessels_from_pims_short_ok |>
-#   dplyr::filter(stringr::str_detect(hailingport, ".*, PR.*")) |> 
-#   View()
-vessels_from_pims_short_ok |>
-  # dplyr::filter(stringr::str_detect(hailingport, ".*, PR.*")) |> 
-  dplyr::filter(stringr::str_detect(hailingport, ".*CANAVERAL CANAVERAL*")) |>
-  select(hailingport) |> 
-    distinct()
+# check missing again
+# not_found_2 <-
+#   dplyr::setdiff(unique(get_vessel_id_2$city_state_typo),
+#                  unique(get_vessel_id_5$hailingport)) |> 
+#   sort()
+  
+  
+# dplyr::left_join(get_vessel_id_2,
+  #                  dplyr::join_by(hailingport == city_state_typo))
+# head()
+  # auxfunctions::see_res_in_outfile()
 
-# 20        RINCÓN , PR
-# 21         CATAÑO, PR
-# 1 OCEAN SPRIGS , MS
+get_vessel_id_5
