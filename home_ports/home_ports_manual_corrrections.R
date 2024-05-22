@@ -67,7 +67,7 @@ vessels_from_pims_short_ok |>
 xml_ports <-
   vessels_from_pims_short_ok |>
   dplyr::filter(stringr::str_detect(hailingport, ".*xml.*")) |> 
-  see_df_in_outfile()
+  auxfunctions::see_res_in_outfile()
 
 # find more not fixed cities ----
 
@@ -80,12 +80,84 @@ vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short |>
   ) |>
   select(city_fixed, state_fixed, n) |>
   distinct() |>
-  see_df_in_outfile()
+  auxfunctions::see_res_in_outfile()
   # View()
-
 
 vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short |> 
   # filter(state_fixed == "AL, AL")
   filter(city_fixed == "APALIACHICOLA")
 
-"C:\Users\anna.shipunova\Documents\R_code_github\home_ports\temp.xlsx"
+# get_vessel_id for typos ----
+# corrected typos
+get_vessel_id <- 
+  my_read_xlsx(r"(C:\Users\anna.shipunova\Documents\R_code_github\home_ports\temp.xlsx)")
+
+print_df_names(get_vessel_id)
+
+get_vessel_id_1 <-
+  get_vessel_id |>
+  select(-x1, city_repeated)
+
+get_vessel_id_2 <-
+  get_vessel_id_1 |>
+  dplyr::mutate(city = stringr::str_replace(city, "RINCÃ“N", "RINCÓN")) |>
+  dplyr::mutate(city = stringr::str_replace(city, "CATAÃ‘O", "CATAÑO")) |>
+  mutate(
+    city_state_typo = paste(city, state_from, sep = ", "),
+    city_state_change_to = paste(city_change_to, state_to, sep = ", ")
+  )
+
+  # stringr::str_replace("RINCÃ“N", "RINCÓN") |> 
+  # stringr::str_replace("CATAÃ‘O", "CATAÑO")
+  
+# find ids
+get_vessel_id_3 <-
+  vessels_from_pims_short_ok |>
+  dplyr::filter(hailingport %in% get_vessel_id_2$city_state_typo) |>
+  dplyr::arrange(hailingport)
+
+# dplyr::left_join(get_vessel_id_2,
+  #                  dplyr::join_by(hailingport == city_state_typo))
+# head()
+  # auxfunctions::see_res_in_outfile()
+
+n_distinct(get_vessel_id_3$hailingport)
+# 200
+n_distinct(get_vessel_id_2$city_state_typo)
+# 207
+
+not_found <-
+  dplyr::setdiff(unique(get_vessel_id_2$city_state_typo),
+                 unique(get_vessel_id_3$hailingport)) |> 
+  sort()
+# [1] "NEW SYMNRA, FL"               "OCEAN SPRIGS, MS"            
+# [3] "PORT CANAVERAL CANAVERAL, FL" "PORT ST. JOHN, FL"           
+# [5] "RINCÓN, PR"                   "ROCK PORT, TX"               
+# [7] "SOUTH PORT, NC"              
+
+not_found |> 
+  stringr::str_split(pattern = ", ") |> 
+  purrr::map(~stringr::str_c(., collapse = " , ")) |>
+  head()
+
+  vessels_from_pims_short_ok |>
+  dplyr::filter(hailingport %in% get_vessel_id_2$city_state_typo) |>
+  dplyr::arrange(hailingport)
+
+
+  
+
+  # map(samples_ID, ~ str_c(., collapse = '_'))
+
+# vessels_from_pims_short_ok |>
+#   dplyr::filter(stringr::str_detect(hailingport, ".*, PR.*")) |> 
+#   View()
+vessels_from_pims_short_ok |>
+  # dplyr::filter(stringr::str_detect(hailingport, ".*, PR.*")) |> 
+  dplyr::filter(stringr::str_detect(hailingport, ".*CANAVERAL CANAVERAL*")) |>
+  select(hailingport) |> 
+    distinct()
+
+# 20        RINCÓN , PR
+# 21         CATAÑO, PR
+# 1 OCEAN SPRIGS , MS
