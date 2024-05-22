@@ -4,8 +4,8 @@
 
 # setup ----
 # source("~/R_code_github/useful_functions_module.r")
-devtools::install_github("AShipunova1/R_code/auxfunctions@development",
-                         force = TRUE)
+# devtools::install_github("AShipunova1/R_code/auxfunctions@development",
+#                          force = TRUE)
 
 library(auxfunctions)
 
