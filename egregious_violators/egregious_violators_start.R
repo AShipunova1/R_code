@@ -715,6 +715,16 @@ compl_corr_to_investigation_short_dup_marked__permit_region__add_columns <-
 
 # print_df_names(compl_corr_to_investigation_short_dup_marked__permit_region__add_columns)
 
+# remove the "year" column, its value is the same for all rows
+# compl_corr_to_investigation_short_dup_marked__permit_region__add_columns |> 
+#   select(year) |> 
+#   distinct()
+# 1 2023, 2024
+
+compl_corr_to_investigation_short_dup_marked__permit_region__add_columns <- 
+  compl_corr_to_investigation_short_dup_marked__permit_region__add_columns |>
+  select(-year)
+
 out_file_name <-
   stringr::str_glue("egregious_violators_to_investigate_{lubridate::today()}.csv")
 
