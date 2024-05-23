@@ -57,8 +57,14 @@ registerS3method(
 
 ```
 
-# Set Up
+# save setup chunk options to use later
 ```{r setup current project, results='hide', message=FALSE, warning=FALSE}
+```
+
+# Set Up
+
+
+```{r}
 # Read me
 # 1) NO reports for all 26 weeks back from week ago today;
 # 2) permits have not expired and were active for the same period as (1);
@@ -74,21 +80,43 @@ registerS3method(
 ```{r set up}
 # set up ----
 # <<<<
-set_work_dir  <-  function() 
-{
-    setwd("~/")
-    base_dir <- getwd()
-    main_r_dir <- "R_files_local"
-    in_dir <- "my_inputs"
-    full_path_to_in_dir <- file.path(base_dir, main_r_dir, in_dir)
-    out_dir <- "my_outputs"
-    full_path_to_out_dir <- file.path(base_dir, main_r_dir, out_dir)
-    git_r_dir <- "R_code_github"
-    full_path_to_r_git_dir <- file.path(base_dir, git_r_dir)
-    setwd(file.path(base_dir, main_r_dir))
-    my_paths <- list(inputs = full_path_to_in_dir, outputs = full_path_to_out_dir, 
-        git_r = full_path_to_r_git_dir)
-    return(my_paths)
+set_work_dir  <-  function() {
+
+  # Set the working directory to the user's home directory (~)
+  setwd("~/")
+  base_dir <- getwd()
+
+  # Define 'main_r_dir' as "R_files_local"
+  main_r_dir <- "R_files_local"
+
+  # Define 'in_dir' as "my_inputs"
+  in_dir <- "my_inputs"
+
+  # Construct the full path to 'my_inputs' directory
+  full_path_to_in_dir <- file.path(base_dir, main_r_dir, in_dir)
+
+  # Define 'out_dir' as "my_outputs"
+  out_dir <- "my_outputs"
+
+  # Construct the full path to 'my_outputs' directory
+  full_path_to_out_dir <- file.path(base_dir, main_r_dir, out_dir)
+
+  # Define 'git_r_dir' as "R_code_github"
+  git_r_dir <- "R_code_github"
+
+  # Construct the full path to 'R_code_github' directory
+  full_path_to_r_git_dir <- file.path(base_dir, git_r_dir)
+
+  # Change the working directory to 'R_files_local'
+  setwd(file.path(base_dir, main_r_dir))
+
+  # Create a list of directory paths for 'inputs,' 'outputs,' and 'git_r'
+  my_paths <- list("inputs" = full_path_to_in_dir,
+                   "outputs" = full_path_to_out_dir,
+                   "git_r" = full_path_to_r_git_dir)
+
+  # Return the list of directory paths
+  return(my_paths)
 }
 
 # Explanations:
@@ -127,9 +155,20 @@ set_work_dir  <-  function()
 # >>>>
 
 # Get common functions
-install.packages("devtools")
-library(devtools)
-devtools::install_github("AShipunova1/R_code/auxfunctions")
+# source("~/R_code_github/useful_functions_module.r")
+# install.packages("~/R_code_github/auxfunctions_1.0.tar.gz",
+#                  repos = NULL,
+#                  type = "source",
+#                    ref = "HEAD",
+# )
+
+# install.packages("remotes")
+# library(remotes)
+# remotes::install_local(path = "~/R_code_github/auxfunctions_1.1.tar.gz",
+#                        build_manual = TRUE)
+# install.packages("devtools")
+# library(devtools)
+# devtools::install_github("AShipunova1/R_code/auxfunctions@development")
 
 library(auxfunctions)
 library(ROracle)
@@ -256,16 +295,32 @@ all_csv_names_list = c("Correspondence_2024_05_15.csv",
 ```{r get compliance and correspondence csv data into variables}
 ## get compliance and correspondence csv data into variables ----
 # <<<<
-get_compl_and_corresp_data  <-  function (my_paths, filenames = csv_names_list_22_23, vessel_id_field_name = NA) 
-{
+get_compl_and_corresp_data  <-  function(my_paths,
+           filenames = csv_names_list_22_23,
+           vessel_id_field_name = NA) {
+    # Add folder names and categorize CSV files into correspondence and compliance.
     csv_names_list <- prepare_csv_names(filenames)
+
+    # Read the contents of all CSV files.
     csv_contents <- load_csv_names(my_paths, csv_names_list)
+
+    # Clean and standardize headers, and trim 'vesselofficialnumber' field if needed.
     csvs_clean1 <- clean_all_csvs(csv_contents, vessel_id_field_name)
+
+    # Specific correspondence manipulations ----
+    # Perform cleaning and processing specific to correspondence data.
     corresp_arr_contact_cnts_clean <- corresp_cleaning(csvs_clean1)
+
+    ## Specific compliance manipulations ----
+    # Extract compliance data from the cleaned CSVs.
     compl_arr <- csvs_clean1[2:length(csvs_clean1)]
+
+    # Clean and process compliance data.
     compl_clean <- compliance_cleaning(compl_arr)
+
+    # Return a list containing cleaned compliance and correspondence data.
     return(list(compl_clean, corresp_arr_contact_cnts_clean))
-}
+  }
 
 # Explanations:
 
@@ -424,11 +479,19 @@ processed_pims_home_ports <-
 ```{r get owners addresses}
 ## get owners addresses ----
 # <<<<
-connect_to_secpr  <-  function () 
-{
+connect_to_secpr  <-  function() {
+    # Retrieve the username associated with the "SECPR" database from the keyring.
     my_username <- keyring::key_list("SECPR")[1, 2]
-    con <- DBI::dbConnect(DBI::dbDriver("Oracle"), username = my_username, 
-        password = keyring::key_get("SECPR", my_username), dbname = "SECPR")
+
+    # Use 'dbConnect' to establish a database connection with the specified credentials.
+    con <- DBI::dbConnect(
+        DBI::dbDriver("Oracle"),  # Use the Oracle database driver.
+        username = my_username,  # Use the retrieved username.
+        password = keyring::key_get("SECPR", my_username),  # Retrieve the password from the keyring.
+        dbname = "SECPR"  # Specify the name of the database as "SECPR."
+    )
+
+    # Return the established database connection.
     return(con)
 }
 
@@ -459,30 +522,66 @@ connect_to_secpr  <-  function ()
 # >>>>
 
 # <<<<
-read_rds_or_run  <-  function (my_file_path, my_data = as.data.frame(""), my_function, 
-    force_from_db = NULL) 
-{
-    if (file.exists(my_file_path)) {
-        modif_time <- file.info(my_file_path)$mtime
-    }
-    if (file.exists(my_file_path) & is.null(force_from_db)) {
+read_rds_or_run  <-  function(my_file_path,
+                            my_data = as.data.frame(""),
+                            my_function,
+                            force_from_db = NULL) {
+
+  if (file.exists(my_file_path)) {
+    modif_time <- file.info(my_file_path)$mtime
+  }
+
+    # Check if the file specified by 'my_file_path' exists and 'force_from_db' is not set.
+    if (file.exists(my_file_path) &
+        is.null(force_from_db)) {
+        # If the file exists and 'force_from_db' is not set, read the data from the RDS file.
+
         function_message_print("File already exists, reading.")
+
         my_result <- readr::read_rds(my_file_path)
+
+    } else {
+
+      # If the file doesn't exist or 'force_from_db' is set, perform the following steps:
+
+      # 0. Print this message.
+      function_message_print(c(
+        "File",
+        my_file_path,
+        "doesn't exists, pulling data from database.",
+        "Must be on VPN."
+      ))
+
+      # 1. Generate a message indicating the date and the purpose of the run for "tic".
+      msg_text <-
+        paste(today(), "run for", basename(my_file_path))
+      tictoc::tic(msg_text)  # Start timing the operation.
+
+      # 2. Run the specified function 'my_function' on the provided 'my_data' to generate the result. I.e. download data from the Oracle database. Must be on VPN.
+
+      my_result <- my_function(my_data)
+
+      tictoc::toc()  # Stop timing the operation.
+
+      # 3. Save the result as an RDS binary file to 'my_file_path' for future use.
+      # try is a wrapper to run an expression that might fail and allow the user's code to handle error-recovery.
+
+      # 4. Print this message.
+      function_message_print(c("Saving new data into a file here: ",
+                       my_file_path))
+
+      try(readr::write_rds(my_result,
+                           my_file_path))
+
+      modif_time <- date()
     }
-    else {
-        function_message_print(c("File", my_file_path, "doesn't exists, pulling data from database.", 
-            "Must be on VPN."))
-        msg_text <- paste(today(), "run for", basename(my_file_path))
-        tictoc::tic(msg_text)
-        my_result <- my_function(my_data)
-        tictoc::toc()
-        function_message_print(c("Saving new data into a file here: ", 
-            my_file_path))
-        try(readr::write_rds(my_result, my_file_path))
-        modif_time <- date()
-    }
-    my_file_name <- basename(my_file_path)
-    function_message_print(stringr::str_glue("File: {my_file_name} modified {modif_time}"))
+
+  # Print out the formatted string with the file name ('my_file_name') and the modification time ('modif_time') to keep track of when the data were downloaded.
+  my_file_name <- basename(my_file_path)
+  function_message_print(
+    stringr::str_glue("File: {my_file_name} modified {modif_time}"))
+
+    # Return the generated or read data.
     return(my_result)
 }
 
@@ -511,10 +610,16 @@ read_rds_or_run  <-  function (my_file_path, my_data = as.data.frame(""), my_fun
 # >>>>
 
 # <<<<
-remove_empty_cols  <-  function (my_df) 
-{
-    not_all_na <- function(x) any(!is.na(x))
-    dplyr::select(my_df, tidyselect::where(not_all_na)) %>% return()
+remove_empty_cols  <-  function(my_df) {
+  # Define an inner function "not_all_na" that checks if any value in a vector is not NA.
+  not_all_na <- function(x) any(!is.na(x))
+
+  my_df |>
+    # Select columns from "my_df" where the result of the "not_all_na" function is true,
+    # i.e., select columns that have at least one non-NA value.
+    dplyr::select(tidyselect::where(not_all_na)) %>%
+    # Return the modified data frame, which contains only the selected columns.
+    return()
 }
 
 # Explanations:
@@ -537,10 +642,16 @@ remove_empty_cols  <-  function (my_df)
 # >>>>
 
 # <<<<
-clean_headers  <-  function (my_df) 
-{
-    new_names <- fix_names(colnames(my_df))
-    colnames(my_df) <- new_names
+clean_headers  <-  function(my_df) {
+    # Use the 'fix_names' function to clean and fix the column names of the dataframe.
+    new_names <-
+        colnames(my_df) |>
+        fix_names()
+
+    colnames(my_df) <- 
+        new_names
+    
+    # Return the dataframe with cleaned and fixed column names.
     return(my_df)
 }
 
@@ -596,12 +707,19 @@ dim(db_participants_address)
 ```{r Data from the previous results of egregious violators for investigation}
 # Data from the previous results of "egregious violators for investigation" ----
 # <<<<
-my_read_xlsx  <-  function (file_path, sheet_n, start_row = 1) 
-{
-    res_df <- clean_headers(openxlsx::read.xlsx(file_path, sheet_n, 
-        startRow = start_row, detectDates = TRUE, colNames = TRUE, 
-        sep.names = "_"))
-    return(res_df)
+my_read_xlsx  <-  function(file_path, sheet_n, start_row = 1) {
+  res_df <-
+    openxlsx::read.xlsx(
+      file_path,
+      sheet_n,
+      startRow = start_row,
+      detectDates = TRUE,
+      colNames = TRUE,
+      sep.names = "_"
+    ) |>
+    clean_headers()
+
+  return(res_df)
 }
 
 # Explanations:
@@ -813,16 +931,27 @@ dim(compl_clean_w_permit_exp_last_half_year__sa__short)
 ```{r add compliant_after_overr}
 ## add compliant_after_overr ----
 # <<<<
-add_compliant_after_override  <-  function (my_compl_df, overridden_col_name = "overridden", compliance_col_name = "is_comp") 
-{
-    res <- ungroup(dplyr::mutate(dplyr::rowwise(my_compl_df), 
-        compliant_after_override = dplyr::case_when(!!sym(compliance_col_name) %in% 
-            c(0, "NO") & !!sym(overridden_col_name) %in% c(0, 
-            "NO") ~ "no", !!sym(compliance_col_name) %in% c(1, 
-            "YES") ~ "yes", !!sym(overridden_col_name) %in% c(1, 
-            "YES") ~ "yes", is.na(!!sym(compliance_col_name)) ~ 
-            NA, .default = toString(!!sym(compliance_col_name)))))
-    return(res)
+add_compliant_after_override  <-  function(my_compl_df,
+           overridden_col_name = "overridden",
+           compliance_col_name = "is_comp") {
+  # browser()
+  res <-
+    my_compl_df |>
+    dplyr::rowwise() |>
+    dplyr::mutate(
+      compliant_after_override =
+        dplyr::case_when(
+          !!sym(compliance_col_name) %in% c(0, "NO") &
+            !!sym(overridden_col_name) %in% c(0, "NO")  ~ "no",
+          !!sym(compliance_col_name) %in% c(1, "YES") ~ "yes",
+          !!sym(overridden_col_name) %in% c(1, "YES") ~ "yes",
+          is.na(!!sym(compliance_col_name)) ~ NA,
+          .default = toString(!!sym(compliance_col_name))
+        )
+    ) |>
+    ungroup()
+
+  return(res)
 }
 
 # Explanations:
@@ -1242,11 +1371,17 @@ dim(compl_corr_to_investigation_short)
 ```{r add list of contact dates and contact type in parentheses}
 ### add list of contact dates and contact type in parentheses  -----
 # <<<<
-find_col_name  <-  function (mydf, start_part, end_part) 
-{
-    to_search <- paste0(start_part, ".*", end_part)
-    matching_names <- grep(to_search, tolower(names(mydf)), value = TRUE)
-    return(matching_names)
+find_col_name  <-  function(mydf, start_part, end_part) {
+  # Create a regular expression pattern to search for column names that start with 'start_part'
+  # and end with 'end_part'.
+  to_search <- paste0(start_part, ".*", end_part)
+
+  # Use 'grep' to search for column names in lowercase that match the pattern.
+  # 'value = TRUE' returns the matching column names as a character vector.
+  matching_names <- grep(to_search, tolower(names(mydf)), value = TRUE)
+
+  # Return the matching column name(s) as a character vector.
+  return(matching_names)
 }
 
 # Explanations:
@@ -1382,26 +1517,61 @@ file.exists(prep_addresses_path)
 ```{r fewer fields}
 ## fewer fields ----
 # <<<<
-clean_names_and_addresses  <-  function (my_df) 
-{
-    my_df_cleaned <- dplyr::mutate(my_df, dplyr::across(dplyr::where(is.character), 
-        ~stringr::str_squish(.x)), dplyr::across(dplyr::where(is.character), 
-        ~tidyr::replace_na(.x, "")), dplyr::across(dplyr::where(is.character), 
-        ~stringr::str_replace_all(.x, ", ;", ";")), dplyr::across(dplyr::where(is.character), 
-        ~stringr::str_replace_all(.x, "\\s+[,;]", ",")), dplyr::across(dplyr::where(is.character), 
-        ~stringr::str_replace_all(.x, ";,+", ";")), dplyr::across(dplyr::where(is.character), 
-        ~stringr::str_replace_all(.x, ";;+", ";")), dplyr::across(dplyr::where(is.character), 
-        ~stringr::str_replace_all(.x, ",,+", ",")), dplyr::across(dplyr::where(is.character), 
-        ~stringr::str_replace_all(.x, "[,;] *\\bUN\\b *", "")), 
-        dplyr::across(dplyr::where(is.character), ~stringr::str_replace_all(.x, 
-            "\\bUN\\b", "")), dplyr::across(dplyr::where(is.character), 
-            ~stringr::str_replace_all(.x, "\\s*\\bUN\\b\\s*", 
-                "")), dplyr::across(dplyr::where(is.character), 
-            ~stringr::str_replace_all(.x, "^[,;] ", "")), dplyr::across(dplyr::where(is.character), 
-            ~stringr::str_replace_all(.x, "^[,;]$", "")), dplyr::across(dplyr::where(is.character), 
-            ~stringr::str_replace_all(.x, "[,;]$", "")), dplyr::across(dplyr::where(is.character), 
-            ~stringr::str_squish(.x)))
-    return(my_df_cleaned)
+clean_names_and_addresses  <-  function(my_df) {
+    my_df_cleaned <-
+      my_df |>
+      dplyr::mutate(
+        dplyr::across(dplyr::where(is.character), ~ stringr::str_squish(.x)),
+        dplyr::across(dplyr::where(is.character), ~ tidyr::replace_na(.x, "")),
+        dplyr::across(
+          dplyr::where(is.character),
+          ~ stringr::str_replace_all(.x, ", ;", ";")
+        ),
+        dplyr::across(
+          dplyr::where(is.character),
+          ~ stringr::str_replace_all(.x, "\\s+[,;]", ",")
+        ),
+        dplyr::across(
+          dplyr::where(is.character),
+          ~ stringr::str_replace_all(.x, ";,+", ";")
+        ),
+        dplyr::across(
+          dplyr::where(is.character),
+          ~ stringr::str_replace_all(.x, ";;+", ";")
+        ),
+        dplyr::across(
+          dplyr::where(is.character),
+          ~ stringr::str_replace_all(.x, ",,+", ",")
+        ),
+        dplyr::across(
+          dplyr::where(is.character),
+          ~ stringr::str_replace_all(.x, "[,;] *\\bUN\\b *", "")
+        ),
+        dplyr::across(
+          dplyr::where(is.character),
+          ~ stringr::str_replace_all(.x, "\\bUN\\b", "")
+        ),
+        dplyr::across(
+          dplyr::where(is.character),
+          ~ stringr::str_replace_all(.x, "\\s*\\bUN\\b\\s*", "")
+        ),
+        dplyr::across(
+          dplyr::where(is.character),
+          ~ stringr::str_replace_all(.x, "^[,;] ", "")
+        ),
+        dplyr::across(
+          dplyr::where(is.character),
+          ~ stringr::str_replace_all(.x, "^[,;]$", "")
+        ),
+        dplyr::across(
+          dplyr::where(is.character),
+          ~ stringr::str_replace_all(.x, "[,;]$", "")
+        ),
+        dplyr::across(dplyr::where(is.character), 
+                      ~ stringr::str_squish(.x))
+      )
+
+  return(my_df_cleaned)
 }
 
 # Explanations:
@@ -1659,10 +1829,16 @@ db_participants_address__needed_short__phone0 <-
 ```{r make erv and erb combinations}
 ## make erv and erb combinations ----
 # <<<<
-list_sort_uniq  <-  function (my_lists) 
-{
-    res <- purrr::flatten(list(sort(unique(stringr::str_trim(my_lists)))))
-    return(res)
+list_sort_uniq  <-  function(my_lists) {
+  # browser()
+  res <-
+    my_lists |>
+    stringr::str_trim() |>
+    unique() |>
+    sort() |>
+    list() |>
+    purrr::flatten()
+  return(res)
 }
 
 # Explanations:
