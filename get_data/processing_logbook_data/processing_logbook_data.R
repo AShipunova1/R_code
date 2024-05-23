@@ -1189,7 +1189,7 @@ my_tee(removed_logbooks_and_vessels_text,
 # [1] "2023-12-31"
 
 ## a) compliance weeks ----
-SEFHIER_logbooks_processed__compliance_weeks1 <-
+SEFHIER_logbooks_processed__compliance_weeks <-
   SEFHIER_logbooks_processed_p_regions |>
   mutate(
     COMP_START_YEAR = isoyear(COMP_WEEK_START_DT),
@@ -1197,10 +1197,6 @@ SEFHIER_logbooks_processed__compliance_weeks1 <-
   ) |>
   filter(COMP_START_YEAR == my_year &
            COMP_END_YEAR == my_year)
-
-# install.packages("diffdf")
-diffdf::diffdf(SEFHIER_logbooks_processed__compliance_weeks,
-               SEFHIER_logbooks_processed__compliance_weeks1)
 
 # check
 SEFHIER_logbooks_processed_p_regions |>
@@ -1223,17 +1219,10 @@ SEFHIER_logbooks_processed__compliance_weeks |>
   dim()
 # 0, OK
 
-# SEFHIER_logbooks_processed__compliance_weeks$COMP_START_WEEK |>
-#   min(na.rm = T)
-# # 1
-#
-# SEFHIER_logbooks_processed__compliance_weeks$COMP_END_WEEK |> max(na.rm = T)
-# 52
-
 SEFHIER_logbooks_processed__compliance_weeks |>
-  select(COMP_START_WEEK, COMP_END_WEEK, COMP_START_YEAR, COMP_END_YEAR) |>
+  select(COMP_WEEK_START_DT, COMP_WEEK_END_DT, COMP_START_YEAR, COMP_END_YEAR) |>
   distinct() |>
-  View()
+  glimpse()
 
 SEFHIER_logbooks_processed__compliance_weeks__file_name <-
   str_glue("SEFHIER_processed_Logbooks_compliance_weeks_{my_year}.rds")
