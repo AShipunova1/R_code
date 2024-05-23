@@ -82,8 +82,8 @@ output_file_path <-
 
 # Set the date ranges for the DNF and compliance data you are pulling
 # this is the year to assign to the output file name
-# my_year <- "2022"
-my_year <- "2023"
+my_year <- "2022"
+# my_year <- "2023"
 # my_year <- "2024"
 
 # years range for srfh_vessel_comp db download, see below
@@ -934,18 +934,43 @@ my_stats(SEFHIER_processed_dnfs__late_subm__metrics)
 # Unique trips: 369667
 
 # Export usable dnfs ----
+# create 3 different dfs by
+# a) compliance weeks;
+# b) calendar dates;
+# c) the whole year including "straddling" weeks
+
+## a) compliance weeks ----
+
+SEFHIER_processed_dnfs__compliance_weeks <-
+  SEFHIER_processed_dnfs__late_subm__metrics |>
+  mutate(
+    COMP_START_YEAR = isoyear(COMP_WEEK_START_DT),
+    COMP_END_YEAR = isoyear(COMP_WEEK_END_DT)
+  ) |>
+  filter(COMP_START_YEAR == my_year &
+           COMP_END_YEAR == my_year)
+
+# check
+# was:
+min(SEFHIER_processed_dnfs__late_subm__metrics$TRIP_DATE)
+# [1] "2022-12-26 EST"
+# now:
+min(SEFHIER_processed_dnfs__compliance_weeks$TRIP_DATE)
+# [1] "2023-01-02 EST"
+max(SEFHIER_processed_dnfs__compliance_weeks$TRIP_DATE)
+# [1] "2023-12-31 EST"
 
 # define file name
-SEFHIER_processed_dnfs_file_name <-
-  str_glue("SEFHIER_processed_dnfs_{my_year}.rds")
+SEFHIER_processed_dnfs__compliance_weeks_file_name <-
+  str_glue("SEFHIER_processed_dnfs__compliance_weeks_{my_year}.rds")
 
 # write dataframe to file path location, using defined file name
 write_rds(
-  SEFHIER_processed_dnfs__late_subm__metrics,
-  file = file.path(output_file_path, SEFHIER_processed_dnfs_file_name)
+  SEFHIER_processed_dnfs__compliance_weeks,
+  file = file.path(output_file_path, SEFHIER_processed_dnfs__compliance_weeks_file_name)
 )
 
-# calendar dates
+# b) calendar dates ----
 my_calendar_date_beg <- curr_dates$my_calendar_date_beg
 my_calendar_date_end <- curr_dates$my_calendar_date_end
 
@@ -961,13 +986,28 @@ SEFHIER_processed_dnfs__calendar_year <-
 
 # check
 min(SEFHIER_processed_dnfs__calendar_year$TRIP_DATE)
+# [1] "2023-01-01 EST"
 max(SEFHIER_processed_dnfs__calendar_year$TRIP_DATE)
+# [1] "2023-12-31 EST"
 
 SEFHIER_processed_dnfs__calendar_year_file_name <-
   str_glue("SEFHIER_processed_dnfs_calendar_{my_year}.rds")
 
 write_rds(
   SEFHIER_processed_dnfs__calendar_year,
-  file = file.path(output_file_path, SEFHIER_processed_dnfs__calendar_year_file_name)
+  file = file.path(
+    output_file_path,
+    SEFHIER_processed_dnfs__calendar_year_file_name
+  )
 )
 
+# c) the whole year including "straddling" weeks
+# define file name
+SEFHIER_processed_dnfs_file_name <-
+  str_glue("SEFHIER_processed_dnfs_{my_year}.rds")
+
+# write dataframe to file path location, using defined file name
+write_rds(
+  SEFHIER_processed_dnfs__late_subm__metrics,
+  file = file.path(output_file_path, SEFHIER_processed_dnfs_file_name)
+)
