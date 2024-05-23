@@ -1199,6 +1199,7 @@ SEFHIER_logbooks_processed__compliance_weeks <-
            COMP_END_YEAR == my_year)
 
 # check
+# was:
 SEFHIER_logbooks_processed_p_regions |>
   mutate(
     COMP_START_WEEK = isoweek(COMP_WEEK_START_DT),
@@ -1214,16 +1215,19 @@ SEFHIER_logbooks_processed_p_regions |>
     glimpse()
 # 2
 
+# now:
 SEFHIER_logbooks_processed__compliance_weeks |>
   filter(COMP_WEEK_START_DT == "2022-12-26") |>
   dim()
 # 0, OK
 
-SEFHIER_logbooks_processed__compliance_weeks |>
-  select(COMP_WEEK_START_DT, COMP_WEEK_END_DT, COMP_START_YEAR, COMP_END_YEAR) |>
-  distinct() |>
-  glimpse()
+min(SEFHIER_logbooks_processed__compliance_weeks$TRIP_END_DATE)
+# [1] "2023-01-02"
 
+max(SEFHIER_logbooks_processed__compliance_weeks$TRIP_START_DATE)
+# [1] "2023-12-31"
+
+# get filename
 SEFHIER_logbooks_processed__compliance_weeks__file_name <-
   str_glue("SEFHIER_processed_Logbooks_compliance_weeks_{my_year}.rds")
 
