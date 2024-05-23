@@ -1176,8 +1176,10 @@ my_tee(removed_logbooks_and_vessels_text,
 
 # Export processed logbooks ----
 
-# create 2 different dfs by a) compliance weeks and
-# b) calendar dates separately
+# create 3 different dfs by
+# a) compliance weeks;
+# b) calendar dates;
+# c) the whole year including "straddling" weeks
 
 # check
 # compliance dates:
@@ -1186,15 +1188,41 @@ my_tee(removed_logbooks_and_vessels_text,
 # max(SEFHIER_logbooks_processed$TRIP_START_DATE)
 # [1] "2023-12-31"
 
-SEFHIER_processed_Logbooks_file_name <-
-  str_glue("SEFHIER_processed_Logbooks_{my_year}.rds")
+## a) compliance weeks ----
+SEFHIER_logbooks_processed__compliance_weeks__file_name <-
+  str_glue("SEFHIER_processed_Logbooks_compliance_weeks_{my_year}.rds")
 
-write_rds(
-  SEFHIER_logbooks_processed_p_regions,
-  file = file.path(output_file_path, SEFHIER_processed_Logbooks_file_name)
+grep(
+  "week",
+  names(SEFHIER_logbooks_processed_p_regions),
+  value = T,
+  ignore.case = TRUE
 )
 
-# calendar dates
+SEFHIER_logbooks_processed__compliance_weeks <-
+  SEFHIER_logbooks_processed_p_regions |>
+  mutate(
+    COMP_START_WEEK = isoweek(COMP_WEEK_START_DT),
+    COMP_START_YEAR = isoyear(COMP_WEEK_START_DT),
+    COMP_END_WEEK = isoweek(COMP_WEEK_END_DT),
+    COMP_END_YEAR = isoyear(COMP_WEEK_END_DT)
+  ) |>
+  filter(COMP_START_YEAR == my_year &
+           COMP_START_WEEK == 1 &
+           COMP_END_WEEK == 52)
+
+SEFHIER_logbooks_processed__compliance_weeks_1$COMP_START_WEEK |> min(na.rm = T)
+# 1
+
+SEFHIER_logbooks_processed__compliance_weeks_1$COMP_END_WEEK |> max(na.rm = T)
+
+
+write_rds(
+  SEFHIER_logbooks_processed__compliance_weeks,
+  file = file.path(output_file_path, SEFHIER_logbooks_processed__compliance_weeks__file_name)
+)
+
+## b) calendar dates ----
 my_calendar_date_beg <- curr_dates$my_calendar_date_beg
 my_calendar_date_end <- curr_dates$my_calendar_date_end
 
@@ -1222,4 +1250,13 @@ SEFHIER_logbooks_processed__calendar_year_file_name <-
 write_rds(
   SEFHIER_logbooks_processed__calendar_year,
   file = file.path(output_file_path, SEFHIER_logbooks_processed__calendar_year_file_name)
+)
+
+## c) the whole year including "straddling" weeks ----
+SEFHIER_logbooks_processed__file_name <-
+  str_glue("SEFHIER_processed_Logbooks_{my_year}.rds")
+
+write_rds(
+  SEFHIER_logbooks_processed_p_regions,
+  file = file.path(output_file_path, SEFHIER_logbooks_processed__file_name)
 )
