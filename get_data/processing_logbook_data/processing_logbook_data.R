@@ -2,9 +2,9 @@
 
 # Creates:
 # 1) The result will be in
-# SEFHIER_processed_Logbooks_{my_year}.rds
-# and
+# SEFHIER_processed_Logbooks_compliance_weeks_{my_year}.rds
 # SEFHIER_logbooks_processed__calendar_{my_year}.rds
+# SEFHIER_processed_Logbooks_{my_year}.rds
 
 # Files to read in:
 # 1) SEFHIER_permitted_vessels_nonSRHS_{my_year}.rds
