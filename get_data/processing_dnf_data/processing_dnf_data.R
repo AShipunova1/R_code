@@ -7,10 +7,10 @@
 # Files this script will create:
 # 1) Raw_Oracle_Downloaded_compliance_2021_plus.rds
 # 2) Raw_Oracle_Downloaded_dnf_{my_compliance_date_beg}__{my_compliance_date_end}.rds
-# 3) SEFHIER_processed_dnfs_calendar_{my_year}.rds
-       # this is the final processed data set for the calendar year that you can then use in further analyses
-# 4) SEFHIER_processed_dnfs_compliance_{my_year}.rds
-       # this is the final processed data set for the compliance year that you can then use in further analyses
+# 3) SEFHIER_processed_dnfs__compliance_weeks_{my_year}.rds
+# 4) SEFHIER_processed_dnfs_calendar_{my_year}.rds
+# this is the final processed data set for the calendar year that you can then use in further analyses
+# 5) SEFHIER_processed_dnfs_{my_year}.rds
 
 # This code processes DNF data from SEFSC’s Oracle database,
 # then cleans it up, so that we can use it in any DNF data analysis:
