@@ -1189,6 +1189,17 @@ my_tee(removed_logbooks_and_vessels_text,
 # [1] "2023-12-31"
 
 ## a) compliance weeks ----
+
+# Explanations:
+# - `SEFHIER_logbooks_processed__compliance_weeks <-` assigns the final result of the pipeline to the variable `SEFHIER_logbooks_processed__compliance_weeks`.
+# - `SEFHIER_logbooks_processed_p_regions |>` starts the pipeline with the data frame `SEFHIER_logbooks_processed_p_regions`, allowing subsequent transformations.
+# - `mutate(` begins a transformation to add or modify columns in the data frame.
+#   - `COMP_START_YEAR = isoyear(COMP_WEEK_START_DT),` creates a new column `COMP_START_YEAR` by extracting the ISO year from the `COMP_WEEK_START_DT` column using the `isoyear` function.
+#   - `COMP_END_YEAR = isoyear(COMP_WEEK_END_DT)` creates another new column `COMP_END_YEAR` by extracting the ISO year from the `COMP_WEEK_END_DT` column using the `isoyear` function.
+# - `filter(COMP_START_YEAR == my_year & COMP_END_YEAR == my_year)` filters the rows of the data frame to include only those where both `COMP_START_YEAR` and `COMP_END_YEAR` are equal to the value of `my_year`.
+#   - `COMP_START_YEAR == my_year & COMP_END_YEAR == my_year` is a logical condition that checks if both columns have the same value as `my_year`.
+#
+# This code processes the `SEFHIER_logbooks_processed_p_regions` data frame to include only the rows where the compliance week start and end dates fall within the specified year (`my_year`). It returns a new data frame stored in `SEFHIER_logbooks_processed__compliance_weeks` with the added columns for compliance start and end years and filtered based on the specified year.
 SEFHIER_logbooks_processed__compliance_weeks <-
   SEFHIER_logbooks_processed_p_regions |>
   mutate(
