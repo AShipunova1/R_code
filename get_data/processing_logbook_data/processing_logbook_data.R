@@ -80,8 +80,8 @@ output_file_path <-
 
 # Set the date ranges for the logbook and compliance data you are pulling
 # this is the year to assign to the output file name
-my_year <- "2022"
-# my_year <- "2023"
+# my_year <- "2022"
+my_year <- "2023"
 # my_year <- "2024"
 
 # years range for srfh_vessel_comp db download, see below
@@ -1189,16 +1189,6 @@ my_tee(removed_logbooks_and_vessels_text,
 # [1] "2023-12-31"
 
 ## a) compliance weeks ----
-SEFHIER_logbooks_processed__compliance_weeks__file_name <-
-  str_glue("SEFHIER_processed_Logbooks_compliance_weeks_{my_year}.rds")
-
-grep(
-  "week",
-  names(SEFHIER_logbooks_processed_p_regions),
-  value = T,
-  ignore.case = TRUE
-)
-
 SEFHIER_logbooks_processed__compliance_weeks <-
   SEFHIER_logbooks_processed_p_regions |>
   mutate(
@@ -1208,14 +1198,25 @@ SEFHIER_logbooks_processed__compliance_weeks <-
     COMP_END_YEAR = isoyear(COMP_WEEK_END_DT)
   ) |>
   filter(COMP_START_YEAR == my_year &
-           COMP_START_WEEK == 1 &
-           COMP_END_WEEK == 52)
+           (COMP_START_WEEK >= 1 &
+           COMP_END_WEEK <= 52)
+         )
 
-SEFHIER_logbooks_processed__compliance_weeks_1$COMP_START_WEEK |> min(na.rm = T)
-# 1
+# check
+SEFHIER_logbooks_processed__compliance_weeks$COMP_START_WEEK |>
+  min(na.rm = T)
+# # 1
+#
+SEFHIER_logbooks_processed__compliance_weeks$COMP_END_WEEK |> max(na.rm = T)
+# 52
 
-SEFHIER_logbooks_processed__compliance_weeks_1$COMP_END_WEEK |> max(na.rm = T)
+SEFHIER_logbooks_processed__compliance_weeks |>
+  select(COMP_START_WEEK, COMP_END_WEEK, COMP_START_YEAR, COMP_END_YEAR) |>
+  distinct() |>
+  View()
 
+SEFHIER_logbooks_processed__compliance_weeks__file_name <-
+  str_glue("SEFHIER_processed_Logbooks_compliance_weeks_{my_year}.rds")
 
 write_rds(
   SEFHIER_logbooks_processed__compliance_weeks,
