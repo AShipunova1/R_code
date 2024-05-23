@@ -201,4 +201,35 @@ outfile <- tempfile(fileext = ".csv")
 vessel_id_typo_correction |> 
   readr::write_csv(outfile)
 
-file.show(outfile)
+# file.show(outfile)
+
+# separate files for typos and unifications ----
+
+get_typos <- 
+  auxfunctions::my_read_xlsx(r"(C:\Users\anna.shipunova\Downloads\hailing port typos.xlsx)")
+
+dim(get_typos)
+
+get_all_err <- 
+  auxfunctions::my_read_xlsx(r"(C:\Users\anna.shipunova\Downloads\hailing port typos.xlsx)",
+                             sheet_n = 2)
+
+dim(get_all_err)
+
+clean_up_address <- 
+  get_all_err |> 
+  filter(!hailingport_to_change %in% get_typos$hailingport_to_change)
+
+dim(clean_up_address)
+
+clean_up_address |>
+  readr::write_csv(outfile)
+
+# file.show(outfile)
+
+# ===
+# old typos ----
+
+get_all_err <- 
+  auxfunctions::my_read_xlsx(r"(C:\Users\anna.shipunova\Downloads\hailing port typos.xlsx)",
+                             sheet_n = 2)
