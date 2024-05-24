@@ -230,21 +230,28 @@ clean_up_address |>
 # ===
 # old typos ----
 
-get_all_typos <- 
+old_typos <- 
   auxfunctions::my_read_xlsx(r"(C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\home_ports\old_typos_from_drive.xlsx)")
 
-dim(get_all_typos)
+dim(old_typos)
 # 125
 
-get_all_typos |> 
+old_typos |> 
   filter(stringr::str_squish(vessel_official_number) %in% stringr::str_squish(get_typos$vessel_official_number)) |> 
   glimpse()
 # $ hailingport_state      <chr> "ALEXANDER CITY, AL, AL"
 
-get_all_typos |>
+old_typos |>
   filter(
     stringr::str_squish(hailingport_state) %in% stringr::str_squish(get_typos$hailingport_to_change)
   ) |>
   glimpse()
 
-# get_typos
+names(get_typos) <- 
+  names(old_typos)
+
+all_typos <-
+  rbind(old_typos, get_typos, make.row.names = F) |> 
+  distinct()
+
+all_typos |> see_res_in_outfile()
