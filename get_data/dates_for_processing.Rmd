@@ -1,0 +1,89 @@
+---
+title: "dates"
+output: word_document
+date: "2024-05-24"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Concepts and Explanations:
+
+Our week starts on **Monday**.
+
+| **Concept**                            | **Explanation**                                                                                           | **Example (2024)**                                                                                    |
+|-----------------|---------------------------------------|-----------------|
+| **Trip Start**                         | The date and time when the trip begins.                                                                   | June 1, 2024, at 8:00 AM                                                                              |
+|-----------------|--------------------------------------|-----------------|
+| **Trip End**                           | The date and time when the trip concludes.                                                                | June 2, 2024, at 6:00 PM                                                                              |
+|-----------------|--------------------------------------|-----------------|
+| **Year Start**                         | The very first moment of the year. Typically, January 1st at 12:00 AM.                                    | January 1, 2024, at 12:00 AM                                                                          |
+|-----------------|--------------------------------------|-----------------|
+| **Year End**                           | The very last moment of the year. Typically, December 31st at 11:59 PM.                                   | December 31, 2024, at 11:59 PM                                                                        |
+|-----------------|--------------------------------------|-----------------|
+| **Beginning of First Full Week**       | The start of the first week that has all its dates within the year. This is the first Monday of the year. | January 1, 2024, is a Monday, so the beginning of the first full week is January 1, 2024, at 12:00 AM |
+|-----------------|--------------------------------------|-----------------|
+| **End of First Full Week**             | The end of the first week that has all its dates within the year. This is the first Sunday of the year.   | January 7, 2024, at 11:59 PM                                                                          |
+|-----------------|--------------------------------------|-----------------|
+| **Beginning of Last Full Week**        | The start of the last week that has all its dates within the year. This is the last Monday of the year.   | December 23, 2024, at 12:00 AM                                                                        |
+|-----------------|--------------------------------------|-----------------|
+| **End of Last Full Week**              | The end of the last week that has all its dates within the year. This is the last Sunday of the year.     | December 29, 2024, at 11:59 PM                                                                        |
+|-----------------|--------------------------------------|-----------------|
+| **Beginning of First Compliance week** |                                                                                                           |                                                                                                       |
+|-----------------|--------------------------------------|-----------------|
+| **End of First Compliance week**       |                                                                                                           |                                                                                                       |
+|-----------------|--------------------------------------|-----------------|
+| **Beginning of Last Compliance week**  |                                                                                                           |                                                                                                       |
+|-----------------|--------------------------------------|-----------------|
+| **End of Last Compliance week**        |                                                                                                           |                                                                                                       |
+|-----------------|--------------------------------------|-----------------|
+| **Straddling First Week**              | The week where the Monday falls in the previous year and the Sunday falls in the current year.            | December 27, 2023 - January 2, 2024                                                                   |
+|-----------------|--------------------------------------|-----------------|
+| **Straddling Last week**               | The week where the Monday falls in the current year and the Sunday falls in the next year.                | December 24, 2024 - December 30, 2024                                                                 |
+
+### Example Combinations:
+
+| **Combination**                                                             | **Explanation**                                                                               | **Example**                           |
+|-----------------|--------------------------------------|-----------------|
+| **Trip within Same Year**                                                   | A trip that starts and ends within the same calendar year.                                    | June 1, 2024 - June 10, 2024          |
+|-----------------|--------------------------------------|-----------------|
+| **Trip Spanning Across Years**                                              | A trip that starts in one year and ends in the next year.                                     | December 28, 2023 - January 5, 2024   |
+|-----------------|--------------------------------------|-----------------|
+| **Trip Starting in First Full Week**                                        | A trip that starts within the first full week of the year.                                    | January 2, 2024 - January 9, 2024     |
+|-----------------|--------------------------------------|-----------------|
+| **Trip Ending in Last Full Week**                                           | A trip that ends within the last full week of the year.                                       | December 24, 2024 - December 30, 2024 |
+|-----------------|--------------------------------------|-----------------|
+| **Trip Starting in Last Full Week** **and ending in a** **Straddling Week** | A trip that starts within the last full week of the year and ends after the end of that week. | December 28, 2024 - December 31, 2024 |
+
+### Key Points:
+
+-   **Trip Start and End**: The exact dates and times when a trip begins and ends.
+-   **Year Start and End**: The beginning and end moments of the calendar year.
+-   **First Full Week of the Year**: The week where all dates fall within the same year. If January 1st is not a Monday, it belongs to the last week of the previous year.
+    -   Example: If January 1st is a Friday, the first week of the year starts on the following Monday, January 4th, and ends on Sunday, January 10th.
+-   **Last Full Week of the Year**: The week where all dates fall within the same year, typically the last Monday to the last Sunday of the year.
+-   **Straddling First Week**: The week where the Monday is in the previous year and the Sunday is in the current year.
+    -   Example: December 27, 2023, to January 2, 2024
+-   **Straddling Last Week**: The week where the Monday is in the current year and the Sunday is in the next year.
+    -   Example: December 29, 2024, to January 4, 2025
+
+### Detailed Examples:
+
+1.  **Trip Start and End**:
+    -   **Trip Start**: June 1, 2024, at 8:00 AM
+    -   **Trip End**: June 10, 2024, at 6:00 PM
+2.  **Year Start and End**:
+    -   **Year Start**: January 1, 2024, at 12:00 AM
+    -   **Year End**: December 31, 2024, at 11:59 PM
+3.  **First Full Week of the Year**:
+    -   **If January 1st is a Monday**:
+        -   Beginning: January 1, 2024, at 12:00 AM
+        -   End: January 7, 2024, at 11:59 PM
+    -   **If January 1st is not a Monday (e.g., Friday)**:
+        -   Belongs to the last week of the previous year.
+        -   First Full Week of 2024: January 8, 2024, to January 14, 2024
+4.  **Last Full Week of the Year**:
+    -   **Last Full Week of 2024**:
+        -   Beginning: December 23, 2024, at 12:00 AM
+        -   End: December 29, 2024, at 11:59 PM
