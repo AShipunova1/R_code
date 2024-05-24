@@ -1,12 +1,9 @@
 library(diffdf)
+
+xls_files_path <- r"(~\R_files_local\my_inputs\home_ports)"
+dir.exists(xls_files_path)
+
 # check typos ----
-# vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short |> 
-#   dplyr::filter(vessel_official_number == "558651") |> 
-#   View()
-# 
-# vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short |> 
-#   dplyr::count(city_fixed) |> 
-#   View()
 
 # find vessel ids
 typo_addresses <-
@@ -205,13 +202,15 @@ vessel_id_typo_correction |>
 
 # separate files for typos and unifications ----
 
-get_typos <- 
-  auxfunctions::my_read_xlsx(r"(C:\Users\anna.shipunova\Downloads\hailing port typos.xlsx)")
+file_path1 <- file.path(xls_files_path, "hailing_port_typos.xlsx")
+# file.exists(file_path1)
+new_typos <-
+  auxfunctions::my_read_xlsx(file_path1)
 
-dim(get_typos)
+dim(new_typos)
 
 get_all_err <- 
-  auxfunctions::my_read_xlsx(r"(C:\Users\anna.shipunova\Downloads\hailing port typos.xlsx)",
+  auxfunctions::my_read_xlsx(file_path1,
                              sheet_n = 2)
 
 dim(get_all_err)
