@@ -81,8 +81,8 @@ output_file_path <-
 # Set the date ranges for the logbook and compliance data you are pulling
 # this is the year to assign to the output file name
 # my_year <- "2022"
-my_year <- "2023"
-# my_year <- "2024"
+# my_year <- "2023"
+my_year <- "2024"
 
 # years range for srfh_vessel_comp db download, see below
 # this should at least run the year before my_year to the year after my_year
@@ -409,8 +409,29 @@ my_stats(compl_override_data__renamed)
 # Unique vessels: 4390
 
 # stats (check the min date in the data)
-min(compl_override_data__renamed$COMP_WEEK_START_DT)
+compl_override_data__renamed |> select(COMP_YEAR) |> distinct()
+compl_override_data__renamed |>
+  filter(COMP_YEAR == "2024") |>
+  select(COMP_WEEK_START_DT, COMP_WEEK_END_DT, COMP_WEEK) |>
+  distinct() |>
+  arrange(COMP_WEEK_END_DT) |>
+  tail(1)
+
+  # arrange(COMP_WEEK_START_DT) |>
+  # head(1)
+
+min(compl_override_data__renamed$COMP_WEEK_START_DT) |>
+  wday(
+     label = TRUE,
+     week_start = 1)
 # [1] "2021-01-04 EST"
+
+max(compl_override_data__renamed$COMP_WEEK_START_DT)
+# |>
+#   wday(
+#      label = TRUE,
+#      week_start = 1)
+
 
 # keep only year of analysis, including the week 52 of the previous year if needed
 
