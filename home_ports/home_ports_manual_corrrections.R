@@ -221,10 +221,7 @@ clean_up_address <-
 
 dim(clean_up_address)
 
-clean_up_address |>
-  readr::write_csv(outfile)
-
-# file.show(outfile)
+clean_up_address |> see_res_in_outfile(".csv")
 
 # ===
 # old typos ----
