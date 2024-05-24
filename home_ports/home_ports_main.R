@@ -105,6 +105,8 @@ vessels_from_pims_ok |>
 # fix known home port typos ----
 
 # this list is created manually
+# TODO: combine it with all_typos from manual_corrections and use from a file.
+
 to_fix_list <- 
   list(c("117 HAWK LANDING LN#GA",
          "BRUNSWICK#GA"),
