@@ -225,9 +225,10 @@ clean_up_address |> see_res_in_outfile(".csv")
 
 # ===
 # old typos ----
+file_path_old_typos <- file.path(xls_files_path, "old_typos_from_drive.xlsx")
 
 old_typos <- 
-  auxfunctions::my_read_xlsx(r"(C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\home_ports\old_typos_from_drive.xlsx)")
+  auxfunctions::my_read_xlsx(file_path_old_typos)
 
 dim(old_typos)
 # 125
@@ -250,4 +251,4 @@ all_typos <-
   rbind(old_typos, get_typos, make.row.names = F) |> 
   distinct()
 
-all_typos |> see_res_in_outfile()
+all_typos |> see_res_in_outfile(".csv")
