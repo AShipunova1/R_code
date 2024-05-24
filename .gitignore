@@ -51,3 +51,4 @@ tippy.css
 *.zip
 *.xlsx
 *.gz
+/auxfunctions/archive
