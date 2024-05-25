@@ -87,6 +87,23 @@ survey_data_l_2022 |>
   purrr::map(~dplyr::select(.x, year) |> 
                dplyr::distinct())
 
+survey_data_l_2022 |> 
+  purrr::map(dim)
+# $aga
+# [1] 1175   39
+# 
+# $i1
+# [1] 1835   33
+# 
+# $i2
+# [1] 3060    9
+# 
+# $i3
+# [1] 11333    12
+# 
+# $ref
+# [1] 19 33
+
 # ---- write survey_data_l_2022 out ----
 
 survey_data_l_2022 |>
