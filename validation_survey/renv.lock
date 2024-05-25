@@ -438,6 +438,17 @@
       ],
       "Hash": "ea5bc8b4a6a01e4f12d98b58329930bb"
     },
+    "diffdf": {
+      "Package": "diffdf",
+      "Version": "1.0.4",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "tibble"
+      ],
+      "Hash": "9ddedef46959baad2080047a1b0117fe"
+    },
     "diffobj": {
       "Package": "diffobj",
       "Version": "0.3.5",
@@ -593,22 +604,6 @@
       ],
       "Hash": "c2efdd5f0bcd1ea861c2d4e2a883a67d"
     },
-    "forcats": {
-      "Package": "forcats",
-      "Version": "1.0.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "cli",
-        "glue",
-        "lifecycle",
-        "magrittr",
-        "rlang",
-        "tibble"
-      ],
-      "Hash": "1a0a9a3d5083d0d573c4214576f1e690"
-    },
     "fs": {
       "Package": "fs",
       "Version": "1.6.4",
@@ -724,27 +719,6 @@
         "rlang"
       ],
       "Hash": "e18861963cbc65a27736e02b3cd3c4a0"
-    },
-    "haven": {
-      "Package": "haven",
-      "Version": "2.5.4",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "cli",
-        "cpp11",
-        "forcats",
-        "hms",
-        "lifecycle",
-        "methods",
-        "readr",
-        "rlang",
-        "tibble",
-        "tidyselect",
-        "vctrs"
-      ],
-      "Hash": "9171f898db9d9c4c1b2c745adc2c1ef1"
     },
     "highr": {
       "Package": "highr",
@@ -1719,6 +1693,16 @@
         "systemfonts"
       ],
       "Hash": "5142f8bc78ed3d819d26461b641627ce"
+    },
+    "this.path": {
+      "Package": "this.path",
+      "Version": "2.4.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R"
+      ],
+      "Hash": "5dd8bff47afd223cc296114a6150e14e"
     },
     "tibble": {
       "Package": "tibble",
