@@ -37,45 +37,16 @@ survey_data_l <-
       readr::type_convert(guess_integer = TRUE)
   )
 
-View(survey_data_l)
-  
-csv_filenames
+## make short names ----
+short_names <-
+  csv_filenames |>
+  purrr::map(basename) |>
+  stringr::str_replace("([^_]+)_.+", "\\1")
 
-# survey_data_df %>% head()
+names(survey_data_l) <- short_names
 
-# ---- add file_names to the df ----
-add_file_names_to_the_df <- function() {
-  sas_file_list %>%
-  # use "_df" to combine all into one df
-  purrr::map_df(~poss_read_sas(.x) %>%
-           # convert all columns to char to use in bind
-           dplyr::mutate(across(.fns = as.character)) %>%
-           # add file name
-           dplyr::mutate(FILE_NAME = tools::file_path_sans_ext(basename(.x)))
-  ) %>%
-  # Re-convert character columns
-  # guess integer types for whole numbers
-  type_convert(guess_integer = TRUE)
-}
-survey_data_df_w_fnames <- add_file_names_to_the_df()
-str(survey_data_df_w_fnames)
+glimpse(survey_data_l)
 
-# ---- separate df into separate dfs by file type ----
-
-split_df_by_file_name <- function() {
-  survey_data_df_w_fnames %>%
-    split(f = survey_data_df_w_fnames$FILE_NAME) %>%
-    return()
-}
-
-split_df_by_file_type <- function() {
-  survey_data_df_w_fnames %>%
-    split(f = substr(survey_data_df_w_fnames$FILE_NAME,
-                   start = 1, stop = 3)
-        ) %>%
-    return()
-}
-survey_data_df_w_fnames_split <- split_df_by_file_type()
 
 ## ---- remove fileds with all NAs ----
 not_all_na <- function(x) any(!is.na(x))
