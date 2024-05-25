@@ -80,7 +80,7 @@ survey_data_l |>
 # survey_data_l |> purrr::map(print_df_names)
 survey_data_l_2022 <-
   survey_data_l |>
-  purrr::map(~ dplyr::filter(.x, year == "2022"))
+  purrr::map(~ dplyr::filter(.x, year == my_year))
 
 # check
 survey_data_l_2022 |> 
