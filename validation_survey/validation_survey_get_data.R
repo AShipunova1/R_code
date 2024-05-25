@@ -1,6 +1,7 @@
 # get data for logbooks and catch comparison
 # see read.me.R
 
+# set up ----
 # Turn off the scientific notation
 options(scipen = 999)
 
@@ -88,20 +89,65 @@ survey_data_l_2022 |>
 
 # ---- write survey_data_l_2022 out ----
 
-
 survey_data_l_2022 |>
   readr::write_rds(file.path(curr_proj_output_path, "survey_data_l_2022.rds"))
 
-# 
-# otput_csv_file <- file.path(my_paths$inputs,
-#                             r"(logbooks_compare\survey_data_df_6_22_to_2_23.csv1)")
-# write.csv(survey_data_df,
-#           file = otput_csv_file, row.names = F)
+# ---- get logbooks from FHIER - not enough fields ----
 
+## processed logbooks ----
+processed_logbooks_2022 <-
+  readr::read_rds(
+    file.path(
+      my_paths$inputs,
+      r"(processing_logbook_data\Outputs\SEFHIER_processed_Logbooks_2022.rds)"
+    )
+  )
 
-# ===
+dim(processed_logbooks_2022)
+# [1] 330441    179
 
-## ---- get logbooks from FHIER - not enough fields ----
+# dat = dbGetQuery(con, "SELECT * FROM srh.mv_safis_trip_download@secapxdv_dblk
+#                  WHERE trip_start_date >= '01-JAN-2022'")
+
+db_logbooks_query <-
+  stringr::str_glue("SELECT
+  *
+FROM
+  srh.mv_safis_trip_download@secapxdv_dblk
+WHERE
+    trip_end_date >= '{my_date_beg}'
+  AND trip_start_date <= '{my_date_end}'
+")
+
+db_logbooks_file_name <-
+  file.path(curr_proj_input_path,
+                      stringr::str_glue("logbooks_db_{my_year}.rds"))
+
+file.exists(db_logbooks_file_name)
+
+db_logbooks_fun <-
+  function(db_logbooks_query) {
+    return(DBI::dbGetQuery(con,
+                      db_logbooks_query))
+  }
+
+try(con <- auxfunctions::connect_to_secpr())
+
+get_db_logbooks <-
+  function() {
+    read_rds_or_run(db_logbooks_file_name,
+                    db_logbooks_query,
+                    db_logbooks_fun)
+  }
+
+db_logbooks <- get_db_logbooks()
+db_logbooks <- get_db_logbooks()
+# 2024-02-21 run for logbooks_2022.rds: 55.92 sec elapsed
+# File: logbooks_2022.rds modified Wed Feb 21 15:35:26 2024
+
+dim(db_logbooks)
+# [1] 327987    149
+
 
 fhier_logbooks_path_add <- "logbooks_from_fhier"
 
