@@ -69,97 +69,25 @@ survey_data_l |>
 #       interviewee_suffix    
 #   --------------------------
 
-# # ---- write the survey df to a csv ----
-# # data_overview(survey_data_df)
+# Pull out 2022 only ----
+# survey_data_l |> purrr::map(print_df_names)
+survey_data_l_2022 <-
+  survey_data_l |>
+  purrr::map(~ dplyr::filter(.x, year == "2022"))
+
+# check
+survey_data_l_2022 |> 
+  purrr::map(~dplyr::select(.x, year) |> 
+               dplyr::distinct())
+
+# ---- write the survey survey_data_l out ----
+# data_overview(survey_data_df)
 # 
 # otput_csv_file <- file.path(my_paths$inputs,
 #                             r"(logbooks_compare\survey_data_df_6_22_to_2_23.csv1)")
 # write.csv(survey_data_df,
 #           file = otput_csv_file, row.names = F)
 
-## ---- write the list of survey dfs into csvs ----
-survey_data_df_w_fnames_split_clean %>%
-  # Apply a function to each element of a vector, and its index
-  purrr::imap(~write.csv(.x,
-                         file.path(my_paths$inputs,
-                                   "logbooks_compare",
-                                   paste0(.y, ".csv")
-                                   ),
-                         row.names = FALSE))
-
-
-## ---- read sas files into a list of tibbles ----
-# use sas_file_list_short_names as names for the list of dfs
-sas_file_list_short_names <-
-  list.files(path = file.path(extract_to_dir),
-             pattern = "*.sas7bdat",
-             recursive = TRUE,
-             full.names = FALSE)
-
-survey_data_list <-
-  sas_file_list %>%
-  purrr::map(poss_read_sas) %>%
-# name the df as its file
-    setNames(sas_file_list_short_names)
-
-str(survey_data_list) %>% head()
-
-
-## ---- there are 4 types of files ----
-survey_data_list %>%
-  purrr::map(~names(.x)) %>%
-  unique() ->
-  all_sas_names
-str(all_sas_names)
-# 4
-
-## ---- read sas files by category into a list of tibbles ----
-file_categories <- list("ref", "aga", "i1_", "i2_", "i3_")
-
-file_lists_by_cat <-
-  purrr::map(file_categories,
-      ~list.files(path = file.path(extract_to_dir),
-                  pattern = paste0(., "*"),
-                  recursive = TRUE,
-                  full.names = TRUE)
-  ) %>%
-  setNames(file_categories)
-
-# survey_data_list <-
-#   sas_file_list %>%
-#   purrr::map(poss_read_sas) %>%
-
-# each file in its df
-read_by_category <-
-  file_lists_by_cat %>%
-  purrr::map(function(x) {
-    x %>%
-      purrr::map(poss_read_sas) %>%
-      ## name the df as its file
-      setNames(tools::file_path_sans_ext(basename(x)))
-  }
-)
-
-str(read_by_category)
-# View(read_by_category)
-
-# each category in a df
-read_by_category_df1 <-
-  file_lists_by_cat %>%
-  purrr::map(~map_df(.x, poss_read_sas))
-
-# View(read_by_category_df1)
-
-sas_file_list_ref <-
-  list.files(path = file.path(extract_to_dir),
-             pattern = "ref*",
-             recursive = TRUE,
-             full.names = TRUE)
-
-survey_data_list_cat <-
-  sas_file_list %>%
-
-  purrr::map(~poss_read_sas(.x))
 
 # ===
 
