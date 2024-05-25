@@ -4,6 +4,12 @@
 # Turn off the scientific notation
 options(scipen = 999)
 
+library(ROracle)
+
+my_year <- "2022"
+my_date_beg <- stringr::str_glue('01-JAN-{my_year}')
+my_date_end <- stringr::str_glue('31-DEC-{my_year}')
+
 # load Validation Survey data ----
 # https://drive.google.com/drive/folders/1JDlzVXcTkdY17Sux8hZOZbxFnj2_E9eh?usp=drive_link
 # Dominique Lazarre, Sept 14, 2023
