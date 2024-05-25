@@ -80,8 +80,12 @@ survey_data_l_2022 |>
   purrr::map(~dplyr::select(.x, year) |> 
                dplyr::distinct())
 
-# ---- write the survey survey_data_l out ----
-# data_overview(survey_data_df)
+# ---- write survey_data_l_2022 out ----
+
+
+survey_data_l_2022 |>
+  readr::write_rds(file.path(curr_proj_output_path, "survey_data_l_2022.rds"))
+
 # 
 # otput_csv_file <- file.path(my_paths$inputs,
 #                             r"(logbooks_compare\survey_data_df_6_22_to_2_23.csv1)")
