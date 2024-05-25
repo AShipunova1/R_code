@@ -48,7 +48,6 @@ names(survey_data_l) <- short_names
 glimpse(survey_data_l)
 
 ## remove fields with all NAs ----
-
 survey_data_l_not_na <-
   survey_data_l |>
   purrr::map(auxfunctions::remove_empty_cols)
@@ -59,68 +58,24 @@ survey_data_l |>
     diffdf::diffdf(survey_data_l[[idx]], survey_data_l_not_na[[idx]])
   })
 # $aga
-# Differences found between the objects!
-# 
-# A summary is given below.
-# 
-# There are columns in BASE that are not in COMPARE !!
-# All rows are shown in table below
-# 
-#   =========
-#    COLUMNS 
-#   ---------
 #    intcd2  
 #    start4  
 #     stop4  
 #    tsite4  
 #   ---------
-# 
-# 
-# $i1
-# No issues were found!
-# 
-# $i2
-# No issues were found!
-# 
-# $i3
-# No issues were found!
-# 
 # $ref
-# Differences found between the objects!
-# 
-# A summary is given below.
-# 
-# There are columns in BASE that are not in COMPARE !!
-# All rows are shown in table below
-# 
-#   ==========================
-#            COLUMNS          
-#   --------------------------
 #    la_charter_permit_number 
 #       interviewee_m_name    
 #       interviewee_suffix    
 #   --------------------------
 
-not_all_na <- function(x) any(!is.na(x))
-
-remove_all_na_fileds <- function() {
-  survey_data_df_w_fnames_split %>%
-    purrr::map(. %>% select(where(not_all_na))) %>%
-    return()
-}
-survey_data_df_w_fnames_split_clean <- remove_all_na_fileds()
-survey_data_df_w_fnames_split[[1]] %>% str()
-# tibble [766 × 75] (S3: tbl_df/tbl/data.frame)
-
-data_overview(survey_data_df_w_fnames_split[[1]])
-
-# ---- write the survey df to a csv ----
-# data_overview(survey_data_df)
-
-otput_csv_file <- file.path(my_paths$inputs,
-                            r"(logbooks_compare\survey_data_df_6_22_to_2_23.csv1)")
-write.csv(survey_data_df,
-          file = otput_csv_file, row.names = F)
+# # ---- write the survey df to a csv ----
+# # data_overview(survey_data_df)
+# 
+# otput_csv_file <- file.path(my_paths$inputs,
+#                             r"(logbooks_compare\survey_data_df_6_22_to_2_23.csv1)")
+# write.csv(survey_data_df,
+#           file = otput_csv_file, row.names = F)
 
 ## ---- write the list of survey dfs into csvs ----
 survey_data_df_w_fnames_split_clean %>%
