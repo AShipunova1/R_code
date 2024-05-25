@@ -1,8 +1,8 @@
-# get data for logbooks annd catch comparison
-# detach("package:haven", unload = TRUE)
-# install.packages("haven")
-library(haven)
+# get data for logbooks and catch comparison
 # see read.me.R
+
+# Turn off the scientific notation
+options(scipen = 999)
 
 # load Validation Survey data ----
 # https://drive.google.com/drive/folders/1JDlzVXcTkdY17Sux8hZOZbxFnj2_E9eh?usp=drive_link
@@ -20,19 +20,26 @@ csv_filenames <-
              pattern = "*.csv",
              full.names = TRUE)
 
-# str(csv_filenames)
+str(csv_filenames)
 # 5
 
 # loop through all files from the list and run the function on each one
-survey_data_df <-
-  sas_file_list %>%
-  # use "_df" to combine all into one df
-    purrr::map_df(~poss_read_sas(.x) %>%
-             # convert all columns to char to use in bind
-             dplyr::mutate(across(.fns = as.character))) %>%
-  # Re-convert character columns
-  # guess integer types for whole numbers
-  type_convert(guess_integer = TRUE)
+survey_data_l <-
+  csv_filenames |>
+  purrr::map(
+    ~readr::read_csv(
+      .x,
+      col_types = readr::cols(.default = 'c'),
+      trim_ws = TRUE,
+      na = c("", "NA", "NaN"),
+      name_repair = auxfunctions::fix_names
+    ) |>
+      readr::type_convert(guess_integer = TRUE)
+  )
+
+View(survey_data_l)
+  
+csv_filenames
 
 # survey_data_df %>% head()
 
