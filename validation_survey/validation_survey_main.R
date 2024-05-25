@@ -25,3 +25,12 @@ curr_proj_output_path <- file.path(my_paths$outputs,
 
 auxfunctions::create_dir_if_not(curr_proj_output_path)
 
+# get data ----
+get_data_file_path <-
+  file.path(current_project_dir_name,
+            paste0(current_project_name, "_", "get_data.R"))
+
+file.exists(get_data_file_path)
+
+source(get_data_file_path)
+
