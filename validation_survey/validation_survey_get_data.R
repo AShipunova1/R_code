@@ -140,54 +140,12 @@ get_db_logbooks <-
                     db_logbooks_fun)
   }
 
-db_logbooks <- get_db_logbooks()
-db_logbooks <- get_db_logbooks()
-# 2024-02-21 run for logbooks_2022.rds: 55.92 sec elapsed
-# File: logbooks_2022.rds modified Wed Feb 21 15:35:26 2024
+db_logbooks_2022 <- 
+  get_db_logbooks() |> 
+  auxfunctions::remove_empty_cols()
+# 2024-05-25 run for logbooks_db_2022.rds: 162.69 sec elapsed
+# File: logbooks_db_2022.rds modified Sat May 25 12:04:54 2024
 
-dim(db_logbooks)
-# [1] 327987    149
-
-
-fhier_logbooks_path_add <- "logbooks_from_fhier"
-
-# all logbooks, by month, not all fields
-load_all_fhier_logbooks <- function() {
-  fhier_logbooks <-
-    list.files(path = file.path(my_paths$inputs,
-                                fhier_logbooks_path_add),
-               pattern = "*.csv",
-               full.names = TRUE)  %>%
-    purrr::map_df(~read_csv(.x,
-                     name_repair = fix_names,
-                     show_col_types = FALSE) %>%
-             dplyr::mutate(across(.fns = as.character))) %>%
-    # Re-convert character columns
-    # guess integer types for whole numbers
-    type_convert(guess_integer = TRUE)
-
-  return(fhier_logbooks)
-}
-
-fhier_logbooks <- load_all_fhier_logbooks()
-
-# data_overview(fhier_logbooks)
-
-## get "logbooks_from_fhier\FHIER_all_logbook_data.csv"
-# is it different from "All logbooks" downloaded from FHIER?
-
-fhier_all_logbook_data_csv <-
-  file.path(my_paths$inputs,
-            fhier_logbooks_path_add,
-            "FHIER_all_logbook_data.csv"
-            ) %>%
-    read_csv(name_repair = fix_names,
-           show_col_types = FALSE) %>%
-    # dplyr::mutate(across(.fns = as.character))
-# %>%
-    # Re-convert character columns
-    # guess integer types for whole numbers
-    type_convert(guess_integer = TRUE)
-
-# problems(fhier_all_logbook_data_csv)
-# data_overview(fhier_all_logbook_data_csv)
+dim(db_logbooks_2022)
+# [1] 328086    149
+# [1] 328086    128
