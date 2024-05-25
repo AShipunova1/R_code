@@ -47,8 +47,60 @@ names(survey_data_l) <- short_names
 
 glimpse(survey_data_l)
 
+## remove fields with all NAs ----
 
-## ---- remove fileds with all NAs ----
+survey_data_l_not_na <-
+  survey_data_l |>
+  purrr::map(auxfunctions::remove_empty_cols)
+
+# check
+survey_data_l |>
+  purrr::imap(\(x, idx) {
+    diffdf::diffdf(survey_data_l[[idx]], survey_data_l_not_na[[idx]])
+  })
+# $aga
+# Differences found between the objects!
+# 
+# A summary is given below.
+# 
+# There are columns in BASE that are not in COMPARE !!
+# All rows are shown in table below
+# 
+#   =========
+#    COLUMNS 
+#   ---------
+#    intcd2  
+#    start4  
+#     stop4  
+#    tsite4  
+#   ---------
+# 
+# 
+# $i1
+# No issues were found!
+# 
+# $i2
+# No issues were found!
+# 
+# $i3
+# No issues were found!
+# 
+# $ref
+# Differences found between the objects!
+# 
+# A summary is given below.
+# 
+# There are columns in BASE that are not in COMPARE !!
+# All rows are shown in table below
+# 
+#   ==========================
+#            COLUMNS          
+#   --------------------------
+#    la_charter_permit_number 
+#       interviewee_m_name    
+#       interviewee_suffix    
+#   --------------------------
+
 not_all_na <- function(x) any(!is.na(x))
 
 remove_all_na_fileds <- function() {
