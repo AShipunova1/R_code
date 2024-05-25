@@ -18,6 +18,10 @@ current_project_name <-
 curr_proj_input_path <- file.path(my_paths$inputs,
                          current_project_name)
 
+auxfunctions::create_dir_if_not(curr_proj_input_path)
+
 curr_proj_output_path <- file.path(my_paths$outputs,
                          current_project_name)
+
+auxfunctions::create_dir_if_not(curr_proj_output_path)
 
