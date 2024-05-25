@@ -52,7 +52,7 @@ short_names <-
 
 names(survey_data_l) <- short_names
 
-glimpse(survey_data_l)
+# glimpse(survey_data_l)
 
 ## remove fields with all NAs ----
 survey_data_l_not_na <-
@@ -60,10 +60,10 @@ survey_data_l_not_na <-
   purrr::map(auxfunctions::remove_empty_cols)
 
 # check
-survey_data_l |>
-  purrr::imap(\(x, idx) {
-    diffdf::diffdf(survey_data_l[[idx]], survey_data_l_not_na[[idx]])
-  })
+# survey_data_l |>
+#   purrr::imap(\(x, idx) {
+#     diffdf::diffdf(survey_data_l[[idx]], survey_data_l_not_na[[idx]])
+#   })
 # $aga
 #    intcd2  
 #    start4  
@@ -83,9 +83,10 @@ survey_data_l_2022 <-
   purrr::map(~ dplyr::filter(.x, year == my_year))
 
 # check
-survey_data_l_2022 |> 
-  purrr::map(~dplyr::select(.x, year) |> 
-               dplyr::distinct())
+survey_data_l_2022 |>
+  purrr::map(~ dplyr::select(.x, year) |>
+                dplyr::distinct())
+# all 2022 only, ok
 
 survey_data_l_2022 |> 
   purrr::map(dim)
@@ -166,3 +167,12 @@ db_logbooks_2022 <-
 dim(db_logbooks_2022)
 # [1] 328086    149
 # [1] 328086    128
+
+# result names:
+data_names <-
+  c("survey_data_l_2022",
+    "processed_logbooks_2022",
+    "db_logbooks_2022")
+
+auxfunctions::pretty_print(my_title = "Data are in:", 
+                           my_text = data_names)
