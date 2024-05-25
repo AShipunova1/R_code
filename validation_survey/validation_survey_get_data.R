@@ -1,70 +1,28 @@
 # get data for logbooks annd catch comparison
-
-my_paths <- set_work_dir()
-# see read.me.R
-# Survey data:
-
 # detach("package:haven", unload = TRUE)
 # install.packages("haven")
 library(haven)
+# see read.me.R
 
-my_add_path <- "logbooks_compare"
+# load Validation Survey data ----
+# https://drive.google.com/drive/folders/1JDlzVXcTkdY17Sux8hZOZbxFnj2_E9eh?usp=drive_link
+# Dominique Lazarre, Sept 14, 2023
+# "my_inputs\validation_survey\Merged_Validation_Survey_Data.zip"
 
-## ---- get survey data for 2022 May-Dec ----
+validation_survey_data_dir_path <- file.path(my_paths$inputs,
+                                         "validation_survey")
 
-## ---- 1) extract survey data from zip ----
-extract_to_dir <- file.path(my_paths$inputs, my_add_path, "survey_05_to_12_2022")
+# dir.exists(validation_survey_data_dir_path)
 
-extract_zipped_survey_data <- function() {
-  # get a list of zip archive file names
-  list.files(path = file.path(my_paths$inputs, my_add_path, "survey_zip"),
-             pattern = "*zip",
-             full.names = TRUE) %>%
-  # unzip all of them
-    purrr::map(~unzip(.x,
-               # to see what's in the archive without extracting
-               # list = T,
-               exdir = extract_to_dir))
+# read 
+csv_filenames <-
+  list.files(validation_survey_data_dir_path,
+             pattern = "*.csv",
+             full.names = TRUE)
 
-}
-# Use once
-extract_zipped_survey_data()
-#
-## ---- read survey data from SAS format ----
-# read all sas files in all sub directories
-sas_file_list <-
-  list.files(path = file.path(extract_to_dir),
-           pattern = "*.sas7bdat",
-           recursive = TRUE,
-           full.names = TRUE)
+# str(csv_filenames)
+# 5
 
-str(sas_file_list)
-# 45
-
-# Instead of stopping the loop if there is an error, the cycle keeps going printing an error
-poss_read_sas = possibly(
-  # what function is used
-  # .f = haven::read_sas,
-  ~ haven::read_sas(.x,
-                    # Make the names unique and syntactic
-                    .name_repair = fix_names),
-  # what to do if an error occurs
-  otherwise = "Error")
-
-# my_select <- function(x) {
-#   f = possibly(function() select(x, -mpg), otherwise = x)
-#   f()
-# }
-
-# todo: test
-poss_read_sas1 <- function(x) {
-  f = possibly(function() haven::read_sas(x, .name_repair = fix_names),
-               otherwise = x)
-               # otherwise = paste("Error in : ", x))
-  f()
-}
-
-str(sas_file_list)
 # loop through all files from the list and run the function on each one
 survey_data_df <-
   sas_file_list %>%
@@ -206,7 +164,6 @@ read_by_category_df1 <-
   purrr::map(~map_df(.x, poss_read_sas))
 
 # View(read_by_category_df1)
-
 
 sas_file_list_ref <-
   list.files(path = file.path(extract_to_dir),
