@@ -141,28 +141,14 @@ survey_data_l_2022_vsl_date_time <-
 # str(survey_data_l_2022_vsl_date_time)
 
 ## hours fishing ----
-library(lubridate)
+survey_data_l_2022_vsl_date_time_all <-
+  survey_data_l_2022_vsl_date_time |>
+  dplyr::mutate(minutes_fishing = hrsf * 60) |>
+  dplyr::mutate(start_time = interview_date_time - lubridate::minutes(minutes_fishing))
 
-survey_data_l_2022_vsl_date_time |> 
-  mutate(minutes_fishing = hrsf * 60) |> 
-  mutate(start_time = interview_date_time - minutes(minutes_fishing)) |> 
-  mutate(start_time2 = interview_date_time - hours(as.numeric(hrsf))) |> 
-  str()
-Error in `mutate()`:
-ℹ In argument: `start_time2 = interview_date_time - hours(as.numeric(hrsf))`.
-Caused by error in `validObject()`:
-! invalid class “Period” object: periods must have integer values
-Run `rlang::last_trace()` to see where the error occurred.
-
- #   $ interview_date_time: POSIXct[1:1835], format: "2022-01-30 15:53:00" "2022-02-14 17:27:00" ...
- # $ hours_fishing      : num [1:1835] 300 540 480 120 240 240 150 180 420 450 ...
-
-hms(hm(time) + hm(duration), roll = T)
-
-
-  
-  str()
-  
+# $ interview_date_time: POSIXct[1:1835], format: "2022-01-30 15:53:00" "2022-02-14 17:27:00" ...
+ # $ minutes_fishing    : num [1:1835] 300 540 480 120 240 240 150 180 420 450 ...
+ # $ start_time         : POSIXct[1:1835], format: "2022-01-30 10:53:00" "2022-02-14 08:27:00" ...
 
 dim(survey_data_l_2022_date_vsl)
 # [1] 1835    10
@@ -248,8 +234,8 @@ db_logbooks_2022_short_date_time <-
 
 lgb_join_i1 <-
   right_join(
-    db_logbooks_2022_short,
-    survey_data_l_2022_date_vsl,
+    db_logbooks_2022_short_date_time,
+    survey_data_l_2022_vsl_date_time_all,
     join_by(
       VESSEL_OFFICIAL_NBR == vsl_num,
       trip_end_date_only == interview_date
@@ -260,17 +246,33 @@ lgb_join_i1 <-
 # ℹ Row 944 of `y` matches multiple rows in `x`.
 
 dim(lgb_join_i1)
-# 2015 12
+# 2015 23
 
 n_distinct(lgb_join_i1$VESSEL_OFFICIAL_NBR)
 # 476
 
 str(lgb_join_i1)
 
-lgb_join_i1 |>
+lgb_join_i1__t_diff <-
+  lgb_join_i1 |>
   mutate(
-    trip_end_time_diff = time - as.numeric(TRIP_END_TIME),
-    trip_start_time_calc = time - hrsf * 60,
-    trip_start_time_diff = trip_start_time_calc - as.numeric(TRIP_START_TIME)
-  ) |>
-  str()
+    interview_trip_end_diff =
+      trip_end_date_time - interview_date_time,
+    interview_trip_start_diff =
+      trip_start_date_time - start_time
+  )
+
+lgb_join_i1__t_diff_short <-
+  lgb_join_i1__t_diff |>
+  select(
+    id_code,
+    VESSEL_OFFICIAL_NBR,
+    trip_start_date_time,
+    start_time,
+    interview_trip_start_diff,
+    trip_end_date_time,
+    interview_date_time,
+    interview_trip_end_diff
+  )
+
+View(lgb_join_i1__t_diff_short)
