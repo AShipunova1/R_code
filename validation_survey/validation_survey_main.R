@@ -83,6 +83,8 @@ survey_data_l_2022$aga |>
 # asg_code is useless for us
 
 # i1 ----
+# View(survey_data_l_2022$ref)
+# View(survey_data_l_2022$i1)
 
 ## ref and i1 id_code ----
 setdiff(survey_data_l_2022$ref$id_code,
@@ -93,9 +95,9 @@ setdiff(survey_data_l_2022$i1$id_code,
         survey_data_l_2022$ref$id_code) |> length()
 # 1835
 
-survey_data_l_2022_date_vsl <- 
+survey_data_l_2022_date_vsl <-
   survey_data_l_2022$i1 |>
-  select(vsl_num, id_code) |>
+  select(vsl_num, id_code, time, hrsf) |>
   distinct() |>
   mutate(
     id_sp = stringr::str_replace(
@@ -114,7 +116,55 @@ survey_data_l_2022_date_vsl <-
       "day",
       "intercept_num"
     )
-  )
+  ) |>
+  select(-c(assignment_num_sampler_id, intercept_num)) |> 
+  mutate(interview_date =
+           lubridate::make_date(year, month, day))
   
-# dim(survey_data_l_2022_date_vsl)
-# [1] 1835    7
+dim(survey_data_l_2022_date_vsl)
+# [1] 1835    10
+
+n_distinct(survey_data_l_2022_date_vsl$vsl_num)
+# vessels 476
+
+n_distinct(db_logbooks_2022$VESSEL_OFFICIAL_NBR)
+# 1892
+
+survey_data_l_2022_date_vsl |> print_df_names()
+
+grep("date", names(db_logbooks_2022), ignore.case = T, value = T)
+
+# View(db_logbooks_2022)
+
+db_logbooks_2022_short <-
+  db_logbooks_2022 |>
+  select(
+    VESSEL_OFFICIAL_NBR,
+    TRIP_START_DATE,
+    TRIP_START_TIME,
+    TRIP_END_DATE,
+    TRIP_END_TIME
+  ) |>
+  distinct() |> 
+  mutate(trip_end_date_only = lubridate::date(TRIP_END_DATE))
+
+  # mutate(across(all_of(time_col_names),
+  #               ~ sprintf("%04d", .x)))
+
+# compare trips/vessels
+# str(survey_data_l_2022_date_vsltidyverse combine year, month and day into a date lubridate
+#     str(db_logbooks_2022_short)
+# lubridate::date("2022-01-04 23:00:00")
+
+lgb_join_i1 <-
+  right_join(
+    db_logbooks_2022_short,
+    survey_data_l_2022_date_vsl,
+    join_by(
+      VESSEL_OFFICIAL_NBR == vsl_num,
+      trip_end_date_only == interview_date
+    ),
+    relationship = "many-to-many"
+  )
+# ℹ Row 5799 of `x` matches multiple rows in `y`.
+# ℹ Row 944 of `y` matches multiple rows in `x`.
