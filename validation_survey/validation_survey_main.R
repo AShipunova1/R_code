@@ -5,6 +5,9 @@ library(devtools)
 devtools::install_github("AShipunova1/R_code/auxfunctions@development")
 library(auxfunctions)
 
+Sys.setenv(TZ = Sys.timezone())
+Sys.setenv(ORA_SDTZ = Sys.timezone())
+
 my_paths <- set_work_dir()
 
 # get this project name
@@ -95,6 +98,7 @@ setdiff(survey_data_l_2022$i1$id_code,
         survey_data_l_2022$ref$id_code) |> length()
 # 1835
 
+# prepare i1 ----
 survey_data_l_2022_vsl_date <-
   survey_data_l_2022$i1 |>
   select(vsl_num, id_code, time, hrsf) |>
@@ -137,12 +141,10 @@ survey_data_l_2022_vsl_date_time |>
   mutate(across(starts_with("int_"), ~ as.numeric(.x))) |>
   mutate(
     interview_date_time =
-      lubridate::make_datetime(int_year, int_month, int_day, int_hour, int_sec)
-  ) |> View()
+      lubridate::make_datetime(int_year, int_month, int_day, int_hour, int_sec,
+                               tz = Sys.timezone())
+  ) |> str()
   
-survey_data_l_2022_date_vsl |> 
-  filter(!str_length(time) == 4)
-
 dim(survey_data_l_2022_date_vsl)
 # [1] 1835    10
 
@@ -158,6 +160,7 @@ grep("date", names(db_logbooks_2022), ignore.case = T, value = T)
 
 # View(db_logbooks_2022)
 
+# prepare logbooks ----
 db_logbooks_2022_short <-
   db_logbooks_2022 |>
   select(
@@ -172,6 +175,52 @@ db_logbooks_2022_short <-
 
   # mutate(across(all_of(time_col_names),
   #               ~ sprintf("%04d", .x)))
+
+db_logbooks_2022_short_date_time <-
+  db_logbooks_2022_short |>
+  mutate(start_hour_sec =
+           stringr::str_replace(TRIP_START_TIME, "(\\d+)(\\d{2})", "\\1 \\2")) |>
+  tidyr::separate_wider_delim(
+    start_hour_sec,
+    delim = " ",
+    names = c("trip_start_hour", "trip_start_sec")
+  ) |>
+  mutate(end_hour_sec =
+           stringr::str_replace(TRIP_END_TIME, "(\\d+)(\\d{2})", "\\1 \\2")) |>
+  tidyr::separate_wider_delim(end_hour_sec,
+                              delim = " ",
+                              names = c("trip_end_hour", "trip_end_sec")) |>
+  mutate(across(
+    c(
+      "trip_start_hour",
+      "trip_start_sec",
+      "trip_end_hour",
+      "trip_end_sec"
+    ),
+    ~ as.numeric(.x)
+  )) |>
+  mutate(
+    trip_start_date_time = lubridate::make_datetime(
+      lubridate::year(TRIP_START_DATE),
+      lubridate::month(TRIP_START_DATE),
+      lubridate::day(TRIP_START_DATE),
+      as.numeric(trip_start_hour),
+      as.numeric(trip_start_sec),
+      tz = Sys.timezone()
+    )
+  ) |>
+  mutate(
+    trip_end_date_time = lubridate::make_datetime(
+      lubridate::year(TRIP_END_DATE),
+      lubridate::month(TRIP_END_DATE),
+      lubridate::day(TRIP_END_DATE),
+      as.numeric(trip_end_hour),
+      as.numeric(trip_end_sec),
+      tz = Sys.timezone()
+    )
+  )
+
+# str(db_logbooks_2022_short_date_time)
 
 # compare trips/vessels
 # str(survey_data_l_2022_date_vsltidyverse combine year, month and day into a date lubridate
@@ -201,7 +250,6 @@ str(lgb_join_i1)
 
 lgb_join_i1 |>
   mutate(
-    
     trip_end_time_diff = time - as.numeric(TRIP_END_TIME),
     trip_start_time_calc = time - hrsf * 60,
     trip_start_time_diff = trip_start_time_calc - as.numeric(TRIP_START_TIME)
