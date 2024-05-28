@@ -125,26 +125,45 @@ survey_data_l_2022_vsl_date <-
   mutate(interview_date =
            lubridate::make_date(int_year, int_month, int_day))
 
-survey_data_l_2022_vsl_date_time <- 
-  survey_data_l_2022_vsl_date |> 
-  mutate(hour_sec = 
-           stringr::str_replace(time, "(\\d+)(\\d{2})", "\\1 \\2")) |> 
-  tidyr::separate_wider_delim(
-    hour_sec,
-    delim = " ",
-    names = c(
-      "int_hour",
-      "int_sec"
-    )) 
-
-survey_data_l_2022_vsl_date_time |>
+survey_data_l_2022_vsl_date_time <-
+  survey_data_l_2022_vsl_date |>
+  mutate(hour_sec =
+           stringr::str_replace(time, "(\\d+)(\\d{2})", "\\1 \\2")) |>
+  tidyr::separate_wider_delim(hour_sec,
+                              delim = " ",
+                              names = c("int_hour", "int_sec")) |>
   mutate(across(starts_with("int_"), ~ as.numeric(.x))) |>
   mutate(
     interview_date_time =
-      lubridate::make_datetime(int_year, int_month, int_day, int_hour, int_sec,
-                               tz = Sys.timezone())
-  ) |> str()
+      lubridate::make_datetime(int_year, int_month, int_day, int_hour, int_sec, tz = Sys.timezone())
+  )
+
+# str(survey_data_l_2022_vsl_date_time)
+
+## hours fishing ----
+library(lubridate)
+
+survey_data_l_2022_vsl_date_time |> 
+  mutate(minutes_fishing = hrsf * 60) |> 
+  mutate(start_time = interview_date_time - minutes(minutes_fishing)) |> 
+  mutate(start_time2 = interview_date_time - hours(as.numeric(hrsf))) |> 
+  str()
+Error in `mutate()`:
+ℹ In argument: `start_time2 = interview_date_time - hours(as.numeric(hrsf))`.
+Caused by error in `validObject()`:
+! invalid class “Period” object: periods must have integer values
+Run `rlang::last_trace()` to see where the error occurred.
+
+ #   $ interview_date_time: POSIXct[1:1835], format: "2022-01-30 15:53:00" "2022-02-14 17:27:00" ...
+ # $ hours_fishing      : num [1:1835] 300 540 480 120 240 240 150 180 420 450 ...
+
+hms(hm(time) + hm(duration), roll = T)
+
+
   
+  str()
+  
+
 dim(survey_data_l_2022_date_vsl)
 # [1] 1835    10
 
