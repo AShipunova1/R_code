@@ -168,3 +168,19 @@ lgb_join_i1 <-
   )
 # ℹ Row 5799 of `x` matches multiple rows in `y`.
 # ℹ Row 944 of `y` matches multiple rows in `x`.
+
+dim(lgb_join_i1)
+# 2015 12
+
+n_distinct(lgb_join_i1$VESSEL_OFFICIAL_NBR)
+# 476
+
+str(lgb_join_i1)
+
+lgb_join_i1 |>
+  mutate(
+    trip_end_time_diff = time - as.numeric(TRIP_END_TIME),
+    trip_start_time_calc = time - hrsf * 60,
+    trip_start_time_diff = trip_start_time_calc - as.numeric(TRIP_START_TIME)
+  ) |>
+  str()
