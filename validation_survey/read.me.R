@@ -1,7 +1,0 @@
-# compare trips/catch in validation surveys to logbooks
-
-Dominique created some code here, when she was combining files and estimating the validation survey interception rate (# surveys/ # logbooks).  I just had her add her input files to run the code, so first lets see what date ranges these files provide. The validation survey was operational Oct of 2021 through Feb 2023. So, we should be able to get all months for 2022, and focus on 2022 only for your work (using 2022 gulf sefhier logbook data to compare to). The survey was only for the Gulf program. So, check the dates as it seems the file in your folder only goes to april of 2022. But in Dominiques code (calculate_sefhier_interception_rates.r) on line 88, it seems like this file she is using is only 06/2022- 12/2022. I am not sure, but we need all months of 2022 - so check what is available among files/folders. See if you can get all the months for 2022, and if not then let me know what months you are missing in 2022. 
-2022 jan-apr:
-  https://drive.google.com/drive/folders/1Gehg_kOq4mSePn7P8K9QYK19MK9YOU08
-
-  https://docs.google.com/spreadsheets/d/1mWhp2ITRxwi_EZ3D6sRX6f9lhs9Ysm-EJbQJaqlbjIQ/edit#gid=1138378412

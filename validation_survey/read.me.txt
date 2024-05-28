@@ -1,0 +1,62 @@
+# compare trips/catch in validation surveys to logbooks
+
+Dominique created some code here, when she was combining files and estimating the validation survey interception rate (# surveys/ # logbooks).  I just had her add her input files to run the code, so first lets see what date ranges these files provide. The validation survey was operational Oct of 2021 through Feb 2023. So, we should be able to get all months for 2022, and focus on 2022 only for your work (using 2022 gulf sefhier logbook data to compare to). The survey was only for the Gulf program. So, check the dates as it seems the file in your folder only goes to april of 2022. But in Dominiques code (calculate_sefhier_interception_rates.r) on line 88, it seems like this file she is using is only 06/2022- 12/2022. I am not sure, but we need all months of 2022 - so check what is available among files/folders. See if you can get all the months for 2022, and if not then let me know what months you are missing in 2022. 
+2022 jan-apr:
+  https://drive.google.com/drive/folders/1Gehg_kOq4mSePn7P8K9QYK19MK9YOU08
+
+  https://docs.google.com/spreadsheets/d/1mWhp2ITRxwi_EZ3D6sRX6f9lhs9Ysm-EJbQJaqlbjIQ/edit#gid=1138378412
+===
+From Gregg Bray
+A_SEFHIER_2021_042022.xls - this is the assignment level data.  It basically gives you the sample draw with the results of how many intercepts were collected and what times the samplers were on site collecting intercepts. 
+It also gives you the assignment level comments that they collected.  
+I was forced to send this to you in an Excel format because I realized that there were some commas used in a few of the comments and that broke the delimiting process.  
+I don't believe this dataset is going to be essential in your analyses but something worth sending in case there are questions.
+
+I1_SEFHIER_2021_042022.csv - this is the intercept level data minus the fish.  
+Variable names are fairly self-explanatory.  Many of these variables should match the original design Jessica came up with but I haven't confirmed that recently.  
+Other staff were tasked with the database development here.
+
+I2_SEFHIER_2021_042022.csv - this is just the discard catch
+
+I3_SEFHIER_2021_042022.csv - this is just the harvested catch
+
+In all cases you can link the catch back to the specific intercept by using the ID_CODE variable.  
+
+ID_CODE is constructed by concatenating the following variables together into a unique identifier:  ASSIGNMENT NUMBER,SAMPLER ID, YEAR, MONTH, DAY, INTERCEPT NUMBER.  
+For example if my sampler id was 0012 and I collected intercepts today the ID_CODES would be 1001220220511001, 002, 003, and so on depending on how many intercepts I collected that day. 
+If a sampler completed an assignment but no intercepts were collected there will be no data in the i1,i2, and i3 datasets and there will just be a record of the completed assignment in the A data. 
+
+headers/code definitions:
+# Columns: 31
+  # $ ID_CODE                  <dbl> 1.59062e+15,   # auto-assigned interview record ID code? – if you’re getting scientific notation I’m guessing you tried to open this in Excel.  This is the unique identifier I explained in the original email when I sent you the data.  You need to import the .csv data if you’re using Excel and format that variable as text or general to get it to format correctly.  I hate Excel.
+  # $ TIME                     <int> 1635,          #  time of interview? – application records time on tablet clock when intercept are generated.  Likely worthless in your analysis. 
+  # $ HRSF                     <dbl> 0.0,           #hours fished
+  # $ YEAR                     <int> 2021,          
+  # $ WAVE                     <int> 5,             # A wave is a two month period (1: January/February, 2: March/April, 3: May/June,
+                                                                 #4: July/August, 5: September/October, 6:November/December)
+  # $ SUB_REG                  <int> 7,             # ? what do different codes mean – 7 is the subregion code for Gulf of Mexico.  6 would be S. Atlantic but obviously that doesn’t apply here. 
+  # $ INTSITE                  <int> 927,           # ? what do different codes mean – unique code that identifies the site in our site table
+  # $ VESSEL_NAME              <chr> "key west",    # name of vessel being interview
+  # $ NUM_TYP2                 <int> 0,             # ? what do different codes mean – simply a count of the number of data records of released catch for that intercept
+  # $ NUM_TYP3                 <int> 0,             # ? what do different codes mean– simply a count of the number of data records of harvested catch for that intercept
+  # $ STATUS                   <int> 1,             # ? what do different codes mean – 1=fully complete intercept, 2=non-essential question was not answered
+  # $ FOR_HIRE_PERMIT          <int> 2,             # ? what do different codes mean - 1=YES, 2=NO
+  # $ LA_CHARTER_LICENSE       <int> 2,             # ? why do we ask for LA, specifically - 1=YES, 2=NO
+  # $ PREFIX1                  <chr> "",            # this is permit type prefix (e.g. RCG, CHG)
+  # $ PREFIX2                  <chr> "",            # this is permit type prefix, if more than one permit on vessel
+  # $ LA_CHARTER_PERMIT_NUMBER <int> NA,            # ? why do we ask for LA, specifically – because they asked you to allow them to collect their LA Permit Number
+  # $ OPERATING_TYPE           <int> 0,             # ? what do different codes mean – 6=’HB’, 7=’CB’, 0=’Neither’
+  # $ SRHS_VESSEL              <int> 2,             # ? what do different codes mean (2 = no?) - 1=YES, 2=NO
+  # $ INTERVIEWEE_F_NAME       <chr> "",            
+  # $ INTERVIEWEE_L_NAME       <chr> "",
+  # $ INTERVIEWEE_M_NAME       <chr> "",            # we ask for middle name - do we need this field?
+  # $ INTERVIEWEE_SUFFIX       <chr> "",            # always blank - do we need this field?    
+  # $ INTERVIEWEE_ROLE         <int> 0,             # options: Captain    Mate    Other
+  # $ FISHING_DISTANCE         <int> 8,             # ? what do different codes mean – 1=’3 miles or less’, 2=’greater than 3 miles’, 3=’10 miles or less’, 4=’greater than 10 miles’
+  # $ PEOPLE_FISHING           <int> 0,  
+  # $ NO_HARVESTED_SELECTED    <int> 2,             # ? what do different codes mean - 1=YES, 2=NO
+  # $ PERMIT_NUMBER1           <int> NA, 9999,      # ? is 9999 not available? – Some samplers put that in when the captain couldn’t find or refused to provide it
+  # $ PERMIT_NUMBER2           <int> NA, 723
+  # $ VSL_NUM                  <chr> "fl1566sm",
+  # $ CNTY                     <int> 87,            # ? what do different codes mean – County the intercepts occurred in, they are the 3 digit USPS FIPS numbers
+
