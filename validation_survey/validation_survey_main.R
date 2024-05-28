@@ -58,6 +58,7 @@ survey_data_l_2022 |>
 # [1] "id_code, time, hrsf, year, wave, st, sub_reg, intsite, vessel_name, num_typ2, num_typ3, status, comments, for_hire_permit, la_charter_license, prefix1, prefix2, la_charter_permit_number, operating_type, srhs_vessel, interviewee_f_name, interviewee_l_name, interviewee_m_name, interviewee_suffix, interviewee_role, fishing_distance, people_fishing, no_harvested_selected, permit_number1, permit_number2, vsl_num, cnty, date1"
 # 
 
+# aga asg code ----
 survey_data_l_2022$aga |> 
   select(year, month, day, asg_code) |> 
   distinct() |> glimpse()
@@ -80,3 +81,40 @@ survey_data_l_2022$aga |>
   glimpse()
 
 # asg_code is useless for us
+
+# i1 ----
+
+## ref and i1 id_code ----
+setdiff(survey_data_l_2022$ref$id_code,
+        survey_data_l_2022$i1$id_code) |> length()
+# 19
+
+setdiff(survey_data_l_2022$i1$id_code,
+        survey_data_l_2022$ref$id_code) |> length()
+# 1835
+
+survey_data_l_2022_date_vsl <- 
+  survey_data_l_2022$i1 |>
+  select(vsl_num, id_code) |>
+  distinct() |>
+  mutate(
+    id_sp = stringr::str_replace(
+      id_code,
+      "(\\d{5})(2022)(\\d{2})(\\d{2})(\\d{3})",
+      stringr::str_c("\\1 \\2 \\3 \\4 \\5")
+    )
+  ) |>
+  tidyr::separate_wider_delim(
+    id_sp,
+    delim = " ",
+    names = c(
+      "assignment_num_sampler_id",
+      "year",
+      "month",
+      "day",
+      "intercept_num"
+    )
+  )
+  
+# dim(survey_data_l_2022_date_vsl)
+# [1] 1835    7
