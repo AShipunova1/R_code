@@ -95,7 +95,7 @@ setdiff(survey_data_l_2022$i1$id_code,
         survey_data_l_2022$ref$id_code) |> length()
 # 1835
 
-survey_data_l_2022_date_vsl <-
+survey_data_l_2022_vsl_date <-
   survey_data_l_2022$i1 |>
   select(vsl_num, id_code, time, hrsf) |>
   distinct() |>
@@ -111,16 +111,38 @@ survey_data_l_2022_date_vsl <-
     delim = " ",
     names = c(
       "assignment_num_sampler_id",
-      "year",
-      "month",
-      "day",
+      "int_year",
+      "int_month",
+      "int_day",
       "intercept_num"
     )
   ) |>
   select(-c(assignment_num_sampler_id, intercept_num)) |> 
   mutate(interview_date =
-           lubridate::make_date(year, month, day))
+           lubridate::make_date(int_year, int_month, int_day))
+
+survey_data_l_2022_vsl_date_time <- 
+  survey_data_l_2022_vsl_date |> 
+  mutate(hour_sec = 
+           stringr::str_replace(time, "(\\d+)(\\d{2})", "\\1 \\2")) |> 
+  tidyr::separate_wider_delim(
+    hour_sec,
+    delim = " ",
+    names = c(
+      "int_hour",
+      "int_sec"
+    )) 
+
+survey_data_l_2022_vsl_date_time |>
+  mutate(across(starts_with("int_"), ~ as.numeric(.x))) |>
+  mutate(
+    interview_date_time =
+      lubridate::make_datetime(int_year, int_month, int_day, int_hour, int_sec)
+  ) |> View()
   
+survey_data_l_2022_date_vsl |> 
+  filter(!str_length(time) == 4)
+
 dim(survey_data_l_2022_date_vsl)
 # [1] 1835    10
 
@@ -179,6 +201,7 @@ str(lgb_join_i1)
 
 lgb_join_i1 |>
   mutate(
+    
     trip_end_time_diff = time - as.numeric(TRIP_END_TIME),
     trip_start_time_calc = time - hrsf * 60,
     trip_start_time_diff = trip_start_time_calc - as.numeric(TRIP_START_TIME)
