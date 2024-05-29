@@ -448,6 +448,53 @@ lgb_join_i1__t_diff_short__w_int_all_dup |>
 #   View()
 
 # remove duplicated interview counts (2 trips a day, 1 interview) ----
+## Do that for the df with no 2 by 2 duplicates ----
+### find interview dulicates ----
+lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup <-
+ lgb_join_i1__t_diff_short__w_int_all_dup_rm |>
+  group_by(VESSEL_OFFICIAL_NBR, id_code) |>
+  add_count(id_code, name = "dup_id_codes") |>
+  ungroup()
+
+lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup |> 
+  filter(dup_id_codes > 1) |> 
+  dim()
+  # 310
+
+# View(lgb_join_i1__t_diff_short__w_int_all__int_dup)
+
+lgb_join_i1__t_diff_short__w_int_all__int_dup |>
+    filter(dup_id_codes == 2) |>
+    arrange(id_code, TRIP_ID, VESSEL_OFFICIAL_NBR, trip_end_date_time) |>
+    filter(big_diff_time == "no") |>
+dim()
+# 170
+  #     View()
+
+## get interview duplicates only ----
+
+trip_dups_only <- 
+  lgb_join_i1__t_diff_short__w_int_all__int_dup |>
+  filter(dup_id_codes > 1) |>
+  filter(big_diff_time == "yes") |>
+  select(id_code, TRIP_ID, VESSEL_OFFICIAL_NBR) |> 
+  distinct()
+
+dim(trip_dups_only)
+# 192
+
+## remove duplicates 2 trips. 1 interview ----
+# Only keep logbooks with a correspondent interview
+lgb_join_i1__t_diff_short__w_int_all__int_dup_rm <-
+  lgb_join_i1__t_diff_short__w_int_all__int_dup |>
+  anti_join(trip_dups_only)
+# Joining with `by = join_by(id_code, TRIP_ID, VESSEL_OFFICIAL_NBR)`
+
+nrow(lgb_join_i1__t_diff_short__w_int_all__int_dup) -
+  nrow(lgb_join_i1__t_diff_short__w_int_all__int_dup_rm) ==
+  nrow(trip_dups_only)
+
+
 
 ## find interview dulicates ----
 lgb_join_i1__t_diff_short__w_int_all__int_dup <-
@@ -457,7 +504,7 @@ lgb_join_i1__t_diff_short__w_int_all__int_dup <-
   ungroup()
 
 lgb_join_i1__t_diff_short__w_int_all__int_dup |> 
-  filter(dup_trip_ids > 1) |> 
+  filter(dup_id_codes > 1) |> 
   dim()
   # 362
 
