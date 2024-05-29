@@ -135,7 +135,7 @@
       "RemoteRepo": "R_code",
       "RemoteUsername": "AShipunova1",
       "RemoteRef": "development",
-      "RemoteSha": "2dcb3f7bbff8bc402417430f474417900f8e90e1",
+      "RemoteSha": "9e98f651736dba6f6a34e9a8a3a3707375c00fb1",
       "RemoteSubdir": "auxfunctions",
       "Requirements": [
         "DBI",
@@ -159,7 +159,7 @@
         "tidyr",
         "tidyselect"
       ],
-      "Hash": "73b072644bcc4ce5dbd6b3f3beb443e3"
+      "Hash": "2fae3dc37f83da862a9a86dac1984703"
     },
     "base64enc": {
       "Package": "base64enc",
@@ -449,17 +449,6 @@
         "withr"
       ],
       "Hash": "ea5bc8b4a6a01e4f12d98b58329930bb"
-    },
-    "diffdf": {
-      "Package": "diffdf",
-      "Version": "1.0.4",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "R",
-        "tibble"
-      ],
-      "Hash": "9ddedef46959baad2080047a1b0117fe"
     },
     "diffobj": {
       "Package": "diffobj",
