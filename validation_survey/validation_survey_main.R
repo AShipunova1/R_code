@@ -483,6 +483,18 @@ trip_dups_only <-
 dim(trip_dups_only)
 # 192
 
+## remove duplicates 2 trips. 1 interview ----
+# Only keep logbooks with a correspondent interview
+lgb_join_i1__t_diff_short__w_int_all__int_dup_rm <-
+  lgb_join_i1__t_diff_short__w_int_all__int_dup |>
+  anti_join(trip_dups_only)
+# Joining with `by = join_by(id_code, TRIP_ID, VESSEL_OFFICIAL_NBR)`
+
+nrow(lgb_join_i1__t_diff_short__w_int_all__int_dup) -
+  nrow(lgb_join_i1__t_diff_short__w_int_all__int_dup_rm) ==
+  nrow(trip_dups_only)
+# T
+
 # TODO: check if not loosing trips by removing ----
 
 # Catch ----
