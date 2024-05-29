@@ -311,7 +311,27 @@ lgb_join_i1__t_diff_short |>
   dplyr::arrange(id_code, trip_end_date_time) |>
   dplyr::glimpse()
 
+## interval and big_diff_time ----
+lgb_join_i1__t_diff_short__w_int_all <-
+  lgb_join_i1__t_diff_short_has_trip |>
+  dplyr::group_by(TRIP_ID) |>
+  dplyr::mutate(
+    trip_end_interval =
+      lubridate::interval(
+        start =
+          trip_end_date_time - lubridate::minutes(30),
+        end = trip_end_date_time + lubridate::minutes(90),
+        tz = Sys.timezone()
+      )
+  ) |> 
+  mutate(big_diff_time = dplyr::case_when(
+    !interview_date_time %within% trip_end_interval ~ "yes",
+    .default = "no"
+  )) |> 
+  ungroup()
+
 ## duplicated trip_id (2 trips - 2 interview) ----
+
 lgb_join_i1__t_diff_short %>%
   dplyr::group_by(TRIP_ID) %>%
   dplyr::filter(n() > 1) |>
@@ -338,3 +358,13 @@ glimpse(lgb_join_i1__t_diff_short__w_int)
 
 # a <- lubridate::ymd_hms("2022-06-01 07:09:00")
 # a - lubridate::hours(1)
+
+lgb_join_i1__t_diff_short__w_int_all_dup |> 
+  filter(dup_interviews > 1) |>
+# 58
+  filter(big_diff_time == "yes") |> 
+  glimpse()
+# 31
+
+# check time difference ----
+# lgb_join_i1__t_diff_short__w_int_all
