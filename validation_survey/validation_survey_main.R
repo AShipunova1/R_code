@@ -602,4 +602,24 @@ trip_int_diff_vsl_3m_plot +
 # Catch ----
 
 ## add catch_info to compare
-# lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short |> 
+lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short |>
+  print_df_names()
+
+db_logbooks_2022 |> 
+  print_df_names()
+
+survey_data_l_2022$i3 |> 
+  # print_df_names()
+  glimpse()
+
+w_i3 <-
+  survey_data_l_2022$i3 |>
+  right_join(
+    lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short,
+    join_by(id_code),
+    relationship = "many-to-many"
+  )
+# ℹ Row 1780 of `x` matches multiple rows in `y`.
+# ℹ Row 242 of `y` matches multiple rows in `x`.
+
+# View(w_i3)
