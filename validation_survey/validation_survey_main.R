@@ -420,9 +420,6 @@ nrow(lgb_join_i1__t_diff_short__w_int_all_dup) -
   nrow(dups_only)
 # T
   
-band_members %>% anti_join(band_instruments)
-
-
 # check time difference ----
 lgb_join_i1__t_diff_short__w_int_all_dup |>
   filter(dup_interviews == 1) |>
@@ -459,5 +456,13 @@ lgb_join_i1__t_diff_short__w_int_all_dup |>
 # str()
 #   View()
 
+# remove duplicated interview counts (2 trips a day, 1 interview) ----
+lgb_join_i1__t_diff_short__w_int_all_dup_rm |>
+  group_by(VESSEL_OFFICIAL_NBR, id_code) |> 
+  add_count()
+
 # Catch ----
-lgb_join_i1 |> glimpse()
+
+lgb_join_i1__t_diff_short__w_int_all_dup_rm |> 
+  View()
+
