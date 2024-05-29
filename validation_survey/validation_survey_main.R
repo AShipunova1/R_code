@@ -282,20 +282,24 @@ lgb_join_i1__t_diff_short <-
 #   duplicated(lgb_join_i1__t_diff_short$trip_end_date_only)
 #   |> glimpse()
 
+print_df_names(lgb_join_i1__t_diff_short)
+
 dup_dates <-
-  duplicated(pull(lgb_join_i1__t_diff_short, VESSEL_OFFICIAL_NBR)) |
-  duplicated(pull(lgb_join_i1__t_diff_short, VESSEL_OFFICIAL_NBR), fromLast = TRUE)
+  duplicated(pull(lgb_join_i1__t_diff_short, VESSEL_OFFICIAL_NBR)) &
+  duplicated(pull(lgb_join_i1__t_diff_short, trip_end_date_time))
+
+# dup_dates |> unique()
 
 dup_dates_a <-
-  lgb_join_i1__t_diff_short[dup_dates, 
-                            c('VESSEL_OFFICIAL_NBR')]
+  lgb_join_i1__t_diff_short[dup_dates, c('VESSEL_OFFICIAL_NBR', 'start_time', 'trip_end_date_time')]
 
-glimpse(dup_dates)
+View(dup_dates_a)
+  # Rows: 795
+
+lgb_join_i1__t_diff_short %>%
+  dplyr::group_by(VESSEL_OFFICIAL_NBR, lubridate::day(trip_end_date_time)) %>%
+  filter(n() > 1) |> 
+  View()
   
-dup_dates <-
-  duplicated(pull(air_accidents, date)) |
-  duplicated(pull(air_accidents, date), fromLast = TRUE)
-dup_dates_accidents <-
-  air_accidents[dup_dates, c('date', 'location', 'operator')]
-head(dup_dates_accidents, n = 10)
+
 
