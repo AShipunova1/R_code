@@ -399,25 +399,25 @@ lgb_join_i1__t_diff_short__w_int_all_dup |>
   select(-ends_with("_diff")) |>
   glimpse()
 
-dups_only <- 
+int_dups_only <- 
   lgb_join_i1__t_diff_short__w_int_all_dup |>
   filter(dup_interviews > 1) |>
   filter(big_diff_time == "yes") |>
   select(id_code, TRIP_ID, VESSEL_OFFICIAL_NBR) |> 
   distinct()
 
-dim(dups_only)
+dim(int_dups_only)
 # 31
 
 ## remove duplicates ----
 lgb_join_i1__t_diff_short__w_int_all_dup_rm <-
   lgb_join_i1__t_diff_short__w_int_all_dup |>
-  anti_join(dups_only)
+  anti_join(int_dups_only)
 # Joining with `by = join_by(id_code, TRIP_ID, VESSEL_OFFICIAL_NBR)`
 
 nrow(lgb_join_i1__t_diff_short__w_int_all_dup) -
   nrow(lgb_join_i1__t_diff_short__w_int_all_dup_rm) ==
-  nrow(dups_only)
+  nrow(int_dups_only)
 # T
   
 # check time difference ----
