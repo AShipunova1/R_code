@@ -52,7 +52,7 @@ short_names <-
 
 names(survey_data_l) <- short_names
 
-# glimpse(survey_data_l)
+# dplyr::glimpse(survey_data_l)
 
 ## remove fields with all NAs ----
 survey_data_l_not_na <-
@@ -153,7 +153,7 @@ try(con <- auxfunctions::connect_to_secpr())
 
 get_db_logbooks <-
   function() {
-    read_rds_or_run(db_logbooks_file_name,
+    auxfunctions::read_rds_or_run(db_logbooks_file_name,
                     db_logbooks_query,
                     db_logbooks_fun)
   }

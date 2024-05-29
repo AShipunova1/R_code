@@ -1,14 +1,16 @@
 # Set up ----
 
-install.packages("devtools")
+# install.packages("devtools")
 library(devtools)
 devtools::install_github("AShipunova1/R_code/auxfunctions@development")
+                         # , 
+                         # force = T)
 library(auxfunctions)
 
 Sys.setenv(TZ = Sys.timezone())
 Sys.setenv(ORA_SDTZ = Sys.timezone())
 
-my_paths <- set_work_dir()
+my_paths <- auxfunctions::set_work_dir()
 
 # get this project name
 current_project_dir_name <- this.path::this.dir()
@@ -43,7 +45,7 @@ source(get_data_file_path)
 # db_logbooks_2022
 
 survey_data_l_2022 |> 
-  purrr::map(print_df_names)
+  purrr::map(auxfunctions::print_df_names)
 
 # $aga
 # [1] "asg_num, intcd1, intcd2, state, interval, ano_int, anosite, site1, reason1, site2, reason2, start1, stop1, tsite1, start2, stop2, tsite2, start3, stop3, tsite3, start4, stop4, tsite4, year, month, day, wave, asg_code, sitehrs, int12_1, int12_2, int12, site1_comments, site2_comments, all_site_comments, control7, cluster_id, cnty, date1"
@@ -63,25 +65,28 @@ survey_data_l_2022 |>
 
 # aga asg code ----
 survey_data_l_2022$aga |> 
-  select(year, month, day, asg_code) |> 
-  distinct() |> glimpse()
+  dplyr::select(year, month, day, asg_code) |> 
+  dplyr::distinct() |> 
+  dplyr::glimpse()
 # 
 # sst <- strsplit(text, "")[[1]]
 # out <- paste0(sst[c(TRUE, FALSE)], sst[c(FALSE, TRUE)])
 
-survey_data_l_2022$aga |> 
-  select(year, month, day, asg_code) |> 
-  distinct() |> 
-    mutate(asg_sp = stringr::str_replace(asg_code, "(\\d+)2022(\\d\\d)(\\d\\d)",
-                                            stringr::str_c("\\1 \\2 \\3"))
-) |> 
-  mutate(asg_dates = stringr::str_split(asg_sp, " ")) |> 
-  rowwise() |> 
-  # filter(!asg_dates[[2]] == month) |> 
-# 0
-  filter(!asg_dates[[3]] == day) |> 
-# 0
-  glimpse()
+survey_data_l_2022$aga |>
+  dplyr::select(year, month, day, asg_code) |>
+  dplyr::distinct() |>
+  dplyr::mutate(asg_sp = stringr::str_replace(
+    asg_code,
+    "(\\d+)2022(\\d\\d)(\\d\\d)",
+    stringr::str_c("\\1 \\2 \\3")
+  )) |>
+  dplyr::mutate(asg_dates = stringr::str_split(asg_sp, " ")) |>
+  dplyr::rowwise() |>
+  # filter(!asg_dates[[2]] == month) |>
+  # 0
+  dplyr::filter(!asg_dates[[3]] == day) |>
+  # 0
+  dplyr::glimpse()
 
 # asg_code is useless for us
 
@@ -159,7 +164,7 @@ n_distinct(survey_data_l_2022_date_vsl$vsl_num)
 n_distinct(db_logbooks_2022$VESSEL_OFFICIAL_NBR)
 # 1892
 
-survey_data_l_2022_date_vsl |> print_df_names()
+survey_data_l_2022_date_vsl |> auxfunctions::print_df_names()
 
 grep("date", names(db_logbooks_2022), ignore.case = T, value = T)
 
@@ -169,6 +174,7 @@ grep("date", names(db_logbooks_2022), ignore.case = T, value = T)
 db_logbooks_2022_short <-
   db_logbooks_2022 |>
   select(
+    TRIP_ID,
     VESSEL_OFFICIAL_NBR,
     TRIP_START_DATE,
     TRIP_START_TIME,
@@ -251,8 +257,9 @@ dim(lgb_join_i1)
 n_distinct(lgb_join_i1$VESSEL_OFFICIAL_NBR)
 # 476
 
-str(lgb_join_i1)
+# str(lgb_join_i1)
 
+# intervie and trip time difference ----
 lgb_join_i1__t_diff <-
   lgb_join_i1 |>
   mutate(
@@ -266,6 +273,7 @@ lgb_join_i1__t_diff_short <-
   lgb_join_i1__t_diff |>
   select(
     id_code,
+    TRIP_ID,
     VESSEL_OFFICIAL_NBR,
     trip_start_date_time,
     start_time,
@@ -278,28 +286,30 @@ lgb_join_i1__t_diff_short <-
 # View(lgb_join_i1__t_diff_short)
 
 # find duplicates ----
-# duplicated(lgb_join_i1__t_diff_short$VESSEL_OFFICIAL_NBR) &
-#   duplicated(lgb_join_i1__t_diff_short$trip_end_date_only)
-#   |> glimpse()
 
-print_df_names(lgb_join_i1__t_diff_short)
-
-dup_dates <-
-  duplicated(pull(lgb_join_i1__t_diff_short, VESSEL_OFFICIAL_NBR)) &
-  duplicated(pull(lgb_join_i1__t_diff_short, trip_end_date_time))
-
-# dup_dates |> unique()
-
-dup_dates_a <-
-  lgb_join_i1__t_diff_short[dup_dates, c('VESSEL_OFFICIAL_NBR', 'start_time', 'trip_end_date_time')]
-
-View(dup_dates_a)
-  # Rows: 795
-
+## duplicated vessel/trip_end ----
 lgb_join_i1__t_diff_short %>%
   dplyr::group_by(VESSEL_OFFICIAL_NBR, lubridate::day(trip_end_date_time)) %>%
   filter(n() > 1) |> 
   View()
-  
 
+
+## duplicated id_code (2 trips - 1 interview) ----
+lgb_join_i1__t_diff_short |> 
+  dplyr::group_by(id_code) |> 
+  dplyr::filter(n() > 1) |>
+  dplyr::arrange(id_code, trip_end_date_time) |>
+  dplyr::glimpse()
+
+## duplicated trip_id (2 trips - 2 interview) ----
+lgb_join_i1__t_diff_short %>%
+  dplyr::group_by(TRIP_ID) %>%
+  dplyr::filter(n() > 1) |>
+  dplyr::arrange(TRIP_ID, interview_date_time, trip_end_date_time) |>
+  dplyr::glimpse()
+
+lgb_join_i1__t_diff_short %>%
+  dplyr::group_by(TRIP_ID) %>%
+  dplyr::filter(n() > 1) |>
+  dplyr::filter(trip_start_date_time - lubridate::hours(1))
 
