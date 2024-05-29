@@ -496,9 +496,31 @@ nrow(lgb_join_i1__t_diff_short__w_int_all__int_dup) -
 # T
 
 # TODO: check if not loosing trips by removing ----
+auxfunctions::data_overview(lgb_join_i1)
+# TRIP_ID              1054
+# VESSEL_OFFICIAL_NBR   476
+# id_code              1835
+
+auxfunctions::data_overview(lgb_join_i1__t_diff_short__w_int_all)
+# id_code                    901
+# TRIP_ID                   1053
+# VESSEL_OFFICIAL_NBR        228
+
+auxfunctions::data_overview(lgb_join_i1__t_diff_short__w_int_all_dup_rm)
+# id_code                    896
+# TRIP_ID                   1051
+# VESSEL_OFFICIAL_NBR        228
+
+auxfunctions::data_overview(lgb_join_i1__t_diff_short__w_int_all__int_dup_rm)
+# id_code                   889
+# TRIP_ID                   887
+# VESSEL_OFFICIAL_NBR       227
+
+
+
 
 # Catch ----
 
-lgb_join_i1__t_diff_short__w_int_all_dup_rm |> 
-  View()
-
+# lgb_join_i1__t_diff_short__w_int_all_dup_rm |> 
+#   View()
+# 
