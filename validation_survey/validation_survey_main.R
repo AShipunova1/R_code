@@ -516,9 +516,15 @@ auxfunctions::data_overview(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup
 # View(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm)
 
 lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short <- lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm |>
-  select(-c(ends_with("_diff"), ends_with("_interval")))
+  select(-c(
+    ends_with("_diff"),
+    # ends_with("_interval"),
+    contains("start"),
+    starts_with("dup_")
+  )) |> 
+  arrange(VESSEL_OFFICIAL_NBR, trip_end_date_time)
 
-View(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short)
+glimpse(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short)
 # TODO: why id_code > TRIP_ID?
 
 # Catch ----
