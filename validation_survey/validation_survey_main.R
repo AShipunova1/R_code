@@ -386,32 +386,78 @@ lgb_join_i1__t_diff_short__w_int_all_dup <-
   ungroup()
 
 lgb_join_i1__t_diff_short__w_int_all_dup |> 
-  filter(dup_interviews > 1) |>
+  filter(dup_interviews > 1) |> 
 # 58
   filter(big_diff_time == "yes") |> 
   glimpse()
 # 31
 
+## remove duplicated trip/interview ----
+# They are a result of full join on a day, e.g. 2 trips, 2 interviews
+lgb_join_i1__t_diff_short__w_int_all_dup |>
+  filter(dup_interviews > 1) |>
+  select(-ends_with("_diff")) |>
+  glimpse()
+
+dups_only <- 
+  lgb_join_i1__t_diff_short__w_int_all_dup |>
+  filter(dup_interviews > 1) |>
+  filter(big_diff_time == "yes") |>
+  select(id_code, TRIP_ID, VESSEL_OFFICIAL_NBR) |> 
+  distinct()
+
+dim(dups_only)
+# 31
+
+## remove duplicates ----
+lgb_join_i1__t_diff_short__w_int_all_dup_rm <-
+  lgb_join_i1__t_diff_short__w_int_all_dup |>
+  anti_join(dups_only)
+# Joining with `by = join_by(id_code, TRIP_ID, VESSEL_OFFICIAL_NBR)`
+
+nrow(lgb_join_i1__t_diff_short__w_int_all_dup) -
+  nrow(lgb_join_i1__t_diff_short__w_int_all_dup_rm) ==
+  nrow(dups_only)
+# T
+  
+band_members %>% anti_join(band_instruments)
+
+
 # check time difference ----
-lgb_join_i1__t_diff_short__w_int_all_dup |> 
+lgb_join_i1__t_diff_short__w_int_all_dup |>
   filter(dup_interviews == 1) |>
-  filter(big_diff_time == "yes") |> 
+  filter(big_diff_time == "yes") |>
   # select(id_code, TRIP_ID, VESSEL_OFFICIAL_NBR)
-  select(VESSEL_OFFICIAL_NBR, trip_end_date_time, interview_date_time, interview_trip_end_diff, trip_end_interval) |> 
-  arrange(VESSEL_OFFICIAL_NBR, trip_end_date_time, interview_date_time, interview_trip_end_diff, trip_end_interval) |> 
+  select(
+    VESSEL_OFFICIAL_NBR,
+    trip_end_date_time,
+    interview_date_time,
+    interview_trip_end_diff,
+    trip_end_interval
+  ) |>
+  arrange(
+    VESSEL_OFFICIAL_NBR,
+    trip_end_date_time,
+    interview_date_time,
+    interview_trip_end_diff,
+    trip_end_interval
+  ) |>
   View()
 
-n_distinct(lgb_join_i1__t_diff_short__w_int_all_dup$TRIP_ID) ==
-nrow(lgb_join_i1__t_diff_short__w_int_all_dup)
-# F
+# n_distinct(lgb_join_i1__t_diff_short__w_int_all_dup$TRIP_ID) ==
+# nrow(lgb_join_i1__t_diff_short__w_int_all_dup)
+# # F
+# 
+# lgb_join_i1__t_diff_short__w_int_all_dup |> 
+#   group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |> 
+#   mutate(dups = c(unique(dup_interviews))) |> 
+#   ungroup() |> 
+#   # filter(!dups == 1) |>
+#   # filter(!dups == 2) |> 
+#   select(dups) |> 
+#   distinct() |> 
+# str()
+#   View()
 
-lgb_join_i1__t_diff_short__w_int_all_dup |> 
-  group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |> 
-  mutate(dups = c(unique(dup_interviews))) |> 
-  ungroup() |> 
-  # filter(!dups == 1) |>
-  # filter(!dups == 2) |> 
-  select(dups) |> 
-  distinct() |> 
-str()
-  View()
+# Catch ----
+lgb_join_i1 |> glimpse()
