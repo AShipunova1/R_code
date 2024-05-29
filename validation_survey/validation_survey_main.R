@@ -430,7 +430,7 @@ lgb_join_i1__t_diff_short__w_int_all_dup |>
     interview_trip_end_diff,
     trip_end_interval
   ) |>
-  View()
+  glimpse()
 
 # n_distinct(lgb_join_i1__t_diff_short__w_int_all_dup$TRIP_ID) ==
 # nrow(lgb_join_i1__t_diff_short__w_int_all_dup)
@@ -448,6 +448,8 @@ lgb_join_i1__t_diff_short__w_int_all_dup |>
 #   View()
 
 # remove duplicated interview counts (2 trips a day, 1 interview) ----
+
+## find interview dulicates ----
 lgb_join_i1__t_diff_short__w_int_all__int_dup <-
  lgb_join_i1__t_diff_short__w_int_all |>
   group_by(VESSEL_OFFICIAL_NBR, id_code) |>
@@ -468,6 +470,18 @@ lgb_join_i1__t_diff_short__w_int_all__int_dup |>
 dim()
 # 170
   #     View()
+
+## get interview duplicates only ----
+
+trip_dups_only <- 
+  lgb_join_i1__t_diff_short__w_int_all__int_dup |>
+  filter(dup_id_codes > 1) |>
+  filter(big_diff_time == "yes") |>
+  select(id_code, TRIP_ID, VESSEL_OFFICIAL_NBR) |> 
+  distinct()
+
+dim(trip_dups_only)
+# 192
 
 # TODO: check if not loosing trips by removing ----
 
