@@ -527,8 +527,35 @@ lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short <- lgb_join_i1__t_
 glimpse(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short)
 # TODO: why id_code > TRIP_ID?
 
+# TODO: check interview before trip end, joined a wrong trip?
+
+# plot intervals ----
+
+big_diff_times <- 
+  lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short |> 
+  filter(big_diff_time == "yes")
+
+dim(big_diff_times)
+# 145
+
+library(ggplot2)
+
+big_diff_times |>
+  ggplot(aes(x = interview_date_time, y = VESSEL_OFFICIAL_NBR, colour = VESSEL_OFFICIAL_NBR)) +
+  geom_segment(aes(xend = trip_end_date_time, yend = VESSEL_OFFICIAL_NBR),
+               colour = "black") +
+  geom_point(size = 3) +
+  geom_point(aes(x = trip_end_date_time), size = 3) +
+  theme_bw() +
+  theme(legend.position = "none")
+
+
+ggplot(big_diff_times) + 
+         geom_rect(aes(xmin = start, xmax = end,
+                       ymin = bin, ymax = bin + 0.9)) +
+  theme_bw()
+
 # Catch ----
 
-# lgb_join_i1__t_diff_short__w_int_all_dup_rm |> 
-#   View()
-# 
+## add catch_info to compare
+lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short |> 
