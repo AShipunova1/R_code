@@ -370,15 +370,6 @@ lgb_join_i1__t_diff_short__w_int |>
 # a <- lubridate::ymd_hms("2022-06-01 07:09:00")
 # a - lubridate::hours(1)
 
-# lgb_join_i1__t_diff_short__w_int_all__dup <- 
-lgb_join_i1__t_diff_short__w_int_all |>
-  group_by(VESSEL_OFFICIAL_NBR, id_code) |>
-  add_count(TRIP_ID, name = "dup_trip_ids") |>
-  ungroup() |>
-  filter(dup_trip_ids > 1) |>
-  dim()
-  # 0
-
 lgb_join_i1__t_diff_short__w_int_all_dup <-
   lgb_join_i1__t_diff_short__w_int_all |>
   group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |>
@@ -457,9 +448,28 @@ lgb_join_i1__t_diff_short__w_int_all_dup |>
 #   View()
 
 # remove duplicated interview counts (2 trips a day, 1 interview) ----
-lgb_join_i1__t_diff_short__w_int_all_dup_rm |>
-  group_by(VESSEL_OFFICIAL_NBR, id_code) |> 
-  add_count()
+lgb_join_i1__t_diff_short__w_int_all__int_dup <-
+ lgb_join_i1__t_diff_short__w_int_all |>
+  group_by(VESSEL_OFFICIAL_NBR, id_code) |>
+  add_count(id_code, name = "dup_id_codes") |>
+  ungroup()
+
+lgb_join_i1__t_diff_short__w_int_all__int_dup |> 
+  filter(dup_trip_ids > 1) |> 
+  dim()
+  # 362
+
+# View(lgb_join_i1__t_diff_short__w_int_all__int_dup)
+
+lgb_join_i1__t_diff_short__w_int_all__int_dup |>
+    filter(dup_id_codes == 2) |>
+    arrange(id_code, TRIP_ID, VESSEL_OFFICIAL_NBR, trip_end_date_time) |>
+    filter(big_diff_time == "no") |>
+dim()
+# 170
+  #     View()
+
+# TODO: check if not loosing trips by removing ----
 
 # Catch ----
 
