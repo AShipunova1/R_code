@@ -351,13 +351,39 @@ lgb_join_i1__t_diff_short__w_int <-
         tz = Sys.timezone()
       )
   ) |> 
-  filter(!interview_date_time %within% trip_end_interval) |> 
+  mutate(big_diff_time = dplyr::case_when(
+    !interview_date_time %within% trip_end_interval ~ "yes",
+    .default = "no"
+  )) |> 
   ungroup()
   
-glimpse(lgb_join_i1__t_diff_short__w_int)
+lgb_join_i1__t_diff_short__w_int |>
+  arrange(VESSEL_OFFICIAL_NBR,
+          id_code,
+          TRIP_ID,
+          trip_end_date_time,
+          big_diff_time) |>
+  filter(!is.na(TRIP_ID)) |>
+  select(-c(contains("start"))) |>
+  glimpse()
 
 # a <- lubridate::ymd_hms("2022-06-01 07:09:00")
 # a - lubridate::hours(1)
+
+# lgb_join_i1__t_diff_short__w_int_all__dup <- 
+lgb_join_i1__t_diff_short__w_int_all |>
+  group_by(VESSEL_OFFICIAL_NBR, id_code) |>
+  add_count(TRIP_ID, name = "dup_trip_ids") |>
+  ungroup() |>
+  filter(dup_trip_ids > 1) |>
+  dim()
+  # 0
+
+lgb_join_i1__t_diff_short__w_int_all_dup <-
+  lgb_join_i1__t_diff_short__w_int_all |>
+  group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |>
+  add_count(TRIP_ID, name = "dup_interviews") |>
+  ungroup()
 
 lgb_join_i1__t_diff_short__w_int_all_dup |> 
   filter(dup_interviews > 1) |>
