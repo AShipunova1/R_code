@@ -131,15 +131,14 @@
       "Version": "1.1",
       "Source": "GitHub",
       "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "R_code",
       "RemoteUsername": "AShipunova1",
-      "RemoteRef": "development",
-      "RemoteSha": "9e98f651736dba6f6a34e9a8a3a3707375c00fb1",
+      "RemoteRepo": "R_code",
       "RemoteSubdir": "auxfunctions",
+      "RemoteRef": "development",
+      "RemoteSha": "175a536603681a016b3f4450d4839dd44c232e41",
+      "RemoteHost": "api.github.com",
       "Requirements": [
         "DBI",
-        "R",
         "cowplot",
         "crayon",
         "data.table",
@@ -159,7 +158,7 @@
         "tidyr",
         "tidyselect"
       ],
-      "Hash": "2fae3dc37f83da862a9a86dac1984703"
+      "Hash": "cd30342d3580249151b4fa08ea1c71c8"
     },
     "base64enc": {
       "Package": "base64enc",
@@ -723,14 +722,14 @@
     },
     "highr": {
       "Package": "highr",
-      "Version": "0.10",
+      "Version": "0.11",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "R",
         "xfun"
       ],
-      "Hash": "06230136b2d2b9ba5805e1963fa6e890"
+      "Hash": "d65ba49117ca223614f71b60d85b8ab7"
     },
     "hms": {
       "Package": "hms",
