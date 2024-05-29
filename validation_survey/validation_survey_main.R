@@ -264,9 +264,9 @@ n_distinct(lgb_join_i1$VESSEL_OFFICIAL_NBR)
 lgb_join_i1__t_diff <-
   lgb_join_i1 |>
   mutate(
-    interview_trip_end_diff =
+    trip_end_interview_diff =
       trip_end_date_time - interview_date_time,
-    interview_trip_start_diff =
+    trip_start_interview_diff =
       trip_start_date_time - start_time
   )
 
@@ -278,10 +278,10 @@ lgb_join_i1__t_diff_short <-
     VESSEL_OFFICIAL_NBR,
     trip_start_date_time,
     start_time,
-    interview_trip_start_diff,
+    trip_start_interview_diff,
     trip_end_date_time,
     interview_date_time,
-    interview_trip_end_diff
+    trip_end_interview_diff
   )
 
 # View(lgb_join_i1__t_diff_short)
@@ -420,14 +420,14 @@ lgb_join_i1__t_diff_short__w_int_all_dup |>
     VESSEL_OFFICIAL_NBR,
     trip_end_date_time,
     interview_date_time,
-    interview_trip_end_diff,
+    trip_end_interview_diff,
     trip_end_interval
   ) |>
   arrange(
     VESSEL_OFFICIAL_NBR,
     trip_end_date_time,
     interview_date_time,
-    interview_trip_end_diff,
+    trip_end_interview_diff,
     trip_end_interval
   ) |>
   glimpse()
@@ -517,7 +517,7 @@ auxfunctions::data_overview(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup
 
 lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short <- lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm |>
   select(-c(
-    ends_with("_diff"),
+    # ends_with("_diff"),
     # ends_with("_interval"),
     contains("start"),
     starts_with("dup_")
@@ -533,27 +533,22 @@ glimpse(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short)
 
 big_diff_times <- 
   lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short |> 
-  filter(big_diff_time == "yes")
+  filter(big_diff_time == "yes") |> 
+  mutate(int_before_trip = trip_end_interview_diff < 1 )
 
-dim(big_diff_times)
+View(big_diff_times)
 # 145
 
 library(ggplot2)
 
 big_diff_times |>
-  ggplot(aes(x = interview_date_time, y = VESSEL_OFFICIAL_NBR, colour = VESSEL_OFFICIAL_NBR)) +
-  geom_segment(aes(xend = trip_end_date_time, yend = VESSEL_OFFICIAL_NBR),
+  ggplot(aes(x = interview_date_time, y = int_before_trip, colour = int_before_trip)) +
+  geom_segment(aes(xend = trip_end_date_time, yend = int_before_trip),
                colour = "black") +
   geom_point(size = 3) +
   geom_point(aes(x = trip_end_date_time), size = 3) +
   theme_bw() +
   theme(legend.position = "none")
-
-
-ggplot(big_diff_times) + 
-         geom_rect(aes(xmin = start, xmax = end,
-                       ymin = bin, ymax = bin + 0.9)) +
-  theme_bw()
 
 # Catch ----
 
