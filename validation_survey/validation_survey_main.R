@@ -6,6 +6,7 @@ devtools::install_github("AShipunova1/R_code/auxfunctions@development")
                          # , 
                          # force = T)
 library(auxfunctions)
+library(lubridate)
 
 Sys.setenv(TZ = Sys.timezone())
 Sys.setenv(ORA_SDTZ = Sys.timezone())
@@ -155,16 +156,16 @@ survey_data_l_2022_vsl_date_time_all <-
  # $ minutes_fishing    : num [1:1835] 300 540 480 120 240 240 150 180 420 450 ...
  # $ start_time         : POSIXct[1:1835], format: "2022-01-30 10:53:00" "2022-02-14 08:27:00" ...
 
-dim(survey_data_l_2022_date_vsl)
+dim(survey_data_l_2022_vsl_date)
 # [1] 1835    10
 
-n_distinct(survey_data_l_2022_date_vsl$vsl_num)
+n_distinct(survey_data_l_2022_vsl_date$vsl_num)
 # vessels 476
 
 n_distinct(db_logbooks_2022$VESSEL_OFFICIAL_NBR)
 # 1892
 
-survey_data_l_2022_date_vsl |> auxfunctions::print_df_names()
+survey_data_l_2022_vsl_date |> auxfunctions::print_df_names()
 
 grep("date", names(db_logbooks_2022), ignore.case = T, value = T)
 
@@ -234,7 +235,7 @@ db_logbooks_2022_short_date_time <-
 # str(db_logbooks_2022_short_date_time)
 
 # compare trips/vessels
-# str(survey_data_l_2022_date_vsltidyverse combine year, month and day into a date lubridate
+# tidyverse combine year, month and day into a date lubridate
 #     str(db_logbooks_2022_short)
 # lubridate::date("2022-01-04 23:00:00")
 
@@ -308,8 +309,23 @@ lgb_join_i1__t_diff_short %>%
   dplyr::arrange(TRIP_ID, interview_date_time, trip_end_date_time) |>
   dplyr::glimpse()
 
-lgb_join_i1__t_diff_short %>%
-  dplyr::group_by(TRIP_ID) %>%
+lgb_join_i1__t_diff_short__w_int <-
+  lgb_join_i1__t_diff_short |>
+  dplyr::group_by(TRIP_ID) |>
   dplyr::filter(n() > 1) |>
-  dplyr::filter(trip_start_date_time - lubridate::hours(1))
+  dplyr::mutate(
+    trip_end_interval =
+      lubridate::interval(
+        start =
+          trip_end_date_time - lubridate::minutes(30),
+        end = trip_end_date_time + lubridate::minutes(90),
+        tz = Sys.timezone()
+      )
+  ) |> 
+  filter(!interview_date_time %within% trip_end_interval) |> 
+  ungroup()
+  
+glimpse(lgb_join_i1__t_diff_short__w_int)
 
+# a <- lubridate::ymd_hms("2022-06-01 07:09:00")
+# a - lubridate::hours(1)
