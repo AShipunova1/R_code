@@ -275,4 +275,27 @@ lgb_join_i1__t_diff_short <-
     interview_trip_end_diff
   )
 
-View(lgb_join_i1__t_diff_short)
+# View(lgb_join_i1__t_diff_short)
+
+# find duplicates ----
+# duplicated(lgb_join_i1__t_diff_short$VESSEL_OFFICIAL_NBR) &
+#   duplicated(lgb_join_i1__t_diff_short$trip_end_date_only)
+#   |> glimpse()
+
+dup_dates <-
+  duplicated(pull(lgb_join_i1__t_diff_short, VESSEL_OFFICIAL_NBR)) |
+  duplicated(pull(lgb_join_i1__t_diff_short, VESSEL_OFFICIAL_NBR), fromLast = TRUE)
+
+dup_dates_a <-
+  lgb_join_i1__t_diff_short[dup_dates, 
+                            c('VESSEL_OFFICIAL_NBR')]
+
+glimpse(dup_dates)
+  
+dup_dates <-
+  duplicated(pull(air_accidents, date)) |
+  duplicated(pull(air_accidents, date), fromLast = TRUE)
+dup_dates_accidents <-
+  air_accidents[dup_dates, c('date', 'location', 'operator')]
+head(dup_dates_accidents, n = 10)
+
