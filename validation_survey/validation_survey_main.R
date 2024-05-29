@@ -623,3 +623,54 @@ w_i3 <-
 # ℹ Row 242 of `y` matches multiple rows in `x`.
 
 # View(w_i3)
+
+w_lgb <-
+  db_logbooks_2022 |>
+  right_join(
+    lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short,
+    join_by(TRIP_ID)
+  )
+
+# View(w_lgb)
+
+fields_df <-
+  names(db_logbooks_2022) |> t() |> t() |>
+  as.data.frame()
+
+names(fields_df) <- "db_logbooks"
+
+# fields_df
+
+fields_survey_data_l <-
+  survey_data_l_2022 |>
+  purrr::map(names)
+
+str(fields_survey_data_l)
+# tidyr::fill
+
+## add logb names ----
+fields_survey_data_l[[length(fields_survey_data_l) + 1]] <- 
+  names(db_logbooks_2022)
+
+length(fields_survey_data_l)
+# 6
+
+# View(fields_survey_data_l)
+
+all_fieds_df <-
+  tibble::tibble(V = fields_survey_data_l) %>%
+  unnest_wider(V, names_sep = "") |> 
+  t()
+
+str(all_fieds_df)
+colnames(all_fieds_df) <- c(names(fields_survey_data_l)[1:(length(names(fields_survey_data_l)) - 1)], "logbooks")
+
+View(all_fieds_df)
+
+# names(fields_survey_data_l)
+
+# View(fields_survey_data__df)
+
+all_fieds_df |>
+  as.data.frame() |> 
+  readr::write_csv("all_fieds_validation_s__lgb.csv")
