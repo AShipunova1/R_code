@@ -286,6 +286,15 @@ lgb_join_i1__t_diff_short <-
 
 # View(lgb_join_i1__t_diff_short)
 
+# has logbooks ----
+lgb_join_i1__t_diff_short_has_trip <-
+  lgb_join_i1__t_diff_short |>
+  filter(!is.na(TRIP_ID))
+
+# n_distinct(lgb_join_i1__t_diff_short_has_trip$VESSEL_OFFICIAL_NBR)
+# 228
+
+
 # find duplicates ----
 
 ## duplicated vessel/trip_end ----
