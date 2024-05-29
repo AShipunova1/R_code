@@ -393,4 +393,25 @@ lgb_join_i1__t_diff_short__w_int_all_dup |>
 # 31
 
 # check time difference ----
-# lgb_join_i1__t_diff_short__w_int_all
+lgb_join_i1__t_diff_short__w_int_all_dup |> 
+  filter(dup_interviews == 1) |>
+  filter(big_diff_time == "yes") |> 
+  # select(id_code, TRIP_ID, VESSEL_OFFICIAL_NBR)
+  select(VESSEL_OFFICIAL_NBR, trip_end_date_time, interview_date_time, interview_trip_end_diff, trip_end_interval) |> 
+  arrange(VESSEL_OFFICIAL_NBR, trip_end_date_time, interview_date_time, interview_trip_end_diff, trip_end_interval) |> 
+  View()
+
+n_distinct(lgb_join_i1__t_diff_short__w_int_all_dup$TRIP_ID) ==
+nrow(lgb_join_i1__t_diff_short__w_int_all_dup)
+# F
+
+lgb_join_i1__t_diff_short__w_int_all_dup |> 
+  group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |> 
+  mutate(dups = c(unique(dup_interviews))) |> 
+  ungroup() |> 
+  # filter(!dups == 1) |>
+  # filter(!dups == 2) |> 
+  select(dups) |> 
+  distinct() |> 
+str()
+  View()
