@@ -590,4 +590,18 @@ catch_info_i1 <-
 # Joining with `by = join_by(id_code)`
 
 dim(catch_info_2)
-# [1] 3502   56
+# [1] 3502   56catch_info_i2 <- 
+  left_join(catch_info_i1,
+            survey_data_l_2022_short$i2,
+            relationship = "many-to-many",
+            join_by(id_code))
+# ℹ Row 5 of `x` matches multiple rows in `y`.
+# ℹ Row 1127 of `y` matches multiple rows in `x`.
+# default
+# Joining with `by = join_by(id_code, st, num_typ2)`
+# Error in `left_join()`:
+# ! Can't join `x$st` with `y$st` due to incompatible types.
+
+dim(catch_info_i2)
+# [1] 8418   42
+
