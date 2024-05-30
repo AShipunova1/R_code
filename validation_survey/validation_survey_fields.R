@@ -1,5 +1,15 @@
 # compare field names ----
 
+# if (!require('taxize')) {
+#   install.packages('taxize')
+#   library('taxize')
+# }
+
+if (!require('ritis')) {
+  install.packages('ritis')
+  library('ritis')
+}
+
 lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short |>
   print_df_names()
 
@@ -94,3 +104,41 @@ intersect(survey_data_l_2022$i1$permit_number1,
   head()
 1 (NA)
 
+View(db_logbooks_2022)
+
+db_logbooks_2022$CATCH_SPECIES_ITIS |> 
+  unique() |> 
+  head()
+
+taxize::get_tsn("BLACKFIN TUNA")
+
+taxize::classification("172427", db = "itis")
+# 17   Thunnus atlanticus      species 172427
+
+taxize::downstream("172427", db = "itis", downto = "species")
+
+taxize::itis_downstream("172418", downto = "species")
+
+taxize::lowest_common("172427", db = "itis")
+taxize::tax_name("172427", get = "species")
+# 0
+taxize::tax_rank("172427", db = "itis")
+---
+ritis::accepted_names("172427")
+
+any_match_count("172427")
+
+common_names("172427")
+
+full_record("172427")
+
+# $scientificName$combinedName
+# [1] "Thunnus atlanticus"
+
+# $scientificName$unitName1
+# taxonName
+rank_name("172427")
+
+sci_n <- ritis::scientific_name("172427")
+sci_n$combinedname
+# [1] "Thunnus atlanticus"
