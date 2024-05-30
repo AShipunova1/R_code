@@ -516,10 +516,10 @@ lgb_names_to_use <- c(
 "CATCH_SEQ",
 "CATCH_SPECIES_ITIS",
 "REPORTED_QUANTITY",
-"UNIT_MEASURE",
 "DISPOSITION_CODE",
 "DISPOSITION_NAME"
 )
+# "UNIT_MEASURE",
 
 db_logbooks_2022_short <-
   db_logbooks_2022 |>
