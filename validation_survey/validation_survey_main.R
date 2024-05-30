@@ -293,6 +293,7 @@ catch_info_i3_short <-
   catch_info_i3 |> 
   select("TRIP_ID",
   "VESSEL_OFFICIAL_NBR",
+  "id_code",
   all_of(catch_fields)
 ) |> 
   distinct()
@@ -303,19 +304,57 @@ dim(catch_info_i3)
 dim(catch_info_i3_short)
 # [1] 37506    15
 
+# look at catch_info_i3_short_harvested ----
 catch_info_i3_short_harvested <-
   catch_info_i3_short |>
   group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |>
   filter(as.integer(!!sym(compare_fields[[1]])) ==
            as.integer(!!sym(compare_fields[[3]]))) |>
-  ungroup()
+  ungroup() |> 
+  select(-ends_with(".releas")) |>
+  distinct()
 
 dim(catch_info_i3_short_harvested)
 # [1] 6469   15
+# [1] 5829   11 (no ".releas")
 
 # data_overview(catch_info_i3_short_harvested)
 # TRIP_ID              841
 # VESSEL_OFFICIAL_NBR  219
 
-View(catch_info_i3_short_harvested)
+# View(catch_info_i3_short_harvested)
+
+# catch_info_i3_short_harvested |> 
+    # filter(TRIP_ID == "1000020436") |> distinct() |>  View()
+
+# count amount of species per trip ----
+# db_logbooks_2022_short |> print_df_names()
+# survey_data_l_2022_short
+
+db_logbooks_2022_short_cnt_spp <- 
+  db_logbooks_2022_short |>
+  select(
+    VESSEL_OFFICIAL_NBR,
+    TRIP_ID,
+    DISPOSITION_CODE,
+    DISPOSITION_NAME,
+    CATCH_SPECIES_ITIS
+  ) |>
+  distinct() |>
+  add_count(VESSEL_OFFICIAL_NBR, TRIP_ID, DISPOSITION_CODE, 
+            name = "n_CATCH_SPECIES_ITIS__by_disp") |>
+  group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |> 
+  dplyr::mutate(n_CATCH_SPECIES_ITIS = n_distinct(CATCH_SPECIES_ITIS)) |> 
+  ungroup()
+
+  # select(-DISPOSITION_NAME) |> 
+  # add_count(VESSEL_OFFICIAL_NBR, TRIP_ID,
+            # name = "n_CATCH_SPECIES_ITIS")
+
+db_logbooks_2022_short_cnt_spp |> 
+  arrange(VESSEL_OFFICIAL_NBR, TRIP_ID, DISPOSITION_CODE) |> 
+  glimpse()
+
+# db_logbooks_2022_short_cnt_spp |> 
+#   filter(TRIP_ID == "61422515") |> View()
 
