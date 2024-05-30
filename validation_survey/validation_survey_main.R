@@ -158,3 +158,42 @@ catch_info_i3 |>
 # 367
 
 # TODO: check if the same trip
+
+# compare CATCH_SPECIES_ITIS	tsn ----
+# grep("tsn", names(catch_info_i3), value = T)
+# [1] "tsn.releas" "tsn.harv" 
+
+compare_fields <-
+  c("CATCH_SPECIES_ITIS", "tsn.releas", "tsn.harv")
+
+catch_info_i3 |> 
+  select(starts_with("tsn")) |> 
+  distinct() |> 
+  # dim()
+# 1026
+  filter(!tsn.releas == tsn.harv) |> 
+  glimpse()
+# 937
+
+# n_distinct(catch_info_i3$TRIP_ID)
+# 887
+
+catch_info_i3 |> 
+  # select(all_of(compare_fields)) |>
+  select(VESSEL_OFFICIAL_NBR, TRIP_ID, all_of(compare_fields)) |>
+  distinct() |>
+  # dim()
+  # [1] 27634     5
+  group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |> 
+  # filter(!as.integer(!!sym(compare_fields[[1]])) == as.integer(!!sym(compare_fields[[2]]))) |>
+# Rows: 23,108
+  # filter(!as.integer(!!sym(compare_fields[[1]])) == as.integer(!!sym(compare_fields[[3]]))) |>
+# Rows: 23,112
+  # filter(as.integer(!!sym(compare_fields[[1]])) == as.integer(!!sym(compare_fields[[2]])) &
+  #          !(as.integer(!!sym(compare_fields[[1]])) == as.integer(!!sym(compare_fields[[3]])))) |>
+  filter(as.integer(!!sym(compare_fields[[1]])) == as.integer(!!sym(compare_fields[[3]])) &
+           !(as.integer(!!sym(compare_fields[[1]])) == as.integer(!!sym(compare_fields[[2]])))) |>
+  ungroup() |> 
+  glimpse()
+
+# TODO: check released and harvested separately
