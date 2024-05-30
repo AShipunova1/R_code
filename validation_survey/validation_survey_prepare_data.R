@@ -564,7 +564,10 @@ survey_fields_to_use <-
   "i3"
   )
 
-survey_fields_to_use
+survey_data_l_2022_short <- 
+  survey_data_l_2022 |> 
+  purrr::map(\(x) {x |> 
+      select(any_of(survey_fields_to_use))})
 
 catch_info_2 <- 
   left_join(catch_info_1,
