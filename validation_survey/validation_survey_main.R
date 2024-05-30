@@ -216,3 +216,14 @@ catch_info_i3 |>
   ungroup() |> 
   glimpse()
 
+# the same sp. is both released and harvested in the same trip ----
+
+catch_info_i3 |> 
+  group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |> 
+  filter(as.integer(!!sym(compare_fields[[1]])) ==
+           as.integer(!!sym(compare_fields[[2]]))) |>
+  filter(as.integer(!!sym(compare_fields[[1]])) ==
+           as.integer(!!sym(compare_fields[[3]]))) |>
+  ungroup() |> 
+  glimpse()
+
