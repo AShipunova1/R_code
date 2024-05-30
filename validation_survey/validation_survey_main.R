@@ -76,4 +76,24 @@ catch_info_i3 |>
 # filter(!VESSEL_OFFICIAL_NBR == vsl_num)
 # 0
 
+# compare NUM_ANGLERS, people_fishing ----
+# catch_info_i3$people_fishing |> unique()
+
+compare_fields <- 
+  c("NUM_ANGLERS", "people_fishing")
+
+catch_info_i3 |> 
+  select(VESSEL_OFFICIAL_NBR, all_of(compare_fields)) |>
+  distinct() |>
+  rowwise() |> 
+  # filter(!as.integer(!!sym(compare_fields[[1]])) == as.integer(!!sym(compare_fields[[2]]))) |>
+  # 135
+  # filter(as.integer(!!sym(compare_fields[[1]])) > as.integer(!!sym(compare_fields[[2]]))) |>
+  # 90
+  # filter(as.integer(!!sym(compare_fields[[1]])) < as.integer(!!sym(compare_fields[[2]]))) |>
+  # 45
+  filter(abs(as.integer(!!sym(compare_fields[[1]])) - as.integer(!!sym(compare_fields[[2]]))) > 1) |>
+# 68
+  dim()
+
 # Catch ----
