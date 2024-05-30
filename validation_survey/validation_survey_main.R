@@ -76,6 +76,23 @@ catch_info_i3 |>
 # filter(!VESSEL_OFFICIAL_NBR == vsl_num)
 # 0
 
+# compare TRIP_TYPE_NAME, operating_type ----
+
+# 6=’HB’, 7=’CB’, 0=’Neither’
+# catch_info_i3$TRIP_TYPE_NAME |> unique()
+# [1] "CHARTER" "UNKNOWN"
+
+catch_info_i3 |> 
+  select(VESSEL_OFFICIAL_NBR, TRIP_TYPE_NAME, operating_type) |>
+  distinct() |>
+  mutate(surv_trip_type = case_when(operating_type == 6 ~ "headboat",
+                                    operating_type == 7 ~ "CHARTER",
+                                    operating_type == 0 ~ "Neither")) |> 
+  filter(!unify_names(TRIP_TYPE_NAME) == unify_names(surv_trip_type)) |>
+  glimpse()
+# 16
+# same type "CHARTER" 225
+
 # compare NUM_ANGLERS, people_fishing ----
 # catch_info_i3$people_fishing |> unique()
 
