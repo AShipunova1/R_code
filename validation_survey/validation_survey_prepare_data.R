@@ -584,9 +584,10 @@ survey_data_l_2022_short$i3 <-
 
 # survey_data_l_2022_short |> purrr::map(dim)
 
-catch_info_i1 <- 
+catch_info_i1 <-
   left_join(catch_info_lgb,
-            survey_data_l_2022_short$i1)
+            survey_data_l_2022_short$i1,
+            suffix = c(".lgb", ".i1"))
 # Joining with `by = join_by(id_code)`
 
 dim(catch_info_i1)
@@ -596,6 +597,7 @@ catch_info_i2 <-
   left_join(catch_info_i1,
             survey_data_l_2022_short$i2,
             relationship = "many-to-many",
+            suffix = c(".i1", ".releas"),
             join_by(id_code))
 # ℹ Row 5 of `x` matches multiple rows in `y`.
 # ℹ Row 1127 of `y` matches multiple rows in `x`.
@@ -612,7 +614,7 @@ catch_info_i3 <-
             survey_data_l_2022_short$i3,
             relationship = "many-to-many",
             join_by(id_code),
-            suffix = c(".releas", ".harv"),
+            suffix = c(".releas", ".harv")
 )
 # ℹ Row 1 of `x` matches multiple rows in `y`.
 # ℹ Row 1427 of `y` matches multiple rows in `x`.
