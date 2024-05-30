@@ -1,7 +1,7 @@
 # prepare data ----
 
-survey_data_l_2022 |> 
-  purrr::map(auxfunctions::print_df_names)
+# survey_data_l_2022 |> 
+#   purrr::map(auxfunctions::print_df_names)
 
 # $aga
 # [1] "asg_num, intcd1, intcd2, state, interval, ano_int, anosite, site1, reason1, site2, reason2, start1, stop1, tsite1, start2, stop2, tsite2, start3, stop3, tsite3, start4, stop4, tsite4, year, month, day, wave, asg_code, sitehrs, int12_1, int12_2, int12, site1_comments, site2_comments, all_site_comments, control7, cluster_id, cnty, date1"
@@ -528,12 +528,12 @@ db_logbooks_2022_short <-
 # dim(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_shorter)
 
 ## join select and logbooks ----
-catch_info_1 <- 
+catch_info_lgb <- 
   left_join(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_shorter,
             db_logbooks_2022_short)
 # Joining with `by = join_by(TRIP_ID, VESSEL_OFFICIAL_NBR)`
 
-dim(catch_info_1)
+dim(catch_info_lgb)
 # [1] 3502   24
 
 ## shorten survey_data_l_2022 ----
@@ -569,9 +569,9 @@ survey_data_l_2022_short <-
   purrr::map(\(x) {x |> 
       select(any_of(survey_fields_to_use))})
 
-catch_info_2 <- 
-  left_join(catch_info_1,
-            survey_data_l_2022$i1)
+survey_data_l_2022 |> purrr::map(dim)
+survey_data_l_2022_short |> purrr::map(dim)
+
 survey_data_l_2022_short$i2 <-
   survey_data_l_2022_short$i2 |>
   tibble::add_column(i2 = "released")
@@ -589,8 +589,10 @@ catch_info_i1 <-
             survey_data_l_2022_short$i1)
 # Joining with `by = join_by(id_code)`
 
-dim(catch_info_2)
-# [1] 3502   56catch_info_i2 <- 
+dim(catch_info_i1)
+# [1] 3502   37
+
+catch_info_i2 <- 
   left_join(catch_info_i1,
             survey_data_l_2022_short$i2,
             relationship = "many-to-many",
