@@ -123,7 +123,8 @@ taxize::lowest_common("172427", db = "itis")
 taxize::tax_name("172427", get = "species")
 # 0
 taxize::tax_rank("172427", db = "itis")
----
+# ---
+
 ritis::accepted_names("172427")
 
 any_match_count("172427")
