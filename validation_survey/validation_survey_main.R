@@ -110,6 +110,7 @@ catch_info_i3 |>
   # filter(as.integer(!!sym(compare_fields[[1]])) < as.integer(!!sym(compare_fields[[2]]))) |>
   # 45
   filter(abs(as.integer(!!sym(compare_fields[[1]])) - as.integer(!!sym(compare_fields[[2]]))) > 1) |>
+  ungroup() |> 
 # 68
   dim()
 
@@ -139,3 +140,21 @@ catch_info_i3 |>
   select(all_of(compare_fields)) |>
   distinct() |>
   glimpse()
+
+# compare FISHING_HOURS	hrsf ----
+
+compare_fields <-
+  c("FISHING_HOURS", "hrsf")
+
+catch_info_i3 |>
+  select(VESSEL_OFFICIAL_NBR, all_of(compare_fields)) |>
+  distinct() |>
+  # dim()
+  # 674
+  rowwise() |> 
+  filter(!as.integer(!!sym(compare_fields[[1]])) == as.integer(!!sym(compare_fields[[2]]))) |>
+  ungroup() |> 
+  View()
+# 367
+
+# TODO: check if the same trip
