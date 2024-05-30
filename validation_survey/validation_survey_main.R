@@ -60,7 +60,3 @@ glimpse(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short)
 # Catch ----
 
 ## add catch_info to compare
-if (!require('taxize')) {
-  install.packages('taxize')
-  library('taxize')
-}
