@@ -197,3 +197,14 @@ catch_info_i3 |>
   glimpse()
 
 # TODO: check released and harvested separately
+
+## check numbers for the same spp lgb/harvested ----
+catch_info_i3 |> 
+  # select(VESSEL_OFFICIAL_NBR, TRIP_ID, all_of(compare_fields)) |>
+  # distinct() |>
+  group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |> 
+  filter(as.integer(!!sym(compare_fields[[1]])) ==
+           as.integer(!!sym(compare_fields[[3]]))) |>
+  ungroup() |> 
+  glimpse()
+
