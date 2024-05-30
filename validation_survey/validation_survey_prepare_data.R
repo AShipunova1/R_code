@@ -611,7 +611,9 @@ catch_info_i3 <-
   left_join(catch_info_i2,
             survey_data_l_2022_short$i3,
             relationship = "many-to-many",
-            join_by(id_code))
+            join_by(id_code),
+            suffix = c(".releas", ".harv"),
+)
 # ℹ Row 1 of `x` matches multiple rows in `y`.
 # ℹ Row 1427 of `y` matches multiple rows in `x`.
 # default
