@@ -208,3 +208,11 @@ catch_info_i3 |>
   ungroup() |> 
   glimpse()
 
+## check numbers for the same spp lgb/released ----
+catch_info_i3 |> 
+  group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |> 
+  filter(as.integer(!!sym(compare_fields[[1]])) ==
+           as.integer(!!sym(compare_fields[[2]]))) |>
+  ungroup() |> 
+  glimpse()
+
