@@ -536,3 +536,40 @@ catch_info_1 <-
 dim(catch_info_1)
 # [1] 3502   24
 
+## shorten survey_data_l_2022 ----
+
+survey_fields_to_use <- 
+    c(
+  "id_code",
+  "operating_type",
+  "vsl_num",
+  "vessel_name",
+  "interviewee_f_name",
+  "interviewee_l_name",
+  "st",
+  "cnty",
+  "people_fishing",
+  "no_harvested_selected",
+  "fishing_distance",
+  "hrsf",
+  "tsn",
+  "num_fish",
+  "fshinsp",
+  "num_typ2",
+  "disp3",
+  "lngth",
+  "wgt",
+  "num_typ3",
+  "i2",
+  "i3"
+  )
+
+survey_fields_to_use
+
+catch_info_2 <- 
+  left_join(catch_info_1,
+            survey_data_l_2022$i1)
+# Joining with `by = join_by(id_code)`
+
+dim(catch_info_2)
+# [1] 3502   56
