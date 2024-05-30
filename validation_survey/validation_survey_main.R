@@ -130,4 +130,12 @@ catch_info_i3 |>
 # $ ACTIVITY_TYPE_NAME    <chr> "TRIP WITH EFFORT", "TRIP WITH EFFORT"
 # $ no_harvested_selected <int> 2, 1
 
-# Catch ----
+# compare DISTANCE_CODE_NAME	fishing_distance ----
+
+compare_fields <-
+  c("DISTANCE_CODE_NAME", "fishing_distance")
+
+catch_info_i3 |>
+  select(all_of(compare_fields)) |>
+  distinct() |>
+  glimpse()
