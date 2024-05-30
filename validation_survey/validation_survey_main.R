@@ -227,3 +227,95 @@ catch_info_i3 |>
   ungroup() |> 
   glimpse()
 
+# TODO: compare and remove if duplicate all fields with "."
+
+## separate vessel_trip info from catch ----
+vessel_trip_fields <- c(
+  "TRIP_ID",
+  "VESSEL_OFFICIAL_NBR",
+  "trip_end_date_time",
+  "interview_date_time",
+  "TRIP_TYPE_NAME",
+  "VESSEL_NAME",
+  "CAPT_NAME_FIRST",
+  "CAPT_NAME_LAST",
+  "STATE",
+  "STATE_NAME",
+  "END_PORT_NAME",
+  "END_PORT_COUNTY",
+  "END_PORT_STATE",
+  "NUM_ANGLERS",
+  "ACTIVITY_TYPE_NAME",
+  "DISTANCE_CODE_NAME",
+  "FISHING_HOURS",
+  "operating_type",
+  "vsl_num",
+  "vessel_name",
+  "interviewee_f_name",
+  "interviewee_l_name",
+  "st.i1",
+  "cnty",
+  "people_fishing",
+  "no_harvested_selected",
+  "fishing_distance",
+  "hrsf",
+  "st.releas",
+  "i2",
+  "st"
+)
+
+# "UNIT_MEASURE", (all "CN")
+
+catch_fields <-
+  c(
+    "CATCH_SEQ",
+    "CATCH_SPECIES_ITIS",
+    "REPORTED_QUANTITY",
+    "DISPOSITION_CODE",
+    "DISPOSITION_NAME",
+    "num_typ2.i1",
+    "num_typ3.releas",
+    "tsn.releas",
+    "num_fish",
+    "num_typ2.releas",
+    "num_typ2.i1",
+    "num_typ3.releas",
+    "tsn.releas",
+    "num_fish",
+    "num_typ2.releas",
+    "tsn.harv",
+    "fshinsp"
+  )
+
+# dim(catch_info_i3)
+
+catch_info_i3_short <- 
+  catch_info_i3 |> 
+  select("TRIP_ID",
+  "VESSEL_OFFICIAL_NBR",
+  all_of(catch_fields)
+) |> 
+  distinct()
+
+dim(catch_info_i3)
+# [1] 89466    50
+
+dim(catch_info_i3_short)
+# [1] 37506    15
+
+catch_info_i3_short_harvested <-
+  catch_info_i3_short |>
+  group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |>
+  filter(as.integer(!!sym(compare_fields[[1]])) ==
+           as.integer(!!sym(compare_fields[[3]]))) |>
+  ungroup()
+
+dim(catch_info_i3_short_harvested)
+# [1] 6469   15
+
+# data_overview(catch_info_i3_short_harvested)
+# TRIP_ID              841
+# VESSEL_OFFICIAL_NBR  219
+
+View(catch_info_i3_short_harvested)
+
