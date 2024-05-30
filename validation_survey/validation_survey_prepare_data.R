@@ -480,6 +480,59 @@ lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short <- lgb_join_i1__t_
   arrange(VESSEL_OFFICIAL_NBR, trip_end_date_time)
 
 glimpse(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short)
-# TODO: why id_code > TRIP_ID?
+
+# TODO: why id_code amount > TRIP_ID?
 
 # TODO: check interview before trip end, joined a wrong trip?
+
+# combine all catch info ----
+
+lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_shorter <- 
+  lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short |>
+  select(id_code,
+         TRIP_ID,
+         VESSEL_OFFICIAL_NBR,
+         trip_end_date_time,
+         interview_date_time)
+
+## shorten logbooks ----
+
+lgb_names_to_use <- c(
+  "TRIP_ID",
+"TRIP_TYPE_NAME",
+"VESSEL_OFFICIAL_NBR",
+"VESSEL_NAME",
+"CAPT_NAME_FIRST",
+"CAPT_NAME_LAST",
+"STATE",
+"STATE_NAME",
+"END_PORT_NAME",
+"END_PORT_COUNTY",
+"END_PORT_STATE",
+"NUM_ANGLERS",
+"ACTIVITY_TYPE_NAME",
+"DISTANCE_CODE_NAME",
+"FISHING_HOURS",
+"CATCH_SEQ",
+"CATCH_SPECIES_ITIS",
+"REPORTED_QUANTITY",
+"UNIT_MEASURE",
+"DISPOSITION_CODE",
+"DISPOSITION_NAME"
+)
+
+db_logbooks_2022_short <-
+  db_logbooks_2022 |>
+  select(all_of(lgb_names_to_use))
+
+# dim(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_shorter)
+
+## join select and logbooks ----
+catch_info_1 <- 
+  left_join(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_shorter,
+            db_logbooks_2022_short)
+# Joining with `by = join_by(TRIP_ID, VESSEL_OFFICIAL_NBR)`
+
+dim(catch_info_1)
+# [1] 3502   24
+
