@@ -331,7 +331,7 @@ dim(catch_info_i3_short_harvested)
 # db_logbooks_2022_short |> print_df_names()
 # survey_data_l_2022_short
 
-db_logbooks_2022_short_cnt_spp <- 
+db_logbooks_2022_short_cnt_spp <-
   db_logbooks_2022_short |>
   select(
     VESSEL_OFFICIAL_NBR,
@@ -341,10 +341,12 @@ db_logbooks_2022_short_cnt_spp <-
     CATCH_SPECIES_ITIS
   ) |>
   distinct() |>
-  add_count(VESSEL_OFFICIAL_NBR, TRIP_ID, DISPOSITION_CODE, 
+  add_count(VESSEL_OFFICIAL_NBR, 
+            TRIP_ID, 
+            DISPOSITION_CODE, 
             name = "n_CATCH_SPECIES_ITIS__by_disp") |>
-  group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |> 
-  dplyr::mutate(n_CATCH_SPECIES_ITIS = n_distinct(CATCH_SPECIES_ITIS)) |> 
+  group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |>
+  dplyr::mutate(n_CATCH_SPECIES_ITIS = n_distinct(CATCH_SPECIES_ITIS)) |>
   ungroup()
 
   # select(-DISPOSITION_NAME) |> 
@@ -358,3 +360,27 @@ db_logbooks_2022_short_cnt_spp |>
 # db_logbooks_2022_short_cnt_spp |> 
 #   filter(TRIP_ID == "61422515") |> View()
 
+# count amount of species per interview ----
+# survey_data_l_2022_short
+
+survey_data_l_2022_short_cnt_spp <- 
+  survey_data_l_2022_short$i3 |>
+  select(id_code, tsn, fshinsp, disp3, lngth, wgt, num_typ3) |> 
+  distinct() |>
+  group_by(id_code, disp3) |> 
+  dplyr::mutate(n_tsn_by_disp3 = n_distinct(tsn)) |> 
+  ungroup() |> 
+  group_by(id_code) |> 
+  dplyr::mutate(n_tsn = n_distinct(tsn)) |> 
+  ungroup()
+
+glimpse(survey_data_l_2022_short_cnt_spp)
+
+survey_data_l_2022_short_cnt_spp |> 
+    filter(id_code == "1590520220121004") |> 
+    select(-c(lngth, wgt)) |> 
+    distinct() |> 
+    arrange(tsn) |> 
+    glimpse()
+
+# TODO: compare ns
