@@ -57,6 +57,23 @@ glimpse(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short)
 # compare field names ----
 # source(file.path(current_project_dir_name, "validation_survey_fields.R"))
 
-# Catch ----
+# compare vessel names ----
+unify_names <- function(column_name) {
+  tolower(column_name) |> 
+    stringr::str_replace("\\s", "")
+}
 
-## add catch_info to compare
+catch_info_i3 |>
+  filter(!unify_names(vessel_name) == unify_names(VESSEL_NAME)) |>
+  select(VESSEL_OFFICIAL_NBR, vsl_num, VESSEL_NAME, vessel_name) |>
+  distinct() |>
+  glimpse()
+# Rows: 101 w/o spaces
+# Rows: 112
+# select(VESSEL_OFFICIAL_NBR) |> 
+# 79 unique vessels
+
+# filter(!VESSEL_OFFICIAL_NBR == vsl_num)
+# 0
+
+# Catch ----
