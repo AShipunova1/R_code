@@ -1,0 +1,485 @@
+# prepare data ----
+
+survey_data_l_2022 |> 
+  purrr::map(auxfunctions::print_df_names)
+
+# $aga
+# [1] "asg_num, intcd1, intcd2, state, interval, ano_int, anosite, site1, reason1, site2, reason2, start1, stop1, tsite1, start2, stop2, tsite2, start3, stop3, tsite3, start4, stop4, tsite4, year, month, day, wave, asg_code, sitehrs, int12_1, int12_2, int12, site1_comments, site2_comments, all_site_comments, control7, cluster_id, cnty, date1"
+# 
+# $i1
+# [1] "id_code, time, hrsf, year, wave, sub_reg, intsite, vessel_name, num_typ2, num_typ3, status, for_hire_permit, la_charter_license, prefix1, prefix2, la_charter_permit_number, operating_type, srhs_vessel, interviewee_f_name, interviewee_l_name, interviewee_m_name, interviewee_suffix, interviewee_role, fishing_distance, people_fishing, no_harvested_selected, permit_number1, permit_number2, vsl_num, cnty, date1, st, comments"
+# 
+# $i2
+# [1] "year, wave, sub_reg, id_code, tsn, num_fish, num_typ2, st, date1"
+# 
+# $i3
+# [1] "year, wave, sub_reg, id_code, tsn, fshinsp, disp3, lngth, wgt, num_typ3, st, date1"
+# 
+# $ref
+# [1] "id_code, time, hrsf, year, wave, st, sub_reg, intsite, vessel_name, num_typ2, num_typ3, status, comments, for_hire_permit, la_charter_license, prefix1, prefix2, la_charter_permit_number, operating_type, srhs_vessel, interviewee_f_name, interviewee_l_name, interviewee_m_name, interviewee_suffix, interviewee_role, fishing_distance, people_fishing, no_harvested_selected, permit_number1, permit_number2, vsl_num, cnty, date1"
+# 
+
+# aga asg code ----
+survey_data_l_2022$aga |> 
+  dplyr::select(year, month, day, asg_code) |> 
+  dplyr::distinct() |> 
+  dplyr::glimpse()
+# 
+# sst <- strsplit(text, "")[[1]]
+# out <- paste0(sst[c(TRUE, FALSE)], sst[c(FALSE, TRUE)])
+
+survey_data_l_2022$aga |>
+  dplyr::select(year, month, day, asg_code) |>
+  dplyr::distinct() |>
+  dplyr::mutate(asg_sp = stringr::str_replace(
+    asg_code,
+    "(\\d+)2022(\\d\\d)(\\d\\d)",
+    stringr::str_c("\\1 \\2 \\3")
+  )) |>
+  dplyr::mutate(asg_dates = stringr::str_split(asg_sp, " ")) |>
+  dplyr::rowwise() |>
+  # filter(!asg_dates[[2]] == month) |>
+  # 0
+  dplyr::filter(!asg_dates[[3]] == day) |>
+  # 0
+  dplyr::glimpse()
+
+# asg_code is useless for us
+
+# i1 ----
+# View(survey_data_l_2022$ref)
+# View(survey_data_l_2022$i1)
+
+## ref and i1 id_code ----
+setdiff(survey_data_l_2022$ref$id_code,
+        survey_data_l_2022$i1$id_code) |> length()
+# 19
+
+setdiff(survey_data_l_2022$i1$id_code,
+        survey_data_l_2022$ref$id_code) |> length()
+# 1835
+
+# prepare i1 ----
+survey_data_l_2022_vsl_date <-
+  survey_data_l_2022$i1 |>
+  select(vsl_num, id_code, time, hrsf) |>
+  distinct() |>
+  mutate(
+    id_sp = stringr::str_replace(
+      id_code,
+      "(\\d{5})(2022)(\\d{2})(\\d{2})(\\d{3})",
+      stringr::str_c("\\1 \\2 \\3 \\4 \\5")
+    )
+  ) |>
+  tidyr::separate_wider_delim(
+    id_sp,
+    delim = " ",
+    names = c(
+      "assignment_num_sampler_id",
+      "int_year",
+      "int_month",
+      "int_day",
+      "intercept_num"
+    )
+  ) |>
+  select(-c(assignment_num_sampler_id, intercept_num)) |> 
+  mutate(interview_date =
+           lubridate::make_date(int_year, int_month, int_day))
+
+survey_data_l_2022_vsl_date_time <-
+  survey_data_l_2022_vsl_date |>
+  mutate(hour_sec =
+           stringr::str_replace(time, "(\\d+)(\\d{2})", "\\1 \\2")) |>
+  tidyr::separate_wider_delim(hour_sec,
+                              delim = " ",
+                              names = c("int_hour", "int_sec")) |>
+  mutate(across(starts_with("int_"), ~ as.numeric(.x))) |>
+  mutate(
+    interview_date_time =
+      lubridate::make_datetime(int_year, int_month, int_day, int_hour, int_sec, tz = Sys.timezone())
+  )
+
+# str(survey_data_l_2022_vsl_date_time)
+
+## hours fishing ----
+survey_data_l_2022_vsl_date_time_all <-
+  survey_data_l_2022_vsl_date_time |>
+  dplyr::mutate(minutes_fishing = hrsf * 60) |>
+  dplyr::mutate(start_time = interview_date_time - lubridate::minutes(minutes_fishing))
+
+# $ interview_date_time: POSIXct[1:1835], format: "2022-01-30 15:53:00" "2022-02-14 17:27:00" ...
+ # $ minutes_fishing    : num [1:1835] 300 540 480 120 240 240 150 180 420 450 ...
+ # $ start_time         : POSIXct[1:1835], format: "2022-01-30 10:53:00" "2022-02-14 08:27:00" ...
+
+dim(survey_data_l_2022_vsl_date)
+# [1] 1835    10
+
+n_distinct(survey_data_l_2022_vsl_date$vsl_num)
+# vessels 476
+
+n_distinct(db_logbooks_2022$VESSEL_OFFICIAL_NBR)
+# 1892
+
+survey_data_l_2022_vsl_date |> auxfunctions::print_df_names()
+
+grep("date", names(db_logbooks_2022), ignore.case = T, value = T)
+
+# View(db_logbooks_2022)
+
+# prepare logbooks ----
+db_logbooks_2022_short <-
+  db_logbooks_2022 |>
+  select(
+    TRIP_ID,
+    VESSEL_OFFICIAL_NBR,
+    TRIP_START_DATE,
+    TRIP_START_TIME,
+    TRIP_END_DATE,
+    TRIP_END_TIME
+  ) |>
+  distinct() |> 
+  mutate(trip_end_date_only = lubridate::date(TRIP_END_DATE))
+
+  # mutate(across(all_of(time_col_names),
+  #               ~ sprintf("%04d", .x)))
+
+db_logbooks_2022_short_date_time <-
+  db_logbooks_2022_short |>
+  mutate(start_hour_sec =
+           stringr::str_replace(TRIP_START_TIME, "(\\d+)(\\d{2})", "\\1 \\2")) |>
+  tidyr::separate_wider_delim(
+    start_hour_sec,
+    delim = " ",
+    names = c("trip_start_hour", "trip_start_sec")
+  ) |>
+  mutate(end_hour_sec =
+           stringr::str_replace(TRIP_END_TIME, "(\\d+)(\\d{2})", "\\1 \\2")) |>
+  tidyr::separate_wider_delim(end_hour_sec,
+                              delim = " ",
+                              names = c("trip_end_hour", "trip_end_sec")) |>
+  mutate(across(
+    c(
+      "trip_start_hour",
+      "trip_start_sec",
+      "trip_end_hour",
+      "trip_end_sec"
+    ),
+    ~ as.numeric(.x)
+  )) |>
+  mutate(
+    trip_start_date_time = lubridate::make_datetime(
+      lubridate::year(TRIP_START_DATE),
+      lubridate::month(TRIP_START_DATE),
+      lubridate::day(TRIP_START_DATE),
+      as.numeric(trip_start_hour),
+      as.numeric(trip_start_sec),
+      tz = Sys.timezone()
+    )
+  ) |>
+  mutate(
+    trip_end_date_time = lubridate::make_datetime(
+      lubridate::year(TRIP_END_DATE),
+      lubridate::month(TRIP_END_DATE),
+      lubridate::day(TRIP_END_DATE),
+      as.numeric(trip_end_hour),
+      as.numeric(trip_end_sec),
+      tz = Sys.timezone()
+    )
+  )
+
+# str(db_logbooks_2022_short_date_time)
+
+# compare trips/vessels
+# tidyverse combine year, month and day into a date lubridate
+#     str(db_logbooks_2022_short)
+# lubridate::date("2022-01-04 23:00:00")
+
+lgb_join_i1 <-
+  right_join(
+    db_logbooks_2022_short_date_time,
+    survey_data_l_2022_vsl_date_time_all,
+    join_by(
+      VESSEL_OFFICIAL_NBR == vsl_num,
+      trip_end_date_only == interview_date
+    ),
+    relationship = "many-to-many"
+  )
+# ℹ Row 5799 of `x` matches multiple rows in `y`.
+# ℹ Row 944 of `y` matches multiple rows in `x`.
+
+dim(lgb_join_i1)
+# 2015 23
+
+n_distinct(lgb_join_i1$VESSEL_OFFICIAL_NBR)
+# 476
+
+# str(lgb_join_i1)
+
+# intervie and trip time difference ----
+lgb_join_i1__t_diff <-
+  lgb_join_i1 |>
+  mutate(
+    trip_end_interview_diff =
+      trip_end_date_time - interview_date_time,
+    trip_start_interview_diff =
+      trip_start_date_time - start_time
+  )
+
+lgb_join_i1__t_diff_short <-
+  lgb_join_i1__t_diff |>
+  select(
+    id_code,
+    TRIP_ID,
+    VESSEL_OFFICIAL_NBR,
+    trip_start_date_time,
+    start_time,
+    trip_start_interview_diff,
+    trip_end_date_time,
+    interview_date_time,
+    trip_end_interview_diff
+  )
+
+# View(lgb_join_i1__t_diff_short)
+
+# has logbooks ----
+lgb_join_i1__t_diff_short_has_trip <-
+  lgb_join_i1__t_diff_short |>
+  filter(!is.na(TRIP_ID))
+
+# n_distinct(lgb_join_i1__t_diff_short_has_trip$VESSEL_OFFICIAL_NBR)
+# 228
+
+
+# find duplicates ----
+
+## duplicated vessel/trip_end ----
+lgb_join_i1__t_diff_short %>%
+  dplyr::group_by(VESSEL_OFFICIAL_NBR, lubridate::day(trip_end_date_time)) %>%
+  filter(n() > 1) |> 
+  glimpse()
+
+
+## duplicated id_code (2 trips - 1 interview) ----
+lgb_join_i1__t_diff_short |> 
+  dplyr::group_by(id_code) |> 
+  dplyr::filter(n() > 1) |>
+  dplyr::arrange(id_code, trip_end_date_time) |>
+  dplyr::glimpse()
+
+## interval and big_diff_time ----
+lgb_join_i1__t_diff_short__w_int_all <-
+  lgb_join_i1__t_diff_short_has_trip |>
+  dplyr::group_by(TRIP_ID) |>
+  dplyr::mutate(
+    trip_end_interval =
+      lubridate::interval(
+        start =
+          trip_end_date_time - lubridate::minutes(30),
+        end = trip_end_date_time + lubridate::minutes(90),
+        tz = Sys.timezone()
+      )
+  ) |> 
+  mutate(big_diff_time = dplyr::case_when(
+    !interview_date_time %within% trip_end_interval ~ "yes",
+    .default = "no"
+  )) |> 
+  ungroup()
+
+## duplicated trip_id (2 trips - 2 interview) ----
+
+lgb_join_i1__t_diff_short %>%
+  dplyr::group_by(TRIP_ID) %>%
+  dplyr::filter(n() > 1) |>
+  dplyr::arrange(TRIP_ID, interview_date_time, trip_end_date_time) |>
+  dplyr::glimpse()
+
+lgb_join_i1__t_diff_short__w_int <-
+  lgb_join_i1__t_diff_short |>
+  dplyr::group_by(TRIP_ID) |>
+  dplyr::filter(n() > 1) |>
+  dplyr::mutate(
+    trip_end_interval =
+      lubridate::interval(
+        start =
+          trip_end_date_time - lubridate::minutes(30),
+        end = trip_end_date_time + lubridate::minutes(90),
+        tz = Sys.timezone()
+      )
+  ) |> 
+  mutate(big_diff_time = dplyr::case_when(
+    !interview_date_time %within% trip_end_interval ~ "yes",
+    .default = "no"
+  )) |> 
+  ungroup()
+  
+lgb_join_i1__t_diff_short__w_int |>
+  arrange(VESSEL_OFFICIAL_NBR,
+          id_code,
+          TRIP_ID,
+          trip_end_date_time,
+          big_diff_time) |>
+  filter(!is.na(TRIP_ID)) |>
+  select(-c(contains("start"))) |>
+  glimpse()
+
+# a <- lubridate::ymd_hms("2022-06-01 07:09:00")
+# a - lubridate::hours(1)
+
+lgb_join_i1__t_diff_short__w_int_all_dup <-
+  lgb_join_i1__t_diff_short__w_int_all |>
+  group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |>
+  add_count(TRIP_ID, name = "dup_interviews") |>
+  ungroup()
+
+lgb_join_i1__t_diff_short__w_int_all_dup |> 
+  filter(dup_interviews > 1) |> 
+# 58
+  filter(big_diff_time == "yes") |> 
+  glimpse()
+# 31
+
+## remove duplicated trip/interview ----
+# They are a result of full join on a day, e.g. 2 trips, 2 interviews
+lgb_join_i1__t_diff_short__w_int_all_dup |>
+  filter(dup_interviews > 1) |>
+  select(-ends_with("_diff")) |>
+  glimpse()
+
+int_dups_only <- 
+  lgb_join_i1__t_diff_short__w_int_all_dup |>
+  filter(dup_interviews > 1) |>
+  filter(big_diff_time == "yes") |>
+  select(id_code, TRIP_ID, VESSEL_OFFICIAL_NBR) |> 
+  distinct()
+
+dim(int_dups_only)
+# 31
+
+## remove duplicates ----
+lgb_join_i1__t_diff_short__w_int_all_dup_rm <-
+  lgb_join_i1__t_diff_short__w_int_all_dup |>
+  anti_join(int_dups_only)
+# Joining with `by = join_by(id_code, TRIP_ID, VESSEL_OFFICIAL_NBR)`
+
+nrow(lgb_join_i1__t_diff_short__w_int_all_dup) -
+  nrow(lgb_join_i1__t_diff_short__w_int_all_dup_rm) ==
+  nrow(int_dups_only)
+# T
+  
+# check time difference ----
+lgb_join_i1__t_diff_short__w_int_all_dup |>
+  filter(dup_interviews == 1) |>
+  filter(big_diff_time == "yes") |>
+  # select(id_code, TRIP_ID, VESSEL_OFFICIAL_NBR)
+  select(
+    VESSEL_OFFICIAL_NBR,
+    trip_end_date_time,
+    interview_date_time,
+    trip_end_interview_diff,
+    trip_end_interval
+  ) |>
+  arrange(
+    VESSEL_OFFICIAL_NBR,
+    trip_end_date_time,
+    interview_date_time,
+    trip_end_interview_diff,
+    trip_end_interval
+  ) |>
+  glimpse()
+
+# n_distinct(lgb_join_i1__t_diff_short__w_int_all_dup$TRIP_ID) ==
+# nrow(lgb_join_i1__t_diff_short__w_int_all_dup)
+# # F
+# 
+# lgb_join_i1__t_diff_short__w_int_all_dup |> 
+#   group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |> 
+#   mutate(dups = c(unique(dup_interviews))) |> 
+#   ungroup() |> 
+#   # filter(!dups == 1) |>
+#   # filter(!dups == 2) |> 
+#   select(dups) |> 
+#   distinct() |> 
+# str()
+#   View()
+
+# remove duplicated interview counts (2 trips a day, 1 interview) ----
+## Do that for the df with no 2 by 2 duplicates ----
+### find interview dulicates ----
+lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup <-
+ lgb_join_i1__t_diff_short__w_int_all_dup_rm |>
+  group_by(VESSEL_OFFICIAL_NBR, id_code) |>
+  add_count(id_code, name = "dup_id_codes") |>
+  ungroup()
+
+lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup |> 
+  filter(dup_id_codes > 1) |> 
+  dim()
+  # 310
+
+lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup |>
+    filter(dup_id_codes == 2) |>
+    arrange(id_code, TRIP_ID, VESSEL_OFFICIAL_NBR, trip_end_date_time) |>
+    filter(big_diff_time == "no") |>
+dim()
+# [1] 146  13
+
+## get interview duplicates only ----
+
+trip_dups_only <- 
+  lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup |>
+  filter(dup_id_codes > 1) |>
+  filter(big_diff_time == "yes") |>
+  select(id_code, TRIP_ID, VESSEL_OFFICIAL_NBR) |> 
+  distinct()
+
+dim(trip_dups_only)
+# 164
+
+## remove duplicates 2 trips. 1 interview ----
+# Only keep logbooks with a correspondent interview
+lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm <-
+  lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup |>
+  anti_join(trip_dups_only)
+# Joining with `by = join_by(id_code, TRIP_ID, VESSEL_OFFICIAL_NBR)`
+
+nrow(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup) -
+  nrow(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm) ==
+  nrow(trip_dups_only)
+# T
+
+# TODO: check if not loosing trips by removing ----
+auxfunctions::data_overview(lgb_join_i1)
+# TRIP_ID              1054
+# VESSEL_OFFICIAL_NBR   476
+# id_code              1835
+
+auxfunctions::data_overview(lgb_join_i1__t_diff_short__w_int_all)
+# id_code                    901
+# TRIP_ID                   1053
+# VESSEL_OFFICIAL_NBR        228
+
+auxfunctions::data_overview(lgb_join_i1__t_diff_short__w_int_all_dup_rm)
+# id_code                    896
+# TRIP_ID                   1051
+# VESSEL_OFFICIAL_NBR        228
+
+auxfunctions::data_overview(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm)
+# id_code                   886
+# TRIP_ID                   887
+# VESSEL_OFFICIAL_NBR       227
+
+# View(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm)
+
+lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short <- lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm |>
+  select(-c(
+    # ends_with("_diff"),
+    # ends_with("_interval"),
+    contains("start"),
+    starts_with("dup_")
+  )) |> 
+  arrange(VESSEL_OFFICIAL_NBR, trip_end_date_time)
+
+glimpse(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short)
+# TODO: why id_code > TRIP_ID?
+
+# TODO: check interview before trip end, joined a wrong trip?
