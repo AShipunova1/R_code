@@ -113,4 +113,21 @@ catch_info_i3 |>
 # 68
   dim()
 
+# compare ACTIVITY_TYPE_NAME	no_harvested_selected
+
+# ACTIVITY_TYPE_NAME
+# [1] "TRIP WITH EFFORT"
+# catch_info_i3$no_harvested_selected |> unique()
+# 1, 2 (1=YES, 2=NO)
+
+compare_fields <- 
+  c("ACTIVITY_TYPE_NAME", "no_harvested_selected")
+
+catch_info_i3 |>
+  select(all_of(compare_fields)) |>
+  distinct() |>
+  glimpse()
+# $ ACTIVITY_TYPE_NAME    <chr> "TRIP WITH EFFORT", "TRIP WITH EFFORT"
+# $ no_harvested_selected <int> 2, 1
+
 # Catch ----
