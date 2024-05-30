@@ -579,6 +579,14 @@ survey_data_l_2022_short$i2 <-
 survey_data_l_2022_short$i3 <-
   survey_data_l_2022_short$i3 |>
   tibble::add_column(i3 = "harvested")
+
+# survey_data_l_2022_short$i3 |> glimpse()
+
+# survey_data_l_2022_short |> purrr::map(dim)
+
+catch_info_i1 <- 
+  left_join(catch_info_lgb,
+            survey_data_l_2022_short$i1)
 # Joining with `by = join_by(id_code)`
 
 dim(catch_info_2)
