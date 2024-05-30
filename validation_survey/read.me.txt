@@ -6,6 +6,9 @@ Dominique created some code here, when she was combining files and estimating th
 
   https://docs.google.com/spreadsheets/d/1mWhp2ITRxwi_EZ3D6sRX6f9lhs9Ysm-EJbQJaqlbjIQ/edit#gid=1138378412
 ===
+From Michele
+1.) released = discarded fish; harvested = landed (retained catch). These are separate
+===
 From Gregg Bray
 A_SEFHIER_2021_042022.xls - this is the assignment level data.  It basically gives you the sample draw with the results of how many intercepts were collected and what times the samplers were on site collecting intercepts. 
 It also gives you the assignment level comments that they collected.  
