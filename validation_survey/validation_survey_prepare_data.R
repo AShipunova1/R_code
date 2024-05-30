@@ -572,6 +572,13 @@ survey_data_l_2022_short <-
 catch_info_2 <- 
   left_join(catch_info_1,
             survey_data_l_2022$i1)
+survey_data_l_2022_short$i2 <-
+  survey_data_l_2022_short$i2 |>
+  tibble::add_column(i2 = "released")
+
+survey_data_l_2022_short$i3 <-
+  survey_data_l_2022_short$i3 |>
+  tibble::add_column(i3 = "harvested")
 # Joining with `by = join_by(id_code)`
 
 dim(catch_info_2)
