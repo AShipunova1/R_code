@@ -2,11 +2,13 @@
 library(ggplot2)
 library(ggbreak)
 
-big_diff_times <- 
-  lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short |> 
-  filter(big_diff_time == "yes") |> 
-  mutate(int_before_trip = trip_end_interview_diff < 1,
-         diff_as_num = as.numeric(trip_end_interview_diff) / 60)
+big_diff_times <-
+  lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short |>
+  filter(big_diff_time == "yes") |>
+  mutate(
+    int_before_trip = trip_end_interview_diff < 1,
+    diff_as_num = as.numeric(trip_end_interview_diff) / 60
+  )
 
 # View(big_diff_times)
 # 145
@@ -20,8 +22,8 @@ big_diff_times <-
 #   theme_bw() +
 #   theme(legend.position = "none")
 
-trip_int_diff_plot <- 
- big_diff_times |>
+trip_int_diff_plot <-
+  big_diff_times |>
   ggplot(
     aes(
       x = trip_end_date_time,
@@ -49,12 +51,15 @@ trip_int_diff_vsl_plot <-
 trip_int_diff_vsl_3m_plot <-
   big_diff_times |>
   filter(month(trip_end_date_time) == 7) |>
-  ggplot(aes(x = trip_end_date_time, 
-             y = VESSEL_OFFICIAL_NBR, 
-             colour = VESSEL_OFFICIAL_NBR,
-             label = diff_as_num)) +
-  geom_segment(aes(xend = interview_date_time, 
-                   yend = VESSEL_OFFICIAL_NBR),
+  ggplot(
+    aes(
+      x = trip_end_date_time,
+      y = VESSEL_OFFICIAL_NBR,
+      colour = VESSEL_OFFICIAL_NBR,
+      label = diff_as_num
+    )
+  ) +
+  geom_segment(aes(xend = interview_date_time, yend = VESSEL_OFFICIAL_NBR),
                colour = "black") +
   geom_point(size = 3) +
   geom_point(aes(x = interview_date_time), size = 3) +
@@ -65,7 +70,7 @@ trip_int_diff_vsl_3m_plot +
   geom_text(check_overlap = TRUE,
             vjust = 0,
             nudge_y = 0.3)
-# 
+#
 #             vjust = 0)
 
 # ---- year/week
@@ -89,7 +94,7 @@ names(y25_b) <- "the_date"
 
 y25_e <-
   seq(ymd('2025-11-30'), ymd('2026-1-3'), by = 'day') |>
-  as.data.frame() 
+  as.data.frame()
 
 names(y25_e) <- "the_date"
 
@@ -97,11 +102,11 @@ names(y25_e) <- "the_date"
 # y25_e |> tail()
 # isoweek(y25_b) |> head()
 # isoweek(y25_b) |> tail()
-# 
+#
 # isoweek(y25_e) |> head()
 # isoweek(y25_e) |> tail()
-y25_all <- 
-  y25 |> 
+y25_all <-
+  y25 |>
   as.data.frame()
 
 names(y25_all) <- "the_date"
@@ -109,12 +114,13 @@ names(y25_all) <- "the_date"
 y25_all <-
   y25_all |>
   mutate(
-    week_num = isoweek(the_date),
-    the_year = isoyear(the_date),
+    week_num = week(the_date),
+    the_year = year(the_date),
     week_start = floor_date(the_date, "week", week_start = 1),
     week_end = ceiling_date(the_date, "week", week_start = 1) - 1,
     year_start = floor_date(the_date, "year", week_start = 1),
-    year_end = ceiling_date(the_date, "year", week_start = 1) - 1
+    year_end = ceiling_date(the_date, "year", week_start = 1) - 1,
+    week_name = seq()
   )
 
 head(y25_all)
@@ -151,11 +157,9 @@ gg_full <-
   ggplot(data = y25_all, aes(week_start, 0, label = week_num, color = week_num)) +
   geom_point(size = 3) +
   geom_segment(aes(week_start, 0, xend = week_end, yend = 0)) +
-  geom_text(
-    check_overlap = TRUE,
-    vjust = 0,
-    nudge_y = 0.1
-  ) +
+  geom_text(check_overlap = TRUE,
+            vjust = 0,
+            nudge_y = 0.1) +
   theme_bw() +
   ylim(-1, 1)
 # p + coord_cartesian(xlim =c(Sys.Date() - 30, NA), ylim = c(10, 20))
@@ -287,18 +291,25 @@ gg_gap_25_24_26_tr1 <-
   )
 
 color_trip2 <- "violet"
-gg_gap_25_24_26_tr1 +
+
+gg_gap_25_24_26_tr1_tr2 <-
+  gg_gap_25_24_26_tr1 +
   geom_segment(aes(
     x = ymd(trip2_start),
     xend = ymd(trip2_end),
     y = -0.5,
     yend = -0.5
-  ),
-  colour = color_trip2) +
+  ), colour = color_trip2) +
   annotate(
     "text",
     x = ymd(trip2_start) + 4,
     y = -0.55,
     label = "Trip 2",
     color = color_trip2
-  ) 
+  )
+
+gg_gap_25_24_26_tr1_tr2
+
+isoweek(ymd("2024-12-31"))
+week(ymd("2024-12-31"))
+year(ymd("2024-12-31"))
