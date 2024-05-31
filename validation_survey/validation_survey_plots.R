@@ -319,3 +319,45 @@ gg_gap_25_24_26_tr1_tr2
 # isoweek(ymd("2024-12-31"))
 # week(ymd("2024-12-31"))
 # year(ymd("2024-12-31"))
+
+# add compliance year
+
+color_compliance_year <- "blue"
+gg_gap_25_24_26_tr1_tr2 +
+  geom_segment(aes(
+    x = first_week_start,
+    y = 0.75,
+    xend = last_week_start,
+    yend = 0.75
+  ),
+  colour = color_compliance_year) +
+  annotate(
+    "text",
+    x = first_week_start + 10,
+    y = 0.8,
+    label = "Compliance Year 2025",
+    color = color_compliance_year
+  ) +
+  geom_segment(
+    aes(
+      x = first_week_start,
+      y = 0,
+      xend = first_week_start,
+      yend = 1
+    ),
+    colour = color_compliance_year,
+    linetype = "dashed"
+  ) +
+  geom_segment(
+    aes(
+      x = last_week_start,
+      y = 0,
+      xend = last_week_start,
+      yend = 1
+    ),
+    colour = color_compliance_year,
+    linetype = "dashed"
+  ) 
+ 
+
+# (incl. the fringe week at the beginning, but excluding the fringe week at the end)
