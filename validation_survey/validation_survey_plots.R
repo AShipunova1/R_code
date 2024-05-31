@@ -106,8 +106,11 @@ names(y25_e) <- "the_date"
 # isoweek(y25_e) |> head()
 # isoweek(y25_e) |> tail()
 
+first_date <- ymd('2024-12-29')
+last_date <- ymd('2026-1-3')
+
 y24_25_26 <-
-  seq(ymd('2024-12-29'), ymd('2026-1-3'), by = 'day')
+  seq(first_date, last_date, by = 'day')
 
 y25_all <-
   y24_25_26 |>
@@ -123,8 +126,7 @@ y25_all <-
     week_start = floor_date(the_date, "week", week_start = 1),
     week_end = ceiling_date(the_date, "week", week_start = 1) - 1,
     year_start = floor_date(the_date, "year", week_start = 1),
-    year_end = ceiling_date(the_date, "year", week_start = 1) - 1,
-    week_name = seq()
+    year_end = ceiling_date(the_date, "year", week_start = 1) - 1
   )
 
 head(y25_all)
@@ -139,23 +141,6 @@ y25_b_all <-
     year_start = floor_date(the_date, "year", week_start = 1),
     year_end = ceiling_date(the_date, "year", week_start = 1) - 1
   )
-
-y25_b_all |> glimpse()
-
-y25_e_all <-
-  y25_e |>
-  mutate(
-    week_num = isoweek(the_date),
-    the_year = isoyear(the_date),
-    week_start = floor_date(the_date, "week", week_start = 1),
-    week_end = ceiling_date(the_date, "week", week_start = 1) - 1,
-    year_start = floor_date(the_date, "year", week_start = 1),
-    year_end = ceiling_date(the_date, "year", week_start = 1) - 1
-  )
-
-tail(y25_e_all, 10)
-
-y25_b_all |> print_df_names()
 
 gg_full <-
   ggplot(data = y25_all, aes(week_start, 0, label = week_num, color = week_num)) +
@@ -174,6 +159,8 @@ gg_gap <-
   gg_full +
   scale_x_break(c(break_start, break_end)) +
   scale_x_date(date_breaks = "1 month", date_labels = "%b")
+
+# gg_gap
 
 color_25 <- "orange"
 gg_gap_25 <-
@@ -210,6 +197,7 @@ gg_gap_25 <-
     color = color_25
   )
 
+# gg_gap_25
 # lubridate::wday("2025-01-01", week_start = 1, label = T)
 # Wed
 
@@ -221,7 +209,7 @@ color_24 <- "darkgreen"
 gg_gap_25_24 <-
   gg_gap_25 +
   geom_segment(aes(
-    x = first_week_start,
+    x = ymd(first_date),
     xend = ymd("2024-12-31") + 1,
     y = -0.25,
     yend = -0.25
@@ -229,16 +217,15 @@ gg_gap_25_24 <-
   colour = color_24) +
   annotate(
     "text",
-    x = first_week_end - 9,
+    x = first_week_start - 2,
     y = -0.35,
     label = "Year 2024",
     color = color_24
-  ) +
-  geom_point(aes(x = first_week_start, y = -0.25),
-             shape = 18,
-             color = color_24)
+  )
 
-# gg_gap_25_24_26
+gg_gap_25_24
+
+# gg_gap_25_24_26 ----
 
 last_day <- ymd("2025-12-31")
 last_week_start <- floor_date(last_day, "week", week_start = 1)
@@ -261,10 +248,10 @@ gg_gap_25_24_26 <-
     y = -0.35,
     label = "2026",
     color = color_26
-  ) +
-  geom_point(aes(x = last_week_end, y = -0.25),
-             shape = 18,
-             color = color_26)
+  )
+# geom_point(aes(x = last_week_end, y = -0.25),
+#            shape = 18,
+#            color = color_26)
 
 gg_gap_25_24_26
 
@@ -323,7 +310,8 @@ gg_gap_25_24_26_tr1_tr2
 # add compliance year
 
 color_compliance_year <- "blue"
-gg_gap_25_24_26_tr1_tr2 +
+gg_gap_25_24_26_tr1_tr2_compl <-
+  gg_gap_25_24_26_tr1_tr2 +
   geom_segment(aes(
     x = first_week_start,
     y = 0.75,
@@ -357,7 +345,20 @@ gg_gap_25_24_26_tr1_tr2 +
     ),
     colour = color_compliance_year,
     linetype = "dashed"
-  ) 
- 
+  )
 
-# (incl. the fringe week at the beginning, but excluding the fringe week at the end)
+gg_gap_25_24_26_tr1_tr2_compl +
+  labs(
+    title = "Dates used in the analysis.
+       Compliance Year incl. the fringe week at the beginning, but excl. the fringe week at the end",
+    x = "Dates",
+    y = ""
+  ) +
+  theme(
+    axis.title.y = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank()
+  )
+
+
+# 
