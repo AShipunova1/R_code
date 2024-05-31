@@ -236,7 +236,8 @@ last_week_end <- ceiling_date(last_day, "week", week_start = 1) - 1
 
 color_26 <- "green"
 
-gg_gap_25_24 +
+gg_gap_25_24_26 <-
+  gg_gap_25_24 +
   geom_segment(aes(
     x = last_day + 1,
     xend = last_week_end,
@@ -255,3 +256,49 @@ gg_gap_25_24 +
              shape = 18,
              color = color_26)
 
+gg_gap_25_24_26
+
+# add trip
+# add dnf
+# add compliance year
+
+# add trip ----
+trip1_start <- "2024-12-30"
+trip1_end <- "2025-01-02"
+
+trip2_start <- "2025-12-30"
+trip2_end <- "2026-01-02"
+
+color_trip1 <- "purple"
+gg_gap_25_24_26_tr1 <-
+  gg_gap_25_24_26 +
+  geom_segment(aes(
+    x = ymd(trip1_start),
+    xend = ymd(trip1_end),
+    y = -0.5,
+    yend = -0.5
+  ), colour = color_trip1) +
+  annotate(
+    "text",
+    x = ymd(trip1_start) - 1,
+    y = -0.55,
+    label = "Trip 1",
+    color = color_trip1
+  )
+
+color_trip2 <- "violet"
+gg_gap_25_24_26_tr1 +
+  geom_segment(aes(
+    x = ymd(trip2_start),
+    xend = ymd(trip2_end),
+    y = -0.5,
+    yend = -0.5
+  ),
+  colour = color_trip2) +
+  annotate(
+    "text",
+    x = ymd(trip2_start) + 4,
+    y = -0.55,
+    label = "Trip 2",
+    color = color_trip2
+  ) 
