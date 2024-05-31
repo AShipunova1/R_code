@@ -165,16 +165,18 @@ gg_gap <-
   scale_x_break(c(ymd("2025-02-1"), ymd("2025-11-30"))) +
   scale_x_date(date_breaks = "1 month", date_labels = "%b")
 
-gg_gap +
-  geom_vline(xintercept = ymd("2025-01-1"), color = "red") +
-  geom_vline(xintercept = ymd("2025-12-31"), color = "red") +
+color_25 <- "orange"
+gg_gap_25 <-
+  gg_gap +
+  geom_vline(xintercept = ymd("2025-01-1"), color = color_25) +
+  geom_vline(xintercept = ymd("2025-12-31"), color = color_25) +
   annotate(
     "text",
     x = ymd("2024-12-31"),
     y = 0.5,
     label = "2025-01-01",
     angle = 90,
-    color = "red"
+    color = color_25
   ) +
   annotate(
     "text",
@@ -182,22 +184,74 @@ gg_gap +
     y = 0.5,
     label = "2025-12-31",
     angle = 90,
-    color = "red"
+    color = color_25
   ) +
   geom_segment(aes(
     x = ymd("2025-01-01"),
     y = 0.25,
     xend = ymd("2025-12-31"),
-    yend = 0.25),
-    colour = "red"
-  ) +
+    yend = 0.25
+  ), colour = color_25) +
   annotate(
     "text",
     x = ymd("2025-1-15") - 1,
     y = 0.35,
     label = "Year 2025",
-    color = "red"
+    color = color_25
   )
 
+# lubridate::wday("2025-01-01", week_start = 1, label = T)
+# Wed
 
+first_week_start <- floor_date(ymd("2024-12-31"), "week", week_start = 1)
+first_week_end <- ceiling_date(ymd("2024-12-31"), "week", week_start = 1) - 1
+
+color_24 <- "darkgreen"
+
+gg_gap_25_24 <-
+  gg_gap_25 +
+  geom_segment(aes(
+    x = first_week_start,
+    xend = ymd("2024-12-31") + 1,
+    y = -0.25,
+    yend = -0.25
+  ),
+  colour = color_24) +
+  annotate(
+    "text",
+    x = first_week_end - 9,
+    y = -0.35,
+    label = "Year 2024",
+    color = color_24
+  ) +
+  geom_point(aes(x = first_week_start, y = -0.25),
+             shape = 18,
+             color = color_24)
+
+# gg_gap_25_24_26
+
+last_day <- ymd("2025-12-31")
+last_week_start <- floor_date(last_day, "week", week_start = 1)
+last_week_end <- ceiling_date(last_day, "week", week_start = 1) - 1
+
+color_26 <- "green"
+
+gg_gap_25_24 +
+  geom_segment(aes(
+    x = last_day + 1,
+    xend = last_week_end,
+    y = -0.25,
+    yend = -0.25
+  ),
+  colour = color_26) +
+  annotate(
+    "text",
+    x = last_day + 3,
+    y = -0.35,
+    label = "2026",
+    color = color_26
+  ) +
+  geom_point(aes(x = last_week_end, y = -0.25),
+             shape = 18,
+             color = color_26)
 
