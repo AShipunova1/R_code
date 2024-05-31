@@ -123,6 +123,14 @@ source_path_var_names <-
 # assuming files are named by convention:
 # FILE_NAME_PART_path
 # {curent_project_name}_{FILE_NAME_PART} in the current project directory dir_to_comb
+# i.e.
+# prepare_data_path <-
+#   file.path(current_project_dir_name,
+#             paste0(current_project_name, "_", "prepare_data.R"))
+# 
+# file.exists(prepare_data_file_path)
+# 
+# source(prepare_data_file_path)
 
 make_source_path <- function(dir_to_comb, source_path_var_names) {
   source_path_var_names |>
@@ -145,6 +153,11 @@ read_source_files <- function(source_paths) {
     })
   return(file_content)
 }
+
+purrr::map(source_paths, file.exists)
+# "C:\Users\anna.shipunova\Documents\R_code_github\validation_survey\validation_survey_get_data.R"
+# [1] "C:/Users/anna.shipunova/Documents/R_code_github/validation_survey/validation_survey_get_data_file.R"
+
 
 source_files_content <- read_source_files(source_paths) |>
   set_names(source_paths_matches)
