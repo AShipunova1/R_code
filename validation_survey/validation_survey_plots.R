@@ -1,5 +1,6 @@
 # plot intervals ----
 library(ggplot2)
+library(ggbreak)
 
 big_diff_times <- 
   lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short |> 
@@ -146,13 +147,30 @@ tail(y25_e_all, 10)
 
 y25_b_all |> print_df_names()
 
-ggplot(data = y25_all,
-       aes(week_start, 0,
-       label = week_num,
-       color = week_num
-       )) +
-  geom_point() +
-  geom_segment(aes(week_start, 0, xend = week_end, yend = 0))
+gg_full <-
+  ggplot(data = y25_all, aes(week_start, 0, label = week_num, color = week_num)) +
+  geom_point(size = 3) +
+  geom_segment(aes(week_start, 0, xend = week_end, yend = 0)) +
+  geom_text(
+    check_overlap = TRUE,
+    vjust = 0
+    # nudge_y = 0.3
+  ) +
+  theme_bw()
+
+# install.packages("ggbreak")
+
+gg_full +
+  scale_x_break(c(ymd("2025-02-1"), ymd("2025-11-30"))) +
+  scale_x_date(date_breaks = "1 month", date_labels = "%b")
+  # theme(legend.position = "none")
+# trip_int_diff_vsl_3m_plot +
+
+# +
+  # theme(axis.text.x.top = element_blank(), axis.ticks.x.top = element_blank())
+
+
+
 
     # xend = interview_date_time, 
     #                yend = VESSEL_OFFICIAL_NBR),
