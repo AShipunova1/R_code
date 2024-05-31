@@ -99,6 +99,24 @@ names(y25_e) <- "the_date"
 # 
 # isoweek(y25_e) |> head()
 # isoweek(y25_e) |> tail()
+y25_all <- 
+  y25 |> 
+  as.data.frame()
+
+names(y25_all) <- "the_date"
+
+y25_all <-
+  y25_all |>
+  mutate(
+    week_num = isoweek(the_date),
+    the_year = isoyear(the_date),
+    week_start = floor_date(the_date, "week", week_start = 1),
+    week_end = ceiling_date(the_date, "week", week_start = 1) - 1,
+    year_start = floor_date(the_date, "year", week_start = 1),
+    year_end = ceiling_date(the_date, "year", week_start = 1) - 1
+  )
+
+head(y25_all)
 
 y25_b_all <-
   y25_b |>
@@ -128,21 +146,13 @@ tail(y25_e_all, 10)
 
 y25_b_all |> print_df_names()
 
-ggplot(data = y25_b_all,
+ggplot(data = y25_all,
        aes(week_start, 0,
        label = week_num,
        color = week_num
        )) +
   geom_point() +
-  geom_point(data = y25_e_all,
-       aes(week_start, 0,
-       label = week_num,
-       color = week_num
-       )) +
-  geom_segment(data = y25_b_all, 
-               aes(week_start, 0, xend = week_end, yend = 0)) +
-  geom_segment(data = y25_e_all, 
-               aes(week_start, 0, xend = week_end, yend = 0))
+  geom_segment(aes(week_start, 0, xend = week_end, yend = 0))
 
     # xend = interview_date_time, 
     #                yend = VESSEL_OFFICIAL_NBR),
