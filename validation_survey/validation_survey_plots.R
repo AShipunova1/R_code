@@ -153,10 +153,12 @@ gg_full <-
   geom_segment(aes(week_start, 0, xend = week_end, yend = 0)) +
   geom_text(
     check_overlap = TRUE,
-    vjust = 0
-    # nudge_y = 0.3
+    vjust = 0,
+    nudge_y = 0.1
   ) +
-  theme_bw()
+  theme_bw() +
+  ylim(-1, 1)
+# p + coord_cartesian(xlim =c(Sys.Date() - 30, NA), ylim = c(10, 20))
 
 gg_gap <-
   gg_full +
@@ -165,4 +167,37 @@ gg_gap <-
 
 gg_gap +
   geom_vline(xintercept = ymd("2025-01-1"), color = "red") +
-  geom_vline(xintercept = ymd("2025-12-31"), color = "red")
+  geom_vline(xintercept = ymd("2025-12-31"), color = "red") +
+  annotate(
+    "text",
+    x = ymd("2024-12-31"),
+    y = 0.5,
+    label = "2025-01-01",
+    angle = 90,
+    color = "red"
+  ) +
+  annotate(
+    "text",
+    x = ymd("2025-12-31") - 1,
+    y = 0.5,
+    label = "2025-12-31",
+    angle = 90,
+    color = "red"
+  ) +
+  geom_segment(aes(
+    x = ymd("2025-01-01"),
+    y = 0.25,
+    xend = ymd("2025-12-31"),
+    yend = 0.25),
+    colour = "red"
+  ) +
+  annotate(
+    "text",
+    x = ymd("2025-1-15") - 1,
+    y = 0.35,
+    label = "Year 2025",
+    color = "red"
+  )
+
+
+
