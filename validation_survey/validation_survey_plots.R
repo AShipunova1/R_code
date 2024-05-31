@@ -105,8 +105,12 @@ names(y25_e) <- "the_date"
 #
 # isoweek(y25_e) |> head()
 # isoweek(y25_e) |> tail()
+
+y24_25_26 <-
+  seq(ymd('2024-12-29'), ymd('2026-1-3'), by = 'day')
+
 y25_all <-
-  y25 |>
+  y24_25_26 |>
   as.data.frame()
 
 names(y25_all) <- "the_date"
@@ -164,9 +168,11 @@ gg_full <-
   ylim(-1, 1)
 # p + coord_cartesian(xlim =c(Sys.Date() - 30, NA), ylim = c(10, 20))
 
+break_start <- ymd("2025-01-1") + 15
+break_end <- ymd("2026-1-1") - 15
 gg_gap <-
   gg_full +
-  scale_x_break(c(ymd("2025-02-1"), ymd("2025-11-30"))) +
+  scale_x_break(c(break_start, break_end)) +
   scale_x_date(date_breaks = "1 month", date_labels = "%b")
 
 color_25 <- "orange"
@@ -284,7 +290,7 @@ gg_gap_25_24_26_tr1 <-
   ), colour = color_trip1) +
   annotate(
     "text",
-    x = ymd(trip1_start) - 1,
+    x = ymd(trip1_start),
     y = -0.55,
     label = "Trip 1",
     color = color_trip1
@@ -302,7 +308,7 @@ gg_gap_25_24_26_tr1_tr2 <-
   ), colour = color_trip2) +
   annotate(
     "text",
-    x = ymd(trip2_start) + 4,
+    x = ymd(trip2_start) + 3,
     y = -0.55,
     label = "Trip 2",
     color = color_trip2
@@ -310,6 +316,6 @@ gg_gap_25_24_26_tr1_tr2 <-
 
 gg_gap_25_24_26_tr1_tr2
 
-isoweek(ymd("2024-12-31"))
-week(ymd("2024-12-31"))
-year(ymd("2024-12-31"))
+# isoweek(ymd("2024-12-31"))
+# week(ymd("2024-12-31"))
+# year(ymd("2024-12-31"))
