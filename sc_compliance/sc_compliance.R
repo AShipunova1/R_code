@@ -310,49 +310,15 @@ read_rds_or_run <- function(my_file_path,
 
 try(con <- connect_to_secpr())
 
-# db_logbooks_fun <-
-#   function(db_logbooks_query) {
-#     return(dbGetQuery(con,
-#                       db_logbooks_query))
-#   }
-#
-# try(con <- connect_to_secpr())
-#
-# get_db_logbooks <-
-#   function() {
-#     read_rds_or_run(db_logbooks_file_name,
-#                     db_logbooks_query,
-#                     db_logbooks_fun)
-#   }
-#
-# db_logbooks <- get_db_logbooks()
-
 # Run the function
 get_compl_override_data <-
   function() {
     read_rds_or_run(my_file_path = compl_override_data_file_path,
                     compl_err_query,
                     my_function = compl_err_fun)
-
-    # force_from_db = TRUE
-    # db_logbooks_file_name,
-    # db_logbooks_query,
-    # db_logbooks_fun)
   }
 
 compl_override_data <- get_compl_override_data()
-
-# compl_override_data <-
-#   read_rds_or_run(
-#     my_file_path = compl_override_data_file_path,
-#     my_function = compl_err_fun,
-#     force_from_db = TRUE
-#   )
-#
-# compl_override_data <-
-#   read_rds_or_run(my_file_path = compl_override_data_file_path,
-#                   my_function = compl_err_query)
-# File: Raw_Oracle_Downloaded_compliance_2021_plus.rds modified 2024-04-02 12:18:54.299425
 
 ### prep the compliance/override data ----
 
@@ -692,10 +658,17 @@ names(SC_permittedVessels)
 
 # Convert federalfor_hirepermitexpiration column to a date format.
 # convertToDate() converts from excel date number to R Date type
+
+# print_df_names(SC_permittedVessels)
+
+SC_permittedVessels$federalfor_hirepermitexpiration |> head()
+
 SC_permittedVessels_correct_dates <-
   SC_permittedVessels |>
   mutate(federalfor_hirepermitexpiration =
            convertToDate(federalfor_hirepermitexpiration))
+
+SC_permittedVessels_correct_dates$federalfor_hirepermitexpiration |> head()
 
 ### change sc data format ----
 
@@ -743,7 +716,7 @@ SC_permittedVessels_longer_m_y <-
   mutate(across(all_of(c("month_sc", "year_sc")), as.numeric)) |>
   distinct()
 
-# glimpse(SC_permittedVessels_longer_m_y)
+glimpse(SC_permittedVessels_longer_m_y)
 
 # SRHS: check and remove reports_to_srhs ----
 
@@ -753,7 +726,7 @@ sc__srhs_join <-
             srhs_2024,
             join_by(vesselreg_uscg_ == uscg__))
 
-# glimpse(sc__srhs_join)
+glimpse(sc__srhs_join)
 
 # Get all the combinations of SC and SRHS lists.
 # In this results we have:
@@ -811,7 +784,7 @@ n_distinct(SC_permittedVessels_correct_dates)
 # 215
 n_distinct(sc__fhier_compl__join_w_month$vesselreg_uscg_)
 # 207 (rm SRHS)
-# glimpse(sc__fhier_compl__join_w_month)
+glimpse(sc__fhier_compl__join_w_month)
 
 
 sc__fhier_compl__join_w_month |>
@@ -859,6 +832,11 @@ non_compliant_vessels_in_sc_and_compl_in_fhier__m_w__output <-
 # Logbook (list any dates for that month)
 # Get all logbooks info for this vessels filtered by month
 
+intersect(names(logbooks), names(non_compliant_vessels_in_sc_and_compl_in_fhier__m_w__output))
+
+dim(logbooks)
+dim(non_compliant_vessels_in_sc_and_compl_in_fhier__m_w__output)
+
 logbooks__sc_fhier <-
   logbooks |>
   inner_join(
@@ -870,8 +848,10 @@ logbooks__sc_fhier <-
     )
   )
 
+dim(logbooks__sc_fhier)
+
 # This is a good example of a trip that happens in Jan (1/30), in the week started in Jan and ended in Feb, hence it is marked as compliant in FHIER for February.
-# glimpse(logbooks__sc_fhier)
+glimpse(logbooks__sc_fhier)
 
 # subset columns of data to output
 logbooks__sc_fhier_for_output <-
@@ -888,7 +868,7 @@ logbooks__sc_fhier_for_output <-
   distinct() |>
   arrange(vessel_official_number, trip_start_date)
 
-# glimpse(logbooks__sc_fhier_for_output)
+glimpse(logbooks__sc_fhier_for_output)
 
 ## add DNF info ----
 # DNF (list week date range for any for that month)
