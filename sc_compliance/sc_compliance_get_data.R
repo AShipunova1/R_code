@@ -394,3 +394,70 @@ dim(SC_permittedVessels_longer_m_y)
 dim(SC_permittedVessels_longer_m_y_no_srhs)
 # [1] 2640    9
 
+# combine data ----
+
+# Join the SC data with the compliance data we prepared, by vessel, month and year.
+
+# Explanations:
+# 1. 'sc__fhier_compl__join_w_month' is created by left joining two data frames: 'SC_permittedVessels_longer_m_y_no_srhs' and 'compl_override_data__renamed_m_short__m_compl'.
+# 2. The join is performed based on the following conditions:
+#    a. The vessel registration number from 'SC_permittedVessels_longer_m_y_no_srhs' matches the vessel official number from 'compl_override_data__renamed_m_short__m_compl'.
+#    b. The month_sc column (representing the month in 'SC_permittedVessels_longer_m_y_no_srhs') falls within the range of months (comp_month_min to comp_month_max) in 'compl_override_data__renamed_m_short__m_compl'.
+#    c. The year_sc column (representing the year in 'SC_permittedVessels_longer_m_y_no_srhs') matches the comp_year column in 'compl_override_data__renamed_m_short__m_compl'.
+
+# SC_permittedVessels_longer_m_y_no_srhs |> print_df_names()
+#   select(contains("month")) |> head()
+
+# compl_override_data__renamed_m_short__m_compl |>
+#   select(contains("month")) |> glimpse()
+# by <- join_by(id, closest(sale_date >= promo_date), sale_date_lower <= promo_date)
+# full_join(sales, promos, by)
+
+sc__fhier_compl__join_w_month <-
+  dplyr::left_join(
+    SC_permittedVessels_longer_m_y_no_srhs,
+    compl_override_data__renamed_m_short__m_compl,
+    dplyr::join_by(
+      vessel_reg_uscg_ == vessel_official_number,
+      month_sc >= comp_month_min,
+      month_sc <= comp_month_max,
+      year_sc == comp_year,
+    )
+  )
+
+sc__fhier_compl__join_w_month |>
+  filter(year_sc == my_year &
+           month_sc %in% last_2_m) |> View()
+
+# check
+dim(SC_permittedVessels)
+# [1] 228  18
+dim(SC_permittedVessels_longer_m_y_no_srhs)
+# [1] 2640    9
+dim(sc__fhier_compl__join_w_month)
+# [1] 10512    24
+n_distinct(SC_permittedVessels)
+# 228
+n_distinct(sc__fhier_compl__join_w_month$vessel_reg_uscg_)
+# 220 (rm SRHS)
+# glimpse(sc__fhier_compl__join_w_month)
+
+sc__fhier_compl__join_w_month |>
+  select(contains("month")) |>
+  distinct() |>
+  filter(!month_comp_min == month_comp_max) |>
+  glimpse()
+# 46
+
+# Get only the 2 last months ----
+month_now <- lubridate::month(lubridate::today())
+last_2_m <- c(month_now - 1, month_now - 2)
+
+sc__fhier_compl__join_w_month_last2 <-
+  sc__fhier_compl__join_w_month |>
+  dplyr::filter(year_sc == my_year &
+                  month_sc %in% last_2_m)
+
+dim(sc__fhier_compl__join_w_month_last2)
+# [1] 1906   24
+#
