@@ -236,3 +236,19 @@ dim(logbooks)
 logbooks |>
   dplyr::filter(lubridate::month(comp_week_end_dt) == 4) |>
   glimpse()
+
+# get dnfs ----
+
+# set the path to processed DNF data
+dnf_file_path <-
+  file.path(processed_data_path,
+            stringr::str_glue("SEFHIER_processed_dnfs_{my_year}.rds"))
+
+# read in DNF data, clean up headers
+dnfs <-
+  readr::read_rds(dnf_file_path) |>
+  auxfunctions::clean_headers()
+
+# checks dimensions of the dataframe
+dim(dnfs)
+# [1] 168354     37
