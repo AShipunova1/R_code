@@ -463,7 +463,7 @@ add_compliant_after_override <- function(my_compl_df) {
   return(res)
 }
 
-# Run the function
+### Run the function ----
 tic("get comp/overridden")
 compl_override_data__renamed_m_short__compl_overr_by_week <-
   add_compliant_after_override(compl_override_data__renamed_m_short)
