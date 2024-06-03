@@ -252,3 +252,62 @@ dnfs <-
 # checks dimensions of the dataframe
 dim(dnfs)
 # [1] 168354     37
+
+# get srhs vessels ----
+
+# read csv and clean headers
+srhs_2024 <-
+  readr::read_csv(srhs_2024_file_path,
+                  col_types = readr::cols(.default = 'c')) |>
+  auxfunctions::clean_headers()
+
+# glimpse(srhs_2024)
+
+# read sc permitted data ----
+
+# read xlsx and clean headers
+SC_permittedVessels <-
+  auxfunctions::my_read_xlsx(sc_file_path) |>
+  auxfunctions::clean_headers()
+
+# glimpse(SC_permittedVessels)
+
+## fix dates in headers ----
+# TODO: grab just the month of interest (depends on the SC file)
+
+# grep for numbers only in the names and convert them
+
+# save the not digit headers
+not_date_names <-
+  grep("^\\D+$", names(SC_permittedVessels), value = T)
+
+# find all digit headers
+date_names_raw <-
+  grep("^\\d+$", names(SC_permittedVessels), value = T)
+
+# Explanations:
+# 1. Take the data frame 'date_names_raw'.
+# 2. Use the function 'convertToDate()' to convert the Excel integer values to Date objects.
+# 3. Use the 'format()' function to format the dates as "%m-%y", which represents month and year.
+# 4. Assign the result to 'date_names_ok'.
+date_names_ok <-
+  date_names_raw |>
+  openxlsx::convertToDate() |>
+  format("%m-%y")
+
+# combine the saved non-digit headers and the newly converted ones
+all_names <- c(not_date_names, date_names_ok)
+
+# check
+all_names
+
+# apply the names to the DF
+names(SC_permittedVessels) <-
+  all_names
+
+# check
+names(SC_permittedVessels)
+
+dim(SC_permittedVessels)
+# [1] 228  18
+
