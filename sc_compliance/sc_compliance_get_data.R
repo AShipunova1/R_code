@@ -124,3 +124,19 @@ compl_override_data__renamed_m_short <-
 dim(compl_override_data__renamed_m_short)
 # [1] 279379     11
 
+## get comp/overridden ----
+tictoc::tic("get comp/overridden")
+compl_override_data__renamed_m_short__compl_overr_by_week <-
+  auxfunctions::add_compliant_after_override(compl_override_data__renamed_m_short)
+tictoc::toc()
+# get comp/overridden: 58.25 sec elapsed
+
+# check all is_comp and overridden combinations
+compl_override_data__renamed_m_short__compl_overr_by_week |>
+    select(is_comp, overridden, compliant_after_override) |>
+    distinct()
+#   is_comp overridden compliant_after_override
+# 1       1          0 yes
+# 2       0          0 no
+# 3       0          1 yes
+# 4       1          1 yes
