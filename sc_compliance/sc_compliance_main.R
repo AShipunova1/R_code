@@ -79,3 +79,59 @@ processed_data_path <- annas_processed_data_path
 sc_file_path <- annas_sc_mismatch_file_path
 srhs_2024_file_path <- annas_srhs_2024_file_path
 
+get_data_path <- file.path(current_project_dir_name,
+                           paste0(current_project_basename, "_get_data.R"))
+
+file.exists(get_data_path)
+
+source(get_data_path)
+# res in
+# sc__fhier_compl__join_w_month
+# sc__fhier_compl__join_w_month_last2
+
+# Answering the questions ----
+
+# save common column names
+common_output_fields <-
+  c("delinquent",
+    "month_sc",
+    "year_sc",
+    "comp_week_start_dt",
+    "comp_week_end_dt")
+
+## 1. Non-compliant in SC and compliant in FHIER ----
+
+# a)
+non_compliant_vessels_in_sc_and_compl_in_fhier <-
+  sc__fhier_compl__join_w_month |>
+  dplyr::filter(delinquent_month == 1 &
+           common_month_compliance == "compl")
+
+non_compliant_vessels_in_sc_and_compl_in_fhier_last_2 <-
+  sc__fhier_compl__join_w_month_last2 |>
+  dplyr::filter(delinquent_month == 1 &
+           common_month_compliance == "compl")
+
+dim(non_compliant_vessels_in_sc_and_compl_in_fhier)
+# [1] 10 24
+
+View(non_compliant_vessels_in_sc_and_compl_in_fhier_last_2)
+# [1]  6 24
+
+# Get month and weeks when the vessels are marked as non-compliant in SC, but are compliant in FHIER
+non_compliant_vessels_in_sc_and_compl_in_fhier__m_w__output <-
+  non_compliant_vessels_in_sc_and_compl_in_fhier |>
+  select(
+    vessel_reg_uscg_,
+    all_of(common_output_fields),
+    compliant_after_override
+  ) |>
+  distinct() |>
+  arrange(vessel_reg_uscg_, comp_week_start_dt)
+
+dim(non_compliant_vessels_in_sc_and_compl_in_fhier__m_w__output)
+# [1] 10  7
+
+# b) list all the dates of DNFs and/or logbooks we have in FHIER by vessel.
+
+
