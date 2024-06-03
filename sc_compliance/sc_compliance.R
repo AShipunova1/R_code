@@ -227,7 +227,7 @@ WHERE
 # 3) create a function to pull data from the db ----
 compl_err_fun <-
   function(compl_err_query) {
-    return(dbGetQuery(con,
+    return(ROracle::dbGetQuery(con,
                       compl_err_query))
   }
 
@@ -308,13 +308,46 @@ read_rds_or_run <- function(my_file_path,
     return(my_result)
 }
 
+try(con <- connect_to_secpr())
+
+# db_logbooks_fun <-
+#   function(db_logbooks_query) {
+#     return(dbGetQuery(con,
+#                       db_logbooks_query))
+#   }
+#
+# try(con <- connect_to_secpr())
+#
+# get_db_logbooks <-
+#   function() {
+#     read_rds_or_run(db_logbooks_file_name,
+#                     db_logbooks_query,
+#                     db_logbooks_fun)
+#   }
+#
+# db_logbooks <- get_db_logbooks()
+
 # Run the function
-compl_override_data <-
-  read_rds_or_run(
-    my_file_path = compl_override_data_file_path,
-    my_function = compl_err_fun,
-    force_from_db = TRUE
-  )
+get_compl_override_data <-
+  function() {
+    read_rds_or_run(my_file_path = compl_override_data_file_path,
+                    compl_err_query,
+                    my_function = compl_err_fun)
+
+    # force_from_db = TRUE
+    # db_logbooks_file_name,
+    # db_logbooks_query,
+    # db_logbooks_fun)
+  }
+
+compl_override_data <- get_compl_override_data()
+
+# compl_override_data <-
+#   read_rds_or_run(
+#     my_file_path = compl_override_data_file_path,
+#     my_function = compl_err_fun,
+#     force_from_db = TRUE
+#   )
 #
 # compl_override_data <-
 #   read_rds_or_run(my_file_path = compl_override_data_file_path,
