@@ -140,3 +140,77 @@ compl_override_data__renamed_m_short__compl_overr_by_week |>
 # 2       0          0 no
 # 3       0          1 yes
 # 4       1          1 yes
+
+## Combine weekly compliance to create monthly compliance ----
+
+# Explanations:
+# - This code snippet combines weekly compliance data to create monthly compliance data for each vessel.
+# - The process is timed using `tic()` and `toc()` to measure its execution time.
+# - The `compl_override_data__renamed_m_short__compl_overr_by_week` dataframe is used as input.
+# - The data is first grouped by `vessel_official_number`, `comp_year`, and `comp_month_min` (the month of the compliance week start).
+# - For each group, the unique compliant statuses after override are calculated and concatenated into a string (`all_m_comp_min`).
+# - Monthly compliance (`month_comp_min`) is determined based on the concatenated compliant statuses.
+# - The process is repeated for `comp_month_max` to get the monthly compliance for the month of the end of the compliance week.
+# - Finally, the `compl_override_data__renamed_m_short__m_compl__both_months` dataframe is created with both `comp_month_min` and `comp_month_max` data.
+tictoc::tic("get month_comp")
+compl_override_data__renamed_m_short__m_compl__both_months <-
+  compl_override_data__renamed_m_short__compl_overr_by_week |>
+  dplyr::group_by(vessel_official_number, comp_year, comp_month_min) |>
+  dplyr::mutate(all_m_comp_min =
+                  toString(unique(sort(
+                    compliant_after_override
+                  )))) |>
+  dplyr::mutate(month_comp_min =
+                  dplyr::case_when(all_m_comp_min %in% c(c("no, yes"), "no") ~ "non_compl",
+                                   .default = "compl")) |>
+  dplyr::ungroup() |>
+  dplyr::group_by(vessel_official_number, comp_year, comp_month_max) |>
+  dplyr::mutate(all_m_comp_max =
+                  toString(unique(sort(
+                    compliant_after_override
+                  )))) |>
+  dplyr::mutate(month_comp_max =
+                  dplyr::case_when(all_m_comp_max %in% c(c("no, yes"), "no") ~ "non_compl",
+                                   .default = "compl")) |>
+  dplyr::ungroup()
+tictoc::toc()
+# get month_comp: 31.7 sec elapsed
+
+### combine month compliance for each week ----
+
+# Explanations:
+# 1. 'compl_override_data__renamed_m_short__m_compl' is created from 'compl_override_data__renamed_m_short__m_compl__both_months'.
+# 2. It groups the data by the vessel official number, compliance year, compliance week, start date of the compliance week, and end date of the compliance week.
+# 3. It calculates a new column 'common_month_compliance' based on conditions:
+#    a. If the minimum and maximum month values of compliance are both 'compl', then the 'common_month_compliance' is set to 'compl'.
+#    b. For all other cases, it is set to 'non_compl'. Meaning if a week that overlaps these 2 months is non_compl, both months are non-compliant.
+# 4. The data is ungrouped after the calculations are done.
+
+tictoc::tic("min_max_compl")
+compl_override_data__renamed_m_short__m_compl <-
+  compl_override_data__renamed_m_short__m_compl__both_months |>
+  dplyr::group_by(vessel_official_number,
+           comp_year,
+           comp_week,
+           comp_week_start_dt,
+           comp_week_end_dt) |>
+  dplyr::mutate(
+    common_month_compliance =
+      dplyr::case_when(
+        month_comp_min == month_comp_max &
+          month_comp_min == "compl" ~
+          month_comp_min,
+        .default = "non_compl"
+      )
+  ) |>
+  dplyr::ungroup()
+tictoc::toc()
+# min_max_compl: 35.58 sec elapsed
+
+# check
+compl_override_data__renamed_m_short__m_compl |>
+  select(contains("month")) |>
+  # filter(!month_comp_min == month_comp_max) |>
+  distinct() |>
+  filter(comp_month_min == 4) |>
+  glimpse()
