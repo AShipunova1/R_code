@@ -81,8 +81,8 @@ output_file_path <-
 # Set the date ranges for the logbook and compliance data you are pulling
 # this is the year to assign to the output file name
 # my_year <- "2022"
-my_year <- "2023"
-# my_year <- "2024"
+# my_year <- "2023"
+my_year <- "2024"
 
 # years range for srfh_vessel_comp db download, see below
 # this should at least run the year before my_year to the year after my_year
@@ -323,7 +323,7 @@ WHERE
 # See usage below at the `Grab compliance file from Oracle` section
 read_rds_or_run_query <- function(my_file_path,
                                   my_query,
-                                  force_from_db = NULL) {
+                                  force_from_db = TRUE) {
 
   if (file.exists(my_file_path)) {
     modif_time <- file.info(my_file_path)$mtime
@@ -389,7 +389,7 @@ read_rds_or_run_query <- function(my_file_path,
 compl_override_data <-
   read_rds_or_run_query(compl_override_data_file_path,
                         compl_err_query,
-                        force_from_db = NULL
+                        force_from_db = TRUE
                         )
 
 ### prep the compliance/override data ----
@@ -494,7 +494,7 @@ WHERE
 Logbooks_raw <-
   read_rds_or_run_query(logbooks_file_path,
                         logbooks_download_query,
-                        force_from_db = NULL)
+                        force_from_db = TRUE)
 
 # Rename column to be consistent with other dataframes
 Logbooks_raw_renamed <-
