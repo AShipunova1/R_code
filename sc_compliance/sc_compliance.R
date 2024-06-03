@@ -29,6 +29,13 @@
 #   6) “column_definitions.csv” (csv file of column definitions written by Michelle, used for the ReadMe tab of the output Excel spreadsheet, it should be available to download on Google Drive)
 
 # set up ----
+library(devtools)
+devtools::install_github("AShipunova1/R_code/auxfunctions@development")
+                         # ,
+                         # force = T)
+library(auxfunctions)
+
+
 # Load the 'ROracle' library, which provides an interface for working with Oracle databases in R.
 library(ROracle)
 
@@ -233,7 +240,9 @@ function_message_print <- function(text_msg) {
 read_rds_or_run <- function(my_file_path,
                             my_data = as.data.frame(""),
                             my_function,
-                            force_from_db = NULL) {
+                            force_from_db = TRUE) {
+
+  browser()
   if (file.exists(my_file_path)) {
     modif_time <- file.info(my_file_path)$mtime
   }
@@ -265,7 +274,7 @@ read_rds_or_run <- function(my_file_path,
       tictoc::tic(msg_text)  # Start timing the operation.
 
       # 2. Run the specified function 'my_function' on the provided 'my_data' to generate the result. I.e. download data from the Oracle database. Must be on VPN.
-
+      browser()
       my_result <- my_function(my_data)
 
       tictoc::toc()  # Stop timing the operation.
@@ -294,8 +303,15 @@ read_rds_or_run <- function(my_file_path,
 
 # Run the function
 compl_override_data <-
-  read_rds_or_run(compl_override_data_file_path,
-                  my_function = compl_err_query)
+  read_rds_or_run(
+    my_file_path = compl_override_data_file_path,
+    my_function = compl_err_query,
+    force_from_db = TRUE
+  )
+#
+# compl_override_data <-
+#   read_rds_or_run(my_file_path = compl_override_data_file_path,
+#                   my_function = compl_err_query)
 # File: Raw_Oracle_Downloaded_compliance_2021_plus.rds modified 2024-04-02 12:18:54.299425
 
 ### prep the compliance/override data ----
