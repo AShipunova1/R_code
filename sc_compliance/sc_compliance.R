@@ -35,7 +35,6 @@ devtools::install_github("AShipunova1/R_code/auxfunctions@development")
                          # force = T)
 library(auxfunctions)
 
-
 # Load the 'ROracle' library, which provides an interface for working with Oracle databases in R.
 library(ROracle)
 
@@ -225,6 +224,14 @@ FROM
 WHERE
   comp_year >= '{db_year_1}' AND comp_year <= '{db_year_2}'")
 
+# 3) create a function to pull data from the db ----
+compl_err_fun <-
+  function(compl_err_query) {
+    return(dbGetQuery(con,
+                      compl_err_query))
+  }
+
+
 # Create the compliance/overridden data frame
 # using the function pre-defined above to check if there is a file saved already,
 # read it
@@ -242,7 +249,7 @@ read_rds_or_run <- function(my_file_path,
                             my_function,
                             force_from_db = TRUE) {
 
-  browser()
+  # browser()
   if (file.exists(my_file_path)) {
     modif_time <- file.info(my_file_path)$mtime
   }
@@ -274,7 +281,7 @@ read_rds_or_run <- function(my_file_path,
       tictoc::tic(msg_text)  # Start timing the operation.
 
       # 2. Run the specified function 'my_function' on the provided 'my_data' to generate the result. I.e. download data from the Oracle database. Must be on VPN.
-      browser()
+      # browser()
       my_result <- my_function(my_data)
 
       tictoc::toc()  # Stop timing the operation.
@@ -305,7 +312,7 @@ read_rds_or_run <- function(my_file_path,
 compl_override_data <-
   read_rds_or_run(
     my_file_path = compl_override_data_file_path,
-    my_function = compl_err_query,
+    my_function = compl_err_fun,
     force_from_db = TRUE
   )
 #
