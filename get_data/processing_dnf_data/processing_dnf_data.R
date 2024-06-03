@@ -83,8 +83,8 @@ output_file_path <-
 # Set the date ranges for the DNF and compliance data you are pulling
 # this is the year to assign to the output file name
 # my_year <- "2022"
-my_year <- "2023"
-# my_year <- "2024"
+# my_year <- "2023"
+my_year <- "2024"
 
 # years range for srfh_vessel_comp db download, see below
 db_year_1 <- "2021"
@@ -329,7 +329,7 @@ WHERE
 # See usage below at the `Grab compliance file from Oracle` section
 read_rds_or_run_query <- function(my_file_path,
                                   my_query,
-                                  force_from_db = NULL) {
+                                  force_from_db = TRUE) {
 
   if (file.exists(my_file_path)) {
     modif_time <- file.info(my_file_path)$mtime
@@ -398,7 +398,7 @@ read_rds_or_run_query <- function(my_file_path,
 compl_override_data <-
   read_rds_or_run_query(compl_override_data_file_path,
                         compl_err_query,
-                        force_from_db = NULL)
+                        force_from_db = TRUE)
 
 # check a week start day, should be Monday
 compl_override_data |>
@@ -512,7 +512,7 @@ TO_DATE('{my_compliance_date_end}', 'yyyy-mm-dd')
 dnfs <-
   read_rds_or_run_query(dnfs_file_path,
                         dnfs_download_query,
-                        force_from_db = NULL)
+                        force_from_db = TRUE)
 
 # from scratch (with the parameter "force_from_db = TRUE")
 # 2024-03-25 run for Raw_Oracle_Downloaded_dnf_01-JAN-2022__31-DEC-2022.rds: 120.43 sec elapsed
@@ -616,7 +616,6 @@ SEFHIER_dnfs_short_date__iso <-
 my_stats(SEFHIER_dnfs_short_date__iso)
 # compare numbers with DF prior to filtering out non-SEFHIER permitted vessels
 my_stats(dnfs_short_date__iso)
-
 
 # Create DF of vessels not in Metrics Tracking
 vessels_not_in_metrics <-
