@@ -311,7 +311,7 @@ names(SC_permittedVessels)
 dim(SC_permittedVessels)
 # [1] 228  18
 
-### change sc data format ----
+## change sc data format ----
 
 # glimpse(SC_permittedVessels)
 
@@ -358,4 +358,39 @@ SC_permittedVessels_longer_m_y <-
   dplyr::distinct()
 
 dplyr::glimpse(SC_permittedVessels_longer_m_y)
+
+# SRHS: check and remove reports_to_srhs ----
+
+# Join the SC data with the SRHS list by vessel
+sc__srhs_join <-
+  dplyr::full_join(SC_permittedVessels_longer_m_y,
+            srhs_2024,
+            dplyr::join_by(vessel_reg_uscg_ == uscg__))
+
+dplyr::glimpse(sc__srhs_join)
+
+# Get all the combinations of SC and SRHS lists.
+# In this results we have:
+# 1               0 NA
+# Both are not SRHS
+# 2               1 Y
+# Both are SRHS
+# 3              NA Y
+# The vessel is not in the SC list, which is expected.
+
+# For this SC entry file there are no discrepancies, so we can simply remove all the vessels marked as reports_to_srhs from the future analysis. We don't have compliance information for them.
+
+sc__srhs_join |>
+  dplyr::select(reports_to_srhs, is_insurvey) |>
+  dplyr::distinct()
+
+## Keep only non-SRHS vessels ----
+SC_permittedVessels_longer_m_y_no_srhs <-
+  SC_permittedVessels_longer_m_y |>
+  dplyr::filter(reports_to_srhs == 0)
+
+dim(SC_permittedVessels_longer_m_y)
+# [1] 2736    9
+dim(SC_permittedVessels_longer_m_y_no_srhs)
+# [1] 2640    9
 
