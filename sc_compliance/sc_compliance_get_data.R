@@ -211,6 +211,28 @@ tictoc::toc()
 compl_override_data__renamed_m_short__m_compl |>
   select(contains("month")) |>
   # filter(!month_comp_min == month_comp_max) |>
-  distinct() |>
   filter(comp_month_min == 4) |>
+  distinct() |>
+  glimpse()
+
+# get processed logbooks ----
+
+# set the path to processed logbook data
+logbook_file_path <-
+  file.path(processed_data_path,
+            stringr::str_glue("SEFHIER_processed_Logbooks_{my_year}.rds"))
+
+file.exists(logbook_file_path)
+
+# read in logbook data, clean up headers
+logbooks <-
+  readr::read_rds(logbook_file_path) |>
+  auxfunctions::clean_headers()
+
+# checks dimensions of the dataframe
+dim(logbooks)
+# [1] 42605   179
+
+logbooks |>
+  dplyr::filter(lubridate::month(comp_week_end_dt) == 4) |>
   glimpse()
