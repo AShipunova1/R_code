@@ -177,8 +177,8 @@ current_project_basename <-
 # set the path to SC vessels data on Anna’s computer
 annas_sc_mismatch_file_path <-
   file.path(annas_path$inputs,
-            r"(sc_mismatches\2024_04)",
-            "scdnrFedVessels_04012024.xlsx")
+            r"(sc_mismatches\2024_06)",
+            "scdnrFedVessels_05312024.xlsx")
 
 # check that the file exists
 file.exists(annas_sc_mismatch_file_path)
