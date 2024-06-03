@@ -7,7 +7,7 @@
 # 1) set date range (use compliance dates, see below) and download data from Metrics Tracking Detail Report in FHIER as is, no need to filter data or delete any columns
 # we use this file to collect the vessel permit information that is included in the table, but the file itself is an output of tallies of types of submitted reports for each vessel for the date range selected, regardless of if the vessel was permitted in that date range
 # 2) name it: Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)_{my_year}.csv
-# 3) add year manually to downloaded file
+# 3) add year manually to downloaded file name
 # 4) save file to the directory that has this R script, in an “input” sub-directory
 
 # 5) download the SRHS list from Google Drive (comes from Ken Brennan/SRHS branch chief)
@@ -38,8 +38,8 @@ Outputs <- "Outputs/"
 # Set the date ranges for the logbook and compliance data you are pulling
 # this is the year to assign to the output file name
 # my_year <- '2022'
-my_year <- '2023'
-# my_year <- '2024'
+# my_year <- '2023'
+my_year <- '2024'
 
 # Auxiliary methods ----
 annas_git_path <-
@@ -81,6 +81,8 @@ SEFHIER_metrics_tracking_path <-
 
 # read in metrics tracking data
 SEFHIER_metrics_tracking <- read.csv(SEFHIER_metrics_tracking_path)
+
+file.exists(SEFHIER_metrics_tracking_path)
 
 # rename column headers
 SEFHIER_metrics_tracking <-
@@ -147,6 +149,12 @@ processed_metrics_permit_info |>
 # 2           gom_only  987
 # 3            sa_only 2149
 
+# 2024
+#   permit_sa_gom_dual    n
+# 1               dual  194
+# 2           gom_only 1036
+# 3            sa_only 1930
+
 # stats
 my_stats(processed_metrics_permit_info, "Metrics tracking minus SRHS vsls")
 
@@ -161,8 +169,6 @@ processed_metrics_permit_info_short <-
     gsub("\\.", "_", x) |>
       toupper()
   })
-
-
 
 # change the format of the date for these two columns
 processed_metrics_permit_info_short <-
