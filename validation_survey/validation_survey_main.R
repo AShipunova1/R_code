@@ -205,6 +205,54 @@ catch_info_i3 |>
   ungroup() |> 
   glimpse()
 
+## check released and harvested separately ----
+# "CATCH_SPECIES_ITIS" vs "tsn.harv"
+
+CATCH_SPECIES_ITIS_vs_tsn.harv <-
+  catch_info_i3 |>
+  select(VESSEL_OFFICIAL_NBR, TRIP_ID, all_of(compare_fields)) |>
+  distinct() |>
+  group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |>
+  # mutate(all_spp_1_trip_fhier =
+  #          paste(sort(unique(CATCH_SPECIES_ITIS)), collapse = "; ")) |>
+  # mutate(all_spp_1_trip_survey =
+  #          paste(sort(unique(tsn.harv)), collapse = "; ")) |> 
+  mutate(all_spp_1_trip_fhier_l =
+           list(sort(unique(CATCH_SPECIES_ITIS)))) |>
+  mutate(all_spp_1_trip_survey_l =
+           list(sort(unique(tsn.harv)))) |> 
+  ungroup()
+
+# CATCH_SPECIES_ITIS_vs_tsn.harv |> 
+#   filter(!all_spp_1_trip_fhier == all_spp_1_trip_survey) |> 
+#   View()
+
+CATCH_SPECIES_ITIS_vs_tsn.harv |>
+  select(-all_of(compare_fields)) |>
+  distinct() |> 
+  group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |>
+  dplyr::mutate(
+    harv_diff_in_fhier_only =
+      purrr::map2(
+        all_spp_1_trip_fhier_l,
+        all_spp_1_trip_survey_l,
+        ~ setdiff(.x, .y)
+      )
+  ) |>
+  dplyr::mutate(
+    harv_diff_in_survey_only =
+      purrr::map2(
+        all_spp_1_trip_fhier_l,
+        all_spp_1_trip_survey_l,
+        ~ setdiff(.y, .x)
+      )
+  ) |>
+  View()
+# 887  
+
+combined %>%
+  dplyr::mutate(perc = purrr::map2_dbl(column_a, column_b, ~mean(.x > .y)))
+
 # TODO: check released and harvested separately
 
 ## check numbers for the same spp lgb/harvested ----
