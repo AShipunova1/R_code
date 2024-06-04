@@ -244,8 +244,9 @@ cathc_spp_diff <-
   ungroup()
 # 887  
 
-cathc_spp_diff |>
-  rowwise() |> 
+cathc_spp_diff__no_diff <-
+  cathc_spp_diff |>
+  rowwise() |>
   mutate(
     ll_f =
       length(harv_diff_in_fhier_only),
@@ -254,14 +255,36 @@ cathc_spp_diff |>
   ) |>
   mutate(no_diff_spp =
            case_when((ll_f == ll_s &
-                       ll_f == 0) ~ "no_diff",
-                     .default = "is_diff"
-           )) |> 
-  ungroup() |> 
-  View()
+                        ll_f == 0) ~ "no_diff", 
+                     .default = "is_diff")) |>
+  ungroup()
 
+glimpse(cathc_spp_diff__no_diff)
+
+tictoc::tic("cathc_spp_diff__no_diff_w_spp")
+cathc_spp_diff__no_diff_w_spp <-
+  cathc_spp_diff__no_diff |>
+  rowwise() |>
+  dplyr::mutate(harv_diff_in_fhier_only__sci_n =
+                  list(purrr::map(harv_diff_in_fhier_only, \(x) {
+                    # browser()
+                    try(ritis::scientific_name(x)$combinedname)
+                  }))) |> 
+  dplyr::mutate(harv_diff_in_survey_only__sci_n =
+                  list(purrr::map(harv_diff_in_survey_only, \(x) {
+                    # browser()
+                    try(ritis::scientific_name(x)$combinedname)
+                  }))) |> 
+  ungroup()
+tictoc::toc()
+# cathc_spp_diff__no_diff_w_spp: 104.46 sec elapsed
+# cathc_spp_diff__no_diff_w_spp: 229.22 sec elapsed both
+# TODO: speed up - find names in advance for all at once
 # ritis::scientific_name(172409)
+
 # TODO: check released and harvested separately
+
+View(cathc_spp_diff__no_diff_w_spp)
 
 ## check numbers for the same spp lgb/harvested ----
 catch_info_i3 |> 
