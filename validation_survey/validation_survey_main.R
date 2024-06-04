@@ -168,6 +168,7 @@ catch_info_i3 |>
 # TODO: check if the same trip
 
 # compare CATCH_SPECIES_ITIS	tsn ----
+# https://en.wikipedia.org/wiki/Integrated_Taxonomic_Information_System
 # grep("tsn", names(catch_info_i3), value = T)
 # [1] "tsn.releas" "tsn.harv" 
 
