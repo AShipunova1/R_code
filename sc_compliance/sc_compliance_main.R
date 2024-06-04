@@ -14,7 +14,6 @@
 # with (on sheets 2-3) the list of all the dates of DNFs and/or logbooks we have in FHIER by vessel (probably 3 columns needed: vessel ID, Logbook (list any dates for that month), DNF (list week date range for any for that month).
 # (sheet 4) is the list of those SC COMPLIANT vessels that are NON-COMPLIANT in FHIER.
 
-
 # Needed files (6):
 #   1) "scdnrFedVessels_04012024.xlsx" (South Carolina compliance, instead of "04012024" there will be the date of the latest file)
           # this file comes from Eric Hilts at SCDNR
@@ -35,11 +34,20 @@ devtools::install_github("AShipunova1/R_code/auxfunctions@development")
                          # force = T)
 library(auxfunctions)
 
-# assign dates to variables,
+## assign dates to variables ----
 my_year <- "2024" # the year of the analysis
 db_year_1 <- "2023" # set the range based on how many years of data you want to pull, ex. the year before the year of the analysis
 db_year_2 <- "2024" # set the range based on how many years of data you want to pull, ex. the year after the year of the analysis
 
+## save common column names ----
+common_outpt_fields <-
+  c("delinquent",
+    "month_sc",
+    "year_sc",
+    "comp_week_start_dt",
+    "comp_week_end_dt")
+
+## set up paths ----
 annas_path <- set_work_dir()
 
 # set the current project directory name to the directory that has this R script in it
@@ -113,10 +121,7 @@ non_compliant_vessels_in_sc_and_compl_in_fhier_last_2 <-
            common_month_compliance == "compl")
 
 dim(non_compliant_vessels_in_sc_and_compl_in_fhier)
-# [1] 10 24
-
-View(non_compliant_vessels_in_sc_and_compl_in_fhier_last_2)
-# [1]  6 24
+# [1] 0 24
 
 # Get month and weeks when the vessels are marked as non-compliant in SC, but are compliant in FHIER
 non_compliant_vessels_in_sc_and_compl_in_fhier__m_w__output <-
@@ -130,8 +135,171 @@ non_compliant_vessels_in_sc_and_compl_in_fhier__m_w__output <-
   arrange(vessel_reg_uscg_, comp_week_start_dt)
 
 dim(non_compliant_vessels_in_sc_and_compl_in_fhier__m_w__output)
-# [1] 10  7
+# [1] 0  7
 
 # b) list all the dates of DNFs and/or logbooks we have in FHIER by vessel.
 
+## add logbooks info ----
+# Logbook (list any dates for that month)
+# Get all logbooks info for this vessels filtered by month
+
+dim(non_compliant_vessels_in_sc_and_compl_in_fhier__m_w__output)
+# 0
+
+intersect(names(logbooks),
+          names(non_compliant_vessels_in_sc_and_compl_in_fhier__m_w__output))
+# [1] "comp_week_start_dt"       "comp_week_end_dt"         "compliant_after_override"
+
+logbooks__sc_fhier <-
+  logbooks |>
+  inner_join(
+    non_compliant_vessels_in_sc_and_compl_in_fhier__m_w__output,
+    join_by(
+      vessel_official_number == vessel_reg_uscg_,
+      comp_week_start_dt,
+      comp_week_end_dt
+    )
+  )
+
+dim(logbooks__sc_fhier)
+# 0
+
+# There is a good example of a trip that happens in Jan (1/30), in the week started in Jan and ended in Feb, hence it is marked as compliant in FHIER for February.
+grep("start", names(logbooks__sc_fhier), value = T)
+
+# subset columns of data to output
+logbooks__sc_fhier_for_output <-
+  logbooks__sc_fhier |>
+  select(
+    vessel_official_number,
+    all_of(common_outpt_fields),
+    trip_start_date,
+    trip_end_date,
+    # vendor_app_name,
+    trip_de,
+    trip_ue
+  ) |>
+  distinct() |>
+  arrange(vessel_official_number, trip_start_date)
+
+glimpse(logbooks__sc_fhier_for_output)
+0
+
+## add DNF info ----
+
+# check names
+intersect(names(dnfs),
+          names(non_compliant_vessels_in_sc_and_compl_in_fhier__m_w__output))
+# [1] "comp_week_start_dt"       "comp_week_end_dt"         "compliant_after_override"
+
+# DNF (list week date range for any for that month)
+dnfs__sc_fhier <-
+  dnfs |>
+  inner_join(
+    non_compliant_vessels_in_sc_and_compl_in_fhier__m_w__output,
+    join_by(
+      vessel_official_number == vessel_reg_uscg_,
+      comp_week_start_dt,
+      comp_week_end_dt
+    ),
+    suffix = c("__dnf", "__fhier")
+  )
+
+# check
+dim(dnfs__sc_fhier)
+# 0
+
+# subset columns of data to output
+dnfs__sc_fhier_for_output <-
+  dnfs__sc_fhier |>
+  select(
+    vessel_official_number,
+    all_of(common_outpt_fields),
+    trip_date,
+    compliant_after_override__fhier
+  ) |>
+  distinct() |>
+  arrange(vessel_official_number, trip_date)
+
+dim(dnfs__sc_fhier_for_output)
+# 0
+
+# 2. SC compliant and not compliant in FHIER ----
+
+# 2) we also need a step that just grabs the compliant vessels (herein "SC compliant vessels list"), and then checks FHIER compliance to see if any that SC has as compliant are listed as non-compliant for any of the weeks in the given month. If any vessels are found to be compliant with SC but non-compliant with us/FHIER, then we need (on a 3rd sheet) to list those vessels and include what week (with date ranges) we are missing in FHIER. Eric will use this to more proactively alert us when a vessel is reporting only to SC, since we have so many recurring issues with this.
+
+compliant_vessels_in_sc_and_non_compl_fhier <-
+  sc__fhier_compl__join_w_month |>
+  filter(delinquent_month == 0 &
+           common_month_compliance == "non_compl")
+
+dim(compliant_vessels_in_sc_and_non_compl_fhier)
+# [1] 1202   24
+
+# "all_m_comp" field shows if any weeks of that month were compliant. We consider the whole month non-compliant if even one week was non-compliant. If SC considers the month compliant if at least one week was compliant that makes a big difference in the monthly compliance counts between SC and FHIER.
+
+# subset columns of data to output
+compliant_vessels_in_sc_and_non_compl_fhier__for_output <-
+  compliant_vessels_in_sc_and_non_compl_fhier |>
+  select(
+    vessel_reg_uscg_,
+    all_of(common_outpt_fields),
+    compliant_after_override
+  ) |>
+  filter(compliant_after_override == "no") |>
+  distinct() |>
+  arrange(vessel_reg_uscg_, comp_week_start_dt)
+
+dim(compliant_vessels_in_sc_and_non_compl_fhier__for_output)
+# [1] 559   7
+
+# Write results to xlsx ----
+# (sheet 1) the list of those SC non-compliant vessels that are also non-compliant in FHIER, or
+# (on sheet 2) if they are compliant for that month in FHIER then list all the dates of DNFs and/or logbooks we have in FHIER by vessel (probably 3 columns needed: vessel ID, Logbook (list any dates for that month), DNF (list week date range for any for that month)
+# 2. we also need a step that just grabs the compliant vessels (herein "SC compliant vessels list"), and then checks FHIER
+
+# 1. Create a wb with all output dfs ----
+
+# Explanations:
+# Create a list 'output_df_list' containing multiple data frames.
+# This list is constructed using the 'lst' function from the tibble package,
+# which combines several objects into a list. lst() also generates missing names automatically.
+
+# 1. 'non_compliant_vessels_in_sc_and_compl_in_fhier__m_w__output': A data frame of non-compliant vessels in SC but compliant in FHIER.
+# 2. 'logbooks__sc_fhier_for_output': A data frame of logbooks data from FHIER.
+# 3. 'dnfs__sc_fhier_for_output': A data frame of DNFs data from FHIER.
+# 4. 'compliant_vessels_in_sc_and_non_compl_fhier__for_output': A data frame of compliant vessels in SC and non-compliant FHIER.
+
+output_df_list <-
+  lst(
+    non_compliant_vessels_in_sc_and_compl_in_fhier__m_w__output,
+    logbooks__sc_fhier_for_output,
+    dnfs__sc_fhier_for_output,
+    compliant_vessels_in_sc_and_non_compl_fhier__for_output
+  )
+
+# a simple list of sheet names
+sheet_names <-
+  list(
+    "non_compl_sc__compl_fhier",
+    "non_compl_sc__compl_fhier_lgb",
+    "non_compl_sc__compl_fhier_dnf",
+    "compl_sc__non_compl_fhier"
+  )
+
+# Make a copy with different names. output_df_list has dataframe names for column names and print_result_list has sheet names for column names.
+print_result_list <-
+  output_df_list
+
+names(print_result_list) <- sheet_names
+
+# Explanations:
+# Build a workbook using a list of data frames ('print_result_list') and create tables in the workbook.
+
+# 1. 'wb': An object representing the workbook to be created.
+# 2. The function 'buildWorkbook()' is used to create a workbook from a list of data frames.
+#    It takes the list of data frames ('print_result_list') as input and an option to convert them to tables ('asTable = TRUE').
+#    The 'asTable = TRUE' option ensures that each data frame is added to the workbook as a formatted table.
+
+wb <- openxlsx::buildWorkbook(print_result_list, asTable = TRUE)
 
