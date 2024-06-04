@@ -212,20 +212,13 @@ CATCH_SPECIES_ITIS_vs_tsn.harv <-
   catch_info_i3 |>
   select(VESSEL_OFFICIAL_NBR, TRIP_ID, all_of(compare_fields)) |>
   distinct() |>
+  mutate(across(all_of(compare_fields), as.numeric)) |> 
   group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |>
-  # mutate(all_spp_1_trip_fhier =
-  #          paste(sort(unique(CATCH_SPECIES_ITIS)), collapse = "; ")) |>
-  # mutate(all_spp_1_trip_survey =
-  #          paste(sort(unique(tsn.harv)), collapse = "; ")) |> 
   mutate(all_spp_1_trip_fhier_l =
            list(sort(unique(CATCH_SPECIES_ITIS)))) |>
   mutate(all_spp_1_trip_survey_l =
            list(sort(unique(tsn.harv)))) |> 
   ungroup()
-
-# CATCH_SPECIES_ITIS_vs_tsn.harv |> 
-#   filter(!all_spp_1_trip_fhier == all_spp_1_trip_survey) |> 
-#   View()
 
 CATCH_SPECIES_ITIS_vs_tsn.harv |>
   select(-all_of(compare_fields)) |>
