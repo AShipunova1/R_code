@@ -220,9 +220,10 @@ CATCH_SPECIES_ITIS_vs_tsn.harv <-
            list(sort(unique(tsn.harv)))) |> 
   ungroup()
 
-CATCH_SPECIES_ITIS_vs_tsn.harv |>
+cathc_spp_diff <-
+  CATCH_SPECIES_ITIS_vs_tsn.harv |>
   select(-all_of(compare_fields)) |>
-  distinct() |> 
+  distinct() |>
   group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |>
   dplyr::mutate(
     harv_diff_in_fhier_only =
@@ -239,13 +240,27 @@ CATCH_SPECIES_ITIS_vs_tsn.harv |>
         all_spp_1_trip_survey_l,
         ~ setdiff(.y, .x)
       )
-  ) |>
-  View()
+  ) |> 
+  ungroup()
 # 887  
 
-combined %>%
-  dplyr::mutate(perc = purrr::map2_dbl(column_a, column_b, ~mean(.x > .y)))
+cathc_spp_diff |>
+  rowwise() |> 
+  mutate(
+    ll_f =
+      length(harv_diff_in_fhier_only),
+    ll_s =
+      length(harv_diff_in_survey_only)
+  ) |>
+  mutate(no_diff_spp =
+           case_when((ll_f == ll_s &
+                       ll_f == 0) ~ "no_diff",
+                     .default = "is_diff"
+           )) |> 
+  ungroup() |> 
+  View()
 
+# ritis::scientific_name(172409)
 # TODO: check released and harvested separately
 
 ## check numbers for the same spp lgb/harvested ----
