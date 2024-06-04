@@ -1,3 +1,7 @@
+# get data setup ----
+month_now <- lubridate::month(lubridate::today())
+last_2_m <- c(month_now - 1, month_now - 2)
+
 # Load the 'ROracle' library, which provides an interface for working with Oracle databases in R.
 library(ROracle)
 
@@ -368,6 +372,10 @@ dplyr::glimpse(SC_permittedVessels_longer_m_y)
 
 # SRHS: check and remove reports_to_srhs ----
 
+# check names
+dplyr::intersect(names(SC_permittedVessels_longer_m_y), names(srhs_2024))
+# vessel_name
+
 # Join the SC data with the SRHS list by vessel
 sc__srhs_join <-
   dplyr::full_join(SC_permittedVessels_longer_m_y,
@@ -416,27 +424,39 @@ dim(SC_permittedVessels_longer_m_y_no_srhs)
 # by <- join_by(id, closest(sale_date >= promo_date), sale_date_lower <= promo_date)
 # full_join(sales, promos, by)
 
-glimpse(compl_override_data__renamed_m_short__m_compl)
+#
+# "between()" is a shortcut for x >= left & x <= right
 
-sc__fhier_compl__join_w_month1 <-
+# this is needed for weeks between 12 2023 and 1 2024,
+# comp_min == 1 and
+# comp_min == 12
+# which will include all months
+# filter(month_sc == comp_month_min |
+# month_sc == comp_month_max)
+
+# glimpse(compl_override_data__renamed_m_short__m_compl)
+
+# check names
+intersect(names(SC_permittedVessels_longer_m_y_no_srhs),
+          names(compl_override_data__renamed_m_short__m_compl))
+# 0
+
+sc__fhier_compl__join_w_month <-
   dplyr::left_join(
     SC_permittedVessels_longer_m_y_no_srhs,
     compl_override_data__renamed_m_short__m_compl,
     dplyr::join_by(
       vessel_reg_uscg_ == vessel_official_number,
-      between(month_sc, comp_month_min, comp_month_max),
-      # month_sc >= comp_month_min,
-      # month_sc <= comp_month_max,
+      dplyr::between(month_sc, comp_month_min, comp_month_max),
       year_sc == comp_year,
     )
-  )
+  ) |>
+  filter(month_sc == comp_month_min |
+           month_sc == comp_month_max)
 
-diffdf::diffdf(sc__fhier_compl__join_w_month1,
-               sc__fhier_compl__join_w_month1)
-
-sc__fhier_compl__join_w_month |>
-  filter(year_sc == my_year &
-           month_sc %in% last_2_m) |> View()
+# sc__fhier_compl__join_w_month |>
+  # filter(year_sc == my_year &
+           # month_sc %in% last_2_m) |> View()
 
 # check
 dim(SC_permittedVessels)
@@ -444,11 +464,11 @@ dim(SC_permittedVessels)
 dim(SC_permittedVessels_longer_m_y_no_srhs)
 # [1] 2640    9
 dim(sc__fhier_compl__join_w_month)
-# [1] 10512    24
+# [1] 9022   24
 n_distinct(SC_permittedVessels)
 # 228
 n_distinct(sc__fhier_compl__join_w_month$vessel_reg_uscg_)
-# 220 (rm SRHS)
+# 180 (rm SRHS)
 # glimpse(sc__fhier_compl__join_w_month)
 
 sc__fhier_compl__join_w_month |>
@@ -456,11 +476,9 @@ sc__fhier_compl__join_w_month |>
   distinct() |>
   filter(!month_comp_min == month_comp_max) |>
   glimpse()
-# 46
+# 41
 
 # Get only the 2 last months ----
-month_now <- lubridate::month(lubridate::today())
-last_2_m <- c(month_now - 1, month_now - 2)
 
 sc__fhier_compl__join_w_month_last2 <-
   sc__fhier_compl__join_w_month |>
@@ -468,5 +486,4 @@ sc__fhier_compl__join_w_month_last2 <-
                   month_sc %in% last_2_m)
 
 dim(sc__fhier_compl__join_w_month_last2)
-# [1] 1906   24
-#
+# [1] 1521   24
