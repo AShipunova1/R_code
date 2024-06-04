@@ -224,7 +224,7 @@ dnfs__sc_fhier_for_output <-
 dim(dnfs__sc_fhier_for_output)
 # 0
 
-# 2. SC compliant and not compliant in FHIER ----
+## 2. SC compliant and not compliant in FHIER ----
 
 # 2) we also need a step that just grabs the compliant vessels (herein "SC compliant vessels list"), and then checks FHIER compliance to see if any that SC has as compliant are listed as non-compliant for any of the weeks in the given month. If any vessels are found to be compliant with SC but non-compliant with us/FHIER, then we need (on a 3rd sheet) to list those vessels and include what week (with date ranges) we are missing in FHIER. Eric will use this to more proactively alert us when a vessel is reporting only to SC, since we have so many recurring issues with this.
 
@@ -238,7 +238,17 @@ dim(compliant_vessels_in_sc_and_non_compl_fhier)
 
 # "all_m_comp" field shows if any weeks of that month were compliant. We consider the whole month non-compliant if even one week was non-compliant. If SC considers the month compliant if at least one week was compliant that makes a big difference in the monthly compliance counts between SC and FHIER.
 
-# subset columns of data to output
+### 2a. Exclude non-compliant in both SC and FHIER ----
+compliant_vessels_in_sc_and_non_compl_fhier__not_both_nc <-
+  compliant_vessels_in_sc_and_non_compl_fhier |>
+  dplyr::filter(!delinquent == 1 &
+                  tolower(compliant_after_override) == "no")
+
+dim(compliant_vessels_in_sc_and_non_compl_fhier__for_output__not_both_nc)
+# [1] 458   7
+
+
+### subset columns of data to output ----
 compliant_vessels_in_sc_and_non_compl_fhier__for_output <-
   compliant_vessels_in_sc_and_non_compl_fhier |>
   select(
@@ -250,9 +260,13 @@ compliant_vessels_in_sc_and_non_compl_fhier__for_output <-
   distinct() |>
   arrange(vessel_reg_uscg_, comp_week_start_dt)
 
-dim(compliant_vessels_in_sc_and_non_compl_fhier__for_output)
+dim(compliant_vessels_in_sc_and_non_compl_fhier__for_output_all)
 # [1] 559   7
 
+# TODO: add spreadsheets
+## 3. List of vessels non compliant in both ----
+## 4. List of vessels compliant in both ----
+# TODO: check if March non compl is the same
 # Write results to xlsx ----
 # (sheet 1) the list of those SC non-compliant vessels that are also non-compliant in FHIER, or
 # (on sheet 2) if they are compliant for that month in FHIER then list all the dates of DNFs and/or logbooks we have in FHIER by vessel (probably 3 columns needed: vessel ID, Logbook (list any dates for that month), DNF (list week date range for any for that month)
@@ -303,3 +317,220 @@ names(print_result_list) <- sheet_names
 
 wb <- openxlsx::buildWorkbook(print_result_list, asTable = TRUE)
 
+# 2. create a readme sheet ----
+## add today ----
+
+# Explanations:
+# Create a tibble with the current date in a specific format and set it as the "Read me" column.
+
+# 1. 'top_of_read_me_text': A variable that stores a tibble containing the current date as its content.
+
+# 2. The 'today()' function from the 'lubridate' package is used to get the current date.
+
+# 3. The 'as_tibble_col()' function is used to create a tibble with a single column.
+#    - The first argument is the value to be used for the tibble (in this case, the current date).
+#    - The 'column_name' argument specifies the name of the single column ("Read me").
+#    This results in a tibble with the current date stored under the "Read me" column.
+
+top_of_read_me_text <-
+  lubridate::today() |>
+  tibble::as_tibble_col(column_name =  "Read me")
+
+## sheet names with sheet descriptions ----
+# save sheet_descriptions
+sheet_descriptions <-
+  c(
+    "vessels that are non-compliant with SC but compliant with SEFHIER",
+    "logbooks in FHIER from non-compliant SC vessels",
+    "DNFs in FHIER from non-compliant SC vessels",
+    "vessels that are compliant with SC but not with SEFHIER"
+  )
+
+# Explanations:
+# Combine 'sheet_names' and 'sheet_descriptions' into a data frame.
+
+# 1. 'sheet_names_with_df_names': A variable that stores a data frame containing sheet names and descriptions.
+
+# 2. The 'cbind()' function combines the two vectors 'sheet_names' and 'sheet_descriptions' into a single data frame.
+#    - This function combines the columns of the input vectors.
+#    - Since 'sheet_names' and 'sheet_descriptions' are vectors, the resulting output is a two-column matrix.
+
+# 3. The matrix is then converted to a data frame using the 'as.data.frame()' function.
+#    - This conversion is necessary to work with the data structure more efficiently.
+#    - The resulting data frame contains one column for sheet names and one column for sheet descriptions.
+
+sheet_names_with_df_names <-
+  cbind(sheet_names, sheet_descriptions) |>
+  as.data.frame()
+
+# rename columns in the new df
+names(sheet_names_with_df_names) <-
+  c("Sheet name", "Sheet Details")
+
+# glimpse(sheet_names_with_df_names)
+
+## column explanations for each tab ----
+### colnames_for_each_df ----
+
+# Use to create the list of colnames for each DF to be corrected in Excel
+# Explanations:
+# 1. 'colnames_for_each_df' is created by mapping over 'output_df_list' and 'sheet_names' simultaneously.
+# 2. For each dataframe 'my_df' in 'output_df_list' and corresponding 'sheet_name':
+#    a. Retrieve the column names of 'my_df' using the 'names' function.
+#    b. Convert the column names into a tibble format with a single column named 'column_name' and assign the value of 'sheet_name' to each row.
+#    c. Return the tibble containing the column names with associated sheet names.
+
+get_each_df_colnames <-
+  function(output_df_list, sheet_names) {
+
+  colnames_for_each_df <-
+    purrr::map2(output_df_list, sheet_names,
+         \(my_df, sheet_name) {
+           names(my_df) |>
+             tibble::as_tibble_col(column_name = sheet_name) %>%
+             return()
+         })
+
+  return(colnames_for_each_df)
+}
+
+# Uncomment and run if col names changed above
+colnames_for_each_df <- get_each_df_colnames(output_df_list, sheet_names)
+# 1 vessel_reg_uscg_
+# 2 delinquent
+# 3 month_sc
+# 4 year_sc
+# 5 comp_week_start_dt
+# 6 comp_week_end_dt
+# 7 compliant_after_override
+
+# Use column definitions saved in a csv file
+
+# define a path
+column_definitions_path <-
+    file.path(input_path,
+            "column_definitions.csv")
+
+# optional check
+file.exists(column_definitions_path)
+
+# read csv
+column_definitions <-
+  readr::read_csv(column_definitions_file_path)
+
+# combine 3 dfs and convert to a type needed for output.
+readme_text <-
+  list(
+    top_of_read_me_text,
+    sheet_names_with_df_names,
+    column_definitions
+  )
+
+# check class for each df, optional
+purrr::map(readme_text, class)
+
+## Add a new sheet ----
+openxlsx::addWorksheet(wb, "Readme")
+
+## Add a new style ----
+bold.style <- openxlsx::createStyle(textDecoration = "Bold")
+
+## Write each df from readme_text on to the same sheet ----
+
+# Explanations:
+# - This function, `write_readme_sheet`, writes the given `readme_text` data into a specified sheet of an Excel workbook.
+# - `readme_text`: A list of data frames to be written into the workbook's specified sheet.
+# - `workbook`: The Excel workbook object where data will be written. Defaults to the `wb` variable.
+# - `sheet_name`: The name of the sheet where the data will be written. Defaults to "Readme".
+
+  # 1. Initialize the `curr_row` variable to 1.
+  #    This variable keeps track of the current row position in the sheet where data will be written.
+
+  # 2. Loop through each element in `readme_text`:
+  #    - `i` is the index of the current element.
+  #    - `one_df` is the current dataframe.
+
+  # 3. Check if `one_df` is indeed a data frame:
+  #    - If not, convert it to a data frame using `as.data.frame()`.
+  #    - This is done to ensure compatibility with the `writeData` function.
+
+  # 4. Calculate the number of rows in `one_df` using `nrow()`.
+  #    - This is stored in `one_df_size`.
+
+  # 5. Use the `writeData` function to write `one_df` to the workbook:
+  #    - `workbook` is the Excel workbook object where data will be written.
+  #    - `sheet_name` is the name of the sheet where data will be written.
+  #    - `one_df` is the data to be written.
+  #    - `startRow` is set to `curr_row`, specifying the starting row in the sheet.
+  #    - `headerStyle` is set to `bold.style` to apply bold styling to headers.
+
+  # 6. Update `curr_row` to point to the next available row in the sheet:
+  #    - Add the number of rows in `one_df` to `curr_row`.
+  #    - Add 2 to account for spacing between each data frame.
+
+write_readme_sheet <-
+  function(readme_text, workbook = wb, sheet_name = "Readme") {
+    curr_row <- 1
+    for (i in seq_along(readme_text)) {
+      # browser()
+      one_df <- readme_text[[i]]
+
+      if (!any(grepl("data.frame", class(one_df))))
+      {
+        one_df <- as.data.frame(one_df)
+      }
+      one_df_size <- nrow(one_df)
+
+      openxlsx::writeData(workbook,
+                sheet_name,
+                one_df,
+                startRow = curr_row,
+                headerStyle = bold.style)
+      curr_row <- curr_row + one_df_size + 2
+    }
+  }
+
+# run the function
+write_readme_sheet(readme_text,
+                   workbook = wb,
+                   sheet_name = "Readme")
+
+# Optional. Not needed for processing.
+# To see the wb.
+# openxlsx::openXL(wb)
+
+## Move readme to the first position ----
+
+# Explanations:
+# 1. Get the current order of worksheets in the Excel workbook 'wb' using 'worksheetOrder' function and store it in 'old_order'.
+# 2. Calculate the length of 'old_order' and store it in 'length_of_wb'.
+# 3. Rearrange the order of worksheets in 'wb' by assigning a new order:
+#    a. Start with the last worksheet by placing it at the first position using 'length_of_wb'.
+#    b. Followed by the rest of the worksheets from the first to the second-to-last position using '1:(length_of_wb - 1)'.
+
+# The readme sheet will be in the last position.
+openxlsx::worksheetOrder(wb)
+# [1] 1 2 3 4 5
+
+old_order <- openxlsx::worksheetOrder(wb)
+length_of_wb <- old_order |> length()
+openxlsx::worksheetOrder(wb) <- c(length_of_wb, 1:(length_of_wb - 1))
+
+# Optional. Not needed for processing.
+
+# To see the new sheet order.
+openxlsx::worksheetOrder(wb)
+# [1] 5 1 2 3 4
+
+# To see the wb
+# openXL(wb)
+
+# Write the Excel file ----
+
+# define the path
+output_file_name <-
+  file.path(output_path,
+            "sc_compliance.xlsx")
+
+# write the workbook unto file
+openxlsx::saveWorkbook(wb, output_file_name, overwrite = T)
