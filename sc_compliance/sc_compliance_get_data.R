@@ -87,6 +87,12 @@ compl_override_data__renamed_interv <-
   dplyr::ungroup()
 
 # check
+
+compl_override_data__renamed_interv |>
+  filter(lubridate::month(comp_week_start_dt) == 4 &
+           comp_year == "2024") |>
+  glimpse()
+
 compl_override_data__renamed_interv |>
   dplyr::filter(!comp_month_min == comp_month_max) |>
   dplyr::select(
@@ -124,7 +130,7 @@ compl_override_data__renamed_m_short <-
 dim(compl_override_data__renamed_m_short)
 # [1] 279379     11
 
-## get comp/overridden ----
+## add compl after overridden ----
 tictoc::tic("get comp/overridden")
 compl_override_data__renamed_m_short__compl_overr_by_week <-
   auxfunctions::add_compliant_after_override(compl_override_data__renamed_m_short)
@@ -272,6 +278,7 @@ SC_permittedVessels <-
 
 # glimpse(SC_permittedVessels)
 
+# Data preparations ----
 ## fix dates in headers ----
 # TODO: grab just the month of interest (depends on the SC file)
 
@@ -371,15 +378,11 @@ dplyr::glimpse(sc__srhs_join)
 
 # Get all the combinations of SC and SRHS lists.
 # In this results we have:
-# 1               0 NA
-# Both are not SRHS
-# 2               1 Y
-# Both are SRHS
-# 3              NA Y
-# The vessel is not in the SC list, which is expected.
+# 1               0 NA # Both are not SRHS
+# 2               1 Y # Both are SRHS
+# 3              NA Y # The vessel is not in the SC list, which is expected.
 
 # For this SC entry file there are no discrepancies, so we can simply remove all the vessels marked as reports_to_srhs from the future analysis. We don't have compliance information for them.
-
 sc__srhs_join |>
   dplyr::select(reports_to_srhs, is_insurvey) |>
   dplyr::distinct()
@@ -413,17 +416,23 @@ dim(SC_permittedVessels_longer_m_y_no_srhs)
 # by <- join_by(id, closest(sale_date >= promo_date), sale_date_lower <= promo_date)
 # full_join(sales, promos, by)
 
-sc__fhier_compl__join_w_month <-
+glimpse(compl_override_data__renamed_m_short__m_compl)
+
+sc__fhier_compl__join_w_month1 <-
   dplyr::left_join(
     SC_permittedVessels_longer_m_y_no_srhs,
     compl_override_data__renamed_m_short__m_compl,
     dplyr::join_by(
       vessel_reg_uscg_ == vessel_official_number,
-      month_sc >= comp_month_min,
-      month_sc <= comp_month_max,
+      between(month_sc, comp_month_min, comp_month_max),
+      # month_sc >= comp_month_min,
+      # month_sc <= comp_month_max,
       year_sc == comp_year,
     )
   )
+
+diffdf::diffdf(sc__fhier_compl__join_w_month1,
+               sc__fhier_compl__join_w_month1)
 
 sc__fhier_compl__join_w_month |>
   filter(year_sc == my_year &
