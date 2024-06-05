@@ -54,8 +54,10 @@ prepare_data_path <-
 file.exists(prepare_data_path)
 
 source(prepare_data_path)
-
-
+# Processed Data are in:
+# db_logbooks_2022_short
+# catch_info_i3
+# ---
 
 glimpse(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short)
 
