@@ -1,14 +1,20 @@
 # set up sc mismatches ----
-if (!require(package, character.only = T, quietly = T)) {
-  install.packages(package)
-  library(package, character.only = T)
+# library(purrr)
+
+tool_packages <- c("devtools", "auxfunctions")
+#
+
+if (!require(tool_packages[[1]], character.only = T, quietly = T)) {
+  install.packages(tool_packages[[1]])
 }
 
-library(devtools)
-devtools::install_github("AShipunova1/R_code/auxfunctions@development")
-                         # ,
-                         # force = T)
-library(auxfunctions)
+if (!require(tool_packages[[2]], character.only = T, quietly = T)) {
+  devtools::install_github("AShipunova1/R_code/auxfunctions@development")
+}
+
+purrr::map(tool_packages, \(package) {
+  library(package, character.only = T)
+})
 
 my_paths <- set_work_dir()
 
