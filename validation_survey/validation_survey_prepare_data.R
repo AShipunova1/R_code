@@ -626,7 +626,8 @@ dim(catch_info_i3)
 
 # result names:
 data_names <-
-  c("db_logbooks_2022_short",
+  c("lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short",
+    "db_logbooks_2022_short",
     "catch_info_i3")
 
 auxfunctions::pretty_print(my_title = "Processed Data are in:", 
