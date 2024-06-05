@@ -228,29 +228,34 @@ tsn_info <-
 
 str(tsn_info)
 
-find_sci_n <- function(tsn) {
-      browser()
+find_sci_n <- function(tsn_s) {
+  tsn_s |>
+    purrr::map(\(tsn) {
+      # browser()
       try(ritis::scientific_name(tsn)$combinedname)
+    }) |> list()
 }
 
 # mutate(content = map(file_names, \(file_names) read_tsv(file_names, skip = 1, col_names = FALSE)))
 # mutate(content = map(file_names, ~read_tsv(.x, skip = 1, col_names = FALSE)))
 
-temp <- function(my_variables) {
-  browser()
-  my_variables |>
-    purrr::map(\(var1) {
-      browser()
-      paste("XXX", var1) |>
-        print()
-    })
-}
+# temp <- function(my_variables) {
+#   browser()
+#   my_variables |>
+#     purrr::map(\(var1) {
+#       browser()
+#       paste("XXX", var1) |>
+#         print()
+#     })
+# }
 
-temp(c("QQ"))
+# temp(c("QQ"))
 
-# res1 <-
+tictoc::tic()
+tsn_info_itis <-
   tsn_info |> 
-  dplyr::mutate(dplyr::across(dplyr::everything(), temp))
+  dplyr::mutate(dplyr::across(dplyr::everything(), find_sci_n))
+tictoc::toc()
 
 res1 <-
   tsn_info |>
