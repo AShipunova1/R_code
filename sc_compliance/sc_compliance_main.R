@@ -62,10 +62,15 @@ annas_processed_data_path <-
   r"(~\R_files_local\my_inputs\processing_logbook_data\Outputs)"
 
 # set the path to SC vessels data on Anna’s computer
+# this number is from the file provided by SC, e.g. "scdnrFedVessels_05312024.xlsx"
+sc_file_date <- "05312024"
+
 annas_sc_mismatch_file_path <-
   file.path(annas_path$inputs,
             r"(sc_mismatches\2024_06)",
-            "scdnrFedVessels_05312024.xlsx")
+            stringr::str_glue("scdnrFedVessels_",
+            sc_file_date,
+            ".xlsx"))
 
 # check that the file exists
 file.exists(annas_sc_mismatch_file_path)
@@ -183,7 +188,7 @@ logbooks__sc_fhier_for_output <-
   arrange(vessel_official_number, trip_start_date)
 
 glimpse(logbooks__sc_fhier_for_output)
-0
+# 0
 
 ## add DNF info ----
 
@@ -244,9 +249,8 @@ compliant_vessels_in_sc_and_non_compl_fhier__not_both_nc <-
   dplyr::filter(!delinquent == 1 &
                   tolower(compliant_after_override) == "no")
 
-dim(compliant_vessels_in_sc_and_non_compl_fhier__for_output__not_both_nc)
-# [1] 458   7
-
+dim(compliant_vessels_in_sc_and_non_compl_fhier__not_both_nc)
+# [1] 458   24
 
 ### subset columns of data to output ----
 compliant_vessels_in_sc_and_non_compl_fhier__for_output <-
@@ -260,18 +264,31 @@ compliant_vessels_in_sc_and_non_compl_fhier__for_output <-
   distinct() |>
   arrange(vessel_reg_uscg_, comp_week_start_dt)
 
-dim(compliant_vessels_in_sc_and_non_compl_fhier__for_output_all)
+dim(compliant_vessels_in_sc_and_non_compl_fhier__for_output)
 # [1] 559   7
 
 # TODO: add spreadsheets
 ## 3. List of vessels non compliant in both ----
-## 4. List of vessels compliant in both ----
-# TODO: check if March non compl is the same
-# Write results to xlsx ----
-# (sheet 1) the list of those SC non-compliant vessels that are also non-compliant in FHIER, or
-# (on sheet 2) if they are compliant for that month in FHIER then list all the dates of DNFs and/or logbooks we have in FHIER by vessel (probably 3 columns needed: vessel ID, Logbook (list any dates for that month), DNF (list week date range for any for that month)
-# 2. we also need a step that just grabs the compliant vessels (herein "SC compliant vessels list"), and then checks FHIER
+sc__fhier_compl__join_w_month__non_compl_in_both <-
+  sc__fhier_compl__join_w_month |>
+  filter(delinquent_month == 1 &
+           common_month_compliance == "non_compl")
 
+dim(sc__fhier_compl__join_w_month__non_compl_in_both)
+# [1] 61 24
+
+## 4. List of vessels compliant in both ----
+sc__fhier_compl__join_w_month__compl_in_both <-
+  sc__fhier_compl__join_w_month |>
+  filter(delinquent_month == 0 &
+           common_month_compliance == "compl")
+
+dim(sc__fhier_compl__join_w_month__compl_in_both)
+# [1] 7759   24
+
+# TODO: check if March non compl is the same as in the previous SC file
+
+# Write results to xlsx ----
 # 1. Create a wb with all output dfs ----
 
 # Explanations:
@@ -416,7 +433,7 @@ file.exists(column_definitions_path)
 
 # read csv
 column_definitions <-
-  readr::read_csv(column_definitions_file_path)
+  readr::read_csv(column_definitions_path)
 
 # combine 3 dfs and convert to a type needed for output.
 readme_text <-
@@ -497,7 +514,7 @@ write_readme_sheet(readme_text,
 
 # Optional. Not needed for processing.
 # To see the wb.
-# openxlsx::openXL(wb)
+openxlsx::openXL(wb)
 
 ## Move readme to the first position ----
 
@@ -509,15 +526,15 @@ write_readme_sheet(readme_text,
 #    b. Followed by the rest of the worksheets from the first to the second-to-last position using '1:(length_of_wb - 1)'.
 
 # The readme sheet will be in the last position.
-openxlsx::worksheetOrder(wb)
-# [1] 1 2 3 4 5
 
 old_order <- openxlsx::worksheetOrder(wb)
+old_order
+# [1] 1 2 3 4 5
+
 length_of_wb <- old_order |> length()
 openxlsx::worksheetOrder(wb) <- c(length_of_wb, 1:(length_of_wb - 1))
 
 # Optional. Not needed for processing.
-
 # To see the new sheet order.
 openxlsx::worksheetOrder(wb)
 # [1] 5 1 2 3 4
@@ -530,7 +547,8 @@ openxlsx::worksheetOrder(wb)
 # define the path
 output_file_name <-
   file.path(output_path,
-            "sc_compliance.xlsx")
+            stringr::str_glue("sc_compliance_{sc_file_date}.xlsx"))
 
 # write the workbook unto file
 openxlsx::saveWorkbook(wb, output_file_name, overwrite = T)
+
