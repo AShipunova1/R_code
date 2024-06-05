@@ -55,11 +55,17 @@ file.exists(prepare_data_path)
 
 source(prepare_data_path)
 # Processed Data are in:
+# lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short
 # db_logbooks_2022_short
 # catch_info_i3
 # ---
 
 glimpse(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short)
+glimpse(db_logbooks_2022_short)
+glimpse(catch_info_i3)
+
+# db_logbooks_2022_short$ANYTHING_CAUGHT_FLAG |> unique()
+# [1] NA  "Y" "N"
 
 # plots ----
 # source(file.path(current_project_dir_name, "validation_survey_plots.R"))
@@ -123,6 +129,24 @@ catch_info_i3 |>
   ungroup() |> 
 # 68
   dim()
+
+# when was the survey?, all < June 2022
+# grep("month", tolower(names(catch_info_i3)), value = T)
+catch_info_i3 |> 
+  select(VESSEL_OFFICIAL_NBR,
+         all_of(compare_fields),
+         interview_date_time) |>
+  distinct() |>
+  rowwise() |>
+  filter(!as.integer(!!sym(compare_fields[[1]])) == as.integer(!!sym(compare_fields[[2]]))) |>
+  ungroup() |>
+  # group_by(lubridate::month(interview_date_time)) |> 
+  arrange(interview_date_time) |> 
+  mutate(interview_year = lubridate::year(interview_date_time),
+         interview_month = lubridate::month(interview_date_time)) |> 
+  count(interview_year, interview_month)
+        
+  glimpse()
 
 # compare ACTIVITY_TYPE_NAME	no_harvested_selected
 
