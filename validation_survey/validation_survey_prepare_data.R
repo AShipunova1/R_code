@@ -258,7 +258,6 @@ lgb_join_i1__t_diff_short %>%
   filter(n() > 1) |> 
   glimpse()
 
-
 ## duplicated id_code (2 trips - 1 interview) ----
 lgb_join_i1__t_diff_short |> 
   dplyr::group_by(id_code) |> 
@@ -516,6 +515,7 @@ lgb_names_to_use <- c(
 "CATCH_SEQ",
 "CATCH_SPECIES_ITIS",
 "REPORTED_QUANTITY",
+"ANYTHING_CAUGHT_FLAG",
 "DISPOSITION_CODE",
 "DISPOSITION_NAME"
 )
@@ -580,7 +580,7 @@ survey_data_l_2022_short$i3 <-
   survey_data_l_2022_short$i3 |>
   tibble::add_column(i3 = "harvested")
 
-# survey_data_l_2022_short$i3 |> glimpse()
+survey_data_l_2022_short$i3 |> glimpse()
 
 # survey_data_l_2022_short |> purrr::map(dim)
 
@@ -623,3 +623,12 @@ catch_info_i3 <-
 
 dim(catch_info_i3)
 # [1] 89466    50
+
+# result names:
+data_names <-
+  c("db_logbooks_2022_short",
+    "catch_info_i3")
+
+auxfunctions::pretty_print(my_title = "Processed Data are in:", 
+                           my_text = data_names)
+
