@@ -212,13 +212,79 @@ CATCH_SPECIES_ITIS_vs_tsn.harv <-
   catch_info_i3 |>
   select(VESSEL_OFFICIAL_NBR, TRIP_ID, all_of(compare_fields)) |>
   distinct() |>
-  mutate(across(all_of(compare_fields), as.numeric)) |> 
   group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |>
   mutate(all_spp_1_trip_fhier_l =
            list(sort(unique(CATCH_SPECIES_ITIS)))) |>
   mutate(all_spp_1_trip_survey_l =
            list(sort(unique(tsn.harv)))) |> 
   ungroup()
+
+tictoc::tic("add sci names")
+tsn_info <-
+  catch_info_i3 |>
+  distinct(CATCH_SPECIES_ITIS, tsn.releas, tsn.harv) |>
+  dplyr::mutate(dplyr::across(dplyr::everything(), as.numeric))
+# mutate(across(all_of(compare_fields), as.numeric)) |> 
+
+str(tsn_info)
+
+find_sci_n <- function(tsn) {
+      browser()
+      try(ritis::scientific_name(tsn)$combinedname)
+}
+
+# mutate(content = map(file_names, \(file_names) read_tsv(file_names, skip = 1, col_names = FALSE)))
+# mutate(content = map(file_names, ~read_tsv(.x, skip = 1, col_names = FALSE)))
+
+temp <- function(my_variables) {
+  browser()
+  my_variables |>
+    purrr::map(\(var1) {
+      browser()
+      paste("XXX", var1) |>
+        print()
+    })
+}
+
+temp(c("QQ"))
+
+# res1 <-
+  tsn_info |> 
+  dplyr::mutate(dplyr::across(dplyr::everything(), temp))
+
+res1 <-
+  tsn_info |>
+  dplyr::mutate(dplyr::across(dplyr::everything(list(~ purrr::map(
+    \(.x) {
+      browser()
+      try(ritis::scientific_name(.x)$combinedname)
+    }
+  )))))
+# 
+#     find_sci_n)))
+
+glimpse(res1)
+
+  mutate(across(all_of(compare_fields), as.numeric)) |> 
+    
+    
+    list(purrr::map(
+    \(x) {
+      browser()
+      try(ritis::scientific_name(x)$combinedname)
+    }
+  )))))
+
+
+    |>
+  dplyr::mutate(com_n =
+                  list(purrr::map(tsn.harv, \(x) {
+                    # browser()
+                    try(ritis::common_names(x) |>
+                          filter(language == "English")
+                        |> select(commonName))
+                  })))
+tictoc::toc()
 
 cathc_spp_diff <-
   CATCH_SPECIES_ITIS_vs_tsn.harv |>
