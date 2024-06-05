@@ -240,47 +240,50 @@ tsn <- good_tsn
 
 get_itis_info <- function(tsn_s) {
   
+  
   tsn_s |>
     purrr::map(\(tsn) {
       # browser()
       
-      print(tsn)
+      # print(tsn)
       res <-
         try(ritis::full_record(tsn))
       
+      if (!is.list(res))
+        return()
+      
       com_name <- ""
       commonNames <- res$commonNameList$commonNames
-      is.data.frame(commonNames)
-      class(commonNames)
+      # is.data.frame(commonNames)
+      # class(commonNames)
       if (is.data.frame(commonNames)) {
         com_name <-
-          res$commonNameList$commonNames |>
+          commonNames |>
           filter(language == "English") |>
           select(commonName) |>
           unlist() |>
           unname()
-        }
-        
-        str(com_name)
-        # chr "king mackerel"
-        
-        sci_name <-
-          res$scientificName$combinedName
-        
-        # str(sci_name)
-        # chr "Scomberomorus cavalla"
-        
-        res_list <-
-          list("sci_name" = sci_name, "com_name" = com_name)
-        
-        # str(res_list)
-        
-        return(res_list)
+      }
+      
+      # str(com_name)
+      # chr "king mackerel"
+      
+      sci_name <-
+        res$scientificName$combinedName
+      
+      # str(sci_name)
+      # chr "Scomberomorus cavalla"
+      
+      res_list <-
+        list("sci_name" = sci_name, "com_name" = com_name)
+      
+      # str(res_list)
+      
+      return(res_list)
     })
 }
 
 tictoc::tic()
-
 tsn_info_itis <-
   tsn_only |> 
   # dplyr::mutate(tsn_sci = find_sci_n(tsn)) |> 
