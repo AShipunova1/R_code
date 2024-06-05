@@ -132,7 +132,9 @@ catch_info_i3 |>
 
 # when was the survey?, all < June 2022
 # grep("month", tolower(names(catch_info_i3)), value = T)
-catch_info_i3 |> 
+
+fish_hours_diff <-
+  catch_info_i3 |>
   select(VESSEL_OFFICIAL_NBR,
          all_of(compare_fields),
          interview_date_time) |>
@@ -140,13 +142,26 @@ catch_info_i3 |>
   rowwise() |>
   filter(!as.integer(!!sym(compare_fields[[1]])) == as.integer(!!sym(compare_fields[[2]]))) |>
   ungroup() |>
-  # group_by(lubridate::month(interview_date_time)) |> 
-  arrange(interview_date_time) |> 
-  mutate(interview_year = lubridate::year(interview_date_time),
-         interview_month = lubridate::month(interview_date_time)) |> 
-  count(interview_year, interview_month)
-        
-  glimpse()
+  mutate(
+    interview_year = lubridate::year(interview_date_time),
+    interview_month = lubridate::month(interview_date_time)
+  ) |>
+  count(interview_month, name = "diff_fishing_hours")
+
+str(fish_hours_diff)
+
+fish_hours_diff_plot <-
+  ggplot2::ggplot(data = fish_hours_diff, ggplot2::aes(x = interview_month, y = diff_fishing_hours)) +
+  ggplot2::geom_point(color = "blue") +
+  ggplot2::geom_line(color = "blue") +
+  # Change the x axis name
+  ggplot2::scale_x_discrete(name = "Interview Month", limits = factor(seq_len(12))) +
+  ggplot2::labs(title = "Trips with fishing hours different between logbooks and survey ny month", y = "Number of Trips with difference") +
+  ggplot2::geom_text(
+    label = fish_hours_diff$diff_fishing_hours,
+    nudge_y = 0.5,
+    nudge_x = 0.4
+  )
 
 # compare ACTIVITY_TYPE_NAME	no_harvested_selected
 
