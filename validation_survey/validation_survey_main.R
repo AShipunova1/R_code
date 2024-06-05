@@ -205,6 +205,101 @@ catch_info_i3 |>
   ungroup() |> 
   glimpse()
 
+# get scientific and common names by tsn ----
+
+tictoc::tic("add sci names")
+
+tsn_only <-
+  catch_info_i3 |>
+  distinct(CATCH_SPECIES_ITIS, tsn.releas, tsn.harv) |>
+  dplyr::mutate(dplyr::across(dplyr::everything(), as.numeric))
+
+tsn_only <- data.frame(tsn = unique(unlist(tsn_only)))
+# 'data.frame':	155 obs. of  1 variable:
+
+find_sci_n <- function(tsn_s) {
+  tsn_s |>
+    purrr::map(\(tsn) {
+      try(ritis::scientific_name(tsn)$combinedname)
+    })
+}
+
+find_com_n <- function(tsn_s) {
+  tsn_s |>
+    purrr::map(\(tsn) {
+      browser()
+      try(ritis::common_names(tsn) |>
+            dplyr::filter(language == "English") |>
+            dplyr::select(commonName))
+    })
+}
+
+good_tsn <- 172435 
+no_com_n_tsn <- 168790
+tsn <- good_tsn
+
+get_itis_info <- function(tsn_s) {
+  
+  tsn_s |>
+    purrr::map(\(tsn) {
+      # browser()
+      
+      print(tsn)
+      res <-
+        try(ritis::full_record(tsn))
+      
+      com_name <- ""
+      commonNames <- res$commonNameList$commonNames
+      is.data.frame(commonNames)
+      class(commonNames)
+      if (is.data.frame(commonNames)) {
+        com_name <-
+          res$commonNameList$commonNames |>
+          filter(language == "English") |>
+          select(commonName) |>
+          unlist() |>
+          unname()
+        }
+        
+        str(com_name)
+        # chr "king mackerel"
+        
+        sci_name <-
+          res$scientificName$combinedName
+        
+        # str(sci_name)
+        # chr "Scomberomorus cavalla"
+        
+        res_list <-
+          list("sci_name" = sci_name, "com_name" = com_name)
+        
+        # str(res_list)
+        
+        return(res_list)
+    })
+}
+
+tictoc::tic()
+
+tsn_info_itis <-
+  tsn_only |> 
+  # dplyr::mutate(tsn_sci = find_sci_n(tsn)) |> 
+    dplyr::mutate(tsn_com = get_itis_info(tsn))
+tictoc::toc()
+# 23.89 sec elapsed
+
+View(tsn_info_itis)
+
+#   dplyr::mutate(com_n =
+#                   list(purrr::map(tsn.harv, \(x) {
+#                     # browser()
+#                     try(ritis::common_names(x) |>
+#                           filter(language == "English")
+#                         |> select(commonName))
+#                   })))
+# tictoc::toc()
+
+
 ## check released and harvested separately ----
 # "CATCH_SPECIES_ITIS" vs "tsn.harv"
 
@@ -218,78 +313,6 @@ CATCH_SPECIES_ITIS_vs_tsn.harv <-
   mutate(all_spp_1_trip_survey_l =
            list(sort(unique(tsn.harv)))) |> 
   ungroup()
-
-tictoc::tic("add sci names")
-tsn_info <-
-  catch_info_i3 |>
-  distinct(CATCH_SPECIES_ITIS, tsn.releas, tsn.harv) |>
-  dplyr::mutate(dplyr::across(dplyr::everything(), as.numeric))
-# mutate(across(all_of(compare_fields), as.numeric)) |> 
-
-str(tsn_info)
-
-find_sci_n <- function(tsn_s) {
-  tsn_s |>
-    purrr::map(\(tsn) {
-      # browser()
-      try(ritis::scientific_name(tsn)$combinedname)
-    }) |> list()
-}
-
-# mutate(content = map(file_names, \(file_names) read_tsv(file_names, skip = 1, col_names = FALSE)))
-# mutate(content = map(file_names, ~read_tsv(.x, skip = 1, col_names = FALSE)))
-
-# temp <- function(my_variables) {
-#   browser()
-#   my_variables |>
-#     purrr::map(\(var1) {
-#       browser()
-#       paste("XXX", var1) |>
-#         print()
-#     })
-# }
-
-# temp(c("QQ"))
-
-tictoc::tic()
-tsn_info_itis <-
-  tsn_info |> 
-  dplyr::mutate(dplyr::across(dplyr::everything(), find_sci_n))
-tictoc::toc()
-
-res1 <-
-  tsn_info |>
-  dplyr::mutate(dplyr::across(dplyr::everything(list(~ purrr::map(
-    \(.x) {
-      browser()
-      try(ritis::scientific_name(.x)$combinedname)
-    }
-  )))))
-# 
-#     find_sci_n)))
-
-glimpse(res1)
-
-  mutate(across(all_of(compare_fields), as.numeric)) |> 
-    
-    
-    list(purrr::map(
-    \(x) {
-      browser()
-      try(ritis::scientific_name(x)$combinedname)
-    }
-  )))))
-
-
-    |>
-  dplyr::mutate(com_n =
-                  list(purrr::map(tsn.harv, \(x) {
-                    # browser()
-                    try(ritis::common_names(x) |>
-                          filter(language == "English")
-                        |> select(commonName))
-                  })))
-tictoc::toc()
 
 cathc_spp_diff <-
   CATCH_SPECIES_ITIS_vs_tsn.harv |>
