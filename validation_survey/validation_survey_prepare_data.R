@@ -330,9 +330,14 @@ lgb_join_i1__t_diff_short__w_int_all_dup <-
   add_count(TRIP_ID, name = "dup_interviews") |>
   ungroup()
 
-lgb_join_i1__t_diff_short__w_int_all_dup |> 
-  filter(dup_interviews > 1) |> 
+dup_interviews <- 
+  lgb_join_i1__t_diff_short__w_int_all_dup |> 
+  filter(dup_interviews > 1)
+
+nrow(dup_interviews)
 # 58
+
+dup_interviews |> 
   filter(big_diff_time == "yes") |> 
   glimpse()
 # 31
@@ -403,18 +408,20 @@ lgb_join_i1__t_diff_short__w_int_all_dup |>
 
 # remove duplicated interview counts (2 trips a day, 1 interview) ----
 ## Do that for the df with no 2 by 2 duplicates ----
-### find interview dulicates ----
+### find interview duplicates ----
 lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup <-
  lgb_join_i1__t_diff_short__w_int_all_dup_rm |>
   group_by(VESSEL_OFFICIAL_NBR, id_code) |>
   add_count(id_code, name = "dup_id_codes") |>
   ungroup()
 
+# duplicated interview
 lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup |> 
   filter(dup_id_codes > 1) |> 
   dim()
   # 310
 
+# check diff time
 lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup |>
     filter(dup_id_codes == 2) |>
     arrange(id_code, TRIP_ID, VESSEL_OFFICIAL_NBR, trip_end_date_time) |>
@@ -469,6 +476,7 @@ auxfunctions::data_overview(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup
 
 # View(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm)
 
+## shorten the df ----
 lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short <- lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm |>
   select(-c(
     # ends_with("_diff"),
@@ -494,7 +502,7 @@ lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_shorter <-
          trip_end_date_time,
          interview_date_time)
 
-## shorten logbooks ----
+## shorten db logbooks ----
 
 lgb_names_to_use <- c(
   "TRIP_ID",
@@ -527,7 +535,7 @@ db_logbooks_2022_short <-
 
 # dim(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_shorter)
 
-## join select and logbooks ----
+## add logbooks to the df joined by day/time ----
 catch_info_lgb <- 
   left_join(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_shorter,
             db_logbooks_2022_short)
@@ -584,17 +592,17 @@ survey_data_l_2022_short$i3 |> glimpse()
 
 # survey_data_l_2022_short |> purrr::map(dim)
 
-catch_info_i1 <-
+catch_info_lgb_i1 <-
   left_join(catch_info_lgb,
             survey_data_l_2022_short$i1,
             suffix = c(".lgb", ".i1"))
 # Joining with `by = join_by(id_code)`
 
-dim(catch_info_i1)
+dim(catch_info_lgb_i1)
 # [1] 3502   37
 
-catch_info_i2 <- 
-  left_join(catch_info_i1,
+catch_info_lgb_i1_i2 <- 
+  left_join(catch_info_lgb_i1,
             survey_data_l_2022_short$i2,
             relationship = "many-to-many",
             suffix = c(".i1", ".releas"),
@@ -606,11 +614,11 @@ catch_info_i2 <-
 # Error in `left_join()`:
 # ! Can't join `x$st` with `y$st` due to incompatible types.
 
-dim(catch_info_i2)
+dim(catch_info_lgb_i1_i2)
 # [1] 8418   42
 
-catch_info_i3 <-
-  left_join(catch_info_i2,
+catch_info_lgb_i1_i2_i3 <-
+  left_join(catch_info_lgb_i1_i2,
             survey_data_l_2022_short$i3,
             relationship = "many-to-many",
             join_by(id_code),
@@ -621,14 +629,14 @@ catch_info_i3 <-
 # default
 # Joining with `by = join_by(id_code, num_typ3, tsn)`
 
-dim(catch_info_i3)
+dim(catch_info_lgb_i1_i2_i3)
 # [1] 89466    50
 
 # result names:
 data_names <-
   c("lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short",
     "db_logbooks_2022_short",
-    "catch_info_i3")
+    "catch_info_lgb_i1_i2_i3")
 
 auxfunctions::pretty_print(my_title = "Processed Data are in:", 
                            my_text = data_names)
