@@ -69,12 +69,10 @@ survey_data_l_not_na <-
 #    start4  
 #     stop4  
 #    tsite4  
-#   ---------
 # $ref
 #    la_charter_permit_number 
 #       interviewee_m_name    
 #       interviewee_suffix    
-#   --------------------------
 
 # Pull out 2022 only ----
 # survey_data_l |> purrr::map(print_df_names)
@@ -124,8 +122,17 @@ processed_logbooks_2022 <-
 dim(processed_logbooks_2022)
 # [1] 330441    179
 
-# dat = dbGetQuery(con, "SELECT * FROM srh.mv_safis_trip_download@secapxdv_dblk
-#                  WHERE trip_start_date >= '01-JAN-2022'")
+grep("permit", names(processed_logbooks_2022), ignore.case = T, value = T)
+# permit_sa_gom
+
+processed_logbooks_2022_calendar <-
+  processed_logbooks_2022 |>
+  filter(TRIP_END_DATE >= lubridate::dmy(my_date_beg) &
+           TRIP_START_DATE <= lubridate::dmy(my_date_end))
+
+nrow(processed_logbooks_2022_calendar) -
+  nrow(processed_logbooks_2022)
+# [1] -4712
 
 db_logbooks_query <-
   stringr::str_glue("SELECT
@@ -168,10 +175,72 @@ dim(db_logbooks_2022)
 # [1] 328086    149
 # [1] 328086    128
 
-# result names:
+# check db logbooks vs. processed logbooks ----
+grep("permit", names(db_logbooks_2022), ignore.case = T, value = T)
+# [1] "ACCSP_PERMIT_LICENSE_NBR" "SERO_VESSEL_PERMIT"       "GARFO_VESSEL_PERMIT"     
+
+n_distinct(db_logbooks_2022$TRIP_ID)
+# 94857
+n_distinct(processed_logbooks_2022$TRIP_ID)
+# 95342
+n_distinct(processed_logbooks_2022_calendar$TRIP_ID)
+# 94104
+
+trips_in_db_not_in_processed <-
+  setdiff(db_logbooks_2022$TRIP_ID, processed_logbooks_2022$TRIP_ID)
+# 753
+
+trips_in_db_not_in_processed_cal <-
+  setdiff(db_logbooks_2022$TRIP_ID,
+          processed_logbooks_2022_calendar$TRIP_ID)
+length(trips_in_db_not_in_processed_cal)
+# 753
+
+trips_in_processed_not_in_db <-
+  setdiff(processed_logbooks_2022$TRIP_ID, db_logbooks_2022$TRIP_ID)
+length(trips_in_processed_not_in_db)
+# 1238
+
+trips_in_processed_cal_not_in_db <-
+  setdiff(processed_logbooks_2022_calendar$TRIP_ID,
+          db_logbooks_2022$TRIP_ID)
+length(trips_in_processed_cal_not_in_db)
+# 0 ok
+
+processed_logbooks_2022 |> 
+  filter(TRIP_ID %in% trips_in_processed_not_in_db) |> 
+  # filter(!permit_sa_gom == "sa_only") |> 
+  select(COMP_WEEK_START_DT, COMP_WEEK_END_DT) |> 
+    distinct()
+
+processed_logbooks_2022 |> 
+  filter(TRIP_ID %in% trips_in_processed_not_in_db) |> 
+  # filter(!permit_sa_gom == "sa_only") |> 
+  select(COMP_WEEK_START_DT, COMP_WEEK_END_DT) |> 
+    distinct()
+#   COMP_WEEK_START_DT  COMP_WEEK_END_DT   
+#   <dttm>              <dttm>             
+# 1 2022-12-26 00:00:00 2023-01-01 00:00:00
+# 2 2021-12-27 00:00:00 2022-01-02 00:00:00
+
+db_logbooks_2022 |>
+  filter(TRIP_ID %in% trips_in_db_not_in_processed) |>
+  select(TRIP_START_DATE, TRIP_END_DATE) |>
+  distinct() |> 
+  dim()
+# [1] 352   2
+# all diff
+min(db_logbooks_2022$TRIP_START_DATE)
+# [1] "2021-12-31 23:00:00 EST"
+
+min(processed_logbooks_2022_calendar$TRIP_START_DATE)
+# [1] "2022-01-01"
+
+# result names ----
 data_names <-
   c("survey_data_l_2022",
     "processed_logbooks_2022",
+    "processed_logbooks_2022_calendar",
     "db_logbooks_2022")
 
 auxfunctions::pretty_print(my_title = "Data are in:", 
