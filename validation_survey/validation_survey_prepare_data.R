@@ -127,7 +127,7 @@ grep("date", names(db_logbooks_2022), ignore.case = T, value = T)
 # View(db_logbooks_2022)
 
 # prepare logbooks ----
-db_logbooks_2022_short <-
+db_logbooks_2022_short0 <-
   db_logbooks_2022 |>
   select(
     TRIP_ID,
@@ -144,7 +144,7 @@ db_logbooks_2022_short <-
   #               ~ sprintf("%04d", .x)))
 
 db_logbooks_2022_short_date_time <-
-  db_logbooks_2022_short |>
+  db_logbooks_2022_short0 |>
   mutate(start_hour_sec =
            stringr::str_replace(TRIP_START_TIME, "(\\d+)(\\d{2})", "\\1 \\2")) |>
   tidyr::separate_wider_delim(
@@ -191,7 +191,7 @@ db_logbooks_2022_short_date_time <-
 
 # compare trips/vessels
 # tidyverse combine year, month and day into a date lubridate
-#     str(db_logbooks_2022_short)
+#     str(db_logbooks_2022_short0)
 # lubridate::date("2022-01-04 23:00:00")
 
 lgb_join_i1 <-
@@ -441,12 +441,12 @@ lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm <-
   anti_join(trip_dups_only)
 # Joining with `by = join_by(id_code, TRIP_ID, VESSEL_OFFICIAL_NBR)`
 
+## check if not loosing trips by removing ----
 nrow(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup) -
   nrow(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm) ==
   nrow(trip_dups_only)
 # T
 
-# TODO: check if not loosing trips by removing ----
 auxfunctions::data_overview(lgb_join_i1)
 # TRIP_ID              1054
 # VESSEL_OFFICIAL_NBR   476
