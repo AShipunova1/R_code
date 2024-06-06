@@ -173,6 +173,10 @@ fish_hours_diff_plot <-
 compare_fields <- 
   c("ACTIVITY_TYPE_NAME", "no_harvested_selected")
 
+catch_info_i3 |> 
+    filter(is.na(CATCH_SPECIES_ITIS)) |> View()
+# [1] 145  50
+
 catch_info_i3 |>
   select(all_of(compare_fields)) |>
   distinct() |>
@@ -555,3 +559,39 @@ survey_data_l_2022_short_cnt_spp |>
     glimpse()
 
 # TODO: compare ns
+
+# compare NUM_TYP3 with number of cought and retained fish in FHIER
+compare_fields <-
+  c("num_typ3.harv", "REPORTED_QUANTITY")
+
+catch_info_i3 |>
+  select(VESSEL_OFFICIAL_NBR, 
+         TRIP_ID,
+         all_of(compare_fields)) |>
+  # arrange(VESSEL_OFFICIAL_NBR,
+  #         TRIP_ID,
+  #         num_typ3.harv) |> 
+  distinct() |>
+  # dim()
+  # [1] 19124     3
+  rowwise() |> 
+  filter(!as.integer(!!sym(compare_fields[[1]])) == as.integer(!!sym(compare_fields[[2]]))) |>
+  ungroup() |> 
+  glimpse()
+
+# compare fshinsp, REPORTED_QUANTITY ----
+compare_fields <-
+  c("fshinsp", "REPORTED_QUANTITY")
+
+catch_info_i3 |>
+  select(VESSEL_OFFICIAL_NBR, 
+         TRIP_ID,
+         all_of(compare_fields)) |>
+  arrange(VESSEL_OFFICIAL_NBR,
+          TRIP_ID,
+          fshinsp) |>
+  distinct() |>
+  rowwise() |> 
+  filter(!as.integer(!!sym(compare_fields[[1]])) == as.integer(!!sym(compare_fields[[2]]))) |>
+  ungroup() |> 
+  glimpse()
