@@ -1,11 +1,13 @@
 # Set up ----
 
-# install.packages("devtools")
-library(devtools)
-devtools::install_github("AShipunova1/R_code/auxfunctions@development")
-                         # , 
-                         # force = T)
-library(auxfunctions)
+library('devtools')
+
+if (!require('auxfunctions')) {
+  devtools::install_github("AShipunova1/R_code/auxfunctions@development")
+  
+  library('auxfunctions')
+}
+
 library(lubridate)
 
 Sys.setenv(TZ = Sys.timezone())
@@ -391,7 +393,7 @@ catch_info_i3 |>
   ungroup() |> 
   glimpse()
 
-# the same sp. is both released and harvested in the same trip ----
+# the same sp. is both released and harvested in the same trip (OK) ----
 
 catch_info_i3 |> 
   group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |> 
@@ -504,7 +506,7 @@ dim(catch_info_i3_short_harvested)
 
 # count amount of species per trip ----
 # db_logbooks_2022_short |> print_df_names()
-# survey_data_l_2022_short
+# survey_data_l_2022_short |> print_df_names()
 
 db_logbooks_2022_short_cnt_spp <-
   db_logbooks_2022_short |>
@@ -523,10 +525,6 @@ db_logbooks_2022_short_cnt_spp <-
   group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |>
   dplyr::mutate(n_CATCH_SPECIES_ITIS = n_distinct(CATCH_SPECIES_ITIS)) |>
   ungroup()
-
-  # select(-DISPOSITION_NAME) |> 
-  # add_count(VESSEL_OFFICIAL_NBR, TRIP_ID,
-            # name = "n_CATCH_SPECIES_ITIS")
 
 db_logbooks_2022_short_cnt_spp |> 
   arrange(VESSEL_OFFICIAL_NBR, TRIP_ID, DISPOSITION_CODE) |> 
@@ -595,3 +593,5 @@ catch_info_i3 |>
   filter(!as.integer(!!sym(compare_fields[[1]])) == as.integer(!!sym(compare_fields[[2]]))) |>
   ungroup() |> 
   glimpse()
+
+# how many interviews with no logbooks ----
