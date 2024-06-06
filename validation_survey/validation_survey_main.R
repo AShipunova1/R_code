@@ -742,3 +742,60 @@ lgb_join_i1_full_short |>
   glimpse()
 
 
+## again ----
+db_logbooks_2022_vsl_t_end <-
+  db_logbooks_2022 |>
+  select(VESSEL_OFFICIAL_NBR, TRIP_END_DATE) |> 
+  distinct()
+
+dim(db_logbooks_2022_vsl_t_end)
+# [1] 86134     2
+
+survey_data_l_2022_i1_vsl_int_t <-
+  survey_data_l_2022$i1 |>
+  filter(year == "2022") |>
+  select(vsl_num, id_code) |>
+  distinct()
+
+survey_data_l_2022_date_i1_vsl_int_t <-
+  survey_data_l_2022_vsl_date |>
+  filter(int_year == "2022") |>
+  select(vsl_num, interview_date) |>
+  mutate(vsl_num = stringr::str_replace_all(vsl_num, " ", "")) |> 
+  mutate(vsl_num = tolower(vsl_num)) |> 
+  distinct()
+
+dim(survey_data_l_2022_i1_vsl_int_t)
+# [1] 1835    2
+
+dim(survey_data_l_2022_date_i1_vsl_int_t)
+# 1812
+
+# View(survey_data_l_2022_date_i1_vsl_int_t)
+
+survey_not_in_lgb <-
+  survey_data_l_2022_date_i1_vsl_int_t |>
+  filter(
+    !(
+      vsl_num %in% tolower(db_logbooks_2022_vsl_t_end$VESSEL_OFFICIAL_NBR) &
+        lubridate::date(interview_date) %in% lubridate::date(db_logbooks_2022_vsl_t_end$TRIP_END_DATE)
+    )
+  )
+
+dim(survey_not_in_lgb)
+# 1448    in
+# 364 not in
+
+# percent
+# 364 * 100 / (364 + 1448)
+# 20%
+
+survey_data_l_2022_date_i1_vsl_int_t |>
+  filter(vsl_num == 'fl6306pd',
+         interview_date == lubridate::mdy("12/26/2022"))
+
+db_logbooks_2022_short_date_time |> 
+  filter(VESSEL_OFFICIAL_NBR == 'FL6306PD',
+         trip_end_date_only == lubridate::mdy("12/26/2022"))
+
+View(survey_not_in_lgb)
