@@ -613,9 +613,10 @@ survey_data_l_2022_date_i1_vsl_int_t <-
   survey_data_l_2022_vsl_date |>
   filter(int_year == "2022") |>
   select(vsl_num, interview_date) |>
-  mutate(vsl_num = stringr::str_replace_all(vsl_num, " ", "")) |> 
-  mutate(vsl_num = tolower(vsl_num)) |> 
-  mutate(interview_date = lubridate::date(interview_date)) |> 
+  mutate(vsl_num = stringr::str_replace_all(vsl_num, " ", "")) |>
+  mutate(vsl_num = stringr::str_replace_all(vsl_num, "-", "")) |>
+  mutate(vsl_num = tolower(vsl_num)) |>
+  mutate(interview_date = lubridate::date(interview_date)) |>
   distinct()
 
 dim(survey_data_l_2022_date_i1_vsl_int_t)
@@ -691,12 +692,19 @@ lubridate::intersect(tolower(db_logbooks_2022$VESSEL_OFFICIAL_NBR),
                      tolower(survey_vsl_num_not_in_lgb))
 # 0
 
+
 lubridate::setdiff(tolower(survey_vsl_num_not_in_lgb),
-                   tolower(db_logbooks_2022$VESSEL_OFFICIAL_NBR))
+                   tolower(db_logbooks_2022$VESSEL_OFFICIAL_NBR)) |> 
+  unique() |> 
+  length()
+# 152
 
+vsl_in_survey_not_in_lgb <-
+  lubridate::setdiff(
+    tolower(survey_vsl_num_not_in_lgb),
+    tolower(processed_logbooks_2022_calendar$VESSEL_OFFICIAL_NUMBER)
+  ) |>
+  unique() 
+length(vsl_in_survey_not_in_lgb)
+# 152
 
-db_logbooks_2022 |> 
-  select(VESSEL_OFFICIAL_NBR) |>
-  filter(tolower(VESSEL_OFFICIAL_NBR) %in% tolower(survey_vsl_num_not_in_lgb)) |> 
-  glimpse()
-# 0
