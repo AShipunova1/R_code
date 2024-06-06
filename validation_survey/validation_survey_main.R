@@ -708,3 +708,24 @@ vsl_in_survey_not_in_lgb <-
 length(vsl_in_survey_not_in_lgb)
 # 152
 
+vsl_in_survey_not_in_lgb__str <-
+  vsl_in_survey_not_in_lgb |>
+  toupper() |> 
+  paste(collapse = "', '")
+
+vsl_in_survey_not_in_lgb_query <- 
+    stringr::str_glue("SELECT
+  *
+FROM
+  srh.mv_safis_trip_download@secapxdv_dblk
+WHERE
+    trip_end_date >= '{my_date_beg}'
+  AND trip_start_date <= '{my_date_end}'
+  and vessel_official_nbr IN ('{vsl_in_survey_not_in_lgb__str}')
+")
+
+vsl_in_survey_not_in_lgb_query_res <-
+  DBI::dbGetQuery(con, vsl_in_survey_not_in_lgb_query)
+
+vsl_in_survey_not_in_lgb_query_res |> dim()
+# 0
