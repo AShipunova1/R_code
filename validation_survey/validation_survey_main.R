@@ -59,12 +59,12 @@ source(prepare_data_path)
 # Processed Data are in:
 # lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short
 # db_logbooks_2022_short
-# catch_info_i3
+# catch_info_lgb_i1_i2_i3
 # ---
 
 glimpse(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short)
 glimpse(db_logbooks_2022_short)
-glimpse(catch_info_i3)
+glimpse(catch_info_lgb_i1_i2_i3)
 
 # db_logbooks_2022_short$ANYTHING_CAUGHT_FLAG |> unique()
 # [1] NA  "Y" "N"
@@ -81,7 +81,7 @@ unify_names <- function(column_name) {
     stringr::str_replace("\\s", "")
 }
 
-catch_info_i3 |>
+catch_info_lgb_i1_i2_i3 |>
   filter(!unify_names(vessel_name) == unify_names(VESSEL_NAME)) |>
   select(VESSEL_OFFICIAL_NBR, vsl_num, VESSEL_NAME, vessel_name) |>
   distinct() |>
@@ -97,10 +97,10 @@ catch_info_i3 |>
 # compare TRIP_TYPE_NAME, operating_type ----
 
 # 6=’HB’, 7=’CB’, 0=’Neither’
-# catch_info_i3$TRIP_TYPE_NAME |> unique()
+# catch_info_lgb_i1_i2_i3$TRIP_TYPE_NAME |> unique()
 # [1] "CHARTER" "UNKNOWN"
 
-catch_info_i3 |> 
+catch_info_lgb_i1_i2_i3 |> 
   select(VESSEL_OFFICIAL_NBR, TRIP_TYPE_NAME, operating_type) |>
   distinct() |>
   mutate(surv_trip_type = case_when(operating_type == 6 ~ "headboat",
@@ -112,12 +112,12 @@ catch_info_i3 |>
 # same type "CHARTER" 225
 
 # compare NUM_ANGLERS, people_fishing ----
-# catch_info_i3$people_fishing |> unique()
+# catch_info_lgb_i1_i2_i3$people_fishing |> unique()
 
 compare_fields <- 
   c("NUM_ANGLERS", "people_fishing")
 
-catch_info_i3 |> 
+catch_info_lgb_i1_i2_i3 |> 
   select(VESSEL_OFFICIAL_NBR, all_of(compare_fields)) |>
   distinct() |>
   rowwise() |> 
@@ -133,10 +133,10 @@ catch_info_i3 |>
   dim()
 
 # when was the survey?, all < June 2022
-# grep("month", tolower(names(catch_info_i3)), value = T)
+# grep("month", tolower(names(catch_info_lgb_i1_i2_i3)), value = T)
 
 fish_hours_diff <-
-  catch_info_i3 |>
+  catch_info_lgb_i1_i2_i3 |>
   select(VESSEL_OFFICIAL_NBR,
          all_of(compare_fields),
          interview_date_time) |>
@@ -169,17 +169,17 @@ fish_hours_diff_plot <-
 
 # ACTIVITY_TYPE_NAME
 # [1] "TRIP WITH EFFORT"
-# catch_info_i3$no_harvested_selected |> unique()
+# catch_info_lgb_i1_i2_i3$no_harvested_selected |> unique()
 # 1, 2 (1=YES, 2=NO)
 
 compare_fields <- 
   c("ACTIVITY_TYPE_NAME", "no_harvested_selected")
 
-catch_info_i3 |> 
+catch_info_lgb_i1_i2_i3 |> 
     filter(is.na(CATCH_SPECIES_ITIS)) |> View()
 # [1] 145  50
 
-catch_info_i3 |>
+catch_info_lgb_i1_i2_i3 |>
   select(all_of(compare_fields)) |>
   distinct() |>
   glimpse()
@@ -191,7 +191,7 @@ catch_info_i3 |>
 compare_fields <-
   c("DISTANCE_CODE_NAME", "fishing_distance")
 
-catch_info_i3 |>
+catch_info_lgb_i1_i2_i3 |>
   select(all_of(compare_fields)) |>
   distinct() |>
   glimpse()
@@ -201,7 +201,7 @@ catch_info_i3 |>
 compare_fields <-
   c("FISHING_HOURS", "hrsf")
 
-catch_info_i3 |>
+catch_info_lgb_i1_i2_i3 |>
   select(VESSEL_OFFICIAL_NBR, all_of(compare_fields)) |>
   distinct() |>
   # dim()
@@ -216,13 +216,13 @@ catch_info_i3 |>
 
 # compare CATCH_SPECIES_ITIS	tsn ----
 # https://en.wikipedia.org/wiki/Integrated_Taxonomic_Information_System
-# grep("tsn", names(catch_info_i3), value = T)
+# grep("tsn", names(catch_info_lgb_i1_i2_i3), value = T)
 # [1] "tsn.releas" "tsn.harv" 
 
 compare_fields <-
   c("CATCH_SPECIES_ITIS", "tsn.releas", "tsn.harv")
 
-catch_info_i3 |> 
+catch_info_lgb_i1_i2_i3 |> 
   select(starts_with("tsn")) |> 
   distinct() |> 
   # dim()
@@ -231,10 +231,10 @@ catch_info_i3 |>
   glimpse()
 # 937
 
-# n_distinct(catch_info_i3$TRIP_ID)
+# n_distinct(catch_info_lgb_i1_i2_i3$TRIP_ID)
 # 887
 
-catch_info_i3 |> 
+catch_info_lgb_i1_i2_i3 |> 
   # select(all_of(compare_fields)) |>
   select(VESSEL_OFFICIAL_NBR, TRIP_ID, all_of(compare_fields)) |>
   distinct() |>
@@ -255,7 +255,7 @@ catch_info_i3 |>
 # get scientific and common names by tsn ----
 
 tsn_only <-
-  catch_info_i3 |>
+  catch_info_lgb_i1_i2_i3 |>
   distinct(CATCH_SPECIES_ITIS, tsn.releas, tsn.harv) |>
   dplyr::mutate(dplyr::across(dplyr::everything(), as.numeric))
 
@@ -322,7 +322,7 @@ View(tsn_info_itis[[2]])
 # "CATCH_SPECIES_ITIS" vs "tsn.harv"
 
 CATCH_SPECIES_ITIS_vs_tsn.harv <-
-  catch_info_i3 |>
+  catch_info_lgb_i1_i2_i3 |>
   select(VESSEL_OFFICIAL_NBR, TRIP_ID, all_of(compare_fields)) |>
   distinct() |>
   group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |>
@@ -376,7 +376,7 @@ glimpse(cathc_spp_diff__no_diff)
 # TODO: check released and harvested separately
 
 ## check numbers for the same spp lgb/harvested ----
-catch_info_i3 |> 
+catch_info_lgb_i1_i2_i3 |> 
   # select(VESSEL_OFFICIAL_NBR, TRIP_ID, all_of(compare_fields)) |>
   # distinct() |>
   group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |> 
@@ -386,7 +386,7 @@ catch_info_i3 |>
   glimpse()
 
 ## check numbers for the same spp lgb/released ----
-catch_info_i3 |> 
+catch_info_lgb_i1_i2_i3 |> 
   group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |> 
   filter(as.integer(!!sym(compare_fields[[1]])) ==
            as.integer(!!sym(compare_fields[[2]]))) |>
@@ -395,7 +395,7 @@ catch_info_i3 |>
 
 # the same sp. is both released and harvested in the same trip (OK) ----
 
-catch_info_i3 |> 
+catch_info_lgb_i1_i2_i3 |> 
   group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |> 
   filter(as.integer(!!sym(compare_fields[[1]])) ==
            as.integer(!!sym(compare_fields[[2]]))) |>
@@ -464,10 +464,10 @@ catch_fields <-
     "fshinsp"
   )
 
-# dim(catch_info_i3)
+# dim(catch_info_lgb_i1_i2_i3)
 
-catch_info_i3_short <- 
-  catch_info_i3 |> 
+catch_info_lgb_i1_i2_i3_short <- 
+  catch_info_lgb_i1_i2_i3 |> 
   select("TRIP_ID",
   "VESSEL_OFFICIAL_NBR",
   "id_code",
@@ -475,15 +475,15 @@ catch_info_i3_short <-
 ) |> 
   distinct()
 
-dim(catch_info_i3)
+dim(catch_info_lgb_i1_i2_i3)
 # [1] 89466    50
 
-dim(catch_info_i3_short)
+dim(catch_info_lgb_i1_i2_i3_short)
 # [1] 37506    15
 
-# look at catch_info_i3_short_harvested ----
-catch_info_i3_short_harvested <-
-  catch_info_i3_short |>
+# look at catch_info_lgb_i1_i2_i3_short_harvested ----
+catch_info_lgb_i1_i2_i3_short_harvested <-
+  catch_info_lgb_i1_i2_i3_short |>
   group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |>
   filter(as.integer(!!sym(compare_fields[[1]])) ==
            as.integer(!!sym(compare_fields[[3]]))) |>
@@ -491,17 +491,17 @@ catch_info_i3_short_harvested <-
   select(-ends_with(".releas")) |>
   distinct()
 
-dim(catch_info_i3_short_harvested)
+dim(catch_info_lgb_i1_i2_i3_short_harvested)
 # [1] 6469   15
 # [1] 5829   11 (no ".releas")
 
-# data_overview(catch_info_i3_short_harvested)
+# data_overview(catch_info_lgb_i1_i2_i3_short_harvested)
 # TRIP_ID              841
 # VESSEL_OFFICIAL_NBR  219
 
-# View(catch_info_i3_short_harvested)
+# View(catch_info_lgb_i1_i2_i3_short_harvested)
 
-# catch_info_i3_short_harvested |> 
+# catch_info_lgb_i1_i2_i3_short_harvested |> 
     # filter(TRIP_ID == "1000020436") |> distinct() |>  View()
 
 # count amount of species per trip ----
@@ -562,7 +562,7 @@ survey_data_l_2022_short_cnt_spp |>
 compare_fields <-
   c("num_typ3.harv", "REPORTED_QUANTITY")
 
-catch_info_i3 |>
+catch_info_lgb_i1_i2_i3 |>
   select(VESSEL_OFFICIAL_NBR, 
          TRIP_ID,
          all_of(compare_fields)) |>
@@ -581,7 +581,7 @@ catch_info_i3 |>
 compare_fields <-
   c("fshinsp", "REPORTED_QUANTITY")
 
-catch_info_i3 |>
+catch_info_lgb_i1_i2_i3 |>
   select(VESSEL_OFFICIAL_NBR, 
          TRIP_ID,
          all_of(compare_fields)) |>
