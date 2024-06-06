@@ -601,9 +601,11 @@ catch_info_lgb_i1_i2_i3 |>
 # "db_logbooks_2022_short",
 # "catch_info_lgb_i1_i2_i3")
 
-# survey_data_l_2022_vsl_date_time |> glimpse()
+# survey_data_l_2022_vsl_date_time_all |> glimpse()
 # db_logbooks_2022_short_date_time |> glimpse()
 
+# db_logbooks_2022_short_date_time$trip_end_date_only |> str()
+# survey_data_l_2022_vsl_date_time_all$interview_date |> str()
 
 lgb_join_i1_full <-
   dplyr::full_join(
@@ -617,12 +619,126 @@ lgb_join_i1_full <-
   )
 
 dim(lgb_join_i1_full)
-# [1] 95820    24
+# [1] 95805    24
 
-days_w_no_logbooks <- 
+lgb_join_i1_full_short <-
+  lgb_join_i1_full |>
+  select(VESSEL_OFFICIAL_NBR, trip_end_date_only, TRIP_ID) |>
+  distinct()
+
+dim(lgb_join_i1_full_short)
+# [1] 95769     3
+
+lgb_join_i1_full |>
+  select(VESSEL_OFFICIAL_NBR, trip_end_date_only) |>
+  distinct() |> 
+  nrow()
+# 87033
+# some trip_ids have more than 1 VESSEL_OFFICIAL_NBR, trip_end_date_only
+
+lgb_join_i1_full_short |> 
+  dplyr::count(VESSEL_OFFICIAL_NBR, trip_end_date_only,
+               name = "num_trip_id_by__vsl__t_end") |> 
+  dplyr::count(num_trip_id_by__vsl__t_end, 
+               name = "num_of_counts") |> 
+  glimpse()
+
+lgb_join_i1_full_short |> 
+  dplyr::add_count(VESSEL_OFFICIAL_NBR, trip_end_date_only,
+               name = "num_trip_id_by__vsl__t_end") |> 
+  dplyr::arrange(dplyr::desc(num_trip_id_by__vsl__t_end)) |> 
+  glimpse()
+# $ num_trip_id_by__vsl__t_end <int> 1, 2, 3, 4, 5, 6, 13, 14, 15, 16, 18, 22, 26, 28,…
+# $ num_of_counts              <int> 78863, 7923, 209, 17, 3, 1, 2, 4, 2, 1, 2, 1, 2, …
+
+intervies_w_no_logbooks_by_day_vsl <- 
   lgb_join_i1_full |> 
-  filter(is.na(TRIP_ID))
+  filter(is.na(TRIP_ID)) |> 
+  auxfunctions::remove_empty_cols()
 
-nrow(days_w_no_logbooks)
-# 934
+dim(intervies_w_no_logbooks_by_day_vsl)
+# 904
+
+intervies_w_no_logbooks_by_day_vsl |> 
+  dplyr::select(VESSEL_OFFICIAL_NBR, trip_end_date_only) |> 
+  distinct() |> 
+  tail()
+
+dim(intervies_w_no_logbooks_by_day_vsl)
+# 904 13
+
+total_days_n_vsl_w_interview <- 
+  survey_data_l_2022_vsl_date_time_all |> 
+  dplyr::select(interview_date, vsl_num) |> 
+  distinct()
+
+View(total_days_n_vsl_w_interview)
+  
+dim(total_days_n_vsl_w_interview)
+# 1813
+
+# percent intervies_w_no_logbooks_by_day_vsl
+
+nrow(intervies_w_no_logbooks_by_day_vsl) * 100 / nrow(total_days_n_vsl_w_interview)
+# 49.86211%
+
+lgb_join_i1_full |> 
+    filter(
+    VESSEL_OFFICIAL_NBR == "1000042" &
+      trip_end_date_only == lubridate::ymd("2022-06-24")
+  ) |>
+  dim()
+# 1
+
+db_logbooks_2022_short_date_time |>
+  filter(
+    VESSEL_OFFICIAL_NBR == "1000042" &
+      trip_end_date_only == lubridate::ymd("2022-06-24")
+  ) |>
+  glimpse()
+# 1
+
+db_logbooks_2022  |> 
+  filter(
+    VESSEL_OFFICIAL_NBR == "1310029" &
+      lubridate::date(TRIP_END_DATE) == lubridate::ymd("2022-12-03")
+  ) |>
+  glimpse()
+# 3
+
+db_logbooks_2022$TRIP_START_DATE  |> unique()  |> sort() |> tail(2)
+# [1] "2022-12-29 23:00:00 EST" "2022-12-30 23:00:00 EST"
+
+db_logbooks_2022$TRIP_END_DATE  |> unique()  |> sort() |> tail(2)
+# [1] "2023-04-12 EDT" "2023-05-26 EDT"
+
+db_logbooks_2022 |> 
+  filter(
+    VESSEL_OFFICIAL_NBR == "1310029") |> 
+  select(TRIP_START_DATE) |> 
+  distinct() |> 
+  arrange(TRIP_START_DATE) |> 
+  tail(20)
+
+processed_logbooks_2022_calendar |>
+  filter(
+    VESSEL_OFFICIAL_NUMBER == "1310029" &
+      lubridate::date(TRIP_END_DATE) == lubridate::ymd("2022-12-03")
+  ) |>
+  glimpse()
+# 3
+
+
+lgb_join_i1_full_short |> 
+  filter(is.na(TRIP_ID)) |> 
+  auxfunctions::remove_empty_cols() |> dim()
+# 899  
+
+lgb_join_i1_full_short |>
+  filter(
+    VESSEL_OFFICIAL_NBR == "1000042" &
+      trip_end_date_only == lubridate::ymd("2022-06-24")
+  ) |>
+  glimpse()
+
 
