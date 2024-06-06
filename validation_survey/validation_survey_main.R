@@ -595,3 +595,34 @@ catch_info_lgb_i1_i2_i3 |>
   glimpse()
 
 # how many interviews with no logbooks ----
+
+# ls()
+# c("lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short",
+# "db_logbooks_2022_short",
+# "catch_info_lgb_i1_i2_i3")
+
+# survey_data_l_2022_vsl_date_time |> glimpse()
+# db_logbooks_2022_short_date_time |> glimpse()
+
+
+lgb_join_i1_full <-
+  dplyr::full_join(
+    db_logbooks_2022_short_date_time,
+    survey_data_l_2022_vsl_date_time_all,
+    join_by(
+      VESSEL_OFFICIAL_NBR == vsl_num,
+      trip_end_date_only == interview_date
+    ),
+    relationship = "many-to-many"
+  )
+
+dim(lgb_join_i1_full)
+# [1] 95820    24
+
+days_w_no_logbooks <- 
+  lgb_join_i1_full |> 
+  filter(is.na(TRIP_ID))
+
+nrow(days_w_no_logbooks)
+# 934
+
