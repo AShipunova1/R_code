@@ -238,6 +238,52 @@ min(db_logbooks_2022$TRIP_START_DATE)
 min(processed_logbooks_2022_calendar$TRIP_START_DATE)
 # [1] "2022-01-01"
 
+# get DNF ----
+db_dnfs_query <-
+  stringr::str_glue(
+    "SELECT
+  trip_id,
+  trip_date,
+  tn.vessel_id vessel_id,
+  tn.de,
+  tn.ue,
+  coast_guard_nbr,
+  state_reg_nbr,
+  sero_official_number vessel_official_number
+FROM
+       safis.trips_neg@secapxdv_dblk.sfsc.noaa.gov tn
+  JOIN safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
+  ON ( tn.vessel_id = v.vessel_id )
+WHERE
+    trip_date BETWEEN TO_DATE('{my_date_beg}', 'yyyy-mm-dd') AND
+TO_DATE('{my_date_end}', 'yyyy-mm-dd')
+"
+  )
+
+db_dnfs_file_name <-
+  file.path(curr_proj_input_path,
+                      stringr::str_glue("dnfs_db_{my_year}.rds"))
+
+file.exists(db_dnfs_file_name)
+
+db_dnfs_fun <-
+  function(db_dnfs_query) {
+    return(DBI::dbGetQuery(con, db_dnfs_query))
+  }
+
+get_db_dnfs <-
+  function() {
+    auxfunctions::read_rds_or_run(db_dnfs_file_name,
+                    db_dnfs_query,
+                    db_dnfs_fun)
+  }
+
+db_dnfs_2022 <-
+  get_db_dnfs() |>
+  auxfunctions::remove_empty_cols()
+
+dim(db_dnfs_2022)
+
 # result names ----
 data_names <-
   c("survey_data_l_2022",
