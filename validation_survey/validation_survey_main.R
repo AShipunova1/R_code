@@ -179,7 +179,7 @@ compare_fields <-
   c("ACTIVITY_TYPE_NAME", "no_harvested_selected")
 
 catch_info_lgb_i1_i2_i3 |> 
-    filter(is.na(CATCH_SPECIES_ITIS)) |> View()
+    filter(is.na(CATCH_SPECIES_ITIS)) |> glimpse()
 # [1] 145  50
 
 catch_info_lgb_i1_i2_i3 |>
@@ -212,7 +212,7 @@ catch_info_lgb_i1_i2_i3 |>
   rowwise() |> 
   filter(!as.integer(!!sym(compare_fields[[1]])) == as.integer(!!sym(compare_fields[[2]]))) |>
   ungroup() |> 
-  View()
+  glimpse()
 # 367
 
 # TODO: check if the same trip

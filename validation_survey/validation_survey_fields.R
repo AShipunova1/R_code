@@ -104,7 +104,7 @@ intersect(survey_data_l_2022$i1$permit_number1,
   head()
 1 (NA)
 
-View(db_logbooks_2022)
+# View(db_logbooks_2022)
 
 db_logbooks_2022$CATCH_SPECIES_ITIS |> 
   unique() |> 
