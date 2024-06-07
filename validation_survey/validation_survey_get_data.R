@@ -283,13 +283,15 @@ db_dnfs_2022 <-
   auxfunctions::remove_empty_cols()
 
 dim(db_dnfs_2022)
+# [1] 804410      8
 
 # result names ----
 data_names <-
   c("survey_data_l_2022",
     "processed_logbooks_2022",
     "processed_logbooks_2022_calendar",
-    "db_logbooks_2022")
+    "db_logbooks_2022",
+    "db_dnfs_2022")
 
 auxfunctions::pretty_print(my_title = "Data are in:", 
                            my_text = data_names)
