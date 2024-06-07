@@ -257,7 +257,6 @@ dim(lgb_join_i1__t_diff_short_has_no_trip)
 # n_distinct(lgb_join_i1__t_diff_short_has_trip$VESSEL_OFFICIAL_NBR)
 # 228
 
-
 # find duplicates ----
 
 ## duplicated vessel/trip_end ----
@@ -639,6 +638,46 @@ catch_info_lgb_i1_i2_i3 <-
 
 dim(catch_info_lgb_i1_i2_i3)
 # [1] 89466    50
+
+# join all survey info ----
+
+lubridate::intersect(names(survey_data_l_2022_short$i1),
+                     names(survey_data_l_2022_short$i2))
+
+# unify classes
+survey_data_l_2022_short1 <-
+  survey_data_l_2022_short |>
+  purrr::map(\(one_df) {
+    one_df |>
+      mutate(across(any_of(c("st")), ~ as.integer(.x)))
+  })
+
+# check
+purrr::map2(survey_data_l_2022_short,
+            survey_data_l_2022_short1,
+            diffdf::diffdf)
+
+survey_i1_i2 <-
+  left_join(survey_data_l_2022_short$i1,
+            survey_data_l_2022_short$i2,
+            suffix = c(".i1", ".i2"))
+# Joining with `by = join_by(id_code)`
+
+catch_info_lgb_i1_i2 <-
+  left_join(catch_info_lgb_i1,
+            survey_data_l_2022_short$i2,
+            relationship = "many-to-many",
+            suffix = c(".i1", ".releas"),
+            join_by(id_code))
+
+catch_info_lgb_i1_i2_i3 <-
+  left_join(catch_info_lgb_i1_i2,
+            survey_data_l_2022_short$i3,
+            relationship = "many-to-many",
+            join_by(id_code),
+            suffix = c(".releas", ".harv")
+)
+
 
 # result names:
 data_names <-
