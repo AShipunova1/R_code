@@ -841,3 +841,54 @@ num_of_interviews_w_no_lgb * 100 / num_of_interviews
 # 45%
 
 # survey time difference  vs trip start/trip end ----
+
+db_logbooks_2022_short__fish_hours <-
+  db_logbooks_2022 |>
+  select(
+    TRIP_ID,
+    VESSEL_OFFICIAL_NBR,
+    FISHING_HOURS,
+    TRIP_START_DATE,
+    TRIP_START_TIME,
+    TRIP_END_DATE,
+    TRIP_END_TIME
+  ) |> 
+  distinct()
+
+dim(db_logbooks_2022_short__fish_hours)
+# [1] 94899     7
+
+survey_lgb_by_date_vessl_all <-
+  inner_join(
+    survey_data_l_2022_vsl_date,
+    db_logbooks_2022_short__fish_hours,
+    join_by(vsl_num == VESSEL_OFFICIAL_NBR, 
+            interview_date == TRIP_END_DATE),
+    relationship = "many-to-many"
+  ) |> 
+  arrange(interview_date) |> 
+  select(-all_of(starts_with("int_")))
+
+dim(survey_lgb_by_date_vessl_all)
+# 1115
+
+survey_lgb_by_date_vessl_all |> 
+    filter(!TRIP_START_DATE == interview_date) |> 
+  dim()
+# 8
+
+# survey_lgb_by_date_vessl_all$TRIP_START_TIME1 <-
+  strftime(strptime(sapply(paste0("0000", survey_lgb_by_date_vessl_all$TRIP_START_TIME), function(i) substring(i, nchar(i) - 3, nchar(i))), "%H%M"), format = "%H:%M") |> head()
+
+survey_lgb_by_date_vessl_all__time_dff <-
+  survey_lgb_by_date_vessl_all |>
+  filter(TRIP_START_DATE == interview_date) |>
+  mutate(
+    across(ends_with("_TIME"), ~ as.numeric(.x)),
+    trip_start_end = (TRIP_END_TIME - TRIP_START_TIME) / 100,
+    time_diff__trip__fish_h = trip_start_end - FISHING_HOURS,
+    time_diff__trip__surv = trip_start_end - hrsf
+  )
+
+
+View(survey_lgb_by_date_vessl_all__time_dff)
