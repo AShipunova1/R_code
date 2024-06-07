@@ -328,7 +328,7 @@ tictoc::toc()
 # errors: [1] NA
 # [1] 0
 
-View(tsn_info_itis[[2]])
+glimpse(tsn_info_itis[[2]])
 
 ## check released and harvested separately ----
 # "CATCH_SPECIES_ITIS" vs "tsn.harv"
@@ -741,3 +741,17 @@ vsl_in_survey_not_in_lgb_query_res <-
 
 vsl_in_survey_not_in_lgb_query_res |> dim()
 # 0
+
+## check if these interviews are for DNFs ----
+dplyr::glimpse(db_dnfs_2022)
+
+in_survey_not_in_lgb_not_in_dnf <-
+  lubridate::setdiff(tolower(survey_vsl_num_not_in_lgb),
+                     tolower(db_dnfs_2022$VESSEL_OFFICIAL_NBR)) |>
+  unique()
+
+length(in_survey_not_in_lgb_not_in_dnf)
+# 152
+
+length(survey_vsl_num_not_in_lgb) == length(in_survey_not_in_lgb_not_in_dnf)
+# T, vessels are not in lgb, not in dnf
