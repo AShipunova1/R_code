@@ -770,3 +770,15 @@ catch_info_lgb_i1_i2_i3 |>
 View()
 
 
+## percent interviews w no logbooks ----
+num_of_interviews_w_no_lgb <-
+  nrow(intv_w_no_lgb_join_by_day_vsl)
+# 827
+
+num_of_interviews <-
+  nrow(survey_data_l_2022_vsl_date)
+# 1835
+
+num_of_interviews_w_no_lgb * 100 / num_of_interviews
+# 45%
+
