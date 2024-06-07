@@ -661,38 +661,43 @@ dim(intv_w_no_lgb_join_by_day_vsl)
 glimpse(intv_w_no_lgb_join_by_day_vsl)
 
 ## check all vessel ids not in lgb ----
-# survey_not_in_lgb$vsl_num |> 
+# intv_w_no_lgb_join_by_day_vsl$VESSEL_OFFICIAL_NBR |>
+#   unique() |> 
 #   cat(sep = ", ")
 
 survey_vsl_num_not_in_lgb <- 
-  survey_not_in_lgb$vsl_num |> 
+  intv_w_no_lgb_join_by_day_vsl$VESSEL_OFFICIAL_NBR |>
   unique()
 
 length(survey_vsl_num_not_in_lgb)
-# 152 
+# 261
 
 lubridate::intersect(tolower(db_logbooks_2022$VESSEL_OFFICIAL_NBR),
-                     tolower(survey_vsl_num_not_in_lgb))
-# 0
-
-
-lubridate::setdiff(tolower(survey_vsl_num_not_in_lgb),
-                   tolower(db_logbooks_2022$VESSEL_OFFICIAL_NBR)) |> 
-  unique() |> 
+                     tolower(survey_vsl_num_not_in_lgb)) |> 
   length()
+# 109
+
+vsl_in_survey_not_in_db_lgb <-
+  lubridate::setdiff(
+    tolower(survey_vsl_num_not_in_lgb),
+    tolower(db_logbooks_2022$VESSEL_OFFICIAL_NBR)
+  ) |>
+  unique()
+length(vsl_in_survey_not_in_db_lgb)
 # 152
 
-vsl_in_survey_not_in_lgb <-
+vsl_in_survey_not_in_processed_lgb <-
   lubridate::setdiff(
     tolower(survey_vsl_num_not_in_lgb),
     tolower(processed_logbooks_2022_calendar$VESSEL_OFFICIAL_NUMBER)
   ) |>
   unique() 
-length(vsl_in_survey_not_in_lgb)
-# 152
+
+length(vsl_in_survey_not_in_processed_lgb) == length(vsl_in_survey_not_in_db_lgb)
+# T
 
 vsl_in_survey_not_in_lgb__str <-
-  vsl_in_survey_not_in_lgb |>
+  vsl_in_survey_not_in_db_lgb |>
   toupper() |> 
   paste(collapse = "', '")
 
@@ -702,8 +707,8 @@ vsl_in_survey_not_in_lgb_query <-
 FROM
   srh.mv_safis_trip_download@secapxdv_dblk
 WHERE
-    trip_end_date >= '{my_date_beg}'
-  AND trip_start_date <= '{my_date_end}'
+    trip_end_date >= TO_DATE('{my_date_beg}', 'yyyy-mm-dd')
+  AND trip_start_date <= TO_DATE('{my_date_end}', 'yyyy-mm-dd')
   and vessel_official_nbr IN ('{vsl_in_survey_not_in_lgb__str}')
 ")
 
@@ -711,7 +716,7 @@ vsl_in_survey_not_in_lgb_query_res <-
   try(DBI::dbGetQuery(con, vsl_in_survey_not_in_lgb_query))
 
 vsl_in_survey_not_in_lgb_query_res |> dim()
-# 0
+# 0 (confirmed not in lgb for 2022)
 
 ## check if these interviews are for DNFs ----
 dplyr::glimpse(db_dnfs_2022)
