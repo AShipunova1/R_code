@@ -684,6 +684,12 @@ dim(survey_i1_i2_released)
 n_distinct(survey_i1_i2_released$id_code)
 # 1835
 
+### add dates to i1_i2 ----
+survey_i1_i2_released_dates <-
+  get_date_from_id_code_survey(survey_i1_i2_released)
+
+glimpse(survey_i1_i2_released_dates)
+
 ## i1 and i3 ----
 survey_i1_i3_harvested <-
   full_join(survey_data_l_2022_short$i1,
