@@ -246,6 +246,14 @@ lgb_join_i1__t_diff_short_has_trip <-
   lgb_join_i1__t_diff_short |>
   filter(!is.na(TRIP_ID))
 
+dim(lgb_join_i1__t_diff_short_has_trip)
+
+lgb_join_i1__t_diff_short_has_no_trip <-
+  lgb_join_i1__t_diff_short |>
+  filter(is.na(TRIP_ID))
+
+dim(lgb_join_i1__t_diff_short_has_no_trip)
+
 # n_distinct(lgb_join_i1__t_diff_short_has_trip$VESSEL_OFFICIAL_NBR)
 # 228
 
