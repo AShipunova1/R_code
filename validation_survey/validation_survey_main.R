@@ -45,7 +45,10 @@ source(get_data_path)
 # Data are in:
 # survey_data_l_2022
 # processed_logbooks_2022
+# processed_logbooks_2022_calendar
 # db_logbooks_2022
+# db_dnfs_2022
+# ---
 
 # prepare data ----
 
@@ -307,10 +310,19 @@ get_itis_info <- function(tsn_s) {
     })
 }
 
+tsn_info_itis_file_path <- 
+  file.path(curr_proj_output_path,
+            paste0("tsn_info_itis.rds"))
+
 tictoc::tic()
-tsn_info_itis <-
-  tsn_only |>
-  dplyr::mutate(tsn_com = get_itis_info(tsn))
+if (file.exists(tsn_info_itis_file_path)) {
+  tsn_info_itis <- readr::read_rds(tsn_info_itis_file_path)
+} else {
+  tsn_info_itis <-
+    tsn_only |>
+    dplyr::mutate(tsn_com = get_itis_info(tsn))
+  readr::write_rds(tsn_info_itis, tsn_info_itis_file_path)
+}
 tictoc::toc()
 # 26.21 sec elapsed
 # errors: [1] NA
@@ -725,7 +737,7 @@ WHERE
 ")
 
 vsl_in_survey_not_in_lgb_query_res <-
-  DBI::dbGetQuery(con, vsl_in_survey_not_in_lgb_query)
+  try(DBI::dbGetQuery(con, vsl_in_survey_not_in_lgb_query))
 
 vsl_in_survey_not_in_lgb_query_res |> dim()
 # 0
