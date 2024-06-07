@@ -634,26 +634,7 @@ survey_data_l_2022_date_i1_vsl_int_t <-
 dim(survey_data_l_2022_date_i1_vsl_int_t)
 # 1812
 
-## survey not in lgb ----
-
-survey_not_in_lgb <-
-  survey_data_l_2022_date_i1_vsl_int_t |>
-  filter(
-    !(
-      vsl_num %in% tolower(db_logbooks_2022_vsl_t_end$VESSEL_OFFICIAL_NBR) &
-        lubridate::date(interview_date) %in% lubridate::date(db_logbooks_2022_vsl_t_end$TRIP_END_DATE)
-    )
-  )
-
-dim(survey_not_in_lgb)
-# 1448    in
-# 364 not in
-
-# percent
-# 364 * 100 / (364 + 1448)
-# 20%
-
-## the same with full join 
+## full join ----
 lgb_join_i1_full <-
   dplyr::full_join(
     db_logbooks_2022_vsl_t_end,
@@ -665,29 +646,19 @@ lgb_join_i1_full <-
     relationship = "many-to-many"
   )
 
-intervies_w_no_logbooks_by_day_vsl <- 
+dim(lgb_join_i1_full)
+# [1] 95697     3
+
+intv_w_no_lgb_join_by_day_vsl <- 
   lgb_join_i1_full |> 
   filter(is.na(TRIP_ID)) |> 
-  auxfunctions::remove_empty_cols()
+  auxfunctions::remove_empty_cols() |> 
+  distinct()
 
-dim(intervies_w_no_logbooks_by_day_vsl)
-# 827
+dim(intv_w_no_lgb_join_by_day_vsl)
+# [1] 827   2
 
-# View(intervies_w_no_logbooks_by_day_vsl)
-
-# View(survey_not_in_lgb)
-
-survey_data_l_2022_vsl_date |> 
-    filter(vsl_num == "1041849") |> 
-    filter(int_month == "04") |> 
-    glimpse()
-
-db_logbooks_2022 |> 
-  filter(VESSEL_OFFICIAL_NBR == "1041849") |> 
-  filter(lubridate::month(TRIP_END_DATE) == 4) |> 
-  glimpse()
-
-# diff day
+glimpse(intv_w_no_lgb_join_by_day_vsl)
 
 ## check all vessel ids not in lgb ----
 # survey_not_in_lgb$vsl_num |> 
