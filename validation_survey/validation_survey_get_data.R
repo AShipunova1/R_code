@@ -7,9 +7,13 @@ options(scipen = 999)
 
 library(ROracle)
 
+try(con <- auxfunctions::connect_to_secpr())
+
 my_year <- "2022"
-my_date_beg <- stringr::str_glue('01-JAN-{my_year}')
-my_date_end <- stringr::str_glue('31-DEC-{my_year}')
+my_date_beg <- stringr::str_glue('01-JAN-{my_year}') |> 
+  lubridate::dmy()
+my_date_end <- stringr::str_glue('31-DEC-{my_year}') |> 
+  lubridate::dmy()
 
 # load Validation Survey data ----
 # https://drive.google.com/drive/folders/1JDlzVXcTkdY17Sux8hZOZbxFnj2_E9eh?usp=drive_link
@@ -127,8 +131,8 @@ grep("permit", names(processed_logbooks_2022), ignore.case = T, value = T)
 
 processed_logbooks_2022_calendar <-
   processed_logbooks_2022 |>
-  filter(TRIP_END_DATE >= lubridate::dmy(my_date_beg) &
-           TRIP_START_DATE <= lubridate::dmy(my_date_end))
+  filter(TRIP_END_DATE >= my_date_beg &
+           TRIP_START_DATE <= my_date_end)
 
 nrow(processed_logbooks_2022_calendar) -
   nrow(processed_logbooks_2022)
@@ -155,8 +159,6 @@ db_logbooks_fun <-
     return(DBI::dbGetQuery(con,
                       db_logbooks_query))
   }
-
-try(con <- auxfunctions::connect_to_secpr())
 
 get_db_logbooks <-
   function() {
