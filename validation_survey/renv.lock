@@ -319,7 +319,7 @@
       "RemoteRepo": "R_code",
       "RemoteUsername": "AShipunova1",
       "RemoteRef": "development",
-      "RemoteSha": "495c878d67afa294d55b2695716d89dcc781d22d",
+      "RemoteSha": "bd37af65a0d50a01121d280eed45983ef882e823",
       "RemoteSubdir": "auxfunctions",
       "Requirements": [
         "DBI",
@@ -343,7 +343,7 @@
         "tidyr",
         "tidyselect"
       ],
-      "Hash": "fcc38363b9a35f5eb6941956e26941c2"
+      "Hash": "b1f9b2fcc6fcabeaac5a2cc397a34d84"
     },
     "backports": {
       "Package": "backports",
@@ -1950,9 +1950,12 @@
     "renv": {
       "Package": "renv",
       "Version": "1.0.7",
-      "OS_type": null,
+      "Source": "Repository",
       "Repository": "CRAN",
-      "Source": "Repository"
+      "Requirements": [
+        "utils"
+      ],
+      "Hash": "397b7b2a265bc5a7a06852524dabae20"
     },
     "rex": {
       "Package": "rex",
