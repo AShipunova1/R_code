@@ -705,6 +705,12 @@ dim(survey_i1_i3_harvested)
 # [1] 11794    21
 # View(survey_i1_i3_harvested)
 
+### add dates to i1_i3 ----
+survey_i1_i3_harvested_dates <- 
+  get_date_from_id_code_survey(survey_i1_i3_harvested)
+
+# glimpse(survey_i1_i3_harvested_dates)
+
 # result names:
 data_names <-
   c("lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short",
