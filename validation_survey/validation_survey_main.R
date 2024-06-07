@@ -727,7 +727,31 @@ in_survey_not_in_lgb_not_in_dnf <-
   unique()
 
 length(in_survey_not_in_lgb_not_in_dnf)
-# 152
+# 261
 
 length(survey_vsl_num_not_in_lgb) == length(in_survey_not_in_lgb_not_in_dnf)
 # T, vessels are not in lgb, not in dnf
+
+# manual check
+intv_w_no_lgb_join_by_day_vsl |> 
+  arrange(VESSEL_OFFICIAL_NBR,
+          TRIP_END_DATE) |> 
+  tail()
+
+one_check_query <- 
+  stringr::str_glue("SELECT
+  *
+FROM
+  srh.mv_safis_trip_download@secapxdv_dblk
+WHERE
+    trip_end_date >= TO_DATE('2022-05-17', 'yyyy-mm-dd')
+    AND trip_end_date <= TO_DATE('2022-05-29', 'yyyy-mm-dd')
+    AND vessel_official_nbr IN ('...')
+")
+
+one_check_res <-
+  try(DBI::dbGetQuery(con, one_check_query))
+one_check_res |> dim()
+# 0
+
+one_check_res$TRIP_END_DATE
