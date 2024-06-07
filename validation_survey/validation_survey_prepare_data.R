@@ -31,12 +31,12 @@ survey_data_l_2022$aga |>
 survey_data_l_2022$aga |>
   dplyr::select(year, month, day, asg_code) |>
   dplyr::distinct() |>
-  dplyr::mutate(asg_sp = stringr::str_replace(
+  dplyr::mutate(asg_sps = stringr::str_replace(
     asg_code,
     "(\\d+)2022(\\d\\d)(\\d\\d)",
     stringr::str_c("\\1 \\2 \\3")
   )) |>
-  dplyr::mutate(asg_dates = stringr::str_split(asg_sp, " ")) |>
+  dplyr::mutate(asg_dates = stringr::str_split(asg_sps, " ")) |>
   dplyr::rowwise() |>
   # filter(!asg_dates[[2]] == month) |>
   # 0
@@ -59,32 +59,68 @@ setdiff(survey_data_l_2022$i1$id_code,
         survey_data_l_2022$ref$id_code) |> length()
 # 1835
 
+# get dates from survey's id_code
+get_date_from_id_code_survey <- 
+  function(my_df) {
+    
+    my_df__w_dates <-
+      my_df |>
+      mutate(
+        id_sps = stringr::str_replace(
+          id_code,
+          "(\\d{5})(2022)(\\d{2})(\\d{2})(\\d{3})",
+          stringr::str_c("\\1 \\2 \\3 \\4 \\5")
+        )
+      ) |>
+      tidyr::separate_wider_delim(
+        id_sps,
+        delim = " ",
+        names = c(
+          "assignment_num_sampler_id",
+          "int_year",
+          "int_month",
+          "int_day",
+          "intercept_num"
+        )
+      ) |>
+      select(-c(assignment_num_sampler_id, intercept_num)) |>
+      mutate(interview_date =
+               lubridate::make_date(int_year, int_month, int_day))
+    
+    return(my_df__w_dates)
+  }
+
+
 # prepare i1 ----
-survey_data_l_2022_vsl_date <-
+survey_data_l_2022_vsl_date1 <-
   survey_data_l_2022$i1 |>
   select(vsl_num, id_code, time, hrsf) |>
   distinct() |>
-  mutate(
-    id_sp = stringr::str_replace(
-      id_code,
-      "(\\d{5})(2022)(\\d{2})(\\d{2})(\\d{3})",
-      stringr::str_c("\\1 \\2 \\3 \\4 \\5")
-    )
-  ) |>
-  tidyr::separate_wider_delim(
-    id_sp,
-    delim = " ",
-    names = c(
-      "assignment_num_sampler_id",
-      "int_year",
-      "int_month",
-      "int_day",
-      "intercept_num"
-    )
-  ) |>
-  select(-c(assignment_num_sampler_id, intercept_num)) |> 
-  mutate(interview_date =
-           lubridate::make_date(int_year, int_month, int_day))
+  get_date_from_id_code_survey()
+
+diffdf::diffdf(survey_data_l_2022_vsl_date,
+               survey_data_l_2022_vsl_date1)
+  # mutate(
+  #   id_sp = stringr::str_replace(
+  #     id_code,
+  #     "(\\d{5})(2022)(\\d{2})(\\d{2})(\\d{3})",
+  #     stringr::str_c("\\1 \\2 \\3 \\4 \\5")
+  #   )
+  # ) |>
+  # tidyr::separate_wider_delim(
+  #   id_sp,
+  #   delim = " ",
+  #   names = c(
+  #     "assignment_num_sampler_id",
+  #     "int_year",
+  #     "int_month",
+  #     "int_day",
+  #     "intercept_num"
+  #   )
+  # ) |>
+  # select(-c(assignment_num_sampler_id, intercept_num)) |> 
+  # mutate(interview_date =
+  #          lubridate::make_date(int_year, int_month, int_day))
 
 survey_data_l_2022_vsl_date_time <-
   survey_data_l_2022_vsl_date |>
@@ -645,45 +681,55 @@ lubridate::intersect(names(survey_data_l_2022_short$i1),
                      names(survey_data_l_2022_short$i2))
 
 # unify classes
-survey_data_l_2022_short1 <-
+survey_data_l_2022_short <-
   survey_data_l_2022_short |>
   purrr::map(\(one_df) {
     one_df |>
       mutate(across(any_of(c("st")), ~ as.integer(.x)))
   })
 
-# check
-purrr::map2(survey_data_l_2022_short,
-            survey_data_l_2022_short1,
-            diffdf::diffdf)
+# joins
+## i1 and i2 ----
+survey_data_l_2022_short |> 
+  purrr::map(~n_distinct(.x$id_code))
 
-survey_i1_i2 <-
-  left_join(survey_data_l_2022_short$i1,
+# TODO: left_join or full_join?
+survey_i1_i2_released <-
+  full_join(survey_data_l_2022_short$i1,
             survey_data_l_2022_short$i2,
-            suffix = c(".i1", ".i2"))
-# Joining with `by = join_by(id_code)`
+            by = join_by(id_code, st),
+            suffix = c(".i1", ".release"))
+# Joining with `by = join_by(id_code, st, num_typ2)`
 
-catch_info_lgb_i1_i2 <-
-  left_join(catch_info_lgb_i1,
-            survey_data_l_2022_short$i2,
-            relationship = "many-to-many",
-            suffix = c(".i1", ".releas"),
-            join_by(id_code))
+dim(survey_i1_i2_released)
+# 3218  left join
+# 3683  full join
 
-catch_info_lgb_i1_i2_i3 <-
-  left_join(catch_info_lgb_i1_i2,
+n_distinct(survey_i1_i2_released$id_code)
+# 1835
+
+## i1 and i3 ----
+survey_i1_i3_harvested <-
+  full_join(survey_data_l_2022_short$i1,
             survey_data_l_2022_short$i3,
-            relationship = "many-to-many",
-            join_by(id_code),
-            suffix = c(".releas", ".harv")
+            by = join_by(id_code, st),
+            suffix = c(".i1", ".harv")
 )
 
+n_distinct(survey_i1_i3_harvested$id_code)
+# 1835
+
+dim(survey_i1_i3_harvested)
+# [1] 11794    21
+# View(survey_i1_i3_harvested)
 
 # result names:
 data_names <-
   c("lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short",
     "db_logbooks_2022_short",
-    "catch_info_lgb_i1_i2_i3")
+    "catch_info_lgb_i1_i2_i3",
+    "survey_i1_i2_released",
+    "survey_i1_i3_harvested")
 
 auxfunctions::pretty_print(my_title = "Processed Data are in:", 
                            my_text = data_names)
