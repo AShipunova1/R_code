@@ -637,11 +637,11 @@ dim(survey_data_l_2022_date_i1_vsl_int_t)
 ## full join ----
 lgb_join_i1_full <-
   dplyr::full_join(
-    db_logbooks_2022_vsl_t_end,
     survey_data_l_2022_date_i1_vsl_int_t,
+    db_logbooks_2022_vsl_t_end,
     join_by(
-      VESSEL_OFFICIAL_NBR == vsl_num,
-      TRIP_END_DATE == interview_date
+      vsl_num == VESSEL_OFFICIAL_NBR,
+      interview_date == TRIP_END_DATE
     ),
     relationship = "many-to-many"
   )
@@ -666,7 +666,7 @@ glimpse(intv_w_no_lgb_join_by_day_vsl)
 #   cat(sep = ", ")
 
 survey_vsl_num_not_in_lgb <- 
-  intv_w_no_lgb_join_by_day_vsl$VESSEL_OFFICIAL_NBR |>
+  intv_w_no_lgb_join_by_day_vsl$vsl_num |>
   unique()
 
 length(survey_vsl_num_not_in_lgb)
@@ -734,9 +734,10 @@ length(survey_vsl_num_not_in_lgb) == length(in_survey_not_in_lgb_not_in_dnf)
 
 # manual check
 intv_w_no_lgb_join_by_day_vsl |> 
-  arrange(VESSEL_OFFICIAL_NBR,
-          TRIP_END_DATE) |> 
-  tail()
+  arrange(vsl_num,
+          interview_date) |> 
+  filter(vsl_num == "1041849") |> 
+  head(10)
 
 one_check_query <- 
   stringr::str_glue("SELECT
@@ -744,9 +745,9 @@ one_check_query <-
 FROM
   srh.mv_safis_trip_download@secapxdv_dblk
 WHERE
-    trip_end_date >= TO_DATE('2022-05-17', 'yyyy-mm-dd')
-    AND trip_end_date <= TO_DATE('2022-05-29', 'yyyy-mm-dd')
-    AND vessel_official_nbr IN ('...')
+    trip_end_date >= TO_DATE('2022-08-01', 'yyyy-mm-dd')
+    AND trip_end_date <= TO_DATE('2022-08-30', 'yyyy-mm-dd')
+    AND vessel_official_nbr IN ('1041849')
 ")
 
 one_check_res <-
@@ -754,4 +755,18 @@ one_check_res <-
 one_check_res |> dim()
 # 0
 
-one_check_res$TRIP_END_DATE
+one_check_res$TRIP_END_DATE |> 
+  unique() |> 
+  sort() |> 
+  print()
+
+### check the interviews ----
+
+catch_info_lgb_i1_i2_i3 |>
+  filter(VESSEL_OFFICIAL_NBR == '1041849' &
+           lubridate::month(interview_date_time) == 6) |>
+  distinct() |>
+  # glimpse()
+View()
+
+
