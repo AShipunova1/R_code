@@ -92,35 +92,11 @@ get_date_from_id_code_survey <-
 
 
 # prepare i1 ----
-survey_data_l_2022_vsl_date1 <-
+survey_data_l_2022_vsl_date <-
   survey_data_l_2022$i1 |>
   select(vsl_num, id_code, time, hrsf) |>
   distinct() |>
   get_date_from_id_code_survey()
-
-diffdf::diffdf(survey_data_l_2022_vsl_date,
-               survey_data_l_2022_vsl_date1)
-  # mutate(
-  #   id_sp = stringr::str_replace(
-  #     id_code,
-  #     "(\\d{5})(2022)(\\d{2})(\\d{2})(\\d{3})",
-  #     stringr::str_c("\\1 \\2 \\3 \\4 \\5")
-  #   )
-  # ) |>
-  # tidyr::separate_wider_delim(
-  #   id_sp,
-  #   delim = " ",
-  #   names = c(
-  #     "assignment_num_sampler_id",
-  #     "int_year",
-  #     "int_month",
-  #     "int_day",
-  #     "intercept_num"
-  #   )
-  # ) |>
-  # select(-c(assignment_num_sampler_id, intercept_num)) |> 
-  # mutate(interview_date =
-  #          lubridate::make_date(int_year, int_month, int_day))
 
 survey_data_l_2022_vsl_date_time <-
   survey_data_l_2022_vsl_date |>
