@@ -762,13 +762,71 @@ one_check_res$TRIP_END_DATE |>
 
 ### check the interviews ----
 
-catch_info_lgb_i1_i2_i3 |>
-  filter(VESSEL_OFFICIAL_NBR == '1041849' &
-           lubridate::month(interview_date_time) == 6) |>
+test1_tsns <-
+  survey_i1_i3_harvested_dates |>
+  filter(vsl_num == '1041849' &
+           interview_date == lubridate::ymd('2022-06-06')) |>
   distinct() |>
-  # glimpse()
-View()
+  select(tsn) |>
+  distinct()
+# glimpse()
 
+test1_logbooks <-
+  db_logbooks_2022 |>
+  filter(
+    lubridate::month(TRIP_END_DATE) == 6 &
+      CATCH_SPECIES_ITIS %in% tsns1$tsn &
+      VESSEL_OFFICIAL_NBR == "1041849"
+  ) |> select(TRIP_ID, CATCH_SPECIES_ITIS, TRIP_END_DATE) |> distinct()
+
+unique(test1_logbooks$CATCH_SPECIES_ITIS)
+# only one out of 3
+
+test1_logbooks_no_month <-
+  db_logbooks_2022 |>
+  filter(
+    # lubridate::month(TRIP_END_DATE) == 6 &
+      CATCH_SPECIES_ITIS %in% tsns1$tsn &
+      VESSEL_OFFICIAL_NBR == "1041849"
+  ) |> select(TRIP_ID, CATCH_SPECIES_ITIS, TRIP_END_DATE) |> distinct()
+
+test1_logbooks_no_month |> 
+  count(CATCH_SPECIES_ITIS)
+#   CATCH_SPECIES_ITIS  n
+# 1             167759  2
+# 2             167763  1
+# 3             168853 27
+
+test1_logbooks_no_month_2spp <- 
+  test1_logbooks_no_month |> 
+  filter(CATCH_SPECIES_ITIS %in% c("167759", "167763"))
+
+db_logbooks_2022 |> 
+    filter(TRIP_ID %in% c("62538162", "63569515", "62538257")) |> 
+  glimpse()
+    
+# one vessel only has those 2 spp
+db_logbooks_2022 |>
+  filter(TRIP_ID %in% c("62538162", "63569515", "62538257")) |>
+  select(
+    TRIP_ID,
+    TRIP_END_DATE,
+    CATCH_SPECIES_ITIS,
+    COMMON_NAME,
+    REPORTED_QUANTITY,
+    DISPOSITION_NAME
+  ) |> 
+  distinct() |>
+  group_by(TRIP_ID) |>
+  mutate(all_spp = list(sort(paste(
+    unique(CATCH_SPECIES_ITIS)
+  ))),
+  spp_cnt = length(all_spp)) |>
+  ungroup() |>
+  arrange(TRIP_END_DATE) |>
+  glimpse()
+
+# there is no a trip with both ("167759", "167763")
 
 ## percent interviews w no logbooks ----
 num_of_interviews_w_no_lgb <-
@@ -782,3 +840,4 @@ num_of_interviews <-
 num_of_interviews_w_no_lgb * 100 / num_of_interviews
 # 45%
 
+# survey time difference  vs trip start/trip end ----
