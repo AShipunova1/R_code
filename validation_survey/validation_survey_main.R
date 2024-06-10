@@ -913,7 +913,7 @@ glimpse(intv_w_no_lgb_join_by_day_vsl2)
 
 intv_w_no_lgb_join_by_day_vsl2__cnt <-
   intv_w_no_lgb_join_by_day_vsl2 |>
-  select(vsl_num, interview_date, fips) |>
+  select(st_2, vsl_num, interview_date, fips) |>
   distinct() |>
   group_by(fips) |>
   mutate(num_int_no_lgb = n())
@@ -945,13 +945,88 @@ ps <-
 
 selected_states_df <- usmap::us_map(include = c(gulf_states, "FL"))
 
-plot_usmap(
-  regions = "counties",
-  include = c(gulf_states, "FL"),
-  data = intv_w_no_lgb_join_by_day_vsl2__cnt,
-  values = "num_int_no_lgb",
-  color = "lightgrey"
-) +
+# Get centroids
+centroid_labels <- usmapdata::centroid_labels("states")
+
+# Join centroids to data
+# print_df_names(intv_w_no_lgb_join_by_day_vsl2__cnt)
+old_names <- names(centroid_labels)
+
+names(centroid_labels) <- c("st_2", "abbr", "full", "geometry")
+
+state_labels <-
+  merge(intv_w_no_lgb_join_by_day_vsl2__cnt, centroid_labels, by = "st_2")
+
+state_labels_short <-
+  state_labels |>
+  select(st_2, abbr, full, geometry) |> 
+  distinct()
+
+glimpse(state_labels_short)
+# 5
+
+plot_cnties <-
+  plot_usmap(
+    regions = "counties",
+    include = c(gulf_states, "FL"),
+    data = intv_w_no_lgb_join_by_day_vsl2__cnt,
+    values = "num_int_no_lgb",
+    color = "lightgrey"
+  ) +
+  scale_fill_gradient(low = "blue",
+                      high = "yellow",
+                      na.value = "transparent")
+
+glimpse(state_labels_short)
+
+plot_cnties +
+  geom_sf(data = state_labels_short)
+  
+# ===
+statecounts <- data.frame(
+  stringsAsFactors = FALSE,
+             state = c("Alabama", "Arkansas", "California", "Florida"),
+         stateabbr = c("AL", "AR", "CA", "FL"),
+                 n = c(1L, 1L, 32L, 19L),
+              fips = c("01", "05", "06", "12")
+  )
+
+glimpse(statecounts)
+
+# Get centroids
+centroid_labels <- usmapdata::centroid_labels("states")
+
+# Join centroids to data
+state_labels <- merge(statecounts, centroid_labels, by = "fips")
+
+glimpse(state_labels)
+
+plot_usmap(data = statecounts,
+           regions = "state",
+           values = "n") +
+  geom_sf_text(data = state_labels,
+            aes(x = x, y = y, label = stateabbr),
+            color = "white") +
+  labs(title = "Frequency of Unique Users in the United States",
+       caption = "",
+       fill = "Count")
+
+# ===
+
+  geom_text(data = state_labels_short,
+            aes(x = x, y = y, label = stateabbr),
+            color = "white")
+
+plot_cnties <-
+  plot_usmap(
+    regions = "counties",
+    include = c(gulf_states, "FL"),
+    data = intv_w_no_lgb_join_by_day_vsl2__cnt,
+    values = "num_int_no_lgb",
+    color = "lightgrey"
+  )
+
+
   geom_sf(
     data = selected_states_df,
     color = "green",
