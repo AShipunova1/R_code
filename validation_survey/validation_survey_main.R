@@ -907,18 +907,60 @@ intv_w_no_lgb_join_by_day_vsl2 <-
                      .default =
                        stringr::str_pad(st, 2, pad = "0"))) |>
   mutate(cnty_3 = stringr::str_pad(cnty, 3, pad = "0"),
-         fip5 = paste0(st_2, cnty_3))
+         fips = paste0(st_2, cnty_3))
 
-# View(intv_w_no_lgb_join_by_day_vsl2)
+glimpse(intv_w_no_lgb_join_by_day_vsl2)
+
+intv_w_no_lgb_join_by_day_vsl2__cnt <-
+  intv_w_no_lgb_join_by_day_vsl2 |>
+  select(vsl_num, interview_date, fips) |>
+  distinct() |>
+  group_by(fips) |>
+  mutate(num_int_no_lgb = n())
 
 plot_usmap(
   regions = "counties",
   include = c(gulf_states, "FL"),
-  data = intv_w_no_lgb_join_by_day_vsl1,
+  data = intv_w_no_lgb_join_by_day_vsl2__cnt,
   values = "num_int_no_lgb"
+  # ,
+  # labels = TRUE
 ) +
   scale_fill_gradient(low = "blue",
-                      high = "red",
+                      high = "yellow",
+                      na.value = "transparent") 
+
+ps <-
+  plot_usmap(
+    regions = "state",
+    include = c(gulf_states, "FL"),
+    color = "green",
+    data = intv_w_no_lgb_join_by_day_vsl2__cnt,
+    values = "num_int_no_lgb"
+  ) +
+  scale_fill_gradient(low = "blue",
+                      high = "yellow",
+                      na.value = "transparent")
+
+
+selected_states_df <- usmap::us_map(include = c(gulf_states, "FL"))
+
+plot_usmap(
+  regions = "counties",
+  include = c(gulf_states, "FL"),
+  data = intv_w_no_lgb_join_by_day_vsl2__cnt,
+  values = "num_int_no_lgb",
+  color = "lightgrey"
+) +
+  geom_sf(
+    data = selected_states_df,
+    color = "green",
+    fill = NA,
+    linewidth = 1
+  ) +
+  # geom_sf_label(aes(label = abbr)) +
+  scale_fill_gradient(low = "blue",
+                      high = "yellow",
                       na.value = "transparent")
 # 
 # plot_usmap(data = dt, values = "val", color = "grey", size = .25) +
