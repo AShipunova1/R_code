@@ -1006,8 +1006,7 @@ intv_w_no_lgb_join_by_day_vsl2__restore_st <-
   intv_w_no_lgb_join_by_day_vsl2__join_state_by_cnty |>
   mutate(restored_st = case_when(
     is.na(st) ~ stringr::str_extract(sts, "\\d+") |>
-      na.omit() |>
-      unlist(),
+      na.omit(),
     .default = st
   ))
 
@@ -1017,15 +1016,23 @@ glimpse(intv_w_no_lgb_join_by_day_vsl2__restore_st)
 # Caused by warning in `stri_extract_first_regex()`:
 # ! argument is not an atomic vector; coercing
 
-intv_w_no_lgb_join_by_day_vsl2__restore_st |>
-  mutate(cnty_3 = stringr::str_pad(cnty, 3, pad = "0")) |> 
-  mutate(fips = paste0(restored_st, cnty_3)) |> 
+intv_w_no_lgb_join_by_day_vsl2__restore_st__short_cnt <-
+  intv_w_no_lgb_join_by_day_vsl2__restore_st |>
+  mutate(cnty_3 = stringr::str_pad(cnty, 3, pad = "0")) |>
+  mutate(fips = paste0(restored_st, cnty_3)) |>
   select(restored_st, vsl_num, interview_date, fips) |>
   distinct() |>
-  count_interview_no_lgb() |> 
-  glimpse()
+  count_interview_no_lgb("restored_st")
 
+sum(unique(intv_w_no_lgb_join_by_day_vsl2__restore_st__short_cnt$total_by_state))
+# 827
 
+intv_w_no_lgb_join_by_day_vsl2__restore_st__short_cnt |>
+  select(restored_st, total_by_state) |>
+  distinct() |> 
+  count(wt = total_by_state)
+# 827
+# correct
 
 # survey time difference vs trip start/trip end ----
 
