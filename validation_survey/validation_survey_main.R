@@ -918,31 +918,6 @@ intv_w_no_lgb_join_by_day_vsl2__cnt <-
   group_by(fips) |>
   mutate(num_int_no_lgb = n())
 
-plot_usmap(
-  regions = "counties",
-  include = c(gulf_states, "FL"),
-  data = intv_w_no_lgb_join_by_day_vsl2__cnt,
-  values = "num_int_no_lgb"
-  # ,
-  # labels = TRUE
-) +
-  scale_fill_gradient(low = "blue",
-                      high = "yellow",
-                      na.value = "transparent") 
-
-ps <-
-  plot_usmap(
-    regions = "state",
-    include = c(gulf_states, "FL"),
-    color = "green",
-    data = intv_w_no_lgb_join_by_day_vsl2__cnt,
-    values = "num_int_no_lgb"
-  ) +
-  scale_fill_gradient(low = "blue",
-                      high = "yellow",
-                      na.value = "transparent")
-
-
 selected_states_df <- usmap::us_map(include = c(gulf_states, "FL"))
 
 # Get centroids
@@ -952,14 +927,14 @@ centroid_labels <- usmapdata::centroid_labels("states")
 # print_df_names(intv_w_no_lgb_join_by_day_vsl2__cnt)
 old_names <- names(centroid_labels)
 
-names(centroid_labels) <- c("st_2", "abbr", "full", "geometry")
+names(centroid_labels) <- c("st_2", "abbr", "full", "geom")
 
 state_labels <-
   merge(intv_w_no_lgb_join_by_day_vsl2__cnt, centroid_labels, by = "st_2")
 
 state_labels_short <-
   state_labels |>
-  select(st_2, abbr, full, geometry) |> 
+  select(st_2, abbr, full, geom) |> 
   distinct()
 
 glimpse(state_labels_short)
@@ -973,50 +948,24 @@ plot_cnties <-
     values = "num_int_no_lgb",
     color = "lightgrey"
   ) +
-  scale_fill_gradient(low = "blue",
-                      high = "yellow",
-                      na.value = "transparent")
-
-glimpse(state_labels_short)
-
-plot_cnties +
-    geom_sf_text(data = state_labels_short, 
-                 aes(geometry = geometry,
-                     label = abbr))
-
-(data = state_labels_short)
-  
-
-  geom_text(data = state_labels_short,
-            aes(x = x, y = y, label = stateabbr),
-            color = "white")
-
-plot_cnties <-
-  plot_usmap(
-    regions = "counties",
-    include = c(gulf_states, "FL"),
-    data = intv_w_no_lgb_join_by_day_vsl2__cnt,
-    values = "num_int_no_lgb",
-    color = "lightgrey"
+  scale_fill_gradient(
+    name = "Interviews w/o logbooks",
+    low = "blue",
+    high = "yellow",
+    na.value = "transparent"
   )
 
+# glimpse(state_labels_short)
 
+plot_cnties +
+  geom_sf_text(data = state_labels_short, aes(geometry = geom, label = abbr)) +
   geom_sf(
     data = selected_states_df,
     color = "green",
-    fill = NA,
-    linewidth = 1
-  ) +
-  # geom_sf_label(aes(label = abbr)) +
-  scale_fill_gradient(low = "blue",
-                      high = "yellow",
-                      na.value = "transparent")
-# 
-# plot_usmap(data = dt, values = "val", color = "grey", size = .25) +
-#   scale_fill_gradient(low = "blue", high = "red", na.value = "transparent")
+    fill = NA
+  ) 
 
-
-
+# TODO: plot numbers for NA states
 
 # survey time difference  vs trip start/trip end ----
 
