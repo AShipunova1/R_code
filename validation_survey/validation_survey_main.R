@@ -911,13 +911,14 @@ intv_w_no_lgb_join_by_day_vsl2 <-
 
 glimpse(intv_w_no_lgb_join_by_day_vsl2)
 
-count_interview_no_lgb <- function(my_df) {
+count_interview_no_lgb <- 
+  function(my_df, cnt_field = "st_2") {
   my_df |>
     group_by(fips) |>
     mutate(num_int_no_lgb = n()) |>
     ungroup() |>
-    group_by(st_2) |>
-    add_count(st_2, name = "total_by_state") |>
+    group_by(!!sym(cnt_field)) |>
+    add_count(!!sym(cnt_field), name = "total_by_state") |>
     ungroup()
 }
 
