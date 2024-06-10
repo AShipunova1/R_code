@@ -911,16 +911,24 @@ intv_w_no_lgb_join_by_day_vsl2 <-
 
 glimpse(intv_w_no_lgb_join_by_day_vsl2)
 
+count_interview_no_lgb <- function(my_df) {
+  my_df |>
+    group_by(fips) |>
+    mutate(num_int_no_lgb = n()) |>
+    ungroup() |>
+    group_by(st_2) |>
+    add_count(st_2, name = "total_by_state") |>
+    ungroup()
+}
+
 intv_w_no_lgb_join_by_day_vsl2__cnt <-
   intv_w_no_lgb_join_by_day_vsl2 |>
   select(st_2, vsl_num, interview_date, fips) |>
   distinct() |>
-  group_by(fips) |>
-  mutate(num_int_no_lgb = n()) |> 
-  ungroup() |> 
-  group_by(st_2) |>
-  add_count(st_2, name = "total_by_state") |>
-  ungroup()
+  count_interview_no_lgb()
+
+diffdf::diffdf(intv_w_no_lgb_join_by_day_vsl2__cnt,
+               intv_w_no_lgb_join_by_day_vsl2__cnt1)
 
 glimpse(intv_w_no_lgb_join_by_day_vsl2__cnt)
 
@@ -986,7 +994,12 @@ plot_cnties_state_lbls <-
 
 plot_cnties_state_lbls
 
-# survey time difference  vs trip start/trip end ----
+## restore possible states and plot again ----
+survey_data_l_2022_i1_w_dates__states_by_cnty 
+
+
+
+# survey time difference vs trip start/trip end ----
 
 db_logbooks_2022_short__fish_hours <-
   db_logbooks_2022 |>
