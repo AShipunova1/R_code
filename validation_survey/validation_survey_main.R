@@ -916,15 +916,21 @@ intv_w_no_lgb_join_by_day_vsl2__cnt <-
   select(st_2, vsl_num, interview_date, fips) |>
   distinct() |>
   group_by(fips) |>
-  mutate(num_int_no_lgb = n())
+  mutate(num_int_no_lgb = n()) |> 
+  ungroup() |> 
+  group_by(st_2) |>
+  add_count(st_2, name = "total_by_state") |>
+  ungroup()
 
+glimpse(intv_w_no_lgb_join_by_day_vsl2__cnt)
+
+# prep state info for plotting
 selected_states_df <- usmap::us_map(include = c(gulf_states, "FL"))
 
 # Get centroids
 centroid_labels <- usmapdata::centroid_labels("states")
 
 # Join centroids to data
-# print_df_names(intv_w_no_lgb_join_by_day_vsl2__cnt)
 old_names <- names(centroid_labels)
 
 names(centroid_labels) <- c("st_2", "abbr", "full", "geom")
@@ -934,11 +940,14 @@ state_labels <-
 
 state_labels_short <-
   state_labels |>
-  select(st_2, abbr, full, geom) |> 
-  distinct()
+  select(st_2, abbr, full, total_by_state, geom) |> 
+  distinct() |> 
+  mutate(label_st_cnt = paste(abbr, total_by_state))
 
 glimpse(state_labels_short)
 # 5
+
+### interview wo lgb plot ----
 
 plot_cnties <-
   plot_usmap(
@@ -955,17 +964,27 @@ plot_cnties <-
     na.value = "transparent"
   )
 
-# glimpse(state_labels_short)
+no_state_interview_no_lgb_num <- 
+  intv_w_no_lgb_join_by_day_vsl2__cnt |>
+  filter(st_2 == "00") |> 
+  select(total_by_state) |> 
+  distinct()
 
-plot_cnties +
-  geom_sf_text(data = state_labels_short, aes(geometry = geom, label = abbr)) +
-  geom_sf(
-    data = selected_states_df,
-    color = "green",
-    fill = NA
-  ) 
+plot_cnties_state_lbls <-
+  plot_cnties +
+  geom_sf_text(data = state_labels_short, 
+               aes(geometry = geom, label = label_st_cnt)) +
+  geom_sf(data = selected_states_df,
+          color = "green",
+          fill = NA) +
+  ggplot2::labs(
+    title = "Number of interviews without logbooks by state/county",
+    caption = stringr::str_glue(
+      "Number of interviews without logbooks with no state info is {no_state_interview_no_lgb_num$total_by_state}."
+    )
+  )
 
-# TODO: plot numbers for NA states
+plot_cnties_state_lbls
 
 # survey time difference  vs trip start/trip end ----
 
