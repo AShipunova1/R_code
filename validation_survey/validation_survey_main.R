@@ -953,3 +953,7 @@ survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur |>
   select(ends_with("_d")) |> 
   summary()
 
+# how many fishing hours are matching vs. not (interval) ----
+
+survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur |> 
+    select(ends_with("_d")) |> glimpse()
