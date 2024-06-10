@@ -956,7 +956,10 @@ survey_lgb_by_date_vessl_all__trip_period__fish_h_period__hrsf_period$TRIP_START
   mean()
 
 survey_lgb_by_date_vessl_all__trip_period__fish_h_period__hrsf_period |> 
-  head() |> 
-  mutate(FISHING_HOURS_d = lubridate::as.duration(FISHING_HOURS)) |> 
-  str()
-# wrong, converts to seconds
+  head(96) |> 
+  tail() |> 
+  mutate(FISHING_HOURS_d = lubridate::as.duration(FISHING_HOURS_p),
+         FISHING_HOURS_mean = mean.difftime(FISHING_HOURS_d)) |> 
+  select(starts_with("FISHING_HOURS")) |> 
+  glimpse()
+
