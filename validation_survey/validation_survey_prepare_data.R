@@ -153,78 +153,62 @@ dim(survey_data_l_2022_i1_w_dates)
 
 # prepare geo data ----
 
-get_state_abb_by_code <- 
-  function(int_state_code) {
-    tidycensus::fips_codes |>
-      filter(state_code == int_state_code) |>
-      select(state) |> 
-      unique()
-  }
+# The following code adopted from Dominique's
+gulf_states <- c("AL", "TX", "MS", "LA")
 
-int_county_code <- 131
-get_county_abb_by_code <-
-  function(int_state_code, int_county_code) {
-    tidycensus::fips_codes |>
-      filter(county_code == int_county_code &
-               state_code == int_state_code) |>
-      select(state, county) |>
-      unique()
-  }
-get_state_abb_by_code(12)
-get_county_abb_by_code(12, 131)
+## LIST OF GULF COUNTY NAMES IN THE SAME ORDER AS COUNTY CODES ABOVE
+# escambia, santa rosa, okaloosa, walton, bay, gulf, franklin, wakulla,
+# jefferson, taylor, dixie, levy, citrus, hernando, pasco, hillsborough,
+# pinellas, manatee, sarasota, charlotte, lee, collier
+# MONROE COUNTY = 87
+florida_gulf_counties <- c(33,
+                           113,
+                           91,
+                           131,
+                           5,
+                           45,
+                           37,
+                           129,
+                           65,
+                           123,
+                           29,
+                           75,
+                           17,
+                           53,
+                           101,
+                           57,
+                           103,
+                           81,
+                           115,
+                           15,
+                           71,
+                           21,
+                           87)
 
-fips()
 survey_data_l_2022_i1_w_dates |>
    rowwise |> 
+    mutate(st_name %in% usmap::fips(gulf_states))
    ungroup
 
-get_gulf_geo <- 
-  function(variables) {
-    
-  }
-mutate(usmap)
-  mutate(
-    gulf = case_when(
-      State %in% c("AL", "TX", "MS", "LA") ~ 1,
-      ## DESIGNATE ALL FL TRIPS IN GULF COUNTIES AS GULF TRIPS
-      State == "FL" &
-        CNTY %in% c(
-          33,
-          113,
-          91,
-          131,
-          5,
-          45,
-          37,
-          129,
-          65,
-          123,
-          29,
-          75,
-          17,
-          53,
-          101,
-          57,
-          103,
-          81,
-          115,
-          15,
-          71,
-          21
-        ) ~ 1,
-      ## LIST OF GULF COUNTY NAMES IN THE SAME ORDER AS COUNTY CODES ABOVE
-      # escambia, santa rosa, okaloosa, walton, bay, gulf, franklin, wakulla,
-      # jefferson, taylor, dixie, levy, citrus, hernando, pasco, hillsborough,
-      # pinellas, manatee, sarasota, charlotte, lee, collier
-      ## FL TRIPS IN MONROE COUNTY WITH GULF PERMITS ARE CODED AS GULF
-      State == "FL" & CNTY == 87 & Perm_Group == "GOM" ~ 1,
-      ## ASSIGN ANY RECORD WITH NO STATE, BUT VERIFIED GOM PERMIT ARE CODED AS GULF
-      is.na(State == T) & Perm_Group == "GOM" ~ 1,
-      ## ASSIGN RECORDS IN COUNTY=75 WITH NO STATE TO GULF (FL OR LA)
-      is.na(State == T) & CNTY %in% c(75) ~ 1,
-      TRUE ~ 0
-    )
+
+mutate(
+  gulf = case_when(
+    st %in% usmap::fips(gulf_states) ~ 1,
+    ## DESIGNATE ALL FL TRIPS IN GULF COUNTIES AS GULF TRIPS
+    st == usmap::fips("FL") &
+      CNTY %in% florida_gulf_counties ~ 1,
+    ## ASSIGN RECORDS IN COUNTY=75 WITH NO STATE TO GULF (FL OR LA)
+    is.na(st) & CNTY %in% c(75) ~ 1,
+    TRUE ~ 0
   )
+)
+
+# library(ggplot2)
+plot_usmap(include = c(gulf_states, "FL")) 
+
+# 
+# plot_usmap(data = dt, values = "val", color = "grey", size = .25) +
+#   scale_fill_gradient(low = "blue", high = "red", na.value = "transparent")
 
 
 # prepare logbooks ----
