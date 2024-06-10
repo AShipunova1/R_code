@@ -913,17 +913,25 @@ survey_lgb_by_date_vessl_all__time_dff <-
 
 # str(survey_lgb_by_date_vessl_all__time_dff)
 
-## convert fishing hours to duration
+## convert fishing hours to duration ----
+
+convert_fish_hours_to_duration <- function(FISHING_HOURS) {
+  as.difftime(FISHING_HOURS, units = "hours") |> lubridate::as.period()
+}
+
 survey_lgb_by_date_vessl_all__trip_period__fish_h_period <-
   survey_lgb_by_date_vessl_all__trip_period |>
   rowwise() |>
-  mutate(FISHING_HOURS_p = lubridate::hms(FISHING_HOURS)) |>
+  mutate(FISHING_HOURS_p = convert_fish_hours_to_duration(FISHING_HOURS)) |>
   ungroup()
 
-# survey_lgb_by_date_vessl_all__trip_period[93,] |> View()
-
-View(survey_lgb_by_date_vessl_all__trip_period__fish_h_period)
-
-lubridate::period(hour = survey_lgb_by_date_vessl_all__trip_period$FISHING_HOURS)
+# can't use lubridate::hours directly, because of:
+# survey_lgb_by_date_vessl_all__trip_period[93,][["FISHING_HOURS"]]
+# 3.5
+# lubridate::period(hour = survey_lgb_by_date_vessl_all__trip_period$FISHING_HOURS)
     
-  
+survey_lgb_by_date_vessl_all__trip_period__fish_h_period[93,][["FISHING_HOURS_p"]]
+# [1] "3H 30M 0S"
+
+survey_lgb_by_date_vessl_all__trip_period__fish_h_period[93,][["TRIP_START_TO_END"]] - survey_lgb_by_date_vessl_all__trip_period__fish_h_period[93,][["FISHING_HOURS_p"]]
+# [1] "1H -30M 0S"
