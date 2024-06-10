@@ -153,7 +153,7 @@ dim(survey_data_l_2022_i1_w_dates)
 
 # prepare geo data ----
 
-# The following code adopted from Dominique's
+# The following is adopted from Dominique's code
 gulf_states <- c("AL", "TX", "MS", "LA")
 
 ## LIST OF GULF COUNTY NAMES IN THE SAME ORDER AS COUNTY CODES ABOVE
@@ -185,32 +185,34 @@ florida_gulf_counties <- c(33,
                            21,
                            87)
 
-survey_data_l_2022_i1_w_dates |>
-   rowwise |> 
-    mutate(st_name %in% usmap::fips(gulf_states))
-   ungroup
+# ASSIGN RECORDS IN COUNTY=75 WITH NO STATE TO GULF (FL OR LA)
+# is.na(st) & cnty == c(75) ~ ,
 
+# check st, cnty
+# survey_data_l_2022_i1_w_dates |>
+#   select(st, cnty) |> 
+#   count(st, cnty) |> 
+#   head()
+  
+survey_data_l_2022_i1_w_dates__states_by_cnty <-
+  survey_data_l_2022_i1_w_dates |>
+  select(st, cnty) |>
+  distinct() |>
+  group_by(cnty) |>
+  mutate(st1 = case_when(is.na(st) ~ "NA", .default = st)) |>
+  mutate(sts = list(paste(unique(sort(
+    st1
+  ))))) |>
+  ungroup() |>
+  select(-st, -st1) |>
+  distinct() |>
+  arrange(cnty)
 
-mutate(
-  gulf = case_when(
-    st %in% usmap::fips(gulf_states) ~ 1,
-    ## DESIGNATE ALL FL TRIPS IN GULF COUNTIES AS GULF TRIPS
-    st == usmap::fips("FL") &
-      CNTY %in% florida_gulf_counties ~ 1,
-    ## ASSIGN RECORDS IN COUNTY=75 WITH NO STATE TO GULF (FL OR LA)
-    is.na(st) & CNTY %in% c(75) ~ 1,
-    TRUE ~ 0
-  )
-)
-
-# library(ggplot2)
-plot_usmap(include = c(gulf_states, "FL")) 
-
-# 
-# plot_usmap(data = dt, values = "val", color = "grey", size = .25) +
-#   scale_fill_gradient(low = "blue", high = "red", na.value = "transparent")
-
-
+# survey_data_l_2022_i1_w_dates__states_by_cnty |> 
+#   select(sts) |> 
+#   distinct() |> 
+#   glimpse()
+  
 # prepare logbooks ----
 db_logbooks_2022_short0 <-
   db_logbooks_2022 |>
