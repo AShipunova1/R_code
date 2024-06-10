@@ -90,8 +90,7 @@ get_date_from_id_code_survey <-
     return(my_df__w_dates)
   }
 
-
-# prepare i1 ----
+# prepare i1 dates ----
 survey_data_l_2022_vsl_date <-
   survey_data_l_2022$i1 |>
   select(vsl_num, id_code, time, hrsf) |>
@@ -137,6 +136,17 @@ survey_data_l_2022_vsl_date |> auxfunctions::print_df_names()
 grep("date", names(db_logbooks_2022), ignore.case = T, value = T)
 
 # View(db_logbooks_2022)
+
+## add dates back to the full i1 ----
+
+survey_data_l_2022_i1_w_dates <-
+  inner_join(survey_data_l_2022$i1, survey_data_l_2022_vsl_date)
+# Joining with `by = join_by(id_code, time, hrsf, vsl_num)`
+
+dim(survey_data_l_2022$i1)
+# [1] 1835   33
+dim(survey_data_l_2022_i1_w_dates)
+# [1] 1835   37
 
 # prepare logbooks ----
 db_logbooks_2022_short0 <-
