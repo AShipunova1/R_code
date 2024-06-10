@@ -156,8 +156,8 @@ file.exists(db_logbooks_file_name)
 
 db_logbooks_fun <-
   function(db_logbooks_query) {
-    return(DBI::dbGetQuery(con,
-                      db_logbooks_query))
+    return(try(DBI::dbGetQuery(con,
+                      db_logbooks_query)))
   }
 
 get_db_logbooks <-
@@ -268,7 +268,7 @@ file.exists(db_dnfs_file_name)
 
 db_dnfs_fun <-
   function(db_dnfs_query) {
-    return(DBI::dbGetQuery(con, db_dnfs_query))
+    return(try(DBI::dbGetQuery(con, db_dnfs_query)))
   }
 
 get_db_dnfs <-
