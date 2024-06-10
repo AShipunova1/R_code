@@ -880,13 +880,46 @@ num_of_interviews_w_no_lgb * 100 / num_of_interviews
 # TODO: how many are srhs vsls?
 
 # inerview_no_lgb_geo <-
-  intv_w_no_lgb_join_by_day_vsl
+# intv_w_no_lgb_join_by_day_vsl |> glimpse()
 
 # library(ggplot2)
 plot_usmap(include = c(gulf_states, "FL")) 
 
-plot_usmap(include = c(gulf_states, "FL"),
-           data = ) 
+plot_usmap(
+  regions = "counties",
+  include = c(florida_gulf_counties))
+
+intv_w_no_lgb_join_by_day_vsl1 <-
+  intv_w_no_lgb_join_by_day_vsl |>
+  mutate(fips = cnty) |> 
+  group_by(st, cnty) |> 
+  mutate(num_int_no_lgb = n()) |> 
+  ungroup()
+
+# intv_w_no_lgb_join_by_day_vsl1 |>
+#   arrange(num_int_no_lgb, st, cnty) |> 
+#   View()
+
+intv_w_no_lgb_join_by_day_vsl2 <-
+  intv_w_no_lgb_join_by_day_vsl |>
+  mutate(st_2 = 
+           case_when(is.na(st) ~ "00", 
+                     .default =
+                       stringr::str_pad(st, 2, pad = "0"))) |>
+  mutate(cnty_3 = stringr::str_pad(cnty, 3, pad = "0"),
+         fip5 = paste0(st_2, cnty_3))
+
+# View(intv_w_no_lgb_join_by_day_vsl2)
+
+plot_usmap(
+  regions = "counties",
+  include = c(gulf_states, "FL"),
+  data = intv_w_no_lgb_join_by_day_vsl1,
+  values = "num_int_no_lgb"
+) +
+  scale_fill_gradient(low = "blue",
+                      high = "red",
+                      na.value = "transparent")
 # 
 # plot_usmap(data = dt, values = "val", color = "grey", size = .25) +
 #   scale_fill_gradient(low = "blue", high = "red", na.value = "transparent")
