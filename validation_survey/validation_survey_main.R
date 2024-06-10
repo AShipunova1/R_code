@@ -870,6 +870,12 @@ num_of_interviews <-
 num_of_interviews_w_no_lgb * 100 / num_of_interviews
 # 45%
 
+# TODO:
+# 1) also suggest using captain's name - to try to match, if that is a field in both. like instead of just trying to match by vessel ID.
+
+# 2)
+# And if you limit to a smaller window (e.g. end or start in logbook within 1 hour of the survey, or within 2, or within 3 hours) how does that % come out?
+
 # survey time difference  vs trip start/trip end ----
 
 db_logbooks_2022_short__fish_hours <-
