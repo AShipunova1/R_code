@@ -1,6 +1,7 @@
 # prepare data ----
 
-library(cdlTools)
+library(usmap)
+# library(tidycensus)
 
 # survey_data_l_2022 |> 
 #   purrr::map(auxfunctions::print_df_names)
@@ -153,20 +154,35 @@ dim(survey_data_l_2022_i1_w_dates)
 # prepare geo data ----
 
 get_state_abb_by_code <- 
-  function(i_state_code) {
-    state_code
-    tidycensus::fips_codes$state_code == st
-           tidycensus::fips_codes$state
-    
+  function(int_state_code) {
+    tidycensus::fips_codes |>
+      filter(state_code == int_state_code) |>
+      select(state) |> 
+      unique()
   }
 
-survey_data_l_2022_i1_w_dates |> 
-  mutate(state_abb = cdlTools::fips(st, to = "Abbreviation")) |> 
-  tail() |> 
-  glimpse()
+int_county_code <- 131
+get_county_abb_by_code <-
+  function(int_state_code, int_county_code) {
+    tidycensus::fips_codes |>
+      filter(county_code == int_county_code &
+               state_code == int_state_code) |>
+      select(state, county) |>
+      unique()
+  }
+get_state_abb_by_code(12)
+get_county_abb_by_code(12, 131)
 
+fips()
+survey_data_l_2022_i1_w_dates |>
+   rowwise |> 
+   ungroup
 
-         
+get_gulf_geo <- 
+  function(variables) {
+    
+  }
+mutate(usmap)
   mutate(
     gulf = case_when(
       State %in% c("AL", "TX", "MS", "LA") ~ 1,
