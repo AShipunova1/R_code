@@ -930,80 +930,7 @@ intv_w_no_lgb_join_by_day_vsl2__cnt <-
 
 glimpse(intv_w_no_lgb_join_by_day_vsl2__cnt)
 
-# prep state info for plotting
-selected_states_df <- usmap::us_map(include = c(gulf_states, "FL"))
-
-# Get centroids
-centroid_labels <- usmapdata::centroid_labels("states")
-
-# Join centroids to data
-old_names <- names(centroid_labels)
-
-names(centroid_labels) <- c("st_2", "abbr", "full", "geom")
-
-state_labels <-
-  merge(intv_w_no_lgb_join_by_day_vsl2__cnt, 
-        centroid_labels, 
-        by = "st_2")
-
-glimpse(intv_w_no_lgb_join_by_day_vsl2__restore_st__short_cnt)
-
-state_labels_restored <-
-  dplyr::left_join(intv_w_no_lgb_join_by_day_vsl2__restore_st__short_cnt,
-        centroid_labels, 
-        join_by(restored_st == st_2))
-
-names(centroid_labels) <- c("st_2", "abbr", "full", "geom")
-
-state_labels_short <-
-  state_labels |>
-  select(st_2, abbr, full, total_by_state, geom) |> 
-  distinct() |> 
-  mutate(label_st_cnt = paste(abbr, total_by_state))
-
-glimpse(state_labels_short)
-# 5
-
-### interview wo lgb plot ----
-
-plot_cnties <-
-  plot_usmap(
-    regions = "counties",
-    include = c(gulf_states, "FL"),
-    data = intv_w_no_lgb_join_by_day_vsl2__cnt,
-    values = "num_int_no_lgb",
-    color = "lightgrey"
-  ) +
-  scale_fill_gradient(
-    name = "Interviews w/o logbooks",
-    low = "blue",
-    high = "yellow",
-    na.value = "transparent"
-  )
-
-no_state_interview_no_lgb_num <- 
-  intv_w_no_lgb_join_by_day_vsl2__cnt |>
-  filter(st_2 == "00") |> 
-  select(total_by_state) |> 
-  distinct()
-
-plot_cnties_state_lbls <-
-  plot_cnties +
-  geom_sf_text(data = state_labels_short, 
-               aes(geometry = geom, label = label_st_cnt)) +
-  geom_sf(data = selected_states_df,
-          color = "green",
-          fill = NA) +
-  ggplot2::labs(
-    title = "Number of interviews without logbooks by state/county",
-    caption = stringr::str_glue(
-      "Number of interviews without logbooks with no state info is {no_state_interview_no_lgb_num$total_by_state}."
-    )
-  )
-
-plot_cnties_state_lbls
-
-## restore possible states and plot again ----
+### restore possible states ----
 # View(survey_data_l_2022_i1_w_dates__states_by_cnty)
 
 intv_w_no_lgb_join_by_day_vsl2__join_state_by_cnty <-
@@ -1044,6 +971,107 @@ intv_w_no_lgb_join_by_day_vsl2__restore_st__short_cnt |>
   count(wt = total_by_state)
 # 827
 # correct
+
+### prep state info for plotting ----
+selected_states_df <- usmap::us_map(include = c(gulf_states, "FL"))
+
+# Get centroids
+centroid_labels <- usmapdata::centroid_labels("states")
+
+# Join centroids to data
+old_names <- names(centroid_labels)
+
+names(centroid_labels) <- c("st_2", "abbr", "full", "geom")
+
+state_labels <-
+  merge(intv_w_no_lgb_join_by_day_vsl2__cnt, 
+        centroid_labels, 
+        by = "st_2")
+
+state_labels_restored <-
+  dplyr::left_join(
+    intv_w_no_lgb_join_by_day_vsl2__restore_st__short_cnt,
+    centroid_labels,
+    join_by(restored_st == st_2)
+  ) |>
+  mutate(label_st_cnt = paste(abbr, total_by_state))
+
+glimpse(state_labels_restored)
+
+state_labels_short <-
+  state_labels |>
+  select(st_2, abbr, full, total_by_state, geom) |> 
+  distinct() |> 
+  mutate(label_st_cnt = paste(abbr, total_by_state))
+
+glimpse(state_labels_short)
+# 5
+
+### interview wo lgb plot ----
+
+plot_counties <- function(my_df) {
+  plot_usmap(
+    regions = "counties",
+    include = c(gulf_states, "FL"),
+    data = my_df,
+    values = "num_int_no_lgb",
+    color = "lightgrey"
+  ) +
+    scale_fill_gradient(
+      name = "Interviews w/o logbooks",
+      low = "blue",
+      high = "yellow",
+      na.value = "transparent"
+    )
+}
+
+plot_cnties <- plot_counties(intv_w_no_lgb_join_by_day_vsl2__cnt)
+
+plot_cnties_restored <- 
+  plot_counties(intv_w_no_lgb_join_by_day_vsl2__restore_st__short_cnt)
+
+# check
+no_state_interview_no_lgb_num <- 
+  intv_w_no_lgb_join_by_day_vsl2__cnt |>
+  filter(st_2 == "00") |> 
+  select(total_by_state) |> 
+  distinct()
+
+add_state_labels <-
+  function(usmap_plot, labels_by_state = state_labels_short) {
+    usmap_plot +
+      geom_sf_text(data = labels_by_state, aes(geometry = geom, label = label_st_cnt)) +
+      geom_sf(data = selected_states_df,
+              color = "green",
+              fill = NA)
+  }
+
+plot_restored_all <- 
+  add_state_labels(plot_cnties_restored, state_labels_restored) +
+  ggplot2::labs(title = "Number of interviews without logbooks by state/county")
+
+plot_cnties_state_lbls1 <-
+  add_state_labels(plot_cnties, state_labels_short)
+
+# library(gridExtra)
+
+gridExtra::grid.arrange(plot_cnties_state_lbls,
+           plot_cnties_state_lbls1)
+
+
+geom_sf_text(data = state_labels_short, 
+               aes(geometry = geom, label = label_st_cnt)) +
+  geom_sf(data = selected_states_df,
+          color = "green",
+          fill = NA) +
+  ggplot2::labs(
+    title = "Number of interviews without logbooks by state/county",
+    caption = stringr::str_glue(
+      "Number of interviews without logbooks with no state info is {no_state_interview_no_lgb_num$total_by_state}."
+    )
+  )
+
+plot_cnties_state_lbls
 
 # survey time difference vs trip start/trip end ----
 
