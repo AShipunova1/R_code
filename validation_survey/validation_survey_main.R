@@ -639,9 +639,9 @@ survey_data_l_2022_i1_w_dates |>
 #   count(cnty) |> tail()
 
 survey_data_l_2022_date_i1_vsl_int_t <-
-  survey_data_l_2022_vsl_date |>
+  survey_data_l_2022_i1_w_dates |>
   filter(int_year == "2022") |>
-  select(vsl_num, interview_date) |>
+  select(vsl_num, interview_date, st, cnty) |>
   mutate(vsl_num = stringr::str_replace_all(vsl_num, " ", "")) |>
   mutate(vsl_num = stringr::str_replace_all(vsl_num, "-", "")) |>
   mutate(vsl_num = tolower(vsl_num)) |>
@@ -665,6 +665,8 @@ lgb_join_i1_full <-
 
 dim(lgb_join_i1_full)
 # [1] 95697     3
+
+summary(lgb_join_i1_full)
 
 intv_w_no_lgb_join_by_day_vsl <- 
   lgb_join_i1_full |> 
