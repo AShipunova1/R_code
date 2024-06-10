@@ -912,3 +912,18 @@ survey_lgb_by_date_vessl_all__time_dff <-
 
 
 # str(survey_lgb_by_date_vessl_all__time_dff)
+
+## convert fishing hours to duration
+survey_lgb_by_date_vessl_all__trip_period__fish_h_period <-
+  survey_lgb_by_date_vessl_all__trip_period |>
+  rowwise() |>
+  mutate(FISHING_HOURS_p = lubridate::hms(FISHING_HOURS)) |>
+  ungroup()
+
+# survey_lgb_by_date_vessl_all__trip_period[93,] |> View()
+
+View(survey_lgb_by_date_vessl_all__trip_period__fish_h_period)
+
+lubridate::period(hour = survey_lgb_by_date_vessl_all__trip_period$FISHING_HOURS)
+    
+  
