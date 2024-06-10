@@ -980,38 +980,12 @@ plot_cnties <-
 glimpse(state_labels_short)
 
 plot_cnties +
-  geom_sf(data = state_labels_short)
+    geom_sf_text(data = state_labels_short, 
+                 aes(geometry = geometry,
+                     label = abbr))
+
+(data = state_labels_short)
   
-# ===
-statecounts <- data.frame(
-  stringsAsFactors = FALSE,
-             state = c("Alabama", "Arkansas", "California", "Florida"),
-         stateabbr = c("AL", "AR", "CA", "FL"),
-                 n = c(1L, 1L, 32L, 19L),
-              fips = c("01", "05", "06", "12")
-  )
-
-glimpse(statecounts)
-
-# Get centroids
-centroid_labels <- usmapdata::centroid_labels("states")
-
-# Join centroids to data
-state_labels <- merge(statecounts, centroid_labels, by = "fips")
-
-glimpse(state_labels)
-
-plot_usmap(data = statecounts,
-           regions = "state",
-           values = "n") +
-  geom_sf_text(data = state_labels,
-            aes(x = x, y = y, label = stateabbr),
-            color = "white") +
-  labs(title = "Frequency of Unique Users in the United States",
-       caption = "",
-       fill = "Count")
-
-# ===
 
   geom_text(data = state_labels_short,
             aes(x = x, y = y, label = stateabbr),
