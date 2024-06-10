@@ -995,32 +995,35 @@ plot_cnties_state_lbls
 ## restore possible states and plot again ----
 # View(survey_data_l_2022_i1_w_dates__states_by_cnty)
 
-intv_w_no_lgb_join_by_day_vsl2__restore_st <-
+intv_w_no_lgb_join_by_day_vsl2__join_state_by_cnty <-
   intv_w_no_lgb_join_by_day_vsl2 |> 
   left_join(survey_data_l_2022_i1_w_dates__states_by_cnty,
             join_by(cnty, st))
   
-glimpse(intv_w_no_lgb_join_by_day_vsl2__restore_st)
+glimpse(intv_w_no_lgb_join_by_day_vsl2__join_state_by_cnty)
 
-intv_w_no_lgb_join_by_day_vsl2__restore_st |> 
+intv_w_no_lgb_join_by_day_vsl2__restore_st <-
+  intv_w_no_lgb_join_by_day_vsl2__join_state_by_cnty |>
   mutate(restored_st = case_when(
-    is.na(st) ~ stringr::str_extract(sts, "\\d+") |> 
-      na.omit() |> 
+    is.na(st) ~ stringr::str_extract(sts, "\\d+") |>
+      na.omit() |>
       unlist(),
     .default = st
-  )) |> 
-  View()
+  ))
 
-a <- intv_w_no_lgb_join_by_day_vsl2__restore_st$sts[[1]]
+glimpse(intv_w_no_lgb_join_by_day_vsl2__restore_st)
 
-str(a)
+# ℹ In argument: `restored_st = case_when(...)`.
+# Caused by warning in `stri_extract_first_regex()`:
+# ! argument is not an atomic vector; coercing
 
-# any(!is.na(a))
-a[!a == "NA"] |> glimpse()
-
-  # select(st_2, vsl_num, interview_date, fips) |>
+intv_w_no_lgb_join_by_day_vsl2__restore_st |>
+  mutate(cnty_3 = stringr::str_pad(cnty, 3, pad = "0")) |> 
+  mutate(fips = paste0(restored_st, cnty_3)) |> 
+  select(restored_st, vsl_num, interview_date, fips) |>
   distinct() |>
-  count_interview_no_lgb()
+  count_interview_no_lgb() |> 
+  glimpse()
 
 
 
