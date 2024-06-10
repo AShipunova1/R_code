@@ -881,7 +881,7 @@ survey_lgb_by_date_vessl_all |>
 strftime(strptime(sapply(paste0("0000", survey_lgb_by_date_vessl_all$TRIP_START_TIME), function(i)
   substring(i, nchar(i) - 3, nchar(i))), "%H%M"), format = "%H:%M") |> head()
 
-survey_lgb_by_date_vessl_all__trip_period <-
+survey_lgb_by_date_vessl_all__trip_dur <-
   survey_lgb_by_date_vessl_all |>
   mutate(TRIP_START_TIME_1 =
            stringr::str_replace(TRIP_START_TIME, "(\\d+)(\\d\\d)", "\\1:\\2")) |>
@@ -892,74 +892,64 @@ survey_lgb_by_date_vessl_all__trip_period <-
   mutate(TRIP_END_TIME_2 =
            lubridate::hm(TRIP_END_TIME_1)) |>
   mutate(TRIP_START_TO_END =
-           TRIP_END_TIME_2 - TRIP_START_TIME_2)
-# periods
-# TODO: convert all to periods
-  
-# select(TRIP_START_TIME, TRIP_START_TIME_1) |> 
-#   distinct() |> 
-#   glimpse()
-  
-survey_lgb_by_date_vessl_all__time_dff <-
-  survey_lgb_by_date_vessl_all |>
-  filter(TRIP_START_DATE == interview_date) |>
-  mutate(
-    across(ends_with("_TIME"), ~ as.numeric(.x)),
-    trip_start_end = (TRIP_END_TIME - TRIP_START_TIME) / 100,
-    time_diff__trip__fish_h = trip_start_end - FISHING_HOURS,
-    time_diff__trip__surv = trip_start_end - hrsf
-  )
-
-
-# str(survey_lgb_by_date_vessl_all__time_dff)
+           TRIP_END_TIME_2 - TRIP_START_TIME_2) |> 
+  mutate(TRIP_START_TO_END_d =
+           lubridate::as.duration(TRIP_START_TO_END))
 
 ## convert fishing hours to duration ----
-
 convert_fish_hours_to_duration <- function(FISHING_HOURS) {
-  as.difftime(FISHING_HOURS, units = "hours") |> lubridate::as.period()
+  as.difftime(FISHING_HOURS, units = "hours") |> 
+    lubridate::as.period() |> 
+    lubridate::as.duration()
 }
 
-survey_lgb_by_date_vessl_all__trip_period__fish_h_period <-
-  survey_lgb_by_date_vessl_all__trip_period |>
+### for logbooks ----
+survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur <-
+  survey_lgb_by_date_vessl_all__trip_dur |>
   rowwise() |>
-  mutate(FISHING_HOURS_p = convert_fish_hours_to_duration(FISHING_HOURS)) |>
+  mutate(FISHING_HOURS_d = convert_fish_hours_to_duration(FISHING_HOURS)) |>
   ungroup()
 
-# can't use lubridate::hours directly, because of:
-# survey_lgb_by_date_vessl_all__trip_period[93,][["FISHING_HOURS"]]
-# 3.5
-# lubridate::period(hour = survey_lgb_by_date_vessl_all__trip_period$FISHING_HOURS)
-    
-survey_lgb_by_date_vessl_all__trip_period__fish_h_period[93,][["FISHING_HOURS_p"]]
-# [1] "3H 30M 0S"
+# check
+survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur[93,][["FISHING_HOURS_d"]]
+# [1] "12600s (~3.5 hours)"
 
-survey_lgb_by_date_vessl_all__trip_period__fish_h_period[93,][["TRIP_START_TO_END"]] - survey_lgb_by_date_vessl_all__trip_period__fish_h_period[93,][["FISHING_HOURS_p"]]
-# [1] "1H -30M 0S"
+survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur[93,][["TRIP_START_TO_END_d"]] - survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur[93,][["FISHING_HOURS_d"]]
+# [1] "1800s (~30 minutes)"
 
-## convert survey fishing hours hrsf to duration ----
+### convert survey fishing hours hrsf to duration ----
 
-survey_lgb_by_date_vessl_all__trip_period__fish_h_period__hrsf_period <-
-  survey_lgb_by_date_vessl_all__trip_period__fish_h_period |>
+survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur <-
+  survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur |>
   rowwise() |>
-  mutate(hrsf_p = convert_fish_hours_to_duration(hrsf)) |>
+  mutate(hrsf_d = convert_fish_hours_to_duration(hrsf)) |>
   ungroup()
 
-glimpse(survey_lgb_by_date_vessl_all__trip_period__fish_h_period__hrsf_period)
+glimpse(survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur)
 
-survey_lgb_by_date_vessl_all__trip_period__fish_h_period__hrsf_period[93,][["TRIP_START_TO_END"]] - survey_lgb_by_date_vessl_all__trip_period__fish_h_period__hrsf_period[93,][["hrsf_p"]]
-# [1] "4H 0M 0S"
-
-survey_lgb_by_date_vessl_all__trip_period__fish_h_period__hrsf_period[93,][["FISHING_HOURS_p"]] - survey_lgb_by_date_vessl_all__trip_period__fish_h_period__hrsf_period[93,][["hrsf_p"]]
-# [1] "30M 0S"
-
-survey_lgb_by_date_vessl_all__trip_period__fish_h_period__hrsf_period$TRIP_START_TO_END |> 
-  mean()
-
-survey_lgb_by_date_vessl_all__trip_period__fish_h_period__hrsf_period |> 
+# check row 93 with 3.5
+survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur |> 
   head(96) |> 
   tail() |> 
-  mutate(FISHING_HOURS_d = lubridate::as.duration(FISHING_HOURS_p),
-         FISHING_HOURS_mean = mean.difftime(FISHING_HOURS_d)) |> 
+  mutate(FISHING_HOURS_mean = mean.difftime(FISHING_HOURS_d)) |> 
   select(starts_with("FISHING_HOURS")) |> 
-  glimpse()
+  distinct() |> 
+  str()
+
+survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur[93,][["TRIP_START_TO_END_d"]] - survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur[93,][["hrsf_d"]]
+# [1] "3600s (~1 hours)"
+
+survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur[93,][["FISHING_HOURS_d"]] - survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur[93,][["hrsf_d"]]
+# [1] "1800s (~30 minutes)"
+
+survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur$TRIP_START_TO_END_d |> 
+  mean()
+
+survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur$hrsf_d |> 
+  mean()
+
+survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur |> 
+  # filter(!is.na(FISHING_HOURS_d)) |> 
+  select(ends_with("_d")) |> 
+  summary()
 
