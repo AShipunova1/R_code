@@ -204,7 +204,7 @@ survey_data_l_2022_i1_w_dates__states_by_cnty <-
     st1
   ))))) |>
   ungroup() |>
-  select(-st, -st1) |>
+  select(-st1) |>
   distinct() |>
   arrange(cnty)
 
