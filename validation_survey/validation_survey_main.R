@@ -881,32 +881,24 @@ survey_lgb_by_date_vessl_all |>
 strftime(strptime(sapply(paste0("0000", survey_lgb_by_date_vessl_all$TRIP_START_TIME), function(i)
   substring(i, nchar(i) - 3, nchar(i))), "%H%M"), format = "%H:%M") |> head()
 
-survey_lgb_by_date_vessl_all |>
-    mutate(TRIP_START_TIME_1 = 
-             stringr::str_replace(TRIP_START_TIME,
-                                  "(\\d+)(\\d\\d)",
-                                  "\\1:\\2")) |> 
-    mutate(TRIP_END_TIME_1 = 
-             stringr::str_replace(TRIP_END_TIME,
-                                  "(\\d+)(\\d\\d)",
-                                  "\\1:\\2")) |> 
-    mutate(TRIP_START_TIME_2 = 
-            lubridate::hm(TRIP_START_TIME_1)) |> 
-    mutate(TRIP_END_TIME_2 = 
-            lubridate::hm(TRIP_END_TIME_1)) |> 
-    mutate(TRIP_START_TO_END = 
-            TRIP_END_TIME_2 - TRIP_START_TIME_2) |> 
-  View()
+survey_lgb_by_date_vessl_all__trip_period <-
+  survey_lgb_by_date_vessl_all |>
+  mutate(TRIP_START_TIME_1 =
+           stringr::str_replace(TRIP_START_TIME, "(\\d+)(\\d\\d)", "\\1:\\2")) |>
+  mutate(TRIP_END_TIME_1 =
+           stringr::str_replace(TRIP_END_TIME, "(\\d+)(\\d\\d)", "\\1:\\2")) |>
+  mutate(TRIP_START_TIME_2 =
+           lubridate::hm(TRIP_START_TIME_1)) |>
+  mutate(TRIP_END_TIME_2 =
+           lubridate::hm(TRIP_END_TIME_1)) |>
+  mutate(TRIP_START_TO_END =
+           TRIP_END_TIME_2 - TRIP_START_TIME_2)
 # periods
 # TODO: convert all to periods
   
-  
-  
-  
-  select(TRIP_START_TIME, TRIP_START_TIME_1) |> 
-  distinct() |> 
-  glimpse()
-  
+# select(TRIP_START_TIME, TRIP_START_TIME_1) |> 
+#   distinct() |> 
+#   glimpse()
   
 survey_lgb_by_date_vessl_all__time_dff <-
   survey_lgb_by_date_vessl_all |>
@@ -919,4 +911,4 @@ survey_lgb_by_date_vessl_all__time_dff <-
   )
 
 
-View(survey_lgb_by_date_vessl_all__time_dff)
+# str(survey_lgb_by_date_vessl_all__time_dff)
