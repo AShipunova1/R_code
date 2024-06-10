@@ -1,5 +1,7 @@
 # prepare data ----
 
+library(cdlTools)
+
 # survey_data_l_2022 |> 
 #   purrr::map(auxfunctions::print_df_names)
 
@@ -147,6 +149,67 @@ dim(survey_data_l_2022$i1)
 # [1] 1835   33
 dim(survey_data_l_2022_i1_w_dates)
 # [1] 1835   37
+
+# prepare geo data ----
+
+get_state_abb_by_code <- 
+  function(i_state_code) {
+    state_code
+    tidycensus::fips_codes$state_code == st
+           tidycensus::fips_codes$state
+    
+  }
+
+survey_data_l_2022_i1_w_dates |> 
+  mutate(state_abb = cdlTools::fips(st, to = "Abbreviation")) |> 
+  tail() |> 
+  glimpse()
+
+
+         
+  mutate(
+    gulf = case_when(
+      State %in% c("AL", "TX", "MS", "LA") ~ 1,
+      ## DESIGNATE ALL FL TRIPS IN GULF COUNTIES AS GULF TRIPS
+      State == "FL" &
+        CNTY %in% c(
+          33,
+          113,
+          91,
+          131,
+          5,
+          45,
+          37,
+          129,
+          65,
+          123,
+          29,
+          75,
+          17,
+          53,
+          101,
+          57,
+          103,
+          81,
+          115,
+          15,
+          71,
+          21
+        ) ~ 1,
+      ## LIST OF GULF COUNTY NAMES IN THE SAME ORDER AS COUNTY CODES ABOVE
+      # escambia, santa rosa, okaloosa, walton, bay, gulf, franklin, wakulla,
+      # jefferson, taylor, dixie, levy, citrus, hernando, pasco, hillsborough,
+      # pinellas, manatee, sarasota, charlotte, lee, collier
+      ## FL TRIPS IN MONROE COUNTY WITH GULF PERMITS ARE CODED AS GULF
+      State == "FL" & CNTY == 87 & Perm_Group == "GOM" ~ 1,
+      ## ASSIGN ANY RECORD WITH NO STATE, BUT VERIFIED GOM PERMIT ARE CODED AS GULF
+      is.na(State == T) & Perm_Group == "GOM" ~ 1,
+      ## ASSIGN RECORDS IN COUNTY=75 WITH NO STATE TO GULF (FL OR LA)
+      is.na(State == T) & CNTY %in% c(75) ~ 1,
+      TRUE ~ 0
+    )
+  )
+
 
 # prepare logbooks ----
 db_logbooks_2022_short0 <-
