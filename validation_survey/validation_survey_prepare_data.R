@@ -208,9 +208,9 @@ survey_data_l_2022_i1_w_dates__states_by_cnty <-
   distinct() |>
   arrange(cnty)
 
-# survey_data_l_2022_i1_w_dates__states_by_cnty |> 
-#   select(sts) |> 
-#   distinct() |> 
+# survey_data_l_2022_i1_w_dates__states_by_cnty |>
+#   select(sts) |>
+#   distinct() |>
 #   glimpse()
   
 # prepare logbooks ----
