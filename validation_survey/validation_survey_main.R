@@ -876,6 +876,24 @@ num_of_interviews_w_no_lgb * 100 / num_of_interviews
 # 2)
 # And if you limit to a smaller window (e.g. end or start in logbook within 1 hour of the survey, or within 2, or within 3 hours) how does that % come out?
 
+## plot interviews w no logbooks ----
+# TODO: how many are srhs vsls?
+
+# inerview_no_lgb_geo <-
+  intv_w_no_lgb_join_by_day_vsl
+
+# library(ggplot2)
+plot_usmap(include = c(gulf_states, "FL")) 
+
+plot_usmap(include = c(gulf_states, "FL"),
+           data = ) 
+# 
+# plot_usmap(data = dt, values = "val", color = "grey", size = .25) +
+#   scale_fill_gradient(low = "blue", high = "red", na.value = "transparent")
+
+
+
+
 # survey time difference  vs trip start/trip end ----
 
 db_logbooks_2022_short__fish_hours <-
@@ -988,6 +1006,10 @@ survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur |>
   # filter(!is.na(FISHING_HOURS_d)) |> 
   select(ends_with("_d")) |> 
   summary()
+
+# state.center:
+
+
 
 # how many fishing hours are matching vs. not (interval) ----
 
