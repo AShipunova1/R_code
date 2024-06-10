@@ -927,9 +927,6 @@ intv_w_no_lgb_join_by_day_vsl2__cnt <-
   distinct() |>
   count_interview_no_lgb()
 
-diffdf::diffdf(intv_w_no_lgb_join_by_day_vsl2__cnt,
-               intv_w_no_lgb_join_by_day_vsl2__cnt1)
-
 glimpse(intv_w_no_lgb_join_by_day_vsl2__cnt)
 
 # prep state info for plotting
@@ -995,7 +992,18 @@ plot_cnties_state_lbls <-
 plot_cnties_state_lbls
 
 ## restore possible states and plot again ----
-survey_data_l_2022_i1_w_dates__states_by_cnty 
+# View(survey_data_l_2022_i1_w_dates__states_by_cnty)
+
+intv_w_no_lgb_join_by_day_vsl2__restore_st <-
+  intv_w_no_lgb_join_by_day_vsl2 |> 
+  left_join(survey_data_l_2022_i1_w_dates__states_by_cnty,
+            join_by(cnty, st))
+  
+glimpse(intv_w_no_lgb_join_by_day_vsl2__restore_st)
+
+  # select(st_2, vsl_num, interview_date, fips) |>
+  distinct() |>
+  count_interview_no_lgb()
 
 
 
