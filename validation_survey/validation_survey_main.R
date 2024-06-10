@@ -942,7 +942,18 @@ old_names <- names(centroid_labels)
 names(centroid_labels) <- c("st_2", "abbr", "full", "geom")
 
 state_labels <-
-  merge(intv_w_no_lgb_join_by_day_vsl2__cnt, centroid_labels, by = "st_2")
+  merge(intv_w_no_lgb_join_by_day_vsl2__cnt, 
+        centroid_labels, 
+        by = "st_2")
+
+glimpse(intv_w_no_lgb_join_by_day_vsl2__restore_st__short_cnt)
+
+state_labels_restored <-
+  dplyr::left_join(intv_w_no_lgb_join_by_day_vsl2__restore_st__short_cnt,
+        centroid_labels, 
+        join_by(restored_st == st_2))
+
+names(centroid_labels) <- c("st_2", "abbr", "full", "geom")
 
 state_labels_short <-
   state_labels |>
