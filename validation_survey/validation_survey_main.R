@@ -1001,6 +1001,22 @@ intv_w_no_lgb_join_by_day_vsl2__restore_st <-
   
 glimpse(intv_w_no_lgb_join_by_day_vsl2__restore_st)
 
+intv_w_no_lgb_join_by_day_vsl2__restore_st |> 
+  mutate(restored_st = case_when(
+    is.na(st) ~ stringr::str_extract(sts, "\\d+") |> 
+      na.omit() |> 
+      unlist(),
+    .default = st
+  )) |> 
+  View()
+
+a <- intv_w_no_lgb_join_by_day_vsl2__restore_st$sts[[1]]
+
+str(a)
+
+# any(!is.na(a))
+a[!a == "NA"] |> glimpse()
+
   # select(st_2, vsl_num, interview_date, fips) |>
   distinct() |>
   count_interview_no_lgb()
