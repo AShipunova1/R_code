@@ -621,6 +621,23 @@ dim(db_logbooks_2022_vsl_t_end)
 # [1] 94870     3 w trip_id
 
 ## prep survey info ----
+
+### check empty state and county ----
+# summary(survey_data_l_2022_i1_w_dates)
+survey_data_l_2022_i1_w_dates |> 
+  filter(is.na(st)) |> 
+  dim()
+# 312
+
+survey_data_l_2022_i1_w_dates |> 
+  filter(!cnty > 0) |> 
+  # filter(is.na(cnty)) |> 
+  dim()
+# 312
+
+# survey_data_l_2022_i1_w_dates |> 
+#   count(cnty) |> tail()
+
 survey_data_l_2022_date_i1_vsl_int_t <-
   survey_data_l_2022_vsl_date |>
   filter(int_year == "2022") |>
@@ -655,8 +672,19 @@ intv_w_no_lgb_join_by_day_vsl <-
   auxfunctions::remove_empty_cols() |> 
   distinct()
 
-dim(intv_w_no_lgb_join_by_day_vsl)
+### check NAs ----
+summary(intv_w_no_lgb_join_by_day_vsl)
 # [1] 827   2
+
+intv_w_no_lgb_join_by_day_vsl |> 
+  filter(is.na(st)) |> 
+  dim()
+# 192
+
+intv_w_no_lgb_join_by_day_vsl |> 
+  filter(is.na(cnty)) |> 
+  dim()
+# 0 ok
 
 glimpse(intv_w_no_lgb_join_by_day_vsl)
 
