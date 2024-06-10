@@ -634,7 +634,7 @@ survey_data_l_2022_date_i1_vsl_int_t <-
 dim(survey_data_l_2022_date_i1_vsl_int_t)
 # 1812
 
-## full join ----
+## full join interview / logbooks by date and vessel ----
 lgb_join_i1_full <-
   dplyr::full_join(
     survey_data_l_2022_date_i1_vsl_int_t,
@@ -775,7 +775,7 @@ test1_logbooks <-
   db_logbooks_2022 |>
   filter(
     lubridate::month(TRIP_END_DATE) == 6 &
-      CATCH_SPECIES_ITIS %in% tsns1$tsn &
+      CATCH_SPECIES_ITIS %in% test1_tsns$tsn &
       VESSEL_OFFICIAL_NBR == "1041849"
   ) |> select(TRIP_ID, CATCH_SPECIES_ITIS, TRIP_END_DATE) |> distinct()
 
@@ -786,7 +786,7 @@ test1_logbooks_no_month <-
   db_logbooks_2022 |>
   filter(
     # lubridate::month(TRIP_END_DATE) == 6 &
-      CATCH_SPECIES_ITIS %in% tsns1$tsn &
+      CATCH_SPECIES_ITIS %in% test1_tsns$tsn &
       VESSEL_OFFICIAL_NBR == "1041849"
   ) |> select(TRIP_ID, CATCH_SPECIES_ITIS, TRIP_END_DATE) |> distinct()
 
@@ -826,7 +826,7 @@ db_logbooks_2022 |>
   arrange(TRIP_END_DATE) |>
   glimpse()
 
-# there is no a trip with both ("167759", "167763")
+# there are no trips with both ("167759", "167763")
 
 ## percent interviews w no logbooks ----
 num_of_interviews_w_no_lgb <-
