@@ -1050,20 +1050,8 @@ plot_restored_all <-
   add_state_labels(plot_cnties_restored, state_labels_restored) +
   ggplot2::labs(title = "Number of interviews without logbooks by state/county")
 
-plot_cnties_state_lbls1 <-
-  add_state_labels(plot_cnties, state_labels_short)
-
-# library(gridExtra)
-
-gridExtra::grid.arrange(plot_cnties_state_lbls,
-           plot_cnties_state_lbls1)
-
-
-geom_sf_text(data = state_labels_short, 
-               aes(geometry = geom, label = label_st_cnt)) +
-  geom_sf(data = selected_states_df,
-          color = "green",
-          fill = NA) +
+plot_cnties_state_lbls <-
+  add_state_labels(plot_cnties, state_labels_short) +
   ggplot2::labs(
     title = "Number of interviews without logbooks by state/county",
     caption = stringr::str_glue(
@@ -1071,7 +1059,10 @@ geom_sf_text(data = state_labels_short,
     )
   )
 
-plot_cnties_state_lbls
+# library(gridExtra)
+
+gridExtra::grid.arrange(plot_cnties_state_lbls,
+           plot_restored_all)
 
 # survey time difference vs trip start/trip end ----
 
