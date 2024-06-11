@@ -210,7 +210,7 @@ intv_w_no_lgb_join_by_day_vsl |>
 dplyr::glimpse(intv_w_no_lgb_join_by_day_vsl)
 dplyr::glimpse(intv_w_no_lgb_join_by_day_vsl_restored)
 
-## check all vessel ids not in lgb ----
+### check all vessel ids not in lgb ----
 # intv_w_no_lgb_join_by_day_vsl$VESSEL_OFFICIAL_NBR |>
 #   unique() |> 
 #   cat(sep = ", ")
@@ -268,7 +268,7 @@ vsl_in_survey_not_in_lgb_query_res <-
 vsl_in_survey_not_in_lgb_query_res |> dim()
 # 0 (confirmed not in lgb for 2022)
 
-## check if these interviews are for DNFs ----
+### check if these interviews are for DNFs ----
 dplyr::glimpse(db_dnfs_2022)
 
 in_survey_not_in_lgb_not_in_dnf <-
@@ -383,6 +383,58 @@ db_logbooks_2022 |>
 # there are no trips with both ("167759", "167763")
 
 ## spot check the interviews by captain name ----
+
+# print_df_names(db_logbooks_2022_vsl_t_end_all)
+# CAPT_NAME_FIRST, CAPT_NAME_LAST
+
+# print_df_names(survey_data_l_2022_date_i1_vsl__int_t_clean_vsl)
+# interviewee_f_name, interviewee_l_name
+
+intersect(
+  tolower(db_logbooks_2022_vsl_t_end_all$CAPT_NAME_FIRST),
+  tolower(survey_data_l_2022_date_i1_vsl__int_t_clean_vsl$interviewee_f_name)) |> length()
+# 183
+
+intersect(
+  tolower(db_logbooks_2022_vsl_t_end_all$CAPT_NAME_LAST),
+  tolower(survey_data_l_2022_date_i1_vsl__int_t_clean_vsl$interviewee_l_name)) |> length()
+# 279
+
+setdiff(
+  tolower(
+    survey_data_l_2022_date_i1_vsl__int_t_clean_vsl$interviewee_l_name
+  ),
+  tolower(db_logbooks_2022_vsl_t_end_all$CAPT_NAME_LAST)
+) |> length()
+# 134
+
+by_fields = dplyr::join_by(vsl_num == VESSEL_OFFICIAL_NBR,
+                           interviewee_l_name == CAPT_NAME_LAST)
+
+survey_data_l_2022_date_i1_vsl__int_t_clean_vsl_low <- 
+  survey_data_l_2022_date_i1_vsl__int_t_clean_vsl |> 
+  mutate(vsl_num = tolower(vsl_num),
+         interviewee_l_name = tolower(interviewee_l_name))
+
+db_logbooks_2022_vsl_t_end_all_low <- 
+  db_logbooks_2022_vsl_t_end_all |> 
+  mutate(vsl_num = tolower(VESSEL_OFFICIAL_NBR),
+         interviewee_l_name = tolower(CAPT_NAME_LAST))
+
+join_by_date_captain <-
+  dplyr::full_join(
+    survey_data_l_2022_date_i1_vsl__int_t_clean_vsl,
+    db_logbooks_2022_vsl_t_end_all,
+    by = by_fields,
+    relationship = "many-to-many"
+  )
+
+join_by_date_captain |> 
+  select(any_of(c(names(lgb_join_i1_full), "interviewee_l_name"))) |> glimpse()
+
+summary(join_by_date_captain)
+
+
 # TODO
 # 1) also suggest using captain's name - to try to match, if that is a field in both. like instead of just trying to match by vessel ID.
 
