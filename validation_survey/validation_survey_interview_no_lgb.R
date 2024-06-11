@@ -190,51 +190,6 @@ intv_w_no_lgb_join_by_day_vsl |>
 dplyr::glimpse(intv_w_no_lgb_join_by_day_vsl)
 dplyr::glimpse(intv_w_no_lgb_join_by_day_vsl_restored)
 
-## count interviews w no logbooks 1 ----
-count_interview_no_lgb <-
-  function(my_df, cnt_field = "st_2") {
-    my_df |>
-      group_by(fips) |>
-      mutate(num_int_no_lgb_by_fips = n()) |>
-      ungroup() |>
-      group_by(!!sym(cnt_field)) |>
-      add_count(!!sym(cnt_field), name = "total_int_no_lgb_by_state") |>
-      ungroup()
-  }
-
-intv_w_no_lgb_join_by_day_vsl_cnt <-
-  intv_w_no_lgb_join_by_day_vsl |>
-  select(st_2, vsl_num, interview_date, fips) |>
-  distinct() |>
-  count_interview_no_lgb()
-
-# check
-glimpse(intv_w_no_lgb_join_by_day_vsl_cnt)
-
-intv_w_no_lgb_join_by_day_vsl_cnt |>
-  filter(st_2 == "48") |>
-  arrange(fips) |> 
-  glimpse()
-
-
-survey_data_l_2022_date_i1_vsl__int_t__fips__restore_st__short_cnt <-
-  survey_data_l_2022_date_i1_vsl__int_t__fips__restore_st |>
-  mutate(cnty_3 = stringr::str_pad(cnty, 3, pad = "0")) |>
-  mutate(fips = paste0(restored_st, cnty_3)) |>
-  select(restored_st, vsl_num, interview_date, fips) |>
-  distinct() |>
-  count_interview_no_lgb("restored_st")
-
-sum(unique(survey_data_l_2022_date_i1_vsl__int_t__fips__restore_st__short_cnt$total_by_state))
-# 827
-
-survey_data_l_2022_date_i1_vsl__int_t__fips__restore_st__short_cnt |>
-  select(restored_st, total_by_state) |>
-  distinct() |> 
-  count(wt = total_by_state)
-# 827
-# correct
-
 ## check all vessel ids not in lgb ----
 # intv_w_no_lgb_join_by_day_vsl$VESSEL_OFFICIAL_NBR |>
 #   unique() |> 
@@ -335,7 +290,7 @@ one_check_res |> dim()
 #   sort() |> 
 #   print()
 
-### check the interviews ----
+### spot check the interviews by harvest ----
 
 test1_tsns <-
   survey_i1_i3_harvested_dates |>
@@ -406,6 +361,55 @@ db_logbooks_2022 |>
   dplyr::glimpse()
 
 # there are no trips with both ("167759", "167763")
+
+### spot check the interviews by captain name ----
+# TODO
+### spot check the interviews by time window ----
+# TODO
+
+## count interviews w no logbooks 1 ----
+count_interview_no_lgb <-
+  function(my_df, cnt_field = "st_2") {
+    my_df |>
+      group_by(fips) |>
+      mutate(num_int_no_lgb_by_fips = n()) |>
+      ungroup() |>
+      group_by(!!sym(cnt_field)) |>
+      add_count(!!sym(cnt_field), name = "total_int_no_lgb_by_state") |>
+      ungroup()
+  }
+
+# NA states
+intv_w_no_lgb_join_by_day_vsl_cnt <-
+  intv_w_no_lgb_join_by_day_vsl |>
+  select(st_2, vsl_num, interview_date, fips) |>
+  distinct() |>
+  count_interview_no_lgb()
+
+# check
+glimpse(intv_w_no_lgb_join_by_day_vsl_cnt)
+
+intv_w_no_lgb_join_by_day_vsl_cnt |>
+  filter(st_2 == "48") |>
+  arrange(fips) |> 
+  glimpse()
+
+# restored states
+intv_w_no_lgb_join_by_day_vsl_restored_cnt <-
+  intv_w_no_lgb_join_by_day_vsl_restored |> 
+  select(restored_st, vsl_num, interview_date, fips) |>
+  distinct() |>
+  count_interview_no_lgb(cnt_field = "restored_st")
+
+dim(intv_w_no_lgb_join_by_day_vsl_restored_cnt)
+# 827
+
+intv_w_no_lgb_join_by_day_vsl_restored_cnt |>
+  select(restored_st, total_int_no_lgb_by_state) |>
+  distinct() |> 
+  count(wt = total_int_no_lgb_by_state)
+# 827
+# correct
 
 ## percent interviews w no logbooks ----
 num_of_interviews_w_no_lgb <-
