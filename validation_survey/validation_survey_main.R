@@ -733,3 +733,12 @@ survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur |>
 survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur |> 
     select(ends_with("_d")) |> glimpse()
 
+# how many are srhs vsls? ----
+# all interviews:
+survey_data_l_2022_i1_w_dates |>
+  select(vsl_num, srhs_vessel) |>
+  distinct() |>
+  count(srhs_vessel)
+  # srhs_vessel     n
+# 1           1     4
+# 2           2   472
