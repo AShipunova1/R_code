@@ -119,12 +119,27 @@ survey_data_l_2022_date_i1_vsl__int_t__restore_st__fips <-
   survey_data_l_2022_date_i1_vsl__int_t__restore_st |> 
   format_state_and_county_codes("restored_st")
 
-diffdf::diffdf(survey_data_l_2022_date_i1_vsl__int_t__fips,
-               survey_data_l_2022_date_i1_vsl__int_t__restore_st__fips
-               )
-
 # Join for interviews w no logbooks ----
-## full join by date and vessel ----
+full_join_int_lgb <- function(survey_df, by_fields = NA) {
+  if (is.na(by_fields)) {
+    by_fields = dplyr::join_by(vsl_num == VESSEL_OFFICIAL_NBR,
+                               interview_date == TRIP_END_DATE)
+  }
+  dplyr::full_join(
+    survey_df,
+    db_logbooks_2022_vsl_t_end,
+    by = by_fields,
+    relationship = "many-to-many"
+  )
+}
+
+## 1 full join by date and vessel ----
+
+lgb_join_i1_full1 <- full_join_int_lgb(survey_data_l_2022_date_i1_vsl__int_t)
+
+diffdf::diffdf(lgb_join_i1_full,
+               lgb_join_i1_full1)
+
 lgb_join_i1_full <-
   dplyr::full_join(
     survey_data_l_2022_date_i1_vsl__int_t,
@@ -141,7 +156,7 @@ dim(lgb_join_i1_full)
 
 summary(lgb_join_i1_full)
 
-### the same with restored states ----
+### 1a the same with restored states ----
 
 ### get interviews w no logbooks ----
 intv_w_no_lgb_join_by_day_vsl <- 
