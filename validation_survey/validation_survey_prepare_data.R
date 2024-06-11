@@ -65,7 +65,6 @@ setdiff(survey_data_l_2022$i1$id_code,
 # get dates from survey's id_code
 get_date_from_id_code_survey <- 
   function(my_df) {
-    
     my_df__w_dates <-
       my_df |>
       mutate(
@@ -99,6 +98,33 @@ survey_data_l_2022_vsl_date <-
   select(vsl_num, id_code, time, hrsf) |>
   distinct() |>
   get_date_from_id_code_survey()
+
+# check if correct split
+survey_data_l_2022_vsl_date |>
+  mutate(date_paste = paste0(int_year, int_month, int_day)) |>
+  rowwise() |>
+  # filter(!grepl(date_paste, id_code)) |>
+  # 0
+  filter(grepl(date_paste, id_code)) |>
+# 1835
+  ungroup() |>
+  dim()
+
+# check if correct interview_date
+survey_data_l_2022_vsl_date |>
+  mutate(date_paste = paste0(int_year, int_month, int_day),
+         interview_date_str = as.character(interview_date)
+           ) |>
+  mutate(interview_date_str_1 = 
+           stringr::str_replace_all(interview_date_str, "\\W", "")) |> 
+  rowwise() |>
+  # filter(!date_paste == interview_date_str_1) |>
+  # 0
+  filter(date_paste == interview_date_str_1) |>
+# 1835
+  ungroup() |>
+  dim()
+# 0
 
 survey_data_l_2022_vsl_date_time <-
   survey_data_l_2022_vsl_date |>
