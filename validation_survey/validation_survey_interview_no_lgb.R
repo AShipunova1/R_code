@@ -52,40 +52,17 @@ survey_data_l_2022_i1_w_dates |>
 # survey_data_l_2022_i1_w_dates |> 
 #   dplyr::count(cnty) |> tail()
 
-survey_data_l_2022_date_i1_vsl__int_t <-
-  survey_data_l_2022_i1_w_dates |>
-  filter(int_year == "2022") |>
-  dplyr::select(vsl_num, interview_date, st, cnty) |>
-  dplyr::mutate(vsl_num = stringr::str_replace_all(vsl_num, " ", "")) |>
-  dplyr::mutate(vsl_num = stringr::str_replace_all(vsl_num, "-", "")) |>
-  dplyr::mutate(vsl_num = tolower(vsl_num)) |>
-  dplyr::mutate(interview_date = lubridate::date(interview_date)) |>
-  dplyr::distinct()
-
-glimpse(survey_data_l_2022_date_i1_vsl__int_t)
-# 1812
-
-### format state and county codes ----
-survey_data_l_2022_date_i1_vsl__int_t__fips <-
-  survey_data_l_2022_date_i1_vsl__int_t |>
-  mutate(st_2 = 
-           case_when(is.na(st) ~ "00", 
-                     .default =
-                       stringr::str_pad(st, 2, pad = "0"))) |>
-  mutate(cnty_3 = stringr::str_pad(cnty, 3, pad = "0"),
-         fips = paste0(st_2, cnty_3))
-
 ### restore possible states ----
 dplyr::glimpse(survey_data_l_2022_i1_w_dates__states_by_cnty)
 
-dplyr::glimpse(survey_data_l_2022_date_i1_vsl__int_t__fips)
+dplyr::glimpse(survey_data_l_2022_date_i1_vsl__int_t)
 
-survey_data_l_2022_date_i1_vsl__int_t__fips__join_states_by_cnty <-
-  survey_data_l_2022_date_i1_vsl__int_t__fips |> 
+survey_data_l_2022_date_i1_vsl__int_t__join_states_by_cnty <-
+  survey_data_l_2022_date_i1_vsl__int_t |> 
   dplyr::left_join(survey_data_l_2022_i1_w_dates__states_by_cnty,
             dplyr::join_by(cnty, st))
   
-str(survey_data_l_2022_date_i1_vsl__int_t__fips__join_states_by_cnty)
+str(survey_data_l_2022_date_i1_vsl__int_t__join_states_by_cnty)
 # tibble [1,812 × 8] (S3: tbl_df/tbl/data.frame)
 #  $ vsl_num         : chr [1:1812]
 #  $ interview_date  : Date[1:1812], format: "2022-01-30" "2022-02-14" ...
@@ -97,8 +74,8 @@ str(survey_data_l_2022_date_i1_vsl__int_t__fips__join_states_by_cnty)
 #  $ states_l_by_cnty:List of 1812
 #   ..$ : chr [1:2] "12" "NA"
 
-survey_data_l_2022_date_i1_vsl__int_t__fips__restore_st <-
-  survey_data_l_2022_date_i1_vsl__int_t__fips__join_states_by_cnty |>
+survey_data_l_2022_date_i1_vsl__int_t__restore_st <-
+  survey_data_l_2022_date_i1_vsl__int_t__join_states_by_cnty |>
   dplyr::rowwise() |>
   dplyr::mutate(temp_res =
                   case_when(is.na(st) ~ paste(unlist(states_l_by_cnty),
@@ -110,20 +87,44 @@ survey_data_l_2022_date_i1_vsl__int_t__fips__restore_st <-
   dplyr::ungroup()
 
 # check
-survey_data_l_2022_date_i1_vsl__int_t__fips__restore_st[1,] |> 
+survey_data_l_2022_date_i1_vsl__int_t__restore_st[1,] |> 
   str()
 # "12"
-survey_data_l_2022_date_i1_vsl__int_t__fips__restore_st[135,] |> 
+survey_data_l_2022_date_i1_vsl__int_t__restore_st[135,] |> 
   str()
 # "NA"
 
-survey_data_l_2022_date_i1_vsl__int_t__fips__restore_st |> 
+survey_data_l_2022_date_i1_vsl__int_t__restore_st |> 
   tail(3) |> 
   str()
 # as st, ok
 
+### format state and county codes ----
+format_state_and_county_codes <-
+  function(my_df, state_code_field) {
+    my_df |>
+      mutate(st_2 =
+               case_when(is.na(!!sym(state_code_field)) ~ "00", .default =
+                           stringr::str_pad(!!sym(state_code_field), 2, pad = "0"))) |>
+      mutate(cnty_3 = stringr::str_pad(cnty, 3, pad = "0"),
+             fips = paste0(st_2, cnty_3))
+    
+  }
+
+survey_data_l_2022_date_i1_vsl__int_t__fips <-
+  survey_data_l_2022_date_i1_vsl__int_t |>
+  format_state_and_county_codes("st")
+
+survey_data_l_2022_date_i1_vsl__int_t__restore_st__fips <- 
+  survey_data_l_2022_date_i1_vsl__int_t__restore_st |> 
+  format_state_and_county_codes("restored_st")
+
+diffdf::diffdf(survey_data_l_2022_date_i1_vsl__int_t__fips,
+               survey_data_l_2022_date_i1_vsl__int_t__restore_st__fips
+               )
+
 # Join for interviews w no logbooks ----
-## full join interview / logbooks by date and vessel ----
+## full join by date and vessel ----
 lgb_join_i1_full <-
   dplyr::full_join(
     survey_data_l_2022_date_i1_vsl__int_t,
@@ -140,6 +141,9 @@ dim(lgb_join_i1_full)
 
 summary(lgb_join_i1_full)
 
+### the same with restored states ----
+
+### get interviews w no logbooks ----
 intv_w_no_lgb_join_by_day_vsl <- 
   lgb_join_i1_full |> 
   dplyr::filter(is.na(TRIP_ID)) |> 
@@ -161,6 +165,8 @@ intv_w_no_lgb_join_by_day_vsl |>
 # 0 ok
 
 dplyr::glimpse(intv_w_no_lgb_join_by_day_vsl)
+
+
 
 ## count interviews w no logbooks ----
 count_interview_no_lgb <- 
