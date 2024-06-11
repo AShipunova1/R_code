@@ -55,21 +55,20 @@ survey_data_l_2022_date_i1_vsl__int_t__fips <-
   mutate(cnty_3 = stringr::str_pad(cnty, 3, pad = "0"),
          fips = paste0(st_2, cnty_3))
 
-
 ### restore possible states ----
 dplyr::glimpse(survey_data_l_2022_i1_w_dates__states_by_cnty)
 
-glimpse(survey_data_l_2022_date_i1_vsl__int_t__fips)
+dplyr::glimpse(survey_data_l_2022_date_i1_vsl__int_t__fips)
 
-survey_data_l_2022_date_i1_vsl__int_t__fips__join_state_by_cnty <-
+survey_data_l_2022_date_i1_vsl__int_t__fips__join_states_by_cnty <-
   survey_data_l_2022_date_i1_vsl__int_t__fips |> 
-  left_join(survey_data_l_2022_i1_w_dates__states_by_cnty,
-            join_by(cnty, st))
+  dplyr::left_join(survey_data_l_2022_i1_w_dates__states_by_cnty,
+            dplyr::join_by(cnty, st))
   
-glimpse(survey_data_l_2022_date_i1_vsl__int_t__fips__join_state_by_cnty)
+glimpse(survey_data_l_2022_date_i1_vsl__int_t__fips__join_states_by_cnty)
 
 survey_data_l_2022_date_i1_vsl__int_t__fips__restore_st <-
-  survey_data_l_2022_date_i1_vsl__int_t__fips__join_state_by_cnty |>
+  survey_data_l_2022_date_i1_vsl__int_t__fips__join_states_by_cnty |>
   mutate(restored_st = case_when(
     is.na(st) ~ stringr::str_extract(states_l_by_cnty, "\\d+") |>
       na.omit(),
