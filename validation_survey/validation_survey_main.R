@@ -792,10 +792,10 @@ one_check_res <-
 one_check_res |> dim()
 # 0
 
-one_check_res$TRIP_END_DATE |> 
-  unique() |> 
-  sort() |> 
-  print()
+# one_check_res$TRIP_END_DATE |> 
+#   unique() |> 
+#   sort() |> 
+#   print()
 
 ### check the interviews ----
 
@@ -890,11 +890,11 @@ num_of_interviews_w_no_lgb * 100 / num_of_interviews
 # intv_w_no_lgb_join_by_day_vsl |> glimpse()
 
 # library(ggplot2)
-plot_usmap(include = c(gulf_states, "FL")) 
+plot_states <- plot_usmap(include = c(gulf_states, "FL")) 
 
-plot_usmap(
-  regions = "counties",
-  include = c(florida_gulf_counties))
+plot_cnties_only <-
+  plot_usmap(regions = "counties",
+             include = c(florida_gulf_counties))
 
 intv_w_no_lgb_join_by_day_vsl1 <-
   intv_w_no_lgb_join_by_day_vsl |>
@@ -1024,7 +1024,7 @@ plot_counties <- function(my_df) {
     values = "num_int_no_lgb",
     color = "lightgrey"
   ) +
-    scale_fill_gradient(
+    ggplot2::scale_fill_gradient(
       name = "Interviews w/o logbooks",
       low = "blue",
       high = "yellow",
@@ -1047,8 +1047,9 @@ no_state_interview_no_lgb_num <-
 add_state_labels <-
   function(usmap_plot, labels_by_state = state_labels_short) {
     usmap_plot +
-      geom_sf_text(data = labels_by_state, aes(geometry = geom, label = label_st_cnt)) +
-      geom_sf(data = selected_states_df,
+      ggplot2::geom_sf_text(data = labels_by_state, 
+                            ggplot2::aes(geometry = geom, label = label_st_cnt)) +
+      ggplot2::geom_sf(data = selected_states_df,
               color = "green",
               fill = NA)
   }
@@ -1184,11 +1185,8 @@ survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur |>
   select(ends_with("_d")) |> 
   summary()
 
-# state.center:
-
-
-
 # how many fishing hours are matching vs. not (interval) ----
 
 survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur |> 
     select(ends_with("_d")) |> glimpse()
+
