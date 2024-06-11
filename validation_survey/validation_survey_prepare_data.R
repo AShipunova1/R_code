@@ -200,7 +200,7 @@ survey_data_l_2022_i1_w_dates__states_by_cnty <-
   distinct() |>
   group_by(cnty) |>
   mutate(st1 = case_when(is.na(st) ~ "NA", .default = st)) |>
-  mutate(sts = list(paste(unique(sort(
+  mutate(states_l_by_cnty = list(paste(unique(sort(
     st1
   ))))) |>
   ungroup() |>
@@ -209,7 +209,7 @@ survey_data_l_2022_i1_w_dates__states_by_cnty <-
   arrange(cnty)
 
 # survey_data_l_2022_i1_w_dates__states_by_cnty |>
-#   select(sts) |>
+#   select(states_l_by_cnty) |>
 #   distinct() |>
 #   glimpse()
   
