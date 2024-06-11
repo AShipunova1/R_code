@@ -16,22 +16,23 @@ dim(db_logbooks_2022_vsl_t_end)
 ## prep survey info ----
 
 ### check empty state and county ----
+
 # summary(survey_data_l_2022_i1_w_dates)
+
 survey_data_l_2022_i1_w_dates |> 
   dplyr::filter(is.na(st)) |> 
-  dim()
-# 312
+  nrow()
+# 312 NAs out of 1523+312 = 1835
 
 survey_data_l_2022_i1_w_dates |> 
   dplyr::filter(!cnty > 0) |> 
-  # filter(is.na(cnty)) |> 
-  dim()
-# 312
+  nrow()
+# 0, OK, no NAs
 
 # survey_data_l_2022_i1_w_dates |> 
 #   dplyr::count(cnty) |> tail()
 
-survey_data_l_2022_date_i1_vsl_int_t <-
+survey_data_l_2022_date_i1_vsl__int_t <-
   survey_data_l_2022_i1_w_dates |>
   filter(int_year == "2022") |>
   dplyr::select(vsl_num, interview_date, st, cnty) |>
@@ -41,11 +42,11 @@ survey_data_l_2022_date_i1_vsl_int_t <-
   dplyr::mutate(interview_date = lubridate::date(interview_date)) |>
   dplyr::distinct()
 
-dim(survey_data_l_2022_date_i1_vsl_int_t)
+nrow(survey_data_l_2022_date_i1_vsl__int_t)
 # 1812
 
 ### restore possible states ----
-# View(survey_data_l_2022_i1_w_dates__states_by_cnty)
+dplyr::glimpse(survey_data_l_2022_i1_w_dates__states_by_cnty)
 
 intv_w_no_lgb_join_by_day_vsl2__join_state_by_cnty <-
   intv_w_no_lgb_join_by_day_vsl2 |> 
@@ -57,7 +58,7 @@ glimpse(intv_w_no_lgb_join_by_day_vsl2__join_state_by_cnty)
 intv_w_no_lgb_join_by_day_vsl2__restore_st <-
   intv_w_no_lgb_join_by_day_vsl2__join_state_by_cnty |>
   mutate(restored_st = case_when(
-    is.na(st) ~ stringr::str_extract(sts, "\\d+") |>
+    is.na(st) ~ stringr::str_extract(states_l_by_cnty, "\\d+") |>
       na.omit(),
     .default = st
   ))
@@ -90,7 +91,7 @@ intv_w_no_lgb_join_by_day_vsl2__restore_st__short_cnt |>
 ## full join interview / logbooks by date and vessel ----
 lgb_join_i1_full <-
   dplyr::full_join(
-    survey_data_l_2022_date_i1_vsl_int_t,
+    survey_data_l_2022_date_i1_vsl__int_t,
     db_logbooks_2022_vsl_t_end,
     dplyr::join_by(
       vsl_num == VESSEL_OFFICIAL_NBR,
