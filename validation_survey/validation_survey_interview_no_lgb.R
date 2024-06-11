@@ -290,7 +290,7 @@ one_check_res |> dim()
 #   sort() |> 
 #   print()
 
-### spot check the interviews by harvest ----
+## spot check the interviews by harvest ----
 
 test1_tsns <-
   survey_i1_i3_harvested_dates |>
@@ -362,16 +362,52 @@ db_logbooks_2022 |>
 
 # there are no trips with both ("167759", "167763")
 
-### spot check the interviews by captain name ----
+## spot check the interviews by captain name ----
 # TODO
 # 1) also suggest using captain's name - to try to match, if that is a field in both. like instead of just trying to match by vessel ID.
 
-### spot check the interviews by time window ----
+## spot check the interviews by time window ----
 # TODO
 # 2)
 # And if you limit to a smaller window (e.g. end or start in logbook within 1 hour of the survey, or within 2, or within 3 hours) how does that % come out?
 
-## count interviews w no logbooks 1 ----
+# TODO: how many are srhs vsls?
+# interview wo lgb
+
+join__survey_1__intv_no_lgb <-
+  survey_data_l_2022_i1_w_dates |>
+  right_join(intv_w_no_lgb_join_by_day_vsl,
+             join_by(vsl_num, interview_date))
+
+dim(join__survey_1__intv_no_lgb)
+# [1] 830  42
+
+join__survey_1__intv_no_lgb |> 
+  filter(is.na(id_code)) |>View()
+  select(vsl_num, srhs_vessel) |>
+  distinct() |>
+  count(srhs_vessel)
+#   srhs_vessel     n
+# 1           1     4
+# 2           2   197
+
+survey_data_l_2022_i1_w_dates |> 
+  right_join(intv_w_no_lgb_join_by_day_vsl) |> 
+  filter(is.na(srhs_vessel)) |> View()
+
+# all interviews:
+survey_data_l_2022_i1_w_dates |>
+  select(vsl_num, srhs_vessel) |>
+  distinct() |>
+  count(srhs_vessel)
+  # srhs_vessel     n
+# 1           1     4
+# 2           2   472
+
+
+# Joining with `by = join_by(vsl_num, cnty, st, interview_date)`
+
+# count interviews w no logbooks 1 ----
 count_interview_no_lgb <-
   function(my_df, cnt_field = "st_2") {
     my_df |>
@@ -435,7 +471,6 @@ num_of_interviews_w_no_lgb * 100 / num_of_interviews
 # 45%
 
 # Plot interviews w no logbooks ----
-# TODO: how many are srhs vsls?
 
 # inerview_no_lgb_geo <-
 # intv_w_no_lgb_join_by_day_vsl |> glimpse()
