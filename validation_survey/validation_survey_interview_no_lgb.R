@@ -14,6 +14,26 @@ dim(db_logbooks_2022_vsl_t_end)
 # [1] 94870     3 w trip_id
 
 ## prep survey info ----
+# Explanations:
+# - `dplyr::select(vsl_num, interview_date, st, cnty)` selects specific columns (`vsl_num`, `interview_date`, `st`, `cnty`) from the data frame. The `select` function from the `dplyr` package is used to choose these columns.
+# - `dplyr::mutate(vsl_num = stringr::str_replace_all(vsl_num, " ", ""))` modifies the `vsl_num` column by removing all spaces. The `str_replace_all` function from the `stringr` package is used to replace spaces with an empty string.
+# - `dplyr::mutate(vsl_num = stringr::str_replace_all(vsl_num, "-", ""))` further modifies the `vsl_num` column by removing all hyphens. The `str_replace_all` function from the `stringr` package is used to replace hyphens with an empty string.
+# - `dplyr::mutate(vsl_num = tolower(vsl_num))` converts all characters in the `vsl_num` column to lowercase. The `tolower` function is used for this conversion.
+# - `dplyr::mutate(interview_date = lubridate::date(interview_date))` converts the `interview_date` column to Date format. The `date` function from the `lubridate` package is used for this conversion.
+# - `dplyr::distinct()` removes duplicate rows from the data frame. The `distinct` function from the `dplyr` package is used to ensure that only unique rows are kept.
+# 
+# This code processes the `survey_data_l_2022_i1_w_dates` data frame to clean and transform the `vsl_num` and `interview_date` columns, and selects only the relevant columns while removing any duplicate rows. The result is stored in `survey_data_l_2022_date_i1_vsl__int_t`.
+survey_data_l_2022_date_i1_vsl__int_t <-
+  survey_data_l_2022_i1_w_dates |>
+  dplyr::select(vsl_num, interview_date, st, cnty) |>
+  dplyr::mutate(vsl_num = stringr::str_replace_all(vsl_num, " ", "")) |>
+  dplyr::mutate(vsl_num = stringr::str_replace_all(vsl_num, "-", "")) |>
+  dplyr::mutate(vsl_num = tolower(vsl_num)) |>
+  dplyr::mutate(interview_date = lubridate::date(interview_date)) |>
+  dplyr::distinct()
+
+glimpse(survey_data_l_2022_date_i1_vsl__int_t)
+# 1812
 
 ### check empty state and county ----
 
