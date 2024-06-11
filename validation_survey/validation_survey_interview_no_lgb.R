@@ -388,26 +388,33 @@ db_logbooks_2022 |>
 
 survey_data_l_2022_i1_w_dates1 <- 
   survey_data_l_2022_i1_w_dates |>
-  mutate(vsl_num = tolower(vsl_num))
+  dplyr::mutate(vsl_num = tolower(vsl_num))
 
 join__survey_1__intv_no_lgb <-
   survey_data_l_2022_i1_w_dates1 |>
-  right_join(intv_w_no_lgb_join_by_day_vsl,
-             join_by(id_code, vsl_num, interview_date),
+  dplyr::right_join(intv_w_no_lgb_join_by_day_vsl,
+             dplyr::join_by(id_code, vsl_num, interview_date),
              suffix = c("__survey",
                         "__int_no_lgb"))
+
+grep("__survey|__int_no_lgb", names(join__survey_1__intv_no_lgb), value = T) |> 
+  cat(sep = ", ")
+# cnty__survey, st__survey, st__int_no_lgb, cnty__int_no_lgb
 
 dim(join__survey_1__intv_no_lgb)
 # [1] 833  42
 
 join__survey_1__intv_no_lgb |>
-  filter(is.na(srhs_vessel)) |>
-  select(vsl_num, interview_date, id_code) |> 
+  filter(is.na(srhs_vessel)) |> 
+  remove_empty_cols() |> 
   distinct() |> 
   arrange(id_code) -> isna_srhs
 
-isna_srhs |> 
+isna_srhs$id_code |> 
   head()
+
+survey_data_l_2022_i1_w_dates1 |> 
+  filter(id_code %in% isna_srhs$id_code)
 
 list(
   survey_data_l_2022_i1_w_dates1,
