@@ -135,21 +135,8 @@ full_join_int_lgb <- function(survey_df, by_fields = NA) {
 
 ## 1 full join by date and vessel ----
 
-lgb_join_i1_full1 <- full_join_int_lgb(survey_data_l_2022_date_i1_vsl__int_t)
-
-diffdf::diffdf(lgb_join_i1_full,
-               lgb_join_i1_full1)
-
-lgb_join_i1_full <-
-  dplyr::full_join(
-    survey_data_l_2022_date_i1_vsl__int_t,
-    db_logbooks_2022_vsl_t_end,
-    dplyr::join_by(
-      vsl_num == VESSEL_OFFICIAL_NBR,
-      interview_date == TRIP_END_DATE
-    ),
-    relationship = "many-to-many"
-  )
+lgb_join_i1_full <- 
+  full_join_int_lgb(survey_data_l_2022_date_i1_vsl__int_t__fips)
 
 dim(lgb_join_i1_full)
 # [1] 95697     3
@@ -157,6 +144,13 @@ dim(lgb_join_i1_full)
 summary(lgb_join_i1_full)
 
 ### 1a the same with restored states ----
+
+lgb_join_i1_full_restored <- 
+  full_join_int_lgb(survey_data_l_2022_date_i1_vsl__int_t__restore_st__fips)
+
+dim(lgb_join_i1_full_restored)
+
+# auxfunctions::data_overview(lgb_join_i1_full_restored)
 
 ### get interviews w no logbooks ----
 intv_w_no_lgb_join_by_day_vsl <- 
