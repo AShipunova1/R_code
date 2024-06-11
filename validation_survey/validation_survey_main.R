@@ -607,6 +607,13 @@ catch_info_lgb_i1_i2_i3 |>
   glimpse()
 
 # how many interviews with no logbooks ----
+interview_no_lgb_path <-
+  file.path(current_project_dir_name,
+            paste0(current_project_name, "_", "interview_no_lgb.R"))
+
+file.exists(interview_no_lgb_path)
+
+source(interview_no_lgb_path)
 
 ## prep lgb info ----
 db_logbooks_2022_vsl_t_end <-
