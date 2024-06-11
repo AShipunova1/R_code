@@ -65,15 +65,68 @@ survey_data_l_2022_date_i1_vsl__int_t__fips__join_states_by_cnty <-
   dplyr::left_join(survey_data_l_2022_i1_w_dates__states_by_cnty,
             dplyr::join_by(cnty, st))
   
-glimpse(survey_data_l_2022_date_i1_vsl__int_t__fips__join_states_by_cnty)
+str(survey_data_l_2022_date_i1_vsl__int_t__fips__join_states_by_cnty)
+# tibble [1,812 × 8] (S3: tbl_df/tbl/data.frame)
+#  $ vsl_num         : chr [1:1812]
+#  $ interview_date  : Date[1:1812], format: "2022-01-30" "2022-02-14" ...
+#  $ st              : chr [1:1812] NA NA NA NA ...
+#  $ cnty            : int [1:1812] 17 75 75 115 115 115 115 81 75 75 ...
+#  $ st_2            : chr [1:1812] "00" "00" "00" "00" ...
+#  $ cnty_3          : chr [1:1812] "017" "075" "075" "115" ...
+#  $ fips            : chr [1:1812] "00017" "00075" "00075" "00115" ...
+#  $ states_l_by_cnty:List of 1812
+#   ..$ : chr [1:2] "12" "NA"
 
 survey_data_l_2022_date_i1_vsl__int_t__fips__restore_st <-
-  survey_data_l_2022_date_i1_vsl__int_t__fips__join_states_by_cnty |>
-  mutate(restored_st = case_when(
-    is.na(st) ~ stringr::str_extract(states_l_by_cnty, "\\d+") |>
-      na.omit(),
-    .default = st
-  ))
+  survey_data_l_2022_date_i1_vsl__int_t__fips__join_states_by_cnty |> 
+  dplyr::rowwise() |>
+  dplyr::mutate(restored_st =
+                  dplyr::case_when(
+                    is.na(any(states_l_by_cnty)) |
+                      states_l_by_cnty == "NA" ~ "NA",
+                    is.na(st) ~ stringr::str_extract(states_l_by_cnty,
+                                                     "\\d+") |>
+                      na.omit(),
+                    .default = st
+                  )) |> 
+  dplyr::ungroup()
+
+survey_data_l_2022_date_i1_vsl__int_t__fips__join_states_by_cnty[135,] |> 
+str()
+# tibble [1 × 8] (S3: tbl_df/tbl/data.frame)
+#  $ vsl_num         : chr 
+#  $ interview_date  : Date[1:1], format: "2022-04-17"
+#  $ st              : chr NA
+#  $ cnty            : int 15
+#  $ st_2            : chr "00"
+#  $ cnty_3          : chr "015"
+#  $ fips            : chr "00015"
+#  $ states_l_by_cnty:List of 1
+#   ..$ : chr "NA"
+
+survey_data_l_2022_date_i1_vsl__int_t__fips__join_states_by_cnty[1,] |> 
+str()
+
+str(survey_data_l_2022_date_i1_vsl__int_t__fips__restore_st)
+
+# Caused by error in `case_when()`:
+# ! Can't recycle `..1 (left)` (size 1812) to match `..1 (right)` (size 1808).
+# rowwise() fix
+
+# Error in `dplyr::mutate()`:
+# ℹ In argument: `restored_st = dplyr::case_when(...)`.
+# ℹ In row 135.
+# Caused by error:
+# ! `restored_st` must be size 1, not 0.
+# ℹ Did you mean: `restored_st = list(dplyr::case_when(...))` ?
+# fix: is.na(unlist(states_l_by_cnty)) ~ NA,
+
+# ℹ In row 1.
+# Caused by error:
+# ! `restored_st` must be size 1, not 2.
+# ℹ Did you mean: `restored_st = list(dplyr::case_when(...))` ?
+
+survey_data_l_2022_date_i1_vsl__int_t__fips__join_states_by_cnty[135,] |> View()
 
 glimpse(survey_data_l_2022_date_i1_vsl__int_t__fips__restore_st)
 
