@@ -45,6 +45,17 @@ survey_data_l_2022_date_i1_vsl__int_t <-
 nrow(survey_data_l_2022_date_i1_vsl__int_t)
 # 1812
 
+### format state and county codes ----
+survey_data_l_2022_date_i1_vsl__int_t__fips <-
+  survey_data_l_2022_date_i1_vsl__int_t |>
+  mutate(st_2 = 
+           case_when(is.na(st) ~ "00", 
+                     .default =
+                       stringr::str_pad(st, 2, pad = "0"))) |>
+  mutate(cnty_3 = stringr::str_pad(cnty, 3, pad = "0"),
+         fips = paste0(st_2, cnty_3))
+
+
 ### restore possible states ----
 dplyr::glimpse(survey_data_l_2022_i1_w_dates__states_by_cnty)
 
