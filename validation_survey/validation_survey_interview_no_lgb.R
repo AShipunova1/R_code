@@ -82,41 +82,47 @@ survey_data_l_2022_date_i1_vsl__int_t__fips__restore_st <-
   dplyr::rowwise() |>
   dplyr::mutate(restored_st =
                   dplyr::case_when(
-                    is.na(any(states_l_by_cnty)) |
-                      states_l_by_cnty == "NA" ~ "NA",
-                    is.na(st) ~ stringr::str_extract(states_l_by_cnty,
-                                                     "\\d+") |>
+                    all(states_l_by_cnty) == "NA" ~ "NA",
+                    is.na(st) ~ 
+                      stringr::str_extract(unlist(states_l_by_cnty), "\\d+") |>
                       na.omit(),
                     .default = st
                   )) |> 
   dplyr::ungroup()
 
-survey_data_l_2022_date_i1_vsl__int_t__fips__join_states_by_cnty[135,] |> 
-str()
+survey_data_l_2022_date_i1_vsl__int_t__fips__join_states_by_cnty[135,] |>
+  dplyr::mutate(res = stringr::str_extract(unlist(states_l_by_cnty), "\\d+")) |>   str()
+
+survey_data_l_2022_date_i1_vsl__int_t__fips__join_states_by_cnty[1, ] |>
+  dplyr::mutate(res =
+                  purrr::map(
+                    states_l_by_cnty,
+                    purrr::keep,
+                    stringr::str_detect,
+                    '^\\d{2}$'
+                  )) |>
+  # str()
+  dplyr::mutate(res2 =
+                  case_when(res |>
+                              length() |>
+                              unique() == 1 ~
+                              res[[1]], .default = unlist(res))) |>
+  str()
+
+# 135
 # tibble [1 × 8] (S3: tbl_df/tbl/data.frame)
-#  $ vsl_num         : chr 
-#  $ interview_date  : Date[1:1], format: "2022-04-17"
 #  $ st              : chr NA
-#  $ cnty            : int 15
-#  $ st_2            : chr "00"
-#  $ cnty_3          : chr "015"
-#  $ fips            : chr "00015"
 #  $ states_l_by_cnty:List of 1
 #   ..$ : chr "NA"
 
 survey_data_l_2022_date_i1_vsl__int_t__fips__join_states_by_cnty[1,] |> 
 str()
+ # $ st              : chr NA
+ # $ states_l_by_cnty:List of 1
+ #  ..$ : chr [1:2] "12" "NA"
 
+a <- survey_data_l_2022_date_i1_vsl__int_t__fips__join_states_by_cnty[1,]$states_l_by_cnty
 str(survey_data_l_2022_date_i1_vsl__int_t__fips__restore_st)
-
-# Error in `dplyr::mutate()`:
-# ℹ In argument: `restored_st = dplyr::case_when(...)`.
-# ℹ In row 135.
-# Caused by error:
-# ! `restored_st` must be size 1, not 0.
-# ℹ Did you mean: `restored_st = list(dplyr::case_when(...))` ?
-# Fix: is.na(any(states_l_by_cnty)) |
-#   states_l_by_cnty == "NA" ~ "NA",
 
 # ℹ In row 1.
 # Caused by error:
