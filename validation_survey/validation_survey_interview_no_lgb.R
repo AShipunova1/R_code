@@ -481,25 +481,25 @@ old_names <- names(centroid_labels)
 names(centroid_labels) <- c("st_2", "abbr", "full", "geom")
 
 state_labels <-
-  merge(survey_data_l_2022_date_i1_vsl__int_t__fips__cnt, 
+  merge(intv_w_no_lgb_join_by_day_vsl_cnt, 
         centroid_labels, 
         by = "st_2")
 
 state_labels_restored <-
   dplyr::left_join(
-    survey_data_l_2022_date_i1_vsl__int_t__fips__restore_st__short_cnt,
+    intv_w_no_lgb_join_by_day_vsl_restored_cnt,
     centroid_labels,
     join_by(restored_st == st_2)
   ) |>
-  mutate(label_st_cnt = paste(abbr, total_by_state))
+  mutate(label_st_cnt = paste(abbr, total_int_no_lgb_by_state))
 
 glimpse(state_labels_restored)
 
 state_labels_short <-
   state_labels |>
-  select(st_2, abbr, full, total_by_state, geom) |> 
+  select(st_2, abbr, full, total_int_no_lgb_by_state, geom) |> 
   distinct() |> 
-  mutate(label_st_cnt = paste(abbr, total_by_state))
+  mutate(label_st_cnt = paste(abbr, total_int_no_lgb_by_state))
 
 glimpse(state_labels_short)
 # 5
@@ -511,7 +511,7 @@ plot_counties <- function(my_df) {
     regions = "counties",
     include = c(gulf_states, "FL"),
     data = my_df,
-    values = "num_int_no_lgb",
+    values = "num_int_no_lgb_by_fips",
     color = "lightgrey"
   ) +
     ggplot2::scale_fill_gradient(
@@ -522,17 +522,21 @@ plot_counties <- function(my_df) {
     )
 }
 
-plot_cnties <- plot_counties(survey_data_l_2022_date_i1_vsl__int_t__fips__cnt)
+# print_df_names(intv_w_no_lgb_join_by_day_vsl_cnt)
+
+plot_cnties <- plot_counties(intv_w_no_lgb_join_by_day_vsl_cnt)
 
 plot_cnties_restored <- 
-  plot_counties(survey_data_l_2022_date_i1_vsl__int_t__fips__restore_st__short_cnt)
+  plot_counties(intv_w_no_lgb_join_by_day_vsl_restored_cnt)
 
 # check
 no_state_interview_no_lgb_num <- 
-  survey_data_l_2022_date_i1_vsl__int_t__fips__cnt |>
+  intv_w_no_lgb_join_by_day_vsl_cnt |>
   filter(st_2 == "00") |> 
-  select(total_by_state) |> 
+  select(total_int_no_lgb_by_state) |> 
   distinct()
+# 192
+
 
 add_state_labels <-
   function(usmap_plot, labels_by_state = state_labels_short) {
@@ -553,7 +557,7 @@ plot_cnties_state_lbls <-
   ggplot2::labs(
     title = "Number of interviews without logbooks by state/county",
     caption = stringr::str_glue(
-      "Number of interviews without logbooks with no state info is {no_state_interview_no_lgb_num$total_by_state}."
+      "Number of interviews without logbooks with no state info is {no_state_interview_no_lgb_num$total_int_no_lgb_by_state}."
     )
   )
 
