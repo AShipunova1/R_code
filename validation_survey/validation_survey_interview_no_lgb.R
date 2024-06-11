@@ -135,6 +135,17 @@ full_join_int_lgb <- function(survey_df, by_fields = NA) {
 }
 
 ## 1 full join by date and vessel ----
+intersect(
+  db_logbooks_2022_vsl_t_end$VESSEL_OFFICIAL_NBR,
+  survey_data_l_2022_date_i1_vsl__int_t__fips$vsl_num
+) |> length()
+# 277
+
+setdiff(
+  survey_data_l_2022_date_i1_vsl__int_t__fips$vsl_num,
+    db_logbooks_2022_vsl_t_end$VESSEL_OFFICIAL_NBR
+) |> length()
+# 152
 
 lgb_join_i1_full <- 
   full_join_int_lgb(survey_data_l_2022_date_i1_vsl__int_t__fips)
@@ -375,42 +386,53 @@ db_logbooks_2022 |>
 # how many are srhs vsls? ----
 # interview wo lgb
 
-# survey_data_l_2022_i1_w_dates |>
-#   filter(is.na(id_code)) |>
-#   nrow()
-# 0
-# intv_w_no_lgb_join_by_day_vsl |> 
-#   filter(is.na(id_code)) |>
-#   nrow()
-# 0
+survey_data_l_2022_i1_w_dates1 <- 
+  survey_data_l_2022_i1_w_dates |>
+  mutate(vsl_num = tolower(vsl_num))
 
 join__survey_1__intv_no_lgb <-
-  survey_data_l_2022_i1_w_dates |>
+  survey_data_l_2022_i1_w_dates1 |>
   right_join(intv_w_no_lgb_join_by_day_vsl,
-             join_by(id_code, vsl_num, interview_date))
+             join_by(id_code, vsl_num, interview_date),
+             suffix = c("__survey",
+                        "__int_no_lgb"))
 
 dim(join__survey_1__intv_no_lgb)
 # [1] 833  42
 
 join__survey_1__intv_no_lgb |>
-  filter(is.na(id_code)) |>
-  nrow()
-# 0
+  filter(is.na(srhs_vessel)) |>
+  select(vsl_num, interview_date, id_code) |> 
+  distinct() |> 
+  arrange(id_code) -> isna_srhs
+
+isna_srhs |> 
+  head()
 
 list(
-  survey_data_l_2022_i1_w_dates,
+  survey_data_l_2022_i1_w_dates1,
   intv_w_no_lgb_join_by_day_vsl,
   join__survey_1__intv_no_lgb
 ) |> 
-  purrr::map(\(x){
-    try(
+  purrr::map(\(x) {
     x |> 
-      filter(is.na(srhs_vessel)) |> 
-      nrow()
-    )
+      dplyr::filter(id_code == "1579420220727001") |>
+      dplyr::select(tidyselect::any_of(
+        c(
+          "id_code",
+          "interview_date",
+          "vsl_num",
+          "st",
+          "cnty",
+          "srhs_vessel",
+          "st__int_no_lgb", "st__survey",
+          "cnty__int_no_lgb", "cnty__survey"
+        )
+      )) |>
+      dplyr::glimpse()
   })
 
-join__survey_1__intv_no_lgb |> 
+# join__survey_1__intv_no_lgb |> 
   select(id_code, vsl_num, srhs_vessel) |>
   distinct() |>
   count(srhs_vessel)
