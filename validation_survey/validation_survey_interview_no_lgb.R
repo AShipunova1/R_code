@@ -190,27 +190,32 @@ intv_w_no_lgb_join_by_day_vsl |>
 dplyr::glimpse(intv_w_no_lgb_join_by_day_vsl)
 dplyr::glimpse(intv_w_no_lgb_join_by_day_vsl_restored)
 
-
-
-## count interviews w no logbooks ----
-count_interview_no_lgb <- 
+## count interviews w no logbooks 1 ----
+count_interview_no_lgb <-
   function(my_df, cnt_field = "st_2") {
-  my_df |>
-    group_by(fips) |>
-    mutate(num_int_no_lgb = n()) |>
-    ungroup() |>
-    group_by(!!sym(cnt_field)) |>
-    add_count(!!sym(cnt_field), name = "total_by_state") |>
-    ungroup()
-}
+    my_df |>
+      group_by(fips) |>
+      mutate(num_int_no_lgb_by_fips = n()) |>
+      ungroup() |>
+      group_by(!!sym(cnt_field)) |>
+      add_count(!!sym(cnt_field), name = "total_int_no_lgb_by_state") |>
+      ungroup()
+  }
 
-survey_data_l_2022_date_i1_vsl__int_t__fips__cnt <-
-  survey_data_l_2022_date_i1_vsl__int_t__fips |>
+intv_w_no_lgb_join_by_day_vsl_cnt <-
+  intv_w_no_lgb_join_by_day_vsl |>
   select(st_2, vsl_num, interview_date, fips) |>
   distinct() |>
   count_interview_no_lgb()
 
-glimpse(survey_data_l_2022_date_i1_vsl__int_t__fips__cnt)
+# check
+glimpse(intv_w_no_lgb_join_by_day_vsl_cnt)
+
+intv_w_no_lgb_join_by_day_vsl_cnt |>
+  filter(st_2 == "48") |>
+  arrange(fips) |> 
+  glimpse()
+
 
 survey_data_l_2022_date_i1_vsl__int_t__fips__restore_st__short_cnt <-
   survey_data_l_2022_date_i1_vsl__int_t__fips__restore_st |>
