@@ -149,15 +149,29 @@ lgb_join_i1_full_restored <-
   full_join_int_lgb(survey_data_l_2022_date_i1_vsl__int_t__restore_st__fips)
 
 dim(lgb_join_i1_full_restored)
+# [1] 95697    10
 
 # auxfunctions::data_overview(lgb_join_i1_full_restored)
 
 ### get interviews w no logbooks ----
 intv_w_no_lgb_join_by_day_vsl <- 
-  lgb_join_i1_full |> 
+  lgb_join_i1_full |>
   dplyr::filter(is.na(TRIP_ID)) |> 
   auxfunctions::remove_empty_cols() |> 
   dplyr::distinct()
+
+dim(intv_w_no_lgb_join_by_day_vsl)
+# [1] 827   7
+
+# same for restored states
+intv_w_no_lgb_join_by_day_vsl_restored <-
+  lgb_join_i1_full_restored |>
+  dplyr::filter(is.na(TRIP_ID)) |>
+  auxfunctions::remove_empty_cols() |>
+  dplyr::distinct()
+
+dim(intv_w_no_lgb_join_by_day_vsl_restored)
+# [1] 827   9
 
 ### check NAs ----
 summary(intv_w_no_lgb_join_by_day_vsl)
@@ -174,6 +188,7 @@ intv_w_no_lgb_join_by_day_vsl |>
 # 0 ok
 
 dplyr::glimpse(intv_w_no_lgb_join_by_day_vsl)
+dplyr::glimpse(intv_w_no_lgb_join_by_day_vsl_restored)
 
 
 
