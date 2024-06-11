@@ -364,8 +364,12 @@ db_logbooks_2022 |>
 
 ### spot check the interviews by captain name ----
 # TODO
+# 1) also suggest using captain's name - to try to match, if that is a field in both. like instead of just trying to match by vessel ID.
+
 ### spot check the interviews by time window ----
 # TODO
+# 2)
+# And if you limit to a smaller window (e.g. end or start in logbook within 1 hour of the survey, or within 2, or within 3 hours) how does that % come out?
 
 ## count interviews w no logbooks 1 ----
 count_interview_no_lgb <-
@@ -413,8 +417,15 @@ intv_w_no_lgb_join_by_day_vsl_restored_cnt |>
 
 ## percent interviews w no logbooks ----
 num_of_interviews_w_no_lgb <-
-  nrow(intv_w_no_lgb_join_by_day_vsl)
+  nrow(intv_w_no_lgb_join_by_day_vsl_cnt)
 # 827
+
+# check
+# num_of_interviews_w_no_lgb_restored <-
+#   nrow(intv_w_no_lgb_join_by_day_vsl_restored_cnt)
+
+# num_of_interviews_w_no_lgb_restored == num_of_interviews_w_no_lgb
+# T
 
 num_of_interviews <-
   nrow(survey_data_l_2022_vsl_date)
@@ -422,12 +433,6 @@ num_of_interviews <-
 
 num_of_interviews_w_no_lgb * 100 / num_of_interviews
 # 45%
-
-# TODO:
-# 1) also suggest using captain's name - to try to match, if that is a field in both. like instead of just trying to match by vessel ID.
-
-# 2)
-# And if you limit to a smaller window (e.g. end or start in logbook within 1 hour of the survey, or within 2, or within 3 hours) how does that % come out?
 
 # Plot interviews w no logbooks ----
 # TODO: how many are srhs vsls?
