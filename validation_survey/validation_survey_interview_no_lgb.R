@@ -109,17 +109,14 @@ str()
 
 str(survey_data_l_2022_date_i1_vsl__int_t__fips__restore_st)
 
-# Caused by error in `case_when()`:
-# ! Can't recycle `..1 (left)` (size 1812) to match `..1 (right)` (size 1808).
-# rowwise() fix
-
 # Error in `dplyr::mutate()`:
 # ℹ In argument: `restored_st = dplyr::case_when(...)`.
 # ℹ In row 135.
 # Caused by error:
 # ! `restored_st` must be size 1, not 0.
 # ℹ Did you mean: `restored_st = list(dplyr::case_when(...))` ?
-# fix: is.na(unlist(states_l_by_cnty)) ~ NA,
+# Fix: is.na(any(states_l_by_cnty)) |
+#   states_l_by_cnty == "NA" ~ "NA",
 
 # ℹ In row 1.
 # Caused by error:
