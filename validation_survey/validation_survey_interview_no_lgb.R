@@ -80,18 +80,28 @@ str(survey_data_l_2022_date_i1_vsl__int_t__fips__join_states_by_cnty)
 survey_data_l_2022_date_i1_vsl__int_t__fips__restore_st <-
   survey_data_l_2022_date_i1_vsl__int_t__fips__join_states_by_cnty |> 
   dplyr::rowwise() |>
-  dplyr::mutate(restored_st =
-                  dplyr::case_when(
-                    all(states_l_by_cnty) == "NA" ~ "NA",
-                    is.na(st) ~ 
-                      stringr::str_extract(unlist(states_l_by_cnty), "\\d+") |>
-                      na.omit(),
-                    .default = st
-                  )) |> 
+  dplyr::mutate(
+    restored_st =
+      list(dplyr::case_when(
+        length(states_l_by_cnty) == 1 ~ st,
+        is.na(st) ~
+          # purrr::map(
+            # states_l_by_cnty,
+            # purrr::keep,
+            stringr::str_extract(states_l_by_cnty, 
+                                     '^\\d{2}$'),
+        .default = st
+      )
+  )) |>
   dplyr::ungroup()
 
-survey_data_l_2022_date_i1_vsl__int_t__fips__join_states_by_cnty[135,] |>
-  dplyr::mutate(res = stringr::str_extract(unlist(states_l_by_cnty), "\\d+")) |>   str()
+survey_data_l_2022_date_i1_vsl__int_t__fips__restore_st[135,] |>
+  # dplyr::mutate(res = stringr::str_extract(unlist(states_l_by_cnty), "\\d+")) |>   
+  str()
+
+survey_data_l_2022_date_i1_vsl__int_t__fips__restore_st[1,] |>
+  # dplyr::mutate(res = stringr::str_extract(unlist(states_l_by_cnty), "\\d+")) |>   
+  str()
 
 survey_data_l_2022_date_i1_vsl__int_t__fips__join_states_by_cnty[1, ] |>
   dplyr::mutate(res =
