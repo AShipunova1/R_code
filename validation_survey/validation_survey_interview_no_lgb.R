@@ -2,11 +2,14 @@
 
 # Prep data for interviews w no logbooks ----
 ## prep lgb info ----
-db_logbooks_2022_vsl_t_end <-
+db_logbooks_2022_vsl_t_end_all <-
   db_logbooks_2022 |>
-  dplyr::select(VESSEL_OFFICIAL_NBR, TRIP_END_DATE, TRIP_ID) |>
   dplyr::mutate(VESSEL_OFFICIAL_NBR = tolower(VESSEL_OFFICIAL_NBR)) |>
-  dplyr::mutate(TRIP_END_DATE = lubridate::date(TRIP_END_DATE)) |>
+  dplyr::mutate(TRIP_END_DATE = lubridate::date(TRIP_END_DATE))
+
+db_logbooks_2022_vsl_t_end <-
+  db_logbooks_2022_vsl_t_end_all |>
+  dplyr::select(VESSEL_OFFICIAL_NBR, TRIP_END_DATE, TRIP_ID) |>
   dplyr::distinct()
 
 dim(db_logbooks_2022_vsl_t_end)
@@ -23,13 +26,18 @@ dim(db_logbooks_2022_vsl_t_end)
 # - `dplyr::distinct()` removes duplicate rows from the data frame. The `distinct` function from the `dplyr` package is used to ensure that only unique rows are kept.
 # 
 # This code processes the `survey_data_l_2022_i1_w_dates` data frame to clean and transform the `vsl_num` and `interview_date` columns, and selects only the relevant columns while removing any duplicate rows. The result is stored in `survey_data_l_2022_date_i1_vsl__int_t`.
-survey_data_l_2022_date_i1_vsl__int_t <-
+survey_data_l_2022_date_i1_vsl__int_t_clean_vsl <-
   survey_data_l_2022_i1_w_dates |>
-  dplyr::select(id_code, vsl_num, interview_date, st, cnty) |>
   dplyr::mutate(vsl_num = stringr::str_replace_all(vsl_num, " ", "")) |>
   dplyr::mutate(vsl_num = stringr::str_replace_all(vsl_num, "-", "")) |>
   dplyr::mutate(vsl_num = tolower(vsl_num)) |>
-  dplyr::mutate(interview_date = lubridate::date(interview_date)) |>
+  dplyr::mutate(interview_date = lubridate::date(interview_date))
+
+dim(survey_data_l_2022_date_i1_vsl__int_t_clean_vsl)
+
+survey_data_l_2022_date_i1_vsl__int_t <-
+  survey_data_l_2022_date_i1_vsl__int_t_clean_vsl |>
+  dplyr::select(id_code, vsl_num, interview_date, st, cnty) |>
   dplyr::distinct()
 
 glimpse(survey_data_l_2022_date_i1_vsl__int_t)
