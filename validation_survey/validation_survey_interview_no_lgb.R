@@ -25,7 +25,7 @@ dim(db_logbooks_2022_vsl_t_end)
 # This code processes the `survey_data_l_2022_i1_w_dates` data frame to clean and transform the `vsl_num` and `interview_date` columns, and selects only the relevant columns while removing any duplicate rows. The result is stored in `survey_data_l_2022_date_i1_vsl__int_t`.
 survey_data_l_2022_date_i1_vsl__int_t <-
   survey_data_l_2022_i1_w_dates |>
-  dplyr::select(vsl_num, interview_date, st, cnty) |>
+  dplyr::select(id_code, vsl_num, interview_date, st, cnty) |>
   dplyr::mutate(vsl_num = stringr::str_replace_all(vsl_num, " ", "")) |>
   dplyr::mutate(vsl_num = stringr::str_replace_all(vsl_num, "-", "")) |>
   dplyr::mutate(vsl_num = tolower(vsl_num)) |>
@@ -34,6 +34,7 @@ survey_data_l_2022_date_i1_vsl__int_t <-
 
 glimpse(survey_data_l_2022_date_i1_vsl__int_t)
 # 1812
+# 1835 w id code
 
 ### check empty state and county ----
 
@@ -371,23 +372,70 @@ db_logbooks_2022 |>
 # 2)
 # And if you limit to a smaller window (e.g. end or start in logbook within 1 hour of the survey, or within 2, or within 3 hours) how does that % come out?
 
-# TODO: how many are srhs vsls?
+# how many are srhs vsls? ----
 # interview wo lgb
+
+# survey_data_l_2022_i1_w_dates |>
+#   filter(is.na(id_code)) |>
+#   nrow()
+# 0
+# intv_w_no_lgb_join_by_day_vsl |> 
+#   filter(is.na(id_code)) |>
+#   nrow()
+# 0
 
 join__survey_1__intv_no_lgb <-
   survey_data_l_2022_i1_w_dates |>
   right_join(intv_w_no_lgb_join_by_day_vsl,
-             join_by(vsl_num, interview_date))
+             join_by(id_code, vsl_num, interview_date))
 
 dim(join__survey_1__intv_no_lgb)
-# [1] 830  42
+# [1] 833  42
+
+join__survey_1__intv_no_lgb |>
+  filter(is.na(id_code)) |>
+  nrow()
+# 0
+
+list(
+  survey_data_l_2022_i1_w_dates,
+  intv_w_no_lgb_join_by_day_vsl,
+  join__survey_1__intv_no_lgb
+) |> 
+  purrr::map(\(x){
+    try(
+    x |> 
+      filter(is.na(srhs_vessel)) |> 
+      nrow()
+    )
+  })
 
 join__survey_1__intv_no_lgb |> 
-  filter(is.na(id_code)) |>View()
-  select(vsl_num, srhs_vessel) |>
+  select(id_code, vsl_num, srhs_vessel) |>
   distinct() |>
   count(srhs_vessel)
 #   srhs_vessel     n
+#         <int> <int>
+# 1           1     4
+# 2           2   545
+# 3          NA   284
+
+join__survey_1__intv_no_lgb |> 
+  # select(id_code, vsl_num, srhs_vessel) |>
+  distinct() |>
+  filter(is.na(srhs_vessel)) |> 
+  remove_empty_cols() |> 
+  glimpse()
+
+# survey_data_l_2022_i1_w_dates |> 
+intv_w_no_lgb_join_by_day_vsl |> 
+  filter(id_code == "1590520220130001") |> 
+  View()
+# 1590520220130001
+# fl9207st
+# 2022-01-30
+#   srhs_vessel     n
+
 # 1           1     4
 # 2           2   197
 
