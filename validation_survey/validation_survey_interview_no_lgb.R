@@ -1,5 +1,6 @@
-# how many interviews with no logbooks ----
+# how many interviews with no logbooks?
 
+# Prep data for interviews w no logbooks ----
 ## prep lgb info ----
 db_logbooks_2022_vsl_t_end <-
   db_logbooks_2022 |>
@@ -43,6 +44,49 @@ survey_data_l_2022_date_i1_vsl_int_t <-
 dim(survey_data_l_2022_date_i1_vsl_int_t)
 # 1812
 
+### restore possible states ----
+# View(survey_data_l_2022_i1_w_dates__states_by_cnty)
+
+intv_w_no_lgb_join_by_day_vsl2__join_state_by_cnty <-
+  intv_w_no_lgb_join_by_day_vsl2 |> 
+  left_join(survey_data_l_2022_i1_w_dates__states_by_cnty,
+            join_by(cnty, st))
+  
+glimpse(intv_w_no_lgb_join_by_day_vsl2__join_state_by_cnty)
+
+intv_w_no_lgb_join_by_day_vsl2__restore_st <-
+  intv_w_no_lgb_join_by_day_vsl2__join_state_by_cnty |>
+  mutate(restored_st = case_when(
+    is.na(st) ~ stringr::str_extract(sts, "\\d+") |>
+      na.omit(),
+    .default = st
+  ))
+
+glimpse(intv_w_no_lgb_join_by_day_vsl2__restore_st)
+
+# ℹ In argument: `restored_st = case_when(...)`.
+# Caused by warning in `stri_extract_first_regex()`:
+# ! argument is not an atomic vector; coercing
+
+intv_w_no_lgb_join_by_day_vsl2__restore_st__short_cnt <-
+  intv_w_no_lgb_join_by_day_vsl2__restore_st |>
+  mutate(cnty_3 = stringr::str_pad(cnty, 3, pad = "0")) |>
+  mutate(fips = paste0(restored_st, cnty_3)) |>
+  select(restored_st, vsl_num, interview_date, fips) |>
+  distinct() |>
+  count_interview_no_lgb("restored_st")
+
+sum(unique(intv_w_no_lgb_join_by_day_vsl2__restore_st__short_cnt$total_by_state))
+# 827
+
+intv_w_no_lgb_join_by_day_vsl2__restore_st__short_cnt |>
+  select(restored_st, total_by_state) |>
+  distinct() |> 
+  count(wt = total_by_state)
+# 827
+# correct
+
+# Join for interviews w no logbooks ----
 ## full join interview / logbooks by date and vessel ----
 lgb_join_i1_full <-
   dplyr::full_join(
@@ -68,7 +112,7 @@ intv_w_no_lgb_join_by_day_vsl <-
 
 ### check NAs ----
 summary(intv_w_no_lgb_join_by_day_vsl)
-# [1] 827   2
+# [1] 827   2 (no NAs)
 
 intv_w_no_lgb_join_by_day_vsl |> 
   dplyr::filter(is.na(st)) |> 
@@ -272,7 +316,7 @@ num_of_interviews_w_no_lgb * 100 / num_of_interviews
 # 2)
 # And if you limit to a smaller window (e.g. end or start in logbook within 1 hour of the survey, or within 2, or within 3 hours) how does that % come out?
 
-## plot interviews w no logbooks ----
+# Plot interviews w no logbooks ----
 # TODO: how many are srhs vsls?
 
 # inerview_no_lgb_geo <-
@@ -325,48 +369,6 @@ intv_w_no_lgb_join_by_day_vsl2__cnt <-
   count_interview_no_lgb()
 
 glimpse(intv_w_no_lgb_join_by_day_vsl2__cnt)
-
-### restore possible states ----
-# View(survey_data_l_2022_i1_w_dates__states_by_cnty)
-
-intv_w_no_lgb_join_by_day_vsl2__join_state_by_cnty <-
-  intv_w_no_lgb_join_by_day_vsl2 |> 
-  left_join(survey_data_l_2022_i1_w_dates__states_by_cnty,
-            join_by(cnty, st))
-  
-glimpse(intv_w_no_lgb_join_by_day_vsl2__join_state_by_cnty)
-
-intv_w_no_lgb_join_by_day_vsl2__restore_st <-
-  intv_w_no_lgb_join_by_day_vsl2__join_state_by_cnty |>
-  mutate(restored_st = case_when(
-    is.na(st) ~ stringr::str_extract(sts, "\\d+") |>
-      na.omit(),
-    .default = st
-  ))
-
-glimpse(intv_w_no_lgb_join_by_day_vsl2__restore_st)
-
-# ℹ In argument: `restored_st = case_when(...)`.
-# Caused by warning in `stri_extract_first_regex()`:
-# ! argument is not an atomic vector; coercing
-
-intv_w_no_lgb_join_by_day_vsl2__restore_st__short_cnt <-
-  intv_w_no_lgb_join_by_day_vsl2__restore_st |>
-  mutate(cnty_3 = stringr::str_pad(cnty, 3, pad = "0")) |>
-  mutate(fips = paste0(restored_st, cnty_3)) |>
-  select(restored_st, vsl_num, interview_date, fips) |>
-  distinct() |>
-  count_interview_no_lgb("restored_st")
-
-sum(unique(intv_w_no_lgb_join_by_day_vsl2__restore_st__short_cnt$total_by_state))
-# 827
-
-intv_w_no_lgb_join_by_day_vsl2__restore_st__short_cnt |>
-  select(restored_st, total_by_state) |>
-  distinct() |> 
-  count(wt = total_by_state)
-# 827
-# correct
 
 ### prep state info for plotting ----
 selected_states_df <- usmap::us_map(include = c(gulf_states, "FL"))
