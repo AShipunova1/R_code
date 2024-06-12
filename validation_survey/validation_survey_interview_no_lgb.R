@@ -660,13 +660,15 @@ join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty <-
 dim(join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty)
 # 122
 
-#### same first name ----
+#### the same first name ----
 join_by_date_captain__has_lgb__fips_st_county_names_short_same_f_name <-
   join_by_date_captain__has_lgb__fips_st_county_names_short |>
   filter(tolower(interviewee_f_name) == tolower(CAPT_NAME_FIRST))
+
 dim(join_by_date_captain__has_lgb__fips_st_county_names_short_same_f_name)
 # 58
 
+#### compare first names ---- 
 join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty |> 
   filter(!tolower(interviewee_f_name) == tolower(CAPT_NAME_FIRST)) |> 
 # 63
@@ -678,8 +680,21 @@ join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty |>
 # 22
 # 11 are derivatives or typos
 
+#### compare vessel names ---- 
 
-#### compare first names ---- 
+clean_vessel_name <- function(vessel_name) {
+  vessel_name |>
+    tolower() |>
+    stringr::str_replace_all(" ii+", " i") |> 
+    stringr::str_replace_all("\\W+", "")
+}
+
+join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty |> 
+  mutate(across(c("vessel_name", "VESSEL_NAME"), ~clean_vessel_name(.))) |> 
+  filter(tolower(vessel_name) == tolower(VESSEL_NAME)) |>
+  View()
+# 67 (out of 122)
+  
 
 ## spot check the interviews by time window ----
 # TODO
