@@ -689,11 +689,106 @@ clean_vessel_name <- function(vessel_name) {
     stringr::str_replace_all("\\W+", "")
 }
 
-join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty |> 
-  mutate(across(c("vessel_name", "VESSEL_NAME"), ~clean_vessel_name(.))) |> 
+join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty__clena_vsl_name <-
+  join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty |>
+  mutate(across(c("vessel_name", "VESSEL_NAME"), ~ clean_vessel_name(.)))
+
+join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty__clena_vsl_name |> 
   filter(tolower(vessel_name) == tolower(VESSEL_NAME)) |>
-  View()
+  dim()
 # 67 (out of 122)
+
+join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty__clena_vsl_name__diff_vsl_names <-
+  join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty__clena_vsl_name |>
+  filter(!tolower(vessel_name) == tolower(VESSEL_NAME)) |>
+  # dim()
+  # 55
+  filter(!tolower(VESSEL_NAME) == "unnamed") 
+
+join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty__clena_vsl_name__diff_vsl_names |>
+  dim()
+# 33
+
+join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty__clena_vsl_name__diff_vsl_names |> 
+  select(vessel_name, VESSEL_NAME, vsl_num, VESSEL_OFFICIAL_NBR) |>
+  distinct() |>
+# 23
+  rowwise() |>
+  filter(agrepl(
+    vsl_num,
+    tolower(VESSEL_OFFICIAL_NBR),
+    ignore.case = TRUE,
+    max.distance = 2
+  )) |>
+  ungroup() |>
+  glimpse()
+# 6
+
+diff_vsl_ids <- 
+  join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty__clena_vsl_name__diff_vsl_names |>
+  select(vessel_name, VESSEL_NAME, vsl_num, VESSEL_OFFICIAL_NBR) |>
+  distinct() |>
+  # 23
+  rowwise() |>
+  filter(!agrepl(
+    vsl_num,
+    tolower(VESSEL_OFFICIAL_NBR),
+    ignore.case = TRUE,
+    max.distance = 2
+  )) |>
+  mutate(check_vsl_num_l = list(list(sort(unique(
+    paste(vsl_num, VESSEL_OFFICIAL_NBR, sep = ", ")
+  ))))) |>
+  ungroup()
+
+# readr::write_csv(diff_vsl_ids,
+#                  file.path(curr_proj_output_path, "diff_vsl_ids.csv"))
+
+print_vsl_ids_to_check <-
+  diff_vsl_ids |>
+  select(check_vsl_num_l) |>
+  distinct()
+
+print_vsl_ids_to_check |> 
+  unlist() |> cat(sep = "\n")
+
+# vsl_id_pair <- "FL7092NJ', '1074576"
+
+check_vsl_ids_query <- 
+  stringr::str_glue("SELECT
+  vessel_id,
+  hull_id_nbr,
+  vessel_name,
+  coast_guard_nbr,
+  state_reg_nbr,
+  sero_official_number
+FROM
+  safis.vessels@secapxdv_dblk.sfsc.noaa.gov
+WHERE
+  coast_guard_nbr IN ( '{vsl_id_pair}' )
+  OR state_reg_nbr IN ( '{vsl_id_pair}' )
+  OR sero_official_number IN ( '{vsl_id_pair}' )
+ORDER BY
+  vessel_id")
+
+one_query_res <-
+  try(DBI::dbGetQuery(con, check_vsl_ids_query))
+
+str(one_query_res)
+
+# print_vsl_ids_to_check
+
+# check_vsl_ids_query
+  # coast_guard_nbr IN ( 'FL7092NJ', '1074576' )
+  # OR state_reg_nbr IN ( 'FL7092NJ', '1074576' )
+  # OR sero_official_number IN ( 'FL7092NJ', '1074576' )
+
+# TODO:
+# 1) VESSEL_NAME == "unnamed"
+# 2) agrep or adist for vsl_num/VESSEL_OFFICIAL_NBR, excl. 99999
+# 3) check vessels with double ids
+
+#### get vessel numbers for the same vessel names ----
   
 
 ## spot check the interviews by time window ----
