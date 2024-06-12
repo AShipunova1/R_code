@@ -383,6 +383,7 @@ db_logbooks_2022 |>
 # there are no trips with both ("167759", "167763")
 
 ## spot check the interviews by captain name ----
+# MM 1) also suggest using captain's name - to try to match, if that is a field in both. like instead of just trying to match by vessel ID.
 
 # print_df_names(db_logbooks_2022_vsl_t_end_all)
 # CAPT_NAME_FIRST, CAPT_NAME_LAST
@@ -418,25 +419,97 @@ survey_data_l_2022_date_i1_vsl__int_t_clean_vsl_low <-
 
 db_logbooks_2022_vsl_t_end_all_low <- 
   db_logbooks_2022_vsl_t_end_all |> 
-  mutate(vsl_num = tolower(VESSEL_OFFICIAL_NBR),
-         interviewee_l_name = tolower(CAPT_NAME_LAST))
+  mutate(VESSEL_OFFICIAL_NBR = tolower(VESSEL_OFFICIAL_NBR),
+         CAPT_NAME_LAST = tolower(CAPT_NAME_LAST))
+
+### join by captain name instead of a vessel ----
+# 1) get all id_codes with no logbooks from the by vessel and day join;
+# 2) get captain last name for these id_codes
+# 3) join logbooks to surveys which marked as having no logbooks to logbooks by date and captain last name
+
+# 1) get all id_codes with no logbooks, add interviewee_l_name
+# 2) get captain last name for these id_codes
+survey_data_l_2022_date_i1_vsl__int_t_clean_vsl_low__no_lgb <-
+  survey_data_l_2022_date_i1_vsl__int_t_clean_vsl_low |>
+  select(any_of(c(
+    names(intv_w_no_lgb_join_by_day_vsl),
+    "interviewee_f_name",
+    "interviewee_l_name",
+    "vessel_name"
+  ))) |>
+  distinct() |>
+  # 1835
+  filter(id_code %in% intv_w_no_lgb_join_by_day_vsl$id_code)
+
+dim(intv_w_no_lgb_join_by_day_vsl)
+# 833
+dim(survey_data_l_2022_date_i1_vsl__int_t_clean_vsl_low__no_lgb)
+# 833
+
+# 3) join logbooks to surveys which marked as having no logbooks to logbooks by date and captain last name
+
+by_fields =
+  dplyr::join_by(interviewee_l_name == CAPT_NAME_LAST,
+                 interview_date == TRIP_END_DATE)
 
 join_by_date_captain <-
-  dplyr::full_join(
-    survey_data_l_2022_date_i1_vsl__int_t_clean_vsl,
-    db_logbooks_2022_vsl_t_end_all,
-    by = by_fields,
-    relationship = "many-to-many"
+  survey_data_l_2022_date_i1_vsl__int_t_clean_vsl_low__no_lgb |>
+  dplyr::full_join(db_logbooks_2022_vsl_t_end_all_low,
+                   by = by_fields,
+                   relationship = "many-to-many")
+
+# ℹ Row 5 of `x` matches multiple rows in `y`.
+# ℹ Row 32575 of `y` matches multiple rows in `x`.
+
+survey_x_5 <-
+  survey_data_l_2022_date_i1_vsl__int_t_clean_vsl_low__no_lgb[5, ]
+
+lgb_fields_to_compare <-
+  c(
+    "TRIP_END_DATE",
+    "CAPT_NAME_FIRST",
+    "CAPT_NAME_LAST",
+    "TRIP_ID",
+    "VESSEL_OFFICIAL_NBR",
+    "STATE",
+    "STATE_NAME",
+    "END_PORT_COUNTY",
+    "START_PORT_COUNTY"
   )
 
-join_by_date_captain |> 
-  select(any_of(c(names(lgb_join_i1_full), "interviewee_l_name"))) |> glimpse()
+db_logbooks_2022_vsl_t_end_all_low |>
+  filter(
+    CAPT_NAME_LAST == survey_x_5$interviewee_l_name &
+      TRIP_END_DATE == survey_x_5$interview_date
+  ) |>
+  select(all_of(lgb_fields_to_compare)) |> 
+  distinct() |> 
+  glimpse()
+# diff everything else
+
+# intersect(survey_x_3$id_code, intv_w_no_lgb_join_by_day_vsl$id_code)
+# 0
+
+db_logbooks_2022_vsl_t_end_all_low_32575 <-
+  db_logbooks_2022_vsl_t_end_all_low[32575,]
+
+glimpse(db_logbooks_2022_vsl_t_end_all_low_32575)
+
+db_logbooks_2022_vsl_t_end_all_low |>
+  filter(
+    CAPT_NAME_LAST == survey_x_5$interviewee_l_name &
+      TRIP_END_DATE == survey_x_5$interview_date
+  ) |>
+  select(all_of(lgb_fields_to_compare)) |> 
+  distinct() |> 
+  glimpse()
+
+# check
+
+# join_by_date_captain |> 
+#   filter(is.na(TRIP_ID))
 
 summary(join_by_date_captain)
-
-
-# TODO
-# 1) also suggest using captain's name - to try to match, if that is a field in both. like instead of just trying to match by vessel ID.
 
 ## spot check the interviews by time window ----
 # TODO
