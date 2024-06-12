@@ -628,7 +628,58 @@ join_by_date_captain__has_lgb__fips_st_county_names |>
 
 # All counties are either completely different or the same
 
-summary(join_by_date_captain__has_lgb)
+join_by_date_captain__has_lgb__fips_st_county_names_short <-
+  join_by_date_captain__has_lgb__fips_st_county_names |>
+  select(
+    id_code,
+    TRIP_ID,
+    interview_date,
+    vsl_num,
+    VESSEL_OFFICIAL_NBR,
+    vessel_name,
+    VESSEL_NAME,
+    interviewee_l_name,
+    interviewee_f_name,
+    CAPT_NAME_FIRST,
+    state_both,
+    cnty_3,
+    survey_county_name0,
+    END_PORT_COUNTY,
+    fips
+  ) |> 
+  distinct()
+
+# View(join_by_date_captain__has_lgb__fips_st_county_names_short)
+# [1] 771  16
+
+#### same county ----
+join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty <-
+  join_by_date_captain__has_lgb__fips_st_county_names_short |>
+  filter(survey_county_name0 == tolower(END_PORT_COUNTY))
+
+dim(join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty)
+# 122
+
+#### same first name ----
+join_by_date_captain__has_lgb__fips_st_county_names_short_same_f_name <-
+  join_by_date_captain__has_lgb__fips_st_county_names_short |>
+  filter(tolower(interviewee_f_name) == tolower(CAPT_NAME_FIRST))
+dim(join_by_date_captain__has_lgb__fips_st_county_names_short_same_f_name)
+# 58
+
+join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty |> 
+  filter(!tolower(interviewee_f_name) == tolower(CAPT_NAME_FIRST)) |> 
+# 63
+  select(interviewee_f_name, CAPT_NAME_FIRST) |> 
+  mutate(across(everything(), ~tolower(.))) |> 
+  distinct() |> 
+  arrange(interviewee_f_name) |> 
+  str()
+# 22
+# 11 are derivatives or typos
+
+
+#### compare first names ---- 
 
 ## spot check the interviews by time window ----
 # TODO
