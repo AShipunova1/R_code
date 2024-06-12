@@ -562,11 +562,11 @@ get_county_name <- function(state_both, cnty_3) {
   # cnty_3 = "315"
   res <-
     tidycensus::fips_codes |>
-    # filter(grepl(tolower("PLAQUEMINES"), tolower(county))) |> glimpse()
     filter(state_code == state_both & county_code == cnty_3) |>
     select(county) |>
     mutate(county_short =
-             stringr::str_replace_all(county, " County| Parish", ""))
+             stringr::str_replace_all(county, " County| Parish", "") |> 
+             tolower())
   
   county_short <- res[["county_short"]]
   if (nrow(res) == 0) {
@@ -600,8 +600,34 @@ join_by_date_captain__has_lgb__fips_st_county_names |>
   count(survey_county_name0) |> 
   glimpse()
 
-# View(join_by_date_captain__has_lgb__fips_st_county_names)
-           
+# check if county names are the same
+join_by_date_captain__has_lgb__fips_st_county_names |> 
+  filter(survey_county_name0 == tolower(END_PORT_COUNTY)) |> 
+  glimpse()
+
+join_by_date_captain__has_lgb__fips_st_county_names[40,] |> 
+  select(survey_county_name0, END_PORT_COUNTY)
+
+join_by_date_captain__has_lgb__fips_st_county_names |>
+  rowwise() |>
+  filter(
+    !is.na(survey_county_name0) &
+      agrepl(survey_county_name0, 
+             tolower(END_PORT_COUNTY), 
+             ignore.case = TRUE,
+             max.distance = 2)
+    ) |>
+  filter(!is.na(survey_county_name0) &
+           !survey_county_name0 == tolower(END_PORT_COUNTY)) |>
+  ungroup() |>
+  select(survey_county_name0, END_PORT_COUNTY) |>
+  distinct() |>
+  glimpse()
+# $ survey_county_name0 <chr> "levy"
+# $ END_PORT_COUNTY     <chr> "LEE"
+
+# All counties are either completely different or the same
+
 summary(join_by_date_captain__has_lgb)
 
 ## spot check the interviews by time window ----
