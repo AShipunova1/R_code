@@ -566,7 +566,7 @@ get_county_name <- function(state_both, cnty_3) {
     filter(state_code == state_both & county_code == cnty_3) |>
     select(county) |>
     mutate(county_short =
-             stringr::str_replace_all(county, " County", ""))
+             stringr::str_replace_all(county, " County| Parish", ""))
   
   county_short <- res[["county_short"]]
   if (nrow(res) == 0) {
@@ -593,10 +593,14 @@ join_by_date_captain__has_lgb__fips_st_county_names |>
   count(ll)
 # 1     0     1
 # 2     1   770
-
+# fixed:
 # 1     1   771  
            
-View(join_by_date_captain__has_lgb__fips_st_county_names)
+join_by_date_captain__has_lgb__fips_st_county_names |>
+  count(survey_county_name0) |> 
+  glimpse()
+
+# View(join_by_date_captain__has_lgb__fips_st_county_names)
            
 summary(join_by_date_captain__has_lgb)
 
