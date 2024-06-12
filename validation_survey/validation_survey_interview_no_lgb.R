@@ -528,38 +528,76 @@ join_by_date_captain__has_lgb__fips <-
 county_codes_equal <- 
   rlang::quo(tidycensus::fips_codes$county_code == cnty_3)
 
+# cnty_3 <- "075"
+# tidycensus::fips_codes$county_code == cnty_3
+
 state_codes_equal <-
-  rlang::quo(tidycensus::fips_codes$state_code == st_2)
+  rlang::quo(tidycensus::fips_codes$state_code == state_both)
 
-join_by_date_captain__has_lgb__fips |>
-  rowwise() |>
-  mutate(survey_county_name =
-           list(
-             case_when(
-               !!county_code_equal
-               &
-                 (is.na(st) | !!state_codes_equal) ~
-                 tidycensus::fips_codes$county[tidycensus::fips_codes$county_code == cnty_3]
-               ,
-               .default = NA
-             )
-           )) |>
-  ungroup() |>
+  # filter(animal %in% anmal) %>%
+
+#### add state if missing ----
+join_by_date_captain__has_lgb__fips_st <- 
+  join_by_date_captain__has_lgb__fips |>
+  mutate(state_both = coalesce(st, STATE))
+
+# check
+join_by_date_captain__has_lgb__fips_st |> 
+  filter(!st == STATE) |> 
+  count(st, STATE) |> 
   glimpse()
+
+join_by_date_captain__has_lgb__fips_st |>
+  filter(st == STATE) |>
+  count(st, STATE) |>
+  glimpse()
+
+join_by_date_captain__has_lgb__fips_st |> 
+  count(state_both)
+
+# 
+get_county_name <- function(state_both, cnty_3) {
+  # browser()
+  # state_both = "34"
+  # cnty_3 = "315"
+  res <-
+    tidycensus::fips_codes |>
+    # filter(grepl(tolower("PLAQUEMINES"), tolower(county))) |> glimpse()
+    filter(state_code == state_both & county_code == cnty_3) |>
+    select(county) |>
+    mutate(county_short =
+             stringr::str_replace_all(county, " County", ""))
   
-join_by_date_captain__has_lgb |>
-  arrange(TRIP_ID) |>
-  glimpse()
+  county_short <- res[["county_short"]]
+  if (nrow(res) == 0) {
+    county_short <- NA
+  }
+  
+  return(county_short)
+}
 
-tidycensus::fips_codes$county[tidycensus::fips_codes$county_code == "075"]
+  # select(where(~is.numeric(.x) && any(.x == 9)))
+# join_by_date_captain__has_lgb__fips_st[40,] |> glimpse()
 
-tidycensus::fips_codes |> 
-  filter(grepl(tolower("PLAQUEMINES"), tolower(county))) |> glimpse()
-# 1151    LA         22  Louisiana         075 Plaquemines Parish
-  # filter(county_code == "075")
+join_by_date_captain__has_lgb__fips_st_county_names <-
+  join_by_date_captain__has_lgb__fips_st |>
+  rowwise() |>
+  mutate(survey_county_name0 = get_county_name(state_both, cnty_3)) |>
+  ungroup()
 
-# View(tidycensus::fips_codes)
+# check survey county names
+join_by_date_captain__has_lgb__fips_st_county_names |>
+  rowwise() |>
+  mutate(ll = length(survey_county_name0)) |>
+  ungroup() |>
+  count(ll)
+# 1     0     1
+# 2     1   770
 
+# 1     1   771  
+           
+View(join_by_date_captain__has_lgb__fips_st_county_names)
+           
 summary(join_by_date_captain__has_lgb)
 
 ## spot check the interviews by time window ----
