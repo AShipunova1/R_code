@@ -735,33 +735,44 @@ diff_vsl_ids <-
     tolower(VESSEL_OFFICIAL_NBR),
     ignore.case = TRUE,
     max.distance = 2
-  )) |>
-  mutate(check_vsl_num_l = list(list(sort(unique(
-    paste(vsl_num, VESSEL_OFFICIAL_NBR, sep = ", ")
-  ))))) |>
+  )) |> 
   ungroup()
 
-# readr::write_csv(diff_vsl_ids,
+diff_vsl_ids_pairs <-
+  diff_vsl_ids |>
+  rowwise() |>
+  mutate(check_vsl_num_l = list(unique(sort(
+    paste(toupper(vsl_num), toupper(VESSEL_OFFICIAL_NBR), sep = "', '")
+  )))) |>
+  ungroup()
+
+#### print out ----
+# readr::write_csv(diff_vsl_ids_pairs,
 #                  file.path(curr_proj_output_path, "diff_vsl_ids.csv"))
 
+# str(diff_vsl_ids_pairs)
 print_vsl_ids_to_check <-
-  diff_vsl_ids |>
+  diff_vsl_ids_pairs |>
   select(check_vsl_num_l) |>
-  distinct()
+  distinct() |> 
+  unlist()
 
 print_vsl_ids_to_check |> 
-  unlist() |> cat(sep = "\n")
+   cat(sep = "'\n'")
 
+#### check in db ----
 # vsl_id_pair <- "FL7092NJ', '1074576"
 
-check_vsl_ids_query <- 
-  stringr::str_glue("SELECT
+make_a_pair_vsl_ids_query <- function(vsl_id_pair) {
+  check_vsl_ids_query <-
+    stringr::str_glue(
+      "SELECT
   vessel_id,
   hull_id_nbr,
   vessel_name,
   coast_guard_nbr,
   state_reg_nbr,
-  sero_official_number
+  sero_official_number, owner_id
 FROM
   safis.vessels@secapxdv_dblk.sfsc.noaa.gov
 WHERE
@@ -769,14 +780,32 @@ WHERE
   OR state_reg_nbr IN ( '{vsl_id_pair}' )
   OR sero_official_number IN ( '{vsl_id_pair}' )
 ORDER BY
-  vessel_id")
+  vessel_id"
+    )
+  
+  return(check_vsl_ids_query)
+}
+  
+# one_query_res <-
+  # try(DBI::dbGetQuery(con, check_vsl_ids_query))
 
-one_query_res <-
-  try(DBI::dbGetQuery(con, check_vsl_ids_query))
+# str(one_query_res)
+# str(diff_vsl_ids_pairs)
 
-str(one_query_res)
+vsl_ids_to_check_db <-
+  print_vsl_ids_to_check |>
+  purrr::map(\(vsl_id_pair) {
+    # browser()
+    str(vsl_id_pair)
+    curr_query <- make_a_pair_vsl_ids_query(vsl_id_pair)
+    one_query_res <-
+      try(DBI::dbGetQuery(con, curr_query))
+    return(one_query_res)
+  })
 
-# print_vsl_ids_to_check
+names(vsl_ids_to_check_db) <- print_vsl_ids_to_check
+
+glimpse(vsl_ids_to_check_db)
 
 # check_vsl_ids_query
   # coast_guard_nbr IN ( 'FL7092NJ', '1074576' )
