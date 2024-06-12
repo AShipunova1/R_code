@@ -1,3 +1,5 @@
+library(tidycensus)
+
 # how many interviews with no logbooks?
 
 # Prep data for interviews w no logbooks ----
@@ -429,14 +431,18 @@ db_logbooks_2022_vsl_t_end_all_low <-
 
 # 1) get all id_codes with no logbooks, add interviewee_l_name
 # 2) get captain last name for these id_codes
-survey_data_l_2022_date_i1_vsl__int_t_clean_vsl_low__no_lgb <-
-  survey_data_l_2022_date_i1_vsl__int_t_clean_vsl_low |>
-  select(any_of(c(
+
+survey_fields_to_compare <-
+  c(
     names(intv_w_no_lgb_join_by_day_vsl),
     "interviewee_f_name",
     "interviewee_l_name",
     "vessel_name"
-  ))) |>
+  )
+
+survey_data_l_2022_date_i1_vsl__int_t_clean_vsl_low__no_lgb <-
+  survey_data_l_2022_date_i1_vsl__int_t_clean_vsl_low |>
+  select(any_of(survey_fields_to_compare)) |>
   distinct() |>
   # 1835
   filter(id_code %in% intv_w_no_lgb_join_by_day_vsl$id_code)
@@ -471,13 +477,14 @@ lgb_fields_to_compare <-
     "CAPT_NAME_LAST",
     "TRIP_ID",
     "VESSEL_OFFICIAL_NBR",
+    "VESSEL_NAME",
     "STATE",
     "STATE_NAME",
     "END_PORT_COUNTY",
     "START_PORT_COUNTY"
   )
 
-db_logbooks_2022_vsl_t_end_all_low |>
+db_logbooks_2022_vsl_t_end_all_low |> 
   filter(
     CAPT_NAME_LAST == survey_x_5$interviewee_l_name &
       TRIP_END_DATE == survey_x_5$interview_date
@@ -491,17 +498,13 @@ db_logbooks_2022_vsl_t_end_all_low |>
 # 0
 
 db_logbooks_2022_vsl_t_end_all_low_32575 <-
-  db_logbooks_2022_vsl_t_end_all_low[32575,]
+  db_logbooks_2022_vsl_t_end_all_low[32575, ] |>
+  select(all_of(lgb_fields_to_compare)) |>
+  distinct()
 
 glimpse(db_logbooks_2022_vsl_t_end_all_low_32575)
+# names == NA
 
-db_logbooks_2022_vsl_t_end_all_low |>
-  filter(
-    CAPT_NAME_LAST == survey_x_5$interviewee_l_name &
-      TRIP_END_DATE == survey_x_5$interview_date
-  ) |>
-  select(all_of(lgb_fields_to_compare)) |> 
-  distinct() |> 
   glimpse()
 
 # check
