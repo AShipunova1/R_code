@@ -505,14 +505,31 @@ db_logbooks_2022_vsl_t_end_all_low_32575 <-
 glimpse(db_logbooks_2022_vsl_t_end_all_low_32575)
 # names == NA
 
+### check if the join is correct ---
+join_by_date_captain__has_lgb <-
+  join_by_date_captain |>
+  filter(!is.na(TRIP_ID) &
+           !is.na(id_code)) |>
+  select(any_of(c(
+    survey_fields_to_compare, lgb_fields_to_compare
+  ))) |>
+  distinct()
+
+#### add county names ----
+join_by_date_captain__has_lgb |> glimpse()
+  
+join_by_date_captain__has_lgb |>
+  arrange(TRIP_ID) |>
   glimpse()
 
-# check
+tidycensus::fips_codes |> 
+  filter(grepl(tolower("PLAQUEMINES"), tolower(county))) |> glimpse()
+# 1151    LA         22  Louisiana         075 Plaquemines Parish
+  # filter(county_code == "075")
 
-# join_by_date_captain |> 
-#   filter(is.na(TRIP_ID))
+# View(tidycensus::fips_codes)
 
-summary(join_by_date_captain)
+summary(join_by_date_captain__has_lgb)
 
 ## spot check the interviews by time window ----
 # TODO
