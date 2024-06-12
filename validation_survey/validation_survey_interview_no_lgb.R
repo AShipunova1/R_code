@@ -516,11 +516,42 @@ join_by_date_captain__has_lgb <-
   distinct()
 
 #### add county names ----
-join_by_date_captain__has_lgb |> glimpse()
+join_by_date_captain__has_lgb__fips <-
+  join_by_date_captain__has_lgb |>
+  format_state_and_county_codes("st")
+
+# is_st_florida <-
+#       rlang::quo(!!port_state_column == "fl")
+#             !(!!is_st_florida) & !!is_gom_state ~ "gom",
+
+# filters
+county_codes_equal <- 
+  rlang::quo(tidycensus::fips_codes$county_code == cnty_3)
+
+state_codes_equal <-
+  rlang::quo(tidycensus::fips_codes$state_code == st_2)
+
+join_by_date_captain__has_lgb__fips |>
+  rowwise() |>
+  mutate(survey_county_name =
+           list(
+             case_when(
+               !!county_code_equal
+               &
+                 (is.na(st) | !!state_codes_equal) ~
+                 tidycensus::fips_codes$county[tidycensus::fips_codes$county_code == cnty_3]
+               ,
+               .default = NA
+             )
+           )) |>
+  ungroup() |>
+  glimpse()
   
 join_by_date_captain__has_lgb |>
   arrange(TRIP_ID) |>
   glimpse()
+
+tidycensus::fips_codes$county[tidycensus::fips_codes$county_code == "075"]
 
 tidycensus::fips_codes |> 
   filter(grepl(tolower("PLAQUEMINES"), tolower(county))) |> glimpse()
