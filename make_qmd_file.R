@@ -7,7 +7,7 @@ library(tools)
 
 # manually change in the result qmd 
 # ```{r setup ...
-# with
+# with provided
 # ```{r setup current project, results='hide', message=FALSE, warning=FALSE}
 
 
@@ -355,7 +355,7 @@ add_pretty_table <-
   function(flat_file_r_text) {
     flat_file_r_text <-
       gsub(
-      "(^ *[^#] +)(glimpse)(\\(\\S*\\))",
+      "(^ *[^#] +)(dplyr::glimpse)(\\(\\S*\\))",
       # was in the original .R
       '\\1\\2\\3 |>
 \\1knitr::kable(caption = "")',
@@ -412,7 +412,7 @@ get_my_func_names_naked <- function(in_text) {
   return(my_used_function_names)
 }
 
-my_used_function_names <- get_my_func_names_naked(flat_file_r_text)
+# my_used_function_names <- get_my_func_names_naked(flat_file_r_text)
 
 ## a function to get function help as a text ----
 get_help_text <- function(function_name) {
