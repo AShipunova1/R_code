@@ -239,7 +239,7 @@ catch_info_lgb_i1_i2_i3 |>
   dplyr::glimpse()
 # 937
 
-# n_dplyr::distinct(catch_info_lgb_i1_i2_i3$TRIP_ID)
+# dplyr::n_distinct(catch_info_lgb_i1_i2_i3$TRIP_ID)
 # 887
 
 catch_info_lgb_i1_i2_i3 |> 
@@ -535,12 +535,12 @@ db_logbooks_2022_short_cnt_spp <-
     CATCH_SPECIES_ITIS
   ) |>
   dplyr::distinct() |>
-  dplyr::count(VESSEL_OFFICIAL_NBR, 
+  dplyr::add_count(VESSEL_OFFICIAL_NBR, 
             TRIP_ID, 
             DISPOSITION_CODE, 
             name = "n_CATCH_SPECIES_ITIS__by_disp") |>
   dplyr::group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |>
-  dplyr::mutate(n_CATCH_SPECIES_ITIS = n_dplyr::distinct(CATCH_SPECIES_ITIS)) |>
+  dplyr::mutate(n_CATCH_SPECIES_ITIS = dplyr::n_distinct(CATCH_SPECIES_ITIS)) |>
   dplyr::ungroup()
 
 db_logbooks_2022_short_cnt_spp |> 
@@ -558,10 +558,10 @@ survey_data_l_2022_short_cnt_spp <-
   dplyr::select(id_code, tsn, fshinsp, disp3, lngth, wgt, num_typ3) |> 
   dplyr::distinct() |>
   dplyr::group_by(id_code, disp3) |> 
-  dplyr::mutate(n_tsn_by_disp3 = n_dplyr::distinct(tsn)) |> 
+  dplyr::mutate(n_tsn_by_disp3 = dplyr::n_distinct(tsn)) |> 
   dplyr::ungroup() |> 
   dplyr::group_by(id_code) |> 
-  dplyr::mutate(n_tsn = n_dplyr::distinct(tsn)) |> 
+  dplyr::mutate(n_tsn = dplyr::n_distinct(tsn)) |> 
   dplyr::ungroup()
 
 dplyr::glimpse(survey_data_l_2022_short_cnt_spp)
