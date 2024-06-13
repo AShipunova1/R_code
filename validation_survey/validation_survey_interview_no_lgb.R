@@ -489,7 +489,7 @@ db_logbooks_2022_vsl_t_end_all_low |>
     CAPT_NAME_LAST == survey_x_5$interviewee_l_name &
       TRIP_END_DATE == survey_x_5$interview_date
   ) |>
-  dplyr::select(all_of(lgb_fields_to_compare)) |> 
+  dplyr::select(tidyselect::all_of(lgb_fields_to_compare)) |> 
   dplyr::distinct() |> 
   dplyr::glimpse()
 # diff everything else
@@ -499,7 +499,7 @@ db_logbooks_2022_vsl_t_end_all_low |>
 
 db_logbooks_2022_vsl_t_end_all_low_32575 <-
   db_logbooks_2022_vsl_t_end_all_low[32575, ] |>
-  dplyr::select(all_of(lgb_fields_to_compare)) |>
+  dplyr::select(tidyselect::all_of(lgb_fields_to_compare)) |>
   dplyr::distinct()
 
 dplyr::glimpse(db_logbooks_2022_vsl_t_end_all_low_32575)
@@ -673,7 +673,7 @@ join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty |>
   dplyr::filter(!tolower(interviewee_f_name) == tolower(CAPT_NAME_FIRST)) |> 
 # 63
   dplyr::select(interviewee_f_name, CAPT_NAME_FIRST) |> 
-  dplyr::mutate(dplyr::across(everything(), ~tolower(.))) |> 
+  dplyr::mutate(dplyr::across(tidyselect::everything(), ~tolower(.))) |> 
   dplyr::distinct() |> 
   dplyr::arrange(interviewee_f_name) |> 
   str()
