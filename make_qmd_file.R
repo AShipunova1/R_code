@@ -5,6 +5,12 @@ library(tools)
 # To see the report .html - render the .qmd
 # to run - "run all" in the .qmd tab (Ctrl-Alt-R)
 
+# manually change in the result qmd 
+# ```{r setup ...
+# with
+# ```{r setup current project, results='hide', message=FALSE, warning=FALSE}
+
+
 # change dir name
 # comment out the "answers" for the next to readline()
 curent_project_name <- readline(prompt = "Print your project name: ")
@@ -200,26 +206,16 @@ to_replace_source <-
     return(y)
   }
 
-to_replace_source_all <-
+to_replace_source <-
   function(source_text) {
-    # for (source_text in source_paths_matches) {
-      return(source_files_content_one_line[[source_text]])
-    # }
+    return(source_files_content_one_line[[source_text]])
   }
-
-flat_file_r_text1 <-
-  stringr::str_replace_all(flat_file_r_text, 
-                           to_find, 
-                           to_replace_source_all)
 
 flat_file_r_text <-
   stringr::str_replace_all(flat_file_r_text, 
                            to_find, 
                            to_replace_source)
 
-all.equal(flat_file_r_text,
-          flat_file_r_text1)
-T
 # check
 # grep(my_split_newline_char, flat_file_r_text, value = T)
 # grep("source", flat_file_r_text, value = T)
@@ -229,13 +225,6 @@ T
 flat_file_r_text <-
   split_one_line_text_back(flat_file_r_text)
 
-flat_file_r_text1 <-
-  split_one_line_text_back(flat_file_r_text1)
-
-View(flat_file_r_text1)
-
-all.equal.character(flat_file_r_text,
-               flat_file_r_text1)
 # check
 # grep("get data for egregious violators", flat_file_r_text, value = T)
 # tail(flat_file_r_text)
@@ -423,7 +412,7 @@ get_my_func_names_naked <- function(in_text) {
   return(my_used_function_names)
 }
 
-# my_used_function_names <- get_my_func_names_naked()
+my_used_function_names <- get_my_func_names_naked(flat_file_r_text)
 
 ## a function to get function help as a text ----
 get_help_text <- function(function_name) {
