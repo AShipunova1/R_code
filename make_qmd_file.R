@@ -192,8 +192,23 @@ to_replace_source <-
       y <- source_files_content_one_line[[1]]
     if (one_match == source_paths_matches[[2]])
       y <- source_files_content_one_line[[2]]
+    if (one_match == source_paths_matches[[3]])
+      y <- source_files_content_one_line[[3]]
     return(y)
   }
+
+to_replace_source_all <-
+  function(source_text) {
+    # browser()
+    for (source_text in source_paths_matches) {
+      return(source_files_content_one_line[[source_text]])
+    }
+  }
+
+flat_file_r_text1 <-
+  stringr::str_replace_all(flat_file_r_text, 
+                           to_find, 
+                           to_replace_source_all)
 
 flat_file_r_text <-
   stringr::str_replace_all(flat_file_r_text, 
@@ -209,6 +224,13 @@ flat_file_r_text <-
 flat_file_r_text <-
   split_one_line_text_back(flat_file_r_text)
 
+flat_file_r_text1 <-
+  split_one_line_text_back(flat_file_r_text1)
+
+View(flat_file_r_text1)
+
+all.equal.character(flat_file_r_text,
+               flat_file_r_text1)
 # check
 # grep("get data for egregious violators", flat_file_r_text, value = T)
 # tail(flat_file_r_text)
