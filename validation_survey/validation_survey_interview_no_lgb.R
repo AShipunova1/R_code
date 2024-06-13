@@ -442,7 +442,7 @@ survey_fields_to_compare <-
 
 survey_data_l_2022_date_i1_vsl__int_t_clean_vsl_low__no_lgb <-
   survey_data_l_2022_date_i1_vsl__int_t_clean_vsl_low |>
-  selecttidyselect::any_of(survey_fields_to_compare)) |>
+  dplyr::select(tidyselect::any_of(survey_fields_to_compare)) |>
   dplyr::distinct() |>
   # 1835
   dplyr::filter(id_code %in% intv_w_no_lgb_join_by_day_vsl$id_code)
@@ -510,7 +510,7 @@ join_by_date_captain__has_lgb <-
   join_by_date_captain |>
   dplyr::filter(!is.na(TRIP_ID) &
            !is.na(id_code)) |>
-  selecttidyselect::any_of(c(
+  dplyr::select(tidyselect::any_of(c(
     survey_fields_to_compare, lgb_fields_to_compare
   ))) |>
   dplyr::distinct()
@@ -588,9 +588,9 @@ join_by_date_captain__has_lgb__fips_st_county_names <-
 # check survey county names
 join_by_date_captain__has_lgb__fips_st_county_names |>
   dplyr::rowwise() |>
-  dplyr::mutate(ll = length(survey_county_name0)) |>
+  dplyr::mutate(survey_county_name_len = length(survey_county_name0)) |>
   dplyr::ungroup() |>
-  dplyr::count(ll)
+  dplyr::count(survey_county_name_len)
 # 1     0     1
 # 2     1   770
 # fixed:
@@ -829,11 +829,11 @@ dplyr::glimpse(vsl_ids_to_check_db)
 count_interview_no_lgb <-
   function(my_df, cnt_field = "st_2") {
     my_df |>
-      group_by(fips) |>
+      dplyr::group_by(fips) |>
       dplyr::mutate(num_int_no_lgb_by_fips = n()) |>
       dplyr::ungroup() |>
-      group_by(!!sym(cnt_field)) |>
-      dplyr::count(!!sym(cnt_field), name = "total_int_no_lgb_by_state") |>
+      dplyr::group_by(!!sym(cnt_field)) |>
+      dplyr::add_count(!!sym(cnt_field), name = "total_int_no_lgb_by_state") |>
       dplyr::ungroup()
   }
 
@@ -903,7 +903,7 @@ plot_cnties_only <-
 # intv_w_no_lgb_join_by_day_vsl1 <-
 #   intv_w_no_lgb_join_by_day_vsl |>
 #   dplyr::mutate(fips = cnty) |> 
-#   group_by(st, cnty) |> 
+#   dplyr::group_by(st, cnty) |> 
 #   dplyr::mutate(num_int_no_lgb = n()) |> 
 #   dplyr::ungroup()
 
@@ -1005,6 +1005,6 @@ plot_cnties_state_lbls <-
 
 # library(gridExtra)
 
-gridExtra::grid.dplyr::arrange(plot_cnties_state_lbls,
+gridExtra::grid.arrange(plot_cnties_state_lbls,
            plot_restored_all)
 
