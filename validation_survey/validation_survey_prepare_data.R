@@ -254,7 +254,7 @@ db_logbooks_2022_short0 <-
   dplyr::distinct() |> 
   dplyr::mutate(trip_end_date_only = lubridate::date(TRIP_END_DATE))
 
-  # mutate(dplyr::across(all_of(time_col_names),
+  # mutate(dplyr::across(tidyselect::all_of(time_col_names),
   #               ~ sprintf("%04d", .x)))
 
 db_logbooks_2022_short_date_time <-
@@ -468,7 +468,7 @@ dup_interviews |>
 # They are a result of full join on a day, e.g. 2 trips, 2 interviews
 lgb_join_i1__t_diff_short__w_int_all_dup |>
   dplyr::filter(dup_interviews > 1) |>
-  dplyr::select(-ends_with("_diff")) |>
+  dplyr::select(-tidyselect::ends_with("_diff")) |>
   dplyr::glimpse()
 
 int_dups_only <- 
@@ -601,8 +601,8 @@ auxfunctions::data_overview(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup
 ## shorten the df ----
 lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short <- lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm |>
   dplyr::select(-c(
-    # ends_with("_diff"),
-    # ends_with("_interval"),
+    # tidyselect::ends_with("_diff"),
+    # tidyselect::ends_with("_interval"),
     tidyselect::contains("start"),
     tidyselect::starts_with("dup_")
   )) |> 
