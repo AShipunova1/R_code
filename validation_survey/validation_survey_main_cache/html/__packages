@@ -1,0 +1,15 @@
+knitr
+kableExtra
+styler
+tidyr
+magrittr
+stringr
+openxlsx
+usethis
+devtools
+dplyr
+auxfunctions
+lubridate
+DBI
+ROracle
+usmap
