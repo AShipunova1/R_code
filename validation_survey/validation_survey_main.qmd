@@ -1,0 +1,3676 @@
+---
+title: validation_survey
+---
+
+```{r no cache setup, results='hide', message=FALSE, warning=FALSE, cache=FALSE, include=FALSE}
+
+# A general-purpose tool for dynamic report generation in R
+library(knitr)
+
+# Adds features to a kable output
+library(kableExtra)
+
+# Format R code automatically
+library(styler)
+
+# Load the tidyr package for data manipulation
+library(tidyr)
+
+# Load the magrittr package for piping operations
+library(magrittr)
+
+# Load the stringr package for string manipulation
+library(stringr)
+
+# Load the openxlsx package for reading and writing Excel files
+library(openxlsx)
+
+```
+
+```{r df format setup}
+#| include: false
+# kable <- function(data) {
+#   knitr::kable(data, booktabs = true, digits = 2) %>%
+#     kable_styling('striped', full_width = FALSE)
+# }
+
+knit_print.data.frame = function(x, ...) {
+  res = paste(c(
+    '',
+    '',
+    knitr::kable(x, digits = 2) |>
+      kableExtra::kable_styling('striped', full_width = FALSE)
+  ),
+  collapse = '
+')
+  knitr::asis_output(res)
+}
+
+registerS3method(
+  'knit_print', 'data.frame', knit_print.data.frame,
+  envir = asNamespace('knitr')
+)
+
+# knitr::opts_chunk$set(echo = TRUE)
+
+# options(knitr.table.format = 'HTML')
+
+```
+
+## Set up 
+
+```{r setup current project, results='hide', message=FALSE, warning=FALSE}
+# Set up ----
+# <<<<
+set_work_dir  <-  function() {
+
+  # Set the working directory to the user's home directory (~)
+  setwd("~/")
+  base_dir <- getwd()
+
+  # Define 'main_r_dir' as "R_files_local"
+  main_r_dir <- "R_files_local"
+
+  # Define 'in_dir' as "my_inputs"
+  in_dir <- "my_inputs"
+
+  # Construct the full path to 'my_inputs' directory
+  full_path_to_in_dir <- file.path(base_dir, main_r_dir, in_dir)
+
+  # Define 'out_dir' as "my_outputs"
+  out_dir <- "my_outputs"
+
+  # Construct the full path to 'my_outputs' directory
+  full_path_to_out_dir <- file.path(base_dir, main_r_dir, out_dir)
+
+  # Define 'git_r_dir' as "R_code_github"
+  git_r_dir <- "R_code_github"
+
+  # Construct the full path to 'R_code_github' directory
+  full_path_to_r_git_dir <- file.path(base_dir, git_r_dir)
+
+  # Change the working directory to 'R_files_local'
+  setwd(file.path(base_dir, main_r_dir))
+
+  # Create a list of directory paths for 'inputs,' 'outputs,' and 'git_r'
+  my_paths <- list("inputs" = full_path_to_in_dir,
+                   "outputs" = full_path_to_out_dir,
+                   "git_r" = full_path_to_r_git_dir)
+
+  # Return the list of directory paths
+  return(my_paths)
+}
+
+# Explanations:
+
+# This function sets the working directory to the user's home directory, defines directory paths for inputs, outputs, and GitHub R code, changes the working directory to the main R directory, and returns these paths as a list.
+#  
+#  
+# Here's the breakdown of the `set_work_dir_local` function:
+# 
+# 1. **Function Definition:**
+#    - `set_work_dir_local <- function ()`: Defines a function named `set_work_dir_local` that takes no arguments.
+# 
+# 2. **Setting Working Directory:**
+#    - `setwd("~/")`: Sets the working directory to the user's home directory.
+#    - `base_dir <- getwd()`: Retrieves the current working directory and assigns it to the variable `base_dir`.
+# 
+# 3. **Defining Directory Paths:**
+#    - `main_r_dir <- "R_files_local"`: Specifies the directory name for local R files.
+#    - `in_dir <- "my_inputs"`: Specifies the directory name for input files.
+#    - `full_path_to_in_dir <- file.path(base_dir, main_r_dir, in_dir)`: Combines the base directory, main R directory, and input directory to create the full path to the input directory.
+#    - `out_dir <- "my_outputs"`: Specifies the directory name for output files.
+#    - `full_path_to_out_dir <- file.path(base_dir, main_r_dir, out_dir)`: Combines the base directory, main R directory, and output directory to create the full path to the output directory.
+#    - `git_r_dir <- "R_code_github"`: Specifies the directory name for the GitHub repository containing R code.
+#    - `full_path_to_r_git_dir <- file.path(base_dir, git_r_dir)`: Combines the base directory and GitHub R directory to create the full path to the GitHub R directory.
+# 
+# 4. **Changing Working Directory:**
+#    - `setwd(file.path(base_dir, main_r_dir))`: Sets the working directory to the main R directory.
+# 
+# 5. **Creating Paths List:**
+#    - `my_paths <- list(...)`: Creates a list named `my_paths` containing the paths to the input directory, output directory, and GitHub R directory.
+# 
+# 6. **Returning Paths List:**
+#    - `return(my_paths)`: Returns the `my_paths` list containing the paths to the input directory, output directory, and GitHub R directory.
+# 
+# 
+# >>>>
+
+# <<<<
+create_dir_if_not  <-  function(curr_dir_name) {
+  # Check if the directory does not exist
+  if (!dir.exists(curr_dir_name)) {
+    dir.create(curr_dir_name)  # Create the directory if it doesn't exist
+  }
+}
+
+# Explanations:
+
+# The `create_dir_if_not` function ensures the existence of a directory by creating it if it does not already exist.
+# 
+# This function provides a convenient way to ensure that a directory exists before performing operations such as writing files or storing data.
+#  
+#  
+# 1. **Function Definition:**
+#    - `create_dir_if_not <- function(curr_dir_name) { .. }`: Defines a function named `create_dir_if_not` that takes a single argument, `curr_dir_name`, representing the name of the directory to be created.
+# 
+# 2. **Checking Directory Existence:**
+#    - `if (!dir.exists(curr_dir_name)) { .. }`: Checks if the directory specified by `curr_dir_name` does not exist.
+#    - `dir.exists(curr_dir_name)`: Checks whether the directory specified by `curr_dir_name` exists. The `!` negates the result, so the code block inside the `if` statement executes only if the directory does not exist.
+# 
+# 3. **Creating Directory:**
+#    - `dir.create(curr_dir_name)`: If the directory does not exist, this line creates the directory specified by `curr_dir_name` using the `dir.create` function.
+# 
+# 4. **Return Statement:**
+#    - The function does not have a specific return value. It either creates the directory if it does not exist or takes no action if the directory already exists.
+# 
+# >>>>
+
+
+library('devtools')
+
+if (!require('auxfunctions')) {
+  devtools::install_github("AShipunova1/R_code/auxfunctions@development")
+  
+  library('auxfunctions')
+}
+
+library(lubridate)
+
+Sys.setenv(TZ = Sys.timezone())
+Sys.setenv(ORA_SDTZ = Sys.timezone())
+
+my_paths <- auxfunctions::set_work_dir()
+
+# get this project name
+current_project_dir_name <- this.path::this.dir()
+
+# find its base name
+current_project_name <-
+  basename(current_project_dir_name)
+
+# use current_project_name to create input and output path
+curr_proj_input_path <- file.path(my_paths$inputs,
+                         current_project_name)
+
+auxfunctions::create_dir_if_not(curr_proj_input_path)
+
+curr_proj_output_path <- file.path(my_paths$outputs,
+                         current_project_name)
+
+auxfunctions::create_dir_if_not(curr_proj_output_path)
+```
+
+## get data 
+
+```{r get data}
+# get data ----
+get_data_path <-
+  file.path(current_project_dir_name,
+            paste0(current_project_name, "_", "get_data.R"))
+
+file.exists(get_data_path)
+
+# get data for logbooks and catch comparison
+# see read.me.R
+```
+
+## set up 
+
+```{r set up}
+# set up ----
+# Turn off the scientific notation
+options(scipen = 999)
+
+library(ROracle)
+
+try(con <- auxfunctions::connect_to_secpr())
+
+my_year <- "2022"
+my_date_beg <- stringr::str_glue('01-JAN-{my_year}') |> 
+  lubridate::dmy()
+my_date_end <- stringr::str_glue('31-DEC-{my_year}') |> 
+  lubridate::dmy()
+```
+
+## load Validation Survey data 
+
+```{r load Validation Survey data}
+# load Validation Survey data ----
+# https://drive.google.com/drive/folders/1JDlzVXcTkdY17Sux8hZOZbxFnj2_E9eh?usp=drive_link
+# Dominique Lazarre, Sept 14, 2023
+# "my_inputs\validation_survey\Merged_Validation_Survey_Data.zip"
+
+validation_survey_data_dir_path <- file.path(my_paths$inputs,
+                                         "validation_survey")
+
+# dir.exists(validation_survey_data_dir_path)
+
+# read 
+csv_filenames <-
+  list.files(validation_survey_data_dir_path,
+             pattern = "*.csv",
+             full.names = TRUE)
+
+str(csv_filenames)
+# 5
+
+# loop through all files from the list and run the function on each one
+survey_data_l <-
+  csv_filenames |>
+  purrr::map(
+    ~readr::read_csv(
+      .x,
+      col_types = readr::cols(.default = 'c'),
+      trim_ws = TRUE,
+      na = c("", "NA", "NaN"),
+      name_repair = auxfunctions::fix_names
+    ) |>
+      readr::type_convert(guess_integer = TRUE)
+  )
+```
+
+### make short names 
+
+```{r make short names}
+## make short names ----
+short_names <-
+  csv_filenames |>
+  purrr::map(basename) |>
+  stringr::str_replace("([^_]+)_.+", "\\1")
+
+names(survey_data_l) <- short_names
+
+# dplyr::glimpse(survey_data_l)
+```
+
+### remove fields with all NAs 
+
+```{r remove fields with all NAs}
+## remove fields with all NAs ----
+# <<<<
+remove_empty_cols  <-  function(my_df) {
+  # Define an inner function "not_all_na" that checks if any value in a vector is not NA.
+  not_all_na <- function(x) any(!is.na(x))
+
+  my_df |>
+    # Select columns from "my_df" where the result of the "not_all_na" function is true,
+    # i.e., select columns that have at least one non-NA value.
+    dplyr::select(tidyselect::where(not_all_na)) %>%
+    # Return the modified data frame, which contains only the selected columns.
+    return()
+}
+
+# Explanations:
+
+# This function effectively removes columns from the input data frame `my_df` that contain only missing values.
+#  
+#  
+# 1. **Function Definition:**
+#    - `remove_empty_cols <- function (my_df)`: Defines a function named `remove_empty_cols` that takes a single argument `my_df`, which is expected to be a data frame.
+# 
+# 2. **Inner Function Definition:**
+#    - `not_all_na <- function(x) any(!is.na(x))`: Defines an inner function named `not_all_na`. This function takes a vector `x` as input and returns `TRUE` if there is at least one non-missing value in the vector, otherwise it returns `FALSE`. This function will be used as a predicate to check if any column contains non-missing values.
+# 
+# 3. **Selecting Columns:**
+#    - `select(my_df, where(not_all_na))`: Uses the `dplyr` function `select` to filter columns of `my_df` based on a condition. The condition is specified using the `where` function, which applies the `not_all_na` function to each column of `my_df`. Columns for which `not_all_na` returns `TRUE` (i.e., columns with at least one non-missing value) are retained, while columns with all missing values are removed.
+# 
+# 4. **Returning Result:**
+#    - `%>% return()`: Pipes the result of the `select` operation into the `return` function, which ensures that the modified data frame is returned as the output of the `remove_empty_cols` function.
+# 
+# >>>>
+
+survey_data_l_not_na <-
+  survey_data_l |>
+  purrr::map(auxfunctions::remove_empty_cols)
+
+# check
+# survey_data_l |>
+#   purrr::imap(\(x, idx) {
+#     diffdf::diffdf(survey_data_l[[idx]], survey_data_l_not_na[[idx]])
+#   })
+# $aga
+#    intcd2  
+#    start4  
+#     stop4  
+#    tsite4  
+# $ref
+#    la_charter_permit_number 
+#       interviewee_m_name    
+#       interviewee_suffix    
+```
+
+## Pull out 2022 only 
+
+```{r Pull out 2022 only}
+# Pull out 2022 only ----
+# <<<<
+print_df_names  <-  function(my_df, names_num = 100) {
+  # Use 'names' to get column names,
+  # 'head' to limit the number of names to 'names_num',
+  # 'paste0' to concatenate them with a comma separator, and return the result.
+  names(my_df) %>%
+    head(names_num) %>%
+    paste0(collapse = ", ") %>%
+    return()
+}
+
+# Explanations:
+
+# This function prints the comma separated column names of a dataframe, with an option to limit the number of names displayed. It's useful for quickly inspecting the structure of a dataframe, especially when dealing with datasets with a large number of columns.
+#  
+#  
+# 1. **Function Definition:**
+#    - `print_df_names <- function (my_df, names_num = 100) { ... }`: Defines a function named `print_df_names` with two arguments: `my_df` (the dataframe whose column names will be printed) and `names_num` (the maximum number of names to display, defaulted to 100).
+# 
+# 2. **Extracting Column Names:**
+#    - `names(my_df)`: Retrieves the column names of the input dataframe `my_df`.
+# 
+# 3. **Selecting Subset of Names:**
+#    - `%>% head(names_num)`: Uses the pipe operator (`%>%`) to pass the column names to the `head` function, which selects the first `names_num` names. This is useful when the dataframe has a large number of columns, and we want to limit the display to a manageable number.
+# 
+# 4. **Formatting as a String:**
+#    - `%>% paste0(collapse = ", ")`: Concatenates the selected column names into a single string, separated by commas. This creates a more readable output.
+# 
+# 5. **Returning the Result:**
+#    - `%>% return()`: Returns the concatenated string of column names as the output of the function.
+# 
+# >>>>
+
+# survey_data_l |> purrr::map(print_df_names)
+survey_data_l_2022 <-
+  survey_data_l |>
+  purrr::map(~ dplyr::filter(.x, year == my_year))
+
+# check
+survey_data_l_2022 |>
+  purrr::map(~ dplyr::select(.x, year) |>
+                dplyr::distinct())
+# all 2022 only, ok
+
+survey_data_l_2022 |> 
+  purrr::map(dim)
+# $aga
+# [1] 1175   39
+# 
+# $i1
+# [1] 1835   33
+# 
+# $i2
+# [1] 3060    9
+# 
+# $i3
+# [1] 11333    12
+# 
+# $ref
+# [1] 19 33
+```
+
+## ---- write survey_data_l_2022 out 
+
+```{r  write survey_data_l_2022 out}
+```
+```{r write survey_data_l_2022 out}
+
+survey_data_l_2022 |>
+  readr::write_rds(file.path(curr_proj_output_path, "survey_data_l_2022.rds"))
+```
+
+## ---- get logbooks from FHIER - not enough fields 
+
+```{r  get logbooks from FHIER  not enough fields}
+```
+```{r get logbooks from FHIER - not enough fields}
+```
+
+### processed logbooks 
+
+```{r processed logbooks}
+## processed logbooks ----
+# <<<<
+read_rds_or_run  <-  function(my_file_path,
+                            my_data = as.data.frame(""),
+                            my_function,
+                            force_from_db = NULL) {
+
+  if (file.exists(my_file_path)) {
+    modif_time <- file.info(my_file_path)$mtime
+  }
+
+    # Check if the file specified by 'my_file_path' exists and 'force_from_db' is not set.
+    if (file.exists(my_file_path) &
+        is.null(force_from_db)) {
+        # If the file exists and 'force_from_db' is not set, read the data from the RDS file.
+
+        function_message_print("File already exists, reading.")
+
+        my_result <- readr::read_rds(my_file_path)
+
+    } else {
+
+      # If the file doesn't exist or 'force_from_db' is set, perform the following steps:
+
+      # 0. Print this message.
+      function_message_print(c(
+        "File",
+        my_file_path,
+        "doesn't exists, pulling data from database.",
+        "Must be on VPN."
+      ))
+
+      # 1. Generate a message indicating the date and the purpose of the run for "tic".
+      msg_text <-
+        paste(today(), "run for", basename(my_file_path))
+      tictoc::tic(msg_text)  # Start timing the operation.
+
+      # 2. Run the specified function 'my_function' on the provided 'my_data' to generate the result. I.e. download data from the Oracle database. Must be on VPN.
+
+      my_result <- my_function(my_data)
+
+      tictoc::toc()  # Stop timing the operation.
+
+      # 3. Save the result as an RDS binary file to 'my_file_path' for future use.
+      # try is a wrapper to run an expression that might fail and allow the user's code to handle error-recovery.
+
+      # 4. Print this message.
+      function_message_print(c("Saving new data into a file here: ",
+                       my_file_path))
+
+      try(readr::write_rds(my_result,
+                           my_file_path))
+
+      modif_time <- date()
+    }
+
+  # Print out the formatted string with the file name ('my_file_name') and the modification time ('modif_time') to keep track of when the data were downloaded.
+  my_file_name <- basename(my_file_path)
+  function_message_print(
+    stringr::str_glue("File: {my_file_name} modified {modif_time}"))
+
+    # Return the generated or read data.
+    return(my_result)
+}
+
+# Explanations:
+
+# This function, `read_rds_or_run`, is designed to read data from an RDS file if it exists or run a specified function to obtain the data from the Oracle database and save it as an RDS file if the file does not exist or if the `force_from_db` parameter is set.
+#  
+#  
+# 1. **Check File Existence**: The function first checks if the file specified by `my_file_path` exists and, if so, retrieves its modification time.
+# 
+# 2. **Read or Run**: Depending on the existence of the file and the `force_from_db` flag:
+#     - **File Exists and `force_from_db` is not set**: If the file exists and `force_from_db` is not set, the function reads the data from the RDS file using `readr::read_rds(my_file_path)` and assigns it to `my_result`.
+#     - **File Does Not Exist or `force_from_db` is set**: If the file does not exist or `force_from_db` is set, the function follows these steps:
+#         - Prints a message indicating the file doesn't exist and data will be pulled from the database.
+#         - Times the function execution using `tictoc::tic()` and starts with a message indicating the date and purpose of the run.
+#         - Runs the specified function (`my_function`) on the provided `my_data` to generate the result (`my_result`), e.g., downloading data from the Oracle database.
+#         - Stops timing the function execution using `tictoc::toc()`.
+#         - Saves the result as an RDS file to the specified `my_file_path` for future use using `readr::write_rds(my_result, my_file_path)`. A `try` block is used to handle potential errors in writing the file.
+#         - Prints a message indicating that the new data is being saved into a file.
+# 
+# 3. **Print File Information**: After obtaining the data, the function prints the file name and modification time to provide information on when the data was last downloaded or modified.
+# 
+# 4. **Return**: The function returns the generated or read data (`my_result`).
+# 
+# 
+# >>>>
+
+processed_logbooks_2022 <-
+  readr::read_rds(
+    file.path(
+      my_paths$inputs,
+      r"(processing_logbook_data\Outputs\SEFHIER_processed_Logbooks_2022.rds)"
+    )
+  )
+
+dim(processed_logbooks_2022)
+# [1] 330441    179
+
+grep("permit", names(processed_logbooks_2022), ignore.case = T, value = T)
+# permit_sa_gom
+
+processed_logbooks_2022_calendar <-
+  processed_logbooks_2022 |>
+  dplyr::filter(TRIP_END_DATE >= my_date_beg &
+           TRIP_START_DATE <= my_date_end)
+
+nrow(processed_logbooks_2022_calendar) -
+  nrow(processed_logbooks_2022)
+# [1] -4712
+
+db_logbooks_query <-
+  stringr::str_glue("SELECT
+  *
+FROM
+  srh.mv_safis_trip_download@secapxdv_dblk
+WHERE
+    trip_end_date >= '{my_date_beg}'
+  AND trip_start_date <= '{my_date_end}'
+")
+
+db_logbooks_file_name <-
+  file.path(curr_proj_input_path,
+                      stringr::str_glue("logbooks_db_{my_year}.rds"))
+
+file.exists(db_logbooks_file_name)
+
+db_logbooks_fun <-
+  function(db_logbooks_query) {
+    return(try(DBI::dbGetQuery(con,
+                      db_logbooks_query)))
+  }
+
+get_db_logbooks <-
+  function() {
+    auxfunctions::read_rds_or_run(db_logbooks_file_name,
+                    db_logbooks_query,
+                    db_logbooks_fun)
+  }
+
+db_logbooks_2022 <- 
+  get_db_logbooks() |> 
+  auxfunctions::remove_empty_cols()
+# 2024-05-25 run for logbooks_db_2022.rds: 162.69 sec elapsed
+# File: logbooks_db_2022.rds modified Sat May 25 12:04:54 2024
+
+dim(db_logbooks_2022)
+# [1] 328086    149
+# [1] 328086    128
+```
+
+## check db logbooks vs. processed logbooks 
+
+```{r check db logbooks vs processed logbooks}
+# check db logbooks vs. processed logbooks ----
+grep("permit", names(db_logbooks_2022), ignore.case = T, value = T)
+# [1] "ACCSP_PERMIT_LICENSE_NBR" "SERO_VESSEL_PERMIT"       "GARFO_VESSEL_PERMIT"     
+
+n_distinct(db_logbooks_2022$TRIP_ID)
+# 94857
+n_distinct(processed_logbooks_2022$TRIP_ID)
+# 95342
+n_distinct(processed_logbooks_2022_calendar$TRIP_ID)
+# 94104
+
+trips_in_db_not_in_processed <-
+  setdiff(db_logbooks_2022$TRIP_ID, processed_logbooks_2022$TRIP_ID)
+# 753
+
+trips_in_db_not_in_processed_cal <-
+  setdiff(db_logbooks_2022$TRIP_ID,
+          processed_logbooks_2022_calendar$TRIP_ID)
+length(trips_in_db_not_in_processed_cal)
+# 753
+
+trips_in_processed_not_in_db <-
+  setdiff(processed_logbooks_2022$TRIP_ID, db_logbooks_2022$TRIP_ID)
+length(trips_in_processed_not_in_db)
+# 1238
+
+trips_in_processed_cal_not_in_db <-
+  setdiff(processed_logbooks_2022_calendar$TRIP_ID,
+          db_logbooks_2022$TRIP_ID)
+length(trips_in_processed_cal_not_in_db)
+# 0 ok
+
+processed_logbooks_2022 |> 
+  dplyr::filter(TRIP_ID %in% trips_in_processed_not_in_db) |> 
+  # filter(!permit_sa_gom == "sa_only") |> 
+  dplyr::select(COMP_WEEK_START_DT, COMP_WEEK_END_DT) |> 
+    dplyr::distinct()
+#   COMP_WEEK_START_DT  COMP_WEEK_END_DT   
+#   <dttm>              <dttm>             
+# 1 2022-12-26 00:00:00 2023-01-01 00:00:00
+# 2 2021-12-27 00:00:00 2022-01-02 00:00:00
+
+db_logbooks_2022 |>
+  dplyr::filter(TRIP_ID %in% trips_in_db_not_in_processed) |>
+  dplyr::select(TRIP_START_DATE, TRIP_END_DATE) |>
+  dplyr::distinct() |> 
+  dim()
+# [1] 352   2
+# all diff
+min(db_logbooks_2022$TRIP_START_DATE)
+# [1] "2021-12-31 23:00:00 EST"
+
+min(processed_logbooks_2022_calendar$TRIP_START_DATE)
+# [1] "2022-01-01"
+```
+
+## get DNF 
+
+```{r get DNF}
+# get DNF ----
+db_dnfs_query <-
+  stringr::str_glue(
+    "SELECT
+  trip_id,
+  trip_date,
+  tn.vessel_id vessel_id,
+  tn.de,
+  tn.ue,
+  coast_guard_nbr,
+  state_reg_nbr,
+  sero_official_number vessel_official_number
+FROM
+       safis.trips_neg@secapxdv_dblk.sfsc.noaa.gov tn
+  JOIN safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
+  ON ( tn.vessel_id = v.vessel_id )
+WHERE
+    trip_date BETWEEN TO_DATE('{my_date_beg}', 'yyyy-mm-dd') AND
+TO_DATE('{my_date_end}', 'yyyy-mm-dd')
+"
+  )
+
+db_dnfs_file_name <-
+  file.path(curr_proj_input_path,
+                      stringr::str_glue("dnfs_db_{my_year}.rds"))
+
+file.exists(db_dnfs_file_name)
+
+db_dnfs_fun <-
+  function(db_dnfs_query) {
+    return(try(DBI::dbGetQuery(con, db_dnfs_query)))
+  }
+
+get_db_dnfs <-
+  function() {
+    auxfunctions::read_rds_or_run(db_dnfs_file_name,
+                    db_dnfs_query,
+                    db_dnfs_fun)
+  }
+
+db_dnfs_2022 <-
+  get_db_dnfs() |>
+  auxfunctions::remove_empty_cols()
+
+dim(db_dnfs_2022)
+# [1] 804410      8
+```
+
+## result names 
+
+```{r result names}
+# result names ----
+# <<<<
+pretty_print  <-  function(my_text, my_title,
+                         the_end = "---") {
+  # Print out to console
+  title_message_print(my_title)
+  cat(c(my_text, the_end),
+      sep = "\n")
+}
+
+# Explanations:
+
+# This function is designed to print text with a specified title and an optional ending marker. It first prints the title, then the main text, and finally the ending marker.
+#  
+#  
+# 1. **Function Definition:**
+#    - `pretty_print <- function(my_text, my_title, the_end = "---") { ... }`: Defines a function named `pretty_print` with three arguments: `my_text`, `my_title`, and `the_end`.
+# 
+# 2. **Printing the Title:**
+#    - `title_message_print(my_title)`: Calls a function `title_message_print` to print the title `my_title`. This function formats and prints the title message.
+#    
+# 3. **Printing the Text:**
+#    - `cat(c(my_text, the_end), sep = "n")`: Concatenates `my_text` and `the_end` into a character vector and prints them using `cat`. Each element is separated by a newline (`n`). This line prints the main text followed by the ending marker.
+# 
+# 4. **Default Argument:**
+#    - `the_end = "---"`: Defines a default value for the argument `the_end`. If the argument is not provided when calling the function, it defaults to `"---"`. This is used as a marker to denote the end of the printed content.
+# 
+# >>>>
+
+data_names <-
+  c("survey_data_l_2022",
+    "processed_logbooks_2022",
+    "processed_logbooks_2022_calendar",
+    "db_logbooks_2022",
+    "db_dnfs_2022")
+
+auxfunctions::pretty_print(my_title = "Data are in:", 
+                           my_text = data_names)
+
+# Data are in:
+# survey_data_l_2022
+# processed_logbooks_2022
+# processed_logbooks_2022_calendar
+# db_logbooks_2022
+# db_dnfs_2022
+# ---
+```
+
+## source prepare data 
+
+```{r source prepare data}
+# source prepare data ----
+
+prepare_data_path <-
+  file.path(current_project_dir_name,
+            paste0(current_project_name, "_", "prepare_data.R"))
+
+file.exists(prepare_data_path)
+```
+
+## prepare data 
+
+```{r prepare data}
+# prepare data ----
+
+library(usmap)
+# library(tidycensus)
+
+# survey_data_l_2022 |> 
+#   purrr::map(auxfunctions::print_df_names)
+
+# $aga
+# [1] "asg_num, intcd1, intcd2, state, interval, ano_int, anosite, site1, reason1, site2, reason2, start1, stop1, tsite1, start2, stop2, tsite2, start3, stop3, tsite3, start4, stop4, tsite4, year, month, day, wave, asg_code, sitehrs, int12_1, int12_2, int12, site1_comments, site2_comments, all_site_comments, control7, cluster_id, cnty, date1"
+# 
+# $i1
+# [1] "id_code, time, hrsf, year, wave, sub_reg, intsite, vessel_name, num_typ2, num_typ3, status, for_hire_permit, la_charter_license, prefix1, prefix2, la_charter_permit_number, operating_type, srhs_vessel, interviewee_f_name, interviewee_l_name, interviewee_m_name, interviewee_suffix, interviewee_role, fishing_distance, people_fishing, no_harvested_selected, permit_number1, permit_number2, vsl_num, cnty, date1, st, comments"
+# 
+# $i2
+# [1] "year, wave, sub_reg, id_code, tsn, num_fish, num_typ2, st, date1"
+# 
+# $i3
+# [1] "year, wave, sub_reg, id_code, tsn, fshinsp, disp3, lngth, wgt, num_typ3, st, date1"
+# 
+# $ref
+# [1] "id_code, time, hrsf, year, wave, st, sub_reg, intsite, vessel_name, num_typ2, num_typ3, status, comments, for_hire_permit, la_charter_license, prefix1, prefix2, la_charter_permit_number, operating_type, srhs_vessel, interviewee_f_name, interviewee_l_name, interviewee_m_name, interviewee_suffix, interviewee_role, fishing_distance, people_fishing, no_harvested_selected, permit_number1, permit_number2, vsl_num, cnty, date1"
+# 
+```
+
+## aga asg code 
+
+```{r aga asg code}
+# aga asg code ----
+survey_data_l_2022$aga |> 
+  dplyr::select(year, month, day, asg_code) |> 
+  dplyr::distinct() |> 
+  dplyr::glimpse()
+# 
+# sst <- strsplit(text, "")[[1]]
+# out <- paste0(sst[c(TRUE, FALSE)], sst[c(FALSE, TRUE)])
+
+survey_data_l_2022$aga |>
+  dplyr::select(year, month, day, asg_code) |>
+  dplyr::distinct() |>
+  dplyr::mutate(asg_sps = stringr::str_replace(
+    asg_code,
+    "(\\d+)2022(\\d\\d)(\\d\\d)",
+    stringr::str_c("\\1 \\2 \\3")
+  )) |>
+  dplyr::mutate(asg_dates = stringr::str_split(asg_sps, " ")) |>
+  dplyr::rowwise() |>
+  # filter(!asg_dates[[2]] == month) |>
+  # 0
+  dplyr::filter(!asg_dates[[3]] == day) |>
+  # 0
+  dplyr::glimpse()
+
+# asg_code is useless for us
+```
+
+## i1 
+
+```{r i1}
+# i1 ----
+# View(survey_data_l_2022$ref)
+# View(survey_data_l_2022$i1)
+```
+
+### ref and i1 id_code 
+
+```{r ref and i1 id_code}
+## ref and i1 id_code ----
+setdiff(survey_data_l_2022$ref$id_code,
+        survey_data_l_2022$i1$id_code) |> length()
+# 19
+
+setdiff(survey_data_l_2022$i1$id_code,
+        survey_data_l_2022$ref$id_code) |> length()
+# 1835
+
+# get dates from survey's id_code
+get_date_from_id_code_survey <- 
+  function(my_df) {
+    my_df__w_dates <-
+      my_df |>
+      dplyr::mutate(
+        id_sps = stringr::str_replace(
+          id_code,
+          "(\\d{5})(2022)(\\d{2})(\\d{2})(\\d{3})",
+          stringr::str_c("\\1 \\2 \\3 \\4 \\5")
+        )
+      ) |>
+      tidyr::separate_wider_delim(
+        id_sps,
+        delim = " ",
+        names = c(
+          "assignment_num_sampler_id",
+          "int_year",
+          "int_month",
+          "int_day",
+          "intercept_num"
+        )
+      ) |>
+      dplyr::select(-c(assignment_num_sampler_id, intercept_num)) |>
+      dplyr::mutate(interview_date =
+               lubridate::make_date(int_year, int_month, int_day))
+    
+    return(my_df__w_dates)
+  }
+```
+
+## prepare i1 dates 
+
+```{r prepare i1 dates}
+# prepare i1 dates ----
+survey_data_l_2022_vsl_date <-
+  survey_data_l_2022$i1 |>
+  dplyr::select(vsl_num, id_code, time, hrsf) |>
+  dplyr::distinct() |>
+  get_date_from_id_code_survey()
+
+# check if correct split
+survey_data_l_2022_vsl_date |>
+  dplyr::mutate(date_paste = paste0(int_year, int_month, int_day)) |>
+  dplyr::rowwise() |>
+  # filter(!grepl(date_paste, id_code)) |>
+  # 0
+  dplyr::filter(grepl(date_paste, id_code)) |>
+# 1835
+  dplyr::ungroup() |>
+  dim()
+
+# check if correct interview_date
+survey_data_l_2022_vsl_date |>
+  dplyr::mutate(date_paste = paste0(int_year, int_month, int_day),
+         interview_date_str = as.character(interview_date)
+           ) |>
+  dplyr::mutate(interview_date_str_1 = 
+           stringr::str_replace_all(interview_date_str, "\\W", "")) |> 
+  dplyr::rowwise() |>
+  # filter(!date_paste == interview_date_str_1) |>
+  # 0
+  dplyr::filter(date_paste == interview_date_str_1) |>
+# 1835
+  dplyr::ungroup() |>
+  dim()
+# 0
+
+survey_data_l_2022_vsl_date_time <-
+  survey_data_l_2022_vsl_date |>
+  dplyr::mutate(hour_sec =
+           stringr::str_replace(time, "(\\d+)(\\d{2})", "\\1 \\2")) |>
+  tidyr::separate_wider_delim(hour_sec,
+                              delim = " ",
+                              names = c("int_hour", "int_sec")) |>
+  dplyr::mutate(dplyr::across(tidyselect::starts_with("int_"), ~ as.numeric(.x))) |>
+  dplyr::mutate(
+    interview_date_time =
+      lubridate::make_datetime(int_year, int_month, int_day, int_hour, int_sec, tz = Sys.timezone())
+  )
+
+# str(survey_data_l_2022_vsl_date_time)
+```
+
+### hours fishing 
+
+```{r hours fishing}
+## hours fishing ----
+survey_data_l_2022_vsl_date_time_all <-
+  survey_data_l_2022_vsl_date_time |>
+  dplyr::mutate(minutes_fishing = hrsf * 60) |>
+  dplyr::mutate(start_time = interview_date_time - lubridate::minutes(minutes_fishing))
+
+# $ interview_date_time: POSIXct[1:1835], format: "2022-01-30 15:53:00" "2022-02-14 17:27:00" ...
+ # $ minutes_fishing    : num [1:1835] 300 540 480 120 240 240 150 180 420 450 ...
+ # $ start_time         : POSIXct[1:1835], format: "2022-01-30 10:53:00" "2022-02-14 08:27:00" ...
+
+dim(survey_data_l_2022_vsl_date)
+# [1] 1835    10
+
+n_distinct(survey_data_l_2022_vsl_date$vsl_num)
+# vessels 476
+
+n_distinct(db_logbooks_2022$VESSEL_OFFICIAL_NBR)
+# 1892
+
+survey_data_l_2022_vsl_date |> auxfunctions::print_df_names()
+
+grep("date", names(db_logbooks_2022), ignore.case = T, value = T)
+
+# View(db_logbooks_2022)
+```
+
+### add dates back to the full i1 
+
+```{r add dates back to the full i1}
+## add dates back to the full i1 ----
+
+survey_data_l_2022_i1_w_dates <-
+  dplyr::inner_join(survey_data_l_2022$i1, survey_data_l_2022_vsl_date)
+# Joining with `by = join_by(id_code, time, hrsf, vsl_num)`
+
+dim(survey_data_l_2022$i1)
+# [1] 1835   33
+dim(survey_data_l_2022_i1_w_dates)
+# [1] 1835   37
+```
+
+## prepare geo data 
+
+```{r prepare geo data}
+# prepare geo data ----
+
+# The following is adopted from Dominique's code
+gulf_states <- c("AL", "TX", "MS", "LA")
+
+## LIST OF GULF COUNTY NAMES IN THE SAME ORDER AS COUNTY CODES ABOVE
+# escambia, santa rosa, okaloosa, walton, bay, gulf, franklin, wakulla,
+# jefferson, taylor, dixie, levy, citrus, hernando, pasco, hillsborough,
+# pinellas, manatee, sarasota, charlotte, lee, collier
+# MONROE COUNTY = 87
+florida_gulf_counties <- c(33,
+                           113,
+                           91,
+                           131,
+                           5,
+                           45,
+                           37,
+                           129,
+                           65,
+                           123,
+                           29,
+                           75,
+                           17,
+                           53,
+                           101,
+                           57,
+                           103,
+                           81,
+                           115,
+                           15,
+                           71,
+                           21,
+                           87)
+
+# ASSIGN RECORDS IN COUNTY=75 WITH NO STATE TO GULF (FL OR LA)
+# is.na(st) & cnty == c(75) ~ ,
+
+# check st, cnty
+# survey_data_l_2022_i1_w_dates |>
+#   select(st, cnty) |> 
+#   count(st, cnty) |> 
+#   head()
+  
+survey_data_l_2022_i1_w_dates__states_by_cnty <-
+  survey_data_l_2022_i1_w_dates |>
+  dplyr::select(st, cnty) |>
+  dplyr::distinct() |>
+  dplyr::group_by(cnty) |>
+  dplyr::mutate(st1 = 
+                  dplyr::case_when(is.na(st) ~ "NA", .default = st)) |>
+  dplyr::mutate(states_l_by_cnty = list(paste(unique(sort(
+    st1
+  ))))) |>
+  dplyr::ungroup() |>
+  dplyr::select(-st1) |>
+  dplyr::distinct() |>
+  dplyr::arrange(cnty)
+
+# survey_data_l_2022_i1_w_dates__states_by_cnty |>
+#   select(states_l_by_cnty) |>
+#   distinct() |>
+#   glimpse()
+```
+
+## prepare logbooks 
+
+```{r prepare logbooks}
+# prepare logbooks ----
+db_logbooks_2022_short0 <-
+  db_logbooks_2022 |>
+  dplyr::select(
+    TRIP_ID,
+    VESSEL_OFFICIAL_NBR,
+    TRIP_START_DATE,
+    TRIP_START_TIME,
+    TRIP_END_DATE,
+    TRIP_END_TIME
+  ) |>
+  dplyr::distinct() |> 
+  dplyr::mutate(trip_end_date_only = lubridate::date(TRIP_END_DATE))
+
+  # mutate(dplyr::across(all_of(time_col_names),
+  #               ~ sprintf("%04d", .x)))
+
+db_logbooks_2022_short_date_time <-
+  db_logbooks_2022_short0 |>
+  dplyr::mutate(start_hour_sec =
+           stringr::str_replace(TRIP_START_TIME, "(\\d+)(\\d{2})", "\\1 \\2")) |>
+  tidyr::separate_wider_delim(
+    start_hour_sec,
+    delim = " ",
+    names = c("trip_start_hour", "trip_start_sec")
+  ) |>
+  dplyr::mutate(end_hour_sec =
+           stringr::str_replace(TRIP_END_TIME, "(\\d+)(\\d{2})", "\\1 \\2")) |>
+  tidyr::separate_wider_delim(end_hour_sec,
+                              delim = " ",
+                              names = c("trip_end_hour", "trip_end_sec")) |>
+  dplyr::mutate(dplyr::across(
+    c(
+      "trip_start_hour",
+      "trip_start_sec",
+      "trip_end_hour",
+      "trip_end_sec"
+    ),
+    ~ as.numeric(.x)
+  )) |>
+  dplyr::mutate(
+    trip_start_date_time = lubridate::make_datetime(
+      lubridate::year(TRIP_START_DATE),
+      lubridate::month(TRIP_START_DATE),
+      lubridate::day(TRIP_START_DATE),
+      as.numeric(trip_start_hour),
+      as.numeric(trip_start_sec),
+      tz = Sys.timezone()
+    )
+  ) |>
+  dplyr::mutate(
+    trip_end_date_time = lubridate::make_datetime(
+      lubridate::year(TRIP_END_DATE),
+      lubridate::month(TRIP_END_DATE),
+      lubridate::day(TRIP_END_DATE),
+      as.numeric(trip_end_hour),
+      as.numeric(trip_end_sec),
+      tz = Sys.timezone()
+    )
+  )
+
+# str(db_logbooks_2022_short_date_time)
+
+# compare trips/vessels
+# tidyverse combine year, month and day into a date lubridate
+#     str(db_logbooks_2022_short0)
+# lubridate::date("2022-01-04 23:00:00")
+
+lgb_join_i1 <-
+  dplyr::right_join(
+    db_logbooks_2022_short_date_time,
+    survey_data_l_2022_vsl_date_time_all,
+    dplyr::join_by(
+      VESSEL_OFFICIAL_NBR == vsl_num,
+      trip_end_date_only == interview_date
+    ),
+    relationship = "many-to-many"
+  )
+# ℹ Row 5799 of `x` matches multiple rows in `y`.
+# ℹ Row 944 of `y` matches multiple rows in `x`.
+
+dim(lgb_join_i1)
+# 2015 23
+
+n_distinct(lgb_join_i1$VESSEL_OFFICIAL_NBR)
+# 476
+
+# str(lgb_join_i1)
+```
+
+## intervie and trip time difference 
+
+```{r intervie and trip time difference}
+# intervie and trip time difference ----
+lgb_join_i1__t_diff <-
+  lgb_join_i1 |>
+  dplyr::mutate(
+    trip_end_interview_diff =
+      trip_end_date_time - interview_date_time,
+    trip_start_interview_diff =
+      trip_start_date_time - start_time
+  )
+
+lgb_join_i1__t_diff_short <-
+  lgb_join_i1__t_diff |>
+  dplyr::select(
+    id_code,
+    TRIP_ID,
+    VESSEL_OFFICIAL_NBR,
+    trip_start_date_time,
+    start_time,
+    trip_start_interview_diff,
+    trip_end_date_time,
+    interview_date_time,
+    trip_end_interview_diff
+  )
+
+# View(lgb_join_i1__t_diff_short)
+```
+
+## has logbooks 
+
+```{r has logbooks}
+# has logbooks ----
+lgb_join_i1__t_diff_short_has_trip <-
+  lgb_join_i1__t_diff_short |>
+  dplyr::filter(!is.na(TRIP_ID))
+
+dim(lgb_join_i1__t_diff_short_has_trip)
+
+lgb_join_i1__t_diff_short_has_no_trip <-
+  lgb_join_i1__t_diff_short |>
+  dplyr::filter(is.na(TRIP_ID))
+
+dim(lgb_join_i1__t_diff_short_has_no_trip)
+
+# n_distinct(lgb_join_i1__t_diff_short_has_trip$VESSEL_OFFICIAL_NBR)
+# 228
+```
+
+## find duplicates 
+
+```{r find duplicates}
+# find duplicates ----
+```
+
+### duplicated vessel/trip_end 
+
+```{r duplicated vesseltrip_end}
+## duplicated vessel/trip_end ----
+lgb_join_i1__t_diff_short %>%
+  dplyr::group_by(VESSEL_OFFICIAL_NBR, 
+                  lubridate::day(trip_end_date_time)) %>%
+  dplyr::filter(n() > 1) |> 
+  dplyr::glimpse()
+```
+
+### duplicated id_code (2 trips - 1 interview) 
+
+```{r duplicated id_code 2 trips  1 interview}
+## duplicated id_code (2 trips - 1 interview) ----
+lgb_join_i1__t_diff_short |> 
+  dplyr::group_by(id_code) |> 
+  dplyr::filter(n() > 1) |>
+  dplyr::arrange(id_code, trip_end_date_time) |>
+  dplyr::glimpse()
+```
+
+### interval and big_diff_time 
+
+```{r interval and big_diff_time}
+## interval and big_diff_time ----
+lgb_join_i1__t_diff_short__w_int_all <-
+  lgb_join_i1__t_diff_short_has_trip |>
+  dplyr::group_by(TRIP_ID) |>
+  dplyr::mutate(
+    trip_end_interval =
+      lubridate::interval(
+        start =
+          trip_end_date_time - lubridate::minutes(30),
+        end = trip_end_date_time + lubridate::minutes(90),
+        tz = Sys.timezone()
+      )
+  ) |> 
+  dplyr::mutate(big_diff_time = dplyr::case_when(
+    !interview_date_time %within% trip_end_interval ~ "yes",
+    .default = "no"
+  )) |> 
+  dplyr::ungroup()
+```
+
+### duplicated trip_id (2 trips - 2 interview) 
+
+```{r duplicated trip_id 2 trips  2 interview}
+## duplicated trip_id (2 trips - 2 interview) ----
+
+lgb_join_i1__t_diff_short %>%
+  dplyr::group_by(TRIP_ID) %>%
+  dplyr::filter(n() > 1) |>
+  dplyr::arrange(TRIP_ID, interview_date_time, trip_end_date_time) |>
+  dplyr::glimpse()
+
+lgb_join_i1__t_diff_short__w_int <-
+  lgb_join_i1__t_diff_short |>
+  dplyr::group_by(TRIP_ID) |>
+  dplyr::filter(n() > 1) |>
+  dplyr::mutate(
+    trip_end_interval =
+      lubridate::interval(
+        start =
+          trip_end_date_time - lubridate::minutes(30),
+        end = trip_end_date_time + lubridate::minutes(90),
+        tz = Sys.timezone()
+      )
+  ) |> 
+  dplyr::mutate(big_diff_time = dplyr::case_when(
+    !interview_date_time %within% trip_end_interval ~ "yes",
+    .default = "no"
+  )) |> 
+  dplyr::ungroup()
+  
+lgb_join_i1__t_diff_short__w_int |>
+  dplyr::arrange(VESSEL_OFFICIAL_NBR,
+          id_code,
+          TRIP_ID,
+          trip_end_date_time,
+          big_diff_time) |>
+  dplyr::filter(!is.na(TRIP_ID)) |>
+  dplyr::select(-c(contains("start"))) |>
+  dplyr::glimpse()
+
+# a <- lubridate::ymd_hms("2022-06-01 07:09:00")
+# a - lubridate::hours(1)
+
+lgb_join_i1__t_diff_short__w_int_all_dup <-
+  lgb_join_i1__t_diff_short__w_int_all |>
+  dplyr::group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |>
+  dplyr::add_count(TRIP_ID, name = "dup_interviews") |>
+  dplyr::ungroup()
+
+dup_interviews <- 
+  lgb_join_i1__t_diff_short__w_int_all_dup |> 
+  dplyr::filter(dup_interviews > 1)
+
+nrow(dup_interviews)
+# 58
+
+dup_interviews |> 
+  dplyr::filter(big_diff_time == "yes") |> 
+  dplyr::glimpse()
+# 31
+```
+
+### remove duplicated trip/interview 
+
+```{r remove duplicated tripinterview}
+## remove duplicated trip/interview ----
+# They are a result of full join on a day, e.g. 2 trips, 2 interviews
+lgb_join_i1__t_diff_short__w_int_all_dup |>
+  dplyr::filter(dup_interviews > 1) |>
+  dplyr::select(-ends_with("_diff")) |>
+  dplyr::glimpse()
+
+int_dups_only <- 
+  lgb_join_i1__t_diff_short__w_int_all_dup |>
+  dplyr::filter(dup_interviews > 1) |>
+  dplyr::filter(big_diff_time == "yes") |>
+  dplyr::select(id_code, TRIP_ID, VESSEL_OFFICIAL_NBR) |> 
+  dplyr::distinct()
+
+dim(int_dups_only)
+# 31
+```
+
+### remove duplicates 
+
+```{r remove duplicates}
+## remove duplicates ----
+lgb_join_i1__t_diff_short__w_int_all_dup_rm <-
+  lgb_join_i1__t_diff_short__w_int_all_dup |>
+  dplyr::anti_join(int_dups_only)
+# Joining with `by = join_by(id_code, TRIP_ID, VESSEL_OFFICIAL_NBR)`
+
+nrow(lgb_join_i1__t_diff_short__w_int_all_dup) -
+  nrow(lgb_join_i1__t_diff_short__w_int_all_dup_rm) ==
+  nrow(int_dups_only)
+# T
+```
+
+## check time difference 
+
+```{r check time difference}
+# check time difference ----
+lgb_join_i1__t_diff_short__w_int_all_dup |>
+  dplyr::filter(dup_interviews == 1) |>
+  dplyr::filter(big_diff_time == "yes") |>
+  # select(id_code, TRIP_ID, VESSEL_OFFICIAL_NBR)
+  dplyr::select(
+    VESSEL_OFFICIAL_NBR,
+    trip_end_date_time,
+    interview_date_time,
+    trip_end_interview_diff,
+    trip_end_interval
+  ) |>
+  dplyr::arrange(
+    VESSEL_OFFICIAL_NBR,
+    trip_end_date_time,
+    interview_date_time,
+    trip_end_interview_diff,
+    trip_end_interval
+  ) |>
+  dplyr::glimpse()
+
+# n_distinct(lgb_join_i1__t_diff_short__w_int_all_dup$TRIP_ID) ==
+# nrow(lgb_join_i1__t_diff_short__w_int_all_dup)
+# # F
+# 
+# lgb_join_i1__t_diff_short__w_int_all_dup |> 
+#   group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |> 
+#   mutate(dups = c(unique(dup_interviews))) |> 
+#   ungroup() |> 
+#   # filter(!dups == 1) |>
+#   # filter(!dups == 2) |> 
+#   select(dups) |> 
+#   distinct() |> 
+# str()
+#   View()
+```
+
+## remove duplicated interview counts (2 trips a day, 1 interview) 
+
+```{r remove duplicated interview counts 2 trips a day 1 interview}
+# remove duplicated interview counts (2 trips a day, 1 interview) ----
+```
+
+### Do that for the df with no 2 by 2 duplicates 
+
+```{r Do that for the df with no 2 by 2 duplicates}
+## Do that for the df with no 2 by 2 duplicates ----
+```
+
+#### find interview duplicates 
+
+```{r find interview duplicates}
+### find interview duplicates ----
+lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup <-
+ lgb_join_i1__t_diff_short__w_int_all_dup_rm |>
+  dplyr::group_by(VESSEL_OFFICIAL_NBR, id_code) |>
+  dplyr::add_count(id_code, name = "dup_id_codes") |>
+  dplyr::ungroup()
+
+# duplicated interview
+lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup |> 
+  dplyr::filter(dup_id_codes > 1) |> 
+  dim()
+  # 310
+
+# check diff time
+lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup |>
+  dplyr::filter(dup_id_codes == 2) |>
+  dplyr::arrange(id_code, TRIP_ID, VESSEL_OFFICIAL_NBR, trip_end_date_time) |>
+  dplyr::filter(big_diff_time == "no") |>
+  dim()
+# [1] 146  13
+```
+
+### get interview duplicates only 
+
+```{r get interview duplicates only}
+## get interview duplicates only ----
+
+trip_dups_only <- 
+  lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup |>
+  dplyr::filter(dup_id_codes > 1) |>
+  dplyr::filter(big_diff_time == "yes") |>
+  dplyr::select(id_code, TRIP_ID, VESSEL_OFFICIAL_NBR) |> 
+  dplyr::distinct()
+
+dim(trip_dups_only)
+# 164
+```
+
+### remove duplicates 2 trips. 1 interview 
+
+```{r remove duplicates 2 trips 1 interview}
+## remove duplicates 2 trips. 1 interview ----
+# Only keep logbooks with a correspondent interview
+lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm <-
+  lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup |>
+  dplyr::anti_join(trip_dups_only)
+# Joining with `by = join_by(id_code, TRIP_ID, VESSEL_OFFICIAL_NBR)`
+```
+
+### check if not loosing trips by removing 
+
+```{r check if not loosing trips by removing}
+## check if not loosing trips by removing ----
+# <<<<
+data_overview  <-  function(my_df) {
+  # Use 'summary' function to generate summary statistics and print the results.
+  summary(my_df) %>% print()
+
+  # Print a header indicating the next section of the output.
+  cat("\nCount unique values in each column:\n")
+
+  # Call the 'count_uniq_by_column' function to count unique values in each column of the data frame.
+  count_uniq_by_column(my_df)
+}
+
+# Explanations:
+
+# This function provides a quick way to get an overview of the data distribution and uniqueness within a dataframe.
+#  
+#  
+# The `data_overview` function provides an overview of the data contained within a dataframe.
+# 
+# 1. **Function Definition:**
+#    - `data_overview <- function(my_df) { .. }`: Defines a function named `data_overview` that takes a single argument `my_df`, representing the dataframe to be analyzed.
+# 
+# 2. **Summary Statistics:**
+#    - `summary(my_df) %>% print()`: Generates summary statistics for the dataframe using the `summary` function. The `%>%` pipe operator is used to pass the summary to the `print` function for display.
+#    - `summary(my_df)`: Computes summary statistics such as minimum, 1st quartile, median, mean, 3rd quartile, and maximum for each column of the dataframe.
+# 
+# 3. **Count Unique Values:**
+#    - `cat("nCount unique values in each column:n")`: Prints a message indicating that the unique values in each column will be counted.
+#    - `count_uniq_by_column(my_df)`: Calls the `count_uniq_by_column` function to count the number of unique values in each column of the dataframe. The result is printed to the console.
+# 
+# >>>>
+
+nrow(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup) -
+  nrow(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm) ==
+  nrow(trip_dups_only)
+# T
+
+auxfunctions::data_overview(lgb_join_i1)
+# TRIP_ID              1054
+# VESSEL_OFFICIAL_NBR   476
+# id_code              1835
+
+auxfunctions::data_overview(lgb_join_i1__t_diff_short__w_int_all)
+# id_code                    901
+# TRIP_ID                   1053
+# VESSEL_OFFICIAL_NBR        228
+
+auxfunctions::data_overview(lgb_join_i1__t_diff_short__w_int_all_dup_rm)
+# id_code                    896
+# TRIP_ID                   1051
+# VESSEL_OFFICIAL_NBR        228
+
+auxfunctions::data_overview(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm)
+# id_code                   886
+# TRIP_ID                   887
+# VESSEL_OFFICIAL_NBR       227
+
+# View(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm)
+```
+
+### shorten the df 
+
+```{r shorten the df}
+## shorten the df ----
+lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short <- lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm |>
+  dplyr::select(-c(
+    # ends_with("_diff"),
+    # ends_with("_interval"),
+    tidyselect::contains("start"),
+    tidyselect::starts_with("dup_")
+  )) |> 
+  dplyr::arrange(VESSEL_OFFICIAL_NBR, trip_end_date_time)
+
+dplyr::glimpse(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short)
+
+# TODO: why id_code amount > TRIP_ID?
+
+# TODO: check interview before trip end, joined a wrong trip?
+```
+
+## combine all catch info 
+
+```{r combine all catch info}
+# combine all catch info ----
+
+lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_shorter <- 
+  lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short |>
+  dplyr::select(id_code,
+         TRIP_ID,
+         VESSEL_OFFICIAL_NBR,
+         trip_end_date_time,
+         interview_date_time)
+```
+
+### shorten db logbooks 
+
+```{r shorten db logbooks}
+## shorten db logbooks ----
+
+lgb_names_to_use <- c(
+  "TRIP_ID",
+"TRIP_TYPE_NAME",
+"VESSEL_OFFICIAL_NBR",
+"VESSEL_NAME",
+"CAPT_NAME_FIRST",
+"CAPT_NAME_LAST",
+"STATE",
+"STATE_NAME",
+"END_PORT_NAME",
+"END_PORT_COUNTY",
+"END_PORT_STATE",
+"NUM_ANGLERS",
+"ACTIVITY_TYPE_NAME",
+"DISTANCE_CODE_NAME",
+"FISHING_HOURS",
+"CATCH_SEQ",
+"CATCH_SPECIES_ITIS",
+"REPORTED_QUANTITY",
+"ANYTHING_CAUGHT_FLAG",
+"DISPOSITION_CODE",
+"DISPOSITION_NAME"
+)
+# "UNIT_MEASURE",
+
+db_logbooks_2022_short <-
+  db_logbooks_2022 |>
+  dplyr::select(tidyselect::all_of(lgb_names_to_use))
+
+# dim(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_shorter)
+```
+
+### add logbooks to the df joined by day/time 
+
+```{r add logbooks to the df joined by daytime}
+## add logbooks to the df joined by day/time ----
+catch_info_lgb <- 
+  dplyr::left_join(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_shorter,
+            db_logbooks_2022_short)
+# Joining with `by = join_by(TRIP_ID, VESSEL_OFFICIAL_NBR)`
+
+dim(catch_info_lgb)
+# [1] 3502   24
+```
+
+### shorten survey_data_l_2022 
+
+```{r shorten survey_data_l_2022}
+## shorten survey_data_l_2022 ----
+
+survey_fields_to_use <- 
+    c(
+  "id_code",
+  "operating_type",
+  "vsl_num",
+  "vessel_name",
+  "interviewee_f_name",
+  "interviewee_l_name",
+  "st",
+  "cnty",
+  "people_fishing",
+  "no_harvested_selected",
+  "fishing_distance",
+  "hrsf",
+  "tsn",
+  "num_fish",
+  "fshinsp",
+  "num_typ2",
+  "disp3",
+  "lngth",
+  "wgt",
+  "num_typ3",
+  "i2",
+  "i3"
+  )
+
+survey_data_l_2022_short <- 
+  survey_data_l_2022 |> 
+  purrr::map(\(x) {x |> 
+      dplyr::select(tidyselect::any_of(survey_fields_to_use))})
+
+survey_data_l_2022 |> purrr::map(dim)
+survey_data_l_2022_short |> purrr::map(dim)
+
+survey_data_l_2022_short$i2 <-
+  survey_data_l_2022_short$i2 |>
+  tibble::add_column(i2 = "released")
+
+survey_data_l_2022_short$i3 <-
+  survey_data_l_2022_short$i3 |>
+  tibble::add_column(i3 = "harvested")
+
+survey_data_l_2022_short$i3 |> glimpse()
+
+# survey_data_l_2022_short |> purrr::map(dim)
+
+catch_info_lgb_i1 <-
+  left_join(catch_info_lgb,
+            survey_data_l_2022_short$i1,
+            suffix = c(".lgb", ".i1"))
+# Joining with `by = join_by(id_code)`
+
+dim(catch_info_lgb_i1)
+# [1] 3502   37
+
+catch_info_lgb_i1_i2 <- 
+  left_join(catch_info_lgb_i1,
+            survey_data_l_2022_short$i2,
+            relationship = "many-to-many",
+            suffix = c(".i1", ".releas"),
+            join_by(id_code))
+# ℹ Row 5 of `x` matches multiple rows in `y`.
+# ℹ Row 1127 of `y` matches multiple rows in `x`.
+# default
+# Joining with `by = join_by(id_code, st, num_typ2)`
+# Error in `left_join()`:
+# ! Can't join `x$st` with `y$st` due to incompatible types.
+
+dim(catch_info_lgb_i1_i2)
+# [1] 8418   42
+
+catch_info_lgb_i1_i2_i3 <-
+  left_join(catch_info_lgb_i1_i2,
+            survey_data_l_2022_short$i3,
+            relationship = "many-to-many",
+            join_by(id_code),
+            suffix = c(".releas", ".harv")
+)
+# ℹ Row 1 of `x` matches multiple rows in `y`.
+# ℹ Row 1427 of `y` matches multiple rows in `x`.
+# default
+# Joining with `by = join_by(id_code, num_typ3, tsn)`
+
+dim(catch_info_lgb_i1_i2_i3)
+# [1] 89466    50
+```
+
+## join all survey info 
+
+```{r join all survey info}
+# join all survey info ----
+
+lubridate::intersect(names(survey_data_l_2022_short$i1),
+                     names(survey_data_l_2022_short$i2))
+
+# unify classes
+survey_data_l_2022_short <-
+  survey_data_l_2022_short |>
+  purrr::map(\(one_df) {
+    one_df |>
+      dplyr::mutate(dplyr::across(tidyselect::any_of(c("st")), ~ as.integer(.x)))
+  })
+
+# joins
+```
+
+### i1 and i2 
+
+```{r i1 and i2}
+## i1 and i2 ----
+survey_data_l_2022_short |> 
+  purrr::map(~n_distinct(.x$id_code))
+
+# TODO: left_join or full_join?
+survey_i1_i2_released <-
+  full_join(survey_data_l_2022_short$i1,
+            survey_data_l_2022_short$i2,
+            by = join_by(id_code, st),
+            suffix = c(".i1", ".release"))
+# Joining with `by = join_by(id_code, st, num_typ2)`
+
+dim(survey_i1_i2_released)
+# 3218  left join
+# 3683  full join
+
+n_distinct(survey_i1_i2_released$id_code)
+# 1835
+```
+
+#### add dates to i1_i2 
+
+```{r add dates to i1_i2}
+### add dates to i1_i2 ----
+survey_i1_i2_released_dates <-
+  get_date_from_id_code_survey(survey_i1_i2_released)
+
+glimpse(survey_i1_i2_released_dates)
+```
+
+### i1 and i3 
+
+```{r i1 and i3}
+## i1 and i3 ----
+survey_i1_i3_harvested <-
+  full_join(survey_data_l_2022_short$i1,
+            survey_data_l_2022_short$i3,
+            by = join_by(id_code, st),
+            suffix = c(".i1", ".harv")
+)
+
+n_distinct(survey_i1_i3_harvested$id_code)
+# 1835
+
+dim(survey_i1_i3_harvested)
+# [1] 11794    21
+# View(survey_i1_i3_harvested)
+```
+
+#### add dates to i1_i3 
+
+```{r add dates to i1_i3}
+### add dates to i1_i3 ----
+survey_i1_i3_harvested_dates <- 
+  get_date_from_id_code_survey(survey_i1_i3_harvested)
+
+# glimpse(survey_i1_i3_harvested_dates)
+
+# result names:
+data_names <-
+  c("lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short",
+    "db_logbooks_2022_short",
+    "catch_info_lgb_i1_i2_i3",
+    "survey_i1_i2_released",
+    "survey_i1_i3_harvested")
+
+auxfunctions::pretty_print(my_title = "Processed Data are in:", 
+                           my_text = data_names)
+
+# Processed Data are in:
+# lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short
+# db_logbooks_2022_short
+# catch_info_lgb_i1_i2_i3
+# ---
+
+dplyr::glimpse(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short)
+dplyr::glimpse(db_logbooks_2022_short)
+dplyr::glimpse(catch_info_lgb_i1_i2_i3)
+
+# db_logbooks_2022_short$ANYTHING_CAUGHT_FLAG |> unique()
+# [1] NA  "Y" "N"
+```
+
+## plots 
+
+```{r plots}
+# plots ----
+# source(file.path(current_project_dir_name, "validation_survey_plots.R"))
+```
+
+## compare field names 
+
+```{r compare field names}
+# compare field names ----
+# source(file.path(current_project_dir_name, "validation_survey_fields.R"))
+```
+
+## compare vessel names main 
+
+```{r compare vessel names main}
+# compare vessel names main ----
+unify_names <- function(column_name) {
+  tolower(column_name) |> 
+    stringr::str_replace("\\s", "")
+}
+
+catch_info_lgb_i1_i2_i3 |>
+  dplyr::filter(!unify_names(vessel_name) == unify_names(VESSEL_NAME)) |>
+  dplyr::select(VESSEL_OFFICIAL_NBR, vsl_num, VESSEL_NAME, vessel_name) |>
+  dplyr::distinct() |>
+  dplyr::glimpse()
+# Rows: 101 w/o spaces
+# Rows: 112
+# dplyr::select(VESSEL_OFFICIAL_NBR) |> 
+# 79 unique vessels
+
+# dplyr::filter(!VESSEL_OFFICIAL_NBR == vsl_num)
+# 0
+```
+
+## compare TRIP_TYPE_NAME, operating_type 
+
+```{r compare TRIP_TYPE_NAME operating_type}
+# compare TRIP_TYPE_NAME, operating_type ----
+
+# 6=’HB’, 7=’CB’, 0=’Neither’
+# catch_info_lgb_i1_i2_i3$TRIP_TYPE_NAME |> unique()
+# [1] "CHARTER" "UNKNOWN"
+
+catch_info_lgb_i1_i2_i3 |>
+  dplyr::select(VESSEL_OFFICIAL_NBR, TRIP_TYPE_NAME, operating_type) |>
+  dplyr::distinct() |>
+  dplyr::mutate(
+    surv_trip_type =
+      dplyr::case_when(
+        operating_type == 6 ~ "headboat",
+        operating_type == 7 ~ "CHARTER",
+        operating_type == 0 ~ "Neither"
+      )
+  ) |>
+  dplyr::filter(!unify_names(TRIP_TYPE_NAME) == unify_names(surv_trip_type)) |>
+  dplyr::glimpse()
+# 16
+# same type "CHARTER" 225
+```
+
+## compare NUM_ANGLERS, people_fishing 
+
+```{r compare NUM_ANGLERS people_fishing}
+# compare NUM_ANGLERS, people_fishing ----
+# catch_info_lgb_i1_i2_i3$people_fishing |> unique()
+
+compare_fields <- 
+  c("NUM_ANGLERS", "people_fishing")
+
+catch_info_lgb_i1_i2_i3 |> 
+  dplyr::select(VESSEL_OFFICIAL_NBR, all_of(compare_fields)) |>
+  dplyr::distinct() |>
+  dplyr::rowwise() |> 
+  # dplyr::filter(!as.integer(!!sym(compare_fields[[1]])) == as.integer(!!sym(compare_fields[[2]]))) |>
+  # 135
+  # dplyr::filter(as.integer(!!sym(compare_fields[[1]])) > as.integer(!!sym(compare_fields[[2]]))) |>
+  # 90
+  # dplyr::filter(as.integer(!!sym(compare_fields[[1]])) < as.integer(!!sym(compare_fields[[2]]))) |>
+  # 45
+  dplyr::filter(abs(as.integer(!!sym(compare_fields[[1]])) - as.integer(!!sym(compare_fields[[2]]))) > 1) |>
+  dplyr::ungroup() |> 
+# 68
+  dim()
+
+# when was the survey?, all < June 2022
+# grep("month", tolower(names(catch_info_lgb_i1_i2_i3)), value = T)
+
+fish_hours_diff <-
+  catch_info_lgb_i1_i2_i3 |>
+  dplyr::select(VESSEL_OFFICIAL_NBR,
+         all_of(compare_fields),
+         interview_date_time) |>
+  dplyr::distinct() |>
+  dplyr::rowwise() |>
+  dplyr::filter(!as.integer(!!sym(compare_fields[[1]])) == as.integer(!!sym(compare_fields[[2]]))) |>
+  dplyr::ungroup() |>
+  dplyr::mutate(
+    interview_year = lubridate::year(interview_date_time),
+    interview_month = lubridate::month(interview_date_time)
+  ) |>
+  dplyr::count(interview_month, name = "diff_fishing_hours")
+
+str(fish_hours_diff)
+
+fish_hours_diff_plot <-
+  ggplot2::ggplot(data = fish_hours_diff, ggplot2::aes(x = interview_month, y = diff_fishing_hours)) +
+  ggplot2::geom_point(color = "blue") +
+  ggplot2::geom_line(color = "blue") +
+  # Change the x axis name
+  ggplot2::scale_x_discrete(name = "Interview Month", limits = factor(seq_len(12))) +
+  ggplot2::labs(title = "Trips with fishing hours different between logbooks and survey ny month", y = "Number of Trips with difference") +
+  ggplot2::geom_text(
+    label = fish_hours_diff$diff_fishing_hours,
+    nudge_y = 0.5,
+    nudge_x = 0.4
+  )
+
+# compare ACTIVITY_TYPE_NAME	no_harvested_selected
+
+# ACTIVITY_TYPE_NAME
+# [1] "TRIP WITH EFFORT"
+# catch_info_lgb_i1_i2_i3$no_harvested_selected |> unique()
+# 1, 2 (1=YES, 2=NO)
+
+compare_fields <- 
+  c("ACTIVITY_TYPE_NAME", "no_harvested_selected")
+
+catch_info_lgb_i1_i2_i3 |> 
+    dplyr::filter(is.na(CATCH_SPECIES_ITIS)) |> dplyr::glimpse()
+# [1] 145  50
+
+catch_info_lgb_i1_i2_i3 |>
+  dplyr::select(all_of(compare_fields)) |>
+  dplyr::distinct() |>
+  dplyr::glimpse()
+# $ ACTIVITY_TYPE_NAME    <chr> "TRIP WITH EFFORT", "TRIP WITH EFFORT"
+# $ no_harvested_selected <int> 2, 1
+```
+
+## compare DISTANCE_CODE_NAME	fishing_distance 
+
+```{r compare DISTANCE_CODE_NAMEfishing_distance}
+# compare DISTANCE_CODE_NAME	fishing_distance ----
+
+compare_fields <-
+  c("DISTANCE_CODE_NAME", "fishing_distance")
+
+catch_info_lgb_i1_i2_i3 |>
+  dplyr::select(all_of(compare_fields)) |>
+  dplyr::distinct() |>
+  dplyr::glimpse()
+```
+
+## compare FISHING_HOURS	hrsf 
+
+```{r compare FISHING_HOURShrsf}
+# compare FISHING_HOURS	hrsf ----
+
+compare_fields <-
+  c("FISHING_HOURS", "hrsf")
+
+catch_info_lgb_i1_i2_i3 |>
+  dplyr::select(VESSEL_OFFICIAL_NBR, all_of(compare_fields)) |>
+  dplyr::distinct() |>
+  # dim()
+  # 674
+  dplyr::rowwise() |> 
+  dplyr::filter(!as.integer(!!sym(compare_fields[[1]])) == as.integer(!!sym(compare_fields[[2]]))) |>
+  dplyr::ungroup() |> 
+  dplyr::glimpse()
+# 367
+
+# TODO: check if the same trip
+```
+
+## compare CATCH_SPECIES_ITIS	tsn 
+
+```{r compare CATCH_SPECIES_ITIStsn}
+# compare CATCH_SPECIES_ITIS	tsn ----
+# https://en.wikipedia.org/wiki/Integrated_Taxonomic_Information_System
+# grep("tsn", names(catch_info_lgb_i1_i2_i3), value = T)
+# [1] "tsn.releas" "tsn.harv" 
+
+compare_fields <-
+  c("CATCH_SPECIES_ITIS", "tsn.releas", "tsn.harv")
+
+catch_info_lgb_i1_i2_i3 |> 
+  dplyr::select(tidyselect::starts_with("tsn")) |> 
+  dplyr::distinct() |> 
+  # dim()
+# 1026
+  dplyr::filter(!tsn.releas == tsn.harv) |> 
+  dplyr::glimpse()
+# 937
+
+# n_dplyr::distinct(catch_info_lgb_i1_i2_i3$TRIP_ID)
+# 887
+
+catch_info_lgb_i1_i2_i3 |> 
+  # dplyr::select(all_of(compare_fields)) |>
+  dplyr::select(VESSEL_OFFICIAL_NBR, TRIP_ID, all_of(compare_fields)) |>
+  dplyr::distinct() |>
+  # dim()
+  # [1] 27634     5
+  dplyr::group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |> 
+  # dplyr::filter(!as.integer(!!sym(compare_fields[[1]])) == as.integer(!!sym(compare_fields[[2]]))) |>
+# Rows: 23,108
+  # dplyr::filter(!as.integer(!!sym(compare_fields[[1]])) == as.integer(!!sym(compare_fields[[3]]))) |>
+# Rows: 23,112
+  # dplyr::filter(as.integer(!!sym(compare_fields[[1]])) == as.integer(!!sym(compare_fields[[2]])) &
+  #          !(as.integer(!!sym(compare_fields[[1]])) == as.integer(!!sym(compare_fields[[3]])))) |>
+  dplyr::filter(as.integer(!!sym(compare_fields[[1]])) == as.integer(!!sym(compare_fields[[3]])) &
+           !(as.integer(!!sym(compare_fields[[1]])) == as.integer(!!sym(compare_fields[[2]])))) |>
+  dplyr::ungroup() |> 
+  dplyr::glimpse()
+```
+
+## get scientific and common names by tsn 
+
+```{r get scientific and common names by tsn}
+# get scientific and common names by tsn ----
+
+tsn_only <-
+  catch_info_lgb_i1_i2_i3 |>
+  dplyr::distinct(CATCH_SPECIES_ITIS, tsn.releas, tsn.harv) |>
+  dplyr::mutate(dplyr::across(dplyr::everything(), as.numeric))
+
+tsn_only <- data.frame(tsn = unique(unlist(tsn_only)))
+# 'data.frame':	155 obs. of  1 variable
+
+# good_tsn <- 172435 
+# no_com_n_tsn <- 168790
+# tsn <- good_tsn
+
+get_itis_info <- function(tsn_s) {
+  tsn_s |>
+    purrr::map(\(tsn) {
+      # browser()
+      
+      res <-
+        tryCatch(
+          ritis::full_record(tsn),
+          error = function(e) {
+            print(tsn)
+            print(e)
+          }
+        )
+      
+      if (!is.list(res))
+        return()
+      
+      commonNames <- res$commonNameList$commonNames
+      
+      if (is.data.frame(commonNames)) {
+        com_name <-
+          commonNames |>
+          dplyr::filter(language == "English") |>
+          dplyr::select(commonName) |>
+          unlist() |>
+          unname()
+      }
+      else {
+        com_name <- ""
+      }
+      
+      sci_name <-
+        res$scientificName$combinedName
+      
+      res_list <-
+        list("sci_name" = sci_name, "com_name" = com_name)
+      
+      return(res_list)
+    })
+}
+
+tsn_info_itis_file_path <- 
+  file.path(curr_proj_output_path,
+            paste0("tsn_info_itis.rds"))
+
+tictoc::tic()
+if (file.exists(tsn_info_itis_file_path)) {
+  tsn_info_itis <- readr::read_rds(tsn_info_itis_file_path)
+} else {
+  tsn_info_itis <-
+    tsn_only |>
+    dplyr::mutate(tsn_com = get_itis_info(tsn))
+  readr::write_rds(tsn_info_itis, tsn_info_itis_file_path)
+}
+tictoc::toc()
+# 26.21 sec elapsed
+# errors: [1] NA
+# [1] 0
+
+dplyr::glimpse(tsn_info_itis[[2]])
+```
+
+### check released and harvested separately 
+
+```{r check released and harvested separately}
+## check released and harvested separately ----
+# "CATCH_SPECIES_ITIS" vs "tsn.harv"
+
+CATCH_SPECIES_ITIS_vs_tsn.harv <-
+  catch_info_lgb_i1_i2_i3 |>
+  dplyr::select(VESSEL_OFFICIAL_NBR, TRIP_ID, all_of(compare_fields)) |>
+  dplyr::distinct() |>
+  dplyr::group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |>
+  dplyr::mutate(all_spp_1_trip_fhier_l =
+           list(sort(unique(CATCH_SPECIES_ITIS)))) |>
+  dplyr::mutate(all_spp_1_trip_survey_l =
+           list(sort(unique(tsn.harv)))) |> 
+  dplyr::ungroup()
+
+cathc_spp_diff <-
+  CATCH_SPECIES_ITIS_vs_tsn.harv |>
+  dplyr::select(-all_of(compare_fields)) |>
+  dplyr::distinct() |>
+  dplyr::group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |>
+  dplyr::mutate(
+    harv_diff_in_fhier_only =
+      purrr::map2(
+        all_spp_1_trip_fhier_l,
+        all_spp_1_trip_survey_l,
+        ~ setdiff(.x, .y)
+      )
+  ) |>
+  dplyr::mutate(
+    harv_diff_in_survey_only =
+      purrr::map2(
+        all_spp_1_trip_fhier_l,
+        all_spp_1_trip_survey_l,
+        ~ setdiff(.y, .x)
+      )
+  ) |> 
+  dplyr::ungroup()
+# 887  
+
+cathc_spp_diff__no_diff <-
+  cathc_spp_diff |>
+  dplyr::rowwise() |>
+  dplyr::mutate(
+    ll_f =
+      length(harv_diff_in_fhier_only),
+    ll_s =
+      length(harv_diff_in_survey_only)
+  ) |>
+  dplyr::mutate(no_diff_spp =
+           dplyr::case_when((ll_f == ll_s &
+                        ll_f == 0) ~ "no_diff", 
+                     .default = "is_diff")) |>
+  dplyr::ungroup()
+
+dplyr::glimpse(cathc_spp_diff__no_diff)
+
+# TODO: check released and harvested separately
+```
+
+### check numbers for the same spp lgb/harvested 
+
+```{r check numbers for the same spp lgbharvested}
+## check numbers for the same spp lgb/harvested ----
+catch_info_lgb_i1_i2_i3 |> 
+  # dplyr::select(VESSEL_OFFICIAL_NBR, TRIP_ID, all_of(compare_fields)) |>
+  # dplyr::distinct() |>
+  dplyr::group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |> 
+  dplyr::filter(as.integer(!!sym(compare_fields[[1]])) ==
+           as.integer(!!sym(compare_fields[[3]]))) |>
+  dplyr::ungroup() |> 
+  dplyr::glimpse()
+```
+
+### check numbers for the same spp lgb/released 
+
+```{r check numbers for the same spp lgbreleased}
+## check numbers for the same spp lgb/released ----
+catch_info_lgb_i1_i2_i3 |> 
+  dplyr::group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |> 
+  dplyr::filter(as.integer(!!sym(compare_fields[[1]])) ==
+           as.integer(!!sym(compare_fields[[2]]))) |>
+  dplyr::ungroup() |> 
+  dplyr::glimpse()
+```
+
+## the same sp. is both released and harvested in the same trip (OK) 
+
+```{r the same sp is both released and harvested in the same trip OK}
+# the same sp. is both released and harvested in the same trip (OK) ----
+
+catch_info_lgb_i1_i2_i3 |> 
+  dplyr::group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |> 
+  dplyr::filter(as.integer(!!sym(compare_fields[[1]])) ==
+           as.integer(!!sym(compare_fields[[2]]))) |>
+  dplyr::filter(as.integer(!!sym(compare_fields[[1]])) ==
+           as.integer(!!sym(compare_fields[[3]]))) |>
+  dplyr::ungroup() |> 
+  dplyr::glimpse()
+
+# TODO: compare and remove if duplicate all fields with "."
+```
+
+### separate vessel_trip info from catch 
+
+```{r separate vessel_trip info from catch}
+## separate vessel_trip info from catch ----
+vessel_trip_fields <- c(
+  "TRIP_ID",
+  "VESSEL_OFFICIAL_NBR",
+  "trip_end_date_time",
+  "interview_date_time",
+  "TRIP_TYPE_NAME",
+  "VESSEL_NAME",
+  "CAPT_NAME_FIRST",
+  "CAPT_NAME_LAST",
+  "STATE",
+  "STATE_NAME",
+  "END_PORT_NAME",
+  "END_PORT_COUNTY",
+  "END_PORT_STATE",
+  "NUM_ANGLERS",
+  "ACTIVITY_TYPE_NAME",
+  "DISTANCE_CODE_NAME",
+  "FISHING_HOURS",
+  "operating_type",
+  "vsl_num",
+  "vessel_name",
+  "interviewee_f_name",
+  "interviewee_l_name",
+  "st.i1",
+  "cnty",
+  "people_fishing",
+  "no_harvested_selected",
+  "fishing_distance",
+  "hrsf",
+  "st.releas",
+  "i2",
+  "st"
+)
+
+# "UNIT_MEASURE", (all "CN")
+
+catch_fields <-
+  c(
+    "CATCH_SEQ",
+    "CATCH_SPECIES_ITIS",
+    "REPORTED_QUANTITY",
+    "DISPOSITION_CODE",
+    "DISPOSITION_NAME",
+    "num_typ2.i1",
+    "num_typ3.releas",
+    "tsn.releas",
+    "num_fish",
+    "num_typ2.releas",
+    "num_typ2.i1",
+    "num_typ3.releas",
+    "tsn.releas",
+    "num_fish",
+    "num_typ2.releas",
+    "tsn.harv",
+    "fshinsp"
+  )
+
+# dim(catch_info_lgb_i1_i2_i3)
+
+catch_info_lgb_i1_i2_i3_short <- 
+  catch_info_lgb_i1_i2_i3 |> 
+  dplyr::select("TRIP_ID",
+  "VESSEL_OFFICIAL_NBR",
+  "id_code",
+  all_of(catch_fields)
+) |> 
+  dplyr::distinct()
+
+dim(catch_info_lgb_i1_i2_i3)
+# [1] 89466    50
+
+dim(catch_info_lgb_i1_i2_i3_short)
+# [1] 37506    15
+```
+
+## look at catch_info_lgb_i1_i2_i3_short_harvested 
+
+```{r look at catch_info_lgb_i1_i2_i3_short_harvested}
+# look at catch_info_lgb_i1_i2_i3_short_harvested ----
+catch_info_lgb_i1_i2_i3_short_harvested <-
+  catch_info_lgb_i1_i2_i3_short |>
+  dplyr::group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |>
+  dplyr::filter(as.integer(!!sym(compare_fields[[1]])) ==
+           as.integer(!!sym(compare_fields[[3]]))) |>
+  dplyr::ungroup() |> 
+  dplyr::select(-ends_with(".releas")) |>
+  dplyr::distinct()
+
+dim(catch_info_lgb_i1_i2_i3_short_harvested)
+# [1] 6469   15
+# [1] 5829   11 (no ".releas")
+
+# data_overview(catch_info_lgb_i1_i2_i3_short_harvested)
+# TRIP_ID              841
+# VESSEL_OFFICIAL_NBR  219
+
+# View(catch_info_lgb_i1_i2_i3_short_harvested)
+
+# catch_info_lgb_i1_i2_i3_short_harvested |> 
+    # dplyr::filter(TRIP_ID == "1000020436") |> dplyr::distinct() |>  View()
+```
+
+## count amount of species per trip 
+
+```{r count amount of species per trip}
+# count amount of species per trip ----
+# db_logbooks_2022_short |> print_df_names()
+# survey_data_l_2022_short |> print_df_names()
+
+db_logbooks_2022_short_cnt_spp <-
+  db_logbooks_2022_short |>
+  dplyr::select(
+    VESSEL_OFFICIAL_NBR,
+    TRIP_ID,
+    DISPOSITION_CODE,
+    DISPOSITION_NAME,
+    CATCH_SPECIES_ITIS
+  ) |>
+  dplyr::distinct() |>
+  dplyr::count(VESSEL_OFFICIAL_NBR, 
+            TRIP_ID, 
+            DISPOSITION_CODE, 
+            name = "n_CATCH_SPECIES_ITIS__by_disp") |>
+  dplyr::group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |>
+  dplyr::mutate(n_CATCH_SPECIES_ITIS = n_dplyr::distinct(CATCH_SPECIES_ITIS)) |>
+  dplyr::ungroup()
+
+db_logbooks_2022_short_cnt_spp |> 
+  dplyr::arrange(VESSEL_OFFICIAL_NBR, TRIP_ID, DISPOSITION_CODE) |> 
+  dplyr::glimpse()
+
+# db_logbooks_2022_short_cnt_spp |> 
+#   dplyr::filter(TRIP_ID == "61422515") |> View()
+```
+
+## count amount of species per interview 
+
+```{r count amount of species per interview}
+# count amount of species per interview ----
+# survey_data_l_2022_short
+
+survey_data_l_2022_short_cnt_spp <- 
+  survey_data_l_2022_short$i3 |>
+  dplyr::select(id_code, tsn, fshinsp, disp3, lngth, wgt, num_typ3) |> 
+  dplyr::distinct() |>
+  dplyr::group_by(id_code, disp3) |> 
+  dplyr::mutate(n_tsn_by_disp3 = n_dplyr::distinct(tsn)) |> 
+  dplyr::ungroup() |> 
+  dplyr::group_by(id_code) |> 
+  dplyr::mutate(n_tsn = n_dplyr::distinct(tsn)) |> 
+  dplyr::ungroup()
+
+dplyr::glimpse(survey_data_l_2022_short_cnt_spp)
+
+survey_data_l_2022_short_cnt_spp |> 
+    dplyr::filter(id_code == "1590520220121004") |> 
+    dplyr::select(-c(lngth, wgt)) |> 
+    dplyr::distinct() |> 
+    dplyr::arrange(tsn) |> 
+    dplyr::glimpse()
+
+# TODO: compare ns
+
+# compare NUM_TYP3 with number of cought and retained fish in FHIER
+compare_fields <-
+  c("num_typ3.harv", "REPORTED_QUANTITY")
+
+catch_info_lgb_i1_i2_i3 |>
+  dplyr::select(VESSEL_OFFICIAL_NBR, 
+         TRIP_ID,
+         all_of(compare_fields)) |>
+  # dplyr::arrange(VESSEL_OFFICIAL_NBR,
+  #         TRIP_ID,
+  #         num_typ3.harv) |> 
+  dplyr::distinct() |>
+  # dim()
+  # [1] 19124     3
+  dplyr::rowwise() |> 
+  dplyr::filter(!as.integer(!!sym(compare_fields[[1]])) == as.integer(!!sym(compare_fields[[2]]))) |>
+  dplyr::ungroup() |> 
+  dplyr::glimpse()
+```
+
+## compare fshinsp, REPORTED_QUANTITY 
+
+```{r compare fshinsp REPORTED_QUANTITY}
+# compare fshinsp, REPORTED_QUANTITY ----
+compare_fields <-
+  c("fshinsp", "REPORTED_QUANTITY")
+
+catch_info_lgb_i1_i2_i3 |>
+  dplyr::select(VESSEL_OFFICIAL_NBR, 
+         TRIP_ID,
+         all_of(compare_fields)) |>
+  dplyr::arrange(VESSEL_OFFICIAL_NBR,
+          TRIP_ID,
+          fshinsp) |>
+  dplyr::distinct() |>
+  dplyr::rowwise() |> 
+  dplyr::filter(!as.integer(!!sym(compare_fields[[1]])) == as.integer(!!sym(compare_fields[[2]]))) |>
+  dplyr::ungroup() |> 
+  dplyr::glimpse()
+```
+
+## how many interviews with no logbooks 
+
+```{r how many interviews with no logbooks}
+# how many interviews with no logbooks ----
+interview_no_lgb_path <-
+  file.path(current_project_dir_name,
+            paste0(current_project_name, "_", "interview_no_lgb.R"))
+
+file.exists(interview_no_lgb_path)
+
+library(tidycensus)
+
+# how many interviews with no logbooks?
+```
+
+## Prep data for interviews w no logbooks 
+
+```{r Prep data for interviews w no logbooks}
+# Prep data for interviews w no logbooks ----
+```
+
+### prep lgb info 
+
+```{r prep lgb info}
+## prep lgb info ----
+db_logbooks_2022_vsl_t_end_all <-
+  db_logbooks_2022 |>
+  dplyr::mutate(VESSEL_OFFICIAL_NBR = tolower(VESSEL_OFFICIAL_NBR)) |>
+  dplyr::mutate(TRIP_END_DATE = lubridate::date(TRIP_END_DATE))
+
+db_logbooks_2022_vsl_t_end <-
+  db_logbooks_2022_vsl_t_end_all |>
+  dplyr::select(VESSEL_OFFICIAL_NBR, TRIP_END_DATE, TRIP_ID) |>
+  dplyr::distinct()
+
+dim(db_logbooks_2022_vsl_t_end)
+# [1] 86134     2
+# [1] 94870     3 w trip_id
+```
+
+### prep survey info 
+
+```{r prep survey info}
+## prep survey info ----
+# Explanations:
+# - `dplyr::select(vsl_num, interview_date, st, cnty)` selects specific columns (`vsl_num`, `interview_date`, `st`, `cnty`) from the data frame. The `select` function from the `dplyr` package is used to choose these columns.
+# - `dplyr::mutate(vsl_num = stringr::str_replace_all(vsl_num, " ", ""))` modifies the `vsl_num` column by removing all spaces. The `str_replace_all` function from the `stringr` package is used to replace spaces with an empty string.
+# - `dplyr::mutate(vsl_num = stringr::str_replace_all(vsl_num, "-", ""))` further modifies the `vsl_num` column by removing all hyphens. The `str_replace_all` function from the `stringr` package is used to replace hyphens with an empty string.
+# - `dplyr::mutate(vsl_num = tolower(vsl_num))` converts all characters in the `vsl_num` column to lowercase. The `tolower` function is used for this conversion.
+# - `dplyr::mutate(interview_date = lubridate::date(interview_date))` converts the `interview_date` column to Date format. The `date` function from the `lubridate` package is used for this conversion.
+# - `dplyr::distinct()` removes duplicate rows from the data frame. The `distinct` function from the `dplyr` package is used to ensure that only unique rows are kept.
+# 
+# This code processes the `survey_data_l_2022_i1_w_dates` data frame to clean and transform the `vsl_num` and `interview_date` columns, and selects only the relevant columns while removing any duplicate rows. The result is stored in `survey_data_l_2022_date_i1_vsl__int_t`.
+survey_data_l_2022_date_i1_vsl__int_t_clean_vsl <-
+  survey_data_l_2022_i1_w_dates |>
+  dplyr::mutate(vsl_num = stringr::str_replace_all(vsl_num, " ", "")) |>
+  dplyr::mutate(vsl_num = stringr::str_replace_all(vsl_num, "-", "")) |>
+  dplyr::mutate(vsl_num = tolower(vsl_num)) |>
+  dplyr::mutate(interview_date = lubridate::date(interview_date))
+
+dim(survey_data_l_2022_date_i1_vsl__int_t_clean_vsl)
+
+survey_data_l_2022_date_i1_vsl__int_t <-
+  survey_data_l_2022_date_i1_vsl__int_t_clean_vsl |>
+  dplyr::select(id_code, vsl_num, interview_date, st, cnty) |>
+  dplyr::distinct()
+
+dplyr::glimpse(survey_data_l_2022_date_i1_vsl__int_t)
+# 1812
+# 1835 w id code
+```
+
+#### check empty state and county 
+
+```{r check empty state and county}
+### check empty state and county ----
+
+# summary(survey_data_l_2022_i1_w_dates)
+
+survey_data_l_2022_i1_w_dates |> 
+  dplyr::filter(is.na(st)) |> 
+  nrow()
+# 312 NAs out of 1523+312 = 1835
+
+survey_data_l_2022_i1_w_dates |> 
+  dplyr::filter(!cnty > 0) |> 
+  nrow()
+# 0, OK, no NAs
+
+# survey_data_l_2022_i1_w_dates |> 
+#   dplyr::count(cnty) |> tail()
+```
+
+#### restore possible states 
+
+```{r restore possible states}
+### restore possible states ----
+dplyr::glimpse(survey_data_l_2022_i1_w_dates__states_by_cnty)
+
+dplyr::glimpse(survey_data_l_2022_date_i1_vsl__int_t)
+
+survey_data_l_2022_date_i1_vsl__int_t__join_states_by_cnty <-
+  survey_data_l_2022_date_i1_vsl__int_t |> 
+  dplyr::left_join(survey_data_l_2022_i1_w_dates__states_by_cnty,
+            dplyr::join_by(cnty, st))
+  
+str(survey_data_l_2022_date_i1_vsl__int_t__join_states_by_cnty)
+# tibble [1,812 × 8] (S3: tbl_df/tbl/data.frame)
+#  $ vsl_num         : chr [1:1812]
+#  $ interview_date  : Date[1:1812], format: "2022-01-30" "2022-02-14" ...
+#  $ st              : chr [1:1812] NA NA NA NA ...
+#  $ cnty            : int [1:1812] 17 75 75 115 115 115 115 81 75 75 ...
+#  $ st_2            : chr [1:1812] "00" "00" "00" "00" ...
+#  $ cnty_3          : chr [1:1812] "017" "075" "075" "115" ...
+#  $ fips            : chr [1:1812] "00017" "00075" "00075" "00115" ...
+#  $ states_l_by_cnty:List of 1812
+#   ..$ : chr [1:2] "12" "NA"
+
+survey_data_l_2022_date_i1_vsl__int_t__restore_st <-
+  survey_data_l_2022_date_i1_vsl__int_t__join_states_by_cnty |>
+  dplyr::rowwise() |>
+  dplyr::mutate(temp_res =
+                  case_when(is.na(st) ~ paste(unlist(states_l_by_cnty),
+                                              collapse = ""), 
+                            .default = st)) |>
+  dplyr::mutate(restored_st = 
+                  stringr::str_extract(temp_res, "\\d+")) |>
+  dplyr::select(-temp_res) |>
+  dplyr::ungroup()
+
+# check
+survey_data_l_2022_date_i1_vsl__int_t__restore_st[1,] |> 
+  str()
+# "12"
+survey_data_l_2022_date_i1_vsl__int_t__restore_st[135,] |> 
+  str()
+# "NA"
+
+survey_data_l_2022_date_i1_vsl__int_t__restore_st |> 
+  tail(3) |> 
+  str()
+# as st, ok
+```
+
+#### format state and county codes 
+
+```{r format state and county codes}
+### format state and county codes ----
+format_state_and_county_codes <-
+  function(my_df, state_code_field) {
+    my_df |>
+      dplyr::mutate(st_2 =
+               case_when(is.na(!!sym(state_code_field)) ~ "00", .default =
+                           stringr::str_pad(!!sym(state_code_field), 2, pad = "0"))) |>
+      dplyr::mutate(cnty_3 = stringr::str_pad(cnty, 3, pad = "0"),
+             fips = paste0(st_2, cnty_3))
+    
+  }
+
+survey_data_l_2022_date_i1_vsl__int_t__fips <-
+  survey_data_l_2022_date_i1_vsl__int_t |>
+  format_state_and_county_codes("st")
+
+survey_data_l_2022_date_i1_vsl__int_t__restore_st__fips <- 
+  survey_data_l_2022_date_i1_vsl__int_t__restore_st |> 
+  format_state_and_county_codes("restored_st")
+```
+
+## Join for interviews w no logbooks 
+
+```{r Join for interviews w no logbooks}
+# Join for interviews w no logbooks ----
+full_join_int_lgb <- function(survey_df, by_fields = NA) {
+  if (is.na(by_fields)) {
+    by_fields = dplyr::join_by(vsl_num == VESSEL_OFFICIAL_NBR,
+                               interview_date == TRIP_END_DATE)
+  }
+  dplyr::full_join(
+    survey_df,
+    db_logbooks_2022_vsl_t_end,
+    by = by_fields,
+    relationship = "many-to-many"
+  )
+}
+```
+
+### 1 full join by date and vessel 
+
+```{r 1 full join by date and vessel}
+## 1 full join by date and vessel ----
+intersect(
+  db_logbooks_2022_vsl_t_end$VESSEL_OFFICIAL_NBR,
+  survey_data_l_2022_date_i1_vsl__int_t__fips$vsl_num
+) |> length()
+# 277
+
+setdiff(
+  survey_data_l_2022_date_i1_vsl__int_t__fips$vsl_num,
+    db_logbooks_2022_vsl_t_end$VESSEL_OFFICIAL_NBR
+) |> length()
+# 152
+
+lgb_join_i1_full <- 
+  full_join_int_lgb(survey_data_l_2022_date_i1_vsl__int_t__fips)
+
+dim(lgb_join_i1_full)
+# [1] 95697     3
+
+summary(lgb_join_i1_full)
+```
+
+#### 1a the same with restored states 
+
+```{r 1a the same with restored states}
+### 1a the same with restored states ----
+
+lgb_join_i1_full_restored <- 
+  full_join_int_lgb(survey_data_l_2022_date_i1_vsl__int_t__restore_st__fips)
+
+dim(lgb_join_i1_full_restored)
+# [1] 95697    10
+
+# auxfunctions::data_overview(lgb_join_i1_full_restored)
+```
+
+#### get interviews w no logbooks 
+
+```{r get interviews w no logbooks}
+### get interviews w no logbooks ----
+intv_w_no_lgb_join_by_day_vsl <- 
+  lgb_join_i1_full |>
+  dplyr::filter(is.na(TRIP_ID)) |> 
+  auxfunctions::remove_empty_cols() |> 
+  dplyr::distinct()
+
+dim(intv_w_no_lgb_join_by_day_vsl)
+# [1] 827   7
+
+# same for restored states
+intv_w_no_lgb_join_by_day_vsl_restored <-
+  lgb_join_i1_full_restored |>
+  dplyr::filter(is.na(TRIP_ID)) |>
+  auxfunctions::remove_empty_cols() |>
+  dplyr::distinct()
+
+dim(intv_w_no_lgb_join_by_day_vsl_restored)
+# [1] 827   9
+```
+
+#### check NAs 
+
+```{r check NAs}
+### check NAs ----
+summary(intv_w_no_lgb_join_by_day_vsl)
+# [1] 827   2 (no NAs)
+
+intv_w_no_lgb_join_by_day_vsl |> 
+  dplyr::filter(is.na(st)) |> 
+  dim()
+# 192
+
+intv_w_no_lgb_join_by_day_vsl |> 
+  dplyr::filter(is.na(cnty)) |> 
+  dim()
+# 0 ok
+
+dplyr::glimpse(intv_w_no_lgb_join_by_day_vsl)
+dplyr::glimpse(intv_w_no_lgb_join_by_day_vsl_restored)
+```
+
+#### check all vessel ids not in lgb 
+
+```{r check all vessel ids not in lgb}
+### check all vessel ids not in lgb ----
+# intv_w_no_lgb_join_by_day_vsl$VESSEL_OFFICIAL_NBR |>
+#   unique() |> 
+#   cat(sep = ", ")
+
+survey_vsl_num_not_in_lgb <- 
+  intv_w_no_lgb_join_by_day_vsl$vsl_num |>
+  unique()
+
+length(survey_vsl_num_not_in_lgb)
+# 261
+
+lubridate::intersect(tolower(db_logbooks_2022$VESSEL_OFFICIAL_NBR),
+                     tolower(survey_vsl_num_not_in_lgb)) |> 
+  length()
+# 109
+
+vsl_in_survey_not_in_db_lgb <-
+  lubridate::setdiff(
+    tolower(survey_vsl_num_not_in_lgb),
+    tolower(db_logbooks_2022$VESSEL_OFFICIAL_NBR)
+  ) |>
+  unique()
+length(vsl_in_survey_not_in_db_lgb)
+# 152
+
+vsl_in_survey_not_in_processed_lgb <-
+  lubridate::setdiff(
+    tolower(survey_vsl_num_not_in_lgb),
+    tolower(processed_logbooks_2022_calendar$VESSEL_OFFICIAL_NUMBER)
+  ) |>
+  unique() 
+
+length(vsl_in_survey_not_in_processed_lgb) == length(vsl_in_survey_not_in_db_lgb)
+# T
+
+vsl_in_survey_not_in_lgb__str <-
+  vsl_in_survey_not_in_db_lgb |>
+  toupper() |> 
+  paste(collapse = "', '")
+
+vsl_in_survey_not_in_lgb_query <- 
+    stringr::str_glue("SELECT
+  *
+FROM
+  srh.mv_safis_trip_download@secapxdv_dblk
+WHERE
+    trip_end_date >= TO_DATE('{my_date_beg}', 'yyyy-mm-dd')
+  AND trip_start_date <= TO_DATE('{my_date_end}', 'yyyy-mm-dd')
+  and vessel_official_nbr IN ('{vsl_in_survey_not_in_lgb__str}')
+")
+
+vsl_in_survey_not_in_lgb_query_res <-
+  try(DBI::dbGetQuery(con, vsl_in_survey_not_in_lgb_query))
+
+vsl_in_survey_not_in_lgb_query_res |> dim()
+# 0 (confirmed not in lgb for 2022)
+```
+
+#### check if these interviews are for DNFs 
+
+```{r check if these interviews are for DNFs}
+### check if these interviews are for DNFs ----
+dplyr::glimpse(db_dnfs_2022)
+
+in_survey_not_in_lgb_not_in_dnf <-
+  lubridate::setdiff(tolower(survey_vsl_num_not_in_lgb),
+                     tolower(db_dnfs_2022$VESSEL_OFFICIAL_NBR)) |>
+  unique()
+
+length(in_survey_not_in_lgb_not_in_dnf)
+# 261
+
+length(survey_vsl_num_not_in_lgb) == length(in_survey_not_in_lgb_not_in_dnf)
+# T, vessels are not in lgb, not in dnf
+
+# manual check
+intv_w_no_lgb_join_by_day_vsl |> 
+  dplyr::arrange(vsl_num,
+          interview_date) |> 
+  dplyr::filter(vsl_num == "1041849") |> 
+  head(10)
+
+one_check_query <- 
+  stringr::str_glue("SELECT
+  *
+FROM
+  srh.mv_safis_trip_download@secapxdv_dblk
+WHERE
+    trip_end_date >= TO_DATE('2022-08-01', 'yyyy-mm-dd')
+    AND trip_end_date <= TO_DATE('2022-08-30', 'yyyy-mm-dd')
+    AND vessel_official_nbr IN ('1041849')
+")
+
+one_check_res <-
+  try(DBI::dbGetQuery(con, one_check_query))
+one_check_res |> dim()
+# 0
+
+# one_check_res$TRIP_END_DATE |> 
+#   unique() |> 
+#   sort() |> 
+#   print()
+```
+
+### spot check the interviews by harvest 
+
+```{r spot check the interviews by harvest}
+## spot check the interviews by harvest ----
+
+test1_tsns <-
+  survey_i1_i3_harvested_dates |>
+  dplyr::filter(vsl_num == '1041849' &
+           interview_date == lubridate::ymd('2022-06-06')) |>
+  dplyr::distinct() |>
+  dplyr::select(tsn) |>
+  dplyr::distinct()
+# dplyr::glimpse()
+
+test1_logbooks <-
+  db_logbooks_2022 |>
+  dplyr::filter(
+    lubridate::month(TRIP_END_DATE) == 6 &
+      CATCH_SPECIES_ITIS %in% test1_tsns$tsn &
+      VESSEL_OFFICIAL_NBR == "1041849"
+  ) |> 
+  dplyr::select(TRIP_ID, CATCH_SPECIES_ITIS, TRIP_END_DATE) |> 
+  dplyr::distinct()
+
+unique(test1_logbooks$CATCH_SPECIES_ITIS)
+# only one out of 3
+
+test1_logbooks_no_month <-
+  db_logbooks_2022 |>
+  dplyr::filter(
+    # lubridate::month(TRIP_END_DATE) == 6 &
+      CATCH_SPECIES_ITIS %in% test1_tsns$tsn &
+      VESSEL_OFFICIAL_NBR == "1041849"
+  ) |> 
+  dplyr::select(TRIP_ID, CATCH_SPECIES_ITIS, TRIP_END_DATE) |> 
+  dplyr::distinct()
+
+test1_logbooks_no_month |> 
+  dplyr::count(CATCH_SPECIES_ITIS)
+#   CATCH_SPECIES_ITIS  n
+# 1             167759  2
+# 2             167763  1
+# 3             168853 27
+
+test1_logbooks_no_month_2spp <- 
+  test1_logbooks_no_month |> 
+  dplyr::filter(CATCH_SPECIES_ITIS %in% c("167759", "167763"))
+
+db_logbooks_2022 |>
+  dplyr::filter(TRIP_ID %in% c("62538162", "63569515", "62538257")) |>
+  dplyr::glimpse()
+
+# one vessel only has those 2 spp
+db_logbooks_2022 |>
+  dplyr::filter(TRIP_ID %in% c("62538162", "63569515", "62538257")) |>
+  dplyr::select(
+    TRIP_ID,
+    TRIP_END_DATE,
+    CATCH_SPECIES_ITIS,
+    COMMON_NAME,
+    REPORTED_QUANTITY,
+    DISPOSITION_NAME
+  ) |> 
+  dplyr::distinct() |>
+  dplyr::group_by(TRIP_ID) |>
+  dplyr::mutate(all_spp = list(sort(paste(
+    unique(CATCH_SPECIES_ITIS)
+  ))),
+  spp_cnt = length(all_spp)) |>
+  dplyr::ungroup() |>
+  dplyr::arrange(TRIP_END_DATE) |>
+  dplyr::glimpse()
+
+# there are no trips with both ("167759", "167763")
+```
+
+### spot check the interviews by captain name 
+
+```{r spot check the interviews by captain name}
+## spot check the interviews by captain name ----
+# MM 1) also suggest using captain's name - to try to match, if that is a field in both. like instead of just trying to match by vessel ID.
+
+# print_df_names(db_logbooks_2022_vsl_t_end_all)
+# CAPT_NAME_FIRST, CAPT_NAME_LAST
+
+# print_df_names(survey_data_l_2022_date_i1_vsl__int_t_clean_vsl)
+# interviewee_f_name, interviewee_l_name
+
+intersect(
+  tolower(db_logbooks_2022_vsl_t_end_all$CAPT_NAME_FIRST),
+  tolower(survey_data_l_2022_date_i1_vsl__int_t_clean_vsl$interviewee_f_name)) |> length()
+# 183
+
+intersect(
+  tolower(db_logbooks_2022_vsl_t_end_all$CAPT_NAME_LAST),
+  tolower(survey_data_l_2022_date_i1_vsl__int_t_clean_vsl$interviewee_l_name)) |> length()
+# 279
+
+setdiff(
+  tolower(
+    survey_data_l_2022_date_i1_vsl__int_t_clean_vsl$interviewee_l_name
+  ),
+  tolower(db_logbooks_2022_vsl_t_end_all$CAPT_NAME_LAST)
+) |> length()
+# 134
+
+by_fields = dplyr::join_by(vsl_num == VESSEL_OFFICIAL_NBR,
+                           interviewee_l_name == CAPT_NAME_LAST)
+
+survey_data_l_2022_date_i1_vsl__int_t_clean_vsl_low <- 
+  survey_data_l_2022_date_i1_vsl__int_t_clean_vsl |> 
+  dplyr::mutate(vsl_num = tolower(vsl_num),
+         interviewee_l_name = tolower(interviewee_l_name))
+
+db_logbooks_2022_vsl_t_end_all_low <- 
+  db_logbooks_2022_vsl_t_end_all |> 
+  dplyr::mutate(VESSEL_OFFICIAL_NBR = tolower(VESSEL_OFFICIAL_NBR),
+         CAPT_NAME_LAST = tolower(CAPT_NAME_LAST))
+```
+
+#### join by captain name instead of a vessel 
+
+```{r join by captain name instead of a vessel}
+### join by captain name instead of a vessel ----
+# 1) get all id_codes with no logbooks from the by vessel and day join;
+# 2) get captain last name for these id_codes
+# 3) join logbooks to surveys which marked as having no logbooks to logbooks by date and captain last name
+
+# 1) get all id_codes with no logbooks, add interviewee_l_name
+# 2) get captain last name for these id_codes
+
+survey_fields_to_compare <-
+  c(
+    names(intv_w_no_lgb_join_by_day_vsl),
+    "interviewee_f_name",
+    "interviewee_l_name",
+    "vessel_name"
+  )
+
+survey_data_l_2022_date_i1_vsl__int_t_clean_vsl_low__no_lgb <-
+  survey_data_l_2022_date_i1_vsl__int_t_clean_vsl_low |>
+  selecttidyselect::any_of(survey_fields_to_compare)) |>
+  dplyr::distinct() |>
+  # 1835
+  dplyr::filter(id_code %in% intv_w_no_lgb_join_by_day_vsl$id_code)
+
+dim(intv_w_no_lgb_join_by_day_vsl)
+# 833
+dim(survey_data_l_2022_date_i1_vsl__int_t_clean_vsl_low__no_lgb)
+# 833
+
+# 3) join logbooks to surveys which marked as having no logbooks to logbooks by date and captain last name
+
+by_fields =
+  dplyr::join_by(interviewee_l_name == CAPT_NAME_LAST,
+                 interview_date == TRIP_END_DATE)
+
+join_by_date_captain <-
+  survey_data_l_2022_date_i1_vsl__int_t_clean_vsl_low__no_lgb |>
+  dplyr::full_join(db_logbooks_2022_vsl_t_end_all_low,
+                   by = by_fields,
+                   relationship = "many-to-many")
+
+# ℹ Row 5 of `x` matches multiple rows in `y`.
+# ℹ Row 32575 of `y` matches multiple rows in `x`.
+
+survey_x_5 <-
+  survey_data_l_2022_date_i1_vsl__int_t_clean_vsl_low__no_lgb[5, ]
+
+lgb_fields_to_compare <-
+  c(
+    "TRIP_END_DATE",
+    "CAPT_NAME_FIRST",
+    "CAPT_NAME_LAST",
+    "TRIP_ID",
+    "VESSEL_OFFICIAL_NBR",
+    "VESSEL_NAME",
+    "STATE",
+    "STATE_NAME",
+    "END_PORT_COUNTY",
+    "START_PORT_COUNTY"
+  )
+
+db_logbooks_2022_vsl_t_end_all_low |> 
+  dplyr::filter(
+    CAPT_NAME_LAST == survey_x_5$interviewee_l_name &
+      TRIP_END_DATE == survey_x_5$interview_date
+  ) |>
+  dplyr::select(all_of(lgb_fields_to_compare)) |> 
+  dplyr::distinct() |> 
+  dplyr::glimpse()
+# diff everything else
+
+# intersect(survey_x_3$id_code, intv_w_no_lgb_join_by_day_vsl$id_code)
+# 0
+
+db_logbooks_2022_vsl_t_end_all_low_32575 <-
+  db_logbooks_2022_vsl_t_end_all_low[32575, ] |>
+  dplyr::select(all_of(lgb_fields_to_compare)) |>
+  dplyr::distinct()
+
+dplyr::glimpse(db_logbooks_2022_vsl_t_end_all_low_32575)
+# names == NA
+
+### check if the join is correct ---
+join_by_date_captain__has_lgb <-
+  join_by_date_captain |>
+  dplyr::filter(!is.na(TRIP_ID) &
+           !is.na(id_code)) |>
+  selecttidyselect::any_of(c(
+    survey_fields_to_compare, lgb_fields_to_compare
+  ))) |>
+  dplyr::distinct()
+```
+
+##### add county names 
+
+```{r add county names}
+#### add county names ----
+join_by_date_captain__has_lgb__fips <-
+  join_by_date_captain__has_lgb |>
+  format_state_and_county_codes("st")
+
+# is_st_florida <-
+#       rlang::quo(!!port_state_column == "fl")
+#             !(!!is_st_florida) & !!is_gom_state ~ "gom",
+
+# filters
+county_codes_equal <- 
+  rlang::quo(tidycensus::fips_codes$county_code == cnty_3)
+
+# cnty_3 <- "075"
+# tidycensus::fips_codes$county_code == cnty_3
+
+state_codes_equal <-
+  rlang::quo(tidycensus::fips_codes$state_code == state_both)
+
+  # dplyr::filter(animal %in% anmal) %>%
+```
+
+##### add state if missing 
+
+```{r add state if missing}
+#### add state if missing ----
+join_by_date_captain__has_lgb__fips_st <- 
+  join_by_date_captain__has_lgb__fips |>
+  dplyr::mutate(state_both = coalesce(st, STATE))
+
+# check
+join_by_date_captain__has_lgb__fips_st |> 
+  dplyr::filter(!st == STATE) |> 
+  dplyr::count(st, STATE) |> 
+  dplyr::glimpse()
+
+join_by_date_captain__has_lgb__fips_st |>
+  dplyr::filter(st == STATE) |>
+  dplyr::count(st, STATE) |>
+  dplyr::glimpse()
+
+join_by_date_captain__has_lgb__fips_st |> 
+  dplyr::count(state_both)
+
+# 
+get_county_name <- function(state_both, cnty_3) {
+  # browser()
+  # state_both = "34"
+  # cnty_3 = "315"
+  res <-
+    tidycensus::fips_codes |>
+    dplyr::filter(state_code == state_both & county_code == cnty_3) |>
+    dplyr::select(county) |>
+    dplyr::mutate(county_short =
+             stringr::str_replace_all(county, " County| Parish", "") |> 
+             tolower())
+  
+  county_short <- res[["county_short"]]
+  if (nrow(res) == 0) {
+    county_short <- NA
+  }
+  
+  return(county_short)
+}
+
+  # dplyr::select(where(~is.numeric(.x) && any(.x == 9)))
+# join_by_date_captain__has_lgb__fips_st[40,] |> dplyr::glimpse()
+
+join_by_date_captain__has_lgb__fips_st_county_names <-
+  join_by_date_captain__has_lgb__fips_st |>
+  dplyr::rowwise() |>
+  dplyr::mutate(survey_county_name0 = get_county_name(state_both, cnty_3)) |>
+  dplyr::ungroup()
+
+# check survey county names
+join_by_date_captain__has_lgb__fips_st_county_names |>
+  dplyr::rowwise() |>
+  dplyr::mutate(ll = length(survey_county_name0)) |>
+  dplyr::ungroup() |>
+  dplyr::count(ll)
+# 1     0     1
+# 2     1   770
+# fixed:
+# 1     1   771  
+           
+join_by_date_captain__has_lgb__fips_st_county_names |>
+  dplyr::count(survey_county_name0) |> 
+  dplyr::glimpse()
+
+# check if county names are the same
+join_by_date_captain__has_lgb__fips_st_county_names |> 
+  dplyr::filter(survey_county_name0 == tolower(END_PORT_COUNTY)) |> 
+  dplyr::glimpse()
+
+join_by_date_captain__has_lgb__fips_st_county_names[40,] |> 
+  dplyr::select(survey_county_name0, END_PORT_COUNTY)
+
+join_by_date_captain__has_lgb__fips_st_county_names |>
+  dplyr::rowwise() |>
+  dplyr::filter(
+    !is.na(survey_county_name0) &
+      agrepl(survey_county_name0, 
+             tolower(END_PORT_COUNTY), 
+             ignore.case = TRUE,
+             max.distance = 2)
+    ) |>
+  dplyr::filter(!is.na(survey_county_name0) &
+           !survey_county_name0 == tolower(END_PORT_COUNTY)) |>
+  dplyr::ungroup() |>
+  dplyr::select(survey_county_name0, END_PORT_COUNTY) |>
+  dplyr::distinct() |>
+  dplyr::glimpse()
+# $ survey_county_name0 <chr> "levy"
+# $ END_PORT_COUNTY     <chr> "LEE"
+
+# All counties are either completely different or the same
+
+join_by_date_captain__has_lgb__fips_st_county_names_short <-
+  join_by_date_captain__has_lgb__fips_st_county_names |>
+  dplyr::select(
+    id_code,
+    TRIP_ID,
+    interview_date,
+    vsl_num,
+    VESSEL_OFFICIAL_NBR,
+    vessel_name,
+    VESSEL_NAME,
+    interviewee_l_name,
+    interviewee_f_name,
+    CAPT_NAME_FIRST,
+    state_both,
+    cnty_3,
+    survey_county_name0,
+    END_PORT_COUNTY,
+    fips
+  ) |> 
+  dplyr::distinct()
+
+# View(join_by_date_captain__has_lgb__fips_st_county_names_short)
+# [1] 771  16
+```
+
+##### same county 
+
+```{r same county}
+#### same county ----
+join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty <-
+  join_by_date_captain__has_lgb__fips_st_county_names_short |>
+  dplyr::filter(survey_county_name0 == tolower(END_PORT_COUNTY))
+
+dim(join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty)
+# 122
+```
+
+##### the same first name 
+
+```{r the same first name}
+#### the same first name ----
+join_by_date_captain__has_lgb__fips_st_county_names_short_same_f_name <-
+  join_by_date_captain__has_lgb__fips_st_county_names_short |>
+  dplyr::filter(tolower(interviewee_f_name) == tolower(CAPT_NAME_FIRST))
+
+dim(join_by_date_captain__has_lgb__fips_st_county_names_short_same_f_name)
+# 58
+```
+
+##### compare first names 
+
+```{r compare first names}
+#### compare first names ---- 
+join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty |> 
+  dplyr::filter(!tolower(interviewee_f_name) == tolower(CAPT_NAME_FIRST)) |> 
+# 63
+  dplyr::select(interviewee_f_name, CAPT_NAME_FIRST) |> 
+  dplyr::mutate(dplyr::across(everything(), ~tolower(.))) |> 
+  dplyr::distinct() |> 
+  dplyr::arrange(interviewee_f_name) |> 
+  str()
+# 22
+# 11 are derivatives or typos
+```
+
+##### compare vessel names in join_by_date_captain 
+
+```{r compare vessel names in join_by_date_captain}
+#### compare vessel names in join_by_date_captain ---- 
+
+clean_vessel_name <- function(vessel_name) {
+  vessel_name |>
+    tolower() |>
+    stringr::str_replace_all(" ii+", " i") |> 
+    stringr::str_replace_all("\\W+", "")
+}
+
+join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty__clena_vsl_name <-
+  join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty |>
+  dplyr::mutate(dplyr::across(c("vessel_name", "VESSEL_NAME"), ~ clean_vessel_name(.)))
+
+join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty__clena_vsl_name |> 
+  dplyr::filter(tolower(vessel_name) == tolower(VESSEL_NAME)) |>
+  dim()
+# 67 (out of 122)
+
+join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty__clena_vsl_name__diff_vsl_names <-
+  join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty__clena_vsl_name |>
+  dplyr::filter(!tolower(vessel_name) == tolower(VESSEL_NAME)) |>
+  # dim()
+  # 55
+  dplyr::filter(!tolower(VESSEL_NAME) == "unnamed") 
+
+join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty__clena_vsl_name__diff_vsl_names |>
+  dim()
+# 33
+
+join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty__clena_vsl_name__diff_vsl_names |> 
+  dplyr::select(vessel_name, VESSEL_NAME, vsl_num, VESSEL_OFFICIAL_NBR) |>
+  dplyr::distinct() |>
+# 23
+  dplyr::rowwise() |>
+  dplyr::filter(agrepl(
+    vsl_num,
+    tolower(VESSEL_OFFICIAL_NBR),
+    ignore.case = TRUE,
+    max.distance = 2
+  )) |>
+  dplyr::ungroup() |>
+  dplyr::glimpse()
+# 6
+
+diff_vsl_ids <- 
+  join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty__clena_vsl_name__diff_vsl_names |>
+  dplyr::select(vessel_name, VESSEL_NAME, vsl_num, VESSEL_OFFICIAL_NBR) |>
+  dplyr::distinct() |>
+  # 23
+  dplyr::rowwise() |>
+  dplyr::filter(!agrepl(
+    vsl_num,
+    tolower(VESSEL_OFFICIAL_NBR),
+    ignore.case = TRUE,
+    max.distance = 2
+  )) |> 
+  dplyr::ungroup()
+
+diff_vsl_ids_pairs <-
+  diff_vsl_ids |>
+  dplyr::rowwise() |>
+  dplyr::mutate(check_vsl_num_l = list(unique(sort(
+    paste(toupper(vsl_num), toupper(VESSEL_OFFICIAL_NBR), sep = "', '")
+  )))) |>
+  dplyr::ungroup()
+```
+
+##### print out 
+
+```{r print out}
+#### print out ----
+# readr::write_csv(diff_vsl_ids_pairs,
+#                  file.path(curr_proj_output_path, "diff_vsl_ids.csv"))
+
+# str(diff_vsl_ids_pairs)
+print_vsl_ids_to_check <-
+  diff_vsl_ids_pairs |>
+  dplyr::select(check_vsl_num_l) |>
+  dplyr::distinct() |> 
+  unlist()
+
+print_vsl_ids_to_check |> 
+   cat(sep = "'\n'")
+```
+
+##### check in db 
+
+```{r check in db}
+#### check in db ----
+# vsl_id_pair <- "FL7092NJ', '1074576"
+
+make_a_pair_vsl_ids_query <- function(vsl_id_pair) {
+  check_vsl_ids_query <-
+    stringr::str_glue(
+      "SELECT
+  vessel_id,
+  hull_id_nbr,
+  vessel_name,
+  coast_guard_nbr,
+  state_reg_nbr,
+  sero_official_number, owner_id
+FROM
+  safis.vessels@secapxdv_dblk.sfsc.noaa.gov
+WHERE
+  coast_guard_nbr IN ( '{vsl_id_pair}' )
+  OR state_reg_nbr IN ( '{vsl_id_pair}' )
+  OR sero_official_number IN ( '{vsl_id_pair}' )
+ORDER BY
+  vessel_id"
+    )
+  
+  return(check_vsl_ids_query)
+}
+  
+# one_query_res <-
+  # try(DBI::dbGetQuery(con, check_vsl_ids_query))
+
+# str(one_query_res)
+# str(diff_vsl_ids_pairs)
+
+vsl_ids_to_check_db <-
+  print_vsl_ids_to_check |>
+  purrr::map(\(vsl_id_pair) {
+    # browser()
+    str(vsl_id_pair)
+    curr_query <- make_a_pair_vsl_ids_query(vsl_id_pair)
+    one_query_res <-
+      try(DBI::dbGetQuery(con, curr_query))
+    return(one_query_res)
+  })
+
+names(vsl_ids_to_check_db) <- print_vsl_ids_to_check
+
+dplyr::glimpse(vsl_ids_to_check_db)
+
+# check_vsl_ids_query
+  # coast_guard_nbr IN ( 'FL7092NJ', '1074576' )
+  # OR state_reg_nbr IN ( 'FL7092NJ', '1074576' )
+  # OR sero_official_number IN ( 'FL7092NJ', '1074576' )
+
+# TODO:
+# 1) VESSEL_NAME == "unnamed"
+# 2) agrep or adist for vsl_num/VESSEL_OFFICIAL_NBR, excl. 99999
+# 3) check vessels with double ids
+```
+
+##### get vessel numbers for the same vessel names 
+
+```{r get vessel numbers for the same vessel names}
+#### get vessel numbers for the same vessel names ----
+```
+
+### spot check the interviews by time window 
+
+```{r spot check the interviews by time window}
+## spot check the interviews by time window ----
+# TODO
+# 2)
+# And if you limit to a smaller window (e.g. end or start in logbook within 1 hour of the survey, or within 2, or within 3 hours) how does that % come out?
+```
+
+## count interviews w no logbooks 1 
+
+```{r count interviews w no logbooks 1}
+# count interviews w no logbooks 1 ----
+count_interview_no_lgb <-
+  function(my_df, cnt_field = "st_2") {
+    my_df |>
+      group_by(fips) |>
+      dplyr::mutate(num_int_no_lgb_by_fips = n()) |>
+      dplyr::ungroup() |>
+      group_by(!!sym(cnt_field)) |>
+      dplyr::count(!!sym(cnt_field), name = "total_int_no_lgb_by_state") |>
+      dplyr::ungroup()
+  }
+
+# NA states
+intv_w_no_lgb_join_by_day_vsl_cnt <-
+  intv_w_no_lgb_join_by_day_vsl |>
+  dplyr::select(st_2, vsl_num, interview_date, fips) |>
+  dplyr::distinct() |>
+  count_interview_no_lgb()
+
+# check
+dplyr::glimpse(intv_w_no_lgb_join_by_day_vsl_cnt)
+
+intv_w_no_lgb_join_by_day_vsl_cnt |>
+  dplyr::filter(st_2 == "48") |>
+  dplyr::arrange(fips) |> 
+  dplyr::glimpse()
+
+# restored states
+intv_w_no_lgb_join_by_day_vsl_restored_cnt <-
+  intv_w_no_lgb_join_by_day_vsl_restored |> 
+  dplyr::select(restored_st, vsl_num, interview_date, fips) |>
+  dplyr::distinct() |>
+  count_interview_no_lgb(cnt_field = "restored_st")
+
+dim(intv_w_no_lgb_join_by_day_vsl_restored_cnt)
+# 827
+
+intv_w_no_lgb_join_by_day_vsl_restored_cnt |>
+  dplyr::select(restored_st, total_int_no_lgb_by_state) |>
+  dplyr::distinct() |> 
+  dplyr::count(wt = total_int_no_lgb_by_state)
+# 827
+# correct
+```
+
+### percent interviews w no logbooks 
+
+```{r percent interviews w no logbooks}
+## percent interviews w no logbooks ----
+num_of_interviews_w_no_lgb <-
+  nrow(intv_w_no_lgb_join_by_day_vsl_cnt)
+# 827
+
+# check
+# num_of_interviews_w_no_lgb_restored <-
+#   nrow(intv_w_no_lgb_join_by_day_vsl_restored_cnt)
+
+# num_of_interviews_w_no_lgb_restored == num_of_interviews_w_no_lgb
+# T
+
+num_of_interviews <-
+  nrow(survey_data_l_2022_vsl_date)
+# 1835
+
+num_of_interviews_w_no_lgb * 100 / num_of_interviews
+# 45%
+```
+
+## Plot interviews w no logbooks 
+
+```{r Plot interviews w no logbooks}
+# Plot interviews w no logbooks ----
+
+# inerview_no_lgb_geo <-
+# intv_w_no_lgb_join_by_day_vsl |> dplyr::glimpse()
+
+# library(ggplot2)
+plot_states <- usmap::plot_usmap(include = c(gulf_states, "FL")) 
+
+plot_cnties_only <-
+  plot_usmap(regions = "counties",
+             include = c(florida_gulf_counties))
+
+# intv_w_no_lgb_join_by_day_vsl1 <-
+#   intv_w_no_lgb_join_by_day_vsl |>
+#   dplyr::mutate(fips = cnty) |> 
+#   group_by(st, cnty) |> 
+#   dplyr::mutate(num_int_no_lgb = n()) |> 
+#   dplyr::ungroup()
+
+# intv_w_no_lgb_join_by_day_vsl1 |>
+#   dplyr::arrange(num_int_no_lgb, st, cnty) |> 
+#   View()
+```
+
+#### prep state info for plotting 
+
+```{r prep state info for plotting}
+### prep state info for plotting ----
+selected_states_df <- usmap::us_map(include = c(gulf_states, "FL"))
+
+# Get centroids
+centroid_labels <- usmapdata::centroid_labels("states")
+
+# Join centroids to data
+old_names <- names(centroid_labels)
+
+names(centroid_labels) <- c("st_2", "abbr", "full", "geom")
+
+state_labels <-
+  merge(intv_w_no_lgb_join_by_day_vsl_cnt, 
+        centroid_labels, 
+        by = "st_2")
+
+state_labels_restored <-
+  dplyr::left_join(
+    intv_w_no_lgb_join_by_day_vsl_restored_cnt,
+    centroid_labels,
+    join_by(restored_st == st_2)
+  ) |>
+  dplyr::mutate(label_st_cnt = paste(abbr, total_int_no_lgb_by_state))
+
+dplyr::glimpse(state_labels_restored)
+
+state_labels_short <-
+  state_labels |>
+  dplyr::select(st_2, abbr, full, total_int_no_lgb_by_state, geom) |> 
+  dplyr::distinct() |> 
+  dplyr::mutate(label_st_cnt = paste(abbr, total_int_no_lgb_by_state))
+
+dplyr::glimpse(state_labels_short)
+# 5
+```
+
+#### interview wo lgb plot 
+
+```{r interview wo lgb plot}
+### interview wo lgb plot ----
+
+plot_counties <- function(my_df) {
+  usmap::plot_usmap(
+    regions = "counties",
+    include = c(gulf_states, "FL"),
+    data = my_df,
+    values = "num_int_no_lgb_by_fips",
+    color = "lightgrey"
+  ) +
+    ggplot2::scale_fill_gradient(
+      name = "Interviews w/o logbooks",
+      low = "blue",
+      high = "yellow",
+      na.value = "transparent"
+    )
+}
+
+# print_df_names(intv_w_no_lgb_join_by_day_vsl_cnt)
+
+plot_cnties <- plot_counties(intv_w_no_lgb_join_by_day_vsl_cnt)
+
+plot_cnties_restored <- 
+  plot_counties(intv_w_no_lgb_join_by_day_vsl_restored_cnt)
+
+# check
+no_state_interview_no_lgb_num <- 
+  intv_w_no_lgb_join_by_day_vsl_cnt |>
+  dplyr::filter(st_2 == "00") |> 
+  dplyr::select(total_int_no_lgb_by_state) |> 
+  dplyr::distinct()
+# 192
+
+
+add_state_labels <-
+  function(usmap_plot, labels_by_state = state_labels_short) {
+    usmap_plot +
+      ggplot2::geom_sf_text(data = labels_by_state, 
+                            ggplot2::aes(geometry = geom, label = label_st_cnt)) +
+      ggplot2::geom_sf(data = selected_states_df,
+              color = "green",
+              fill = NA)
+  }
+
+plot_restored_all <- 
+  add_state_labels(plot_cnties_restored, state_labels_restored) +
+  ggplot2::labs(title = "Number of interviews without logbooks by state/county")
+
+plot_cnties_state_lbls <-
+  add_state_labels(plot_cnties, state_labels_short) +
+  ggplot2::labs(
+    title = "Number of interviews without logbooks by state/county",
+    caption = stringr::str_glue(
+      "Number of interviews without logbooks with no state info is {no_state_interview_no_lgb_num$total_int_no_lgb_by_state}."
+    )
+  )
+
+# library(gridExtra)
+
+gridExtra::grid.dplyr::arrange(plot_cnties_state_lbls,
+           plot_restored_all)
+```
+
+## survey time difference vs trip start/trip end 
+
+```{r survey time difference vs trip starttrip end}
+# survey time difference vs trip start/trip end ----
+
+db_logbooks_2022_short__fish_hours <-
+  db_logbooks_2022 |>
+  dplyr::select(
+    TRIP_ID,
+    VESSEL_OFFICIAL_NBR,
+    FISHING_HOURS,
+    TRIP_START_DATE,
+    TRIP_START_TIME,
+    TRIP_END_DATE,
+    TRIP_END_TIME
+  ) |> 
+  dplyr::distinct()
+
+dim(db_logbooks_2022_short__fish_hours)
+# [1] 94899     7
+
+survey_lgb_by_date_vessl_all <-
+  inner_join(
+    survey_data_l_2022_vsl_date,
+    db_logbooks_2022_short__fish_hours,
+    join_by(vsl_num == VESSEL_OFFICIAL_NBR, 
+            interview_date == TRIP_END_DATE),
+    relationship = "many-to-many"
+  ) |> 
+  dplyr::arrange(interview_date) |> 
+  dplyr::select(-all_of(tidyselect::starts_with("int_")))
+
+dim(survey_lgb_by_date_vessl_all)
+# 1115
+
+survey_lgb_by_date_vessl_all |> 
+    dplyr::filter(!TRIP_START_DATE == interview_date) |> 
+  dim()
+# 8
+
+# survey_lgb_by_date_vessl_all$TRIP_START_TIME1 <-
+strftime(strptime(sapply(paste0("0000", survey_lgb_by_date_vessl_all$TRIP_START_TIME), function(i)
+  substring(i, nchar(i) - 3, nchar(i))), "%H%M"), format = "%H:%M") |> head()
+
+survey_lgb_by_date_vessl_all__trip_dur <-
+  survey_lgb_by_date_vessl_all |>
+  dplyr::mutate(TRIP_START_TIME_1 =
+           stringr::str_replace(TRIP_START_TIME, "(\\d+)(\\d\\d)", "\\1:\\2")) |>
+  dplyr::mutate(TRIP_END_TIME_1 =
+           stringr::str_replace(TRIP_END_TIME, "(\\d+)(\\d\\d)", "\\1:\\2")) |>
+  dplyr::mutate(TRIP_START_TIME_2 =
+           lubridate::hm(TRIP_START_TIME_1)) |>
+  dplyr::mutate(TRIP_END_TIME_2 =
+           lubridate::hm(TRIP_END_TIME_1)) |>
+  dplyr::mutate(TRIP_START_TO_END =
+           TRIP_END_TIME_2 - TRIP_START_TIME_2) |> 
+  dplyr::mutate(TRIP_START_TO_END_d =
+           lubridate::as.duration(TRIP_START_TO_END))
+```
+
+### convert fishing hours to duration 
+
+```{r convert fishing hours to duration}
+## convert fishing hours to duration ----
+convert_fish_hours_to_duration <- function(FISHING_HOURS) {
+  as.difftime(FISHING_HOURS, units = "hours") |> 
+    lubridate::as.period() |> 
+    lubridate::as.duration()
+}
+```
+
+#### for logbooks 
+
+```{r for logbooks}
+### for logbooks ----
+survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur <-
+  survey_lgb_by_date_vessl_all__trip_dur |>
+  dplyr::rowwise() |>
+  dplyr::mutate(FISHING_HOURS_d = convert_fish_hours_to_duration(FISHING_HOURS)) |>
+  dplyr::ungroup()
+
+# check
+survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur[93,][["FISHING_HOURS_d"]]
+# [1] "12600s (~3.5 hours)"
+
+survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur[93,][["TRIP_START_TO_END_d"]] - survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur[93,][["FISHING_HOURS_d"]]
+# [1] "1800s (~30 minutes)"
+```
+
+#### convert survey fishing hours hrsf to duration 
+
+```{r convert survey fishing hours hrsf to duration}
+### convert survey fishing hours hrsf to duration ----
+
+survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur <-
+  survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur |>
+  dplyr::rowwise() |>
+  dplyr::mutate(hrsf_d = convert_fish_hours_to_duration(hrsf)) |>
+  dplyr::ungroup()
+
+dplyr::glimpse(survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur)
+
+# check row 93 with 3.5
+survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur |> 
+  head(96) |> 
+  tail() |> 
+  dplyr::mutate(FISHING_HOURS_mean = mean.difftime(FISHING_HOURS_d)) |> 
+  dplyr::select(tidyselect::starts_with("FISHING_HOURS")) |> 
+  dplyr::distinct() |> 
+  str()
+
+survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur[93,][["TRIP_START_TO_END_d"]] - survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur[93,][["hrsf_d"]]
+# [1] "3600s (~1 hours)"
+
+survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur[93,][["FISHING_HOURS_d"]] - survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur[93,][["hrsf_d"]]
+# [1] "1800s (~30 minutes)"
+
+survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur$TRIP_START_TO_END_d |> 
+  mean()
+
+survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur$hrsf_d |> 
+  mean()
+
+survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur |> 
+  # dplyr::filter(!is.na(FISHING_HOURS_d)) |> 
+  dplyr::select(ends_with("_d")) |> 
+  summary()
+```
+
+## how many fishing hours are matching vs. not (interval) 
+
+```{r how many fishing hours are matching vs not interval}
+# how many fishing hours are matching vs. not (interval) ----
+
+survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur |> 
+    dplyr::select(ends_with("_d")) |> dplyr::glimpse()
+```
+
+## how many are srhs vsls? 
+
+```{r how many are srhs vsls}
+# how many are srhs vsls? ----
+# all interviews:
+survey_data_l_2022_i1_w_dates |>
+  dplyr::select(vsl_num, srhs_vessel) |>
+  dplyr::distinct() |>
+  dplyr::count(srhs_vessel)
+  # srhs_vessel     n
+# 1           1     4
+# 2           2   472
+```
+
