@@ -13,3 +13,4 @@ lubridate
 DBI
 ROracle
 usmap
+tidycensus
