@@ -57,6 +57,7 @@ registerS3method(
 
 ```
 
+
 ## Set up 
 
 ```{r setup current project, results='hide', message=FALSE, warning=FALSE}
@@ -219,6 +220,49 @@ file.exists(get_data_path)
 
 ```{r set up}
 # set up ----
+# <<<<
+connect_to_secpr  <-  function() {
+    # Retrieve the username associated with the "SECPR" database from the keyring.
+    my_username <- keyring::key_list("SECPR")[1, 2]
+
+    # Use 'dbConnect' to establish a database connection with the specified credentials.
+    con <- DBI::dbConnect(
+        DBI::dbDriver("Oracle"),  # Use the Oracle database driver.
+        username = my_username,  # Use the retrieved username.
+        password = keyring::key_get("SECPR", my_username),  # Retrieve the password from the keyring.
+        dbname = "SECPR"  # Specify the name of the database as "SECPR."
+    )
+
+    # Return the established database connection.
+    return(con)
+}
+
+# Explanations:
+
+# This function encapsulates the process of connecting to the "SECPR" Oracle database securely by retrieving credentials from the keyring and establishing a connection using the ROracle package. It ensures that sensitive information such as passwords is not exposed in the code, enhancing security.
+#  
+#  
+# This `connect_to_secpr` function establishes a connection to an Oracle database named "SECPR" using credentials stored securely.
+# 
+# 1. **Function Definition:**
+#    - `connect_to_secpr <- function() { .. }`: Defines a function named `connect_to_secpr` with no input parameters.
+# 
+# 2. **Retrieve Username:**
+#    - `my_username <- keyring::key_list("SECPR")[1, 2]`: Retrieves the username associated with the Oracle database "SECPR" from the keyring package. It accesses the first entry (row) and the second column, assuming the username is stored in the second column.
+# 
+# 3. **Establish Database Connection:**
+#    - `con <- dbConnect(...)`:
+#      - `dbDriver("Oracle")`: Creates a database driver object specifically for Oracle databases.
+#      - `username = my_username`: Specifies the retrieved username for the database connection.
+#      - `password = keyring::key_get("SECPR", my_username)`: Retrieves the corresponding password for the username from the keyring package, ensuring secure access to the credentials.
+#      - `dbname = "SECPR"`: Specifies the name of the Oracle database to connect to, which is "SECPR" in this case.
+#      - `dbConnect(...)`: Establishes a connection to the Oracle database using the provided driver, username, password, and database name.
+# 
+# 4. **Return Statement:**
+#    - `return(con)`: Returns the established database connection (`con`) as the output of the function.
+# 
+# >>>>
+
 # Turn off the scientific notation
 options(scipen = 999)
 
@@ -1118,10 +1162,10 @@ n_distinct(lgb_join_i1$VESSEL_OFFICIAL_NBR)
 # str(lgb_join_i1)
 ```
 
-## intervie and trip time difference 
+## interview and trip time difference 
 
-```{r intervie and trip time difference}
-# intervie and trip time difference ----
+```{r interview and trip time difference}
+# interview and trip time difference ----
 lgb_join_i1__t_diff <-
   lgb_join_i1 |>
   dplyr::mutate(
@@ -1964,7 +2008,7 @@ catch_info_lgb_i1_i2_i3 |>
   dplyr::glimpse()
 # 937
 
-# n_dplyr::distinct(catch_info_lgb_i1_i2_i3$TRIP_ID)
+# dplyr::n_distinct(catch_info_lgb_i1_i2_i3$TRIP_ID)
 # 887
 
 catch_info_lgb_i1_i2_i3 |> 
@@ -2292,12 +2336,12 @@ db_logbooks_2022_short_cnt_spp <-
     CATCH_SPECIES_ITIS
   ) |>
   dplyr::distinct() |>
-  dplyr::count(VESSEL_OFFICIAL_NBR, 
+  dplyr::add_count(VESSEL_OFFICIAL_NBR, 
             TRIP_ID, 
             DISPOSITION_CODE, 
             name = "n_CATCH_SPECIES_ITIS__by_disp") |>
   dplyr::group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |>
-  dplyr::mutate(n_CATCH_SPECIES_ITIS = n_dplyr::distinct(CATCH_SPECIES_ITIS)) |>
+  dplyr::mutate(n_CATCH_SPECIES_ITIS = dplyr::n_distinct(CATCH_SPECIES_ITIS)) |>
   dplyr::ungroup()
 
 db_logbooks_2022_short_cnt_spp |> 
@@ -2319,10 +2363,10 @@ survey_data_l_2022_short_cnt_spp <-
   dplyr::select(id_code, tsn, fshinsp, disp3, lngth, wgt, num_typ3) |> 
   dplyr::distinct() |>
   dplyr::group_by(id_code, disp3) |> 
-  dplyr::mutate(n_tsn_by_disp3 = n_dplyr::distinct(tsn)) |> 
+  dplyr::mutate(n_tsn_by_disp3 = dplyr::n_distinct(tsn)) |> 
   dplyr::ungroup() |> 
   dplyr::group_by(id_code) |> 
-  dplyr::mutate(n_tsn = n_dplyr::distinct(tsn)) |> 
+  dplyr::mutate(n_tsn = dplyr::n_distinct(tsn)) |> 
   dplyr::ungroup()
 
 dplyr::glimpse(survey_data_l_2022_short_cnt_spp)
@@ -2896,7 +2940,7 @@ survey_fields_to_compare <-
 
 survey_data_l_2022_date_i1_vsl__int_t_clean_vsl_low__no_lgb <-
   survey_data_l_2022_date_i1_vsl__int_t_clean_vsl_low |>
-  selecttidyselect::any_of(survey_fields_to_compare)) |>
+  dplyr::select(tidyselect::any_of(survey_fields_to_compare)) |>
   dplyr::distinct() |>
   # 1835
   dplyr::filter(id_code %in% intv_w_no_lgb_join_by_day_vsl$id_code)
@@ -2964,7 +3008,7 @@ join_by_date_captain__has_lgb <-
   join_by_date_captain |>
   dplyr::filter(!is.na(TRIP_ID) &
            !is.na(id_code)) |>
-  selecttidyselect::any_of(c(
+  dplyr::select(tidyselect::any_of(c(
     survey_fields_to_compare, lgb_fields_to_compare
   ))) |>
   dplyr::distinct()
@@ -3326,11 +3370,11 @@ dplyr::glimpse(vsl_ids_to_check_db)
 count_interview_no_lgb <-
   function(my_df, cnt_field = "st_2") {
     my_df |>
-      group_by(fips) |>
+      dplyr::group_by(fips) |>
       dplyr::mutate(num_int_no_lgb_by_fips = n()) |>
       dplyr::ungroup() |>
-      group_by(!!sym(cnt_field)) |>
-      dplyr::count(!!sym(cnt_field), name = "total_int_no_lgb_by_state") |>
+      dplyr::group_by(!!sym(cnt_field)) |>
+      dplyr::add_count(!!sym(cnt_field), name = "total_int_no_lgb_by_state") |>
       dplyr::ungroup()
   }
 
@@ -3408,7 +3452,7 @@ plot_cnties_only <-
 # intv_w_no_lgb_join_by_day_vsl1 <-
 #   intv_w_no_lgb_join_by_day_vsl |>
 #   dplyr::mutate(fips = cnty) |> 
-#   group_by(st, cnty) |> 
+#   dplyr::group_by(st, cnty) |> 
 #   dplyr::mutate(num_int_no_lgb = n()) |> 
 #   dplyr::ungroup()
 
@@ -3518,8 +3562,9 @@ plot_cnties_state_lbls <-
 
 # library(gridExtra)
 
-gridExtra::grid.dplyr::arrange(plot_cnties_state_lbls,
+gridExtra::grid.arrange(plot_cnties_state_lbls,
            plot_restored_all)
+
 ```
 
 ## survey time difference vs trip start/trip end 
