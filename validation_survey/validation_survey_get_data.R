@@ -131,7 +131,7 @@ grep("permit", names(processed_logbooks_2022), ignore.case = T, value = T)
 
 processed_logbooks_2022_calendar <-
   processed_logbooks_2022 |>
-  filter(TRIP_END_DATE >= my_date_beg &
+  dplyr::filter(TRIP_END_DATE >= my_date_beg &
            TRIP_START_DATE <= my_date_end)
 
 nrow(processed_logbooks_2022_calendar) -
@@ -210,25 +210,19 @@ length(trips_in_processed_cal_not_in_db)
 # 0 ok
 
 processed_logbooks_2022 |> 
-  filter(TRIP_ID %in% trips_in_processed_not_in_db) |> 
+  dplyr::filter(TRIP_ID %in% trips_in_processed_not_in_db) |> 
   # filter(!permit_sa_gom == "sa_only") |> 
-  select(COMP_WEEK_START_DT, COMP_WEEK_END_DT) |> 
-    distinct()
-
-processed_logbooks_2022 |> 
-  filter(TRIP_ID %in% trips_in_processed_not_in_db) |> 
-  # filter(!permit_sa_gom == "sa_only") |> 
-  select(COMP_WEEK_START_DT, COMP_WEEK_END_DT) |> 
-    distinct()
+  dplyr::select(COMP_WEEK_START_DT, COMP_WEEK_END_DT) |> 
+    dplyr::distinct()
 #   COMP_WEEK_START_DT  COMP_WEEK_END_DT   
 #   <dttm>              <dttm>             
 # 1 2022-12-26 00:00:00 2023-01-01 00:00:00
 # 2 2021-12-27 00:00:00 2022-01-02 00:00:00
 
 db_logbooks_2022 |>
-  filter(TRIP_ID %in% trips_in_db_not_in_processed) |>
-  select(TRIP_START_DATE, TRIP_END_DATE) |>
-  distinct() |> 
+  dplyr::filter(TRIP_ID %in% trips_in_db_not_in_processed) |>
+  dplyr::select(TRIP_START_DATE, TRIP_END_DATE) |>
+  dplyr::distinct() |> 
   dim()
 # [1] 352   2
 # all diff

@@ -42,7 +42,7 @@ survey_data_l_2022_date_i1_vsl__int_t <-
   dplyr::select(id_code, vsl_num, interview_date, st, cnty) |>
   dplyr::distinct()
 
-glimpse(survey_data_l_2022_date_i1_vsl__int_t)
+dplyr::glimpse(survey_data_l_2022_date_i1_vsl__int_t)
 # 1812
 # 1835 w id code
 
@@ -114,10 +114,10 @@ survey_data_l_2022_date_i1_vsl__int_t__restore_st |>
 format_state_and_county_codes <-
   function(my_df, state_code_field) {
     my_df |>
-      mutate(st_2 =
+      dplyr::mutate(st_2 =
                case_when(is.na(!!sym(state_code_field)) ~ "00", .default =
                            stringr::str_pad(!!sym(state_code_field), 2, pad = "0"))) |>
-      mutate(cnty_3 = stringr::str_pad(cnty, 3, pad = "0"),
+      dplyr::mutate(cnty_3 = stringr::str_pad(cnty, 3, pad = "0"),
              fips = paste0(st_2, cnty_3))
     
   }
@@ -321,7 +321,7 @@ test1_tsns <-
   dplyr::distinct() |>
   dplyr::select(tsn) |>
   dplyr::distinct()
-# glimpse()
+# dplyr::glimpse()
 
 test1_logbooks <-
   db_logbooks_2022 |>
@@ -416,12 +416,12 @@ by_fields = dplyr::join_by(vsl_num == VESSEL_OFFICIAL_NBR,
 
 survey_data_l_2022_date_i1_vsl__int_t_clean_vsl_low <- 
   survey_data_l_2022_date_i1_vsl__int_t_clean_vsl |> 
-  mutate(vsl_num = tolower(vsl_num),
+  dplyr::mutate(vsl_num = tolower(vsl_num),
          interviewee_l_name = tolower(interviewee_l_name))
 
 db_logbooks_2022_vsl_t_end_all_low <- 
   db_logbooks_2022_vsl_t_end_all |> 
-  mutate(VESSEL_OFFICIAL_NBR = tolower(VESSEL_OFFICIAL_NBR),
+  dplyr::mutate(VESSEL_OFFICIAL_NBR = tolower(VESSEL_OFFICIAL_NBR),
          CAPT_NAME_LAST = tolower(CAPT_NAME_LAST))
 
 ### join by captain name instead of a vessel ----
@@ -442,10 +442,10 @@ survey_fields_to_compare <-
 
 survey_data_l_2022_date_i1_vsl__int_t_clean_vsl_low__no_lgb <-
   survey_data_l_2022_date_i1_vsl__int_t_clean_vsl_low |>
-  select(any_of(survey_fields_to_compare)) |>
-  distinct() |>
+  selecttidyselect::any_of(survey_fields_to_compare)) |>
+  dplyr::distinct() |>
   # 1835
-  filter(id_code %in% intv_w_no_lgb_join_by_day_vsl$id_code)
+  dplyr::filter(id_code %in% intv_w_no_lgb_join_by_day_vsl$id_code)
 
 dim(intv_w_no_lgb_join_by_day_vsl)
 # 833
@@ -485,13 +485,13 @@ lgb_fields_to_compare <-
   )
 
 db_logbooks_2022_vsl_t_end_all_low |> 
-  filter(
+  dplyr::filter(
     CAPT_NAME_LAST == survey_x_5$interviewee_l_name &
       TRIP_END_DATE == survey_x_5$interview_date
   ) |>
-  select(all_of(lgb_fields_to_compare)) |> 
-  distinct() |> 
-  glimpse()
+  dplyr::select(all_of(lgb_fields_to_compare)) |> 
+  dplyr::distinct() |> 
+  dplyr::glimpse()
 # diff everything else
 
 # intersect(survey_x_3$id_code, intv_w_no_lgb_join_by_day_vsl$id_code)
@@ -499,21 +499,21 @@ db_logbooks_2022_vsl_t_end_all_low |>
 
 db_logbooks_2022_vsl_t_end_all_low_32575 <-
   db_logbooks_2022_vsl_t_end_all_low[32575, ] |>
-  select(all_of(lgb_fields_to_compare)) |>
-  distinct()
+  dplyr::select(all_of(lgb_fields_to_compare)) |>
+  dplyr::distinct()
 
-glimpse(db_logbooks_2022_vsl_t_end_all_low_32575)
+dplyr::glimpse(db_logbooks_2022_vsl_t_end_all_low_32575)
 # names == NA
 
 ### check if the join is correct ---
 join_by_date_captain__has_lgb <-
   join_by_date_captain |>
-  filter(!is.na(TRIP_ID) &
+  dplyr::filter(!is.na(TRIP_ID) &
            !is.na(id_code)) |>
-  select(any_of(c(
+  selecttidyselect::any_of(c(
     survey_fields_to_compare, lgb_fields_to_compare
   ))) |>
-  distinct()
+  dplyr::distinct()
 
 #### add county names ----
 join_by_date_captain__has_lgb__fips <-
@@ -534,26 +534,26 @@ county_codes_equal <-
 state_codes_equal <-
   rlang::quo(tidycensus::fips_codes$state_code == state_both)
 
-  # filter(animal %in% anmal) %>%
+  # dplyr::filter(animal %in% anmal) %>%
 
 #### add state if missing ----
 join_by_date_captain__has_lgb__fips_st <- 
   join_by_date_captain__has_lgb__fips |>
-  mutate(state_both = coalesce(st, STATE))
+  dplyr::mutate(state_both = coalesce(st, STATE))
 
 # check
 join_by_date_captain__has_lgb__fips_st |> 
-  filter(!st == STATE) |> 
-  count(st, STATE) |> 
-  glimpse()
+  dplyr::filter(!st == STATE) |> 
+  dplyr::count(st, STATE) |> 
+  dplyr::glimpse()
 
 join_by_date_captain__has_lgb__fips_st |>
-  filter(st == STATE) |>
-  count(st, STATE) |>
-  glimpse()
+  dplyr::filter(st == STATE) |>
+  dplyr::count(st, STATE) |>
+  dplyr::glimpse()
 
 join_by_date_captain__has_lgb__fips_st |> 
-  count(state_both)
+  dplyr::count(state_both)
 
 # 
 get_county_name <- function(state_both, cnty_3) {
@@ -562,9 +562,9 @@ get_county_name <- function(state_both, cnty_3) {
   # cnty_3 = "315"
   res <-
     tidycensus::fips_codes |>
-    filter(state_code == state_both & county_code == cnty_3) |>
-    select(county) |>
-    mutate(county_short =
+    dplyr::filter(state_code == state_both & county_code == cnty_3) |>
+    dplyr::select(county) |>
+    dplyr::mutate(county_short =
              stringr::str_replace_all(county, " County| Parish", "") |> 
              tolower())
   
@@ -576,53 +576,53 @@ get_county_name <- function(state_both, cnty_3) {
   return(county_short)
 }
 
-  # select(where(~is.numeric(.x) && any(.x == 9)))
-# join_by_date_captain__has_lgb__fips_st[40,] |> glimpse()
+  # dplyr::select(where(~is.numeric(.x) && any(.x == 9)))
+# join_by_date_captain__has_lgb__fips_st[40,] |> dplyr::glimpse()
 
 join_by_date_captain__has_lgb__fips_st_county_names <-
   join_by_date_captain__has_lgb__fips_st |>
-  rowwise() |>
-  mutate(survey_county_name0 = get_county_name(state_both, cnty_3)) |>
-  ungroup()
+  dplyr::rowwise() |>
+  dplyr::mutate(survey_county_name0 = get_county_name(state_both, cnty_3)) |>
+  dplyr::ungroup()
 
 # check survey county names
 join_by_date_captain__has_lgb__fips_st_county_names |>
-  rowwise() |>
-  mutate(ll = length(survey_county_name0)) |>
-  ungroup() |>
-  count(ll)
+  dplyr::rowwise() |>
+  dplyr::mutate(ll = length(survey_county_name0)) |>
+  dplyr::ungroup() |>
+  dplyr::count(ll)
 # 1     0     1
 # 2     1   770
 # fixed:
 # 1     1   771  
            
 join_by_date_captain__has_lgb__fips_st_county_names |>
-  count(survey_county_name0) |> 
-  glimpse()
+  dplyr::count(survey_county_name0) |> 
+  dplyr::glimpse()
 
 # check if county names are the same
 join_by_date_captain__has_lgb__fips_st_county_names |> 
-  filter(survey_county_name0 == tolower(END_PORT_COUNTY)) |> 
-  glimpse()
+  dplyr::filter(survey_county_name0 == tolower(END_PORT_COUNTY)) |> 
+  dplyr::glimpse()
 
 join_by_date_captain__has_lgb__fips_st_county_names[40,] |> 
-  select(survey_county_name0, END_PORT_COUNTY)
+  dplyr::select(survey_county_name0, END_PORT_COUNTY)
 
 join_by_date_captain__has_lgb__fips_st_county_names |>
-  rowwise() |>
-  filter(
+  dplyr::rowwise() |>
+  dplyr::filter(
     !is.na(survey_county_name0) &
       agrepl(survey_county_name0, 
              tolower(END_PORT_COUNTY), 
              ignore.case = TRUE,
              max.distance = 2)
     ) |>
-  filter(!is.na(survey_county_name0) &
+  dplyr::filter(!is.na(survey_county_name0) &
            !survey_county_name0 == tolower(END_PORT_COUNTY)) |>
-  ungroup() |>
-  select(survey_county_name0, END_PORT_COUNTY) |>
-  distinct() |>
-  glimpse()
+  dplyr::ungroup() |>
+  dplyr::select(survey_county_name0, END_PORT_COUNTY) |>
+  dplyr::distinct() |>
+  dplyr::glimpse()
 # $ survey_county_name0 <chr> "levy"
 # $ END_PORT_COUNTY     <chr> "LEE"
 
@@ -630,7 +630,7 @@ join_by_date_captain__has_lgb__fips_st_county_names |>
 
 join_by_date_captain__has_lgb__fips_st_county_names_short <-
   join_by_date_captain__has_lgb__fips_st_county_names |>
-  select(
+  dplyr::select(
     id_code,
     TRIP_ID,
     interview_date,
@@ -647,7 +647,7 @@ join_by_date_captain__has_lgb__fips_st_county_names_short <-
     END_PORT_COUNTY,
     fips
   ) |> 
-  distinct()
+  dplyr::distinct()
 
 # View(join_by_date_captain__has_lgb__fips_st_county_names_short)
 # [1] 771  16
@@ -655,7 +655,7 @@ join_by_date_captain__has_lgb__fips_st_county_names_short <-
 #### same county ----
 join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty <-
   join_by_date_captain__has_lgb__fips_st_county_names_short |>
-  filter(survey_county_name0 == tolower(END_PORT_COUNTY))
+  dplyr::filter(survey_county_name0 == tolower(END_PORT_COUNTY))
 
 dim(join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty)
 # 122
@@ -663,24 +663,24 @@ dim(join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty)
 #### the same first name ----
 join_by_date_captain__has_lgb__fips_st_county_names_short_same_f_name <-
   join_by_date_captain__has_lgb__fips_st_county_names_short |>
-  filter(tolower(interviewee_f_name) == tolower(CAPT_NAME_FIRST))
+  dplyr::filter(tolower(interviewee_f_name) == tolower(CAPT_NAME_FIRST))
 
 dim(join_by_date_captain__has_lgb__fips_st_county_names_short_same_f_name)
 # 58
 
 #### compare first names ---- 
 join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty |> 
-  filter(!tolower(interviewee_f_name) == tolower(CAPT_NAME_FIRST)) |> 
+  dplyr::filter(!tolower(interviewee_f_name) == tolower(CAPT_NAME_FIRST)) |> 
 # 63
-  select(interviewee_f_name, CAPT_NAME_FIRST) |> 
-  mutate(across(everything(), ~tolower(.))) |> 
-  distinct() |> 
-  arrange(interviewee_f_name) |> 
+  dplyr::select(interviewee_f_name, CAPT_NAME_FIRST) |> 
+  dplyr::mutate(dplyr::across(everything(), ~tolower(.))) |> 
+  dplyr::distinct() |> 
+  dplyr::arrange(interviewee_f_name) |> 
   str()
 # 22
 # 11 are derivatives or typos
 
-#### compare vessel names ---- 
+#### compare vessel names in join_by_date_captain ---- 
 
 clean_vessel_name <- function(vessel_name) {
   vessel_name |>
@@ -691,60 +691,60 @@ clean_vessel_name <- function(vessel_name) {
 
 join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty__clena_vsl_name <-
   join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty |>
-  mutate(across(c("vessel_name", "VESSEL_NAME"), ~ clean_vessel_name(.)))
+  dplyr::mutate(dplyr::across(c("vessel_name", "VESSEL_NAME"), ~ clean_vessel_name(.)))
 
 join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty__clena_vsl_name |> 
-  filter(tolower(vessel_name) == tolower(VESSEL_NAME)) |>
+  dplyr::filter(tolower(vessel_name) == tolower(VESSEL_NAME)) |>
   dim()
 # 67 (out of 122)
 
 join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty__clena_vsl_name__diff_vsl_names <-
   join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty__clena_vsl_name |>
-  filter(!tolower(vessel_name) == tolower(VESSEL_NAME)) |>
+  dplyr::filter(!tolower(vessel_name) == tolower(VESSEL_NAME)) |>
   # dim()
   # 55
-  filter(!tolower(VESSEL_NAME) == "unnamed") 
+  dplyr::filter(!tolower(VESSEL_NAME) == "unnamed") 
 
 join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty__clena_vsl_name__diff_vsl_names |>
   dim()
 # 33
 
 join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty__clena_vsl_name__diff_vsl_names |> 
-  select(vessel_name, VESSEL_NAME, vsl_num, VESSEL_OFFICIAL_NBR) |>
-  distinct() |>
+  dplyr::select(vessel_name, VESSEL_NAME, vsl_num, VESSEL_OFFICIAL_NBR) |>
+  dplyr::distinct() |>
 # 23
-  rowwise() |>
-  filter(agrepl(
+  dplyr::rowwise() |>
+  dplyr::filter(agrepl(
     vsl_num,
     tolower(VESSEL_OFFICIAL_NBR),
     ignore.case = TRUE,
     max.distance = 2
   )) |>
-  ungroup() |>
-  glimpse()
+  dplyr::ungroup() |>
+  dplyr::glimpse()
 # 6
 
 diff_vsl_ids <- 
   join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty__clena_vsl_name__diff_vsl_names |>
-  select(vessel_name, VESSEL_NAME, vsl_num, VESSEL_OFFICIAL_NBR) |>
-  distinct() |>
+  dplyr::select(vessel_name, VESSEL_NAME, vsl_num, VESSEL_OFFICIAL_NBR) |>
+  dplyr::distinct() |>
   # 23
-  rowwise() |>
-  filter(!agrepl(
+  dplyr::rowwise() |>
+  dplyr::filter(!agrepl(
     vsl_num,
     tolower(VESSEL_OFFICIAL_NBR),
     ignore.case = TRUE,
     max.distance = 2
   )) |> 
-  ungroup()
+  dplyr::ungroup()
 
 diff_vsl_ids_pairs <-
   diff_vsl_ids |>
-  rowwise() |>
-  mutate(check_vsl_num_l = list(unique(sort(
+  dplyr::rowwise() |>
+  dplyr::mutate(check_vsl_num_l = list(unique(sort(
     paste(toupper(vsl_num), toupper(VESSEL_OFFICIAL_NBR), sep = "', '")
   )))) |>
-  ungroup()
+  dplyr::ungroup()
 
 #### print out ----
 # readr::write_csv(diff_vsl_ids_pairs,
@@ -753,8 +753,8 @@ diff_vsl_ids_pairs <-
 # str(diff_vsl_ids_pairs)
 print_vsl_ids_to_check <-
   diff_vsl_ids_pairs |>
-  select(check_vsl_num_l) |>
-  distinct() |> 
+  dplyr::select(check_vsl_num_l) |>
+  dplyr::distinct() |> 
   unlist()
 
 print_vsl_ids_to_check |> 
@@ -805,7 +805,7 @@ vsl_ids_to_check_db <-
 
 names(vsl_ids_to_check_db) <- print_vsl_ids_to_check
 
-glimpse(vsl_ids_to_check_db)
+dplyr::glimpse(vsl_ids_to_check_db)
 
 # check_vsl_ids_query
   # coast_guard_nbr IN ( 'FL7092NJ', '1074576' )
@@ -830,42 +830,42 @@ count_interview_no_lgb <-
   function(my_df, cnt_field = "st_2") {
     my_df |>
       group_by(fips) |>
-      mutate(num_int_no_lgb_by_fips = n()) |>
-      ungroup() |>
+      dplyr::mutate(num_int_no_lgb_by_fips = n()) |>
+      dplyr::ungroup() |>
       group_by(!!sym(cnt_field)) |>
-      add_count(!!sym(cnt_field), name = "total_int_no_lgb_by_state") |>
-      ungroup()
+      dplyr::count(!!sym(cnt_field), name = "total_int_no_lgb_by_state") |>
+      dplyr::ungroup()
   }
 
 # NA states
 intv_w_no_lgb_join_by_day_vsl_cnt <-
   intv_w_no_lgb_join_by_day_vsl |>
-  select(st_2, vsl_num, interview_date, fips) |>
-  distinct() |>
+  dplyr::select(st_2, vsl_num, interview_date, fips) |>
+  dplyr::distinct() |>
   count_interview_no_lgb()
 
 # check
-glimpse(intv_w_no_lgb_join_by_day_vsl_cnt)
+dplyr::glimpse(intv_w_no_lgb_join_by_day_vsl_cnt)
 
 intv_w_no_lgb_join_by_day_vsl_cnt |>
-  filter(st_2 == "48") |>
-  arrange(fips) |> 
-  glimpse()
+  dplyr::filter(st_2 == "48") |>
+  dplyr::arrange(fips) |> 
+  dplyr::glimpse()
 
 # restored states
 intv_w_no_lgb_join_by_day_vsl_restored_cnt <-
   intv_w_no_lgb_join_by_day_vsl_restored |> 
-  select(restored_st, vsl_num, interview_date, fips) |>
-  distinct() |>
+  dplyr::select(restored_st, vsl_num, interview_date, fips) |>
+  dplyr::distinct() |>
   count_interview_no_lgb(cnt_field = "restored_st")
 
 dim(intv_w_no_lgb_join_by_day_vsl_restored_cnt)
 # 827
 
 intv_w_no_lgb_join_by_day_vsl_restored_cnt |>
-  select(restored_st, total_int_no_lgb_by_state) |>
-  distinct() |> 
-  count(wt = total_int_no_lgb_by_state)
+  dplyr::select(restored_st, total_int_no_lgb_by_state) |>
+  dplyr::distinct() |> 
+  dplyr::count(wt = total_int_no_lgb_by_state)
 # 827
 # correct
 
@@ -891,10 +891,10 @@ num_of_interviews_w_no_lgb * 100 / num_of_interviews
 # Plot interviews w no logbooks ----
 
 # inerview_no_lgb_geo <-
-# intv_w_no_lgb_join_by_day_vsl |> glimpse()
+# intv_w_no_lgb_join_by_day_vsl |> dplyr::glimpse()
 
 # library(ggplot2)
-plot_states <- plot_usmap(include = c(gulf_states, "FL")) 
+plot_states <- usmap::plot_usmap(include = c(gulf_states, "FL")) 
 
 plot_cnties_only <-
   plot_usmap(regions = "counties",
@@ -902,13 +902,13 @@ plot_cnties_only <-
 
 # intv_w_no_lgb_join_by_day_vsl1 <-
 #   intv_w_no_lgb_join_by_day_vsl |>
-#   mutate(fips = cnty) |> 
+#   dplyr::mutate(fips = cnty) |> 
 #   group_by(st, cnty) |> 
-#   mutate(num_int_no_lgb = n()) |> 
-#   ungroup()
+#   dplyr::mutate(num_int_no_lgb = n()) |> 
+#   dplyr::ungroup()
 
 # intv_w_no_lgb_join_by_day_vsl1 |>
-#   arrange(num_int_no_lgb, st, cnty) |> 
+#   dplyr::arrange(num_int_no_lgb, st, cnty) |> 
 #   View()
 
 ### prep state info for plotting ----
@@ -933,23 +933,23 @@ state_labels_restored <-
     centroid_labels,
     join_by(restored_st == st_2)
   ) |>
-  mutate(label_st_cnt = paste(abbr, total_int_no_lgb_by_state))
+  dplyr::mutate(label_st_cnt = paste(abbr, total_int_no_lgb_by_state))
 
-glimpse(state_labels_restored)
+dplyr::glimpse(state_labels_restored)
 
 state_labels_short <-
   state_labels |>
-  select(st_2, abbr, full, total_int_no_lgb_by_state, geom) |> 
-  distinct() |> 
-  mutate(label_st_cnt = paste(abbr, total_int_no_lgb_by_state))
+  dplyr::select(st_2, abbr, full, total_int_no_lgb_by_state, geom) |> 
+  dplyr::distinct() |> 
+  dplyr::mutate(label_st_cnt = paste(abbr, total_int_no_lgb_by_state))
 
-glimpse(state_labels_short)
+dplyr::glimpse(state_labels_short)
 # 5
 
 ### interview wo lgb plot ----
 
 plot_counties <- function(my_df) {
-  plot_usmap(
+  usmap::plot_usmap(
     regions = "counties",
     include = c(gulf_states, "FL"),
     data = my_df,
@@ -974,9 +974,9 @@ plot_cnties_restored <-
 # check
 no_state_interview_no_lgb_num <- 
   intv_w_no_lgb_join_by_day_vsl_cnt |>
-  filter(st_2 == "00") |> 
-  select(total_int_no_lgb_by_state) |> 
-  distinct()
+  dplyr::filter(st_2 == "00") |> 
+  dplyr::select(total_int_no_lgb_by_state) |> 
+  dplyr::distinct()
 # 192
 
 
@@ -1005,6 +1005,6 @@ plot_cnties_state_lbls <-
 
 # library(gridExtra)
 
-gridExtra::grid.arrange(plot_cnties_state_lbls,
+gridExtra::grid.dplyr::arrange(plot_cnties_state_lbls,
            plot_restored_all)
 
