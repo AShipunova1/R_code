@@ -8,8 +8,11 @@ library(tools)
 # change dir name
 # comment out the "answers" for the next to readline()
 curent_project_name <- readline(prompt = "Print your project name: ")
+validation_survey
 # egregious_violators
+
 curent_file_name_no_ext <- readline(prompt = "Print your file name: ")
+validation_survey_main
 # egregious_violators_start
 
 # In the input .R script:
@@ -199,10 +202,9 @@ to_replace_source <-
 
 to_replace_source_all <-
   function(source_text) {
-    # browser()
-    for (source_text in source_paths_matches) {
+    # for (source_text in source_paths_matches) {
       return(source_files_content_one_line[[source_text]])
-    }
+    # }
   }
 
 flat_file_r_text1 <-
@@ -215,6 +217,9 @@ flat_file_r_text <-
                            to_find, 
                            to_replace_source)
 
+all.equal(flat_file_r_text,
+          flat_file_r_text1)
+T
 # check
 # grep(my_split_newline_char, flat_file_r_text, value = T)
 # grep("source", flat_file_r_text, value = T)
