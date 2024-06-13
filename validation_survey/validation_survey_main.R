@@ -188,7 +188,7 @@ catch_info_lgb_i1_i2_i3 |>
 # [1] 145  50
 
 catch_info_lgb_i1_i2_i3 |>
-  dplyr::select(all_of(compare_fields)) |>
+  dplyr::select(tidyselect::all_of(compare_fields)) |>
   dplyr::distinct() |>
   dplyr::glimpse()
 # $ ACTIVITY_TYPE_NAME    <chr> "TRIP WITH EFFORT", "TRIP WITH EFFORT"
@@ -200,7 +200,7 @@ compare_fields <-
   c("DISTANCE_CODE_NAME", "fishing_distance")
 
 catch_info_lgb_i1_i2_i3 |>
-  dplyr::select(all_of(compare_fields)) |>
+  dplyr::select(tidyselect::all_of(compare_fields)) |>
   dplyr::distinct() |>
   dplyr::glimpse()
 
@@ -242,9 +242,11 @@ catch_info_lgb_i1_i2_i3 |>
 # dplyr::n_distinct(catch_info_lgb_i1_i2_i3$TRIP_ID)
 # 887
 
-catch_info_lgb_i1_i2_i3 |> 
-  # dplyr::select(all_of(compare_fields)) |>
-  dplyr::select(VESSEL_OFFICIAL_NBR, TRIP_ID, all_of(compare_fields)) |>
+catch_info_lgb_i1_i2_i3 |>
+  # dplyr::tidyselect::all_of(all_of(compare_fields)) |>
+  dplyr::select(VESSEL_OFFICIAL_NBR,
+                TRIP_ID,
+                tidyselect::all_of(compare_fields)) |>
   dplyr::distinct() |>
   # dim()
   # [1] 27634     5
@@ -505,7 +507,7 @@ catch_info_lgb_i1_i2_i3_short_harvested <-
   dplyr::filter(as.integer(!!sym(compare_fields[[1]])) ==
            as.integer(!!sym(compare_fields[[3]]))) |>
   dplyr::ungroup() |> 
-  dplyr::select(-ends_with(".releas")) |>
+  dplyr::select(-tidyselect::ends_with(".releas")) |>
   dplyr::distinct()
 
 dim(catch_info_lgb_i1_i2_i3_short_harvested)
@@ -730,13 +732,14 @@ survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur$hrsf_d |>
 
 survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur |> 
   # dplyr::filter(!is.na(FISHING_HOURS_d)) |> 
-  dplyr::select(ends_with("_d")) |> 
+  dplyr::select(tidyselect::ends_with("_d")) |> 
   summary()
 
 # how many fishing hours are matching vs. not (interval) ----
 
-survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur |> 
-    dplyr::select(ends_with("_d")) |> dplyr::glimpse()
+survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur |>
+  dplyr::select(tidyselect::ends_with("_d")) |>
+  dplyr::glimpse()
 
 # how many are srhs vsls? ----
 # all interviews:
