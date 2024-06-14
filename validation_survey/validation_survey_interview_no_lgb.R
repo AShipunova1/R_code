@@ -1010,6 +1010,20 @@ num_of_interviews <-
 num_of_interviews_w_no_lgb * 100 / num_of_interviews
 # 45%
 
+# count interviews w no logbooks and checked captain names ----
+
+intv_w_no_lgb_join_by_day_vsl__minus_same_cptn <-
+  intv_w_no_lgb_join_by_day_vsl__corrected1 |>
+  filter(is.na(interviewee_l_name))
+
+## add counts
+intv_w_no_lgb_join_by_day_vsl__minus_same_cptn |> 
+  dplyr::select(STATE, VESSEL_OFFICIAL_NBR, interview_date, fips) |>
+  dplyr::distinct() |>
+  count_interview_no_lgb()
+
+
+
 # Plot interviews w no logbooks ----
 
 # inerview_no_lgb_geo <-
