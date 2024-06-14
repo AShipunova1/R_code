@@ -623,7 +623,6 @@ individual_pair_check <- function(field_name, field_value) {
 individual_pair_check("VESSEL_OFFICIAL_NBR", "1291008") |> 
   glimpse()
 
-
 ##### write out, check manuall in PIMS, add notes, load back ----
 # join_by_date_captain__has_lgb_short |>
 #   readr::write_csv(file.path(curr_proj_output_path, "diff_vsl_ids_same_captn.csv"))
@@ -643,10 +642,23 @@ same_vsls <-
   filter(!is.na(notes)) |>
   filter(!grepl("diff", notes))
 
-dim(same_vsls)
+same_vsls |> head() |> glimpse()
 # 44
 
 # We can use an vessel_official_number for vsl_num for same_vsls
+
+same_vsls_all_fields <-
+  inner_join(join_by_date_captain__has_lgb, same_vsls)
+# Joining with `by = join_by(vsl_num, interviewee_f_name, interviewee_l_name, CAPT_NAME_FIRST,
+# VESSEL_OFFICIAL_NBR)`
+
+same_vsls_all_fields |> head() |> glimpse()
+
+##### add back fields ----
+intv_w_no_lgb_join_by_day_vsl__corrected1 <-
+  intv_w_no_lgb_join_by_day_vsl |> 
+  left_join(same_vsls_all_fields)
+# Joining with `by = join_by(id_code, vsl_num, interview_date, st, cnty)`
 
 #### add county names ----
 join_by_date_captain__has_lgb__fips <-
@@ -931,7 +943,6 @@ vsl_ids_to_check_db |>
 # TODO
 # 2)
 # And if you limit to a smaller window (e.g. end or start in logbook within 1 hour of the survey, or within 2, or within 3 hours) how does that % come out?
-
 
 # count interviews w no logbooks 1 ----
 count_interview_no_lgb <-
