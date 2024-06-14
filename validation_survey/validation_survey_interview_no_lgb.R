@@ -533,6 +533,22 @@ join_by_date_captain__has_lgb <-
   ))) |>
   dplyr::distinct()
 
+#### check vessel ids in join_by_date_captain__has_lgb
+
+join_by_date_captain__has_lgb |>
+  select(
+    VESSEL_OFFICIAL_NBR,
+    vsl_num,
+    interviewee_l_name,
+    interviewee_f_name,
+    CAPT_NAME_FIRST,
+    TRIP_ID,
+    id_code
+  ) |>
+  filter(!is.na(interviewee_l_name)) |>
+  head() |>
+  glimpse()
+
 #### add county names ----
 join_by_date_captain__has_lgb__fips <-
   join_by_date_captain__has_lgb |>
