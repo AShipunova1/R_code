@@ -1,8 +1,5 @@
 # prepare data ----
 
-library(usmap)
-# library(tidycensus)
-
 # survey_data_l_2022 |> 
 #   purrr::map(auxfunctions::print_df_names)
 
@@ -26,6 +23,7 @@ library(usmap)
 survey_data_l_2022$aga |> 
   dplyr::select(year, month, day, asg_code) |> 
   dplyr::distinct() |> 
+  head() |> 
   dplyr::glimpse()
 # 
 # sst <- strsplit(text, "")[[1]]
@@ -378,6 +376,7 @@ lgb_join_i1__t_diff_short %>%
   dplyr::group_by(VESSEL_OFFICIAL_NBR, 
                   lubridate::day(trip_end_date_time)) %>%
   dplyr::filter(n() > 1) |> 
+  head() |> 
   dplyr::glimpse()
 
 ## duplicated id_code (2 trips - 1 interview) ----
@@ -385,6 +384,7 @@ lgb_join_i1__t_diff_short |>
   dplyr::group_by(id_code) |> 
   dplyr::filter(n() > 1) |>
   dplyr::arrange(id_code, trip_end_date_time) |>
+  head() |> 
   dplyr::glimpse()
 
 ## interval and big_diff_time ----
@@ -412,6 +412,7 @@ lgb_join_i1__t_diff_short %>%
   dplyr::group_by(TRIP_ID) %>%
   dplyr::filter(n() > 1) |>
   dplyr::arrange(TRIP_ID, interview_date_time, trip_end_date_time) |>
+  head() |> 
   dplyr::glimpse()
 
 lgb_join_i1__t_diff_short__w_int <-
@@ -441,6 +442,7 @@ lgb_join_i1__t_diff_short__w_int |>
           big_diff_time) |>
   dplyr::filter(!is.na(TRIP_ID)) |>
   dplyr::select(-c(contains("start"))) |>
+  head() |> 
   dplyr::glimpse()
 
 # a <- lubridate::ymd_hms("2022-06-01 07:09:00")
@@ -461,6 +463,7 @@ nrow(dup_interviews)
 
 dup_interviews |> 
   dplyr::filter(big_diff_time == "yes") |> 
+  head() |> 
   dplyr::glimpse()
 # 31
 
@@ -469,6 +472,7 @@ dup_interviews |>
 lgb_join_i1__t_diff_short__w_int_all_dup |>
   dplyr::filter(dup_interviews > 1) |>
   dplyr::select(-tidyselect::ends_with("_diff")) |>
+  head() |> 
   dplyr::glimpse()
 
 int_dups_only <- 
@@ -511,6 +515,7 @@ lgb_join_i1__t_diff_short__w_int_all_dup |>
     trip_end_interview_diff,
     trip_end_interval
   ) |>
+  head() |> 
   dplyr::glimpse()
 
 # n_distinct(lgb_join_i1__t_diff_short__w_int_all_dup$TRIP_ID) ==
@@ -608,7 +613,9 @@ lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short <- lgb_join_i1__t_
   )) |> 
   dplyr::arrange(VESSEL_OFFICIAL_NBR, trip_end_date_time)
 
-dplyr::glimpse(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short)
+lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short |>
+  head() |> 
+  dplyr::glimpse()
 
 # TODO: why id_code amount > TRIP_ID?
 
