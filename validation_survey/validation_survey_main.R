@@ -34,6 +34,8 @@ curr_proj_output_path <- file.path(my_paths$outputs,
 auxfunctions::create_dir_if_not(curr_proj_output_path)
 
 # get data ----
+#' %%%%% Get data
+
 get_data_path <-
   file.path(current_project_dir_name,
             paste0(current_project_name, "_", "get_data.R"))
@@ -51,7 +53,7 @@ source(get_data_path)
 # ---
 
 # source prepare data ----
-
+#' %%%%% Prepare data
 prepare_data_path <-
   file.path(current_project_dir_name,
             paste0(current_project_name, "_", "prepare_data.R"))
@@ -77,6 +79,18 @@ dplyr::glimpse(catch_info_lgb_i1_i2_i3)
 
 # compare field names ----
 # source(file.path(current_project_dir_name, "validation_survey_fields.R"))
+
+# how many interviews with no logbooks ----
+#' %%%%% Interviews With No Logbooks
+interview_no_lgb_path <-
+  file.path(current_project_dir_name,
+            paste0(current_project_name, "_", "interview_no_lgb.R"))
+
+file.exists(interview_no_lgb_path)
+
+source(interview_no_lgb_path)
+
+#' %%%%% Other Fields Comparison
 
 # compare vessel names main ----
 unify_names <- function(column_name) {
