@@ -991,11 +991,23 @@ plot_counties <- function(my_df) {
     color = "lightgrey"
   ) +
     ggplot2::scale_fill_gradient(
-      name = "Interviews w/o logbooks",
-      low = "blue",
-      high = "yellow",
+      name = "Interviews w/o lgbks",
+      high = "blue",
+      low = "yellow",
       na.value = "transparent"
+      # ,
+      # guide = guide_legend()
+    ) +
+    ggplot2::theme(legend.position = "right",
+                   # legend.position = c(.95, .95),
+                   # legend.justification = c("right", "top"),
+                   # legend.box.just = "right",
+                   legend.margin = ggplot2::margin(0, 0, 0, 0)
     )
+          # ,
+          # legend.spacing.x = unit(0, 'cm'))
+  # +
+    # guides(fill = guide_legend(label.position = "bottom"))
 }
 
 # print_df_names(intv_w_no_lgb_join_by_day_vsl_cnt)
@@ -1037,6 +1049,9 @@ plot_cnties_state_lbls <-
   )
 
 # library(gridExtra)
+#### interview wo lgb plot show ----
+# #| column: screen
+#| out-width: 100%
 
 gridExtra::grid.arrange(plot_cnties_state_lbls,
            plot_restored_all)
