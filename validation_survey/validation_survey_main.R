@@ -297,7 +297,7 @@ catch_info_lgb_i1_i2_i3 |>
   head() |> 
   dplyr::glimpse()
 
-# get scientific and common names by tsn ----
+## get scientific and common names by tsn ----
 
 tsn_only <-
   catch_info_lgb_i1_i2_i3 |>
@@ -453,7 +453,7 @@ catch_info_lgb_i1_i2_i3 |>
   head() |> 
   dplyr::glimpse()
 
-# the same sp. is both released and harvested in the same trip (OK) ----
+## the same sp. is both released and harvested in the same trip (OK) ----
 
 catch_info_lgb_i1_i2_i3 |> 
   dplyr::group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |> 
@@ -542,7 +542,7 @@ dim(catch_info_lgb_i1_i2_i3)
 dim(catch_info_lgb_i1_i2_i3_short)
 # [1] 37506    15
 
-# look at catch_info_lgb_i1_i2_i3_short_harvested ----
+## look at catch_info_lgb_i1_i2_i3_short_harvested ----
 catch_info_lgb_i1_i2_i3_short_harvested <-
   catch_info_lgb_i1_i2_i3_short |>
   dplyr::group_by(VESSEL_OFFICIAL_NBR, TRIP_ID) |>
@@ -595,7 +595,7 @@ db_logbooks_2022_short_cnt_spp |>
 # db_logbooks_2022_short_cnt_spp |> 
 #   dplyr::filter(TRIP_ID == "61422515") |> View()
 
-# count amount of species per interview ----
+## count amount of species per interview ----
 # survey_data_l_2022_short
 
 survey_data_l_2022_short_cnt_spp <- 
