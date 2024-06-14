@@ -552,6 +552,48 @@ join_by_date_captain__has_lgb_short |>
   head() |>
   glimpse()
 
+individual_pair_check <- function(field_name, field_value) {
+  to_check_in_df <-
+    join_by_date_captain__has_lgb |>
+    select(
+      vsl_num,
+      VESSEL_OFFICIAL_NBR,
+      vessel_name,
+      VESSEL_NAME,
+      st,
+      cnty,
+      STATE,
+      STATE_NAME,
+      END_PORT_COUNTY,
+      START_PORT_COUNTY,
+      interviewee_l_name,
+      interviewee_f_name,
+      CAPT_NAME_FIRST,
+      id_code,
+      TRIP_ID,
+      interview_date
+    ) |>
+    rowwise() |> 
+    mutate(int_count_name = 
+             get_county_name(coalesce(st, STATE), cnty)) |> 
+    ungroup()
+  
+  filter(VESSEL_OFFICIAL_NBR == "695089") |>
+  # select(vessel_name, VESSEL_NAME) |> 
+  # filter(tolower(interviewee_l_name) == "foto") |> 
+  distinct() |> 
+  View()
+  
+}
+
+
+
+
+##### check if the same captain and different vessel num ----
+join_by_date_captain__has_lgb_short |>
+  readr::write_csv(file.path(curr_proj_output_path, "diff_vsl_ids_same_captn.csv"))
+
+
 #### add county names ----
 join_by_date_captain__has_lgb__fips <-
   join_by_date_captain__has_lgb |>
