@@ -201,7 +201,7 @@ fish_hours_diff_plot <-
     nudge_x = 0.4
   )
 
-# compare ACTIVITY_TYPE_NAME	no_harvested_selected
+# compare ACTIVITY_TYPE_NAME no_harvested_selected
 
 # ACTIVITY_TYPE_NAME
 # [1] "TRIP WITH EFFORT"
@@ -225,7 +225,7 @@ catch_info_lgb_i1_i2_i3 |>
 # $ ACTIVITY_TYPE_NAME    <chr> "TRIP WITH EFFORT", "TRIP WITH EFFORT"
 # $ no_harvested_selected <int> 2, 1
 
-# compare DISTANCE_CODE_NAME	fishing_distance ----
+# compare DISTANCE_CODE_NAME fishing_distance ----
 
 compare_fields <-
   c("DISTANCE_CODE_NAME", "fishing_distance")
@@ -236,7 +236,7 @@ catch_info_lgb_i1_i2_i3 |>
   head() |> 
   dplyr::glimpse()
 
-# compare FISHING_HOURS	hrsf ----
+# compare FISHING_HOURS hrsf ----
 
 compare_fields <-
   c("FISHING_HOURS", "hrsf")
@@ -255,7 +255,7 @@ catch_info_lgb_i1_i2_i3 |>
 
 # TODO: check if the same trip
 
-# compare CATCH_SPECIES_ITIS	tsn ----
+# compare CATCH_SPECIES_ITIS tsn ----
 # https://en.wikipedia.org/wiki/Integrated_Taxonomic_Information_System
 # grep("tsn", names(catch_info_lgb_i1_i2_i3), value = T)
 # [1] "tsn.releas" "tsn.harv" 
@@ -305,7 +305,7 @@ tsn_only <-
   dplyr::mutate(dplyr::across(dplyr::everything(), as.numeric))
 
 tsn_only <- data.frame(tsn = unique(unlist(tsn_only)))
-# 'data.frame':	155 obs. of  1 variable
+# 'data.frame': 155 obs. of  1 variable
 
 # good_tsn <- 172435 
 # no_com_n_tsn <- 168790
