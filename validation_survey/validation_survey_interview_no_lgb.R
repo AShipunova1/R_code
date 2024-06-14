@@ -533,9 +533,10 @@ join_by_date_captain__has_lgb <-
   ))) |>
   dplyr::distinct()
 
-#### check vessel ids in join_by_date_captain__has_lgb
+#### check vessel ids in join_by_date_captain__has_lgb ----
 
-join_by_date_captain__has_lgb |>
+join_by_date_captain__has_lgb_short <-
+  join_by_date_captain__has_lgb |>
   select(
     VESSEL_OFFICIAL_NBR,
     vsl_num,
@@ -545,7 +546,9 @@ join_by_date_captain__has_lgb |>
     TRIP_ID,
     id_code
   ) |>
-  filter(!is.na(interviewee_l_name)) |>
+  filter(!is.na(interviewee_l_name))
+
+join_by_date_captain__has_lgb_short |>
   head() |>
   glimpse()
 
@@ -731,7 +734,8 @@ clean_vessel_name <- function(vessel_name) {
 
 join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty__clena_vsl_name <-
   join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty |>
-  dplyr::mutate(dplyr::across(c("vessel_name", "VESSEL_NAME"), ~ clean_vessel_name(.)))
+  dplyr::mutate(dplyr::across(c("vessel_name", "VESSEL_NAME"), 
+                              ~ clean_vessel_name(.)))
 
 join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty__clena_vsl_name |> 
   dplyr::filter(tolower(vessel_name) == tolower(VESSEL_NAME)) |>
