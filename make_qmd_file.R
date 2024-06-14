@@ -5,10 +5,12 @@ library(tools)
 # To see the report .html - render the .qmd
 # to run - "run all" in the .qmd tab (Ctrl-Alt-R)
 
-# manually change in the result qmd 
+# manually 
+# 1) Change in the result qmd 
 # ```{r setup ...
 # with provided
 # ```{r setup current project, results='hide', message=FALSE, warning=FALSE}
+# 2) Change the title
 
 
 # change dir name
