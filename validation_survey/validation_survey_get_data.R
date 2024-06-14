@@ -5,8 +5,6 @@
 # Turn off the scientific notation
 options(scipen = 999)
 
-library(ROracle)
-
 try(con <- auxfunctions::connect_to_secpr())
 
 my_year <- "2022"
@@ -107,12 +105,12 @@ survey_data_l_2022 |>
 # $ref
 # [1] 19 33
 
-# ---- write survey_data_l_2022 out ----
+# write survey_data_l_2022 out ----
 
 survey_data_l_2022 |>
   readr::write_rds(file.path(curr_proj_output_path, "survey_data_l_2022.rds"))
 
-# ---- get logbooks from FHIER - not enough fields ----
+# get logbooks from FHIER - not enough fields ----
 
 ## processed logbooks ----
 processed_logbooks_2022 <-
