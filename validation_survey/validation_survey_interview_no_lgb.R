@@ -552,41 +552,56 @@ join_by_date_captain__has_lgb_short |>
   head() |>
   glimpse()
 
+to_check_in_df <-
+  join_by_date_captain__has_lgb |>
+  select(
+    vsl_num,
+    VESSEL_OFFICIAL_NBR,
+    vessel_name,
+    VESSEL_NAME,
+    interviewee_l_name,
+    interviewee_f_name,
+    CAPT_NAME_FIRST,
+    st,
+    STATE,
+    STATE_NAME,
+    cnty,
+    END_PORT_COUNTY,
+    id_code,
+    TRIP_ID,
+    interview_date
+  ) |>
+  rowwise() |>
+  format_state_and_county_codes("STATE") |> 
+  mutate(int_count_name =
+           get_county_name(coalesce(st, STATE), cnty_3),
+         .after = cnty) |>
+  select(-c(st_2, cnty_3, fips)) |> 
+  ungroup()
+
+glimpse(to_check_in_df)
+
+# tidycensus::fips_codes |>
+    # dplyr::filter(state_code == "12" & county == "Okaloosa County") 
 individual_pair_check <- function(field_name, field_value) {
-  to_check_in_df <-
-    join_by_date_captain__has_lgb |>
-    select(
-      vsl_num,
-      VESSEL_OFFICIAL_NBR,
-      vessel_name,
-      VESSEL_NAME,
-      st,
-      cnty,
-      STATE,
-      STATE_NAME,
-      END_PORT_COUNTY,
-      START_PORT_COUNTY,
-      interviewee_l_name,
-      interviewee_f_name,
-      CAPT_NAME_FIRST,
-      id_code,
-      TRIP_ID,
-      interview_date
-    ) |>
-    rowwise() |> 
-    mutate(int_count_name = 
-             get_county_name(coalesce(st, STATE), cnty)) |> 
-    ungroup()
+
+  if (field_name == "VESSEL_OFFICIAL_NBR") {
+    curr_filter <-
+      rlang::quo(VESSEL_OFFICIAL_NBR == field_value)
+  } else if (field_name == "interviewee_l_name") {
+    curr_filter <-
+      rlang::quo(interviewee_l_name == field_value)
+  }
   
-  filter(VESSEL_OFFICIAL_NBR == "695089") |>
-  # select(vessel_name, VESSEL_NAME) |> 
-  # filter(tolower(interviewee_l_name) == "foto") |> 
-  distinct() |> 
-  View()
+  res <- 
+    to_check_in_df |>
+    filter(!!curr_filter)
   
+  return(res)
 }
 
-
+individual_pair_check("VESSEL_OFFICIAL_NBR", "1291008") |> 
+  glimpse()
 
 
 ##### check if the same captain and different vessel num ----
