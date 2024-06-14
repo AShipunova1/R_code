@@ -398,7 +398,12 @@ db_logbooks_2022 |>
 
 # there are no trips with both ("167759", "167763")
 
-## spot check the interviews by captain name ----
+## spot check the interviews by time window ----
+# TODO
+# 2)
+# And if you limit to a smaller window (e.g. end or start in logbook within 1 hour of the survey, or within 2, or within 3 hours) how does that % come out?
+
+# Interviews w no logbooks by captain name ----
 # MM 1) also suggest using captain's name - to try to match, if that is a field in both. like instead of just trying to match by vessel ID.
 
 # print_df_names(db_logbooks_2022_vsl_t_end_all)
@@ -595,11 +600,12 @@ to_check_in_df <-
   format_state_and_county_codes("STATE") |> 
   mutate(int_count_name =
            get_county_name(coalesce(st, STATE), cnty_3),
-         .after = cnty) |>
-  select(-c(st_2, cnty_3, fips)) |> 
+         .after = cnty,
+         st_state = coalesce(st, STATE)) |>
+  select(-c(st_2, cnty_3)) |> 
   ungroup()
 
-glimpse(to_check_in_df)
+# glimpse(to_check_in_df)
 
 # tidycensus::fips_codes |>
     # dplyr::filter(state_code == "12" & county == "Okaloosa County") 
@@ -643,22 +649,18 @@ same_vsls <-
   filter(!grepl("diff", notes))
 
 same_vsls |> head() |> glimpse()
+nrow(same_vsls)
 # 44
 
 # We can use an vessel_official_number for vsl_num for same_vsls
 
+#### get back fields ----
 same_vsls_all_fields <-
   inner_join(join_by_date_captain__has_lgb, same_vsls)
 # Joining with `by = join_by(vsl_num, interviewee_f_name, interviewee_l_name, CAPT_NAME_FIRST,
 # VESSEL_OFFICIAL_NBR)`
 
 same_vsls_all_fields |> head() |> glimpse()
-
-##### add back fields ----
-intv_w_no_lgb_join_by_day_vsl__corrected1 <-
-  intv_w_no_lgb_join_by_day_vsl |> 
-  left_join(same_vsls_all_fields)
-# Joining with `by = join_by(id_code, vsl_num, interview_date, st, cnty)`
 
 #### add county names ----
 join_by_date_captain__has_lgb__fips <-
@@ -874,8 +876,8 @@ print_vsl_ids_to_check <-
   dplyr::distinct() |> 
   unlist()
 
-print_vsl_ids_to_check |> 
-   cat(sep = "'\n'")
+# print_vsl_ids_to_check |> 
+#    cat(sep = "'\n'")
 
 #### check in db ----
 # vsl_id_pair <- "FL7092NJ', '1074576"
@@ -935,14 +937,6 @@ vsl_ids_to_check_db |>
 # 1) VESSEL_NAME == "unnamed"
 # 2) agrep or adist for vsl_num/VESSEL_OFFICIAL_NBR, excl. 99999
 # 3) check vessels with double ids
-
-#### get vessel numbers for the same vessel names ----
-  
-
-## spot check the interviews by time window ----
-# TODO
-# 2)
-# And if you limit to a smaller window (e.g. end or start in logbook within 1 hour of the survey, or within 2, or within 3 hours) how does that % come out?
 
 # count interviews w no logbooks 1 ----
 count_interview_no_lgb <-
@@ -1007,22 +1001,32 @@ num_of_interviews <-
   nrow(survey_data_l_2022_vsl_date)
 # 1835
 
-num_of_interviews_w_no_lgb * 100 / num_of_interviews
+percent_num_of_interviews_w_no_lgb__num_of_interviews <-
+  num_of_interviews_w_no_lgb * 100 / num_of_interviews
 # 45%
 
 # count interviews w no logbooks and checked captain names ----
+## remove same_vsls from interview_no_lgb ----
+intv_w_no_lgb_join_by_day_vsl__corrected1 <-
+  intv_w_no_lgb_join_by_day_vsl |> 
+  left_join(same_vsls_all_fields)
+# Joining with `by = join_by(id_code, vsl_num, interview_date, st, cnty)`
 
+## keep only interview_no_lgb with no same captain or owner ----
 intv_w_no_lgb_join_by_day_vsl__minus_same_cptn <-
   intv_w_no_lgb_join_by_day_vsl__corrected1 |>
   filter(is.na(interviewee_l_name))
 
 ## add counts
-intv_w_no_lgb_join_by_day_vsl__minus_same_cptn |> 
-  dplyr::select(STATE, VESSEL_OFFICIAL_NBR, interview_date, fips) |>
+intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt <-
+  intv_w_no_lgb_join_by_day_vsl__minus_same_cptn |>
+  dplyr::select(st_2, VESSEL_OFFICIAL_NBR, interview_date, fips) |>
   dplyr::distinct() |>
   count_interview_no_lgb()
 
-
+percent_num_of_interviews_w_no_lgb__checked_cptn__num_of_interviews <-
+  nrow(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt) * 100 / num_of_interviews
+# 16%?
 
 # Plot interviews w no logbooks ----
 
@@ -1063,6 +1067,11 @@ state_labels <-
         centroid_labels, 
         by = "st_2")
 
+state_labels_minus_cptn <- 
+  merge(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt, 
+        centroid_labels, 
+        by = "st_2")
+
 state_labels_restored <-
   dplyr::left_join(
     intv_w_no_lgb_join_by_day_vsl_restored_cnt,
@@ -1074,6 +1083,11 @@ state_labels_restored <-
 state_labels_restored |>
 	head() |>
 	dplyr::glimpse()
+
+state_labels_minus_cptn |>
+  head() |>
+  dplyr::glimpse()
+
 
 state_labels_short <-
   state_labels |>
