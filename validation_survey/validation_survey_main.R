@@ -1,3 +1,4 @@
+# title: Validation Survey and Logbooks Comparison
 # Set up ----
 
 library('devtools')
@@ -9,6 +10,9 @@ if (!require('auxfunctions')) {
 }
 
 library(lubridate)
+library(ROracle)
+library(tidycensus)
+library(usmap)
 
 Sys.setenv(TZ = Sys.timezone())
 Sys.setenv(ORA_SDTZ = Sys.timezone())
