@@ -67,9 +67,17 @@ source(prepare_data_path)
 # catch_info_lgb_i1_i2_i3
 # ---
 
-dplyr::glimpse(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short)
-dplyr::glimpse(db_logbooks_2022_short)
-dplyr::glimpse(catch_info_lgb_i1_i2_i3)
+lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short |>
+ head() |>
+ dplyr::glimpse()
+
+db_logbooks_2022_short |>
+ head() |>
+ dplyr::glimpse()
+
+catch_info_lgb_i1_i2_i3 |>
+ head() |>
+ dplyr::glimpse()
 
 # db_logbooks_2022_short$ANYTHING_CAUGHT_FLAG |> unique()
 # [1] NA  "Y" "N"
@@ -102,6 +110,7 @@ catch_info_lgb_i1_i2_i3 |>
   dplyr::filter(!unify_names(vessel_name) == unify_names(VESSEL_NAME)) |>
   dplyr::select(VESSEL_OFFICIAL_NBR, vsl_num, VESSEL_NAME, vessel_name) |>
   dplyr::distinct() |>
+  head() |> 
   dplyr::glimpse()
 # Rows: 101 w/o spaces
 # Rows: 112
@@ -129,6 +138,7 @@ catch_info_lgb_i1_i2_i3 |>
       )
   ) |>
   dplyr::filter(!unify_names(TRIP_TYPE_NAME) == unify_names(surv_trip_type)) |>
+  head() |> 
   dplyr::glimpse()
 # 16
 # same type "CHARTER" 225
@@ -197,13 +207,16 @@ fish_hours_diff_plot <-
 compare_fields <- 
   c("ACTIVITY_TYPE_NAME", "no_harvested_selected")
 
-catch_info_lgb_i1_i2_i3 |> 
-    dplyr::filter(is.na(CATCH_SPECIES_ITIS)) |> dplyr::glimpse()
+catch_info_lgb_i1_i2_i3 |>
+  dplyr::filter(is.na(CATCH_SPECIES_ITIS)) |>
+  head() |>
+  dplyr::glimpse()
 # [1] 145  50
 
 catch_info_lgb_i1_i2_i3 |>
   dplyr::select(tidyselect::all_of(compare_fields)) |>
   dplyr::distinct() |>
+  head() |> 
   dplyr::glimpse()
 # $ ACTIVITY_TYPE_NAME    <chr> "TRIP WITH EFFORT", "TRIP WITH EFFORT"
 # $ no_harvested_selected <int> 2, 1
@@ -216,6 +229,7 @@ compare_fields <-
 catch_info_lgb_i1_i2_i3 |>
   dplyr::select(tidyselect::all_of(compare_fields)) |>
   dplyr::distinct() |>
+  head() |> 
   dplyr::glimpse()
 
 # compare FISHING_HOURS	hrsf ----
@@ -231,6 +245,7 @@ catch_info_lgb_i1_i2_i3 |>
   dplyr::rowwise() |> 
   dplyr::filter(!as.integer(!!sym(compare_fields[[1]])) == as.integer(!!sym(compare_fields[[2]]))) |>
   dplyr::ungroup() |> 
+  head() |> 
   dplyr::glimpse()
 # 367
 
@@ -250,6 +265,7 @@ catch_info_lgb_i1_i2_i3 |>
   # dim()
 # 1026
   dplyr::filter(!tsn.releas == tsn.harv) |> 
+  head() |> 
   dplyr::glimpse()
 # 937
 
@@ -274,6 +290,7 @@ catch_info_lgb_i1_i2_i3 |>
   dplyr::filter(as.integer(!!sym(compare_fields[[1]])) == as.integer(!!sym(compare_fields[[3]])) &
            !(as.integer(!!sym(compare_fields[[1]])) == as.integer(!!sym(compare_fields[[2]])))) |>
   dplyr::ungroup() |> 
+  head() |> 
   dplyr::glimpse()
 
 # get scientific and common names by tsn ----
@@ -349,7 +366,9 @@ tictoc::toc()
 # errors: [1] NA
 # [1] 0
 
-dplyr::glimpse(tsn_info_itis[[2]])
+tsn_info_itis[[2]] |>
+ head() |>
+ dplyr::glimpse()
 
 ## check released and harvested separately ----
 # "CATCH_SPECIES_ITIS" vs "tsn.harv"
@@ -404,7 +423,9 @@ cathc_spp_diff__no_diff <-
                      .default = "is_diff")) |>
   dplyr::ungroup()
 
-dplyr::glimpse(cathc_spp_diff__no_diff)
+cathc_spp_diff__no_diff |>
+ head() |>
+ dplyr::glimpse()
 
 # TODO: check released and harvested separately
 
@@ -416,6 +437,7 @@ catch_info_lgb_i1_i2_i3 |>
   dplyr::filter(as.integer(!!sym(compare_fields[[1]])) ==
            as.integer(!!sym(compare_fields[[3]]))) |>
   dplyr::ungroup() |> 
+  head() |> 
   dplyr::glimpse()
 
 ## check numbers for the same spp lgb/released ----
@@ -424,6 +446,7 @@ catch_info_lgb_i1_i2_i3 |>
   dplyr::filter(as.integer(!!sym(compare_fields[[1]])) ==
            as.integer(!!sym(compare_fields[[2]]))) |>
   dplyr::ungroup() |> 
+  head() |> 
   dplyr::glimpse()
 
 # the same sp. is both released and harvested in the same trip (OK) ----
@@ -435,6 +458,7 @@ catch_info_lgb_i1_i2_i3 |>
   dplyr::filter(as.integer(!!sym(compare_fields[[1]])) ==
            as.integer(!!sym(compare_fields[[3]]))) |>
   dplyr::ungroup() |> 
+  head() |> 
   dplyr::glimpse()
 
 # TODO: compare and remove if duplicate all fields with "."
@@ -537,7 +561,7 @@ dim(catch_info_lgb_i1_i2_i3_short_harvested)
 # catch_info_lgb_i1_i2_i3_short_harvested |> 
     # dplyr::filter(TRIP_ID == "1000020436") |> dplyr::distinct() |>  View()
 
-# count amount of species per trip ----
+## count amount of species per trip ----
 # db_logbooks_2022_short |> print_df_names()
 # survey_data_l_2022_short |> print_df_names()
 
@@ -561,6 +585,7 @@ db_logbooks_2022_short_cnt_spp <-
 
 db_logbooks_2022_short_cnt_spp |> 
   dplyr::arrange(VESSEL_OFFICIAL_NBR, TRIP_ID, DISPOSITION_CODE) |> 
+  head() |> 
   dplyr::glimpse()
 
 # db_logbooks_2022_short_cnt_spp |> 
@@ -580,14 +605,17 @@ survey_data_l_2022_short_cnt_spp <-
   dplyr::mutate(n_tsn = dplyr::n_distinct(tsn)) |> 
   dplyr::ungroup()
 
-dplyr::glimpse(survey_data_l_2022_short_cnt_spp)
+survey_data_l_2022_short_cnt_spp |>
+ head() |>
+ dplyr::glimpse()
 
-survey_data_l_2022_short_cnt_spp |> 
-    dplyr::filter(id_code == "1590520220121004") |> 
-    dplyr::select(-c(lngth, wgt)) |> 
-    dplyr::distinct() |> 
-    dplyr::arrange(tsn) |> 
-    dplyr::glimpse()
+survey_data_l_2022_short_cnt_spp |>
+  dplyr::filter(id_code == "1590520220121004") |>
+  dplyr::select(-c(lngth, wgt)) |>
+  dplyr::distinct() |>
+  dplyr::arrange(tsn) |>
+  head() |>
+  dplyr::glimpse()
 
 # TODO: compare ns
 
@@ -608,6 +636,7 @@ catch_info_lgb_i1_i2_i3 |>
   dplyr::rowwise() |> 
   dplyr::filter(!as.integer(!!sym(compare_fields[[1]])) == as.integer(!!sym(compare_fields[[2]]))) |>
   dplyr::ungroup() |> 
+  head() |> 
   dplyr::glimpse()
 
 # compare fshinsp, REPORTED_QUANTITY ----
@@ -625,6 +654,7 @@ catch_info_lgb_i1_i2_i3 |>
   dplyr::rowwise() |> 
   dplyr::filter(!as.integer(!!sym(compare_fields[[1]])) == as.integer(!!sym(compare_fields[[2]]))) |>
   dplyr::ungroup() |> 
+  head() |> 
   dplyr::glimpse()
 
 # how many interviews with no logbooks ----
@@ -721,7 +751,9 @@ survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur <-
   dplyr::mutate(hrsf_d = convert_fish_hours_to_duration(hrsf)) |>
   dplyr::ungroup()
 
-dplyr::glimpse(survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur)
+survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur |>
+  head() |>
+  dplyr::glimpse()
 
 # check row 93 with 3.5
 survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur |> 
@@ -753,6 +785,7 @@ survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur |>
 
 survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur |>
   dplyr::select(tidyselect::ends_with("_d")) |>
+  head() |> 
   dplyr::glimpse()
 
 # how many are srhs vsls? ----
