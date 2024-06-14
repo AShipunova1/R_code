@@ -12,5 +12,5 @@ auxfunctions
 lubridate
 DBI
 ROracle
-usmap
 tidycensus
+usmap
