@@ -28,7 +28,7 @@ format:
     # kable
     # df_print: !expr function(x, ...) kable(x, ...) %>% kableExtra::kable_styling(kable_styling_full_width = FALSE) %>% knit_print()
     toc: true
-    toc-depth: 3
+    toc-depth: 4
     toc-highlight: true
     # toc_float: true
     toc_float:
