@@ -533,6 +533,26 @@ join_by_date_captain__has_lgb <-
   ))) |>
   dplyr::distinct()
 
+get_county_name <- function(state_both, cnty_3) {
+  # browser()
+  # state_both = "34"
+  # cnty_3 = "315"
+  res <-
+    tidycensus::fips_codes |>
+    dplyr::filter(state_code == state_both & county_code == cnty_3) |>
+    dplyr::select(county) |>
+    dplyr::mutate(county_short =
+             stringr::str_replace_all(county, " County| Parish", "") |> 
+             tolower())
+  
+  county_short <- res[["county_short"]]
+  if (nrow(res) == 0) {
+    county_short <- NA
+  }
+  
+  return(county_short)
+}
+
 #### check vessel ids in join_by_date_captain__has_lgb ----
 
 join_by_date_captain__has_lgb_short <-
@@ -604,31 +624,34 @@ individual_pair_check("VESSEL_OFFICIAL_NBR", "1291008") |>
   glimpse()
 
 
-##### check if the same captain and different vessel num ----
-join_by_date_captain__has_lgb_short |>
-  readr::write_csv(file.path(curr_proj_output_path, "diff_vsl_ids_same_captn.csv"))
+##### write out, check manuall in PIMS, add notes, load back ----
+# join_by_date_captain__has_lgb_short |>
+#   readr::write_csv(file.path(curr_proj_output_path, "diff_vsl_ids_same_captn.csv"))
 
+join_by_date_captain__has_lgb_short__checked <-
+  openxlsx::read.xlsx(file.path(curr_proj_output_path, "diff_vsl_ids_same_captn.xlsx"))
+
+diff_vsls <-
+  join_by_date_captain__has_lgb_short__checked |>
+  filter(is.na(notes) | grepl("diff", notes))
+
+dim(diff_vsls)
+# 62
+
+same_vsls <-
+  join_by_date_captain__has_lgb_short__checked |>
+  filter(!is.na(notes)) |>
+  filter(!grepl("diff", notes))
+
+dim(same_vsls)
+# 44
+
+# We can use an vessel_official_number for vsl_num for same_vsls
 
 #### add county names ----
 join_by_date_captain__has_lgb__fips <-
   join_by_date_captain__has_lgb |>
   format_state_and_county_codes("st")
-
-# is_st_florida <-
-#       rlang::quo(!!port_state_column == "fl")
-#             !(!!is_st_florida) & !!is_gom_state ~ "gom",
-
-# filters
-county_codes_equal <- 
-  rlang::quo(tidycensus::fips_codes$county_code == cnty_3)
-
-# cnty_3 <- "075"
-# tidycensus::fips_codes$county_code == cnty_3
-
-state_codes_equal <-
-  rlang::quo(tidycensus::fips_codes$state_code == state_both)
-
-  # dplyr::filter(animal %in% anmal) %>%
 
 #### add state if missing ----
 join_by_date_captain__has_lgb__fips_st <- 
@@ -652,26 +675,6 @@ join_by_date_captain__has_lgb__fips_st |>
   dplyr::count(state_both) |> 
   head() |> 
   dplyr::glimpse()
-
-get_county_name <- function(state_both, cnty_3) {
-  # browser()
-  # state_both = "34"
-  # cnty_3 = "315"
-  res <-
-    tidycensus::fips_codes |>
-    dplyr::filter(state_code == state_both & county_code == cnty_3) |>
-    dplyr::select(county) |>
-    dplyr::mutate(county_short =
-             stringr::str_replace_all(county, " County| Parish", "") |> 
-             tolower())
-  
-  county_short <- res[["county_short"]]
-  if (nrow(res) == 0) {
-    county_short <- NA
-  }
-  
-  return(county_short)
-}
 
   # dplyr::select(where(~is.numeric(.x) && any(.x == 9)))
 # join_by_date_captain__has_lgb__fips_st[40,] |> dplyr::glimpse()
@@ -928,6 +931,7 @@ vsl_ids_to_check_db |>
 # TODO
 # 2)
 # And if you limit to a smaller window (e.g. end or start in logbook within 1 hour of the survey, or within 2, or within 3 hours) how does that % come out?
+
 
 # count interviews w no logbooks 1 ----
 count_interview_no_lgb <-
