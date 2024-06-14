@@ -53,3 +53,4 @@ tippy.css
 *.gz
 /auxfunctions/archive
 *.docx
+*.md
