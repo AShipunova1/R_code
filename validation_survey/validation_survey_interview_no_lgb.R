@@ -1109,6 +1109,9 @@ intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states_short__fips <-
 
 # to plot intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states_short__fips
 
+# dim(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states_short__fips)
+# 775
+
 ## add counts ----
 intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt <-
   intv_w_no_lgb_join_by_day_vsl__minus_same_cptn |>
@@ -1119,6 +1122,17 @@ intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt <-
 dim(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt)
 # 772
 
+### counts for restored no cptn name ----
+intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states_short__fips_cnt <-
+  intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states_short__fips |>
+  dplyr::select(st_2, vsl_num, interview_date, fips) |>
+  dplyr::distinct() |>
+  count_interview_no_lgb()
+
+# dim(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states_short__fips_cnt)
+# 772
+
+## percent of interviews no lgb, checked by captain name ----
 percent_num_of_interviews_w_no_lgb__checked_cptn__num_of_interviews <-
   nrow(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt) * 100 / num_of_interviews
 # 42%
