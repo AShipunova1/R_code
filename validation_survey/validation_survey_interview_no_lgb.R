@@ -1026,6 +1026,8 @@ percent_num_of_interviews_w_no_lgb__num_of_interviews <-
   num_of_interviews_w_no_lgb * 100 / num_of_interviews
 # 45%
 
+percent_num_of_interviews_w_no_lgb__num_of_interviews
+
 # count interviews w no logbooks and checked captain names ----
 ## remove same_vsls from interview_no_lgb ----
 intv_w_no_lgb_join_by_day_vsl__corrected1 <-
@@ -1115,7 +1117,7 @@ intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states_short__fips <-
 ## add counts to no cptn ----
 intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt <-
   intv_w_no_lgb_join_by_day_vsl__minus_same_cptn |>
-  dplyr::select(st_2, vsl_num, interview_date, fips) |>
+  dplyr::select(st, cnty, st_2, vsl_num, interview_date, fips) |>
   dplyr::distinct() |>
   count_interview_no_lgb()
 
@@ -1125,7 +1127,7 @@ dim(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt)
 ### counts for restored no cptn name ----
 intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states_short__fips_cnt <-
   intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states_short__fips |>
-  dplyr::select(st_2, vsl_num, interview_date, fips) |>
+  dplyr::select(st, cnty, st_2, vsl_num, interview_date, fips) |>
   dplyr::distinct() |>
   count_interview_no_lgb()
 
@@ -1136,6 +1138,8 @@ intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states_short__fips_cnt 
 percent_num_of_interviews_w_no_lgb__checked_cptn__num_of_interviews <-
   nrow(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt) * 100 / num_of_interviews
 # 42%
+
+percent_num_of_interviews_w_no_lgb__checked_cptn__num_of_interviews
 
 # Plot interviews w no logbooks ----
 
