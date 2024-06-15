@@ -1,9 +1,5 @@
 ---
 title: Validation Survey and Logbooks Comparison
-format:
-  html:
-    toc-depth: 4
-
 ---
 
 ```{r no cache setup, results='hide', message=FALSE, warning=FALSE, cache=FALSE, include=FALSE}
@@ -459,21 +455,19 @@ survey_data_l_2022 |>
 # [1] 19 33
 ```
 
-## ---- write survey_data_l_2022 out 
+## write survey_data_l_2022 out 
 
-```{r  write survey_data_l_2022 out}
-```
 ```{r write survey_data_l_2022 out}
+# write survey_data_l_2022 out ----
 
 survey_data_l_2022 |>
   readr::write_rds(file.path(curr_proj_output_path, "survey_data_l_2022.rds"))
 ```
 
-## ---- get logbooks from FHIER - not enough fields 
+## get logbooks from FHIER - not enough fields 
 
-```{r  get logbooks from FHIER  not enough fields}
-```
-```{r get logbooks from FHIER - not enough fields}
+```{r get logbooks from FHIER  not enough fields}
+# get logbooks from FHIER - not enough fields ----
 ```
 
 ### processed logbooks 
@@ -2479,6 +2473,22 @@ join_by_date_captain__has_lgb <-
     survey_fields_to_compare, lgb_fields_to_compare
   ))) |>
   dplyr::distinct()
+
+#### check vessel ids in join_by_date_captain__has_lgb
+
+join_by_date_captain__has_lgb |>
+  select(
+    VESSEL_OFFICIAL_NBR,
+    vsl_num,
+    interviewee_l_name,
+    interviewee_f_name,
+    CAPT_NAME_FIRST,
+    TRIP_ID,
+    id_code
+  ) |>
+  filter(!is.na(interviewee_l_name)) |>
+  head() |>
+  glimpse()
 ```
 
 ##### add county names 
@@ -2522,7 +2532,6 @@ join_by_date_captain__has_lgb__fips_st |>
   dplyr::glimpse() |>
   knitr::kable(caption = "")
 
-
 join_by_date_captain__has_lgb__fips_st |>
   dplyr::filter(st == STATE) |>
   dplyr::count(st, STATE) |>
@@ -2530,14 +2539,12 @@ join_by_date_captain__has_lgb__fips_st |>
   dplyr::glimpse() |>
   knitr::kable(caption = "")
 
-
 join_by_date_captain__has_lgb__fips_st |> 
   dplyr::count(state_both) |> 
   head() |> 
   dplyr::glimpse() |>
   knitr::kable(caption = "")
 
-# 
 get_county_name <- function(state_both, cnty_3) {
   # browser()
   # state_both = "34"
