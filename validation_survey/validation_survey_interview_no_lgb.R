@@ -1226,7 +1226,8 @@ plot_counties <- function(my_df) {
     color = "lightgrey"
   ) +
     ggplot2::scale_fill_gradient(
-      name = "Interviews w/o lgbks",
+      # name = "Interviews w/o lgbks",
+      name = "",
       high = "blue",
       low = "yellow",
       na.value = "transparent"
@@ -1245,17 +1246,17 @@ plot_counties <- function(my_df) {
     # guides(fill = guide_legend(label.position = "bottom"))
 }
 
-my_dfs_to_plot
-print_df_names(my_dfs_to_plot[[1]][[1]])
-
-plots_4 <-
-  my_dfs_to_plot_w_labels |>
+plot_cnties_4 <-
+  my_dfs_to_plot |>
   purrr::map(plot_counties)
 
-plot_cnties <- plot_counties(intv_w_no_lgb_join_by_day_vsl_cnt)
+# plot_cnties <- plot_counties(intv_w_no_lgb_join_by_day_vsl_cnt)
 
-plot_cnties_restored <- 
-  plot_counties(intv_w_no_lgb_join_by_day_vsl_restored_cnt)
+# all.equal(plot_cnties,
+#           plot_cnties_4[[1]])
+
+# plot_cnties_restored <- 
+  # plot_counties(intv_w_no_lgb_join_by_day_vsl_restored_cnt)
 
 # check
 no_state_interview_no_lgb_num <- 
@@ -1264,6 +1265,13 @@ no_state_interview_no_lgb_num <-
   dplyr::select(total_int_no_lgb_by_state) |> 
   dplyr::distinct()
 # 192
+
+intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt__no_st <-
+  intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt |> 
+  dplyr::filter(st_2 == "00") |> 
+  dplyr::select(total_int_no_lgb_by_state) |> 
+  dplyr::distinct()
+# 189
 
 add_state_labels <-
   function(usmap_plot, labels_by_state = state_labels_short) {
@@ -1275,24 +1283,67 @@ add_state_labels <-
               fill = NA)
   }
 
-plot_restored_all <- 
-  add_state_labels(plot_cnties_restored, state_labels_restored) +
-  ggplot2::labs(title = "Number of interviews without logbooks by state/county")
+# add_state_labels
+# plot_cnties_4 |> View()
+# my_dfs_to_plot_w_labels|> View()
 
-plot_cnties_state_lbls <-
-  add_state_labels(plot_cnties, state_labels_short) +
-  ggplot2::labs(
-    title = "Number of interviews without logbooks by state/county",
-    caption = stringr::str_glue(
-      "Number of interviews without logbooks with no state info is {no_state_interview_no_lgb_num$total_int_no_lgb_by_state}."
-    )
+all_4_plots <- 
+  purrr::map2(plot_cnties_4,
+              my_dfs_to_plot_w_labels,
+              add_state_labels)
+
+all_4_plots_together <-
+  gridExtra::grid.arrange(
+    grobs = all_4_plots,
+    top =
+      ggpubr::text_grob(
+        "Interview with no logbooks, \n (1) Raw, (1) With restored states, (2) With removed by captain names, (2) With restored states",
+        rot = 0,
+        vjust = 1
+      ),
+    ncol = 1,
+    heights = c(5, 10, 5, 10)
   )
 
-# library(gridExtra)
+# plot_restored_all <- 
+#   add_state_labels(plot_cnties_restored, state_labels_restored) +
+#   ggplot2::labs(title = "Number of interviews without logbooks by state/county")
+# 
+# plot_cnties_state_lbls <-
+#   add_state_labels(plot_cnties, state_labels_short) +
+#   ggplot2::labs(
+#     title = "Number of interviews without logbooks by state/county",
+#     caption = stringr::str_glue(
+#       "Number of interviews without logbooks with no state info is {no_state_interview_no_lgb_num$total_int_no_lgb_by_state}."
+#     )
+#   )
+
 #### interview wo lgb plot show ----
 # #| column: screen
 #| out-width: 100%
 
-gridExtra::grid.arrange(plot_cnties_state_lbls,
-           plot_restored_all)
+# gridExtra::grid.arrange(plot_cnties_state_lbls,
+#            plot_restored_all)
+
+# plot_titles <- 
+#   list()
+
+#   ggplot2::labs(
+#     title = "Number of interviews without logbooks by state/county",
+#     caption = stringr::str_glue(
+#       "Number of interviews without logbooks with no state info is {no_state_interview_no_lgb_num$total_int_no_lgb_by_state}."
+#     )
+
+purrr::map2(
+  all_4_plots,
+  names(all_4_plots),
+  \(p, p_name) {
+    p +
+      ggplot2::labs(title = "Number of interviews without logbooks by state/county",
+                    caption = p_name)
+  })
+    
+    # caption = stringr::str_glue(
+    #   "Number of interviews without logbooks with no state info is {no_state_interview_no_lgb_num$total_int_no_lgb_by_state}."
+    # )
 
