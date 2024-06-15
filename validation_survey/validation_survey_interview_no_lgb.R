@@ -73,7 +73,6 @@ survey_data_l_2022_date_i1_vsl__int_t |>
 	dplyr::glimpse()
 
 restore_states <- function(my_df) {
-  
   my_df_join_states_by_cnty <-
     my_df |>
     dplyr::left_join(survey_data_l_2022_i1_w_dates__states_by_cnty,
@@ -93,31 +92,10 @@ restore_states <- function(my_df) {
   return(my_df_join_states_by_cnty__restored_st)
 }
 
-test0 <- 
-      survey_data_l_2022_date_i1_vsl__int_t |>
-    dplyr::left_join(survey_data_l_2022_i1_w_dates__states_by_cnty,
-                     dplyr::join_by(cnty, st))
-
-survey_data_l_2022_date_i1_vsl__int_t__restore_st1 <-
+survey_data_l_2022_date_i1_vsl__int_t__restore_st <-
   restore_states(survey_data_l_2022_date_i1_vsl__int_t)
 
-glimpse(survey_data_l_2022_date_i1_vsl__int_t__restore_st1)
-
-all.equal(survey_data_l_2022_date_i1_vsl__int_t__restore_st,
-          survey_data_l_2022_date_i1_vsl__int_t__restore_st1)
-# T
-
-survey_data_l_2022_date_i1_vsl__int_t__restore_st <-
-  test0 |>
-  dplyr::rowwise() |>
-  dplyr::mutate(temp_res =
-                  case_when(is.na(st) ~ paste(unlist(states_l_by_cnty),
-                                              collapse = ""), 
-                            .default = st)) |>
-  dplyr::mutate(restored_st = 
-                  stringr::str_extract(temp_res, "\\d+")) |>
-  dplyr::select(-temp_res) |>
-  dplyr::ungroup()
+glimpse(survey_data_l_2022_date_i1_vsl__int_t__restore_st)
 
 # check
 survey_data_l_2022_date_i1_vsl__int_t__restore_st[1,] |> 
