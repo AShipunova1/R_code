@@ -1075,16 +1075,29 @@ auxfunctions::count_uniq_by_column(intv_w_no_lgb_join_by_day_vsl__corrected1)
 ## keep only interview_no_lgb with no same captain or owner ----
 intv_w_no_lgb_join_by_day_vsl__minus_same_cptn <-
   intv_w_no_lgb_join_by_day_vsl__corrected1 |>
-  filter(is.na(interviewee_l_name))
+  filter(is.na(interviewee_l_name)) |> 
+  auxfunctions::remove_empty_cols()
 
 dim(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn)
-# 775
+# 775 8
 
 auxfunctions::count_uniq_by_column(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn)
 
 # intv_w_no_lgb_join_by_day_vsl__minus_same_cptn |> View()
 
-## add counts
+## restore states ----
+intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states <-
+  restore_states(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn)
+
+# dim(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn)
+# dim(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states)
+# 775
+intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states |> 
+  filter(cnty == "57") |> glimpse()
+
+
+
+## add counts ----
 intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt <-
   intv_w_no_lgb_join_by_day_vsl__minus_same_cptn |>
   dplyr::select(st_2, vsl_num, interview_date, fips) |>
@@ -1098,8 +1111,14 @@ percent_num_of_interviews_w_no_lgb__checked_cptn__num_of_interviews <-
   nrow(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt) * 100 / num_of_interviews
 # 42%
 
-
 # Plot interviews w no logbooks ----
+
+## prep intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt for plotting  ----
+
+glimpse(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt)
+intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt__restore_st <-
+  restore_states(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt)
+
 
 # inerview_no_lgb_geo <-
 # intv_w_no_lgb_join_by_day_vsl |> dplyr::glimpse()
