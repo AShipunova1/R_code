@@ -72,6 +72,22 @@ survey_data_l_2022_date_i1_vsl__int_t |>
 	head() |>
 	dplyr::glimpse()
 
+restore_states <- function(my_df) {
+  my_df_add_state_by_cnty <-
+    my_df |>
+    dplyr::left_join(survey_data_l_2022_i1_w_dates__states_by_cnty,
+                     dplyr::join_by(cnty, st))
+  
+  return(my_df_add_state_by_cnty)
+}
+
+survey_data_l_2022_date_i1_vsl__int_t__join_states_by_cnty1 <-
+restore_states(survey_data_l_2022_date_i1_vsl__int_t)
+
+all.equal(survey_data_l_2022_date_i1_vsl__int_t__join_states_by_cnty,
+               survey_data_l_2022_date_i1_vsl__int_t__join_states_by_cnty1)
+# T
+
 survey_data_l_2022_date_i1_vsl__int_t__join_states_by_cnty <-
   survey_data_l_2022_date_i1_vsl__int_t |> 
   dplyr::left_join(survey_data_l_2022_i1_w_dates__states_by_cnty,
