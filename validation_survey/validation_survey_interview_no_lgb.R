@@ -1210,21 +1210,10 @@ my_dfs_to_plot <- Hmisc::llist(
 fields_to_join_by <- 
   list("st_2", "restored_st", "st_2", "st_2")
 
-my_dfs_to_plot_w_labels1 <-
+my_dfs_to_plot_w_labels <-
   purrr::map2(my_dfs_to_plot,
               fields_to_join_by,
-              \(my_df, field_name)
-    make_state_labels(my_df, field_name))
-
-all.equal(my_dfs_to_plot_w_labels1,
-               my_dfs_to_plot_w_labels)
-T
-
-#### add names back ----
-names(my_dfs_to_plot_w_labels) <- 
-  purrr::map(my_dfs_to_plot, names) |> purrr::map(1)
-
-my_dfs_to_plot_w_labels[[4]] |> glimpse()
+              make_state_labels)
 
 ### interview w no lgb plot ----
 
