@@ -1182,9 +1182,9 @@ make_state_labels <- function(my_df, state_field_name = "st_2") {
   # browser()
   # merge(my_df, centroid_labels, by = "st_2")
   temp_df <- 
-  dplyr::left_join(my_df, 
+  dplyr::inner_join(my_df, 
                    centroid_labels, 
-                   join_by(!!state_field_name == st_2))
+                   dplyr::join_by(!!state_field_name == st_2))
   
   temp_df |> 
     dplyr::select(!!state_field_name,
@@ -1194,26 +1194,34 @@ make_state_labels <- function(my_df, state_field_name = "st_2") {
                   geom) |>
     dplyr::distinct() |>
     dplyr::mutate(label_st_cnt = 
-                    paste(abbr, total_int_no_lgb_by_state))
+                    paste(abbr, total_int_no_lgb_by_state)) |> 
+    dplyr::arrange(full)
 }
 
 state_labels1 <- make_state_labels(intv_w_no_lgb_join_by_day_vsl_cnt)
 
-state_labels_short |> 
-  arrange(label_st_cnt, full) |> 
-  diffdf::diffdf(state_labels1 |> 
+glimpse(state_labels1)
+
+state_labels_short0 |>
+  arrange(label_st_cnt, full) |>
+  diffdf::diffdf(state_labels1 |>
                    arrange(label_st_cnt, full))
 
-state_labels1[6,] |> glimpse()
+glimpse(state_labels_short0)
+glimpse(state_labels1)
 
-all.equal(state_labels_short,
-          state_labels1)
-
-state_labels <-
+state_labels0 <-
   merge(intv_w_no_lgb_join_by_day_vsl_cnt, 
         centroid_labels, 
         by = "st_2")
 
+state_labels_short0 <-
+  state_labels0 |>
+  dplyr::select(st_2, abbr, full, total_int_no_lgb_by_state, geom) |>
+  dplyr::distinct() |> 
+  dplyr::mutate(label_st_cnt = paste(abbr, total_int_no_lgb_by_state))
+
+glimpse(state_labels_short0)
 my_dfs <- Hmisc::llist(
   intv_w_no_lgb_join_by_day_vsl_cnt,
   intv_w_no_lgb_join_by_day_vsl_restored_cnt,
