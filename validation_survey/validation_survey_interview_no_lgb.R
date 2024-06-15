@@ -1178,15 +1178,57 @@ old_names <- names(centroid_labels)
 
 names(centroid_labels) <- c("st_2", "abbr", "full", "geom")
 
+make_state_labels <- function(my_df, state_field_name = "st_2") {
+  # browser()
+  # merge(my_df, centroid_labels, by = "st_2")
+  temp_df <- 
+  dplyr::left_join(my_df, 
+                   centroid_labels, 
+                   join_by(!!state_field_name == st_2))
+  
+  temp_df |> 
+    dplyr::select(!!state_field_name,
+                  abbr,
+                  full,
+                  total_int_no_lgb_by_state,
+                  geom) |>
+    dplyr::distinct() |>
+    dplyr::mutate(label_st_cnt = 
+                    paste(abbr, total_int_no_lgb_by_state))
+}
+
+state_labels1 <- make_state_labels(intv_w_no_lgb_join_by_day_vsl_cnt)
+
+state_labels_short |> 
+  arrange(label_st_cnt, full) |> 
+  diffdf::diffdf(state_labels1 |> 
+                   arrange(label_st_cnt, full))
+
+state_labels1[6,] |> glimpse()
+
+all.equal(state_labels_short,
+          state_labels1)
+
 state_labels <-
   merge(intv_w_no_lgb_join_by_day_vsl_cnt, 
         centroid_labels, 
         by = "st_2")
 
+my_dfs <- Hmisc::llist(
+  intv_w_no_lgb_join_by_day_vsl_cnt,
+  intv_w_no_lgb_join_by_day_vsl_restored_cnt,
+  intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt,
+  intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states_short__fips_cnt
+)
+
+
 state_labels_minus_cptn <- 
   merge(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt, 
         centroid_labels, 
         by = "st_2")
+
+state_labels_minus_cptn_restored <- 
+intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states_short__fips_cnt
 
 state_labels_restored <-
   dplyr::left_join(
@@ -1216,7 +1258,7 @@ state_labels_short |>
 	dplyr::glimpse()
 # 5
 
-### interview wo lgb plot ----
+### interview w no lgb plot ----
 
 plot_counties <- function(my_df) {
   usmap::plot_usmap(
