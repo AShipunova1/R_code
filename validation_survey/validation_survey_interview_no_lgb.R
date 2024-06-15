@@ -1112,7 +1112,7 @@ intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states_short__fips <-
 # dim(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states_short__fips)
 # 775
 
-## add counts ----
+## add counts to no cptn ----
 intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt <-
   intv_w_no_lgb_join_by_day_vsl__minus_same_cptn |>
   dplyr::select(st_2, vsl_num, interview_date, fips) |>
@@ -1200,20 +1200,25 @@ make_state_labels <- function(my_df, state_field_name = "st_2") {
 
 # print_df_names(intv_w_no_lgb_join_by_day_vsl_restored_cnt)
 
-my_dfs_to_plot <- list(
-  Hmisc::llist(intv_w_no_lgb_join_by_day_vsl_cnt, "st_2"),
-  Hmisc::llist(intv_w_no_lgb_join_by_day_vsl_restored_cnt, "restored_st"),
-  Hmisc::llist(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt, "st_2"),
-  Hmisc::llist(
-    intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states_short__fips_cnt,
-    "st_2"
-  )
+my_dfs_to_plot <- Hmisc::llist(
+  intv_w_no_lgb_join_by_day_vsl_cnt,
+  intv_w_no_lgb_join_by_day_vsl_restored_cnt,
+  intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt,
+  intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states_short__fips_cnt
 )
 
-my_dfs_to_plot_w_labels <-
-  my_dfs_to_plot |>
-  purrr::map(\(x)
-    make_state_labels(x[[1]], x[[2]][[1]]))
+fields_to_join_by <- 
+  list("st_2", "restored_st", "st_2", "st_2")
+
+my_dfs_to_plot_w_labels1 <-
+  purrr::map2(my_dfs_to_plot,
+              fields_to_join_by,
+              \(my_df, field_name)
+    make_state_labels(my_df, field_name))
+
+all.equal(my_dfs_to_plot_w_labels1,
+               my_dfs_to_plot_w_labels)
+T
 
 #### add names back ----
 names(my_dfs_to_plot_w_labels) <- 
@@ -1251,7 +1256,12 @@ plot_counties <- function(my_df) {
     # guides(fill = guide_legend(label.position = "bottom"))
 }
 
-# print_df_names(intv_w_no_lgb_join_by_day_vsl_cnt)
+my_dfs_to_plot
+print_df_names(my_dfs_to_plot[[1]][[1]])
+
+plots_4 <-
+  my_dfs_to_plot_w_labels |>
+  purrr::map(plot_counties)
 
 plot_cnties <- plot_counties(intv_w_no_lgb_join_by_day_vsl_cnt)
 
