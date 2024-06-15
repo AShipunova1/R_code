@@ -1093,13 +1093,17 @@ auxfunctions::count_uniq_by_column(intv_w_no_lgb_join_by_day_vsl__minus_same_cpt
 ## add counts
 intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt <-
   intv_w_no_lgb_join_by_day_vsl__minus_same_cptn |>
-  dplyr::select(st_2, VESSEL_OFFICIAL_NBR, interview_date, fips) |>
+  dplyr::select(st_2, vsl_num, interview_date, fips) |>
   dplyr::distinct() |>
   count_interview_no_lgb()
 
+dim(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt)
+# 772
+
 percent_num_of_interviews_w_no_lgb__checked_cptn__num_of_interviews <-
   nrow(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt) * 100 / num_of_interviews
-# 16%?
+# 42%
+
 
 # Plot interviews w no logbooks ----
 
