@@ -1966,36 +1966,30 @@ survey_data_l_2022_date_i1_vsl__int_t |>
 	head() |>
 	dplyr::glimpse()
 
-survey_data_l_2022_date_i1_vsl__int_t__join_states_by_cnty <-
-  survey_data_l_2022_date_i1_vsl__int_t |> 
-  dplyr::left_join(survey_data_l_2022_i1_w_dates__states_by_cnty,
-            dplyr::join_by(cnty, st))
+restore_states <- function(my_df) {
+  my_df_join_states_by_cnty <-
+    my_df |>
+    dplyr::left_join(survey_data_l_2022_i1_w_dates__states_by_cnty,
+                     dplyr::join_by(cnty, st))
   
-survey_data_l_2022_date_i1_vsl__int_t__join_states_by_cnty |>
-	head() |>
-	dplyr::glimpse()
-# tibble [1,812 × 8] (S3: tbl_df/tbl/data.frame)
-#  $ vsl_num         : chr [1:1812]
-#  $ interview_date  : Date[1:1812], format: "2022-01-30" "2022-02-14" ...
-#  $ st              : chr [1:1812] NA NA NA NA ...
-#  $ cnty            : int [1:1812] 17 75 75 115 115 115 115 81 75 75 ...
-#  $ st_2            : chr [1:1812] "00" "00" "00" "00" ...
-#  $ cnty_3          : chr [1:1812] "017" "075" "075" "115" ...
-#  $ fips            : chr [1:1812] "00017" "00075" "00075" "00115" ...
-#  $ states_l_by_cnty:List of 1812
-#   ..$ : chr [1:2] "12" "NA"
+  my_df_join_states_by_cnty__restored_st <-
+    my_df_join_states_by_cnty |>
+    dplyr::rowwise() |>
+    dplyr::mutate(temp_res =
+                    case_when(is.na(st) ~ paste(unlist(states_l_by_cnty), collapse = ""), 
+                              .default = st)) |>
+    dplyr::mutate(restored_st =
+                    stringr::str_extract(temp_res, "\\d+")) |>
+    dplyr::select(-temp_res) |>
+    dplyr::ungroup()
+  
+  return(my_df_join_states_by_cnty__restored_st)
+}
 
 survey_data_l_2022_date_i1_vsl__int_t__restore_st <-
-  survey_data_l_2022_date_i1_vsl__int_t__join_states_by_cnty |>
-  dplyr::rowwise() |>
-  dplyr::mutate(temp_res =
-                  case_when(is.na(st) ~ paste(unlist(states_l_by_cnty),
-                                              collapse = ""), 
-                            .default = st)) |>
-  dplyr::mutate(restored_st = 
-                  stringr::str_extract(temp_res, "\\d+")) |>
-  dplyr::select(-temp_res) |>
-  dplyr::ungroup()
+  restore_states(survey_data_l_2022_date_i1_vsl__int_t)
+
+glimpse(survey_data_l_2022_date_i1_vsl__int_t__restore_st)
 
 # check
 survey_data_l_2022_date_i1_vsl__int_t__restore_st[1,] |> 
@@ -2331,10 +2325,19 @@ db_logbooks_2022 |>
 # there are no trips with both ("167759", "167763")
 ```
 
-### spot check the interviews by captain name 
+### spot check the interviews by time window 
 
-```{r spot check the interviews by captain name}
-## spot check the interviews by captain name ----
+```{r spot check the interviews by time window}
+## spot check the interviews by time window ----
+# TODO
+# 2)
+# And if you limit to a smaller window (e.g. end or start in logbook within 1 hour of the survey, or within 2, or within 3 hours) how does that % come out?
+```
+
+## Interviews w no logbooks by captain name 
+
+```{r Interviews w no logbooks by captain name}
+# Interviews w no logbooks by captain name ----
 # MM 1) also suggest using captain's name - to try to match, if that is a field in both. like instead of just trying to match by vessel ID.
 
 # print_df_names(db_logbooks_2022_vsl_t_end_all)
@@ -2412,6 +2415,12 @@ by_fields =
   dplyr::join_by(interviewee_l_name == CAPT_NAME_LAST,
                  interview_date == TRIP_END_DATE)
 
+# num_int_no_lgb <- 
+#   n_distinct(survey_data_l_2022_date_i1_vsl__int_t_clean_vsl_low__no_lgb$vsl_num)
+# 261
+# dim(survey_data_l_2022_date_i1_vsl__int_t_clean_vsl_low__no_lgb)
+# 833
+
 join_by_date_captain <-
   survey_data_l_2022_date_i1_vsl__int_t_clean_vsl_low__no_lgb |>
   dplyr::full_join(db_logbooks_2022_vsl_t_end_all_low,
@@ -2474,9 +2483,37 @@ join_by_date_captain__has_lgb <-
   ))) |>
   dplyr::distinct()
 
-#### check vessel ids in join_by_date_captain__has_lgb
+# dim(join_by_date_captain__has_lgb)
+# 771
 
-join_by_date_captain__has_lgb |>
+get_county_name <- function(state_both, cnty_3) {
+  # browser()
+  # state_both = "34"
+  # cnty_3 = "315"
+  res <-
+    tidycensus::fips_codes |>
+    dplyr::filter(state_code == state_both & county_code == cnty_3) |>
+    dplyr::select(county) |>
+    dplyr::mutate(county_short =
+             stringr::str_replace_all(county, " County| Parish", "") |> 
+             tolower())
+  
+  county_short <- res[["county_short"]]
+  if (nrow(res) == 0) {
+    county_short <- NA
+  }
+  
+  return(county_short)
+}
+```
+
+##### check vessel ids in join_by_date_captain__has_lgb 
+
+```{r check vessel ids in join_by_date_captain__has_lgb}
+#### check vessel ids in join_by_date_captain__has_lgb ----
+
+join_by_date_captain__has_lgb_short <-
+  join_by_date_captain__has_lgb |>
   select(
     VESSEL_OFFICIAL_NBR,
     vsl_num,
@@ -2486,9 +2523,120 @@ join_by_date_captain__has_lgb |>
     TRIP_ID,
     id_code
   ) |>
-  filter(!is.na(interviewee_l_name)) |>
+  filter(!is.na(interviewee_l_name))
+
+nrow(join_by_date_captain__has_lgb_short)
+# 184
+
+# n_distinct(join_by_date_captain__has_lgb_short$VESSEL_OFFICIAL_NBR)
+# 80
+# 
+# n_distinct(join_by_date_captain__has_lgb_short$vsl_num)
+# 70
+
+join_by_date_captain__has_lgb_short |>
   head() |>
   glimpse()
+
+to_check_in_df <-
+  join_by_date_captain__has_lgb |>
+  select(
+    vsl_num,
+    VESSEL_OFFICIAL_NBR,
+    vessel_name,
+    VESSEL_NAME,
+    interviewee_l_name,
+    interviewee_f_name,
+    CAPT_NAME_FIRST,
+    st,
+    STATE,
+    STATE_NAME,
+    cnty,
+    END_PORT_COUNTY,
+    id_code,
+    TRIP_ID,
+    interview_date
+  ) |>
+  rowwise() |>
+  format_state_and_county_codes("STATE") |> 
+  mutate(int_count_name =
+           get_county_name(coalesce(st, STATE), cnty_3),
+         .after = cnty,
+         st_state = coalesce(st, STATE)) |>
+  select(-c(st_2, cnty_3)) |> 
+  ungroup()
+
+# glimpse(to_check_in_df)
+
+# tidycensus::fips_codes |>
+    # dplyr::filter(state_code == "12" & county == "Okaloosa County") 
+individual_pair_check <- function(field_name, field_value) {
+
+  if (field_name == "VESSEL_OFFICIAL_NBR") {
+    curr_filter <-
+      rlang::quo(VESSEL_OFFICIAL_NBR == field_value)
+  } else if (field_name == "interviewee_l_name") {
+    curr_filter <-
+      rlang::quo(interviewee_l_name == field_value)
+  }
+  
+  res <- 
+    to_check_in_df |>
+    filter(!!curr_filter)
+  
+  return(res)
+}
+
+individual_pair_check("VESSEL_OFFICIAL_NBR", "1291008") |> 
+  glimpse()
+```
+
+###### write out, check manually in PIMS, add notes, load back 
+
+```{r write out check manually in PIMS add notes load back}
+##### write out, check manually in PIMS, add notes, load back ----
+# join_by_date_captain__has_lgb_short |>
+#   readr::write_csv(file.path(curr_proj_output_path, "diff_vsl_ids_same_captn.csv"))
+
+join_by_date_captain__has_lgb_short__checked <-
+  openxlsx::read.xlsx(file.path(curr_proj_output_path, "diff_vsl_ids_same_captn.xlsx"))
+
+diff_vsls <-
+  join_by_date_captain__has_lgb_short__checked |>
+  filter(is.na(notes) | grepl("diff", notes))
+
+dim(diff_vsls)
+# 62
+
+same_vsls <-
+  join_by_date_captain__has_lgb_short__checked |>
+  filter(!is.na(notes)) |>
+  filter(!grepl("diff", notes))
+
+same_vsls |> head() |> glimpse()
+nrow(same_vsls)
+# 44
+
+# n_distinct(same_vsls$VESSEL_OFFICIAL_NBR)
+# 36
+# n_distinct(same_vsls$vsl_num)
+# 35
+
+# We can use an vessel_official_number for vsl_num for same_vsls
+```
+
+##### get back fields 
+
+```{r get back fields}
+#### get back fields ----
+same_vsls_all_fields <-
+  inner_join(join_by_date_captain__has_lgb, same_vsls)
+# Joining with `by = join_by(vsl_num, interviewee_f_name, interviewee_l_name, CAPT_NAME_FIRST,
+# VESSEL_OFFICIAL_NBR)`
+
+same_vsls_all_fields |> head() |> glimpse()
+# nrow(same_vsls_all_fields)
+# 82
 ```
 
 ##### add county names 
@@ -2498,22 +2646,6 @@ join_by_date_captain__has_lgb |>
 join_by_date_captain__has_lgb__fips <-
   join_by_date_captain__has_lgb |>
   format_state_and_county_codes("st")
-
-# is_st_florida <-
-#       rlang::quo(!!port_state_column == "fl")
-#             !(!!is_st_florida) & !!is_gom_state ~ "gom",
-
-# filters
-county_codes_equal <- 
-  rlang::quo(tidycensus::fips_codes$county_code == cnty_3)
-
-# cnty_3 <- "075"
-# tidycensus::fips_codes$county_code == cnty_3
-
-state_codes_equal <-
-  rlang::quo(tidycensus::fips_codes$state_code == state_both)
-
-  # dplyr::filter(animal %in% anmal) %>%
 ```
 
 ##### add state if missing 
@@ -2545,26 +2677,6 @@ join_by_date_captain__has_lgb__fips_st |>
   dplyr::glimpse() |>
   knitr::kable(caption = "")
 
-get_county_name <- function(state_both, cnty_3) {
-  # browser()
-  # state_both = "34"
-  # cnty_3 = "315"
-  res <-
-    tidycensus::fips_codes |>
-    dplyr::filter(state_code == state_both & county_code == cnty_3) |>
-    dplyr::select(county) |>
-    dplyr::mutate(county_short =
-             stringr::str_replace_all(county, " County| Parish", "") |> 
-             tolower())
-  
-  county_short <- res[["county_short"]]
-  if (nrow(res) == 0) {
-    county_short <- NA
-  }
-  
-  return(county_short)
-}
-
   # dplyr::select(where(~is.numeric(.x) && any(.x == 9)))
 # join_by_date_captain__has_lgb__fips_st[40,] |> dplyr::glimpse()
 
@@ -2573,6 +2685,9 @@ join_by_date_captain__has_lgb__fips_st_county_names <-
   dplyr::rowwise() |>
   dplyr::mutate(survey_county_name0 = get_county_name(state_both, cnty_3)) |>
   dplyr::ungroup()
+
+dim(join_by_date_captain__has_lgb__fips_st_county_names)
+# [1] 771  21
 
 # check survey county names
 join_by_date_captain__has_lgb__fips_st_county_names |>
@@ -2644,8 +2759,8 @@ join_by_date_captain__has_lgb__fips_st_county_names_short <-
   ) |> 
   dplyr::distinct()
 
-# View(join_by_date_captain__has_lgb__fips_st_county_names_short)
-# [1] 771  16
+dim(join_by_date_captain__has_lgb__fips_st_county_names_short)
+# [1] 771  15
 ```
 
 ##### same county 
@@ -2702,7 +2817,8 @@ clean_vessel_name <- function(vessel_name) {
 
 join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty__clena_vsl_name <-
   join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty |>
-  dplyr::mutate(dplyr::across(c("vessel_name", "VESSEL_NAME"), ~ clean_vessel_name(.)))
+  dplyr::mutate(dplyr::across(c("vessel_name", "VESSEL_NAME"), 
+                              ~ clean_vessel_name(.)))
 
 join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty__clena_vsl_name |> 
   dplyr::filter(tolower(vessel_name) == tolower(VESSEL_NAME)) |>
@@ -2735,7 +2851,6 @@ join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty__clena_vsl_n
   head() |> 
   dplyr::glimpse() |>
   knitr::kable(caption = "")
-# 6
 
 diff_vsl_ids <- 
   join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty__clena_vsl_name__diff_vsl_names |>
@@ -2774,8 +2889,8 @@ print_vsl_ids_to_check <-
   dplyr::distinct() |> 
   unlist()
 
-print_vsl_ids_to_check |> 
-   cat(sep = "'\n'")
+# print_vsl_ids_to_check |> 
+#    cat(sep = "'\n'")
 ```
 
 ##### check in db 
@@ -2839,21 +2954,6 @@ vsl_ids_to_check_db |>
 # 1) VESSEL_NAME == "unnamed"
 # 2) agrep or adist for vsl_num/VESSEL_OFFICIAL_NBR, excl. 99999
 # 3) check vessels with double ids
-```
-
-##### get vessel numbers for the same vessel names 
-
-```{r get vessel numbers for the same vessel names}
-#### get vessel numbers for the same vessel names ----
-```
-
-### spot check the interviews by time window 
-
-```{r spot check the interviews by time window}
-## spot check the interviews by time window ----
-# TODO
-# 2)
-# And if you limit to a smaller window (e.g. end or start in logbook within 1 hour of the survey, or within 2, or within 3 hours) how does that % come out?
 ```
 
 ## count interviews w no logbooks 1 
@@ -2927,14 +3027,193 @@ num_of_interviews <-
   nrow(survey_data_l_2022_vsl_date)
 # 1835
 
-num_of_interviews_w_no_lgb * 100 / num_of_interviews
+percent_num_of_interviews_w_no_lgb__num_of_interviews <-
+  num_of_interviews_w_no_lgb * 100 / num_of_interviews
 # 45%
+
+percent_num_of_interviews_w_no_lgb__num_of_interviews
+```
+
+## count interviews w no logbooks and checked captain names 
+
+```{r count interviews w no logbooks and checked captain names}
+# count interviews w no logbooks and checked captain names ----
+```
+
+### remove same_vsls from interview_no_lgb 
+
+```{r remove same_vsls from interview_no_lgb}
+## remove same_vsls from interview_no_lgb ----
+# <<<<
+count_uniq_by_column  <-  function(my_df) {
+  sapply(my_df, function(x) length(unique(x))) %>%  # Apply a function to each column to count unique values.
+    as.data.frame()  # Convert the result to a data frame.
+}
+
+# Explanations:
+
+# Define a function 'count_uniq_by_column' to count the number of unique values in each column of a data frame.
+# 
+# Within the function, the sapply function is used to apply another function to each column of the input data frame. Specifically, it counts the number of unique values in each column using the length(unique(x)) expression, where x represents each column of the data frame.
+# 
+# The result of sapply is a vector containing the counts of unique values for each column.
+# 
+# It returns the resulting data frame, which provides a summary of the counts of unique values for each column in the input data frame.
+#  
+#  
+# >>>>
+
+intv_w_no_lgb_join_by_day_vsl__corrected1 <-
+  intv_w_no_lgb_join_by_day_vsl |> 
+  left_join(same_vsls_all_fields)
+# Joining with `by = join_by(id_code, vsl_num, interview_date, st, cnty)`
+
+dim(intv_w_no_lgb_join_by_day_vsl)
+# [1] 833   8
+n_distinct(intv_w_no_lgb_join_by_day_vsl$vsl_num)
+# 261
+n_distinct(intv_w_no_lgb_join_by_day_vsl$id_code)
+# [1] 833
+
+dim(intv_w_no_lgb_join_by_day_vsl__corrected1)
+# [1] 857  23
+n_distinct(intv_w_no_lgb_join_by_day_vsl__corrected1$vsl_num)
+# 261
+n_distinct(intv_w_no_lgb_join_by_day_vsl__corrected1$id_code)
+# [1] 833
+n_distinct(intv_w_no_lgb_join_by_day_vsl__corrected1$VESSEL_OFFICIAL_NBR)
+# 37
+
+# Count unique values in each column:
+auxfunctions::count_uniq_by_column(intv_w_no_lgb_join_by_day_vsl__corrected1)
+# id_code             833
+# vsl_num             261
+# interview_date      198
+# st                    6
+# cnty                 19
+# st_2                  6
+# cnty_3               19
+# fips                 31
+# interviewee_f_name   39
+# interviewee_l_name   36
+# vessel_name          43
+# CAPT_NAME_FIRST      35
+# TRIP_ID              80
+# VESSEL_OFFICIAL_NBR  37
+# VESSEL_NAME          35
+# STATE                 6
+# STATE_NAME            6
+# END_PORT_COUNTY      13
+# START_PORT_COUNTY    11
+# notes                22
+```
+
+### keep only interview_no_lgb with no same captain or owner 
+
+```{r keep only interview_no_lgb with no same captain or owner}
+## keep only interview_no_lgb with no same captain or owner ----
+intv_w_no_lgb_join_by_day_vsl__minus_same_cptn <-
+  intv_w_no_lgb_join_by_day_vsl__corrected1 |>
+  filter(is.na(interviewee_l_name)) |> 
+  auxfunctions::remove_empty_cols()
+
+dim(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn)
+# 775 8
+
+auxfunctions::count_uniq_by_column(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn)
+
+# intv_w_no_lgb_join_by_day_vsl__minus_same_cptn |> View()
+```
+
+### restore states for no cptn 
+
+```{r restore states for no cptn}
+## restore states for no cptn ----
+intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states <-
+  restore_states(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn)
+
+# dim(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn)
+# dim(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states)
+# 775
+intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states |> 
+  filter(cnty == "57") |> glimpse()
+```
+
+### add fips for no cptn restored states 
+
+```{r add fips for no cptn restored states}
+## add fips for no cptn restored states ----
+intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states_short <-
+  intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states |>
+  select(-c(st_2, cnty_3, fips, states_l_by_cnty)) |>
+  distinct()
+
+dim(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states_short)
+
+intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states_short__fips <-
+  intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states_short |>
+  format_state_and_county_codes("restored_st")
+
+# to plot intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states_short__fips
+
+# dim(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states_short__fips)
+# 775
+```
+
+### add counts to no cptn 
+
+```{r add counts to no cptn}
+## add counts to no cptn ----
+intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt <-
+  intv_w_no_lgb_join_by_day_vsl__minus_same_cptn |>
+  dplyr::select(st, cnty, st_2, vsl_num, interview_date, fips) |>
+  dplyr::distinct() |>
+  count_interview_no_lgb()
+
+dim(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt)
+# 772
+```
+
+#### counts for restored no cptn name 
+
+```{r counts for restored no cptn name}
+### counts for restored no cptn name ----
+intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states_short__fips_cnt <-
+  intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states_short__fips |>
+  dplyr::select(st, cnty, st_2, vsl_num, interview_date, fips) |>
+  dplyr::distinct() |>
+  count_interview_no_lgb()
+
+# dim(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states_short__fips_cnt)
+# 772
+```
+
+### percent of interviews no lgb, checked by captain name 
+
+```{r percent of interviews no lgb checked by captain name}
+## percent of interviews no lgb, checked by captain name ----
+percent_num_of_interviews_w_no_lgb__checked_cptn__num_of_interviews <-
+  nrow(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt) * 100 / num_of_interviews
+# 42%
+
+percent_num_of_interviews_w_no_lgb__checked_cptn__num_of_interviews
 ```
 
 ## Plot interviews w no logbooks 
 
 ```{r Plot interviews w no logbooks}
 # Plot interviews w no logbooks ----
+```
+
+### prep intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt for plotting  
+
+```{r prep intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt for plotting}
+## prep intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt for plotting  ----
+
+glimpse(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt)
+intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt__restore_st <-
+  restore_states(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt)
+
 
 # inerview_no_lgb_geo <-
 # intv_w_no_lgb_join_by_day_vsl |> dplyr::glimpse()
@@ -2972,39 +3251,48 @@ old_names <- names(centroid_labels)
 
 names(centroid_labels) <- c("st_2", "abbr", "full", "geom")
 
-state_labels <-
-  merge(intv_w_no_lgb_join_by_day_vsl_cnt, 
-        centroid_labels, 
-        by = "st_2")
+make_state_labels <- function(my_df, state_field_name = "st_2") {
+  # browser()
+  # merge(my_df, centroid_labels, by = "st_2")
+  temp_df <- 
+  dplyr::inner_join(my_df, 
+                   centroid_labels, 
+                   dplyr::join_by(!!state_field_name == st_2))
+  
+  temp_df |> 
+    dplyr::select(!!state_field_name,
+                  abbr,
+                  full,
+                  total_int_no_lgb_by_state,
+                  geom) |>
+    dplyr::distinct() |>
+    dplyr::mutate(label_st_cnt = 
+                    paste(abbr, total_int_no_lgb_by_state)) |> 
+    dplyr::arrange(full)
+}
 
-state_labels_restored <-
-  dplyr::left_join(
-    intv_w_no_lgb_join_by_day_vsl_restored_cnt,
-    centroid_labels,
-    join_by(restored_st == st_2)
-  ) |>
-  dplyr::mutate(label_st_cnt = paste(abbr, total_int_no_lgb_by_state))
+# print_df_names(intv_w_no_lgb_join_by_day_vsl_restored_cnt)
 
-state_labels_restored |>
-	head() |>
-	dplyr::glimpse()
+my_dfs_to_plot <- Hmisc::llist(
+  intv_w_no_lgb_join_by_day_vsl_cnt,
+  intv_w_no_lgb_join_by_day_vsl_restored_cnt,
+  intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt,
+  intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states_short__fips_cnt
+)
 
-state_labels_short <-
-  state_labels |>
-  dplyr::select(st_2, abbr, full, total_int_no_lgb_by_state, geom) |> 
-  dplyr::distinct() |> 
-  dplyr::mutate(label_st_cnt = paste(abbr, total_int_no_lgb_by_state))
+fields_to_join_by <- 
+  list("st_2", "restored_st", "st_2", "st_2")
 
-state_labels_short |>
-	head() |>
-	dplyr::glimpse()
-# 5
+my_dfs_to_plot_w_labels <-
+  purrr::map2(my_dfs_to_plot,
+              fields_to_join_by,
+              make_state_labels)
 ```
 
-#### interview wo lgb plot 
+#### interview w no lgb plot 
 
-```{r interview wo lgb plot}
-### interview wo lgb plot ----
+```{r interview w no lgb plot}
+### interview w no lgb plot ----
 
 plot_counties <- function(my_df) {
   usmap::plot_usmap(
@@ -3015,7 +3303,8 @@ plot_counties <- function(my_df) {
     color = "lightgrey"
   ) +
     ggplot2::scale_fill_gradient(
-      name = "Interviews w/o lgbks",
+      # name = "Interviews w/o lgbks",
+      name = "",
       high = "blue",
       low = "yellow",
       na.value = "transparent"
@@ -3034,12 +3323,17 @@ plot_counties <- function(my_df) {
     # guides(fill = guide_legend(label.position = "bottom"))
 }
 
-# print_df_names(intv_w_no_lgb_join_by_day_vsl_cnt)
+plot_cnties_4 <-
+  my_dfs_to_plot |>
+  purrr::map(plot_counties)
 
-plot_cnties <- plot_counties(intv_w_no_lgb_join_by_day_vsl_cnt)
+# plot_cnties <- plot_counties(intv_w_no_lgb_join_by_day_vsl_cnt)
 
-plot_cnties_restored <- 
-  plot_counties(intv_w_no_lgb_join_by_day_vsl_restored_cnt)
+# all.equal(plot_cnties,
+#           plot_cnties_4[[1]])
+
+# plot_cnties_restored <- 
+  # plot_counties(intv_w_no_lgb_join_by_day_vsl_restored_cnt)
 
 # check
 no_state_interview_no_lgb_num <- 
@@ -3048,6 +3342,13 @@ no_state_interview_no_lgb_num <-
   dplyr::select(total_int_no_lgb_by_state) |> 
   dplyr::distinct()
 # 192
+
+intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt__no_st <-
+  intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt |> 
+  dplyr::filter(st_2 == "00") |> 
+  dplyr::select(total_int_no_lgb_by_state) |> 
+  dplyr::distinct()
+# 189
 
 add_state_labels <-
   function(usmap_plot, labels_by_state = state_labels_short) {
@@ -3059,20 +3360,40 @@ add_state_labels <-
               fill = NA)
   }
 
-plot_restored_all <- 
-  add_state_labels(plot_cnties_restored, state_labels_restored) +
-  ggplot2::labs(title = "Number of interviews without logbooks by state/county")
+# add_state_labels
+# plot_cnties_4 |> View()
+# my_dfs_to_plot_w_labels|> View()
 
-plot_cnties_state_lbls <-
-  add_state_labels(plot_cnties, state_labels_short) +
-  ggplot2::labs(
-    title = "Number of interviews without logbooks by state/county",
-    caption = stringr::str_glue(
-      "Number of interviews without logbooks with no state info is {no_state_interview_no_lgb_num$total_int_no_lgb_by_state}."
-    )
+all_4_plots <- 
+  purrr::map2(plot_cnties_4,
+              my_dfs_to_plot_w_labels,
+              add_state_labels)
+
+all_4_plots_together <-
+  gridExtra::grid.arrange(
+    grobs = all_4_plots,
+    top =
+      ggpubr::text_grob(
+        "Interview with no logbooks, \n (1) Raw, (1) With restored states, (2) With removed by captain names, (2) With restored states",
+        rot = 0,
+        vjust = 1
+      ),
+    ncol = 1,
+    heights = c(5, 10, 5, 10)
   )
 
-# library(gridExtra)
+# plot_restored_all <- 
+#   add_state_labels(plot_cnties_restored, state_labels_restored) +
+#   ggplot2::labs(title = "Number of interviews without logbooks by state/county")
+# 
+# plot_cnties_state_lbls <-
+#   add_state_labels(plot_cnties, state_labels_short) +
+#   ggplot2::labs(
+#     title = "Number of interviews without logbooks by state/county",
+#     caption = stringr::str_glue(
+#       "Number of interviews without logbooks with no state info is {no_state_interview_no_lgb_num$total_int_no_lgb_by_state}."
+#     )
+#   )
 ```
 
 ##### interview wo lgb plot show 
@@ -3084,8 +3405,30 @@ plot_cnties_state_lbls <-
 ```{r}
 #| out-width: 100%
 
-gridExtra::grid.arrange(plot_cnties_state_lbls,
-           plot_restored_all)
+# gridExtra::grid.arrange(plot_cnties_state_lbls,
+#            plot_restored_all)
+
+# plot_titles <- 
+#   list()
+
+#   ggplot2::labs(
+#     title = "Number of interviews without logbooks by state/county",
+#     caption = stringr::str_glue(
+#       "Number of interviews without logbooks with no state info is {no_state_interview_no_lgb_num$total_int_no_lgb_by_state}."
+#     )
+
+purrr::map2(
+  all_4_plots,
+  names(all_4_plots),
+  \(p, p_name) {
+    p +
+      ggplot2::labs(title = "Number of interviews without logbooks by state/county",
+                    caption = p_name)
+  })
+    
+    # caption = stringr::str_glue(
+    #   "Number of interviews without logbooks with no state info is {no_state_interview_no_lgb_num$total_int_no_lgb_by_state}."
+    # )
 ```
 
 # Other Fields Comparison
