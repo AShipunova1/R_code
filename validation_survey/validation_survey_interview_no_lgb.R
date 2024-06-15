@@ -1198,73 +1198,28 @@ make_state_labels <- function(my_df, state_field_name = "st_2") {
     dplyr::arrange(full)
 }
 
-state_labels1 <- make_state_labels(intv_w_no_lgb_join_by_day_vsl_cnt)
+# print_df_names(intv_w_no_lgb_join_by_day_vsl_restored_cnt)
 
-glimpse(state_labels1)
-
-state_labels_short0 |>
-  arrange(label_st_cnt, full) |>
-  diffdf::diffdf(state_labels1 |>
-                   arrange(label_st_cnt, full))
-
-glimpse(state_labels_short0)
-glimpse(state_labels1)
-
-state_labels0 <-
-  merge(intv_w_no_lgb_join_by_day_vsl_cnt, 
-        centroid_labels, 
-        by = "st_2")
-
-state_labels_short0 <-
-  state_labels0 |>
-  dplyr::select(st_2, abbr, full, total_int_no_lgb_by_state, geom) |>
-  dplyr::distinct() |> 
-  dplyr::mutate(label_st_cnt = paste(abbr, total_int_no_lgb_by_state))
-
-glimpse(state_labels_short0)
-my_dfs <- Hmisc::llist(
-  intv_w_no_lgb_join_by_day_vsl_cnt,
-  intv_w_no_lgb_join_by_day_vsl_restored_cnt,
-  intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt,
-  intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states_short__fips_cnt
+my_dfs_to_plot <- list(
+  Hmisc::llist(intv_w_no_lgb_join_by_day_vsl_cnt, "st_2"),
+  Hmisc::llist(intv_w_no_lgb_join_by_day_vsl_restored_cnt, "restored_st"),
+  Hmisc::llist(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt, "st_2"),
+  Hmisc::llist(
+    intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states_short__fips_cnt,
+    "st_2"
+  )
 )
 
+my_dfs_to_plot_w_labels <-
+  my_dfs_to_plot |>
+  purrr::map(\(x)
+    make_state_labels(x[[1]], x[[2]][[1]]))
 
-state_labels_minus_cptn <- 
-  merge(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt, 
-        centroid_labels, 
-        by = "st_2")
+#### add names back ----
+names(my_dfs_to_plot_w_labels) <- 
+  purrr::map(my_dfs_to_plot, names) |> purrr::map(1)
 
-state_labels_minus_cptn_restored <- 
-intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states_short__fips_cnt
-
-state_labels_restored <-
-  dplyr::left_join(
-    intv_w_no_lgb_join_by_day_vsl_restored_cnt,
-    centroid_labels,
-    join_by(restored_st == st_2)
-  ) |>
-  dplyr::mutate(label_st_cnt = paste(abbr, total_int_no_lgb_by_state))
-
-state_labels_restored |>
-	head() |>
-	dplyr::glimpse()
-
-state_labels_minus_cptn |>
-  head() |>
-  dplyr::glimpse()
-
-
-state_labels_short <-
-  state_labels |>
-  dplyr::select(st_2, abbr, full, total_int_no_lgb_by_state, geom) |> 
-  dplyr::distinct() |> 
-  dplyr::mutate(label_st_cnt = paste(abbr, total_int_no_lgb_by_state))
-
-state_labels_short |>
-	head() |>
-	dplyr::glimpse()
-# 5
+my_dfs_to_plot_w_labels[[4]] |> glimpse()
 
 ### interview w no lgb plot ----
 
