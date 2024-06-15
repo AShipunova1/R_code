@@ -477,6 +477,12 @@ by_fields =
   dplyr::join_by(interviewee_l_name == CAPT_NAME_LAST,
                  interview_date == TRIP_END_DATE)
 
+# num_int_no_lgb <- 
+#   n_distinct(survey_data_l_2022_date_i1_vsl__int_t_clean_vsl_low__no_lgb$vsl_num)
+# 261
+# dim(survey_data_l_2022_date_i1_vsl__int_t_clean_vsl_low__no_lgb)
+# 833
+
 join_by_date_captain <-
   survey_data_l_2022_date_i1_vsl__int_t_clean_vsl_low__no_lgb |>
   dplyr::full_join(db_logbooks_2022_vsl_t_end_all_low,
@@ -538,6 +544,9 @@ join_by_date_captain__has_lgb <-
   ))) |>
   dplyr::distinct()
 
+# dim(join_by_date_captain__has_lgb)
+# 771
+
 get_county_name <- function(state_both, cnty_3) {
   # browser()
   # state_both = "34"
@@ -572,6 +581,15 @@ join_by_date_captain__has_lgb_short <-
     id_code
   ) |>
   filter(!is.na(interviewee_l_name))
+
+nrow(join_by_date_captain__has_lgb_short)
+# 184
+
+# n_distinct(join_by_date_captain__has_lgb_short$VESSEL_OFFICIAL_NBR)
+# 80
+# 
+# n_distinct(join_by_date_captain__has_lgb_short$vsl_num)
+# 70
 
 join_by_date_captain__has_lgb_short |>
   head() |>
@@ -629,7 +647,7 @@ individual_pair_check <- function(field_name, field_value) {
 individual_pair_check("VESSEL_OFFICIAL_NBR", "1291008") |> 
   glimpse()
 
-##### write out, check manuall in PIMS, add notes, load back ----
+##### write out, check manually in PIMS, add notes, load back ----
 # join_by_date_captain__has_lgb_short |>
 #   readr::write_csv(file.path(curr_proj_output_path, "diff_vsl_ids_same_captn.csv"))
 
@@ -652,6 +670,11 @@ same_vsls |> head() |> glimpse()
 nrow(same_vsls)
 # 44
 
+# n_distinct(same_vsls$VESSEL_OFFICIAL_NBR)
+# 36
+# n_distinct(same_vsls$vsl_num)
+# 35
+
 # We can use an vessel_official_number for vsl_num for same_vsls
 
 #### get back fields ----
@@ -661,6 +684,8 @@ same_vsls_all_fields <-
 # VESSEL_OFFICIAL_NBR)`
 
 same_vsls_all_fields |> head() |> glimpse()
+# nrow(same_vsls_all_fields)
+# 82
 
 #### add county names ----
 join_by_date_captain__has_lgb__fips <-
@@ -698,6 +723,9 @@ join_by_date_captain__has_lgb__fips_st_county_names <-
   dplyr::rowwise() |>
   dplyr::mutate(survey_county_name0 = get_county_name(state_both, cnty_3)) |>
   dplyr::ungroup()
+
+dim(join_by_date_captain__has_lgb__fips_st_county_names)
+# [1] 771  21
 
 # check survey county names
 join_by_date_captain__has_lgb__fips_st_county_names |>
@@ -766,8 +794,8 @@ join_by_date_captain__has_lgb__fips_st_county_names_short <-
   ) |> 
   dplyr::distinct()
 
-# View(join_by_date_captain__has_lgb__fips_st_county_names_short)
-# [1] 771  16
+dim(join_by_date_captain__has_lgb__fips_st_county_names_short)
+# [1] 771  15
 
 #### same county ----
 join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty <-
@@ -841,7 +869,6 @@ join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty__clena_vsl_n
   dplyr::ungroup() |>
   head() |> 
   dplyr::glimpse()
-# 6
 
 diff_vsl_ids <- 
   join_by_date_captain__has_lgb__fips_st_county_names_short_same_cnty__clena_vsl_name__diff_vsl_names |>
@@ -1012,10 +1039,56 @@ intv_w_no_lgb_join_by_day_vsl__corrected1 <-
   left_join(same_vsls_all_fields)
 # Joining with `by = join_by(id_code, vsl_num, interview_date, st, cnty)`
 
+dim(intv_w_no_lgb_join_by_day_vsl)
+# [1] 833   8
+n_distinct(intv_w_no_lgb_join_by_day_vsl$vsl_num)
+# 261
+n_distinct(intv_w_no_lgb_join_by_day_vsl$id_code)
+# [1] 833
+
+dim(intv_w_no_lgb_join_by_day_vsl__corrected1)
+# [1] 857  23
+n_distinct(intv_w_no_lgb_join_by_day_vsl__corrected1$vsl_num)
+# 261
+n_distinct(intv_w_no_lgb_join_by_day_vsl__corrected1$id_code)
+# [1] 833
+n_distinct(intv_w_no_lgb_join_by_day_vsl__corrected1$VESSEL_OFFICIAL_NBR)
+# 37
+
+# Count unique values in each column:
+auxfunctions::count_uniq_by_column(intv_w_no_lgb_join_by_day_vsl__corrected1)
+# id_code             833
+# vsl_num             261
+# interview_date      198
+# st                    6
+# cnty                 19
+# st_2                  6
+# cnty_3               19
+# fips                 31
+# interviewee_f_name   39
+# interviewee_l_name   36
+# vessel_name          43
+# CAPT_NAME_FIRST      35
+# TRIP_ID              80
+# VESSEL_OFFICIAL_NBR  37
+# VESSEL_NAME          35
+# STATE                 6
+# STATE_NAME            6
+# END_PORT_COUNTY      13
+# START_PORT_COUNTY    11
+# notes                22
+
 ## keep only interview_no_lgb with no same captain or owner ----
 intv_w_no_lgb_join_by_day_vsl__minus_same_cptn <-
   intv_w_no_lgb_join_by_day_vsl__corrected1 |>
   filter(is.na(interviewee_l_name))
+
+dim(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn)
+# 775
+
+auxfunctions::count_uniq_by_column(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn)
+
+# intv_w_no_lgb_join_by_day_vsl__minus_same_cptn |> View()
 
 ## add counts
 intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt <-
