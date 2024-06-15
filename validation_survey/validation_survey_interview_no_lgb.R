@@ -73,42 +73,42 @@ survey_data_l_2022_date_i1_vsl__int_t |>
 	dplyr::glimpse()
 
 restore_states <- function(my_df) {
-  my_df_add_state_by_cnty <-
+  
+  my_df_join_states_by_cnty <-
     my_df |>
     dplyr::left_join(survey_data_l_2022_i1_w_dates__states_by_cnty,
                      dplyr::join_by(cnty, st))
   
-  return(my_df_add_state_by_cnty)
+  my_df_join_states_by_cnty__restored_st <-
+    my_df_join_states_by_cnty |>
+    dplyr::rowwise() |>
+    dplyr::mutate(temp_res =
+                    case_when(is.na(st) ~ paste(unlist(states_l_by_cnty), collapse = ""), 
+                              .default = st)) |>
+    dplyr::mutate(restored_st =
+                    stringr::str_extract(temp_res, "\\d+")) |>
+    dplyr::select(-temp_res) |>
+    dplyr::ungroup()
+  
+  return(my_df_join_states_by_cnty__restored_st)
 }
 
-survey_data_l_2022_date_i1_vsl__int_t__join_states_by_cnty1 <-
-restore_states(survey_data_l_2022_date_i1_vsl__int_t)
+test0 <- 
+      survey_data_l_2022_date_i1_vsl__int_t |>
+    dplyr::left_join(survey_data_l_2022_i1_w_dates__states_by_cnty,
+                     dplyr::join_by(cnty, st))
 
-all.equal(survey_data_l_2022_date_i1_vsl__int_t__join_states_by_cnty,
-               survey_data_l_2022_date_i1_vsl__int_t__join_states_by_cnty1)
+survey_data_l_2022_date_i1_vsl__int_t__restore_st1 <-
+  restore_states(survey_data_l_2022_date_i1_vsl__int_t)
+
+glimpse(survey_data_l_2022_date_i1_vsl__int_t__restore_st1)
+
+all.equal(survey_data_l_2022_date_i1_vsl__int_t__restore_st,
+          survey_data_l_2022_date_i1_vsl__int_t__restore_st1)
 # T
 
-survey_data_l_2022_date_i1_vsl__int_t__join_states_by_cnty <-
-  survey_data_l_2022_date_i1_vsl__int_t |> 
-  dplyr::left_join(survey_data_l_2022_i1_w_dates__states_by_cnty,
-            dplyr::join_by(cnty, st))
-  
-survey_data_l_2022_date_i1_vsl__int_t__join_states_by_cnty |>
-	head() |>
-	dplyr::glimpse()
-# tibble [1,812 × 8] (S3: tbl_df/tbl/data.frame)
-#  $ vsl_num         : chr [1:1812]
-#  $ interview_date  : Date[1:1812], format: "2022-01-30" "2022-02-14" ...
-#  $ st              : chr [1:1812] NA NA NA NA ...
-#  $ cnty            : int [1:1812] 17 75 75 115 115 115 115 81 75 75 ...
-#  $ st_2            : chr [1:1812] "00" "00" "00" "00" ...
-#  $ cnty_3          : chr [1:1812] "017" "075" "075" "115" ...
-#  $ fips            : chr [1:1812] "00017" "00075" "00075" "00115" ...
-#  $ states_l_by_cnty:List of 1812
-#   ..$ : chr [1:2] "12" "NA"
-
 survey_data_l_2022_date_i1_vsl__int_t__restore_st <-
-  survey_data_l_2022_date_i1_vsl__int_t__join_states_by_cnty |>
+  test0 |>
   dplyr::rowwise() |>
   dplyr::mutate(temp_res =
                   case_when(is.na(st) ~ paste(unlist(states_l_by_cnty),
