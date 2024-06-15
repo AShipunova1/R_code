@@ -1085,7 +1085,7 @@ auxfunctions::count_uniq_by_column(intv_w_no_lgb_join_by_day_vsl__minus_same_cpt
 
 # intv_w_no_lgb_join_by_day_vsl__minus_same_cptn |> View()
 
-## restore states ----
+## restore states for no cptn ----
 intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states <-
   restore_states(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn)
 
@@ -1095,7 +1095,19 @@ intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states <-
 intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states |> 
   filter(cnty == "57") |> glimpse()
 
+## add fips for no cptn restored states ----
+intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states_short <-
+  intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states |>
+  select(-c(st_2, cnty_3, fips, states_l_by_cnty)) |>
+  distinct()
 
+dim(intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states_short)
+
+intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states_short__fips <-
+  intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states_short |>
+  format_state_and_county_codes("restored_st")
+
+# to plot intv_w_no_lgb_join_by_day_vsl__minus_same_cptn__restored_states_short__fips
 
 ## add counts ----
 intv_w_no_lgb_join_by_day_vsl__minus_same_cptn_cnt <-
