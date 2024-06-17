@@ -1,34 +1,52 @@
 # get data for egregious violators
 # use from egregious_violators_start.R
 
-# 1) compliance data
-# Download files from FHIER / Reports / FHIER COMPLIANCE REPORT 
-# For the last 6 month
-# FHIER_Compliance_...csv
+#' 1) compliance data
+#' 
+#' Download files from FHIER / Reports / FHIER COMPLIANCE REPORT 
+#' 
+#' For the last 6 month
+#' 
+#' FHIER_Compliance_...csv
 
-# 2) correspondence data
-# Download files from FHIER / Home / Correspondence
-# Actions / Download 
-# For the whole period, starting 01/01/2021
-# "~\my_inputs\from_Fhier\Correspondence\Correspondence_2024_02_15.csv"
+#' 2) correspondence data
+#' 
+#' Download files from FHIER / Home / Correspondence
+#' 
+#' Actions / Download 
+#' 
+#' For the whole period, starting 01/01/2021
+#' 
+#' "~\my_inputs\from_Fhier\Correspondence\Correspondence_2024_02_15.csv"
+#' 
 
-# 3) processed Metrics tracking
-# For the last 6 month
-# SEFHIER_permitted_vessels_nonSRHS_YEAR.csv
+#' 3) processed Metrics tracking
+#' 
+#' For the last 6 month
+#' 
+#' SEFHIER_permitted_vessels_nonSRHS_YEAR.csv
+#' 
 
-# 4) Physical Address List from FHIER
-# Downloaded from REPORTS / For-hire Primary Physical Address List
-# For the whole period, starting 01/01/2021
-# "For-hire Primary Physical Address List.csv"
+#' 4) Physical Address List from FHIER
+#' 
+#' Downloaded from REPORTS / For-hire Primary Physical Address List
+#' 
+#' For the whole period, starting 01/01/2021
+#' 
+#' "For-hire Primary Physical Address List.csv"
 
-# 5) home port processed city and state from PIMS
-# "~\R_files_local\my_outputs\home_ports\vessels_from_pims_ports.csv"
+#' 5) home port cleaned city and state from PIMS
+#' 
+#' "~\R_files_local\my_outputs\home_ports\vessels_from_pims_ports.csv"
 
-# 6) address information from Oracle db
-# "db_participants_address.rds"
+#' 6) address information from Oracle db
+#' 
+#' "db_participants_address.rds"
+#' 
 
-# 7) Previous results (from google drive)
-# ~\R_files_local\my_inputs\egregious_violators\egregious violators for investigation_DATES...xlsx"
+#' 7) Previous results (from google drive)
+#' 
+#' ~\R_files_local\my_inputs\egregious_violators\egregious violators for investigation_DATES...xlsx"
 
 # FHIER ----
 
