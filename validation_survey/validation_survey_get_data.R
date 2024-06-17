@@ -1,8 +1,8 @@
-# get data for logbooks and catch comparison
-# see read.me.R
+#' get data for logbooks and catch comparison
+#' 
 
 # set up ----
-# Turn off the scientific notation
+#' Turn off the scientific notation
 options(scipen = 999)
 
 try(con <- auxfunctions::connect_to_secpr())
@@ -14,9 +14,9 @@ my_date_end <- stringr::str_glue('31-DEC-{my_year}') |>
   lubridate::dmy()
 
 # load Validation Survey data ----
-# https://drive.google.com/drive/folders/1JDlzVXcTkdY17Sux8hZOZbxFnj2_E9eh?usp=drive_link
-# Dominique Lazarre, Sept 14, 2023
-# "my_inputs\validation_survey\Merged_Validation_Survey_Data.zip"
+#' https://drive.google.com/drive/folders/1JDlzVXcTkdY17Sux8hZOZbxFnj2_E9eh?usp=drive_link
+#' Dominique Lazarre, Sept 14, 2023
+#' "my_inputs\validation_survey\Merged_Validation_Survey_Data.zip"
 
 validation_survey_data_dir_path <- file.path(my_paths$inputs,
                                          "validation_survey")
@@ -32,7 +32,7 @@ csv_filenames <-
 str(csv_filenames)
 # 5
 
-# loop through all files from the list and run the function on each one
+#' loop through all files from the list and run the function on each one
 survey_data_l <-
   csv_filenames |>
   purrr::map(
@@ -61,7 +61,7 @@ survey_data_l_not_na <-
   survey_data_l |>
   purrr::map(auxfunctions::remove_empty_cols)
 
-# check
+#' check
 # survey_data_l |>
 #   purrr::imap(\(x, idx) {
 #     diffdf::diffdf(survey_data_l[[idx]], survey_data_l_not_na[[idx]])
@@ -82,11 +82,11 @@ survey_data_l_2022 <-
   survey_data_l |>
   purrr::map(~ dplyr::filter(.x, year == my_year))
 
-# check
+#' check
 survey_data_l_2022 |>
   purrr::map(~ dplyr::select(.x, year) |>
                 dplyr::distinct())
-# all 2022 only, ok
+#' all 2022 only, ok
 
 survey_data_l_2022 |> 
   purrr::map(dim)
@@ -205,7 +205,7 @@ trips_in_processed_cal_not_in_db <-
   setdiff(processed_logbooks_2022_calendar$TRIP_ID,
           db_logbooks_2022$TRIP_ID)
 length(trips_in_processed_cal_not_in_db)
-# 0 ok
+#' 0 ok
 
 processed_logbooks_2022 |> 
   dplyr::filter(TRIP_ID %in% trips_in_processed_not_in_db) |> 
