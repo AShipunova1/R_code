@@ -66,7 +66,7 @@ days_in_non_compl_weeks <-
   number_of_weeks_for_non_compliancy * 7
 # 182
 
-grace_period = 7 #days
+grace_period = 7 # days
 
 half_year_ago <-
   data_file_date - days_in_non_compl_weeks - grace_period
