@@ -45,7 +45,8 @@ survey_data_l_2022$aga |>
   # 0
   dplyr::glimpse()
 
-# asg_code is useless for us
+#' asg_code is useless for us
+#' 
 
 # i1 ----
 # View(survey_data_l_2022$ref)
@@ -60,7 +61,7 @@ setdiff(survey_data_l_2022$i1$id_code,
         survey_data_l_2022$ref$id_code) |> length()
 # 1835
 
-# get dates from survey's id_code
+#' get dates from survey's id_code
 get_date_from_id_code_survey <- 
   function(my_df) {
     my_df__w_dates <-
@@ -97,7 +98,7 @@ survey_data_l_2022_vsl_date <-
   dplyr::distinct() |>
   get_date_from_id_code_survey()
 
-# check if correct split
+#' check if correct split
 survey_data_l_2022_vsl_date |>
   dplyr::mutate(date_paste = paste0(int_year, int_month, int_day)) |>
   dplyr::rowwise() |>
@@ -108,7 +109,7 @@ survey_data_l_2022_vsl_date |>
   dplyr::ungroup() |>
   dim()
 
-# check if correct interview_date
+#' check if correct interview_date
 survey_data_l_2022_vsl_date |>
   dplyr::mutate(date_paste = paste0(int_year, int_month, int_day),
          interview_date_str = as.character(interview_date)
@@ -153,7 +154,7 @@ dim(survey_data_l_2022_vsl_date)
 # [1] 1835    10
 
 n_distinct(survey_data_l_2022_vsl_date$vsl_num)
-# vessels 476
+#' vessels 476
 
 n_distinct(db_logbooks_2022$VESSEL_OFFICIAL_NBR)
 # 1892
@@ -168,7 +169,7 @@ grep("date", names(db_logbooks_2022), ignore.case = T, value = T)
 
 survey_data_l_2022_i1_w_dates <-
   dplyr::inner_join(survey_data_l_2022$i1, survey_data_l_2022_vsl_date)
-# Joining with `by = join_by(id_code, time, hrsf, vsl_num)`
+#' Joining with `by = join_by(id_code, time, hrsf, vsl_num)`
 
 dim(survey_data_l_2022$i1)
 # [1] 1835   33
@@ -177,14 +178,15 @@ dim(survey_data_l_2022_i1_w_dates)
 
 # prepare geo data ----
 
-# The following is adopted from Dominique's code
+#' The following is adopted from Dominique's code
 gulf_states <- c("AL", "TX", "MS", "LA")
 
-## LIST OF GULF COUNTY NAMES IN THE SAME ORDER AS COUNTY CODES ABOVE
-# escambia, santa rosa, okaloosa, walton, bay, gulf, franklin, wakulla,
-# jefferson, taylor, dixie, levy, citrus, hernando, pasco, hillsborough,
-# pinellas, manatee, sarasota, charlotte, lee, collier
-# MONROE COUNTY = 87
+#' ## List of gulf county names in the same order as county codes above:
+#' 
+#' escambia, santa rosa, okaloosa, walton, bay, gulf, franklin, wakulla,
+#' jefferson, taylor, dixie, levy, citrus, hernando, pasco, hillsborough,
+#' pinellas, manatee, sarasota, charlotte, lee, collier
+#' MONROE COUNTY = 87
 florida_gulf_counties <- c(33,
                            113,
                            91,
@@ -209,10 +211,10 @@ florida_gulf_counties <- c(33,
                            21,
                            87)
 
-# ASSIGN RECORDS IN COUNTY=75 WITH NO STATE TO GULF (FL OR LA)
+#' ASSIGN RECORDS IN COUNTY=75 WITH NO STATE TO GULF (FL OR LA)
 # is.na(st) & cnty == c(75) ~ ,
 
-# check st, cnty
+#' check st, cnty
 # survey_data_l_2022_i1_w_dates |>
 #   select(st, cnty) |> 
 #   count(st, cnty) |> 
@@ -301,8 +303,8 @@ db_logbooks_2022_short_date_time <-
 
 # str(db_logbooks_2022_short_date_time)
 
-# compare trips/vessels
-# tidyverse combine year, month and day into a date lubridate
+#' compare trips/vessels
+#' tidyverse combine year, month and day into a date lubridate
 #     str(db_logbooks_2022_short0)
 # lubridate::date("2022-01-04 23:00:00")
 
@@ -316,8 +318,9 @@ lgb_join_i1 <-
     ),
     relationship = "many-to-many"
   )
-# ℹ Row 5799 of `x` matches multiple rows in `y`.
-# ℹ Row 944 of `y` matches multiple rows in `x`.
+#' ℹ Row 5799 of `x` matches multiple rows in `y`.
+#' 
+#' ℹ Row 944 of `y` matches multiple rows in `x`.
 
 dim(lgb_join_i1)
 # 2015 23
@@ -468,7 +471,7 @@ dup_interviews |>
 # 31
 
 ## remove duplicated trip/interview ----
-# They are a result of full join on a day, e.g. 2 trips, 2 interviews
+#' They are a result of full join on a day, e.g. 2 trips, 2 interviews
 lgb_join_i1__t_diff_short__w_int_all_dup |>
   dplyr::filter(dup_interviews > 1) |>
   dplyr::select(-tidyselect::ends_with("_diff")) |>
@@ -489,7 +492,7 @@ dim(int_dups_only)
 lgb_join_i1__t_diff_short__w_int_all_dup_rm <-
   lgb_join_i1__t_diff_short__w_int_all_dup |>
   dplyr::anti_join(int_dups_only)
-# Joining with `by = join_by(id_code, TRIP_ID, VESSEL_OFFICIAL_NBR)`
+#' Joining with `by = join_by(id_code, TRIP_ID, VESSEL_OFFICIAL_NBR)`
 
 nrow(lgb_join_i1__t_diff_short__w_int_all_dup) -
   nrow(lgb_join_i1__t_diff_short__w_int_all_dup_rm) ==
@@ -542,13 +545,13 @@ lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup <-
   dplyr::add_count(id_code, name = "dup_id_codes") |>
   dplyr::ungroup()
 
-# duplicated interview
+#' duplicated interviews
 lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup |> 
   dplyr::filter(dup_id_codes > 1) |> 
   dim()
   # 310
 
-# check diff time
+#' check diff time
 lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup |>
   dplyr::filter(dup_id_codes == 2) |>
   dplyr::arrange(id_code, TRIP_ID, VESSEL_OFFICIAL_NBR, trip_end_date_time) |>
@@ -569,11 +572,12 @@ dim(trip_dups_only)
 # 164
 
 ## remove duplicates 2 trips. 1 interview ----
-# Only keep logbooks with a correspondent interview
+#' Only keep logbooks with a correspondent interview
 lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm <-
   lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup |>
   dplyr::anti_join(trip_dups_only)
-# Joining with `by = join_by(id_code, TRIP_ID, VESSEL_OFFICIAL_NBR)`
+#' Joining with `by = join_by(id_code, TRIP_ID, VESSEL_OFFICIAL_NBR)`
+#' 
 
 ## check if not loosing trips by removing ----
 nrow(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup) -
@@ -668,7 +672,7 @@ db_logbooks_2022_short <-
 catch_info_lgb <- 
   dplyr::left_join(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_shorter,
             db_logbooks_2022_short)
-# Joining with `by = join_by(TRIP_ID, VESSEL_OFFICIAL_NBR)`
+#' Joining with `by = join_by(TRIP_ID, VESSEL_OFFICIAL_NBR)`
 
 dim(catch_info_lgb)
 # [1] 3502   24
@@ -725,7 +729,7 @@ catch_info_lgb_i1 <-
   left_join(catch_info_lgb,
             survey_data_l_2022_short$i1,
             suffix = c(".lgb", ".i1"))
-# Joining with `by = join_by(id_code)`
+#' Joining with `by = join_by(id_code)`
 
 dim(catch_info_lgb_i1)
 # [1] 3502   37
@@ -736,12 +740,17 @@ catch_info_lgb_i1_i2 <-
             relationship = "many-to-many",
             suffix = c(".i1", ".releas"),
             join_by(id_code))
-# ℹ Row 5 of `x` matches multiple rows in `y`.
-# ℹ Row 1127 of `y` matches multiple rows in `x`.
-# default
-# Joining with `by = join_by(id_code, st, num_typ2)`
-# Error in `left_join()`:
-# ! Can't join `x$st` with `y$st` due to incompatible types.
+#' ℹ Row 5 of `x` matches multiple rows in `y`.
+#' 
+#' ℹ Row 1127 of `y` matches multiple rows in `x`.
+#' 
+#' default
+#' 
+#' Joining with `by = join_by(id_code, st, num_typ2)`
+#' 
+#' Error in `left_join()`:
+#' 
+#' ! Can't join `x$st` with `y$st` due to incompatible types.
 
 dim(catch_info_lgb_i1_i2)
 # [1] 8418   42
@@ -753,10 +762,13 @@ catch_info_lgb_i1_i2_i3 <-
             join_by(id_code),
             suffix = c(".releas", ".harv")
 )
-# ℹ Row 1 of `x` matches multiple rows in `y`.
-# ℹ Row 1427 of `y` matches multiple rows in `x`.
-# default
-# Joining with `by = join_by(id_code, num_typ3, tsn)`
+#' ℹ Row 1 of `x` matches multiple rows in `y`.
+#' 
+#' ℹ Row 1427 of `y` matches multiple rows in `x`.
+#' 
+#' default
+#' 
+#' Joining with `by = join_by(id_code, num_typ3, tsn)`
 
 dim(catch_info_lgb_i1_i2_i3)
 # [1] 89466    50
@@ -766,7 +778,7 @@ dim(catch_info_lgb_i1_i2_i3)
 lubridate::intersect(names(survey_data_l_2022_short$i1),
                      names(survey_data_l_2022_short$i2))
 
-# unify classes
+#' unify classes
 survey_data_l_2022_short <-
   survey_data_l_2022_short |>
   purrr::map(\(one_df) {
@@ -774,7 +786,9 @@ survey_data_l_2022_short <-
       dplyr::mutate(dplyr::across(tidyselect::any_of(c("st")), ~ as.integer(.x)))
   })
 
-# joins
+#' joins
+#' 
+
 ## i1 and i2 ----
 survey_data_l_2022_short |> 
   purrr::map(~n_distinct(.x$id_code))
@@ -785,7 +799,7 @@ survey_i1_i2_released <-
             survey_data_l_2022_short$i2,
             by = join_by(id_code, st),
             suffix = c(".i1", ".release"))
-# Joining with `by = join_by(id_code, st, num_typ2)`
+#' Joining with `by = join_by(id_code, st, num_typ2)`
 
 dim(survey_i1_i2_released)
 # 3218  left join
@@ -821,7 +835,7 @@ survey_i1_i3_harvested_dates <-
 
 # glimpse(survey_i1_i3_harvested_dates)
 
-# result names:
+#' result names:
 data_names <-
   c("lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short",
     "db_logbooks_2022_short",
