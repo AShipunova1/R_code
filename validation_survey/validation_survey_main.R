@@ -1,4 +1,4 @@
-# title: Validation Survey and Logbooks Comparison
+#' title: Validation Survey and Logbooks Comparison
 # Set up ----
 
 library('devtools')
