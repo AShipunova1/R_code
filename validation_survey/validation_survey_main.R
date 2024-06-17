@@ -19,14 +19,14 @@ Sys.setenv(ORA_SDTZ = Sys.timezone())
 
 my_paths <- auxfunctions::set_work_dir()
 
-# get this project name
+#' get this project name
 current_project_dir_name <- this.path::this.dir()
 
-# find its base name
+#' find its base name
 current_project_name <-
   basename(current_project_dir_name)
 
-# use current_project_name to create input and output path
+#' use current_project_name to create input and output path
 curr_proj_input_path <- file.path(my_paths$inputs,
                          current_project_name)
 
@@ -48,12 +48,12 @@ file.exists(get_data_path)
 
 source(get_data_path)
 
-# Data are in:
-# survey_data_l_2022
-# processed_logbooks_2022
-# processed_logbooks_2022_calendar
-# db_logbooks_2022
-# db_dnfs_2022
+#' Data are in:
+#' survey_data_l_2022
+#' processed_logbooks_2022
+#' processed_logbooks_2022_calendar
+#' db_logbooks_2022
+#' db_dnfs_2022
 # ---
 
 # source prepare data ----
@@ -65,10 +65,10 @@ prepare_data_path <-
 file.exists(prepare_data_path)
 
 source(prepare_data_path)
-# Processed Data are in:
-# lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short
-# db_logbooks_2022_short
-# catch_info_lgb_i1_i2_i3
+#' Processed Data are in:
+#' lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short
+#' db_logbooks_2022_short
+#' catch_info_lgb_i1_i2_i3
 # ---
 
 lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short |>
@@ -126,7 +126,7 @@ catch_info_lgb_i1_i2_i3 |>
 
 # compare TRIP_TYPE_NAME, operating_type ----
 
-# 6=’HB’, 7=’CB’, 0=’Neither’
+#' 6=’HB’, 7=’CB’, 0=’Neither’
 # catch_info_lgb_i1_i2_i3$TRIP_TYPE_NAME |> unique()
 # [1] "CHARTER" "UNKNOWN"
 
@@ -145,7 +145,7 @@ catch_info_lgb_i1_i2_i3 |>
   head() |> 
   dplyr::glimpse()
 # 16
-# same type "CHARTER" 225
+#' same type "CHARTER" 225
 
 # compare NUM_ANGLERS, people_fishing ----
 # catch_info_lgb_i1_i2_i3$people_fishing |> unique()
@@ -168,7 +168,7 @@ catch_info_lgb_i1_i2_i3 |>
 # 68
   dim()
 
-# when was the survey?, all < June 2022
+#' when was the survey?, all < June 2022
 # grep("month", tolower(names(catch_info_lgb_i1_i2_i3)), value = T)
 
 fish_hours_diff <-
@@ -201,12 +201,12 @@ fish_hours_diff_plot <-
     nudge_x = 0.4
   )
 
-# compare ACTIVITY_TYPE_NAME no_harvested_selected
+#' compare ACTIVITY_TYPE_NAME no_harvested_selected
 
-# ACTIVITY_TYPE_NAME
-# [1] "TRIP WITH EFFORT"
-# catch_info_lgb_i1_i2_i3$no_harvested_selected |> unique()
-# 1, 2 (1=YES, 2=NO)
+#' ACTIVITY_TYPE_NAME
+#' [1] "TRIP WITH EFFORT"
+#' catch_info_lgb_i1_i2_i3$no_harvested_selected |> unique()
+#' 1, 2 (1=YES, 2=NO)
 
 compare_fields <- 
   c("ACTIVITY_TYPE_NAME", "no_harvested_selected")
@@ -256,7 +256,7 @@ catch_info_lgb_i1_i2_i3 |>
 # TODO: check if the same trip
 
 # compare CATCH_SPECIES_ITIS tsn ----
-# https://en.wikipedia.org/wiki/Integrated_Taxonomic_Information_System
+#' https://en.wikipedia.org/wiki/Integrated_Taxonomic_Information_System
 # grep("tsn", names(catch_info_lgb_i1_i2_i3), value = T)
 # [1] "tsn.releas" "tsn.harv" 
 
@@ -375,7 +375,7 @@ tsn_info_itis[[2]] |>
  dplyr::glimpse()
 
 ## check released and harvested separately ----
-# "CATCH_SPECIES_ITIS" vs "tsn.harv"
+#' "CATCH_SPECIES_ITIS" vs "tsn.harv"
 
 CATCH_SPECIES_ITIS_vs_tsn.harv <-
   catch_info_lgb_i1_i2_i3 |>
@@ -431,7 +431,7 @@ cathc_spp_diff__no_diff |>
  head() |>
  dplyr::glimpse()
 
-# TODO: check released and harvested separately
+#' TODO: check released and harvested separately
 
 ## check numbers for the same spp lgb/harvested ----
 catch_info_lgb_i1_i2_i3 |> 
@@ -465,7 +465,7 @@ catch_info_lgb_i1_i2_i3 |>
   head() |> 
   dplyr::glimpse()
 
-# TODO: compare and remove if duplicate all fields with "."
+#' TODO: compare and remove if duplicate all fields with "."
 
 ## separate vessel_trip info from catch ----
 vessel_trip_fields <- c(
@@ -502,7 +502,7 @@ vessel_trip_fields <- c(
   "st"
 )
 
-# "UNIT_MEASURE", (all "CN")
+#' "UNIT_MEASURE", (all "CN")
 
 catch_fields <-
   c(
@@ -623,7 +623,7 @@ survey_data_l_2022_short_cnt_spp |>
 
 # TODO: compare ns
 
-# compare NUM_TYP3 with number of cought and retained fish in FHIER
+#' compare NUM_TYP3 with number of cought and retained fish in FHIER
 compare_fields <-
   c("num_typ3.harv", "REPORTED_QUANTITY")
 
@@ -731,12 +731,12 @@ survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur <-
   dplyr::mutate(FISHING_HOURS_d = convert_fish_hours_to_duration(FISHING_HOURS)) |>
   dplyr::ungroup()
 
-# check
+#' check
 survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur[93,][["FISHING_HOURS_d"]]
-# [1] "12600s (~3.5 hours)"
+#' [1] "12600s (~3.5 hours)"
 
 survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur[93,][["TRIP_START_TO_END_d"]] - survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur[93,][["FISHING_HOURS_d"]]
-# [1] "1800s (~30 minutes)"
+#' [1] "1800s (~30 minutes)"
 
 ### convert survey fishing hours hrsf to duration ----
 
@@ -750,7 +750,7 @@ survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur |>
   head() |>
   dplyr::glimpse()
 
-# check row 93 with 3.5
+#' check row 93 with 3.5
 survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur |> 
   head(96) |> 
   tail() |> 
@@ -784,7 +784,7 @@ survey_lgb_by_date_vessl_all__trip_dur__fish_h_dur__hrsf_dur |>
   dplyr::glimpse()
 
 # how many are srhs vsls? ----
-# all interviews:
+#' all interviews:
 survey_data_l_2022_i1_w_dates |>
   dplyr::select(vsl_num, srhs_vessel) |>
   dplyr::distinct() |>
