@@ -689,9 +689,6 @@ dplyr::n_distinct(compl_corr_to_investigation_short_dup_marked__permit_region$ve
 region_counts$n[[1]] / (region_counts$n[[2]] + region_counts$n[[1]]) * 100
 
 ## 5. Changed owner ----
-glimpse(compl_corr_to_investigation_short_dup_marked__permit_region)
-print_df_names(permit_vessel_w_changed_owner)
-
 res_join_permit <-
   dplyr::left_join(
     compl_corr_to_investigation_short_dup_marked__permit_region,
@@ -706,12 +703,12 @@ dim(res_join_permit)
 ### keep only permit_status from permits ----
 res_join_permit_short <-
   res_join_permit |>
-  select(all_of(
+  dplyr::select(tidyselect::all_of(
     names(
       compl_corr_to_investigation_short_dup_marked__permit_region
     )
   ), permit_status) |>
-  distinct()
+  dplyr::distinct()
 
 dim(res_join_permit_short)
 # 138
@@ -735,20 +732,9 @@ dim(compl_corr_to_investigation_short_dup_marked__permit_region__status)
 
 #' check
 compl_corr_to_investigation_short_dup_marked__permit_region__status |>
-  filter(!is.na(permit_status_all) &
+  dplyr::filter(!is.na(permit_status_all) &
            !permit_status_all == "NA") |>
-  glimpse()
-
-
-old_res <-
-  readr::read_csv(
-    r"(C:\Users\anna.shipunova\Downloads\Egregious Violators Current - egregious_violators_to_investigate_2024-06-18.csv)",
-    col_types = readr::cols(.default = 'c')
-  )
-
-diffdf::diffdf(old_res,
-               compl_corr_to_investigation_short_dup_marked__permit_region__add_columns)
-
+  dplyr::glimpse()
 
 # Print out results ----
 ## add additional columns in front ----
@@ -803,7 +789,7 @@ result_path <-
             out_file_name)
 
 compl_corr_to_investigation_short_dup_marked__permit_region__add_columns |>
-readr::write_csv(result_path)
+  readr::write_csv(result_path)
 
 cat("Result:",
     "compl_corr_to_investigation_short_dup_marked__permit_region__add_columns",
