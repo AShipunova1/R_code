@@ -67,7 +67,11 @@ registerS3method(
 # 5) not counting any correspondence (regardless of the type - email/call, voicemail or not) that includes "No contact made" in the text of the entry as a actual "direct" contact for any egregious vessel (May 6 2024)
 
 # NB. Update (download) all input files every time before run.
+```
 
+## set up 
+
+```{r set up}
 # set up ----
 # <<<<
 set_work_dir  <-  function() {
@@ -145,9 +149,20 @@ set_work_dir  <-  function() {
 # >>>>
 
 # Get common functions
-install.packages("devtools")
-library(devtools)
-devtools::install_github("AShipunova1/R_code/auxfunctions")
+# source("~/R_code_github/useful_functions_module.r")
+# install.packages("~/R_code_github/auxfunctions_1.0.tar.gz",
+#                  repos = NULL,
+#                  type = "source",
+#                    ref = "HEAD",
+# )
+
+# install.packages("remotes")
+# library(remotes)
+# remotes::install_local(path = "~/R_code_github/auxfunctions_1.1.tar.gz",
+#                        build_manual = TRUE)
+# install.packages("devtools")
+# library(devtools)
+# devtools::install_github("AShipunova1/R_code/auxfunctions@development")
 
 library(auxfunctions)
 library(ROracle)
@@ -188,7 +203,7 @@ days_in_non_compl_weeks <-
   number_of_weeks_for_non_compliancy * 7
 # 182
 
-grace_period = 7 #days
+grace_period = 7 # days
 
 half_year_ago <-
   data_file_date - days_in_non_compl_weeks - grace_period
@@ -223,37 +238,48 @@ get_data_path <-
   file.path(current_project_path, "egregious_violators_get_data.R")
 # get data for egregious violators
 # use from egregious_violators_start.R
-
-# 1) compliance data
-# Download files from FHIER / Reports / FHIER COMPLIANCE REPORT 
-# For the last 6 month
-# FHIER_Compliance_...csv
-
-# 2) correspondence data
-# Download files from FHIER / Home / Correspondence
-# Actions / Download 
-# For the whole period, starting 01/01/2021
-# "~\my_inputs\from_Fhier\Correspondence\Correspondence_2024_02_15.csv"
-
-# 3) processed Metrics tracking
-# For the last 6 month
-# SEFHIER_permitted_vessels_nonSRHS_YEAR.csv
-
-# 4) Physical Address List from FHIER
-# Downloaded from REPORTS / For-hire Primary Physical Address List
-# For the whole period, starting 01/01/2021
-# "For-hire Primary Physical Address List.csv"
-
-# 5) home port processed city and state from PIMS
-# "~\R_files_local\my_outputs\home_ports\vessels_from_pims_ports.csv"
-
-# 6) address information from Oracle db
-# "db_participants_address.rds"
-
-# 7) Previous results (from google drive)
-# ~\R_files_local\my_inputs\egregious_violators\egregious violators for investigation_DATES...xlsx"
 ```
 
+1) compliance data
+
+Download files from FHIER / Reports / FHIER COMPLIANCE REPORT 
+
+For the last 6 month
+
+FHIER_Compliance_...csv
+2) correspondence data
+
+Download files from FHIER / Home / Correspondence
+
+Actions / Download 
+
+For the whole period, starting 01/01/2021
+
+"~\my_inputs\from_Fhier\Correspondence\Correspondence_2024_02_15.csv"
+
+3) processed Metrics tracking
+
+For the last 6 month
+
+SEFHIER_permitted_vessels_nonSRHS_YEAR.csv
+
+4) Physical Address List from FHIER
+
+Downloaded from REPORTS / For-hire Primary Physical Address List
+
+For the whole period, starting 01/01/2021
+
+"For-hire Primary Physical Address List.csv"
+5) home port cleaned city and state from PIMS
+
+"~\R_files_local\my_outputs\home_ports\vessels_from_pims_ports.csv"
+6) address information from Oracle db
+
+"db_participants_address.rds"
+
+7) Previous results (from google drive)
+
+~\R_files_local\my_inputs\egregious_violators\egregious violators for investigation_DATES...xlsx"
 ## FHIER 
 
 ```{r FHIER}
@@ -264,9 +290,9 @@ get_data_path <-
 # permit info from processed metrics tracking
 
 # Download from FHIER first
-all_csv_names_list = c("Correspondence_2024_05_15.csv",
-                         r"(2024_05_15\FHIER_Compliance_2023__05_15_2024.csv)",
-                         r"(2024_05_15\FHIER_Compliance_2024__05_15_2024.csv)")
+all_csv_names_list = c("Correspondence_2024_06_17.csv",
+                         r"(2024_06_17\FHIER_Compliance_2023__06_17_2024.csv)",
+                         r"(2024_06_17\FHIER_Compliance_2024__06_17_2024.csv)")
 ```
 
 ### get compliance and correspondence csv data into variables 
@@ -410,7 +436,7 @@ dim(processed_metrics_tracking_permits)
 fhier_addresses_path <-
   file.path(
     my_paths$inputs,
-    r"(from_Fhier\address\For-hire Primary Physical Address List_05_15_2024.csv)"
+    r"(from_Fhier\address\For-hire Primary Physical Address List_06_17_2024.csv)"
   )
 
 file.exists(fhier_addresses_path)
@@ -438,13 +464,14 @@ dim(fhier_addresses)
 processed_pims_home_ports_path <-
   file.path(my_paths$outputs,
               "home_ports",
-              "vessels_from_pims_ports.csv")
+              "vessels_from_pims_ports_2024-06-18.csv")
+
+file.exists(processed_pims_home_ports_path)
 
 processed_pims_home_ports <- 
   readr::read_csv(processed_pims_home_ports_path)
 
 # View(processed_pims_home_ports)
-# View(vessels_from_pims) - more fields
 ```
 
 ## Oracle db 
@@ -651,8 +678,8 @@ db_participants_address_file_path <-
             current_project_name,
             "db_participants_address.rds")
  
-# dir.exists(file.path(my_paths$inputs,
-#             current_project_name))
+dir.exists(file.path(my_paths$inputs,
+            current_project_name))
 
 # err msg if no connection, but keep running
 if (!exists("con")) {
@@ -676,9 +703,66 @@ db_participants_address <-
   ) |>
   auxfunctions::remove_empty_cols() |>
   auxfunctions::clean_headers()
-# 2024-04-09 run for db_participants_address.rds: 52.22 sec elapsed
+# 2024-06-18 run for db_participants_address.rds: 33.32 sec elapsed
+```
 
-dim(db_participants_address)
+### Get vessels with changed owner 
+
+```{r Get vessels with changed owner}
+## Get vessels with changed owner ----
+permit_vessel_w_changed_owner_query <- 
+"SELECT
+  *
+FROM
+  udp.sero_oth_prm_period_his@secpr_dblk
+WHERE
+  top IN ( 'CHG', 'HCHG', 'HRCG', 'RCG', 'CHS',
+             'SC', 'CDW' )
+  AND ( expiration_date >= sysdate
+        OR end_date >= sysdate )
+  AND new_owner != prior_owner
+  AND new_owner != 0
+  AND prior_owner != 0
+"
+ 
+permit_vessel_w_changed_owner_file_path <-
+  file.path(my_paths$inputs,
+            current_project_name,
+            "permit_vessel_w_changed_owner.rds")
+ 
+dir.exists(file.path(my_paths$inputs,
+            current_project_name))
+
+# err msg if no connection, but keep running
+if (!exists("con")) {
+  try(con <- auxfunctions::connect_to_secpr())
+}
+
+permit_vessel_w_changed_owner_fun <-
+  function(permit_vessel_w_changed_owner) {
+    # browser()
+    return(dbGetQuery(con,
+                      permit_vessel_w_changed_owner))
+  }
+
+permit_vessel_w_changed_owner <-
+  auxfunctions::read_rds_or_run(
+    permit_vessel_w_changed_owner_file_path,
+    permit_vessel_w_changed_owner_query,
+    permit_vessel_w_changed_owner_fun
+    # ,
+    # force_from_db = "yes"
+  ) |>
+  auxfunctions::remove_empty_cols() |>
+  auxfunctions::clean_headers()
+
+dim(permit_vessel_w_changed_owner)
+# 75
+
+permit_vessel_w_changed_owner |> 
+  head() |> 
+  dplyr::glimpse() |>
+  knitr::kable(caption = "")
 ```
 
 ## Data from the previous results of "egregious violators for investigation" 
@@ -733,7 +817,7 @@ my_read_xlsx  <-  function(file_path, sheet_n, start_row = 1) {
 prev_result_path <- 
   file.path(my_paths$inputs,
             current_project_basename,
-            "egregious_violators_to_investigate_2024-04-10.xlsx")
+            "egregious_violators_to_investigate_2024-05-17.xlsx")
 
 file.exists(prev_result_path)
 
@@ -753,11 +837,12 @@ results <-
   c(
     "compl_clean",
     "corresp_contact_cnts_clean0",
-    "prev_result",
     "processed_metrics_tracking_permits",
     "fhier_addresses",
     "processed_pims_home_ports",
-    "db_participants_address"
+    "db_participants_address",
+    "permit_vessel_w_changed_owner",
+    "prev_result"
   )
 
 cat(c("Data are in:",
@@ -768,11 +853,11 @@ cat(c("Data are in:",
 # Data are in:
 # compl_clean
 # corresp_contact_cnts_clean0
-# prev_result
 # processed_metrics_tracking_permits
 # fhier_addresses
 # processed_pims_home_ports
 # db_participants_address
+# prev_result
 ```
 
 ## Preparing compliance info 
@@ -1059,8 +1144,11 @@ compl_clean_w_permit_exp_last_half_year__sa |>
       year_month < as.yearmon(data_file_date)
   ) |>
   nrow()
-# 0 OK!
+```
 
+0 OK!
+
+```{r}
 # Results: prepared Compliance is in compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present
 ```
 
@@ -1334,7 +1422,10 @@ compl_corr_to_investigation_short <-
 
 # print_df_names(compl_corr_to_investigation_short)
 
-compl_corr_to_investigation_short |> dplyr::glimpse()
+compl_corr_to_investigation_short |> 
+  head() |> 
+  dplyr::glimpse() |>
+  knitr::kable(caption = "")
 
 dim(compl_corr_to_investigation_short)
 ```
@@ -1423,7 +1514,8 @@ get_date_contacttype <-
       dplyr::group_by(vessel_official_number) |>
       # for each vessel id combine all date__contacttypes separated by comma in one cell
       dplyr::summarise(date__contacttypes =
-                         paste(date__contacttype, collapse = ", "))
+                         paste(date__contacttype, collapse = ", ")) |> 
+      dplyr::ungroup()
     
     return(res)
   }
@@ -1434,7 +1526,10 @@ date__contacttype_per_id <-
 
 dim(date__contacttype_per_id)
 
-dplyr::glimpse(date__contacttype_per_id)
+date__contacttype_per_id |>
+  head() |>
+  dplyr::glimpse() |>
+  knitr::kable(caption = "")
 ```
 
 ##### add the new column back 
@@ -1453,7 +1548,9 @@ compl_corr_to_investigation__corr_date <-
   
 # check
 compl_corr_to_investigation__corr_date |> 
-  dplyr::glimpse()
+  head() |> 
+  dplyr::glimpse() |>
+  knitr::kable(caption = "")
 ```
 
 #### add pims home port info 
@@ -2193,6 +2290,69 @@ dplyr::n_distinct(compl_corr_to_investigation_short_dup_marked__permit_region$ve
 region_counts$n[[1]] / (region_counts$n[[2]] + region_counts$n[[1]]) * 100
 ```
 
+### 5. Changed owner 
+
+```{r 5 Changed owner}
+## 5. Changed owner ----
+res_join_permit <-
+  dplyr::left_join(
+    compl_corr_to_investigation_short_dup_marked__permit_region,
+    permit_vessel_w_changed_owner,
+    dplyr::join_by(vessel_official_number == vessel_id)
+  )
+
+dim(permit_vessel_w_changed_owner)
+
+dim(res_join_permit)
+```
+
+#### keep only permit_status from permits 
+
+```{r keep only permit_status from permits}
+### keep only permit_status from permits ----
+res_join_permit_short <-
+  res_join_permit |>
+  dplyr::select(tidyselect::all_of(
+    names(
+      compl_corr_to_investigation_short_dup_marked__permit_region
+    )
+  ), permit_status) |>
+  dplyr::distinct()
+
+dim(res_join_permit_short)
+# 138
+
+n_distinct(res_join_permit_short$vessel_official_number)
+# 137
+```
+
+combine all permit_status
+
+```{r}
+compl_corr_to_investigation_short_dup_marked__permit_region__status <-
+  res_join_permit_short |>   
+  dplyr::group_by(vessel_official_number) |>
+  dplyr::mutate(permit_status_all =
+                     paste(permit_status, 
+                           collapse = ", "),
+                  .keep = c("unused")) |>
+  dplyr::ungroup() |> 
+  distinct()
+
+dim(compl_corr_to_investigation_short_dup_marked__permit_region__status)
+# 137 41
+```
+
+check
+
+```{r}
+compl_corr_to_investigation_short_dup_marked__permit_region__status |>
+  dplyr::filter(!is.na(permit_status_all) &
+           !permit_status_all == "NA") |>
+  dplyr::glimpse() |>
+  knitr::kable(caption = "")
+```
+
 ## Print out results 
 
 ```{r Print out results}
@@ -2225,7 +2385,8 @@ additional_column_name1 <-
 # 
 # This code effectively adds two new columns, "additional_column_name1" and "Notes", filled with NA values, to the dataframe.
 compl_corr_to_investigation_short_dup_marked__permit_region__add_columns <-
-  compl_corr_to_investigation_short_dup_marked__permit_region |>
+  # compl_corr_to_investigation_short_dup_marked__permit_region |>
+  compl_corr_to_investigation_short_dup_marked__permit_region__status |> 
   tibble::add_column(
     !!(additional_column_name1) := NA,
     Notes = NA,
@@ -2253,7 +2414,7 @@ result_path <-
             out_file_name)
 
 compl_corr_to_investigation_short_dup_marked__permit_region__add_columns |>
-readr::write_csv(result_path)
+  readr::write_csv(result_path)
 
 cat("Result:",
     "compl_corr_to_investigation_short_dup_marked__permit_region__add_columns",
