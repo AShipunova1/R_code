@@ -211,7 +211,7 @@ vessels_from_pims_double_bind <-
   dplyr::distinct() |> 
   dplyr::filter(!is.na(vessel_official_number))
 
-# View(vessels_from_pims_double_bind)
+dim(vessels_from_pims_double_bind)
 # [1] 23086     2
 
 ## Clean vessel home port punctuation ----
