@@ -687,6 +687,42 @@ dplyr::n_distinct(compl_corr_to_investigation_short_dup_marked__permit_region$ve
 
 region_counts$n[[1]] / (region_counts$n[[2]] + region_counts$n[[1]]) * 100
 
+## 5. Changed owner ----
+glimpse(compl_corr_to_investigation_short_dup_marked__permit_region)
+print_df_names(permit_vessel_w_changed_owner)
+
+res_join_permit <-
+  dplyr::left_join(
+    compl_corr_to_investigation_short_dup_marked__permit_region,
+    permit_vessel_w_changed_owner,
+    dplyr::join_by(vessel_official_number == vessel_id)
+  )
+
+dim(permit_vessel_w_changed_owner)
+
+dim(res_join_permit)
+
+compl_corr_to_investigation_short_dup_marked__permit_region__status <-
+  res_join_permit |>
+  select(all_of(
+    names(
+      compl_corr_to_investigation_short_dup_marked__permit_region
+    )
+  ), permit_status) |>
+  distinct()
+
+dim(compl_corr_to_investigation_short_dup_marked__permit_region__status)
+138
+
+n_distinct(compl_corr_to_investigation_short_dup_marked__permit_region__status$vessel_official_number)
+# 137
+
+compl_corr_to_investigation_short_dup_marked__permit_region__status |> 
+  group_by(vessel_official_number) |> 
+  mutate(numm = n()) |> 
+  filter(numm > 1) |> 
+  glimpse()
+
 # Print out results ----
 ## add additional columns in front ----
 
