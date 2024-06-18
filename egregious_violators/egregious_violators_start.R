@@ -560,7 +560,8 @@ get_date_contacttype <-
       dplyr::group_by(vessel_official_number) |>
       # for each vessel id combine all date__contacttypes separated by comma in one cell
       dplyr::summarise(date__contacttypes =
-                         paste(date__contacttype, collapse = ", "))
+                         paste(date__contacttype, collapse = ", ")) |> 
+      dplyr::ungroup()
     
     return(res)
   }
@@ -702,7 +703,8 @@ dim(permit_vessel_w_changed_owner)
 
 dim(res_join_permit)
 
-compl_corr_to_investigation_short_dup_marked__permit_region__status <-
+### keep only permit_status from permits ----
+res_join_permit_short <-
   res_join_permit |>
   select(all_of(
     names(
@@ -711,16 +713,29 @@ compl_corr_to_investigation_short_dup_marked__permit_region__status <-
   ), permit_status) |>
   distinct()
 
-dim(compl_corr_to_investigation_short_dup_marked__permit_region__status)
-138
+dim(res_join_permit_short)
+# 138
 
-n_distinct(compl_corr_to_investigation_short_dup_marked__permit_region__status$vessel_official_number)
+n_distinct(res_join_permit_short$vessel_official_number)
 # 137
 
-compl_corr_to_investigation_short_dup_marked__permit_region__status |> 
-  group_by(vessel_official_number) |> 
-  mutate(numm = n()) |> 
-  filter(numm > 1) |> 
+compl_corr_to_investigation_short_dup_marked__permit_region__status <-
+  res_join_permit_short |>   
+  dplyr::group_by(vessel_official_number) |>
+  dplyr::mutate(permit_status_all =
+                     paste(permit_status, 
+                           collapse = ", "),
+                  .keep = c("unused")) |>
+  dplyr::ungroup() |> 
+  distinct()
+
+dim(compl_corr_to_investigation_short_dup_marked__permit_region__status)
+# 137 41
+
+#' check
+compl_corr_to_investigation_short_dup_marked__permit_region__status |>
+  filter(!is.na(permit_status_all) &
+           !permit_status_all == "NA") |>
   glimpse()
 
 # Print out results ----
