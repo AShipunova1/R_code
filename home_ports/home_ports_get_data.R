@@ -40,14 +40,14 @@ get_xlsx_data_pims <-
   }
 
 convert_to_dates <-
-  function(my_df) {
+  function(my_df, ymd_format = c("Ymd", "mdY")) {
     # browser()
     my_df_w_dates <-
       my_df |>
       dplyr::mutate(dplyr::across(
         tidyselect::where(is.character) &
           (tidyselect::ends_with("date")),
-        ~ lubridate::parse_date_time(.x, orders = c("mdY"))
+        ~ lubridate::parse_date_time(.x, orders = ymd_format)
       ))
     return(my_df_w_dates)
   }
