@@ -244,3 +244,4 @@ grep("  +",
      vessels_from_pims_ok$hailing_port,
      value = T)
 # 0
+

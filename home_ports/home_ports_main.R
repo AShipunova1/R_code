@@ -224,7 +224,7 @@ vessels_from_pims_split_addr__city_state <-
              sep = "#"
            ))
 
-## check numbers in an address ----
+## check numbers in an address again ----
 vessels_from_pims_split_addr__city_state |>
   filter(grepl("\\d", city_state)) |> 
   select(city_state) |> 
@@ -239,6 +239,7 @@ vessels_from_pims_split_addr__city_state |>
 # 8 22411 GENO LANE#AL     
 # 9 117 HAWK LANDING LN#GA 
 
+#' extra commas in city, state 
 vessels_from_pims_split_addr__city_state |>
   filter(grepl(",", city_state)) |> 
   select(city_state)
@@ -497,6 +498,7 @@ vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__no_addr <-
 
 nrow(vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__no_addr)
 # 6
+# 0
 
 # no state
 vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__no_state <-
@@ -534,6 +536,7 @@ vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short |>
   dplyr::filter(n > 1) |>
   nrow()
 # 0, ok
+# 3
 
 # print out ----
 out_dir <- file.path(my_paths$outputs,
@@ -542,7 +545,7 @@ out_dir <- file.path(my_paths$outputs,
 dir.create(out_dir)
 
 out_path <- file.path(out_dir,
-            "vessels_from_pims_ports.csv")
+            stringr::str_glue("vessels_from_pims_ports_{lubridate::today()}.csv"))
 
 readr::write_csv(
   vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short,
