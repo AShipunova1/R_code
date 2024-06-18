@@ -145,13 +145,14 @@ dim(fhier_addresses)
 processed_pims_home_ports_path <-
   file.path(my_paths$outputs,
               "home_ports",
-              "vessels_from_pims_ports.csv")
+              "vessels_from_pims_ports_2024-06-18.csv")
+
+file.exists(processed_pims_home_ports_path)
 
 processed_pims_home_ports <- 
   readr::read_csv(processed_pims_home_ports_path)
 
 # View(processed_pims_home_ports)
-# View(vessels_from_pims) - more fields
 
 # Oracle db ----
 ## get owners addresses ----
@@ -165,8 +166,8 @@ db_participants_address_file_path <-
             current_project_name,
             "db_participants_address.rds")
  
-# dir.exists(file.path(my_paths$inputs,
-#             current_project_name))
+dir.exists(file.path(my_paths$inputs,
+            current_project_name))
 
 # err msg if no connection, but keep running
 if (!exists("con")) {
@@ -184,13 +185,12 @@ db_participants_address <-
   auxfunctions::read_rds_or_run(
     db_participants_address_file_path,
     db_participants_address_query,
-    db_participants_address_fun
-    # ,
-    # force_from_db = "yes"
+    db_participants_address_fun,
+    force_from_db = "yes"
   ) |>
   auxfunctions::remove_empty_cols() |>
   auxfunctions::clean_headers()
-# 2024-04-09 run for db_participants_address.rds: 52.22 sec elapsed
+# 2024-06-18 run for db_participants_address.rds: 33.32 sec elapsed
 
 dim(db_participants_address)
 
@@ -201,7 +201,7 @@ dim(db_participants_address)
 prev_result_path <- 
   file.path(my_paths$inputs,
             current_project_basename,
-            "egregious_violators_to_investigate_2024-04-10.xlsx")
+            "egregious_violators_to_investigate_2024-05-17.xlsx")
 
 file.exists(prev_result_path)
 
@@ -217,11 +217,11 @@ results <-
   c(
     "compl_clean",
     "corresp_contact_cnts_clean0",
-    "prev_result",
     "processed_metrics_tracking_permits",
     "fhier_addresses",
     "processed_pims_home_ports",
-    "db_participants_address"
+    "db_participants_address",
+    "prev_result"
   )
 
 cat(c("Data are in:",
