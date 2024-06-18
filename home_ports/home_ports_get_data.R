@@ -56,8 +56,9 @@ convert_to_dates <-
 
 vessel_names_file_path <-
   file.path(my_paths$inputs,
-            r"(from_PIMS\Vessels - 2024-05-16_1118.xlsx)")
-            # r"(from PIMS\Vessels - 2024-02-28_0930.xlsx)")
+            r"(from_PIMS\Vessels - 2024-06-18_0838.xlsx)")
+
+file.exists(vessel_names_file_path)
 
 # file.exists(vessel_names_file_path)
 vessels_from_pims <- 
@@ -90,7 +91,7 @@ vessels_from_pims <-
 # upload permits from pims ----
 permits_names_file_path <-
   file.path(my_paths$inputs,
-            r"(from_PIMS\Permits - 2024-05-16_1117.xlsx)")
+            r"(from_PIMS\Permits - 2024-06-18_0839.xlsx)")
 
 file.exists(permits_names_file_path)
 permits_from_pims <- 
