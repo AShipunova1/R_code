@@ -96,11 +96,11 @@ source(get_data_path)
 # Data are in:
 # compl_clean
 # corresp_contact_cnts_clean0
-# prev_result
 # processed_metrics_tracking_permits
 # fhier_addresses
 # processed_pims_home_ports
 # db_participants_address
+# prev_result
 
 # Preparing compliance info ----
 
@@ -289,7 +289,7 @@ compl_clean_w_permit_exp_last_half_year__sa |>
       year_month < as.yearmon(data_file_date)
   ) |>
   nrow()
-# 0 OK!
+#' 0 OK!
 
 # Results: prepared Compliance is in compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present
 
@@ -512,7 +512,9 @@ compl_corr_to_investigation_short <-
 
 # print_df_names(compl_corr_to_investigation_short)
 
-compl_corr_to_investigation_short |> dplyr::glimpse()
+compl_corr_to_investigation_short |> 
+  head() |> 
+  dplyr::glimpse()
 
 dim(compl_corr_to_investigation_short)
 
@@ -569,7 +571,9 @@ date__contacttype_per_id <-
 
 dim(date__contacttype_per_id)
 
-dplyr::glimpse(date__contacttype_per_id)
+date__contacttype_per_id |>
+  head() |>
+  dplyr::glimpse()
 
 #### add the new column back ----
 compl_corr_to_investigation__corr_date <-
@@ -584,6 +588,7 @@ compl_corr_to_investigation__corr_date <-
   
 # check
 compl_corr_to_investigation__corr_date |> 
+  head() |> 
   dplyr::glimpse()
 
 ### add pims home port info ----
