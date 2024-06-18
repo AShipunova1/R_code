@@ -185,8 +185,9 @@ db_participants_address <-
   auxfunctions::read_rds_or_run(
     db_participants_address_file_path,
     db_participants_address_query,
-    db_participants_address_fun,
-    force_from_db = "yes"
+    db_participants_address_fun
+    # ,
+    # force_from_db = "yes"
   ) |>
   auxfunctions::remove_empty_cols() |>
   auxfunctions::clean_headers()
@@ -232,8 +233,9 @@ permit_vessel_w_changed_owner <-
   auxfunctions::read_rds_or_run(
     permit_vessel_w_changed_owner_file_path,
     permit_vessel_w_changed_owner_query,
-    permit_vessel_w_changed_owner_fun,
-    force_from_db = "yes"
+    permit_vessel_w_changed_owner_fun
+    # ,
+    # force_from_db = "yes"
   ) |>
   auxfunctions::remove_empty_cols() |>
   auxfunctions::clean_headers()
@@ -243,7 +245,7 @@ dim(permit_vessel_w_changed_owner)
 
 permit_vessel_w_changed_owner |> 
   head() |> 
-  glimpse()
+  dplyr::glimpse()
 
 # Data from the previous results of "egregious violators for investigation" ----
 # Download first as .xlsx
