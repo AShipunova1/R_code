@@ -193,50 +193,25 @@ db_participants_address <-
 # 2024-06-18 run for db_participants_address.rds: 33.32 sec elapsed
 
 ## Get vessels with changed owner ----
-vessels_w_changed_owner_query <- 
+permit_vessel_w_changed_owner_query <- 
 "SELECT
-
-
-      v.sero_home_port_city,
-      v.sero_home_port_county,
-      v.sero_home_port_state,
-      v.sero_official_number,
-      v.coast_guard_nbr,
-      v.event_id,
-      v.hull_id_nbr,
-      v.owner_id,
-      v.state_reg_nbr,
-      v.status,
-      v.supplier_vessel_id,
-      v.ue,
-      v.vessel_id v_vessel_id,
-      v.vessel_name,
-      p.effective_date,
-      p.end_date,
-      p.entity_id,
-      p.expiration_date,
-      p.new_owner,
-      p.permit,
-      p.permit_status,
-      p.prior_owner,
-      p.vessel_alt_num,
-      p.vessel_id p_vessel_id
-    FROM
-
-           udp.sero_oth_prm_period_his@secpr_dblk p
-      JOIN safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
-      ON (p.vessel_id = sero_official_number)
-  WHERE
-  p.top IN ('CHG', 'HCHG', 'HRCG', 'RCG', 'CHS', 'SC', 'CDW')
-  AND (p.expiration_date >=  sysdate
-        OR p.end_date >= sysdate)
+  *
+FROM
+  udp.sero_oth_prm_period_his@secpr_dblk
+WHERE
+  top IN ( 'CHG', 'HCHG', 'HRCG', 'RCG', 'CHS',
+             'SC', 'CDW' )
+  AND ( expiration_date >= sysdate
+        OR end_date >= sysdate )
   AND new_owner != prior_owner
+  AND new_owner != 0
+  AND prior_owner != 0
 "
  
-vessels_w_changed_owner_file_path <-
+permit_vessel_w_changed_owner_file_path <-
   file.path(my_paths$inputs,
             current_project_name,
-            "vessels_w_changed_owner.rds")
+            "permit_vessel_w_changed_owner.rds")
  
 dir.exists(file.path(my_paths$inputs,
             current_project_name))
@@ -246,31 +221,30 @@ if (!exists("con")) {
   try(con <- auxfunctions::connect_to_secpr())
 }
 
-vessels_w_changed_owner_fun <-
-  function(vessels_w_changed_owner) {
+permit_vessel_w_changed_owner_fun <-
+  function(permit_vessel_w_changed_owner) {
     # browser()
     return(dbGetQuery(con,
-                      vessels_w_changed_owner))
+                      permit_vessel_w_changed_owner))
   }
 
-vessels_w_changed_owner <-
+permit_vessel_w_changed_owner <-
   auxfunctions::read_rds_or_run(
-    vessels_w_changed_owner_file_path,
-    vessels_w_changed_owner_query,
-    vessels_w_changed_owner_fun,
+    permit_vessel_w_changed_owner_file_path,
+    permit_vessel_w_changed_owner_query,
+    permit_vessel_w_changed_owner_fun,
     force_from_db = "yes"
   ) |>
   auxfunctions::remove_empty_cols() |>
   auxfunctions::clean_headers()
 
-# vessels_w_changed_owner |> 
-#   filter(!is.na(new_owner) &
-#            !is.na(prior_owner) &
-#            !new_owner == 0 &
-#            !prior_owner == 0 &
-#            !is.na(entity_id)) |> 
-#   View()
-  
+dim(permit_vessel_w_changed_owner)
+# 75
+
+permit_vessel_w_changed_owner |> 
+  head() |> 
+  glimpse()
+
 # Data from the previous results of "egregious violators for investigation" ----
 # Download first as .xlsx
 
