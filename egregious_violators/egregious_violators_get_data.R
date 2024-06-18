@@ -55,9 +55,9 @@
 # permit info from processed metrics tracking
 
 # Download from FHIER first
-all_csv_names_list = c("Correspondence_2024_05_15.csv",
-                         r"(2024_05_15\FHIER_Compliance_2023__05_15_2024.csv)",
-                         r"(2024_05_15\FHIER_Compliance_2024__05_15_2024.csv)")
+all_csv_names_list = c("Correspondence_2024_06_17.csv",
+                         r"(2024_06_17\FHIER_Compliance_2023__06_17_2024.csv)",
+                         r"(2024_06_17\FHIER_Compliance_2024__06_17_2024.csv)")
 
 ## get compliance and correspondence csv data into variables ----
 from_fhier_data_path <-
@@ -126,7 +126,7 @@ dim(processed_metrics_tracking_permits)
 fhier_addresses_path <-
   file.path(
     my_paths$inputs,
-    r"(from_Fhier\address\For-hire Primary Physical Address List_05_15_2024.csv)"
+    r"(from_Fhier\address\For-hire Primary Physical Address List_06_17_2024.csv)"
   )
 
 file.exists(fhier_addresses_path)
