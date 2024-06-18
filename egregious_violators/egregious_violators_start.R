@@ -719,6 +719,7 @@ dim(res_join_permit_short)
 n_distinct(res_join_permit_short$vessel_official_number)
 # 137
 
+#' combine all permit_status
 compl_corr_to_investigation_short_dup_marked__permit_region__status <-
   res_join_permit_short |>   
   dplyr::group_by(vessel_official_number) |>
@@ -737,6 +738,17 @@ compl_corr_to_investigation_short_dup_marked__permit_region__status |>
   filter(!is.na(permit_status_all) &
            !permit_status_all == "NA") |>
   glimpse()
+
+
+old_res <-
+  readr::read_csv(
+    r"(C:\Users\anna.shipunova\Downloads\Egregious Violators Current - egregious_violators_to_investigate_2024-06-18.csv)",
+    col_types = readr::cols(.default = 'c')
+  )
+
+diffdf::diffdf(old_res,
+               compl_corr_to_investigation_short_dup_marked__permit_region__add_columns)
+
 
 # Print out results ----
 ## add additional columns in front ----
@@ -762,7 +774,8 @@ additional_column_name1 <-
 # 
 # This code effectively adds two new columns, "additional_column_name1" and "Notes", filled with NA values, to the dataframe.
 compl_corr_to_investigation_short_dup_marked__permit_region__add_columns <-
-  compl_corr_to_investigation_short_dup_marked__permit_region |>
+  # compl_corr_to_investigation_short_dup_marked__permit_region |>
+  compl_corr_to_investigation_short_dup_marked__permit_region__status |> 
   tibble::add_column(
     !!(additional_column_name1) := NA,
     Notes = NA,
