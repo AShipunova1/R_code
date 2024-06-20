@@ -1,17 +1,18 @@
 #' %%%%% Set Up
 #' 
 
-# Read me
-# 1) NO reports for all 26 weeks back from week ago today;
-# 2) permits have not expired and were active for the same period as (1);
-# 3) the grace period is 7 days back from today.
-# 4) It needs to be that we called at least 1 time and emailed at least 1 time. Or they contacted us at least once.
-# 5) not counting any correspondence (regardless of the type - email/call, voicemail or not) that includes "No contact made" in the text of the entry as a actual "direct" contact for any egregious vessel (May 6 2024)
+#' Read me
+#' 1) NO reports for all 26 weeks back from week ago today;
+#' 2) permits have not expired and were active for the same period as (1);
+#' 3) the grace period is 7 days back from today.
+#' 4) It needs to be that we called at least 1 time and emailed at least 1 time. Or they contacted us at least once.
+#' 5) not counting any correspondence (regardless of the type - email/call, voicemail or not) that includes "No contact made" in the text of the entry as a actual "direct" contact for any egregious vessel (May 6 2024)
 
-# NB. Update (download) all input files every time before run.
+#' NB. Update (download) all input files every time before run.
+#' 
 
 # set up ----
-# Get common functions
+#' Get common functions
 # source("~/R_code_github/useful_functions_module.r")
 # install.packages("~/R_code_github/auxfunctions_1.0.tar.gz",
 #                  repos = NULL,
@@ -72,7 +73,7 @@ half_year_ago <-
   data_file_date - days_in_non_compl_weeks - grace_period
 # [1] "2023-10-04"
 
-# check week and day of the period's start
+#' check week and day of the period's start
 # week("2023-10-04") 
 # 40
 
@@ -80,7 +81,7 @@ half_year_ago <-
 #      label = T)
 # Wed
 
-# 30 days from today
+#' 30 days from today
 permit_expired_check_date <- data_file_date + 30
 
 last_week_start <- data_file_date - grace_period
@@ -93,23 +94,24 @@ get_data_path <-
   file.path(current_project_path, "egregious_violators_get_data.R")
 source(get_data_path)
 
-# Data are in:
-# compl_clean
-# corresp_contact_cnts_clean0
-# processed_metrics_tracking_permits
-# fhier_addresses
-# processed_pims_home_ports
-# db_participants_address
-# prev_result
+#' Data are in:
+#' compl_clean
+#' corresp_contact_cnts_clean0
+#' processed_metrics_tracking_permits
+#' fhier_addresses
+#' processed_pims_home_ports
+#' db_participants_address
+#' prev_result
+#' 
 
 # Preparing compliance info ----
 
 ## Permit Expiration ----
 ### add permit_expired column ----
-# Explanations:
-# 1. Add a new column 'permit_expired' using 'mutate'.
-# 2. Use 'case_when' to determine if 'permit_groupexpiration' is greater than permit_expired_check_date.
-# 3. If true, set 'permit_expired' to "no", otherwise set it to "yes".
+#' Explanations:
+#' 1. Add a new column 'permit_expired' using 'mutate'.
+#' 2. Use 'case_when' to determine if 'permit_groupexpiration' is greater than permit_expired_check_date.
+#' 3. If true, set 'permit_expired' to "no", otherwise set it to "yes".
 
 compl_clean_w_permit_exp <-
   compl_clean |>
@@ -157,7 +159,7 @@ dim(compl_clean_w_permit_exp)
 dim(compl_clean_w_permit_exp_last_half_year)
 
 ## Have only SA and dual permits ----
-# Use 'filter' to select rows where 'permitgroup' contains "CDW", "CHS", or "SC".
+#' Use 'filter' to select rows where 'permitgroup' contains "CDW", "CHS", or "SC".
 compl_clean_w_permit_exp_last_half_year__sa <-
   compl_clean_w_permit_exp_last_half_year |>
   dplyr::filter(grepl("CDW|CHS|SC", permitgroup))
@@ -187,9 +189,9 @@ remove_columns <- c(
   "permit_expired"
 )
 
-# Explanations:
-# 1. Use 'select' to remove columns specified in 'remove_columns'.
-# 2. Use 'distinct' to keep only unique rows in the resulting data frame.
+#' Explanations:
+#' 1. Use 'select' to remove columns specified in 'remove_columns'.
+#' 2. Use 'distinct' to keep only unique rows in the resulting data frame.
 compl_clean_w_permit_exp_last_half_year__sa__short <-
   compl_clean_w_permit_exp_last_half_year__sa |>
   dplyr::select(-tidyselect::any_of(remove_columns)) |> 
@@ -197,7 +199,9 @@ compl_clean_w_permit_exp_last_half_year__sa__short <-
 
 dim(compl_clean_w_permit_exp_last_half_year__sa__short)
 
-## work with the whole period ----
+#' Work with the whole period
+#' 
+
 ## add compliant_after_overr ----
 
 tictoc::tic("compl_overr")
@@ -208,7 +212,7 @@ compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr <-
 tictoc::toc()
 # compl_overr: 8.76 sec elapsed
 
-# check
+#' check
 compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr |> 
   dplyr::select(compliant_, overridden_, compliant_after_override) |>
   dplyr::count(compliant_, overridden_, compliant_after_override)
@@ -218,14 +222,14 @@ compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr |>
 # 2 NO         YES         yes                         70
 # 3 YES        NO          yes                      29628
 
-# check
+#' check
 compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr$compliant_after_override |> 
   unique()
 # [1] "yes" "no" 
 
 dim(compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr)
 
-# check
+#' check
 dplyr::n_distinct(compl_clean_w_permit_exp_last_half_year__sa$vessel_official_number) ==
   dplyr::n_distinct(
     compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr$vessel_official_number
@@ -247,11 +251,11 @@ all_weeks_num <-
   dplyr::distinct() |>
   nrow()
 
-# Explanations:
-# 1. Group the data frame by 'vessel_official_number'.
-# 2. Filter the groups based on the condition that the number of distinct weeks is greater than or equal to 'all_weeks_num'.
-# 3. Remove the grouping from the data frame.
-# 4. Exclude the 'week' column from the resulting data frame, we don't need it anymore.
+#' Explanations:
+#' 1. Group the data frame by 'vessel_official_number'.
+#' 2. Filter the groups based on the condition that the number of distinct weeks is greater than or equal to 'all_weeks_num'.
+#' 3. Remove the grouping from the data frame.
+#' 4. Exclude the 'week' column from the resulting data frame, we don't need it anymore.
 
 compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present <-
   compl_clean_w_permit_exp_last_half_year__sa_non_c |>
@@ -291,40 +295,45 @@ compl_clean_w_permit_exp_last_half_year__sa |>
   nrow()
 #' 0 OK!
 
-# Results: prepared Compliance is in compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present
+#' Results: prepared Compliance is in compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present
+#' 
 
 # Preparing Correspondence ----
 
 ## remove 999999 ----
-# Explanations:
-# Create a new data frame 'corresp_contact_cnts_clean' by filtering 'corresp_contact_cnts_clean0' based on the condition.
-# 1. Use 'filter' to select rows where 'vessel_official_number' does not start with "99999".
+#' Explanations:
+#' Create a new data frame 'corresp_contact_cnts_clean' by filtering 'corresp_contact_cnts_clean0' based on the condition.
+#' 1. Use 'filter' to select rows where 'vessel_official_number' does not start with "99999".
+#' 
 corresp_contact_cnts_clean <-
   corresp_contact_cnts_clean0 |>
   dplyr::filter(!grepl("^99999", vessel_official_number))
 
 dplyr::n_distinct(corresp_contact_cnts_clean$vesselofficial_number)
 
-# "2023-08-09"
-# Michelle
-# It should be at least 2 contact "attempts". i.e., if they are ignoring our calls and emails then they cannot continue to go on in perpetuity without reporting and never be seen as egregious. So, at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough at this point and they need to be passed to OLE.
+#' "2023-08-09"
+#' Michelle
+#' It should be at least 2 contact "attempts". i.e., if they are ignoring our calls and emails then they cannot continue to go on in perpetuity without reporting and never be seen as egregious. So, at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough at this point and they need to be passed to OLE.
+#' 
 
 ## new requirement 2023-08-09 ----
-# at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough
+#' at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough
+#' 
 
 ## new requirement 2024-02-26 ----
-# It needs to be that we called at least 1 time and emailed at least 1 time. Or they contacted us at least once.
+#' It needs to be that we called at least 1 time and emailed at least 1 time. Or they contacted us at least once.
+#' 
 
 ## new requirement 2024-05-06 ----
-# Exclude any correspondence (regardless of the type - email/call, voicemail or not) that includes "No contact made" in the text of the entry as a actual "direct" contact for any egregious vessel.
+#' Exclude any correspondence (regardless of the type - email/call, voicemail or not) that includes "No contact made" in the text of the entry as a actual "direct" contact for any egregious vessel.
 
-# check
+#' check
 corresp_contact_cnts_clean |>
   dplyr::select(calltype, voicemail, contacttype) |>
   dplyr::distinct() |> head(10)
 
 ## Filters ----
-# The functions below are creating filter conditions using quosures. Quosures are a part of tidy evaluation in R, allowing expressions to be captured without evaluation, which is useful for creating functions with flexible inputs.
+#' The functions below are creating filter conditions using quosures. Quosures are a part of tidy evaluation in R, allowing expressions to be captured without evaluation, which is useful for creating functions with flexible inputs.
 
 we_called_filter <-
   dplyr::quo(any(tolower(contacttype) == "call" &
@@ -336,20 +345,21 @@ we_emailed_once_filter <-
       tolower(calltype) == "outgoing"
   ))
 
-# Explanations:
-# 
-# **Expression inside quo()**:
-#    - `!grepl("No contact made", contactcomments, ignore.case = TRUE)`: This expression is a negation of the `grepl` function, which is used to search for a pattern ("No contact made") in the `contactcomments` column.
-#    - `grepl()` returns `TRUE` for each element of `contactcomments` that contains the pattern, and `FALSE` otherwise.
-#    - The `!` operator negates the result, so the filter condition will be `TRUE` for rows where "No contact made" is not found in the `contactcomments` column.
-# 
-# The `exclude_no_contact_made_filter` function effectively creates a filter condition that can be used to exclude rows where "No contact made" is found in the `contactcomments` column when applied to a dataset.
+#' Explanations:
+#' 
+#' **Expression inside quo()**:
+#'    - `!grepl("No contact made", contactcomments, ignore.case = TRUE)`: This expression is a negation of the `grepl` function, which is used to search for a pattern ("No contact made") in the `contactcomments` column.
+#'    - `grepl()` returns `TRUE` for each element of `contactcomments` that contains the pattern, and `FALSE` otherwise.
+#'    - The `!` operator negates the result, so the filter condition will be `TRUE` for rows where "No contact made" is not found in the `contactcomments` column.
+#' 
+#' The `exclude_no_contact_made_filter` function effectively creates a filter condition that can be used to exclude rows where "No contact made" is found in the `contactcomments` column when applied to a dataset.
+#' 
 exclude_no_contact_made_filter <-
   dplyr::quo(!grepl("No contact made", 
             contactcomments, 
             ignore.case = TRUE))
 
-# don't need a second contact
+#' don't need a second contact
 they_contacted_direct_filter <-
   dplyr::quo(
     any(
@@ -389,16 +399,16 @@ dim(corresp_contact_cnts_clean_direct_cnt_2atmps)
 dplyr::n_distinct(corresp_contact_cnts_clean_direct_cnt_2atmps$vesselofficial_number)
 
 ## fix dates ----
-# check
+#' check
 head(corresp_contact_cnts_clean_direct_cnt_2atmps$contact_date, 1) |> str()
  # chr "02/15/2024 03:15PM"
 
-# Explanations:
-# Mutate new columns 'created_on_dttm' and 'contact_date_dttm' by parsing 'created_on' and 'contact_date' using lubridate package.
-# The date-time formats considered are "mdY R".
-# 1. Use the pipe operator to pass 'corresp_contact_cnts_clean_direct_cnt_2atmps' as the left-hand side of the next expression.
-# 2. Use 'mutate' to create new columns with parsed date-time values.
-# 3. Use 'lubridate::parse_date_time' to parse the date-time values using the specified formats.
+#' Explanations:
+#' Mutate new columns 'created_on_dttm' and 'contact_date_dttm' by parsing 'created_on' and 'contact_date' using lubridate package.
+#' The date-time formats considered are "mdY R".
+#' 1. Use the pipe operator to pass 'corresp_contact_cnts_clean_direct_cnt_2atmps' as the left-hand side of the next expression.
+#' 2. Use 'mutate' to create new columns with parsed date-time values.
+#' 3. Use 'lubridate::parse_date_time' to parse the date-time values using the specified formats.
 
 corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates <-
   corresp_contact_cnts_clean_direct_cnt_2atmps |>
@@ -411,21 +421,22 @@ corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates <-
                                  c("mdY R"))
   )
 
-# check
+#' check
 str(corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates$contact_date_dttm)
 # POSIXct[1:29089], format: "2024-02-15 15:15:00" 
 
-# preprared Correspondence is in 
-# corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates
+#' preprared Correspondence is in 
+#' corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates
+#' 
 
 # Join correspondence with compliance ----
-# Explanations:
-# Create a new dataframe 'compl_corr_to_investigation' by performing an inner join between
-# 'correspondence' and 'compliance'.
-# The join is performed on the column 'vessel_official_number'.
-# Use 'multiple = "all"' and 'relationship = "many-to-many"' to handle multiple matches during the join.
-# 1. Use the 'inner_join' function from the dplyr package to combine the two dataframes based on the specified columns.
-# 2. Pass the column names and other parameters to the 'by', 'multiple', and 'relationship' arguments.
+#' Explanations:
+#' Create a new dataframe 'compl_corr_to_investigation' by performing an inner join between
+#' 'correspondence' and 'compliance'.
+#' The join is performed on the column 'vessel_official_number'.
+#' Use 'multiple = "all"' and 'relationship = "many-to-many"' to handle multiple matches during the join.
+#' 1. Use the 'inner_join' function from the dplyr package to combine the two dataframes based on the specified columns.
+#' 2. Pass the column names and other parameters to the 'by', 'multiple', and 'relationship' arguments.
 
 compl_corr_to_investigation <-
   dplyr::inner_join(
@@ -438,7 +449,7 @@ compl_corr_to_investigation <-
 
 dim(compl_corr_to_investigation)
 
-# check
+#' check
 dplyr::n_distinct(compl_corr_to_investigation$vesselofficial_number)
 
 # View(compl_corr_to_investigation)
@@ -447,22 +458,24 @@ dplyr::n_distinct(compl_corr_to_investigation$vesselofficial_number)
 num_of_vsl_to_investigate <- 
   dplyr::n_distinct(compl_corr_to_investigation$vesselofficial_number)
 
-# Results: Compl & corresondence together are in
-# compl_corr_to_investigation
+#' Results: Compl & corresondence together are in
+#' compl_corr_to_investigation
+#' 
 
 # output needed investigation ----
 #' %%%%% Prepare output
 #' 
-# 1. remove unused columns
-# 2. create additional columns
-# 3. mark vessels already in the know list (prev_result)
-# 4. duals vs. sa_only
+#' 1. remove unused columns
+#' 2. create additional columns
+#' 3. mark vessels already in the know list (prev_result)
+#' 4. duals vs. sa_only
+#' 
 
 ## 1. remove extra columns ----
 
-# Explanations:
-# Group the dataframe by the 'vessel_official_number' column and then apply the 'summarise_all' function.
-# The 'summarise_all' function applies the specified function (in this case, 'concat_unique') to each column.
+#' Explanations:
+#' Group the dataframe by the 'vessel_official_number' column and then apply the 'summarise_all' function.
+#' The 'summarise_all' function applies the specified function (in this case, 'concat_unique') to each column.
 
 colnames(compl_corr_to_investigation) |> 
   cat(sep = '",\n"')
@@ -496,11 +509,11 @@ unused_fields <- c(
   # "permit_groupexpiration",
   "compliant_after_override")
 
-# Explanations:
-# 1. Exclude columns specified in 'unused_fields' from the data frame.
-# 2. Group the data frame by 'vessel_official_number'.
-# 3. Apply the custom function 'concat_unique' to all columns to concatenate unique non-missing values into a single string.
-# 4. Remove the grouping from the data frame.
+#' Explanations:
+#' 1. Exclude columns specified in 'unused_fields' from the data frame.
+#' 2. Group the data frame by 'vessel_official_number'.
+#' 3. Apply the custom function 'concat_unique' to all columns to concatenate unique non-missing values into a single string.
+#' 4. Remove the grouping from the data frame.
 
 compl_corr_to_investigation_short <-
   compl_corr_to_investigation |>
@@ -519,9 +532,9 @@ compl_corr_to_investigation_short |>
 dim(compl_corr_to_investigation_short)
 
 ## 2. create additional columns ----
-### add list of contact dates and contact type in parentheses  -----
+### add list of contact dates and contact type in parentheses  ----
 
-# put names into vars (needed, bc spaces and underscores placements vary from source to source)
+#' put names into vars (needed, bc spaces and underscores placements vary from source to source)
 contactdate_field_name <-
   auxfunctions::find_col_name(compl_corr_to_investigation_short, "contact", "date")[1]
 
@@ -531,16 +544,16 @@ contacttype_field_name <-
 contactphonenumber_field_name <-
   auxfunctions::find_col_name(compl_corr_to_investigation_short, ".*contact", "number.*")[1]
 
-# Explanations:
-# Define a function 'get_date_contacttype' that takes a dataframe 'compl_corr_to_investigation' as input.
-# Perform several data manipulation steps to extract and organize relevant information.
-# 1. Add a new column 'date__contacttype' by concatenating the values from 'contactdate_field_name' and 'contacttype'.
-# 2. Select only the 'vessel_official_number' and 'date__contacttype' columns.
-# 3. Arrange the dataframe by 'vessel_official_number' and 'date__contacttype'.
-# 4. Keep distinct rows based on 'vessel_official_number' and 'date__contacttype'.
-# 5. Group the dataframe by 'vessel_official_number'.
-# 6. Summarize the data by creating a new column 'date__contacttypes' that concatenates all 'date__contacttype' values for each vessel separated by a comma.
-# 7. Return the resulting dataframe.
+#' Explanations:
+#' Define a function 'get_date_contacttype' that takes a dataframe 'compl_corr_to_investigation' as input.
+#' Perform several data manipulation steps to extract and organize relevant information.
+#' 1. Add a new column 'date__contacttype' by concatenating the values from 'contactdate_field_name' and 'contacttype'.
+#' 2. Select only the 'vessel_official_number' and 'date__contacttype' columns.
+#' 3. Arrange the dataframe by 'vessel_official_number' and 'date__contacttype'.
+#' 4. Keep distinct rows based on 'vessel_official_number' and 'date__contacttype'.
+#' 5. Group the dataframe by 'vessel_official_number'.
+#' 6. Summarize the data by creating a new column 'date__contacttypes' that concatenates all 'date__contacttype' values for each vessel separated by a comma.
+#' 7. Return the resulting dataframe.
 get_date_contacttype <-
   function(my_df) {
   
@@ -566,7 +579,7 @@ get_date_contacttype <-
     return(res)
   }
 
-# use the function
+#' use the function
 date__contacttype_per_id <-
   get_date_contacttype(compl_corr_to_investigation_short)
 
@@ -587,13 +600,12 @@ compl_corr_to_investigation__corr_date <-
     contacttype_field_name
   )))
   
-# check
+#' check
 compl_corr_to_investigation__corr_date |> 
   head() |> 
   dplyr::glimpse()
 
 ### add pims home port info ----
-# compl_corr_to_investigation_short_dup_marked__hailing_port <-
 compl_corr_to_investigation__corr_date__hailing_port <- 
   dplyr::left_join(
     compl_corr_to_investigation__corr_date,
@@ -613,10 +625,11 @@ file.exists(prep_addresses_path)
 
 source(prep_addresses_path)
 
-# result: compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr
+#' result: compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr
+#' 
 
 ## 3. mark vessels already in the know list ----
-# The first column (report created) indicates the vessels that we have created a case for. My advice would be not to exclude those vessels. EOs may have provided compliance assistance and/or warnings already. If that is the case and they continue to be non-compliant after that, they will want to know and we may need to reopen those cases.
+#' The first column (report created) indicates the vessels that we have created a case for. My advice would be not to exclude those vessels. EOs may have provided compliance assistance and/or warnings already. If that is the case and they continue to be non-compliant after that, they will want to know and we may need to reopen those cases.
 
 vessels_to_mark_ids <-
   prev_result |>
@@ -625,10 +638,11 @@ vessels_to_mark_ids <-
 dim(vessels_to_mark_ids)
 
 #### mark these vessels ----
-# Explanations:
-# Create a new column 'duplicate_w_last_time' in the dataframe 'compl_corr_to_investigation_short'.
-# This column is marked with "duplicate" for rows where 'vessel_official_number' is present in the list of vessel IDs to mark as duplicates ('vessels_to_mark_ids').
-# For all other rows, it is marked as "new".
+#' Explanations:
+#' Create a new column 'duplicate_w_last_time' in the dataframe 'compl_corr_to_investigation_short'.
+#' This column is marked with "duplicate" for rows where 'vessel_official_number' is present in the list of vessel IDs to mark as duplicates ('vessels_to_mark_ids').
+#' For all other rows, it is marked as "new".
+#' 
 compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked <-
   compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr |>
   dplyr::mutate(
@@ -651,14 +665,14 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_m
 # 2 new                      48
 
 ## 4. how many are duals? ----
-# Explanations:
-# Create a new dataframe 
-# Use the 'mutate' function to add a new column 'permit_region' based on conditions.
-# If 'permitgroup' contains any of the specified patterns ("RCG", "HRCG", "CHG", "HCHG"),
-# set 'permit_region' to "dual". Otherwise, set 'permit_region' to "sa_only".
-# If none of the conditions are met, set 'permit_region' to "other".
-# The resulting dataframe includes the original columns from 'compl_corr_to_investigation_short_dup_marked'
-# along with the newly added 'permit_region' column.
+#' Explanations:
+#' Create a new dataframe 
+#' Use the 'mutate' function to add a new column 'permit_region' based on conditions.
+#' If 'permitgroup' contains any of the specified patterns ("RCG", "HRCG", "CHG", "HCHG"),
+#' set 'permit_region' to "dual". Otherwise, set 'permit_region' to "sa_only".
+#' If none of the conditions are met, set 'permit_region' to "other".
+#' The resulting dataframe includes the original columns from 'compl_corr_to_investigation_short_dup_marked'
+#' along with the newly added 'permit_region' column.
 
 compl_corr_to_investigation_short_dup_marked__permit_region <-
   compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked |> 
@@ -670,12 +684,13 @@ compl_corr_to_investigation_short_dup_marked__permit_region <-
              .default = "other"
            ))
 
-# Explanations:
-# Use the 'select' function to extract the columns 'vessel_official_number' and 'permit_region'
-# from the dataframe 'compl_corr_to_investigation_short_dup_marked__permit_region'.
-# Use the 'distinct' function to keep only unique combinations of 'vessel_official_number' and 'permit_region'.
-# Use the 'count' function to count the occurrences of each unique 'permit_region'.
-# The resulting count provides the frequency of each 'permit_region'.
+#' Explanations:
+#' Use the 'select' function to extract the columns 'vessel_official_number' and 'permit_region'
+#' from the dataframe 'compl_corr_to_investigation_short_dup_marked__permit_region'.
+#' Use the 'distinct' function to keep only unique combinations of 'vessel_official_number' and 'permit_region'.
+#' Use the 'count' function to count the occurrences of each unique 'permit_region'.
+#' The resulting count provides the frequency of each 'permit_region'.
+#' 
 region_counts <-
   compl_corr_to_investigation_short_dup_marked__permit_region |>
   dplyr::select(vessel_official_number, permit_region) |>
@@ -744,21 +759,23 @@ additional_column_name1 <-
     "Confirmed Egregious? (permits must still be active till {permit_expired_check_date}, missing past 6 months, and (1) they called/emailed us (incoming), or (2) at least 2 contacts (outgoing) with at least 1 call/other (voicemail counts) and at least 1 email)"
   )
 
-# Explanation:
-# 
-# This code adds new columns to the dataframe `compl_corr_to_investigation_short_dup_marked__permit_region`. Here's what each part does:
-# 
-# 1. **Add Columns Function:**
-#    - `tibble::add_column()`: This function from the `tibble` package is used to add new columns to a dataframe.
-# 
-# 2. **Column Specifications:**
-#    - `!!(additional_column_name1) := NA`: Adds a new column named `additional_column_name1` filled with NA values.
-#      - `!!`: This is a tidy evaluation feature that allows the use of non-standard evaluation. It evaluates the expression `additional_column_name1` dynamically.
-#      - `:= NA`: Assigns NA values to the new column.
-#    - `Notes = NA`: Adds another new column named "Notes" filled with NA values.
-#    - `.before = 2`: Specifies that the new columns should be inserted before the second column in the dataframe.
-# 
-# This code effectively adds two new columns, "additional_column_name1" and "Notes", filled with NA values, to the dataframe.
+#' Explanation:
+#' 
+#' This code adds new columns to the dataframe `compl_corr_to_investigation_short_dup_marked__permit_region`. Here's what each part does:
+#' 
+#' 1. **Add Columns Function:**
+#'    - `tibble::add_column()`: This function from the `tibble` package is used to add new columns to a dataframe.
+#' 
+#' 2. **Column Specifications:**
+#'    - `!!(additional_column_name1) := NA`: Adds a new column named `additional_column_name1` filled with NA values.
+#'      - `!!`: This is a tidy evaluation feature that allows the use of non-standard evaluation. It evaluates the expression `additional_column_name1` dynamically.
+#'      - `:= NA`: Assigns NA values to the new column.
+#'    - `Notes = NA`: Adds another new column named "Notes" filled with NA values.
+#'    - `.before = 2`: Specifies that the new columns should be inserted before the second column in the dataframe.
+#' 
+#' This code effectively adds two new columns, "additional_column_name1" and "Notes", filled with NA values, to the dataframe.
+#' 
+
 compl_corr_to_investigation_short_dup_marked__permit_region__add_columns <-
   # compl_corr_to_investigation_short_dup_marked__permit_region |>
   compl_corr_to_investigation_short_dup_marked__permit_region__status |> 
@@ -770,7 +787,7 @@ compl_corr_to_investigation_short_dup_marked__permit_region__add_columns <-
 
 # print_df_names(compl_corr_to_investigation_short_dup_marked__permit_region__add_columns)
 
-# remove the "year" column, its value is the same for all rows
+#' remove the "year" column, its value is the same for all rows
 # compl_corr_to_investigation_short_dup_marked__permit_region__add_columns |> 
 #   select(year) |> 
 #   distinct()
