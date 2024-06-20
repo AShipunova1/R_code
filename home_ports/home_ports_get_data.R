@@ -71,6 +71,18 @@ vessels_from_pims <-
   get_xlsx_data_pims(vessel_names_file_path,
                      startRow = 4)
 
+vessels_from_pims1 <-
+  auxfunctions::my_read_xlsx(vessel_names_file_path, 
+                             # sheet_n = 1,
+                             start_row = 4)
+
+diffdf::diffdf(vessels_from_pims,
+               vessels_from_pims1)
+   #     official__     
+   #     vessel_id      
+   #    hailing_port    
+   # weight__gross_net_ 
+
 # print_df_names(vessels_from_pims)
 
 # glimpse(vessels_from_pims)
