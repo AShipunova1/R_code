@@ -205,13 +205,15 @@ permit_vessel_w_changed_owner_query <-
 FROM
   udp.sero_oth_prm_period_his@secpr_dblk
 WHERE
-  top IN ( 'CHG', 'HCHG', 'HRCG', 'RCG', 'CHS',
-             'SC', 'CDW' )
+  top IN ( 'CHS', 'SC', 'CDW' )
   AND ( expiration_date >= sysdate
         OR end_date >= sysdate )
-  AND new_owner != prior_owner
-  AND new_owner != 0
-  AND prior_owner != 0
+  AND ( ( new_owner != prior_owner
+          AND new_owner != 0
+          AND prior_owner != 0 )
+        OR permit_status NOT IN ( 'MAILED', 'RENEWED' ) )
+ORDER BY
+  vessel_id
 "
 
 permit_vessel_w_changed_owner_file_path <-
