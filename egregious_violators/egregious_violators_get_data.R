@@ -8,6 +8,7 @@
 #' For the last 6 month
 #' 
 #' FHIER_Compliance_...csv
+#' 
 
 #' 2) correspondence data
 #' 
@@ -34,10 +35,12 @@
 #' For the whole period, starting 01/01/2021
 #' 
 #' "For-hire Primary Physical Address List.csv"
+#' 
 
 #' 5) home port cleaned city and state from PIMS
 #' 
 #' "~\R_files_local\my_outputs\home_ports\vessels_from_pims_ports.csv"
+#' 
 
 #' 6) address information from Oracle db
 #' 
@@ -52,8 +55,11 @@
 # FHIER ----
 
 #' Compliance
+#' 
 #' Correspondence
+#' 
 #' permit info from processed metrics tracking
+#' 
 
 #' Download from FHIER first
 all_csv_names_list = c("Correspondence_2024_06_17.csv",

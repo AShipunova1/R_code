@@ -2,10 +2,15 @@
 #' 
 
 #' Read me
+#' 
 #' 1) NO reports for all 26 weeks back from week ago today;
+#' 
 #' 2) permits have not expired and were active for the same period as (1);
+#' 
 #' 3) the grace period is 7 days back from today.
+#' 
 #' 4) It needs to be that we called at least 1 time and emailed at least 1 time. Or they contacted us at least once.
+#' 
 #' 5) not counting any correspondence (regardless of the type - email/call, voicemail or not) that includes "No contact made" in the text of the entry as a actual "direct" contact for any egregious vessel (May 6 2024)
 
 #' NB. Update (download) all input files every time before run.
@@ -94,15 +99,15 @@ get_data_path <-
   file.path(current_project_path, "egregious_violators_get_data.R")
 source(get_data_path)
 
-#' Data are in:
-#' compl_clean
-#' corresp_contact_cnts_clean0
-#' processed_metrics_tracking_permits
-#' fhier_addresses
-#' processed_pims_home_ports
-#' db_participants_address
-#' prev_result
-#' 
+# Data are in:
+# compl_clean
+# corresp_contact_cnts_clean0
+# processed_metrics_tracking_permits
+# fhier_addresses
+# processed_pims_home_ports
+# db_participants_address
+# prev_result
+# 
 
 # Preparing compliance info ----
 
@@ -110,7 +115,9 @@ source(get_data_path)
 ### add permit_expired column ----
 #' Explanations:
 #' 1. Add a new column 'permit_expired' using 'mutate'.
+#' 
 #' 2. Use 'case_when' to determine if 'permit_groupexpiration' is greater than permit_expired_check_date.
+#' 
 #' 3. If true, set 'permit_expired' to "no", otherwise set it to "yes".
 
 compl_clean_w_permit_exp <-
@@ -190,8 +197,11 @@ remove_columns <- c(
 )
 
 #' Explanations:
+#' 
 #' 1. Use 'select' to remove columns specified in 'remove_columns'.
+#' 
 #' 2. Use 'distinct' to keep only unique rows in the resulting data frame.
+#' 
 compl_clean_w_permit_exp_last_half_year__sa__short <-
   compl_clean_w_permit_exp_last_half_year__sa |>
   dplyr::select(-tidyselect::any_of(remove_columns)) |> 
@@ -252,10 +262,15 @@ all_weeks_num <-
   nrow()
 
 #' Explanations:
+#'
 #' 1. Group the data frame by 'vessel_official_number'.
+#'
 #' 2. Filter the groups based on the condition that the number of distinct weeks is greater than or equal to 'all_weeks_num'.
+#'
 #' 3. Remove the grouping from the data frame.
+#'
 #' 4. Exclude the 'week' column from the resulting data frame, we don't need it anymore.
+#' 
 
 compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present <-
   compl_clean_w_permit_exp_last_half_year__sa_non_c |>
@@ -545,15 +560,25 @@ contactphonenumber_field_name <-
   auxfunctions::find_col_name(compl_corr_to_investigation_short, ".*contact", "number.*")[1]
 
 #' Explanations:
+#' 
 #' Define a function 'get_date_contacttype' that takes a dataframe 'compl_corr_to_investigation' as input.
+#' 
 #' Perform several data manipulation steps to extract and organize relevant information.
+#' 
 #' 1. Add a new column 'date__contacttype' by concatenating the values from 'contactdate_field_name' and 'contacttype'.
+#' 
 #' 2. Select only the 'vessel_official_number' and 'date__contacttype' columns.
+#' 
 #' 3. Arrange the dataframe by 'vessel_official_number' and 'date__contacttype'.
+#' 
 #' 4. Keep distinct rows based on 'vessel_official_number' and 'date__contacttype'.
+#' 
 #' 5. Group the dataframe by 'vessel_official_number'.
+#' 
 #' 6. Summarize the data by creating a new column 'date__contacttypes' that concatenates all 'date__contacttype' values for each vessel separated by a comma.
+#' 
 #' 7. Return the resulting dataframe.
+#' 
 get_date_contacttype <-
   function(my_df) {
   
@@ -666,13 +691,21 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_m
 
 ## 4. how many are duals? ----
 #' Explanations:
+#' 
 #' Create a new dataframe 
+#' 
 #' Use the 'mutate' function to add a new column 'permit_region' based on conditions.
+#' 
 #' If 'permitgroup' contains any of the specified patterns ("RCG", "HRCG", "CHG", "HCHG"),
+#' 
 #' set 'permit_region' to "dual". Otherwise, set 'permit_region' to "sa_only".
+#' 
 #' If none of the conditions are met, set 'permit_region' to "other".
+#' 
 #' The resulting dataframe includes the original columns from 'compl_corr_to_investigation_short_dup_marked'
+#' 
 #' along with the newly added 'permit_region' column.
+#' 
 
 compl_corr_to_investigation_short_dup_marked__permit_region <-
   compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked |> 
@@ -684,11 +717,17 @@ compl_corr_to_investigation_short_dup_marked__permit_region <-
              .default = "other"
            ))
 
+#'
 #' Explanations:
+#'
 #' Use the 'select' function to extract the columns 'vessel_official_number' and 'permit_region'
+#'
 #' from the dataframe 'compl_corr_to_investigation_short_dup_marked__permit_region'.
+#'
 #' Use the 'distinct' function to keep only unique combinations of 'vessel_official_number' and 'permit_region'.
+#'
 #' Use the 'count' function to count the occurrences of each unique 'permit_region'.
+#'
 #' The resulting count provides the frequency of each 'permit_region'.
 #' 
 region_counts <-
@@ -764,13 +803,20 @@ additional_column_name1 <-
 #' This code adds new columns to the dataframe `compl_corr_to_investigation_short_dup_marked__permit_region`. Here's what each part does:
 #' 
 #' 1. **Add Columns Function:**
+#' 
 #'    - `tibble::add_column()`: This function from the `tibble` package is used to add new columns to a dataframe.
 #' 
+#'
 #' 2. **Column Specifications:**
+#'
 #'    - `!!(additional_column_name1) := NA`: Adds a new column named `additional_column_name1` filled with NA values.
+#'
 #'      - `!!`: This is a tidy evaluation feature that allows the use of non-standard evaluation. It evaluates the expression `additional_column_name1` dynamically.
+#'
 #'      - `:= NA`: Assigns NA values to the new column.
+#'
 #'    - `Notes = NA`: Adds another new column named "Notes" filled with NA values.
+#'
 #'    - `.before = 2`: Specifies that the new columns should be inserted before the second column in the dataframe.
 #' 
 #' This code effectively adds two new columns, "additional_column_name1" and "Notes", filled with NA values, to the dataframe.
