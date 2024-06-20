@@ -126,6 +126,29 @@ Sys.setenv(ORA_SDTZ = Sys.timezone())
 
 program_start_date <- lubridate::dmy("04/01/2021")
 
+#' Explanations:
+#'
+#' - `permits_from_pims__split1_short <-` assigns the final result of the pipeline to the variable `permits_from_pims__split1_short`.
+#'
+#' - `permits_from_pims__split1 |>` starts the pipeline with the data frame `permits_from_pims__split1`, allowing subsequent transformations.
+#'
+#' - `convert_to_dates()` is a user-defined function (or could be from a package) that converts certain columns in the data frame to Date format. This function is applied to the data frame to ensure that date columns are correctly formatted.
+#'
+#' - `dplyr::filter(dplyr::if_any(tidyselect::ends_with("date"), ~ . > program_start_date))` filters rows based on a condition:
+#'
+#'   - `dplyr::filter()` is a function from the `dplyr` package used to filter rows of the data frame based on a given condition.
+#'
+#'   - `dplyr::if_any(tidyselect::ends_with("date"), ~ . > program_start_date)` checks if any columns that end with "date" have values greater than `program_start_date`.
+#'
+#'     - `dplyr::if_any()` is used to apply the filtering condition across multiple columns.
+#'
+#'     - `tidyselect::ends_with("date")` selects all columns whose names end with "date".
+#'
+#'     - `~ . > program_start_date` is a lambda function where `.` represents each element in the selected columns, and the condition checks if these elements are greater than `program_start_date`.
+#' 
+#' This code processes the `permits_from_pims__split1` data frame by converting relevant columns to Date format and then filtering the rows to include only those where any date column has a value greater than `program_start_date`. The resulting data frame is stored in `permits_from_pims__split1_short`.
+#' 
+
 permits_from_pims__split1_short <-
   permits_from_pims__split1 |>
   convert_to_dates() |> 
