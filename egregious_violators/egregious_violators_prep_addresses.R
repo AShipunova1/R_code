@@ -220,6 +220,7 @@ dplyr::n_distinct(compl_corr_to_investigation__corr_date__hailing_port__fhier_ad
 #' 199
 #' 
 #' one vessel per row, OK
+#' 
 
 #' have to combine rows
 dim(db_participants_address__needed_short)

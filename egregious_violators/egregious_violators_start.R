@@ -114,11 +114,13 @@ source(get_data_path)
 ## Permit Expiration ----
 ### add permit_expired column ----
 #' Explanations:
+#' 
 #' 1. Add a new column 'permit_expired' using 'mutate'.
 #' 
 #' 2. Use 'case_when' to determine if 'permit_groupexpiration' is greater than permit_expired_check_date.
 #' 
 #' 3. If true, set 'permit_expired' to "no", otherwise set it to "yes".
+#' 
 
 compl_clean_w_permit_exp <-
   compl_clean |>
@@ -309,6 +311,7 @@ compl_clean_w_permit_exp_last_half_year__sa |>
   ) |>
   nrow()
 #' 0 OK!
+#' 
 
 #' Results: prepared Compliance is in compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present
 #' 
@@ -317,7 +320,9 @@ compl_clean_w_permit_exp_last_half_year__sa |>
 
 ## remove 999999 ----
 #' Explanations:
+#' 
 #' Create a new data frame 'corresp_contact_cnts_clean' by filtering 'corresp_contact_cnts_clean0' based on the condition.
+#' 
 #' 1. Use 'filter' to select rows where 'vessel_official_number' does not start with "99999".
 #' 
 corresp_contact_cnts_clean <-
@@ -327,7 +332,9 @@ corresp_contact_cnts_clean <-
 dplyr::n_distinct(corresp_contact_cnts_clean$vesselofficial_number)
 
 #' "2023-08-09"
+#' 
 #' Michelle
+#' 
 #' It should be at least 2 contact "attempts". i.e., if they are ignoring our calls and emails then they cannot continue to go on in perpetuity without reporting and never be seen as egregious. So, at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough at this point and they need to be passed to OLE.
 #' 
 
@@ -341,6 +348,7 @@ dplyr::n_distinct(corresp_contact_cnts_clean$vesselofficial_number)
 
 ## new requirement 2024-05-06 ----
 #' Exclude any correspondence (regardless of the type - email/call, voicemail or not) that includes "No contact made" in the text of the entry as a actual "direct" contact for any egregious vessel.
+#' 
 
 #' check
 corresp_contact_cnts_clean |>
@@ -363,8 +371,11 @@ we_emailed_once_filter <-
 #' Explanations:
 #' 
 #' **Expression inside quo()**:
+#'
 #'    - `!grepl("No contact made", contactcomments, ignore.case = TRUE)`: This expression is a negation of the `grepl` function, which is used to search for a pattern ("No contact made") in the `contactcomments` column.
+#'
 #'    - `grepl()` returns `TRUE` for each element of `contactcomments` that contains the pattern, and `FALSE` otherwise.
+#'
 #'    - The `!` operator negates the result, so the filter condition will be `TRUE` for rows where "No contact made" is not found in the `contactcomments` column.
 #' 
 #' The `exclude_no_contact_made_filter` function effectively creates a filter condition that can be used to exclude rows where "No contact made" is found in the `contactcomments` column when applied to a dataset.
@@ -418,12 +429,19 @@ dplyr::n_distinct(corresp_contact_cnts_clean_direct_cnt_2atmps$vesselofficial_nu
 head(corresp_contact_cnts_clean_direct_cnt_2atmps$contact_date, 1) |> str()
  # chr "02/15/2024 03:15PM"
 
+#'
 #' Explanations:
+#'
 #' Mutate new columns 'created_on_dttm' and 'contact_date_dttm' by parsing 'created_on' and 'contact_date' using lubridate package.
+#'
 #' The date-time formats considered are "mdY R".
+#'
 #' 1. Use the pipe operator to pass 'corresp_contact_cnts_clean_direct_cnt_2atmps' as the left-hand side of the next expression.
+#'
 #' 2. Use 'mutate' to create new columns with parsed date-time values.
+#'
 #' 3. Use 'lubridate::parse_date_time' to parse the date-time values using the specified formats.
+#' 
 
 corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates <-
   corresp_contact_cnts_clean_direct_cnt_2atmps |>
@@ -445,12 +463,19 @@ str(corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates$contact_date_dttm)
 #' 
 
 # Join correspondence with compliance ----
+#'
 #' Explanations:
+#'
 #' Create a new dataframe 'compl_corr_to_investigation' by performing an inner join between
+#'
 #' 'correspondence' and 'compliance'.
+#'
 #' The join is performed on the column 'vessel_official_number'.
+#'
 #' Use 'multiple = "all"' and 'relationship = "many-to-many"' to handle multiple matches during the join.
+#'
 #' 1. Use the 'inner_join' function from the dplyr package to combine the two dataframes based on the specified columns.
+#'
 #' 2. Pass the column names and other parameters to the 'by', 'multiple', and 'relationship' arguments.
 
 compl_corr_to_investigation <-
@@ -489,8 +514,11 @@ num_of_vsl_to_investigate <-
 ## 1. remove extra columns ----
 
 #' Explanations:
+#' 
 #' Group the dataframe by the 'vessel_official_number' column and then apply the 'summarise_all' function.
+#' 
 #' The 'summarise_all' function applies the specified function (in this case, 'concat_unique') to each column.
+#' 
 
 colnames(compl_corr_to_investigation) |> 
   cat(sep = '",\n"')
@@ -524,11 +552,17 @@ unused_fields <- c(
   # "permit_groupexpiration",
   "compliant_after_override")
 
+#'
 #' Explanations:
+#'
 #' 1. Exclude columns specified in 'unused_fields' from the data frame.
+#'
 #' 2. Group the data frame by 'vessel_official_number'.
+#'
 #' 3. Apply the custom function 'concat_unique' to all columns to concatenate unique non-missing values into a single string.
+#'
 #' 4. Remove the grouping from the data frame.
+#' 
 
 compl_corr_to_investigation_short <-
   compl_corr_to_investigation |>
@@ -663,11 +697,16 @@ vessels_to_mark_ids <-
 dim(vessels_to_mark_ids)
 
 #### mark these vessels ----
+
 #' Explanations:
+#'
 #' Create a new column 'duplicate_w_last_time' in the dataframe 'compl_corr_to_investigation_short'.
+#'
 #' This column is marked with "duplicate" for rows where 'vessel_official_number' is present in the list of vessel IDs to mark as duplicates ('vessels_to_mark_ids').
+#'
 #' For all other rows, it is marked as "new".
 #' 
+
 compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked <-
   compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr |>
   dplyr::mutate(
@@ -703,7 +742,6 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_m
 #' If none of the conditions are met, set 'permit_region' to "other".
 #' 
 #' The resulting dataframe includes the original columns from 'compl_corr_to_investigation_short_dup_marked'
-#' 
 #' along with the newly added 'permit_region' column.
 #' 
 
