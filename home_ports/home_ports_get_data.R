@@ -26,25 +26,6 @@ library(openxlsx)
 library(crayon)
 
 # auxiliary functions ----
-get_xlsx_data_pims <-
-  function(my_file_path,
-           startRow = 1,
-           my_sheet = "Sheet 1") {
-    
-    data_from_pims_raw <-
-      openxlsx::read.xlsx(my_file_path,
-                sheet = my_sheet,
-                startRow = startRow,
-                detectDates = TRUE)
-    
-    # clean_headers
-    data_from_pims <-
-      data_from_pims_raw %>%
-      auxfunctions::clean_headers()
-    
-    return(data_from_pims)
-  }
-
 convert_to_dates <-
   function(my_df, ymd_format = c("Ymd", "mdY")) {
     # browser()
@@ -67,21 +48,9 @@ vessel_names_file_path <-
 file.exists(vessel_names_file_path)
 
 # file.exists(vessel_names_file_path)
-vessels_from_pims <- 
-  get_xlsx_data_pims(vessel_names_file_path,
-                     startRow = 4)
-
-vessels_from_pims1 <-
+vessels_from_pims <-
   auxfunctions::my_read_xlsx(vessel_names_file_path, 
-                             # sheet_n = 1,
                              start_row = 4)
-
-diffdf::diffdf(vessels_from_pims,
-               vessels_from_pims1)
-   #     official__     
-   #     vessel_id      
-   #    hailing_port    
-   # weight__gross_net_ 
 
 # print_df_names(vessels_from_pims)
 
@@ -112,6 +81,7 @@ permits_names_file_path <-
             r"(from_PIMS\Permits - 2024-06-18_0839.xlsx)")
 
 file.exists(permits_names_file_path)
+
 permits_from_pims <- 
   get_xlsx_data_pims(permits_names_file_path,
                      startRow = 5)
