@@ -279,7 +279,7 @@ prev_result0 <-
 
 dim(prev_result0)    
 
-#' clean excel conversions
+#' clean excel conversions, remove ".0" at the end
 prev_result <-
   prev_result0 |>
   dplyr::mutate(vessel_official_number =
