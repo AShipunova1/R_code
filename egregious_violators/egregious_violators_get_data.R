@@ -50,11 +50,11 @@
 
 # FHIER ----
 
-# Compliance
-# Correspondence
-# permit info from processed metrics tracking
+#' Compliance
+#' Correspondence
+#' permit info from processed metrics tracking
 
-# Download from FHIER first
+#' Download from FHIER first
 all_csv_names_list = c("Correspondence_2024_06_17.csv",
                          r"(2024_06_17\FHIER_Compliance_2023__06_17_2024.csv)",
                          r"(2024_06_17\FHIER_Compliance_2024__06_17_2024.csv)")
@@ -71,10 +71,10 @@ corresp_contact_cnts_clean0 <- temp_var[[2]]
 
 names(compl_clean_list) <- c(my_year1, my_year2)
 
-# check
+#' check
 purrr::map(compl_clean_list, dim)
 
-# combine years in one df
+#' combine years in one df
 compl_clean <-
   rbind(compl_clean_list[[my_year1]], compl_clean_list[[my_year2]])
 
@@ -90,14 +90,14 @@ processed_input_data_path <-
 dir.exists(processed_input_data_path)
 # T  
 
-# file names for all years
+#' file names for all years
 processed_metrics_tracking_file_names_all <-
   list.files(path = processed_input_data_path,
              pattern = "SEFHIER_permitted_vessels_nonSRHS_*",
              recursive = TRUE,
              full.names = TRUE)
 
-# exclude links
+#' exclude links
 processed_metrics_tracking_file_names <-
   grep(
     processed_metrics_tracking_file_names_all,
@@ -106,12 +106,12 @@ processed_metrics_tracking_file_names <-
     value = TRUE
   )
 
-# read the rest
+#' read the rest
 processed_metrics_tracking_permits <-
   purrr::map_df(processed_metrics_tracking_file_names,
          readr::read_rds)
 
-# lower names case
+#' lower names case
 names(processed_metrics_tracking_permits) <-
   names(processed_metrics_tracking_permits) |>
   tolower()
@@ -121,7 +121,7 @@ names(processed_metrics_tracking_permits) <-
 dim(processed_metrics_tracking_permits)
 
 ## get Physical Address List from FHIER ----
-# REPORTS / For-hire Primary Physical Address List
+#' REPORTS / For-hire Primary Physical Address List
 
 fhier_addresses_path <-
   file.path(
@@ -169,7 +169,7 @@ db_participants_address_file_path <-
 dir.exists(file.path(my_paths$inputs,
             current_project_name))
 
-# err msg if no connection, but keep running
+#' Print an error message if no connection, but keep running
 if (!exists("con")) {
   try(con <- auxfunctions::connect_to_secpr())
 }
@@ -194,6 +194,11 @@ db_participants_address <-
 # 2024-06-18 run for db_participants_address.rds: 33.32 sec elapsed
 
 ## Get vessels with changed owner ----
+#' Select only with SA permits,
+#' not expired by today,
+#' with different owners or 
+#' permit status indicating something other than usual
+#' 
 permit_vessel_w_changed_owner_query <- 
 "SELECT
   *
@@ -208,7 +213,7 @@ WHERE
   AND new_owner != 0
   AND prior_owner != 0
 "
- 
+
 permit_vessel_w_changed_owner_file_path <-
   file.path(my_paths$inputs,
             current_project_name,
@@ -224,7 +229,6 @@ if (!exists("con")) {
 
 permit_vessel_w_changed_owner_fun <-
   function(permit_vessel_w_changed_owner) {
-    # browser()
     return(dbGetQuery(con,
                       permit_vessel_w_changed_owner))
   }
@@ -242,6 +246,7 @@ permit_vessel_w_changed_owner <-
 
 dim(permit_vessel_w_changed_owner)
 # 75
+# 143 with statuses
 
 permit_vessel_w_changed_owner |> 
   head() |> 
