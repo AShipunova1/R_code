@@ -1,22 +1,28 @@
 # today()
 # [1] "2024-02-28"
 
-# 1) "Permits - 2024-02-28_0930.xlsx"
-# get it from PIMS
-# Menu: permits
-# Filter:
-# Fishery = RCG - Gulf Charter/headboat For Reef Fish, CHG - Gulf Charter/headboat For Coastal Migratory Pelagic Fish, SC - South Atlantic Charter/headboat For Snapper-grouper, CHS - Atlantic Charter/headboat For Coastal Migratory Pelagics, HCHG - Historical Captain Gulf Charter/headboat For Coastal Migratory Pelagic Fish, HRCG - Historical Captain Gulf Charter/headboat For Reef Fish, CDW - Atlantic Charter/headboat For Dolphin/wahoo
-# 
-# download
-# 
-# skip first 5 lines in R)
-
-# 2) same for vessels, skip first 3 lines
-# "Vessels - 2024-02-28_0930.xlsx"
+#' 1) "Permits - 2024-02-28_0930.xlsx"
+#'
+#' get it from PIMS
+#'
+#' Menu: permits
+#'
+#' Filter:
+#'
+#' Fishery = RCG - Gulf Charter/headboat For Reef Fish, CHG - Gulf Charter/headboat For Coastal Migratory Pelagic Fish, SC - South Atlantic Charter/headboat For Snapper-grouper, CHS - Atlantic Charter/headboat For Coastal Migratory Pelagics, HCHG - Historical Captain Gulf Charter/headboat For Coastal Migratory Pelagic Fish, HRCG - Historical Captain Gulf Charter/headboat For Reef Fish, CDW - Atlantic Charter/headboat For Dolphin/wahoo
+#'
+#' download
+#'
+#' skip first 5 lines in R)
+#'
+#' 2) same for vessels, skip first 3 lines
+#'
+#' "Vessels - 2024-02-28_0930.xlsx"
+#' 
 
 library(openxlsx)
 
-# Colored terminal output
+#' Colored terminal output
 library(crayon)
 
 # auxiliary functions ----
@@ -256,7 +262,7 @@ vessels_from_pims_ok <-
 dim(vessels_from_pims_ok)
 # [1] 23086     2
 
-# check
+#' check
 grep(",[a-zA-Z]",
      vessels_from_pims_ok$hailing_port,
      value = T)
