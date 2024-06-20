@@ -26,6 +26,32 @@ library(openxlsx)
 library(crayon)
 
 # auxiliary functions ----
+
+#' Explanations:
+#' 
+#' - `convert_to_dates <- function(my_df, ymd_format = c("Ymd", "mdY"))` defines the function `convert_to_dates` with two parameters:
+#' 
+#'   - `my_df`: the input data frame.
+#' 
+#'   - `ymd_format = c("Ymd", "mdY")`: a vector specifying the date formats to be used for parsing.
+#' 
+#' - `browser()` is a debugging line that can be uncommented to debug the function interactively. It pauses execution and allows inspection of the environment.
+#' 
+#' - `my_df_w_dates <-` assigns the result of the following pipeline to the variable `my_df_w_dates`.
+#' 
+#'   - `my_df |>` starts a pipeline with the data frame `my_df`.
+#' 
+#'   - `dplyr::mutate(dplyr::across(...))` applies transformations across multiple columns.
+#' 
+#'     - `tidyselect::where(is.character) & (tidyselect::ends_with("date"))` selects columns that are of character type and whose names end with "date".
+#' 
+#'     - `~ lubridate::parse_date_time(.x, orders = ymd_format)` is a lambda function that parses the selected columns into Date format using the specified `ymd_format` orders. The `parse_date_time` function from the `lubridate` package is used to handle multiple date formats.
+#' 
+#' - `return(my_df_w_dates)` returns the modified data frame `my_df_w_dates` with the specified columns converted to Date format.
+#' 
+#' This function processes the input data frame `my_df`, converting all character columns that end with "date" to Date format using the specified date formats. The resulting data frame is returned.
+#'
+
 convert_to_dates <-
   function(my_df, ymd_format = c("Ymd", "mdY")) {
     # browser()
@@ -40,14 +66,25 @@ convert_to_dates <-
   }
 
 # upload vessels from PIMS ----
-
 vessel_names_file_path <-
   file.path(my_paths$inputs,
             r"(from_PIMS\Vessels - 2024-06-18_0838.xlsx)")
 
 file.exists(vessel_names_file_path)
 
-# file.exists(vessel_names_file_path)
+#' Explanations:
+#' 
+#' - `vessels_from_pims <-` assigns the result of the function call to the variable `vessels_from_pims`.
+#' 
+#' - `auxfunctions::my_read_xlsx(vessel_names_file_path, start_row = 4)` calls the `my_read_xlsx` function from the `auxfunctions` package:
+#' 
+#'   - `vessel_names_file_path` is the file path to the Excel file containing vessel names.
+#' 
+#'   - `start_row = 4` specifies that the function should start reading the data from the 4th row of the Excel file.
+#' 
+#' This line of code reads data from the specified Excel file starting at the 4th row, using a custom function `my_read_xlsx` from the `auxfunctions` package, and stores the resulting data frame in the variable `vessels_from_pims`.
+#' 
+
 vessels_from_pims <-
   auxfunctions::my_read_xlsx(vessel_names_file_path, 
                              start_row = 4)
@@ -82,6 +119,7 @@ permits_names_file_path <-
 
 file.exists(permits_names_file_path)
 
+#' This line of code reads data from the specified Excel file starting at the 5th row, using a custom function `my_read_xlsx` from the `auxfunctions` package, and stores the resulting data frame in the variable `permits_from_pims`.
 permits_from_pims <-
   auxfunctions::my_read_xlsx(permits_names_file_path, 
                              start_row = 5)
