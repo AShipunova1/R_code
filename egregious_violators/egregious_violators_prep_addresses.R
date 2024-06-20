@@ -79,7 +79,7 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>
 
 # print_df_names(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
 
-### Explanation:
+#' Explanation:
 
 #' This code snippet creates a dataframe `no_addr_vsl_ids` containing unique `vessel_official_number` values based on certain conditions.
 #' 
