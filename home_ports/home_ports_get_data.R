@@ -104,10 +104,6 @@ permits_from_pims__split1 <-
 # View(permits_from_pims__split1)
 # Expected 2 pieces. Missing pieces filled with `NA` in 3038 rows [229, 244, 294,
 
-# permits_from_pims[229,] |> 
-#   glimpse()
-# $ vessel_or_dealer <chr> "BARNACLE SEAFOOD INC"
-
 ## permits clean and shorten ----
 Sys.setenv(TZ = Sys.timezone())
 Sys.setenv(ORA_SDTZ = Sys.timezone())
@@ -152,7 +148,7 @@ dim(permits_from_pims__split1_short)
 ## permits split permit number ----
 permits_from_pims__split1_short__split2 <- 
   permits_from_pims__split1_short |> 
-  tidyr::separate(permit_,
+  tidyr::separate(permit__,
            c('permit', 'permit_number'),
            sep = "-") |>
   dplyr::mutate(dplyr::across(tidyselect::starts_with('permit'),
@@ -166,7 +162,7 @@ hailing_port_col_name <-
 
 vessels_from_pims_short <-
   vessels_from_pims |>
-  dplyr::rename("vessel_official_number" = official_) |>
+  dplyr::rename("vessel_official_number" = official__) |>
   select(vessel_official_number,
          !!hailing_port_col_name) |>
   distinct()
