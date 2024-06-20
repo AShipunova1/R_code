@@ -58,20 +58,16 @@ registerS3method(
 ```
 
 # Set Up
+
+Read me
+1) NO reports for all 26 weeks back from week ago today;
+2) permits have not expired and were active for the same period as (1);
+3) the grace period is 7 days back from today.
+4) It needs to be that we called at least 1 time and emailed at least 1 time. Or they contacted us at least once.
+5) not counting any correspondence (regardless of the type - email/call, voicemail or not) that includes "No contact made" in the text of the entry as a actual "direct" contact for any egregious vessel (May 6 2024)
+NB. Update (download) all input files every time before run.
+
 ```{r setup current project, results='hide', message=FALSE, warning=FALSE}
-# Read me
-# 1) NO reports for all 26 weeks back from week ago today;
-# 2) permits have not expired and were active for the same period as (1);
-# 3) the grace period is 7 days back from today.
-# 4) It needs to be that we called at least 1 time and emailed at least 1 time. Or they contacted us at least once.
-# 5) not counting any correspondence (regardless of the type - email/call, voicemail or not) that includes "No contact made" in the text of the entry as a actual "direct" contact for any egregious vessel (May 6 2024)
-
-# NB. Update (download) all input files every time before run.
-```
-
-## set up 
-
-```{r set up}
 # set up ----
 # <<<<
 set_work_dir  <-  function() {
@@ -147,8 +143,11 @@ set_work_dir  <-  function() {
 # 
 # 
 # >>>>
+```
 
-# Get common functions
+Get common functions
+
+```{r}
 # source("~/R_code_github/useful_functions_module.r")
 # install.packages("~/R_code_github/auxfunctions_1.0.tar.gz",
 #                  repos = NULL,
@@ -208,25 +207,25 @@ grace_period = 7 # days
 half_year_ago <-
   data_file_date - days_in_non_compl_weeks - grace_period
 # [1] "2023-10-04"
+```
 
-# check week and day of the period's start
+check week and day of the period's start
+
+```{r}
 # week("2023-10-04") 
 # 40
 
 # wday("2023-10-04",
 #      label = T)
 # Wed
+```
 
-# 30 days from today
+30 days from today
+
+```{r}
 permit_expired_check_date <- data_file_date + 30
 
 last_week_start <- data_file_date - grace_period
-```
-
-## get_data 
-
-```{r get_data}
-# get_data ----
 ```
 
 # Prepare data
@@ -280,16 +279,19 @@ For the whole period, starting 01/01/2021
 7) Previous results (from google drive)
 
 ~\R_files_local\my_inputs\egregious_violators\egregious violators for investigation_DATES...xlsx"
+
 ## FHIER 
 
 ```{r FHIER}
 # FHIER ----
+```
 
-# Compliance
-# Correspondence
-# permit info from processed metrics tracking
+Compliance
+Correspondence
+permit info from processed metrics tracking
+Download from FHIER first
 
-# Download from FHIER first
+```{r}
 all_csv_names_list = c("Correspondence_2024_06_17.csv",
                          r"(2024_06_17\FHIER_Compliance_2023__06_17_2024.csv)",
                          r"(2024_06_17\FHIER_Compliance_2024__06_17_2024.csv)")
@@ -372,11 +374,17 @@ compl_clean_list <- temp_var[[1]]
 corresp_contact_cnts_clean0 <- temp_var[[2]]
 
 names(compl_clean_list) <- c(my_year1, my_year2)
+```
 
-# check
+check
+
+```{r}
 purrr::map(compl_clean_list, dim)
+```
 
-# combine years in one df
+combine years in one df
+
+```{r}
 compl_clean <-
   rbind(compl_clean_list[[my_year1]], compl_clean_list[[my_year2]])
 
@@ -395,15 +403,21 @@ processed_input_data_path <-
             "Outputs")
 dir.exists(processed_input_data_path)
 # T  
+```
 
-# file names for all years
+file names for all years
+
+```{r}
 processed_metrics_tracking_file_names_all <-
   list.files(path = processed_input_data_path,
              pattern = "SEFHIER_permitted_vessels_nonSRHS_*",
              recursive = TRUE,
              full.names = TRUE)
+```
 
-# exclude links
+exclude links
+
+```{r}
 processed_metrics_tracking_file_names <-
   grep(
     processed_metrics_tracking_file_names_all,
@@ -411,13 +425,19 @@ processed_metrics_tracking_file_names <-
     invert = TRUE,
     value = TRUE
   )
+```
 
-# read the rest
+read the rest
+
+```{r}
 processed_metrics_tracking_permits <-
   purrr::map_df(processed_metrics_tracking_file_names,
          readr::read_rds)
+```
 
-# lower names case
+lower names case
+
+```{r}
 names(processed_metrics_tracking_permits) <-
   names(processed_metrics_tracking_permits) |>
   tolower()
@@ -431,8 +451,11 @@ dim(processed_metrics_tracking_permits)
 
 ```{r get Physical Address List from FHIER}
 ## get Physical Address List from FHIER ----
-# REPORTS / For-hire Primary Physical Address List
+```
 
+REPORTS / For-hire Primary Physical Address List
+
+```{r}
 fhier_addresses_path <-
   file.path(
     my_paths$inputs,
@@ -680,8 +703,11 @@ db_participants_address_file_path <-
  
 dir.exists(file.path(my_paths$inputs,
             current_project_name))
+```
 
-# err msg if no connection, but keep running
+Print an error message if no connection, but keep running
+
+```{r}
 if (!exists("con")) {
   try(con <- auxfunctions::connect_to_secpr())
 }
@@ -710,21 +736,32 @@ db_participants_address <-
 
 ```{r Get vessels with changed owner}
 ## Get vessels with changed owner ----
+```
+
+Select only with SA permits,
+not expired by today,
+with different owners or 
+permit status indicating something other than usual
+
+
+```{r}
 permit_vessel_w_changed_owner_query <- 
 "SELECT
   *
 FROM
   udp.sero_oth_prm_period_his@secpr_dblk
 WHERE
-  top IN ( 'CHG', 'HCHG', 'HRCG', 'RCG', 'CHS',
-             'SC', 'CDW' )
+  top IN ( 'CHS', 'SC', 'CDW' )
   AND ( expiration_date >= sysdate
         OR end_date >= sysdate )
-  AND new_owner != prior_owner
-  AND new_owner != 0
-  AND prior_owner != 0
+  AND ( ( new_owner != prior_owner
+          AND new_owner != 0
+          AND prior_owner != 0 )
+        OR permit_status NOT IN ( 'MAILED', 'RENEWED' ) )
+ORDER BY
+  vessel_id
 "
- 
+
 permit_vessel_w_changed_owner_file_path <-
   file.path(my_paths$inputs,
             current_project_name,
@@ -740,7 +777,6 @@ if (!exists("con")) {
 
 permit_vessel_w_changed_owner_fun <-
   function(permit_vessel_w_changed_owner) {
-    # browser()
     return(dbGetQuery(con,
                       permit_vessel_w_changed_owner))
   }
@@ -758,6 +794,7 @@ permit_vessel_w_changed_owner <-
 
 dim(permit_vessel_w_changed_owner)
 # 75
+# 143 with statuses
 
 permit_vessel_w_changed_owner |> 
   head() |> 
@@ -821,12 +858,21 @@ prev_result_path <-
 
 file.exists(prev_result_path)
 
-prev_result <-
+prev_result0 <-
   auxfunctions::my_read_xlsx(prev_result_path) |> 
   auxfunctions::remove_empty_cols() |>
   auxfunctions::clean_headers()
 
-dim(prev_result)
+dim(prev_result0)    
+```
+
+clean excel conversions
+
+```{r}
+prev_result <-
+  prev_result0 |>
+  dplyr::mutate(vessel_official_number =
+                  stringr::str_replace(vessel_official_number, "\\.0$", ""))
 ```
 
 ## Results 
@@ -848,17 +894,16 @@ results <-
 cat(c("Data are in:",
       results),
     sep = "\n")
-
-
-# Data are in:
-# compl_clean
-# corresp_contact_cnts_clean0
-# processed_metrics_tracking_permits
-# fhier_addresses
-# processed_pims_home_ports
-# db_participants_address
-# prev_result
 ```
+
+Data are in:
+compl_clean
+corresp_contact_cnts_clean0
+processed_metrics_tracking_permits
+fhier_addresses
+processed_pims_home_ports
+db_participants_address
+prev_result
 
 ## Preparing compliance info 
 
@@ -876,11 +921,14 @@ cat(c("Data are in:",
 
 ```{r add permit_expired column}
 ### add permit_expired column ----
-# Explanations:
-# 1. Add a new column 'permit_expired' using 'mutate'.
-# 2. Use 'case_when' to determine if 'permit_groupexpiration' is greater than permit_expired_check_date.
-# 3. If true, set 'permit_expired' to "no", otherwise set it to "yes".
+```
 
+Explanations:
+1. Add a new column 'permit_expired' using 'mutate'.
+2. Use 'case_when' to determine if 'permit_groupexpiration' is greater than permit_expired_check_date.
+3. If true, set 'permit_expired' to "no", otherwise set it to "yes".
+
+```{r}
 compl_clean_w_permit_exp <-
   compl_clean |>
   # if permit group expiration is after permit_expired_check_date than "not expired"
@@ -939,7 +987,11 @@ dim(compl_clean_w_permit_exp_last_half_year)
 
 ```{r Have only SA and dual permits}
 ## Have only SA and dual permits ----
-# Use 'filter' to select rows where 'permitgroup' contains "CDW", "CHS", or "SC".
+```
+
+Use 'filter' to select rows where 'permitgroup' contains "CDW", "CHS", or "SC".
+
+```{r}
 compl_clean_w_permit_exp_last_half_year__sa <-
   compl_clean_w_permit_exp_last_half_year |>
   dplyr::filter(grepl("CDW|CHS|SC", permitgroup))
@@ -972,10 +1024,13 @@ remove_columns <- c(
   "submittedpower_down_",
   "permit_expired"
 )
+```
 
-# Explanations:
-# 1. Use 'select' to remove columns specified in 'remove_columns'.
-# 2. Use 'distinct' to keep only unique rows in the resulting data frame.
+Explanations:
+1. Use 'select' to remove columns specified in 'remove_columns'.
+2. Use 'distinct' to keep only unique rows in the resulting data frame.
+
+```{r}
 compl_clean_w_permit_exp_last_half_year__sa__short <-
   compl_clean_w_permit_exp_last_half_year__sa |>
   dplyr::select(-tidyselect::any_of(remove_columns)) |> 
@@ -984,11 +1039,7 @@ compl_clean_w_permit_exp_last_half_year__sa__short <-
 dim(compl_clean_w_permit_exp_last_half_year__sa__short)
 ```
 
-### work with the whole period 
-
-```{r work with the whole period}
-## work with the whole period ----
-```
+Work with the whole period
 
 ### add compliant_after_overr 
 
@@ -1041,8 +1092,11 @@ compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr <-
                                              compliance_col_name = "compliant_")
 tictoc::toc()
 # compl_overr: 8.76 sec elapsed
+```
 
-# check
+check
+
+```{r}
 compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr |> 
   dplyr::select(compliant_, overridden_, compliant_after_override) |>
   dplyr::count(compliant_, overridden_, compliant_after_override)
@@ -1051,15 +1105,21 @@ compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr |>
 # 1 NO         NO          no                       11258
 # 2 NO         YES         yes                         70
 # 3 YES        NO          yes                      29628
+```
 
-# check
+check
+
+```{r}
 compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr$compliant_after_override |> 
   unique()
 # [1] "yes" "no" 
 
 dim(compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr)
+```
 
-# check
+check
+
+```{r}
 dplyr::n_distinct(compl_clean_w_permit_exp_last_half_year__sa$vessel_official_number) ==
   dplyr::n_distinct(
     compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr$vessel_official_number
@@ -1088,13 +1148,15 @@ all_weeks_num <-
   dplyr::select(week) |>
   dplyr::distinct() |>
   nrow()
+```
 
-# Explanations:
-# 1. Group the data frame by 'vessel_official_number'.
-# 2. Filter the groups based on the condition that the number of distinct weeks is greater than or equal to 'all_weeks_num'.
-# 3. Remove the grouping from the data frame.
-# 4. Exclude the 'week' column from the resulting data frame, we don't need it anymore.
+Explanations:
+1. Group the data frame by 'vessel_official_number'.
+2. Filter the groups based on the condition that the number of distinct weeks is greater than or equal to 'all_weeks_num'.
+3. Remove the grouping from the data frame.
+4. Exclude the 'week' column from the resulting data frame, we don't need it anymore.
 
+```{r}
 compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present <-
   compl_clean_w_permit_exp_last_half_year__sa_non_c |>
   dplyr::group_by(vessel_official_number) |>
@@ -1147,10 +1209,7 @@ compl_clean_w_permit_exp_last_half_year__sa |>
 ```
 
 0 OK!
-
-```{r}
-# Results: prepared Compliance is in compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present
-```
+Results: prepared Compliance is in compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present
 
 ## Preparing Correspondence 
 
@@ -1162,41 +1221,51 @@ compl_clean_w_permit_exp_last_half_year__sa |>
 
 ```{r remove 999999}
 ## remove 999999 ----
-# Explanations:
-# Create a new data frame 'corresp_contact_cnts_clean' by filtering 'corresp_contact_cnts_clean0' based on the condition.
-# 1. Use 'filter' to select rows where 'vessel_official_number' does not start with "99999".
+```
+
+Explanations:
+Create a new data frame 'corresp_contact_cnts_clean' by filtering 'corresp_contact_cnts_clean0' based on the condition.
+1. Use 'filter' to select rows where 'vessel_official_number' does not start with "99999".
+
+
+```{r}
 corresp_contact_cnts_clean <-
   corresp_contact_cnts_clean0 |>
   dplyr::filter(!grepl("^99999", vessel_official_number))
 
 dplyr::n_distinct(corresp_contact_cnts_clean$vesselofficial_number)
-
-# "2023-08-09"
-# Michelle
-# It should be at least 2 contact "attempts". i.e., if they are ignoring our calls and emails then they cannot continue to go on in perpetuity without reporting and never be seen as egregious. So, at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough at this point and they need to be passed to OLE.
 ```
+
+"2023-08-09"
+Michelle
+It should be at least 2 contact "attempts". i.e., if they are ignoring our calls and emails then they cannot continue to go on in perpetuity without reporting and never be seen as egregious. So, at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough at this point and they need to be passed to OLE.
 
 ### new requirement 2023-08-09 
 
 ```{r new requirement 20230809}
 ## new requirement 2023-08-09 ----
-# at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough
 ```
+
+at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough
 
 ### new requirement 2024-02-26 
 
 ```{r new requirement 20240226}
 ## new requirement 2024-02-26 ----
-# It needs to be that we called at least 1 time and emailed at least 1 time. Or they contacted us at least once.
 ```
+
+It needs to be that we called at least 1 time and emailed at least 1 time. Or they contacted us at least once.
 
 ### new requirement 2024-05-06 
 
 ```{r new requirement 20240506}
 ## new requirement 2024-05-06 ----
-# Exclude any correspondence (regardless of the type - email/call, voicemail or not) that includes "No contact made" in the text of the entry as a actual "direct" contact for any egregious vessel.
+```
 
-# check
+Exclude any correspondence (regardless of the type - email/call, voicemail or not) that includes "No contact made" in the text of the entry as a actual "direct" contact for any egregious vessel.
+check
+
+```{r}
 corresp_contact_cnts_clean |>
   dplyr::select(calltype, voicemail, contacttype) |>
   dplyr::distinct() |> head(10)
@@ -1206,8 +1275,11 @@ corresp_contact_cnts_clean |>
 
 ```{r Filters}
 ## Filters ----
-# The functions below are creating filter conditions using quosures. Quosures are a part of tidy evaluation in R, allowing expressions to be captured without evaluation, which is useful for creating functions with flexible inputs.
+```
 
+The functions below are creating filter conditions using quosures. Quosures are a part of tidy evaluation in R, allowing expressions to be captured without evaluation, which is useful for creating functions with flexible inputs.
+
+```{r}
 we_called_filter <-
   dplyr::quo(any(tolower(contacttype) == "call" &
         tolower(calltype) == "outgoing"))
@@ -1217,21 +1289,28 @@ we_emailed_once_filter <-
     tolower(contacttype) %in% c("email", "other") &
       tolower(calltype) == "outgoing"
   ))
+```
 
-# Explanations:
-# 
-# **Expression inside quo()**:
-#    - `!grepl("No contact made", contactcomments, ignore.case = TRUE)`: This expression is a negation of the `grepl` function, which is used to search for a pattern ("No contact made") in the `contactcomments` column.
-#    - `grepl()` returns `TRUE` for each element of `contactcomments` that contains the pattern, and `FALSE` otherwise.
-#    - The `!` operator negates the result, so the filter condition will be `TRUE` for rows where "No contact made" is not found in the `contactcomments` column.
-# 
-# The `exclude_no_contact_made_filter` function effectively creates a filter condition that can be used to exclude rows where "No contact made" is found in the `contactcomments` column when applied to a dataset.
+Explanations:
+
+**Expression inside quo()**:
+   - `!grepl("No contact made", contactcomments, ignore.case = TRUE)`: This expression is a negation of the `grepl` function, which is used to search for a pattern ("No contact made") in the `contactcomments` column.
+   - `grepl()` returns `TRUE` for each element of `contactcomments` that contains the pattern, and `FALSE` otherwise.
+   - The `!` operator negates the result, so the filter condition will be `TRUE` for rows where "No contact made" is not found in the `contactcomments` column.
+
+The `exclude_no_contact_made_filter` function effectively creates a filter condition that can be used to exclude rows where "No contact made" is found in the `contactcomments` column when applied to a dataset.
+
+
+```{r}
 exclude_no_contact_made_filter <-
   dplyr::quo(!grepl("No contact made", 
             contactcomments, 
             ignore.case = TRUE))
+```
 
-# don't need a second contact
+don't need a second contact
+
+```{r}
 they_contacted_direct_filter <-
   dplyr::quo(
     any(
@@ -1279,17 +1358,23 @@ dplyr::n_distinct(corresp_contact_cnts_clean_direct_cnt_2atmps$vesselofficial_nu
 
 ```{r fix dates}
 ## fix dates ----
-# check
+```
+
+check
+
+```{r}
 head(corresp_contact_cnts_clean_direct_cnt_2atmps$contact_date, 1) |> str()
  # chr "02/15/2024 03:15PM"
+```
 
-# Explanations:
-# Mutate new columns 'created_on_dttm' and 'contact_date_dttm' by parsing 'created_on' and 'contact_date' using lubridate package.
-# The date-time formats considered are "mdY R".
-# 1. Use the pipe operator to pass 'corresp_contact_cnts_clean_direct_cnt_2atmps' as the left-hand side of the next expression.
-# 2. Use 'mutate' to create new columns with parsed date-time values.
-# 3. Use 'lubridate::parse_date_time' to parse the date-time values using the specified formats.
+Explanations:
+Mutate new columns 'created_on_dttm' and 'contact_date_dttm' by parsing 'created_on' and 'contact_date' using lubridate package.
+The date-time formats considered are "mdY R".
+1. Use the pipe operator to pass 'corresp_contact_cnts_clean_direct_cnt_2atmps' as the left-hand side of the next expression.
+2. Use 'mutate' to create new columns with parsed date-time values.
+3. Use 'lubridate::parse_date_time' to parse the date-time values using the specified formats.
 
+```{r}
 corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates <-
   corresp_contact_cnts_clean_direct_cnt_2atmps |>
   dplyr::mutate(
@@ -1300,27 +1385,33 @@ corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates <-
       lubridate::parse_date_time(contact_date,
                                  c("mdY R"))
   )
+```
 
-# check
+check
+
+```{r}
 str(corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates$contact_date_dttm)
 # POSIXct[1:29089], format: "2024-02-15 15:15:00" 
-
-# preprared Correspondence is in 
-# corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates
 ```
+
+preprared Correspondence is in 
+corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates
 
 ## Join correspondence with compliance 
 
 ```{r Join correspondence with compliance}
 # Join correspondence with compliance ----
-# Explanations:
-# Create a new dataframe 'compl_corr_to_investigation' by performing an inner join between
-# 'correspondence' and 'compliance'.
-# The join is performed on the column 'vessel_official_number'.
-# Use 'multiple = "all"' and 'relationship = "many-to-many"' to handle multiple matches during the join.
-# 1. Use the 'inner_join' function from the dplyr package to combine the two dataframes based on the specified columns.
-# 2. Pass the column names and other parameters to the 'by', 'multiple', and 'relationship' arguments.
+```
 
+Explanations:
+Create a new dataframe 'compl_corr_to_investigation' by performing an inner join between
+'correspondence' and 'compliance'.
+The join is performed on the column 'vessel_official_number'.
+Use 'multiple = "all"' and 'relationship = "many-to-many"' to handle multiple matches during the join.
+1. Use the 'inner_join' function from the dplyr package to combine the two dataframes based on the specified columns.
+2. Pass the column names and other parameters to the 'by', 'multiple', and 'relationship' arguments.
+
+```{r}
 compl_corr_to_investigation <-
   dplyr::inner_join(
     corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates,
@@ -1331,8 +1422,11 @@ compl_corr_to_investigation <-
   )
 
 dim(compl_corr_to_investigation)
+```
 
-# check
+check
+
+```{r}
 dplyr::n_distinct(compl_corr_to_investigation$vesselofficial_number)
 
 # View(compl_corr_to_investigation)
@@ -1344,10 +1438,10 @@ dplyr::n_distinct(compl_corr_to_investigation$vesselofficial_number)
 ## save number of vessels to investigate for checks ----
 num_of_vsl_to_investigate <- 
   dplyr::n_distinct(compl_corr_to_investigation$vesselofficial_number)
-
-# Results: Compl & corresondence together are in
-# compl_corr_to_investigation
 ```
+
+Results: Compl & corresondence together are in
+compl_corr_to_investigation
 
 ## output needed investigation 
 
@@ -1357,23 +1451,22 @@ num_of_vsl_to_investigate <-
 
 # Prepare output
 
-
-```{r}
-# 1. remove unused columns
-# 2. create additional columns
-# 3. mark vessels already in the know list (prev_result)
-# 4. duals vs. sa_only
-```
+1. remove unused columns
+2. create additional columns
+3. mark vessels already in the know list (prev_result)
+4. duals vs. sa_only
 
 ### 1. remove extra columns 
 
 ```{r 1 remove extra columns}
 ## 1. remove extra columns ----
+```
 
-# Explanations:
-# Group the dataframe by the 'vessel_official_number' column and then apply the 'summarise_all' function.
-# The 'summarise_all' function applies the specified function (in this case, 'concat_unique') to each column.
+Explanations:
+Group the dataframe by the 'vessel_official_number' column and then apply the 'summarise_all' function.
+The 'summarise_all' function applies the specified function (in this case, 'concat_unique') to each column.
 
+```{r}
 colnames(compl_corr_to_investigation) |> 
   cat(sep = '",\n"')
 
@@ -1405,13 +1498,15 @@ unused_fields <- c(
   # "permitgroup",
   # "permit_groupexpiration",
   "compliant_after_override")
+```
 
-# Explanations:
-# 1. Exclude columns specified in 'unused_fields' from the data frame.
-# 2. Group the data frame by 'vessel_official_number'.
-# 3. Apply the custom function 'concat_unique' to all columns to concatenate unique non-missing values into a single string.
-# 4. Remove the grouping from the data frame.
+Explanations:
+1. Exclude columns specified in 'unused_fields' from the data frame.
+2. Group the data frame by 'vessel_official_number'.
+3. Apply the custom function 'concat_unique' to all columns to concatenate unique non-missing values into a single string.
+4. Remove the grouping from the data frame.
 
+```{r}
 compl_corr_to_investigation_short <-
   compl_corr_to_investigation |>
   # compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id |>
@@ -1436,10 +1531,10 @@ dim(compl_corr_to_investigation_short)
 ## 2. create additional columns ----
 ```
 
-#### add list of contact dates and contact type in parentheses  -
+#### add list of contact dates and contact type in parentheses  
 
 ```{r add list of contact dates and contact type in parentheses}
-### add list of contact dates and contact type in parentheses  -----
+### add list of contact dates and contact type in parentheses  ----
 # <<<<
 find_col_name  <-  function(mydf, start_part, end_part) {
   # Create a regular expression pattern to search for column names that start with 'start_part'
@@ -1473,9 +1568,11 @@ find_col_name  <-  function(mydf, start_part, end_part) {
 #    - `return(matching_names)`: Returns the vector of matching column names found in the dataframe that satisfy the specified pattern.
 # 
 # >>>>
+```
 
+put names into vars (needed, bc spaces and underscores placements vary from source to source)
 
-# put names into vars (needed, bc spaces and underscores placements vary from source to source)
+```{r}
 contactdate_field_name <-
   auxfunctions::find_col_name(compl_corr_to_investigation_short, "contact", "date")[1]
 
@@ -1484,17 +1581,20 @@ contacttype_field_name <-
 
 contactphonenumber_field_name <-
   auxfunctions::find_col_name(compl_corr_to_investigation_short, ".*contact", "number.*")[1]
+```
 
-# Explanations:
-# Define a function 'get_date_contacttype' that takes a dataframe 'compl_corr_to_investigation' as input.
-# Perform several data manipulation steps to extract and organize relevant information.
-# 1. Add a new column 'date__contacttype' by concatenating the values from 'contactdate_field_name' and 'contacttype'.
-# 2. Select only the 'vessel_official_number' and 'date__contacttype' columns.
-# 3. Arrange the dataframe by 'vessel_official_number' and 'date__contacttype'.
-# 4. Keep distinct rows based on 'vessel_official_number' and 'date__contacttype'.
-# 5. Group the dataframe by 'vessel_official_number'.
-# 6. Summarize the data by creating a new column 'date__contacttypes' that concatenates all 'date__contacttype' values for each vessel separated by a comma.
-# 7. Return the resulting dataframe.
+Explanations:
+Define a function 'get_date_contacttype' that takes a dataframe 'compl_corr_to_investigation' as input.
+Perform several data manipulation steps to extract and organize relevant information.
+1. Add a new column 'date__contacttype' by concatenating the values from 'contactdate_field_name' and 'contacttype'.
+2. Select only the 'vessel_official_number' and 'date__contacttype' columns.
+3. Arrange the dataframe by 'vessel_official_number' and 'date__contacttype'.
+4. Keep distinct rows based on 'vessel_official_number' and 'date__contacttype'.
+5. Group the dataframe by 'vessel_official_number'.
+6. Summarize the data by creating a new column 'date__contacttypes' that concatenates all 'date__contacttype' values for each vessel separated by a comma.
+7. Return the resulting dataframe.
+
+```{r}
 get_date_contacttype <-
   function(my_df) {
   
@@ -1519,8 +1619,11 @@ get_date_contacttype <-
     
     return(res)
   }
+```
 
-# use the function
+use the function
+
+```{r}
 date__contacttype_per_id <-
   get_date_contacttype(compl_corr_to_investigation_short)
 
@@ -1545,8 +1648,11 @@ compl_corr_to_investigation__corr_date <-
     contactdate_field_name,
     contacttype_field_name
   )))
-  
-# check
+```
+
+check
+
+```{r}
 compl_corr_to_investigation__corr_date |> 
   head() |> 
   dplyr::glimpse() |>
@@ -1557,7 +1663,6 @@ compl_corr_to_investigation__corr_date |>
 
 ```{r add pims home port info}
 ### add pims home port info ----
-# compl_corr_to_investigation_short_dup_marked__hailing_port <-
 compl_corr_to_investigation__corr_date__hailing_port <- 
   dplyr::left_join(
     compl_corr_to_investigation__corr_date,
@@ -1578,9 +1683,9 @@ prep_addresses_path <-
             stringr::str_glue("{current_project_basename}_prep_addresses.R"))
 
 file.exists(prep_addresses_path)
-
-# Manually check missing addresses
 ```
+
+Manually check missing addresses
 
 ## From FHIER 
 
@@ -1660,8 +1765,11 @@ clean_names_and_addresses  <-  function(my_df) {
 # - Finally, it returns the cleaned dataframe. 
 #  
 # >>>>
+```
 
-# fhier_addresses are from get_data (For-hire Primary Physical Address List)
+fhier_addresses are from get_data (For-hire Primary Physical Address List)
+
+```{r}
 fhier_addr_short <-
   fhier_addresses |>
   dplyr::select(
@@ -1683,8 +1791,11 @@ fhier_addr_short_clean <-
   dplyr::distinct()
 
 # nrow(fhier_addr_short_clean)
+```
 
-# don't combine address
+don't combine address
+
+```{r}
 # fhier_addr_short__comb_addr <- 
 #   fhier_addr_short |> 
 #   clean_names_and_addresses() |> 
@@ -1722,11 +1833,18 @@ fhier_addr_short_clean <-
 compl_corr_to_investigation__corr_date__hailing_port__fhier_addr <-
   left_join(compl_corr_to_investigation__corr_date__hailing_port,
             fhier_addr_short_clean)
-# Joining with `by = join_by(vessel_official_number)`
+```
 
+Joining with `by = join_by(vessel_official_number)`
+
+
+```{r}
 # View(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
+```
 
-# check if no name, phone or email
+check if no name, phone or email
+
+```{r}
 compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>
   filter(
     is.na(contactrecipientname) |
@@ -1742,25 +1860,27 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>
 ## vessels with no addresses ----
 
 # print_df_names(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
+```
 
-### Explanation:
+Explanation:
+This code snippet creates a dataframe `no_addr_vsl_ids` containing unique `vessel_official_number` values based on certain conditions.
 
-# This code snippet creates a dataframe `no_addr_vsl_ids` containing unique `vessel_official_number` values based on certain conditions.
-# 
-# 1. **Starting with the DataFrame:**
-#    - `compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>`: Pipes the dataframe `compl_corr_to_investigation__corr_date__hailing_port__fhier_addr` into the next function.
-# 
-# 2. **Filtering Rows:**
-#    - `dplyr::filter(physical_address_1 %in% is_empty)`: Uses the `filter` function from the `dplyr` package to keep rows where the `physical_address_1` column is empty.
-#      - `physical_address_1 %in% is_empty`: This condition checks if the values in the `physical_address_1` column are empty.
-# 
-# 3. **Selecting Columns:**
-#    - `dplyr::select(vessel_official_number)`: Selects only the `vessel_official_number` column from the filtered dataframe.
-# 
-# 4. **Removing Duplicate Rows:**
-#    - `dplyr::distinct()`: Removes duplicate rows from the dataframe, ensuring that each `vessel_official_number` appears only once in the final result.
-# 
-# The resulting `no_addr_vsl_ids` dataframe contains unique `vessel_official_number` values where the corresponding `physical_address_1` column is empty in the `compl_corr_to_investigation__corr_date__hailing_port__fhier_addr` dataframe.
+1. **Starting with the DataFrame:**
+   - `compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>`: Pipes the dataframe `compl_corr_to_investigation__corr_date__hailing_port__fhier_addr` into the next function.
+
+2. **Filtering Rows:**
+   - `dplyr::filter(physical_address_1 %in% is_empty)`: Uses the `filter` function from the `dplyr` package to keep rows where the `physical_address_1` column is empty.
+     - `physical_address_1 %in% is_empty`: This condition checks if the values in the `physical_address_1` column are empty.
+
+3. **Selecting Columns:**
+   - `dplyr::select(vessel_official_number)`: Selects only the `vessel_official_number` column from the filtered dataframe.
+
+4. **Removing Duplicate Rows:**
+   - `dplyr::distinct()`: Removes duplicate rows from the dataframe, ensuring that each `vessel_official_number` appears only once in the final result.
+
+The resulting `no_addr_vsl_ids` dataframe contains unique `vessel_official_number` values where the corresponding `physical_address_1` column is empty in the `compl_corr_to_investigation__corr_date__hailing_port__fhier_addr` dataframe.
+
+```{r}
 is_empty <- c(NA, "NA", "", "UN", "N/A")
 
 no_addr_vsl_ids <- 
@@ -1778,23 +1898,27 @@ dplyr::n_distinct(no_addr_vsl_ids$vessel_official_number)
 
 ```{r From Oracle db}
 # From Oracle db ----
-# Explanation:
+```
 
-# This code snippet processes the `db_participants_address` dataframe by filtering rows based on the `official_number` and ensuring distinct rows in the resulting dataframe.
-# 
-# 1. **Starting with the DataFrame:**
-#    - `db_participants_address |>`: Starts with the `db_participants_address` dataframe and pipes it into the next function.
-# 
-# 2. **Filtering Rows:**
-#    - `dplyr::filter(official_number %in% no_addr_vsl_ids$vessel_official_number)`:
-#      - `dplyr::filter(...)`: The `filter` function from the `dplyr` package is used to keep rows that meet certain conditions.
-#      - `official_number %in% no_addr_vsl_ids$vessel_official_number`: This condition keeps only the rows where the `official_number` is found in the `vessel_official_number` column of the `no_addr_vsl_ids` dataframe.
-#        - `%in%`: The `%in%` operator checks if elements of `official_number` are present in `no_addr_vsl_ids$vessel_official_number`.
-# 
-# 3. **Removing Duplicate Rows:**
-#    - `dplyr::distinct()`: The `distinct` function from the `dplyr` package removes duplicate rows from the filtered dataframe, ensuring each row is unique.
-# 
-# The result is a new dataframe `db_participants_address__needed` that contains only the rows from `db_participants_address` where the `official_number` is present in the `no_addr_vsl_ids$vessel_official_number` column, and all duplicate rows are removed.
+Explanation:
+This code snippet processes the `db_participants_address` dataframe by filtering rows based on the `official_number` and ensuring distinct rows in the resulting dataframe.
+
+1. **Starting with the DataFrame:**
+   - `db_participants_address |>`: Starts with the `db_participants_address` dataframe and pipes it into the next function.
+
+2. **Filtering Rows:**
+   - `dplyr::filter(official_number %in% no_addr_vsl_ids$vessel_official_number)`:
+     - `dplyr::filter(...)`: The `filter` function from the `dplyr` package is used to keep rows that meet certain conditions.
+     - `official_number %in% no_addr_vsl_ids$vessel_official_number`: This condition keeps only the rows where the `official_number` is found in the `vessel_official_number` column of the `no_addr_vsl_ids` dataframe.
+       - `%in%`: The `%in%` operator checks if elements of `official_number` are present in `no_addr_vsl_ids$vessel_official_number`.
+
+3. **Removing Duplicate Rows:**
+   - `dplyr::distinct()`: The `distinct` function from the `dplyr` package removes duplicate rows from the filtered dataframe, ensuring each row is unique.
+
+The result is a new dataframe `db_participants_address__needed` that contains only the rows from `db_participants_address` where the `official_number` is present in the `no_addr_vsl_ids$vessel_official_number` column, and all duplicate rows are removed.
+
+
+```{r}
 db_participants_address__needed <-
   db_participants_address |>
   dplyr::filter(official_number %in% no_addr_vsl_ids$vessel_official_number) |>
@@ -1832,26 +1956,27 @@ col_names_to_keep <-
     "mailing_state",
     "mailing_zip_code"
   )
+```
 
-# Explanation:
+Explanation:
+This code snippet processes the `db_participants_address__needed` dataframe by selecting specific columns, removing duplicate rows, and arranging the rows based on the `official_number` column.
 
-# This code snippet processes the `db_participants_address__needed` dataframe by selecting specific columns, removing duplicate rows, and arranging the rows based on the `official_number` column.
-# 
-# 1. **Creating a Regular Expression Pattern for Column Names:**
-#    - `my_cols_ends <- paste0(col_names_to_keep, '$', collapse = '|')`:
-#      - `col_names_to_keep`: This variable contains a list or vector of column name prefixes you want to keep.
-#      - `paste0(...)`: This function concatenates the elements of `col_names_to_keep` with a `$` at the end of each element, creating a regular expression pattern to match column names that end with any of the specified prefixes.
-#      - `collapse = '|'`: The `collapse` parameter ensures that the elements are joined by a `|`, which is the OR operator in regular expressions.
-# 
-# 2. **Selecting Specific Columns:**
-#    - `db_participants_address__needed |>`: Starts with the `db_participants_address__needed` dataframe and pipes it into the next function.
-#    - `dplyr::select(tidyselect::matches(my_cols_ends))`: Uses the `select` function from `dplyr` and the `matches` function from `tidyselect` to select columns whose names match the regular expression pattern stored in `my_cols_ends`.
-# 
-# 3. **Removing Duplicate Rows:**
-#    - `dplyr::distinct()`: Removes duplicate rows from the selected columns.
-# 
-# The result is a new dataframe `db_participants_address__needed_short1` that contains only the columns matching the specified pattern, with duplicates removed.
+1. **Creating a Regular Expression Pattern for Column Names:**
+   - `my_cols_ends <- paste0(col_names_to_keep, '$', collapse = '|')`:
+     - `col_names_to_keep`: This variable contains a list or vector of column name prefixes you want to keep.
+     - `paste0(...)`: This function concatenates the elements of `col_names_to_keep` with a `$` at the end of each element, creating a regular expression pattern to match column names that end with any of the specified prefixes.
+     - `collapse = '|'`: The `collapse` parameter ensures that the elements are joined by a `|`, which is the OR operator in regular expressions.
 
+2. **Selecting Specific Columns:**
+   - `db_participants_address__needed |>`: Starts with the `db_participants_address__needed` dataframe and pipes it into the next function.
+   - `dplyr::select(tidyselect::matches(my_cols_ends))`: Uses the `select` function from `dplyr` and the `matches` function from `tidyselect` to select columns whose names match the regular expression pattern stored in `my_cols_ends`.
+
+3. **Removing Duplicate Rows:**
+   - `dplyr::distinct()`: Removes duplicate rows from the selected columns.
+
+The result is a new dataframe `db_participants_address__needed_short1` that contains only the columns matching the specified pattern, with duplicates removed.
+
+```{r}
 my_cols_ends <- paste0(col_names_to_keep, 
                   '$', 
                   collapse = '|')
@@ -1860,15 +1985,26 @@ db_participants_address__needed_short <-
   db_participants_address__needed |>
   dplyr::select(tidyselect::matches(my_cols_ends)) |>
   dplyr::distinct()
+```
 
-# check
+check
+
+```{r}
 nrow(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
-# 199
-dplyr::n_distinct(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr$vessel_official_number)
-# 199
-# one vessel per row, OK
+```
 
-# have to combine rows
+199
+
+```{r}
+dplyr::n_distinct(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr$vessel_official_number)
+```
+
+199
+
+one vessel per row, OK
+have to combine rows
+
+```{r}
 dim(db_participants_address__needed_short)
 # 106
 dplyr::n_distinct(db_participants_address__needed_short$official_number)
@@ -1879,21 +2015,22 @@ dplyr::n_distinct(db_participants_address__needed_short$official_number)
 
 ```{r combine area and phone numbers}
 ## combine area and phone numbers ----
+```
 
-# Explanation:
+Explanation:
+This code creates a new dataframe `db_participants_address__needed_short__phone0` by modifying the `db_participants_address__needed_short` dataframe. It adds two new columns (`erv_phone` and `erb_phone`) that concatenate existing columns.
 
-# This code creates a new dataframe `db_participants_address__needed_short__phone0` by modifying the `db_participants_address__needed_short` dataframe. It adds two new columns (`erv_phone` and `erb_phone`) that concatenate existing columns.
-# 
-# 1. **Starting with the Original Dataframe:**
-#    - `db_participants_address__needed_short |>`: Begins with the `db_participants_address__needed_short` dataframe and pipes it into the next function.
-# 
-# 2. **Adding New Columns:**
-#    - `dplyr::mutate(...)`: The `mutate` function from the `dplyr` package is used to add or modify columns in the dataframe.
-#      - `erv_phone = paste0(erv_ph_area, erv_ph_number)`: Creates a new column `erv_phone` by concatenating the `erv_ph_area` and `erv_ph_number` columns using `paste0`, which combines strings without any separator.
-#      - `erb_phone = paste0(erb_ph_area, erb_ph_number)`: Similarly, creates a new column `erb_phone` by concatenating the `erb_ph_area` and `erb_ph_number` columns.
-# 
-# The result is a new dataframe `db_participants_address__needed_short__phone0` that contains all the original columns from `db_participants_address__needed_short` plus two new columns (`erv_phone` and `erb_phone`) that contain concatenated phone numbers.
+1. **Starting with the Original Dataframe:**
+   - `db_participants_address__needed_short |>`: Begins with the `db_participants_address__needed_short` dataframe and pipes it into the next function.
 
+2. **Adding New Columns:**
+   - `dplyr::mutate(...)`: The `mutate` function from the `dplyr` package is used to add or modify columns in the dataframe.
+     - `erv_phone = paste0(erv_ph_area, erv_ph_number)`: Creates a new column `erv_phone` by concatenating the `erv_ph_area` and `erv_ph_number` columns using `paste0`, which combines strings without any separator.
+     - `erb_phone = paste0(erb_ph_area, erb_ph_number)`: Similarly, creates a new column `erb_phone` by concatenating the `erb_ph_area` and `erb_ph_number` columns.
+
+The result is a new dataframe `db_participants_address__needed_short__phone0` that contains all the original columns from `db_participants_address__needed_short` plus two new columns (`erv_phone` and `erb_phone`) that contain concatenated phone numbers.
+
+```{r}
 db_participants_address__needed_short__phone0 <- 
   db_participants_address__needed_short |> 
   dplyr::mutate(erv_phone = paste0(erv_ph_area, erv_ph_number),
@@ -1961,29 +2098,31 @@ col_part_names <-
     "mailing_state",
     "mailing_zip_code"
   )
+```
 
-# Explanation:
+Explanation:
+1. **Mapping Over Column Parts:**
+   - `col_part_names |> purrr::map(\(curr_col_part) { ... })`: It iterates over each element in `col_part_names` using the `map` function from the purrr package. For each column part (`curr_col_part`), it executes the code inside the curly braces `{ ... }`.
 
-# 1. **Mapping Over Column Parts:**
-#    - `col_part_names |> purrr::map(\(curr_col_part) { ... })`: It iterates over each element in `col_part_names` using the `map` function from the purrr package. For each column part (`curr_col_part`), it executes the code inside the curly braces `{ ... }`.
-# 
-# 2. **Generating New Column Names:**
-#    - `new_col_name <- stringr::str_glue("db_{curr_col_part}")`: It creates a new column name by combining the prefix "db_" with the current column part (`curr_col_part`) using `str_glue` from the stringr package.
-# 
-# 3. **Grouping and Mutating Data:**
-#    - `db_participants_address__needed_short__phone0 |> dplyr::group_by(official_number) |> ...`: It groups the dataframe `db_participants_address__needed_short__phone0` by the column `official_number` using `group_by` from dplyr. Then, it proceeds with further data manipulation operations.
-# 
-# 4. **Applying Purrr::pmap Function:**
-#    - `purrr::pmap(dplyr::across(dplyr::ends_with(curr_col_part)), ...)`: It applies the `pmap` function from the purrr package to iterate over columns that end with the current column part (`curr_col_part`). Within the `pmap` call, a custom function (`auxfunctions::list_sort_uniq`) is applied to each corresponding set of columns.
-# 
-# 5. **Ungrouping and Selecting Columns:**
-#    - `... |> dplyr::ungroup() |> dplyr::select(-official_number)`: After the mutation step, it ungroups the dataframe and removes the `official_number` column using `ungroup()` and `select()` functions from dplyr, respectively.
-# 
-# 6. **Binding Columns Together:**
-#    - `dplyr::bind_cols(db_participants_address__needed_short__phone0, .)`: Finally, it binds the original dataframe `db_participants_address__needed_short__phone0` with the transformed columns obtained from the mapping operation using `bind_cols` from dplyr.
-# 
-# This code dynamically generates new columns in the dataframe based on the provided column parts, applies a custom function to each set of corresponding columns, and then binds the resulting columns back to the original dataframe.
+2. **Generating New Column Names:**
+   - `new_col_name <- stringr::str_glue("db_{curr_col_part}")`: It creates a new column name by combining the prefix "db_" with the current column part (`curr_col_part`) using `str_glue` from the stringr package.
 
+3. **Grouping and Mutating Data:**
+   - `db_participants_address__needed_short__phone0 |> dplyr::group_by(official_number) |> ...`: It groups the dataframe `db_participants_address__needed_short__phone0` by the column `official_number` using `group_by` from dplyr. Then, it proceeds with further data manipulation operations.
+
+4. **Applying Purrr::pmap Function:**
+   - `purrr::pmap(dplyr::across(dplyr::ends_with(curr_col_part)), ...)`: It applies the `pmap` function from the purrr package to iterate over columns that end with the current column part (`curr_col_part`). Within the `pmap` call, a custom function (`auxfunctions::list_sort_uniq`) is applied to each corresponding set of columns.
+
+5. **Ungrouping and Selecting Columns:**
+   - `... |> dplyr::ungroup() |> dplyr::select(-official_number)`: After the mutation step, it ungroups the dataframe and removes the `official_number` column using `ungroup()` and `select()` functions from dplyr, respectively.
+
+6. **Binding Columns Together:**
+   - `dplyr::bind_cols(db_participants_address__needed_short__phone0, .)`: Finally, it binds the original dataframe `db_participants_address__needed_short__phone0` with the transformed columns obtained from the mapping operation using `bind_cols` from dplyr.
+
+This code dynamically generates new columns in the dataframe based on the provided column parts, applies a custom function to each set of corresponding columns, and then binds the resulting columns back to the original dataframe.
+
+
+```{r}
 tictoc::tic("map all pairs")
 db_participants_address__needed_short__erv_erb_combined3 <-
   col_part_names |>
@@ -2010,22 +2149,25 @@ tictoc::toc()
 
 ```{r shorten}
 ### shorten ----
+```
 
-# Explanation:
+Explanation:
+This code processes the `db_participants_address__needed_short__erv_erb_combined3` dataframe to create a new dataframe named `db_participants_address__needed_short__erv_erb_combined_short` by selecting specific columns and ensuring the rows are distinct.
 
-# This code processes the `db_participants_address__needed_short__erv_erb_combined3` dataframe to create a new dataframe named `db_participants_address__needed_short__erv_erb_combined_short` by selecting specific columns and ensuring the rows are distinct.
-# 
-# 1. **Dataframe Selection and Transformation:**
-#    - `db_participants_address__needed_short__erv_erb_combined3 |>`: Starts with the input dataframe `db_participants_address__needed_short__erv_erb_combined3` and pipes it into the subsequent functions.
-# 
-# 2. **Selecting Specific Columns:**
-#    - `dplyr::select(official_number, tidyselect::all_of(tidyselect::starts_with("db_")))`: Uses `dplyr::select` to retain only the `official_number` column and any columns whose names start with "db_".
-#      - `tidyselect::all_of(tidyselect::starts_with("db_"))`: Uses the `tidyselect` package to identify all column names that start with "db_". The `all_of` function ensures that the selected columns exist within the dataframe.
-# 
-# 3. **Ensuring Unique Rows:**
-#    - `dplyr::distinct()`: Ensures that the resulting dataframe contains only unique rows, removing any duplicate rows based on the selected columns.
-# 
-# The result is a new dataframe `db_participants_address__needed_short__erv_erb_combined_short` that contains only the `official_number` column and columns starting with "db_", with all duplicate rows removed.
+1. **Dataframe Selection and Transformation:**
+   - `db_participants_address__needed_short__erv_erb_combined3 |>`: Starts with the input dataframe `db_participants_address__needed_short__erv_erb_combined3` and pipes it into the subsequent functions.
+
+2. **Selecting Specific Columns:**
+   - `dplyr::select(official_number, tidyselect::all_of(tidyselect::starts_with("db_")))`: Uses `dplyr::select` to retain only the `official_number` column and any columns whose names start with "db_".
+     - `tidyselect::all_of(tidyselect::starts_with("db_"))`: Uses the `tidyselect` package to identify all column names that start with "db_". The `all_of` function ensures that the selected columns exist within the dataframe.
+
+3. **Ensuring Unique Rows:**
+   - `dplyr::distinct()`: Ensures that the resulting dataframe contains only unique rows, removing any duplicate rows based on the selected columns.
+
+The result is a new dataframe `db_participants_address__needed_short__erv_erb_combined_short` that contains only the `official_number` column and columns starting with "db_", with all duplicate rows removed.
+
+
+```{r}
 db_participants_address__needed_short__erv_erb_combined_short <-
   db_participants_address__needed_short__erv_erb_combined3 |>
   dplyr::select(official_number, 
@@ -2037,8 +2179,11 @@ dim(db_participants_address__needed_short__erv_erb_combined_short)
 
 dplyr::n_distinct(db_participants_address__needed_short__erv_erb_combined_short$official_number)
 # 71
+```
 
-# check
+check
+
+```{r}
 # db_participants_address__needed_short__erv_erb_combined_short |> 
 #   dplyr::filter(official_number == "1235397") |>
 #   dplyr::glimpse()
@@ -2049,24 +2194,26 @@ dplyr::n_distinct(db_participants_address__needed_short__erv_erb_combined_short$
 
 ```{r combine similar fields}
 ## combine similar fields ----
+```
 
-# Explanations:
-# 1. Iterate over each participant column using 'col_part_names'.
-#    - 'map' applies the provided function to each element of the list.
-# 2. Define the old and new column names based on the current participant column.
-#    - 'str_glue' is used for string interpolation to create column names.
-# 3. Group the DataFrame by 'official_number' using 'group_by'.
-# 4. For each group, create a new column with unique sorted values for the current participant.
-#    - 'list_sort_uniq' ensures unique values and sorts them.
-# 5. Ungroup the DataFrame and remove the 'official_number' column.
-#    - 'ungroup' removes grouping structure.
-#    - 'select' is used to exclude the 'official_number' column and keep only the new column.
-# 6. Bind the resulting columns to 'db_participants_address__needed_short__erv_erb_combined_short'.
-#    - 'bind_cols' combines columns horizontally.
-# 7. Select only the 'official_number' and columns ending with '_u'.
-# 8. Keep only distinct rows in the final DataFrame using 'distinct'.
-# 9. The resulting DataFrame is stored in 'db_participants_address__needed_short__erv_erb_combined_short__u'.
+Explanations:
+1. Iterate over each participant column using 'col_part_names'.
+   - 'map' applies the provided function to each element of the list.
+2. Define the old and new column names based on the current participant column.
+   - 'str_glue' is used for string interpolation to create column names.
+3. Group the DataFrame by 'official_number' using 'group_by'.
+4. For each group, create a new column with unique sorted values for the current participant.
+   - 'list_sort_uniq' ensures unique values and sorts them.
+5. Ungroup the DataFrame and remove the 'official_number' column.
+   - 'ungroup' removes grouping structure.
+   - 'select' is used to exclude the 'official_number' column and keep only the new column.
+6. Bind the resulting columns to 'db_participants_address__needed_short__erv_erb_combined_short'.
+   - 'bind_cols' combines columns horizontally.
+7. Select only the 'official_number' and columns ending with '_u'.
+8. Keep only distinct rows in the final DataFrame using 'distinct'.
+9. The resulting DataFrame is stored in 'db_participants_address__needed_short__erv_erb_combined_short__u'.
 
+```{r}
 db_participants_address__needed_short__erv_erb_combined_short__u_temp <-
   col_part_names |>
   purrr::map(\(curr_col_part)  {
@@ -2084,22 +2231,24 @@ db_participants_address__needed_short__erv_erb_combined_short__u_temp <-
   })
 
 # glimpse(db_participants_address__needed_short__erv_erb_combined_short)
+```
 
-# Explanation:
-# 
-# This code creates a new dataframe by combining columns with suffix "_u" from two existing dataframes (`db_participants_address__needed_short__erv_erb_combined_short` and `db_participants_address__needed_short__erv_erb_combined_short__u_temp`). 
-# 
-# 1. **Binding Columns Together:**
-#    - `dplyr::bind_cols(...)`: It binds columns from two dataframes together. The columns from `db_participants_address__needed_short__erv_erb_combined_short` and `db_participants_address__needed_short__erv_erb_combined_short__u_temp` are combined horizontally.
-# 
-# 2. **Selecting Columns:**
-#    - `dplyr::select(official_number, dplyr::all_of(dplyr::ends_with("_u")))`: After binding columns, it selects the `official_number` column along with all columns that end with "_u" using `select` from dplyr. 
-#    
-# 3. **Removing Duplicate Rows:**
-#    - `dplyr::distinct()`: It removes duplicate rows from the dataframe to ensure each row is unique.
-# 
-# This code essentially creates a new dataframe containing selected columns from two existing dataframes and ensures that there are no duplicate rows in the resulting dataframe.
+Explanation:
 
+This code creates a new dataframe by combining columns with suffix "_u" from two existing dataframes (`db_participants_address__needed_short__erv_erb_combined_short` and `db_participants_address__needed_short__erv_erb_combined_short__u_temp`). 
+
+1. **Binding Columns Together:**
+   - `dplyr::bind_cols(...)`: It binds columns from two dataframes together. The columns from `db_participants_address__needed_short__erv_erb_combined_short` and `db_participants_address__needed_short__erv_erb_combined_short__u_temp` are combined horizontally.
+
+2. **Selecting Columns:**
+   - `dplyr::select(official_number, dplyr::all_of(dplyr::ends_with("_u")))`: After binding columns, it selects the `official_number` column along with all columns that end with "_u" using `select` from dplyr. 
+   
+3. **Removing Duplicate Rows:**
+   - `dplyr::distinct()`: It removes duplicate rows from the dataframe to ensure each row is unique.
+
+This code essentially creates a new dataframe containing selected columns from two existing dataframes and ensures that there are no duplicate rows in the resulting dataframe.
+
+```{r}
 db_participants_address__needed_short__erv_erb_combined_short__u <-
   dplyr::bind_cols(
     db_participants_address__needed_short__erv_erb_combined_short,
@@ -2107,8 +2256,11 @@ db_participants_address__needed_short__erv_erb_combined_short__u <-
   ) |>
   dplyr::select(official_number, dplyr::all_of(dplyr::ends_with("_u"))) |> 
   dplyr::distinct()
+```
 
-# check
+check
+
+```{r}
 # db_participants_address__needed_short__erv_erb_combined_short__u |>
 #   filter(official_number == "1235397") |>
 #   glimpse()
@@ -2118,30 +2270,36 @@ db_participants_address__needed_short__erv_erb_combined_short__u <-
 
 ```{r convert to characters}
 ### convert to characters ----
-# Explanation:
-# 
-# This code modifies the dataframe `db_participants_address__needed_short__erv_erb_combined_short__u` by concatenating the elements of list-type columns into a single string separated by semicolons. Here's a detailed explanation:
-# 
-# 1. **Row-wise Operation:**
-#    - `dplyr::rowwise()`: It sets the dataframe to be processed row-wise, meaning each operation will be applied independently to each row.
-# 
-# 2. **Mutating List-type Columns:**
-#    - `dplyr::mutate_if(is.list, ~ paste(unlist(.), collapse = '; '))`: This line applies a mutation to each column of the dataframe that is of list type. 
-#      - `is.list`: Checks if a column is of list type.
-#      - `paste(unlist(.), collapse = '; ')`: For each list-type column, it converts the list elements into a single string by unlisting them and concatenating them together with a semicolon as the separator.
-# 
-# 3. **Ungrouping:**
-#    - `dplyr::ungroup()`: It removes the grouping previously applied to the dataframe, returning it to its original state.
-# 
-# This code effectively transforms list-type columns in the dataframe into character vectors, concatenating their elements into a single string with semicolons as separators.
+```
 
+Explanation:
+
+This code modifies the dataframe `db_participants_address__needed_short__erv_erb_combined_short__u` by concatenating the elements of list-type columns into a single string separated by semicolons. Here's a detailed explanation:
+
+1. **Row-wise Operation:**
+   - `dplyr::rowwise()`: It sets the dataframe to be processed row-wise, meaning each operation will be applied independently to each row.
+
+2. **Mutating List-type Columns:**
+   - `dplyr::mutate_if(is.list, ~ paste(unlist(.), collapse = '; '))`: This line applies a mutation to each column of the dataframe that is of list type. 
+     - `is.list`: Checks if a column is of list type.
+     - `paste(unlist(.), collapse = '; ')`: For each list-type column, it converts the list elements into a single string by unlisting them and concatenating them together with a semicolon as the separator.
+
+3. **Ungrouping:**
+   - `dplyr::ungroup()`: It removes the grouping previously applied to the dataframe, returning it to its original state.
+
+This code effectively transforms list-type columns in the dataframe into character vectors, concatenating their elements into a single string with semicolons as separators.
+
+```{r}
 db_participants_address__needed_short__erv_erb_combined_short__u_no_c <-
   db_participants_address__needed_short__erv_erb_combined_short__u |>
   dplyr::rowwise() |>
   dplyr::mutate_if(is.list, ~ paste(unlist(.), collapse = '; ')) |>
   dplyr::ungroup()
+```
 
-# check
+check
+
+```{r}
 # db_participants_address__needed_short__erv_erb_combined_short__u_no_c |>
 #   filter(official_number == "1235397") |>
 #   glimpse()
@@ -2153,18 +2311,20 @@ db_participants_address__needed_short__erv_erb_combined_short__u_no_c <-
 
 ```{r rename fields}
 ## rename fields ----
+```
 
-# Explanation:
-# 
-# This code renames the columns in the dataframe `db_participants_address__needed_short__erv_erb_combined_short__u_no_c` by removing the suffix "_u" from their names.
-# 
-# 1. **Renaming Columns:**
-#    - `dplyr::rename_with( ~ stringr::str_replace(.x, pattern = "_u$", replacement = ""))`: It renames the columns of the dataframe using a function provided by `rename_with`.
-#      - `~`: It indicates the start of an anonymous function.
-#      - `stringr::str_replace(.x, pattern = "_u$", replacement = "")`: For each column name (`x`), it applies the `str_replace` function from the `stringr` package to replace the pattern "_u" at the end of the column name with an empty string, effectively removing it.
-# 
-# This code removes the "_u" suffix from the column names in the dataframe.
+Explanation:
 
+This code renames the columns in the dataframe `db_participants_address__needed_short__erv_erb_combined_short__u_no_c` by removing the suffix "_u" from their names.
+
+1. **Renaming Columns:**
+   - `dplyr::rename_with( ~ stringr::str_replace(.x, pattern = "_u$", replacement = ""))`: It renames the columns of the dataframe using a function provided by `rename_with`.
+     - `~`: It indicates the start of an anonymous function.
+     - `stringr::str_replace(.x, pattern = "_u$", replacement = "")`: For each column name (`x`), it applies the `str_replace` function from the `stringr` package to replace the pattern "_u" at the end of the column name with an empty string, effectively removing it.
+
+This code removes the "_u" suffix from the column names in the dataframe.
+
+```{r}
 db_participants_address__needed_short__erv_erb_combined_short__u_ok <-
   db_participants_address__needed_short__erv_erb_combined_short__u_no_c |>
   dplyr::rename_with(~ stringr::str_replace(.x, pattern = "_u$", 
@@ -2181,8 +2341,11 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr <-
     db_participants_address__needed_short__erv_erb_combined_short__u_ok,
     dplyr::join_by(vessel_official_number == official_number)
   )
+```
 
-# check
+check
+
+```{r}
 # compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr |>
 #   filter(vessel_official_number == "1235397") |>
 #   glimpse()
@@ -2192,17 +2355,19 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr <-
 cat("Result: ",
     "compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr",
     sep = "\n")
-
-
-# result: compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr
 ```
+
+result: compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr
 
 ### 3. mark vessels already in the know list 
 
 ```{r 3 mark vessels already in the know list}
 ## 3. mark vessels already in the know list ----
-# The first column (report created) indicates the vessels that we have created a case for. My advice would be not to exclude those vessels. EOs may have provided compliance assistance and/or warnings already. If that is the case and they continue to be non-compliant after that, they will want to know and we may need to reopen those cases.
+```
 
+The first column (report created) indicates the vessels that we have created a case for. My advice would be not to exclude those vessels. EOs may have provided compliance assistance and/or warnings already. If that is the case and they continue to be non-compliant after that, they will want to know and we may need to reopen those cases.
+
+```{r}
 vessels_to_mark_ids <-
   prev_result |>
   dplyr::select(vessel_official_number)
@@ -2214,10 +2379,15 @@ dim(vessels_to_mark_ids)
 
 ```{r mark these vessels}
 #### mark these vessels ----
-# Explanations:
-# Create a new column 'duplicate_w_last_time' in the dataframe 'compl_corr_to_investigation_short'.
-# This column is marked with "duplicate" for rows where 'vessel_official_number' is present in the list of vessel IDs to mark as duplicates ('vessels_to_mark_ids').
-# For all other rows, it is marked as "new".
+```
+
+Explanations:
+Create a new column 'duplicate_w_last_time' in the dataframe 'compl_corr_to_investigation_short'.
+This column is marked with "duplicate" for rows where 'vessel_official_number' is present in the list of vessel IDs to mark as duplicates ('vessels_to_mark_ids').
+For all other rows, it is marked as "new".
+
+
+```{r}
 compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked <-
   compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr |>
   dplyr::mutate(
@@ -2248,15 +2418,18 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_m
 
 ```{r 4 how many are duals}
 ## 4. how many are duals? ----
-# Explanations:
-# Create a new dataframe 
-# Use the 'mutate' function to add a new column 'permit_region' based on conditions.
-# If 'permitgroup' contains any of the specified patterns ("RCG", "HRCG", "CHG", "HCHG"),
-# set 'permit_region' to "dual". Otherwise, set 'permit_region' to "sa_only".
-# If none of the conditions are met, set 'permit_region' to "other".
-# The resulting dataframe includes the original columns from 'compl_corr_to_investigation_short_dup_marked'
-# along with the newly added 'permit_region' column.
+```
 
+Explanations:
+Create a new dataframe 
+Use the 'mutate' function to add a new column 'permit_region' based on conditions.
+If 'permitgroup' contains any of the specified patterns ("RCG", "HRCG", "CHG", "HCHG"),
+set 'permit_region' to "dual". Otherwise, set 'permit_region' to "sa_only".
+If none of the conditions are met, set 'permit_region' to "other".
+The resulting dataframe includes the original columns from 'compl_corr_to_investigation_short_dup_marked'
+along with the newly added 'permit_region' column.
+
+```{r}
 compl_corr_to_investigation_short_dup_marked__permit_region <-
   compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked |> 
   # compl_corr_to_investigation_short_dup_marked__permit_region__fhier_names__fhier_addr__mv_cols |>
@@ -2266,13 +2439,17 @@ compl_corr_to_investigation_short_dup_marked__permit_region <-
              !grepl("RCG|HRCG|CHG|HCHG", permitgroup) ~ "sa_only",
              .default = "other"
            ))
+```
 
-# Explanations:
-# Use the 'select' function to extract the columns 'vessel_official_number' and 'permit_region'
-# from the dataframe 'compl_corr_to_investigation_short_dup_marked__permit_region'.
-# Use the 'distinct' function to keep only unique combinations of 'vessel_official_number' and 'permit_region'.
-# Use the 'count' function to count the occurrences of each unique 'permit_region'.
-# The resulting count provides the frequency of each 'permit_region'.
+Explanations:
+Use the 'select' function to extract the columns 'vessel_official_number' and 'permit_region'
+from the dataframe 'compl_corr_to_investigation_short_dup_marked__permit_region'.
+Use the 'distinct' function to keep only unique combinations of 'vessel_official_number' and 'permit_region'.
+Use the 'count' function to count the occurrences of each unique 'permit_region'.
+The resulting count provides the frequency of each 'permit_region'.
+
+
+```{r}
 region_counts <-
   compl_corr_to_investigation_short_dup_marked__permit_region |>
   dplyr::select(vessel_official_number, permit_region) |>
@@ -2368,22 +2545,26 @@ additional_column_name1 <-
   stringr::str_glue(
     "Confirmed Egregious? (permits must still be active till {permit_expired_check_date}, missing past 6 months, and (1) they called/emailed us (incoming), or (2) at least 2 contacts (outgoing) with at least 1 call/other (voicemail counts) and at least 1 email)"
   )
+```
 
-# Explanation:
-# 
-# This code adds new columns to the dataframe `compl_corr_to_investigation_short_dup_marked__permit_region`. Here's what each part does:
-# 
-# 1. **Add Columns Function:**
-#    - `tibble::add_column()`: This function from the `tibble` package is used to add new columns to a dataframe.
-# 
-# 2. **Column Specifications:**
-#    - `!!(additional_column_name1) := NA`: Adds a new column named `additional_column_name1` filled with NA values.
-#      - `!!`: This is a tidy evaluation feature that allows the use of non-standard evaluation. It evaluates the expression `additional_column_name1` dynamically.
-#      - `:= NA`: Assigns NA values to the new column.
-#    - `Notes = NA`: Adds another new column named "Notes" filled with NA values.
-#    - `.before = 2`: Specifies that the new columns should be inserted before the second column in the dataframe.
-# 
-# This code effectively adds two new columns, "additional_column_name1" and "Notes", filled with NA values, to the dataframe.
+Explanation:
+
+This code adds new columns to the dataframe `compl_corr_to_investigation_short_dup_marked__permit_region`. Here's what each part does:
+
+1. **Add Columns Function:**
+   - `tibble::add_column()`: This function from the `tibble` package is used to add new columns to a dataframe.
+
+2. **Column Specifications:**
+   - `!!(additional_column_name1) := NA`: Adds a new column named `additional_column_name1` filled with NA values.
+     - `!!`: This is a tidy evaluation feature that allows the use of non-standard evaluation. It evaluates the expression `additional_column_name1` dynamically.
+     - `:= NA`: Assigns NA values to the new column.
+   - `Notes = NA`: Adds another new column named "Notes" filled with NA values.
+   - `.before = 2`: Specifies that the new columns should be inserted before the second column in the dataframe.
+
+This code effectively adds two new columns, "additional_column_name1" and "Notes", filled with NA values, to the dataframe.
+
+
+```{r}
 compl_corr_to_investigation_short_dup_marked__permit_region__add_columns <-
   # compl_corr_to_investigation_short_dup_marked__permit_region |>
   compl_corr_to_investigation_short_dup_marked__permit_region__status |> 
@@ -2394,8 +2575,11 @@ compl_corr_to_investigation_short_dup_marked__permit_region__add_columns <-
   )
 
 # print_df_names(compl_corr_to_investigation_short_dup_marked__permit_region__add_columns)
+```
 
-# remove the "year" column, its value is the same for all rows
+remove the "year" column, its value is the same for all rows
+
+```{r}
 # compl_corr_to_investigation_short_dup_marked__permit_region__add_columns |> 
 #   select(year) |> 
 #   distinct()
