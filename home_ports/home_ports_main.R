@@ -22,7 +22,7 @@ current_output_dir <-
 
 # dir.exists(current_output_dir)
 
-# Variables for the current year(s)
+#' Variables for the current year(s)
 my_year1 <- "2022"
 my_beginning1 <- stringr::str_glue("{my_year1}-01-01")
 my_end1 <- stringr::str_glue("{my_year1}-12-31")
@@ -44,21 +44,28 @@ get_data_file_path <-
 file.exists(get_data_file_path)
 
 source(get_data_file_path)
-# res:
-# vessels_from_pims_ok
+#' result:
+#' 
+#' vessels_from_pims_ok
 
-# run once to get lat lon and check names with no coords
-# 1) add lat/lon
-# 2) check names without coordinates
-# 3) fix names
+#' run once to get lat lon and check names with no coords
+#' 1) add lat/lon
+#' 2) check names without coordinates
+#' 3) fix names
 
 # separate hailing_port into city and state ----
 
-# Explanations:
-# The variable 'vessels_from_pims_split_addr' is created by:
-# 1. Separating the 'hailing_port' column into two columns ('city' and 'state') using a comma as the delimiter with 'tidyr::separate_wider_delim'.
-# 2. Dropping any additional columns created during the separation.
-# 3. Trimming leading and trailing whitespaces from all character columns using 'mutate(across(where(is.character), str_trim))'.
+#'
+#' Explanations:
+#'
+#' The variable 'vessels_from_pims_split_addr' is created by:
+#'
+#' 1. Separating the 'hailing_port' column into two columns ('city' and 'state') using a comma as the delimiter with 'tidyr::separate_wider_delim'.
+#'
+#' 2. Dropping any additional columns created during the separation.
+#'
+#' 3. Trimming leading and trailing whitespaces from all character columns using 'mutate(across(where(is.character), str_trim))'.
+#' 
 vessels_from_pims_split_addr <-
   vessels_from_pims_ok |>
   tidyr::separate_wider_delim(
@@ -73,7 +80,7 @@ vessels_from_pims_split_addr <-
 
 # View(vessels_from_pims_split_addr)
 
-# check
+#' check numbers in hailing_port
 addresses_w_digit <- 
   vessels_from_pims_ok |>
   filter(grepl("\\d", hailing_port)) |> 
@@ -93,6 +100,7 @@ addresses_w_digit <-
 # 11 1301930                22411 GENO LANE, AL     
 # 12 GA1769JL               117 HAWK LANDING LN, GA 
 
+#' check commas in hailing_port
 vessels_from_pims_ok |>
   filter(grepl(",.+,", hailing_port)) |> 
   distinct()
@@ -104,7 +112,7 @@ vessels_from_pims_ok |>
    
 # fix known home port typos ----
 
-# this list is created manually
+#' this list is created manually
 # TODO: combine it with all_typos from manual_corrections and use from a file.
 
 to_fix_list <- 
@@ -213,8 +221,8 @@ to_fix_list <-
        c("WANCHEESE#NC",
          "WANCHESE#NC"))
 # ---
-# Explanations:
-# Creating a new column 'city_state' by concatenating trimmed 'city' and 'state' columns, separated by '#'.
+#' Explanations:
+#' Creating a new column 'city_state' by concatenating trimmed 'city' and 'state' columns, separated by '#'.
 vessels_from_pims_split_addr__city_state <-
   vessels_from_pims_split_addr |>
   mutate(city_state =
@@ -249,30 +257,43 @@ vessels_from_pims_split_addr__city_state |>
 # 4 MATLACHA#BOKKELIA, FL  
 # 5 PEMBROKE#PINES, FL     
 
-
 # ---
 
-# 1. **Column Extraction Using sapply:**
-#    - The variable 'wrong_port_addr' is created by applying the 'sapply' function to 'to_fix_list'.
-#    - The `sapply` function applies the '[' function to each element of 'to_fix_list' using the index 1.
-# 
-# 2. **Column Extraction Using '[':**
-#    - The '[' function is used to extract the first element (index 1) from each element of 'to_fix_list'.
-#    - This operation is used to extract a specific column or element from each list or data frame within 'to_fix_list'.
-# 
-# 3. **Final Result:**
-#    - 'wrong_port_addr' holds the result of extracting the first element from each element within 'to_fix_list'.
+#' Explanations:
+#' 
+#' 1. **Column Extraction Using sapply:**
+#'
+#'    - The variable 'wrong_port_addr' is created by applying the 'sapply' function to 'to_fix_list'.
+#'
+#'    - The `sapply` function applies the '[' function to each element of 'to_fix_list' using the index 1.
+#'
+#' 2. **Column Extraction Using '[':**
+#'
+#'    - The '[' function is used to extract the first element (index 1) from each element of 'to_fix_list'.
+#'
+#'    - This operation is used to extract a specific column or element from each list or data frame within 'to_fix_list'.
+#'
+#' 3. **Final Result:**
+#'
+#'    - 'wrong_port_addr' holds the result of extracting the first element from each element within 'to_fix_list'.
 
 wrong_port_addr <-
   sapply(to_fix_list, "[", 1)
 
 # ---
-# Explanations:
-# The function 'get_correct_addr_by_wrong' takes a 'wrong_addr' as input and performs the following steps:
-# 1. Finds the index of 'wrong_addr' in the 'to_fix_list'.
-# 2. Uses 'tryCatch' to handle errors, printing information about the error and the index if one occurs.
-# 3. Extracts the correct address from the pair.
-# 4. Returns the correct address.
+#'
+#' Explanations:
+#'
+#' The function 'get_correct_addr_by_wrong' takes a 'wrong_addr' as input and performs the following steps:
+#'
+#' 1. Finds the index of 'wrong_addr' in the 'to_fix_list'.
+#'
+#' 2. Uses 'tryCatch' to handle errors, printing information about the error and the index if one occurs.
+#'
+#' 3. Extracts the correct address from the pair.
+#'
+#' 4. Returns the correct address.
+#' 
 get_correct_addr_by_wrong <-
   function(wrong_addr) {
     idx <- grep(wrong_addr, to_fix_list)
@@ -290,10 +311,15 @@ get_correct_addr_by_wrong <-
     return(good_addr)
   }
 
-# Explanations:
-# The variable 'compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed' is created by:
-# 1. Creating a new column 'city_state_fixed' by replacing wrong addresses using 'get_correct_addr_by_wrong' for rows where 'city_state' is in 'wrong_port_addr'.
-# 2. Separating the 'city_state_fixed' column into two columns ('city_fixed' and 'state_fixed') using '#' as the delimiter.
+#'
+#' Explanations:
+#'
+#' The variable 'compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed' is created by:
+#'
+#' 1. Creating a new column 'city_state_fixed' by replacing wrong addresses using 'get_correct_addr_by_wrong' for rows where 'city_state' is in 'wrong_port_addr'.
+#'
+#' 2. Separating the 'city_state_fixed' column into two columns ('city_fixed' and 'state_fixed') using '#' as the delimiter.
+#' 
 vessels_from_pims_split_addr__city_state__fix1 <-
   vessels_from_pims_split_addr__city_state |>
   dplyr::rowwise() |>
@@ -347,6 +373,35 @@ manual_fixes <-
   )
     # list("139403", "MIAMI", "FL"), # no!
 
+#'
+#' Explanations:
+#'
+#' - `vessels_from_pims_split_addr__city_state__fix2 <-` assigns the result of the pipeline to the variable `vessels_from_pims_split_addr__city_state__fix2`.
+#'
+#' - `purrr::map_df(manual_fixes, \(x) { ... })` iterates over each element `x` in the `manual_fixes` list and returns a data frame:
+#'
+#'   - `purrr::map_df()` applies a function to each element of `manual_fixes` and combines the results into a single data frame.
+#'
+#'   - `\(x) { ... }` is a shorthand notation for defining an anonymous function in R.
+#'
+#' - Inside the function:
+#'
+#'   - `vessels_from_pims_split_addr__city_state__fix1` is piped into `dplyr::mutate()` to create new columns `city_fixed1` and `state_fixed1` based on conditions:
+#'
+#'     - `dplyr::case_when(vessel_official_number == x[[1]] ~ x[[2]])` assigns `x[[2]]` (presumably the fixed city value) to `city_fixed1` where `vessel_official_number` matches `x[[1]]`.
+#'
+#'     - `dplyr::case_when(vessel_official_number == x[[1]] ~ x[[3]])` assigns `x[[3]]` (presumably the fixed state value) to `state_fixed1` where `vessel_official_number` matches `x[[1]]`.
+#'
+#'   - `res` holds the resulting data frame after mutation.
+#'
+#'   - `return(res)` returns the mutated data frame.
+#'
+#' - `|>` is the pipe operator, passing the result of `map_df` to `dplyr::distinct()`:
+#'
+#'   - `dplyr::distinct()` removes duplicate rows from the resulting data frame.
+#'
+#' This code processes each element in `manual_fixes` to fix `city_fixed1` and `state_fixed1` columns in `vessels_from_pims_split_addr__city_state__fix1`, based on conditions specified in each element of `manual_fixes`. The final result, with unique rows, is stored in `vessels_from_pims_split_addr__city_state__fix2`.
+#' 
 vessels_from_pims_split_addr__city_state__fix2 <-
   purrr::map_df(manual_fixes,
          \(x) {
@@ -377,18 +432,26 @@ vessels_from_pims_split_addr__city_state__fix2 |>
 # $ state_fixed1           <chr> NA, NA, "FL", "FL"
 
 # check
-# get all vessel ids from manual_fixes
-# Explanations:
-# - The `sapply` function is applied to `manual_fixes`. This function applies a specified function to each element of a list (or vector) and simplifies the result.
-# - The function `"[", 1` is used within `sapply` to extract the first element of each element in `manual_fixes`. Here, `"[", 1` is a shorthand for extracting the first item from a list or vector.
-# - The result of `sapply` is a list where each element is the first item of the corresponding element in `manual_fixes`.
-# - The `unlist` function is then used to flatten the resulting list into a single vector. This removes the list structure and creates a simple atomic vector containing all the first elements from `manual_fixes`.
-# - The resulting vector is assigned to the variable `new_f_vsl`.
+#' get all vessel ids from manual_fixes
+#'
+#' Explanations:
+#'
+#' - The `sapply` function is applied to `manual_fixes`. This function applies a specified function to each element of a list (or vector) and simplifies the result.
+#'
+#' - The function `"[", 1` is used within `sapply` to extract the first element of each element in `manual_fixes`. Here, `"[", 1` is a shorthand for extracting the first item from a list or vector.
+#'
+#' - The result of `sapply` is a list where each element is the first item of the corresponding element in `manual_fixes`.
+#'
+#' - The `unlist` function is then used to flatten the resulting list into a single vector. This removes the list structure and creates a simple atomic vector containing all the first elements from `manual_fixes`.
+#'
+#' - The resulting vector is assigned to the variable `new_f_vsl`.
+#' 
 new_f_vsl <-
   sapply(manual_fixes, "[", 1) |> 
   unlist()
 
-# vessels both in vessels_from_pims_split_addr__city_state__fix1 and in the manual fixes new_f_vsl
+#' vessels both in vessels_from_pims_split_addr__city_state__fix1 and in the manual fixes new_f_vsl
+#' 
 both <-
   dplyr::intersect(
     vessels_from_pims_split_addr__city_state__fix1$vessel_official_number,
@@ -398,6 +461,7 @@ both <-
 length(both)
 # 15
 
+#' check 
 vessels_from_pims_split_addr__city_state__fix2 |>
   dplyr::filter(vessel_official_number %in% both) |>
   dplyr::select(vessel_official_number,
@@ -420,13 +484,21 @@ vessels_from_pims_split_addr__city_state__fix2 |>
   dplyr::glimpse()
 
 ## replace duplicated values ----
-# Explanations:
-# 1. Updating 'city_fixed' and 'state_fixed' columns based on conditions using 'case_when':
-#     - If 'city_fixed1' is not NA, update 'city_fixed' with 'city_fixed1'; otherwise, keep the existing value in 'city_fixed'.
-#     - If 'state_fixed1' is not NA, update 'state_fixed' with 'state_fixed1'; otherwise, keep the existing value in 'state_fixed'.
-# 2. Filtering rows where 'vessel_official_number' is not in 'both' or 'state_fixed1' is not missing.
-# 3. Selecting all columns except "city_fixed1" and "state_fixed1".
-# 4. Keeping only distinct rows in the final result to avoid duplications.
+#'
+#' Explanations:
+#'
+#' 1. Updating 'city_fixed' and 'state_fixed' columns based on conditions using 'case_when':
+#'
+#'     - If 'city_fixed1' is not NA, update 'city_fixed' with 'city_fixed1'; otherwise, keep the existing value in 'city_fixed'.
+#'
+#'     - If 'state_fixed1' is not NA, update 'state_fixed' with 'state_fixed1'; otherwise, keep the existing value in 'state_fixed'.
+#'
+#' 2. Filtering rows where 'vessel_official_number' is not in 'both' or 'state_fixed1' is not missing.
+#'
+#' 3. Selecting all columns except "city_fixed1" and "state_fixed1".
+#'
+#' 4. Keeping only distinct rows in the final result to avoid duplications.
+#' 
 vessels_from_pims_split_addr__city_state__fix2_ok <-
   vessels_from_pims_split_addr__city_state__fix2 |>
   dplyr::mutate(
@@ -445,7 +517,7 @@ vessels_from_pims_split_addr__city_state__fix2_ok <-
 dim(vessels_from_pims_split_addr__city_state__fix2_ok)
 # [1] 23086     6
 
-# check
+#' check
 vessels_from_pims_split_addr__city_state__fix2_ok |>
   dplyr::filter(vessel_official_number %in% both) |>
   dplyr::select(vessel_official_number,
@@ -458,11 +530,12 @@ vessels_from_pims_split_addr__city_state__fix2_ok |>
 ## remove empty and bad vessel ids ----
 # introduced by splitting doubles?
 is_empty <- c(NA, "NA", "", "UN", "N/A")
+
 wrong_vessel_ids <- c("FL", "FLORIDA", "MD", "NO", "NONE")
 
 normal_length = 4
 
-# check if a vessel id is empty, wrong or too short
+#' check if a vessel id is empty, wrong or too short
 vessels_from_pims_split_addr__city_state__fix2_ok__good_ids <-
   vessels_from_pims_split_addr__city_state__fix2_ok |>
   dplyr::filter(!vessel_official_number %in% is_empty) |>
@@ -479,6 +552,7 @@ vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__len <-
   dplyr::mutate(id_len = stringr::str_length(vessel_official_number)) |>
   dplyr::ungroup()
 
+#' check
 vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__len |> 
   dplyr::filter(!id_len == 6) |> 
   dplyr::arrange(id_len) |> 
@@ -490,8 +564,8 @@ dim(vessels_from_pims_split_addr__city_state__fix2_ok)
 dim(vessels_from_pims_split_addr__city_state__fix2_ok__good_ids)
 # [1] 23050     6
 
-## check no address ----
-# no city
+## Check no address ----
+#' No city
 vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__no_addr <-
   vessels_from_pims_split_addr__city_state__fix2_ok__good_ids |>
   dplyr::filter(is.na(city))
@@ -500,7 +574,7 @@ nrow(vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__no_addr)
 # 6
 # 0
 
-# no state
+#' No state
 vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__no_state <-
   vessels_from_pims_split_addr__city_state__fix2_ok__good_ids |>
   dplyr::filter(is.na(state_fixed))
@@ -515,7 +589,7 @@ vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short <-
                 tidyselect::ends_with("_fixed")) |> 
   dplyr::distinct()
 
-# check
+#' check
 # vessels_from_pims_split_addr__city_state__fix2_ok__good_ids |> 
 #   filter(!state == state_fixed) |> 
 #   View()
