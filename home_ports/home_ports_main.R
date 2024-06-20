@@ -41,7 +41,7 @@ get_data_file_path <-
             current_project_basename,
             "home_ports_get_data.R")
 
-# file.exists(get_data_file_path)
+file.exists(get_data_file_path)
 
 source(get_data_file_path)
 # res:
