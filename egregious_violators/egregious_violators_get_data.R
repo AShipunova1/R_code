@@ -258,12 +258,28 @@ prev_result_path <-
 
 file.exists(prev_result_path)
 
-prev_result <-
-  auxfunctions::my_read_xlsx(prev_result_path) |> 
+sheet_name <- 
+  "egregious_violators_to_investig"
+
+prev_result00 <-
+  auxfunctions::my_read_xlsx(prev_result_path, sheet_n = sheet_name) |> 
   auxfunctions::remove_empty_cols() |>
   auxfunctions::clean_headers()
 
-dim(prev_result)
+dim(prev_result00)    
+
+View(prev_result00)
+
+prev_result <-
+  prev_result0 |>
+  mutate(vessel_official_number =
+           stringr::str_replace(vessel_official_number, "\\.0$", ""))
+
+prev_result |> 
+  filter(vessel_official_number == '527954') |>
+  glimpse()
+
+grep("douglas", prev_result$Notes, ignore.case = T, value = T)
 
 # Results ----
 results <-
