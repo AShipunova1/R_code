@@ -82,9 +82,9 @@ permits_names_file_path <-
 
 file.exists(permits_names_file_path)
 
-permits_from_pims <- 
-  get_xlsx_data_pims(permits_names_file_path,
-                     startRow = 5)
+permits_from_pims <-
+  auxfunctions::my_read_xlsx(permits_names_file_path, 
+                             start_row = 5)
 
 # Clean data ----
 vessel_or_dealer_col_name <- 
