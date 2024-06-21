@@ -70,8 +70,10 @@ survey_data_l_2022_i1_w_dates |>
 #   dplyr::count(cnty) |> tail()
 
 ### mark survey vessel ids not in PIMS ----
-permit_info_from_db |> glimpse()
-
+permit_info_from_db <- 
+  permit_info_from_db |> 
+  mutate(VESSEL_ID = tolower(VESSEL_ID))
+  
 #' total survey vessel ids 
 #' TODO: redo with survey_data_l_2022_date_i1_vsl__int_t
 length(unique(survey_data_l_2022_i1_w_dates$vsl_num))
@@ -120,14 +122,14 @@ length(survey_vessel_id_not_in_pims)
 
 #' remove NAs
 survey_data_l_2022_i1_w_dates_no_na <- 
-  survey_data_l_2022_i1_w_dates |> 
+  survey_data_l_2022_date_i1_vsl__int_t |> 
   mutate(survey_vessel_id = tidyr::replace_na(vsl_num, ""))
 
 #' check
 permit_info_from_db |> 
   select(VESSEL_ID, VESSEL_ALT_NUM) |> 
   distinct() |> 
-  filter(!VESSEL_ID == VESSEL_ALT_NUM) |> 
+  filter(!tolower(VESSEL_ID) == tolower(VESSEL_ALT_NUM)) |> 
   dim()
 # 268
 
@@ -136,7 +138,7 @@ auxfunctions::count_uniq_by_column(permit_info_from_db)
 # VESSEL_ALT_NUM        5356
 
 auxfunctions::count_uniq_by_column(survey_data_l_2022_i1_w_dates_no_na)
-# vsl_num, survey_vessel_id          476
+# vsl_num, survey_vessel_id          429
 
 fuzzyjoin_vessel_ids <-
   fuzzyjoin::stringdist_left_join(
@@ -157,7 +159,7 @@ fuzzyjoin_vessel_ids |>
     select(survey_vessel_id) |> 
     distinct() |> 
     dim()
-# 358   
+# 377   
 
 fuzzyjoin_vessel_ids |>
   filter(!is.na(VESSEL_ID)) |>
@@ -166,10 +168,11 @@ fuzzyjoin_vessel_ids |>
   count(vessel_id_dist)
 #   vessel_id_dist     n
 #            <dbl> <int>
-#               0   290
-#               1    83
-#               2  1238
-# count(wt = n) 1505 total, ok
+# 1              0   310
+# 2              1    89
+# 3              2  1262
+# count(wt = n)
+#' 1661 total, ok
 
 #' check if the same survey id is in diff groups
 survey_ids_dist0 <- 
@@ -180,6 +183,7 @@ survey_ids_dist0 <-
   distinct()
 
 dim(survey_ids_dist0)
+# 310
 
 fuzzyjoin_vessel_ids |>
   filter(!is.na(VESSEL_ID)) |>
@@ -188,7 +192,7 @@ fuzzyjoin_vessel_ids |>
   select(survey_vessel_id) |>
   distinct() |>
   dim()
-264
+# 281
 
 fuzzyjoin_vessel_ids_matched <-
   fuzzyjoin_vessel_ids |>
@@ -215,7 +219,7 @@ fuzzyjoin_vessel_ids__dist_grp_duplicates <-
                    .by = c(survey_vessel_id, vessel_id_dist)) |>
   dplyr::filter(n > 1L)
 
-# View(fuzzyjoin_vessel_ids__dist_grp_duplicates)
+View(fuzzyjoin_vessel_ids__dist_grp_duplicates)
 
 #' clean groups
 #' 
