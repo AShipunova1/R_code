@@ -161,6 +161,7 @@ processed_pims_home_ports <-
 
 # View(processed_pims_home_ports)
 
+# get permits and vessels from PIMS
 get_pims_data_path <- 
   file.path(my_paths$git_r, 
             r"(get_data\prepare_data_pims\prepare_data_pims.R)")
@@ -218,7 +219,7 @@ permit_vessel_w_changed_owner_query <-
 "SELECT
   *
 FROM
-  udp.sero_oth_prm_period_his@secpr_dblk
+  srh.mv_sero_fh_permits_his@secapxdv_dblk.sfsc.noaa.gov
 WHERE
   top IN ( 'CHS', 'SC', 'CDW' )
   AND ( expiration_date >= sysdate
@@ -255,8 +256,8 @@ permit_vessel_w_changed_owner <-
     permit_vessel_w_changed_owner_file_path,
     permit_vessel_w_changed_owner_query,
     permit_vessel_w_changed_owner_fun
-    # ,
-    # force_from_db = "yes"
+    ,
+    force_from_db = "yes"
   ) |>
   auxfunctions::remove_empty_cols() |>
   auxfunctions::clean_headers()
