@@ -401,3 +401,10 @@ vessels_from_pims_double_bind <-
 
 dim(vessels_from_pims_double_bind)
 # [1] 23330     2
+
+# Results ----
+result_names <- 
+  c("permits_from_pims__split1_short__split2",
+    "vessels_from_pims_double_bind")
+
+auxfunctions::pretty_print(result_names, "data from PIMS:")
