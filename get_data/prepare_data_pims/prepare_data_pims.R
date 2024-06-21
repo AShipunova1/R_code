@@ -1,3 +1,4 @@
+# setup ----
 # devtools::install_github("AShipunova1/R_code/auxfunctions@development",
 #                          force = TRUE)
 
@@ -12,6 +13,13 @@ library(crayon)
 # today()
 
 my_paths <- set_work_dir()
+
+#' Make time zones the same
+#' These lines of code configure the environment to use the system's current timezone for both the TZ and ORA_SDTZ variables, which is necessary for ensuring that date and time operations are consistent with the local timezone settings.
+Sys.setenv(TZ = Sys.timezone())
+Sys.setenv(ORA_SDTZ = Sys.timezone())
+
+program_start_date <- lubridate::dmy("04/01/2021")
 
 #' 1) "Permits - 2024-02-28_0930.xlsx"
 #'
@@ -118,8 +126,61 @@ dim(vessels_from_pims)
 
 # names(vessels_from_pims_double)
 # [1] "vessel_official_number1" "vessel_official_number2" "hailing_port"         
+# permits ----
 
-# upload permits from pims ----
+## permits from db ----
+
+permits_query <- 
+  stringr::str_glue("SELECT
+  *
+FROM
+  srh.mv_sero_fh_permits_his@secapxdv_dblk.sfsc.noaa.gov
+WHERE
+  top IN ( 'CHS', 'SC', 'CDW', 
+           'RCG', 'HRCG', 'CHG', 'HCHG' )
+  AND ( expiration_date >= TO_DATE('{program_start_date}', 'yyyy-mm-dd')
+        OR end_date >= TO_DATE('{program_start_date}', 'yyyy-mm-dd') )
+ORDER BY
+  vessel_id")
+
+mv_sero_fh_permits_his_query_file_path <-
+  file.path(my_paths$inputs,
+            "get_db_data",
+            str_glue("permit_info_{my_year}.rds"))
+
+file.exists(mv_sero_fh_permits_his_query_file_path)
+# T
+
+mv_sero_fh_permits_his_query <-
+  str_glue(
+    "SELECT * FROM
+srh.mv_sero_fh_permits_his@secapxdv_dblk.sfsc.noaa.gov
+WHERE {dates_filter}
+"
+  )
+
+mv_sero_fh_permits_his_query_fun <- function(mv_sero_fh_permits_his_query) {
+  result <- dbGetQuery(con, mv_sero_fh_permits_his_query)
+  return(result)
+}
+
+get_permit_info <-
+  function() {
+    read_rds_or_run(mv_sero_fh_permits_his_query_file_path,
+                    mv_sero_fh_permits_his_query,
+                    mv_sero_fh_permits_his_query_fun
+                    # force_from_db = TRUE
+                    )
+  }
+
+permit_info_from_db <- get_permit_info()
+# File: permit_info_2022.rds modified 2024-01-23 12:43:12.146822
+
+nrow(permit_info_from_db)
+# [1] 183855
+# ===  
+
+## upload permits from pims ----
 permits_names_file_path <-
   file.path(my_paths$inputs,
             r"(from_PIMS\Permits - 2024-06-18_0839.xlsx)")
@@ -192,12 +253,6 @@ permits_from_pims__split1 <-
 # Expected 2 pieces. Missing pieces filled with `NA` in 3038 rows [229, 244, 294,
 
 ## permits clean and shorten ----
-#' Make time zones the same
-#' These lines of code configure the environment to use the system's current timezone for both the TZ and ORA_SDTZ variables, which is necessary for ensuring that date and time operations are consistent with the local timezone settings.
-Sys.setenv(TZ = Sys.timezone())
-Sys.setenv(ORA_SDTZ = Sys.timezone())
-
-program_start_date <- lubridate::dmy("04/01/2021")
 
 #' Explanations:
 #'
