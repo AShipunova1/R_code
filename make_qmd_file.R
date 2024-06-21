@@ -196,17 +196,17 @@ to_find <-
         collapse = "|")
 # str(to_find)
 
-# TODO: make it more than 2
-to_replace_source <-
-  function(one_match) {
-    if (one_match == source_paths_matches[[1]])
-      y <- source_files_content_one_line[[1]]
-    if (one_match == source_paths_matches[[2]])
-      y <- source_files_content_one_line[[2]]
-    if (one_match == source_paths_matches[[3]])
-      y <- source_files_content_one_line[[3]]
-    return(y)
-  }
+# done: make it more than 2
+# to_replace_source <-
+#   function(one_match) {
+#     if (one_match == source_paths_matches[[1]])
+#       y <- source_files_content_one_line[[1]]
+#     if (one_match == source_paths_matches[[2]])
+#       y <- source_files_content_one_line[[2]]
+#     if (one_match == source_paths_matches[[3]])
+#       y <- source_files_content_one_line[[3]]
+#     return(y)
+#   }
 
 to_replace_source <-
   function(source_text) {
