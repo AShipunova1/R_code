@@ -551,6 +551,7 @@ dim(vessels_from_pims_double_bind)
 result_names <- 
   c("permit_info_from_db",
     "permits_from_pims__split1_short__split2",
-    "vessels_from_pims_double_bind")
+    "vessels_from_pims_double_bind",
+    "vessel_permit_owner_from_db")
 
 auxfunctions::pretty_print(result_names, "data from PIMS:")
