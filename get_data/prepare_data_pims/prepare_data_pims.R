@@ -167,7 +167,7 @@ get_permit_info <-
     read_rds_or_run(permits_query_file_path,
                     permits_query,
                     permits_query_fun
-                    # force_from_db = TRUE
+                    #, force_from_db = TRUE
                     )
   }
 
@@ -462,7 +462,8 @@ dim(vessels_from_pims_double_bind)
 
 # Results ----
 result_names <- 
-  c("permits_from_pims__split1_short__split2",
+  c("permit_info_from_db",
+    "permits_from_pims__split1_short__split2",
     "vessels_from_pims_double_bind")
 
 auxfunctions::pretty_print(result_names, "data from PIMS:")
