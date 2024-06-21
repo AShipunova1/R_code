@@ -16,12 +16,12 @@ library(tools)
 # change dir name
 # comment out the "answers" for the next to readline()
 curent_project_name <- readline(prompt = "Print your project name: ")
-validation_survey
-# egregious_violators
+egregious_violators
+# validation_survey
 
 curent_file_name_no_ext <- readline(prompt = "Print your file name: ")
-validation_survey_main
-# egregious_violators_start
+egregious_violators_start
+# validation_survey_main
 
 # In the input .R script:
 # add "#' " in front of comments to be shown as text
