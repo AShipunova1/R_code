@@ -222,6 +222,25 @@ flat_file_r_text <-
 # grep(my_split_newline_char, flat_file_r_text, value = T)
 # grep("source", flat_file_r_text, value = T)
 
+### comment if (!exists("con")), gives error when rendering ----
+
+# @@@if (!exists(\"con\")) {@@@  try(con <- auxfunctions::connect_to_secpr())@@@}
+to_find_con <- 
+  'if *\\(\\!exists\\("con"\\)[^}]+\\}'  
+to_replace_con <- "try(con <- auxfunctions::connect_to_secpr())"
+
+flat_file_r_text <-
+  stringr::str_replace_all(flat_file_r_text, 
+                           to_find_con, 
+                           to_replace_con
+                           )
+
+# stringr::str_extract_all(flat_file_r_text, 
+#                            to_find_con
+#                            ) |> unique()
+# 
+# stringr::str_extract_all(flat_file_r_text1, "^.+try\\(.+$") |> unique()
+  
 ### split one line text back ----
 # Otherwise it is too long and breaks the RStudio
 flat_file_r_text <-
