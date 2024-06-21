@@ -10,6 +10,8 @@ library(crayon)
 
 # today()
 
+my_paths <- set_work_dir()
+
 #' 1) "Permits - 2024-02-28_0930.xlsx"
 #'
 #' get it from PIMS
@@ -28,7 +30,6 @@ library(crayon)
 #'
 #' "Vessels - 2024-02-28_0930.xlsx"
 #' 
-
 
 # auxiliary functions ----
 
@@ -97,8 +98,8 @@ vessels_from_pims <-
 # print_df_names(vessels_from_pims)
 
 # glimpse(vessels_from_pims)
-# dim(vessels_from_pims)
-# [1] 23107     8
+dim(vessels_from_pims)
+# [1] 23359     8
 
 # TODO: get vessel (home port) info from PIMS with 2 names
 # "~\R_files_local\my_inputs\non_compliant_areas\vessels_permit_hailng_port_double_name.xlsx"
@@ -227,10 +228,10 @@ permits_from_pims__split1_short <-
                 ~ . > program_start_date))
 
 dim(permits_from_pims)
-# [1] 53365    11
+# [1] 23934    11
 
 dim(permits_from_pims__split1_short)
-# [1] 31180    12
+# [1] 14675    12
 
 ## permits split permit number ----
 #'
@@ -324,7 +325,7 @@ vessels_from_pims_short <-
 # print_df_names(vessels_from_pims)
 
 dim(vessels_from_pims_short)
-# [1] 22887     2
+# [1] 23142     2
 
 ## vessels remove "NOVESID" ----
 vessels_from_pims_short_ok <-
@@ -332,7 +333,7 @@ vessels_from_pims_short_ok <-
   dplyr::filter(!grepl("^NOVESID", vessel_official_number))
 
 dim(vessels_from_pims_short_ok)
-# [1] 22510     2
+# [1] 22764     2
 
 # View(vessels_from_pims_short_ok)
 
@@ -398,69 +399,4 @@ vessels_from_pims_double_bind <-
   dplyr::filter(!is.na(vessel_official_number))
 
 dim(vessels_from_pims_double_bind)
-# [1] 23086     2
-
-## Clean vessel home port punctuation ----
-#'
-#' Explanations:
-#'
-#' - `vessels_from_pims_ok <-` assigns the result of the pipeline to the variable `vessels_from_pims_ok`.
-#'
-#' - `vessels_from_pims_double_bind |>` starts the pipeline with the data frame `vessels_from_pims_double_bind`.
-#'
-#' - `dplyr::mutate(hailing_port = stringr::str_replace(!!hailing_port_col_name, ",", ", "))` replaces commas (",") with commas followed by a space (", ") in the `hailing_port` column:
-#'
-#'   - `dplyr::mutate()` creates new columns or modifies existing ones.
-#'
-#'   - `stringr::str_replace(!!hailing_port_col_name, ",", ", ")` replaces commas in the column referenced by `hailing_port_col_name`.
-#'
-#' - `dplyr::mutate(hailing_port = stringr::str_replace(!!hailing_port_col_name, " ,", ","))` removes spaces before commas in the `hailing_port` column:
-#'
-#'   - `stringr::str_replace(!!hailing_port_col_name, " ,", ",")` removes spaces that appear before commas in the column referenced by `hailing_port_col_name`.
-#'
-#' - `dplyr::mutate(hailing_port = stringr::str_squish(!!hailing_port_col_name))` removes extra spaces in the `hailing_port` column:
-#'
-#'   - `stringr::str_squish(!!hailing_port_col_name)` removes leading and trailing whitespace and collapses internal multiple spaces into a single space.
-#'
-#' - `distinct()` removes duplicate rows from the resulting data frame.
-#'
-#' This code processes the `vessels_from_pims_double_bind` data frame by cleaning the `hailing_port` column:
-#'
-#' - It adds a space after commas.
-#'
-#' - It removes spaces that appear before commas.
-#'
-#' - It squishes (removes extra spaces) from the `hailing_port` column.
-#'
-#' - Finally, it ensures that only unique rows remain in the data frame (`distinct()`). The resulting cleaned data frame is stored in `vessels_from_pims_ok`.
-#' 
-vessels_from_pims_ok <-
-  vessels_from_pims_double_bind |>
-  dplyr::mutate(hailing_port =
-           stringr::str_replace(!!hailing_port_col_name,
-                       ",",
-                       ", ")) |>
-  dplyr::mutate(hailing_port =
-           stringr::str_replace(!!hailing_port_col_name,
-                       " ,",
-                       ",")) |>
-  dplyr::mutate(hailing_port =
-           stringr::str_squish(!!hailing_port_col_name)) |> 
-  distinct()
-
-dim(vessels_from_pims_ok)
-# [1] 23086     2
-
-#' check if there is a letter after comma
-grep(",[a-zA-Z]",
-     vessels_from_pims_ok$hailing_port,
-     value = T)
-# 0
-# [1] "PEMBROKE,PINES, FL"
-
-# check if there are more than one space
-grep("  +",
-     vessels_from_pims_ok$hailing_port,
-     value = T)
-# 0
-
+# [1] 23330     2
