@@ -277,7 +277,21 @@ db_dnfs_2022 <-
 dim(db_dnfs_2022)
 # [1] 804410      8
 
-# result names ----
+# Get pims data ----
+prepare_data_pims_path <-
+  file.path(my_paths$git_r,
+            r"(get_data\prepare_data_pims\prepare_data_pims.R)")
+
+file.exists(prepare_data_pims_path)
+
+source(prepare_data_pims_path)
+
+# data from PIMS:
+# permit_info_from_db
+# permits_from_pims__split1_short__split2
+# vessels_from_pims_double_bind
+
+# result df names ----
 data_names <-
   c("survey_data_l_2022",
     "processed_logbooks_2022",
