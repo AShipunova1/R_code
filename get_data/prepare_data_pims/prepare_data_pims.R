@@ -1,13 +1,10 @@
 # devtools::install_github("AShipunova1/R_code/auxfunctions@development",
 #                          force = TRUE)
 
-if (!require("pacman")) {
-  install.packages("pacman")
-}
-
 if (!require("auxfunctions")) devtools::install_github("AShipunova1/R_code/auxfunctions@development")
 
-pacman::p_load(auxfunctions, openxlsx)
+library(auxfunctions)
+library(openxlsx)
 
 #' Colored terminal output
 library(crayon)
