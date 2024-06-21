@@ -123,7 +123,7 @@
       "RemoteRepo": "R_code",
       "RemoteUsername": "AShipunova1",
       "RemoteRef": "development",
-      "RemoteSha": "5fcc4af8dbb6783468ed4dc30cf78441be84dd80",
+      "RemoteSha": "88eeae6f349b3c6eb7200b284c069c8498fdbedc",
       "RemoteSubdir": "auxfunctions",
       "Requirements": [
         "DBI",
@@ -147,7 +147,7 @@
         "tidyr",
         "tidyselect"
       ],
-      "Hash": "350929543c5f1fd6c3498c955d2695ca"
+      "Hash": "bfe86655412f11c628c4d554fec0a2ca"
     },
     "base64enc": {
       "Package": "base64enc",
