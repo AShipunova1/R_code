@@ -6,6 +6,7 @@ if (!require("auxfunctions")) devtools::install_github("AShipunova1/R_code/auxfu
 
 library(auxfunctions)
 library(openxlsx)
+library(ROracle)
 
 #' Colored terminal output
 library(crayon)
@@ -20,6 +21,11 @@ Sys.setenv(TZ = Sys.timezone())
 Sys.setenv(ORA_SDTZ = Sys.timezone())
 
 program_start_date <- lubridate::dmy("04/01/2021")
+
+# err msg if no connection, but keep running
+if (!exists("con")) {
+  try(con <- auxfunctions::connect_to_secpr())
+}
 
 #' 1) "Permits - 2024-02-28_0930.xlsx"
 #'
@@ -143,41 +149,38 @@ WHERE
 ORDER BY
   vessel_id")
 
-mv_sero_fh_permits_his_query_file_path <-
+permits_query_file_path <-
   file.path(my_paths$inputs,
             "get_db_data",
-            str_glue("permit_info_{my_year}.rds"))
+            stringr::str_glue("permit_info_{lubridate::today()}.rds"))
 
-file.exists(mv_sero_fh_permits_his_query_file_path)
+file.exists(permits_query_file_path)
 # T
 
-mv_sero_fh_permits_his_query <-
-  str_glue(
-    "SELECT * FROM
-srh.mv_sero_fh_permits_his@secapxdv_dblk.sfsc.noaa.gov
-WHERE {dates_filter}
-"
-  )
-
-mv_sero_fh_permits_his_query_fun <- function(mv_sero_fh_permits_his_query) {
-  result <- dbGetQuery(con, mv_sero_fh_permits_his_query)
+permits_query_fun <- function(permits_query) {
+  result <- dbGetQuery(con, permits_query)
   return(result)
 }
 
 get_permit_info <-
   function() {
-    read_rds_or_run(mv_sero_fh_permits_his_query_file_path,
-                    mv_sero_fh_permits_his_query,
-                    mv_sero_fh_permits_his_query_fun
+    read_rds_or_run(permits_query_file_path,
+                    permits_query,
+                    permits_query_fun
                     # force_from_db = TRUE
                     )
   }
 
 permit_info_from_db <- get_permit_info()
-# File: permit_info_2022.rds modified 2024-01-23 12:43:12.146822
+# 2024-06-21 run for permit_info_2024-06-21.rds: 7.98 sec elapsed
 
 nrow(permit_info_from_db)
-# [1] 183855
+# 36947
+
+#' "Gulf" is in all GoM permit names
+# permit_info_from_db |> 
+#     select(TOP_NAME) |> 
+#     distinct()
 # ===  
 
 ## upload permits from pims ----
