@@ -195,6 +195,93 @@ permits_from_pims <-
   auxfunctions::my_read_xlsx(permits_names_file_path, 
                              start_row = 5)
 
+# Vessel, permits, participants from db ----
+vessel_permit_owner_query <- 
+  "SELECT
+  v_p.*,
+  f_p.first_name,
+  f_p.middle_name,
+  f_p.last_name,
+  f_p.name_suffix,
+  f_p.address_1,
+  f_p.address_2,
+  f_p.state,
+  f_p.postal_code,
+  f_p.phone_nbr,
+  f_p.email,
+  f_p.license_nbr,
+  f_p.participant_id,
+  f_p.permit_id,
+  f_p.status
+FROM
+       safis.full_participant@secapxdv_dblk.sfsc.noaa.gov f_p
+  JOIN (
+    SELECT
+      v.sero_home_port_city,
+      v.sero_home_port_county,
+      v.sero_home_port_state,
+      v.sero_official_number,
+      v.coast_guard_nbr,
+      v.event_id,
+      v.hull_id_nbr,
+      v.owner_id,
+      v.state_reg_nbr,
+      v.status,
+      v.supplier_vessel_id,
+      v.ue,
+      v.vessel_id v_vessel_id,
+      v.vessel_name,
+      p.effective_date,
+      p.end_date,
+      p.entity_id,
+      p.expiration_date,
+      p.new_owner,
+      p.permit,
+      p.permit_status,
+      p.prior_owner,
+      p.vessel_alt_num,
+      p.vessel_id p_vessel_id
+    FROM
+           srh.mv_sero_fh_permits_his@secapxdv_dblk.sfsc.noaa.gov p
+      JOIN safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
+      ON ( p.vessel_id = sero_official_number )
+    WHERE
+      p.top IN ( 'CHG', 'HCHG', 'HRCG', 'RCG', 
+                 'CHS', 'SC', 'CDW' )
+      AND ( p.expiration_date >= ( sysdate - ( 365 / 2 ) )
+            OR p.end_date >= ( sysdate - ( 365 / 2 ) ) )
+  ) v_p
+  ON ( to_char(license_nbr) = to_char(entity_id) )
+"
+
+vessel_permit_owner_query_file_path <-
+  file.path(my_paths$inputs,
+            "get_db_data",
+            stringr::str_glue("vessel_permit_owner_{lubridate::today()}.rds"))
+
+file.exists(vessel_permit_owner_query_file_path)
+# T
+
+vessel_permit_owner_query_fun <- function(vessel_permit_owner_query) {
+  result <- dbGetQuery(con, vessel_permit_owner_query)
+  return(result)
+}
+
+get_vessel_permit_owner <-
+  function() {
+    read_rds_or_run(vessel_permit_owner_query_file_path,
+                    vessel_permit_owner_query,
+                    vessel_permit_owner_query_fun
+                    #, force_from_db = TRUE
+                    )
+  }
+
+vessel_permit_owner_from_db <- get_vessel_permit_owner()
+# 2024-06-21 run for vessel_permit_owner_2024-06-21.rds: 8.11 sec elapsed
+
+nrow(vessel_permit_owner_from_db)
+# [1] 31369
+
 # Clean data ----
 #'
 #' Explanations:
