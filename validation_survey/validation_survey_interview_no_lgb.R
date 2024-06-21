@@ -67,6 +67,31 @@ survey_data_l_2022_i1_w_dates |>
 # survey_data_l_2022_i1_w_dates |> 
 #   dplyr::count(cnty) |> tail()
 
+### mark survey vessel ids not in PIMS ----
+permit_info_from_db |> glimpse()
+
+#' total survey vessel ids 
+length(unique(survey_data_l_2022_i1_w_dates$vsl_num))
+# 476
+
+survey_vessel_id_is_in_pims <-
+  intersect(
+    permit_info_from_db$VESSEL_ID,
+    survey_data_l_2022_i1_w_dates$vsl_num
+  )
+
+length(survey_vessel_id_is_in_pims)
+# 290
+
+survey_vessel_id_not_in_pims <-
+  setdiff(
+    survey_data_l_2022_i1_w_dates$vsl_num,
+    permit_info_from_db$VESSEL_ID
+  )
+
+length(survey_vessel_id_not_in_pims)
+# 186
+
 ### restore possible states ----
 survey_data_l_2022_i1_w_dates__states_by_cnty |>
 	head() |>
