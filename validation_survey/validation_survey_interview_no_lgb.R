@@ -73,26 +73,48 @@ survey_data_l_2022_i1_w_dates |>
 permit_info_from_db |> glimpse()
 
 #' total survey vessel ids 
+#' TODO: redo with survey_data_l_2022_date_i1_vsl__int_t
 length(unique(survey_data_l_2022_i1_w_dates$vsl_num))
 # 476
 
+length(unique(survey_data_l_2022_date_i1_vsl__int_t$vsl_num))
+# 429
+
 survey_vessel_id_is_in_pims <-
   intersect(
-    permit_info_from_db$VESSEL_ID,
-    survey_data_l_2022_i1_w_dates$vsl_num
+    tolower(permit_info_from_db$VESSEL_ID),
+    tolower(survey_data_l_2022_i1_w_dates$vsl_num)
   )
 
 length(survey_vessel_id_is_in_pims)
-# 290
+# 306
+
+survey_vessel_id_is_in_pims <-
+  intersect(
+    tolower(permit_info_from_db$VESSEL_ID),
+    tolower(survey_data_l_2022_date_i1_vsl__int_t$vsl_num)
+  )
+
+length(survey_vessel_id_is_in_pims)
+# 310
+
+survey_vessel_id_not_in_pims0 <-
+  setdiff(
+    tolower(survey_data_l_2022_i1_w_dates$vsl_num),
+    tolower(permit_info_from_db$VESSEL_ID)
+  )
+
+length(survey_vessel_id_not_in_pims0)
+# 131
 
 survey_vessel_id_not_in_pims <-
   setdiff(
-    survey_data_l_2022_i1_w_dates$vsl_num,
-    permit_info_from_db$VESSEL_ID
+    tolower(survey_data_l_2022_date_i1_vsl__int_t$vsl_num),
+    tolower(permit_info_from_db$VESSEL_ID)
   )
 
 length(survey_vessel_id_not_in_pims)
-# 186
+# 119
 
 ## Check survey vessel ids in PIMS using a fuzzy match
 
@@ -178,6 +200,7 @@ fuzzyjoin_vessel_ids__dist_grp <-
   fuzzyjoin_vessel_ids_matched |>
   select(survey_vessel_id, VESSEL_ID, vessel_id_dist) |>
   distinct() |> 
+  dplyr::mutate(vessel_id_dist = as.character(vessel_id_dist)) |> 
   tidyr::pivot_wider(names_from = vessel_id_dist,
                      values_from = VESSEL_ID,
                      values_fn = list)
@@ -193,6 +216,31 @@ fuzzyjoin_vessel_ids__dist_grp_duplicates <-
   dplyr::filter(n > 1L)
 
 # View(fuzzyjoin_vessel_ids__dist_grp_duplicates)
+
+#' clean groups
+#' 
+# fuzzyjoin_vessel_ids__dist_grp[1,] |> glimpse()
+
+fuzzyjoin_vessel_ids__dist_grp__match <-
+  fuzzyjoin_vessel_ids__dist_grp |>
+  rowwise() |>
+  mutate(
+    grp0_len = length(`0`),
+    grp1_len = length(`1`),
+    grp2_len = length(`2`)
+  ) |>
+  mutate(matching_vessel_id =
+           case_when(
+             grp0_len > 0 ~ list(`0`),
+             (grp0_len == 0 & grp1_len > 0) ~ list(`1`),
+             .default = list(`2`)
+           )) |>
+  ungroup()
+
+fuzzyjoin_vessel_ids__dist_grp__match |>
+  filter(grp0_len == 0) |>
+  select(survey_vessel_id, `1`, `2`, matching_vessel_id) |> 
+  View()
 
 # 
 #   group_by(vessel_id_dist) |> 
