@@ -37,17 +37,17 @@ the_current_period <-
 
 # [1] 2023-12-15 UTC--2024-07-21 UTC
 
-tictoc::tic("have_sa_permits__int")
+tictoc::tic("have_sa_permits_new__int")
 have_sa_permits_new__int <-
     have_sa_permits_new |>
-    # group_by(VESSEL_ID, ) |>
     rowwise() |>
     mutate(
-        # first_end = min(EXPIRATION_DATE, END_DATE),
+        first_end = min(EXPIRATION_DATE, END_DATE, na.rm = TRUE),
         permit_interval =
                lubridate::interval(start = EFFECTIVE_DATE, 
-                                   end = min(EXPIRATION_DATE, END_DATE))) |>
+                                   end = first_end)) |>
     ungroup()
 tictoc::toc()
-# have_sa_permits__int: 31.28 sec elapsed w sep mutate
-# have_sa_permits__int: 30.63 sec elapsed w min in interval
+# have_sa_permits_new__int: 37.39 sec elapsed
+
+glimpse(have_sa_permits_new__int)
