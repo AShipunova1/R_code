@@ -161,6 +161,14 @@ processed_pims_home_ports <-
 
 # View(processed_pims_home_ports)
 
+get_pims_data_path <- 
+  file.path(my_paths$git_r, 
+            r"(get_data\prepare_data_pims\prepare_data_pims.R)")
+
+file.exists(get_pims_data_path)
+
+source(get_pims_data_path)
+
 # Oracle db ----
 ## get owners addresses ----
 db_participants_address_query <-
