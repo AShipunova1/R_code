@@ -10,3 +10,20 @@ prev_result |>
     select(vessel_official_number) |>
     paste(sep = ", ")
 
+# check if there was a permit for the whole period ----
+permit_info_from_db |> 
+    glimpse()
+
+have_sa_permits <- 
+    permit_info_from_db |> 
+    filter(!grepl("G", TOP))
+
+have_sa_permits |> 
+    glimpse()
+
+the_current_period <- 
+    lubridate::interval(start = half_year_ago,
+                        end = permit_expired_check_date)
+
+# [1] 2023-12-15 UTC--2024-07-21 UTC
+
