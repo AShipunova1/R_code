@@ -83,7 +83,7 @@ last_week_start <- data_file_date - grace_period
 # get_data ----
 #' %%%%% Prepare data
 #' 
-#' half_year_ago
+
 get_data_path <- 
   file.path(current_project_path, "egregious_violators_get_data.R")
 source(get_data_path)
