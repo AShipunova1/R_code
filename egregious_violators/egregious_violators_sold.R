@@ -51,3 +51,54 @@ tictoc::toc()
 # have_sa_permits_new__int: 37.39 sec elapsed
 
 glimpse(have_sa_permits_new__int)
+
+
+# have_sa_permits_new__int2 <- 
+# my_time_intervals %>% 
+#   group_by(group) %>% arrange(start_time, by_group = TRUE) %>% 
+#   mutate(indx = c(0, cumsum(as.numeric(lead(start_time)) >
+#                               cummax(as.numeric(end_time)))[-n()])) %>%
+#   group_by(group, indx) %>%
+#   summarise(start_time = min(start_time), 
+#             end_time = max(end_time)) %>%
+#   select(-indx)
+
+have_sa_permits_new__int$EFFECTIVE_DATE |> 
+    sort() |> 
+    unique() |> 
+    head() |> 
+    lead() |> 
+    as.numeric() |> 
+    cumsum()
+
+aa <- 
+have_sa_permits_new__int$first_end |> 
+    sort() |> 
+    unique() |> 
+    head() |> 
+    as.numeric() |> 
+    cummax() 
+
+    glimpse()
+
+        cummax(
+            as.numeric(first_end)
+        ))[-n()])) %>%
+
+
+have_sa_permits_new__int %>%
+    group_by(VESSEL_ID) %>% 
+    arrange(EFFECTIVE_DATE, by_group = TRUE) %>%
+    mutate(indx = c(0, 
+                    cumsum(as.numeric(lead(
+        EFFECTIVE_DATE
+    )) >
+        cummax(
+            as.numeric(first_end)
+        ))[-n()])) %>%
+        glimpse()
+
+    group_by(VESSEL_ID, indx) %>%
+    summarise(start_time = min(EFFECTIVE_DATE),
+              end_time = max(first_end)) %>%
+    select(-indx)
