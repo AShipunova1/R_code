@@ -1,3 +1,5 @@
+library(fuzzyjoin)
+
 #' how many interviews with no logbooks?
 #' 
 
@@ -93,21 +95,41 @@ length(survey_vessel_id_not_in_pims)
 # 186
 
 ## Check survey vessel ids in PIMS using a fuzzy match
-library(fuzzyjoin)
 
+#' remove NAs
 survey_data_l_2022_i1_w_dates_no_na <- 
   survey_data_l_2022_i1_w_dates |> 
   mutate(survey_vessel_id = tidyr::replace_na(vsl_num, ""))
 
+#' check
+permit_info_from_db |> 
+  select(VESSEL_ID, VESSEL_ALT_NUM) |> 
+  distinct() |> 
+  filter(!VESSEL_ID == VESSEL_ALT_NUM) |> 
+  dim()
+# 268
+
+auxfunctions::count_uniq_by_column(permit_info_from_db)
+# VESSEL_ID             5372
+# VESSEL_ALT_NUM        5356
+
+auxfunctions::count_uniq_by_column(survey_data_l_2022_i1_w_dates_no_na)
+# vsl_num, survey_vessel_id          476
 
 fuzzyjoin_vessel_ids <-
-  fuzzyjoin::stringdist_left_join(survey_data_l_2022_i1_w_dates_no_na,
-                                  permit_info_from_db,
-                                  by = c("survey_vessel_id" = "VESSEL_ID"))
+  fuzzyjoin::stringdist_left_join(
+    survey_data_l_2022_i1_w_dates_no_na,
+    permit_info_from_db,
+    by = c("survey_vessel_id" = "VESSEL_ID"),
+    distance_col = "vessel_id_dist"
+  )
 
-# View(fuzzyjoin_vessel_ids)
+#' A result with method = "lv" has fewer matches
+# 1              0   290
+# 2              1    78
+# 3              2  1137
 
-#' survey vessel_ids fuzzy match PIMS
+#' count survey vessel_ids fuzzy match PIMS
 fuzzyjoin_vessel_ids |> 
     filter(!is.na(VESSEL_ID)) |> 
     select(survey_vessel_id) |> 
@@ -115,22 +137,103 @@ fuzzyjoin_vessel_ids |>
     dim()
 # 358   
 
+fuzzyjoin_vessel_ids |>
+  filter(!is.na(VESSEL_ID)) |>
+  select(survey_vessel_id, VESSEL_ID, vessel_id_dist) |>
+  distinct() |> 
+  count(vessel_id_dist)
+#   vessel_id_dist     n
+#            <dbl> <int>
+#               0   290
+#               1    83
+#               2  1238
+# count(wt = n) 1505 total, ok
 
-# +                                   by = c("vsl_num" = "VESSEL_ID"))
-# Error in dists[include] <- stringdist::stringdist(v1[include], v2[include],  : 
-#   NAs are not allowed in subscripted assignments
+#' check if the same survey id is in diff groups
+survey_ids_dist0 <- 
+  fuzzyjoin_vessel_ids |>
+  filter(!is.na(VESSEL_ID)) |>
+  filter(vessel_id_dist == 0) |> 
+  select(survey_vessel_id) |>
+  distinct()
 
+dim(survey_ids_dist0)
 
-# ,
-    # method = "jw", 
-    # max_dist = 0.2)
-    # 
-# Candidates %>% 
-#   stringdist_left_join(Incumbents, by = c("name" = "name"), method = "jw", max_dist = 0.2) %>% 
-#   rename(candidate_name = name.x) %>% 
-#   mutate(incumbent = if_else(!is.na(name.y), 1, 0)) %>% 
-#   select(-name.y)
+fuzzyjoin_vessel_ids |>
+  filter(!is.na(VESSEL_ID)) |>
+  filter(!vessel_id_dist == 0) |>
+  filter(survey_vessel_id %in% survey_ids_dist0$survey_vessel_id) |>
+  select(survey_vessel_id) |>
+  distinct() |>
+  dim()
+264
 
+fuzzyjoin_vessel_ids_matched <-
+  fuzzyjoin_vessel_ids |>
+  filter(!is.na(VESSEL_ID))
+
+print_df_names(fuzzyjoin_vessel_ids_matched)
+
+fuzzyjoin_vessel_ids__dist_grp <- 
+  fuzzyjoin_vessel_ids_matched |>
+  select(survey_vessel_id, VESSEL_ID, vessel_id_dist) |>
+  distinct() |> 
+  tidyr::pivot_wider(names_from = vessel_id_dist,
+                     values_from = VESSEL_ID,
+                     values_fn = list)
+
+fuzzyjoin_vessel_ids__dist_grp_duplicates <- 
+  fuzzyjoin_vessel_ids_matched |>
+  select(survey_vessel_id, VESSEL_ID, vessel_id_dist) |>
+  distinct() |> 
+  tidyr::pivot_wider(names_from = vessel_id_dist,
+                     values_from = VESSEL_ID) |> 
+  dplyr::summarise(n = dplyr::n(), 
+                   .by = c(survey_vessel_id, vessel_id_dist)) |>
+  dplyr::filter(n > 1L)
+
+# View(fuzzyjoin_vessel_ids__dist_grp_duplicates)
+
+# 
+#   group_by(vessel_id_dist) |> 
+#   filter(n_distinct(survey_vessel_id) == 1) |> 
+#   ungroup() |> 
+#   glimpse()
+# 
+# 
+#   mutate()
+#   filter(!vessel_id_dist == 0) |>
+# 
+# 
+
+#' check using VESSEL_ALT_NUM
+fuzzyjoin_vessel_ids_alt <-
+  fuzzyjoin::stringdist_left_join(
+    survey_data_l_2022_i1_w_dates_no_na,
+    permit_info_from_db,
+    by = c("survey_vessel_id" = "VESSEL_ALT_NUM"),
+    distance_col = "vessel_id_dist_alt"
+  )
+
+fuzzyjoin_vessel_ids_alt |> 
+    filter(!is.na(VESSEL_ALT_NUM)) |> 
+    select(survey_vessel_id) |> 
+    distinct() |> 
+    dim()
+# 363
+
+fuzzyjoin_vessel_ids_alt |>
+  filter(!is.na(VESSEL_ALT_NUM)) |>
+  select(survey_vessel_id, VESSEL_ALT_NUM, vessel_id_dist_alt) |>
+  distinct() |>
+  count(vessel_id_dist_alt)
+#   vessel_id_dist_alt     n
+#                <dbl> <int>
+#                   0   282
+#                   1    79
+#                   2  1127
+
+#' The match better with VESSEL_ID than with VESSEL_ALT_NUM
 
 ### restore possible states ----
 survey_data_l_2022_i1_w_dates__states_by_cnty |>
