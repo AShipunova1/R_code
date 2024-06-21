@@ -25,18 +25,14 @@
 #                    ref = "HEAD",
 # )
 
-# install.packages("remotes")
-# library(remotes)
-# remotes::install_local(path = "~/R_code_github/auxfunctions_1.1.tar.gz",
-#                        build_manual = TRUE)
-# install.packages("devtools")
-# library(devtools)
-# devtools::install_github("AShipunova1/R_code/auxfunctions@development")
+# Install "pacman" and "auxfunctions" packages if not installed.
+if (!require("pacman")) install.packages("pacman")
 
-library(auxfunctions)
-library(ROracle)
-library(zoo)
-library(diffdf)
+# This function is a wrapper for library and require. It checks to see if a package is installed, if not it attempts to install the package from CRAN and/or any other repository in the pacman repository list.
+pacman::p_load(devtools, openxlsx, ROracle, zoo, diffdf)
+
+pacman::p_load_gh("AShipunova1/R_code/auxfunctions")
+# if (!require("auxfunctions")) devtools::install_github("AShipunova1/R_code/auxfunctions")
 
 my_paths <- auxfunctions::set_work_dir()
 
