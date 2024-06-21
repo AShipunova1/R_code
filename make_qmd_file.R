@@ -196,18 +196,6 @@ to_find <-
         collapse = "|")
 # str(to_find)
 
-# done: make it more than 2
-# to_replace_source <-
-#   function(one_match) {
-#     if (one_match == source_paths_matches[[1]])
-#       y <- source_files_content_one_line[[1]]
-#     if (one_match == source_paths_matches[[2]])
-#       y <- source_files_content_one_line[[2]]
-#     if (one_match == source_paths_matches[[3]])
-#       y <- source_files_content_one_line[[3]]
-#     return(y)
-#   }
-
 to_replace_source <-
   function(source_text) {
     return(source_files_content_one_line[[source_text]])
@@ -222,9 +210,7 @@ flat_file_r_text <-
 # grep(my_split_newline_char, flat_file_r_text, value = T)
 # grep("source", flat_file_r_text, value = T)
 
-### comment if (!exists("con")), gives error when rendering ----
-
-# @@@if (!exists(\"con\")) {@@@  try(con <- auxfunctions::connect_to_secpr())@@@}
+### remove 'if (!exists("con"))', gives an error when rendering ----
 to_find_con <- 
   'if *\\(\\!exists\\("con"\\)[^}]+\\}'  
 to_replace_con <- "try(con <- auxfunctions::connect_to_secpr())"
@@ -235,12 +221,6 @@ flat_file_r_text <-
                            to_replace_con
                            )
 
-# stringr::str_extract_all(flat_file_r_text, 
-#                            to_find_con
-#                            ) |> unique()
-# 
-# stringr::str_extract_all(flat_file_r_text1, "^.+try\\(.+$") |> unique()
-  
 ### split one line text back ----
 # Otherwise it is too long and breaks the RStudio
 flat_file_r_text <-
