@@ -92,6 +92,46 @@ survey_vessel_id_not_in_pims <-
 length(survey_vessel_id_not_in_pims)
 # 186
 
+## Check survey vessel ids in PIMS using a fuzzy match
+library(fuzzyjoin)
+
+survey_data_l_2022_i1_w_dates_no_na <- 
+  survey_data_l_2022_i1_w_dates |> 
+  mutate(survey_vessel_id = tidyr::replace_na(vsl_num, ""))
+
+
+fuzzyjoin_vessel_ids <-
+  fuzzyjoin::stringdist_left_join(survey_data_l_2022_i1_w_dates_no_na,
+                                  permit_info_from_db,
+                                  by = c("survey_vessel_id" = "VESSEL_ID"))
+
+# View(fuzzyjoin_vessel_ids)
+
+#' survey vessel_ids fuzzy match PIMS
+fuzzyjoin_vessel_ids |> 
+    filter(!is.na(VESSEL_ID)) |> 
+    select(survey_vessel_id) |> 
+    distinct() |> 
+    dim()
+# 358   
+
+
+# +                                   by = c("vsl_num" = "VESSEL_ID"))
+# Error in dists[include] <- stringdist::stringdist(v1[include], v2[include],  : 
+#   NAs are not allowed in subscripted assignments
+
+
+# ,
+    # method = "jw", 
+    # max_dist = 0.2)
+    # 
+# Candidates %>% 
+#   stringdist_left_join(Incumbents, by = c("name" = "name"), method = "jw", max_dist = 0.2) %>% 
+#   rename(candidate_name = name.x) %>% 
+#   mutate(incumbent = if_else(!is.na(name.y), 1, 0)) %>% 
+#   select(-name.y)
+
+
 ### restore possible states ----
 survey_data_l_2022_i1_w_dates__states_by_cnty |>
 	head() |>
