@@ -18,7 +18,17 @@ have_sa_permits <-
     permit_info_from_db |> 
     filter(!grepl("G", TOP))
 
-have_sa_permits |> 
+dim(have_sa_permits)
+# [1] 24988    22
+
+have_sa_permits_new <- 
+    have_sa_permits |> 
+    filter(lubridate::year(EFFECTIVE_DATE) >= '2023')
+
+dim(have_sa_permits_new)
+# [1] 8803   22
+
+have_sa_permits_new |> 
     glimpse()
 
 the_current_period <- 
