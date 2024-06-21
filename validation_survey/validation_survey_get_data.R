@@ -290,14 +290,21 @@ source(prepare_data_pims_path)
 # permit_info_from_db
 # permits_from_pims__split1_short__split2
 # vessels_from_pims_double_bind
+# vessel_permit_owner_from_db
 
 # result df names ----
 data_names <-
-  c("survey_data_l_2022",
+  c(
+    "survey_data_l_2022",
     "processed_logbooks_2022",
     "processed_logbooks_2022_calendar",
     "db_logbooks_2022",
-    "db_dnfs_2022")
+    "db_dnfs_2022",
+    "permit_info_from_db",
+    "permits_from_pims__split1_short__split2",
+    "vessels_from_pims_double_bind",
+    "vessel_permit_owner_from_db"
+  )
 
 auxfunctions::pretty_print(my_title = "Data are in:", 
                            my_text = data_names)
