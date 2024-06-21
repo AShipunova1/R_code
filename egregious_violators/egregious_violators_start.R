@@ -20,6 +20,7 @@
 # install.packages("devtools")
 # library(devtools)
 
+#' Install if needed and load the package
 if (!require("auxfunctions")) devtools::install_github("AShipunova1/R_code/auxfunctions")
 
 library(ROracle)
