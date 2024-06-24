@@ -241,9 +241,31 @@ survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty |>
   distinct() |>
   glimpse()
 
-# TODO: check by PIMS county/state
+## Restore state by PIMS county/state ----
+### vessel_permit_owner_from_db tolower vessel ids ----
+vessel_permit_owner_from_db_clean_vsl <-
+  vessel_permit_owner_from_db |> 
+  mutate(use_vessel_id = tolower(P_VESSEL_ID))
+  
+print_df_names(vessel_permit_owner_from_db)
 
-## add restored states back to i1 ----
+### remove NA states from survey
+survey_data_l_2022_i1_w_dates_clean_vsl_no_na_st <- 
+  survey_data_l_2022_i1_w_dates_clean_vsl |> 
+  mutate(survey_vessel_id = tidyr::replace_na(vsl_num, ""))
+
+### fuzzyjoin by vessel_ids ----
+fuzzyjoin_vessel_ids <-
+  fuzzyjoin::stringdist_left_join(
+    survey_data_l_2022_i1_w_dates_clean_vsl_no_na_st,
+    vessel_permit_owner_from_db_clean_vsl,
+    by = c("survey_vessel_id" = "VESSEL_ID"),
+    distance_col = "vessel_id_dist"
+  )
+
+
+
+## add combined states back to i1 ----
 survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty__all <-
   survey_data_l_2022_i1_w_dates_clean_vsl |>
   inner_join(survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty)
