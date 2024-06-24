@@ -110,8 +110,7 @@ survey_data_l_2022 |>
 survey_data_l_2022 |>
   readr::write_rds(file.path(curr_proj_output_path, "survey_data_l_2022.rds"))
 
-# get logbooks from FHIER ----
-# not enough fields 
+# get logbooks from FHIER - not enough fields ----
 
 ## processed logbooks ----
 processed_logbooks_2022 <-
@@ -136,8 +135,6 @@ processed_logbooks_2022_calendar <-
 nrow(processed_logbooks_2022_calendar) -
   nrow(processed_logbooks_2022)
 # [1] -4712
-
-# get logbooks from the Oracle db ----
 
 db_logbooks_query <-
   stringr::str_glue("SELECT
@@ -177,10 +174,6 @@ db_logbooks_2022 <-
 dim(db_logbooks_2022)
 # [1] 328086    149
 # [1] 328086    128
-
-db_logbooks_2022 |> 
-  head() |> 
-  glimpse()
 
 # check db logbooks vs. processed logbooks ----
 grep("permit", names(db_logbooks_2022), ignore.case = T, value = T)

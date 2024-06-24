@@ -61,7 +61,18 @@ source(get_data_path)
 #' 
 #' db_dnfs_2022
 #' 
+#' permit_info_from_db
+#' 
+#' permits_from_pims__split1_short__split2
+#' 
+#' vessels_from_pims_double_bind
+#' 
+#' vessel_permit_owner_from_db
+#' 
+---
+
 # ---
+
 
 # source prepare data ----
 #' %%%%% Prepare data

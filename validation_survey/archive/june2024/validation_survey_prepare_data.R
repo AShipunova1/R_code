@@ -105,9 +105,9 @@ survey_data_l_2022_vsl_date |>
   # filter(!grepl(date_paste, id_code)) |>
   # 0
   dplyr::filter(grepl(date_paste, id_code)) |>
+# 1835
   dplyr::ungroup() |>
   dim()
-# 1835
 
 #' check if correct interview_date
 survey_data_l_2022_vsl_date |>
@@ -153,6 +153,18 @@ survey_data_l_2022_vsl_date_time_all <-
 dim(survey_data_l_2022_vsl_date)
 # [1] 1835    10
 
+n_distinct(survey_data_l_2022_vsl_date$vsl_num)
+#' vessels 476
+
+n_distinct(db_logbooks_2022$VESSEL_OFFICIAL_NBR)
+# 1892
+
+survey_data_l_2022_vsl_date |> auxfunctions::print_df_names()
+
+grep("date", names(db_logbooks_2022), ignore.case = T, value = T)
+
+# View(db_logbooks_2022)
+
 ## add dates back to the full i1 ----
 
 survey_data_l_2022_i1_w_dates <-
@@ -163,7 +175,6 @@ dim(survey_data_l_2022$i1)
 # [1] 1835   33
 dim(survey_data_l_2022_i1_w_dates)
 # [1] 1835   37
-
 
 # prepare geo data ----
 
