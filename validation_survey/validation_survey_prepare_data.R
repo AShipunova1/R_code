@@ -249,7 +249,7 @@ vessel_permit_owner_from_db_clean_vsl <-
   vessel_permit_owner_from_db |> 
   mutate(use_vessel_id = tolower(P_VESSEL_ID))
   
-### change NA states from survey ----
+### change NA vsl_num from survey ----
 survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num <- 
   survey_data_l_2022_i1_w_dates_clean_vsl |> 
   mutate(survey_vessel_id = tidyr::replace_na(vsl_num, ""))
@@ -290,6 +290,10 @@ fuzzyjoin_vessel_ids__dist_grp <-
                      values_from = use_vessel_id,
                      values_fn = list)
 
+fuzzyjoin_vessel_ids__dist_grp |> 
+  head() |> 
+  glimpse()
+
 #' clean groups
 #' 
 # fuzzyjoin_vessel_ids__dist_grp[1,] |> glimpse()
@@ -323,10 +327,48 @@ fuzzyjoin_vessel_ids__dist_grp__match_solo <-
   fuzzyjoin_vessel_ids__dist_grp__match |> 
   select(survey_vessel_id, matching_vessel_id)
 
-dim(fuzzyjoin_vessel_ids__dist_grp__match_solo)
+str(fuzzyjoin_vessel_ids__dist_grp__match_solo)
 # 355
 
-fuzzyjoin_vessel_ids__dist_grp__match_solo
+### Add back vessel info ----
+fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back <-
+  fuzzyjoin_vessel_ids__dist_grp__match_solo |>
+  # unnest_wider(matching_vessel_id, names_sep = "_") |>
+  rowwise() |>
+  mutate(matching_vessel_id_regex = 
+           paste(matching_vessel_id, collapse = "|")) |>
+  fuzzyjoin::regex_left_join(
+    vessel_permit_owner_from_db_clean_vsl,
+    by = c("matching_vessel_id_regex" = "use_vessel_id")
+  ) |>
+  ungroup()
+
+View(fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back)
+    # regex_left_join(df2 %>%
+    #                      rowwise() %>% 
+    #                      mutate(key = paste(VA, VB, sep = "|")),
+    #                  by = c(V1 = "key")) %>% 
+    # select(-key) %>% 
+    # arrange(V1)
+
+fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back |>
+  select(
+    survey_vessel_id,
+    matching_vessel_id,
+    matching_vessel_id_regex,
+    use_vessel_id,
+    SERO_HOME_PORT_CITY,
+    SERO_HOME_PORT_COUNTY,
+    SERO_HOME_PORT_STATE
+    # SERO_OFFICIAL_NUMBER,
+    # COAST_GUARD_NBR,
+    # STATE_REG_NBR,
+    # VESSEL_NAME,
+    # VESSEL_ALT_NUM,
+    # P_VESSEL_ID
+  ) |>
+  distinct() |> View()
+
 
 ## add combined states back to i1 ----
 survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty__all <-
