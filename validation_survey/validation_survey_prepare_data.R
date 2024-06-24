@@ -173,12 +173,9 @@ clean_up_survey_vessel_ids <- function(my_df) {
   
 }
 
-survey_data_l_2022_i1_w_dates_clean_vsl1 <-
+survey_data_l_2022_i1_w_dates_clean_vsl <-
   survey_data_l_2022_i1_w_dates |>
   clean_up_survey_vessel_ids()
-
-diffdf::diffdf(survey_data_l_2022_i1_w_dates_clean_vsl,
-               survey_data_l_2022_i1_w_dates_clean_vsl1)
 
 ## prepare geo data ----
 
@@ -843,11 +840,21 @@ dim(survey_i1_i2_released)
 n_distinct(survey_i1_i2_released$id_code)
 # 1835
 
-### add dates to i1_i2 ----
+### add dates to i1_i2 and clean vsl ----
 survey_i1_i2_released_dates <-
-  get_date_from_id_code_survey(survey_i1_i2_released)
+  get_date_from_id_code_survey(survey_i1_i2_released) |> 
+  clean_up_survey_vessel_ids()
 
 glimpse(survey_i1_i2_released_dates)
+
+diffdf::diffdf(survey_i1_i2_released_dates,
+               survey_i1_i2_released_dates1)
+
+  #  VARIABLE  ..ROWNUMBER..     BASE     COMPARE  
+  # -----------------------------------------------
+  #  vsl_num         1         FL9207ST   fl9207st 
+  #  vsl_num        13        FL 1912 PM  fl1912pm 
+  #  vsl_num        23         FL9488PW   fl9488pw 
 
 ## i1 and i3 ----
 survey_i1_i3_harvested <-
