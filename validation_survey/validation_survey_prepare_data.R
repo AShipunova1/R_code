@@ -279,7 +279,7 @@ fuzzyjoin_vessel_ids_matched |>
 # 2              1    60
 # 3              2   811
 
-# if a vessel in more than in one distance group ----
+### if a vessel in more than in one distance group ----
 #' change distance to words, to easier operations with column names
 fuzzyjoin_vessel_ids__dist_grp <- 
   fuzzyjoin_vessel_ids_matched |>
@@ -330,8 +330,8 @@ fuzzyjoin_vessel_ids__dist_grp__match_solo <-
 str(fuzzyjoin_vessel_ids__dist_grp__match_solo)
 # 355
 
-### Add back vessel info ----
-fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back <-
+#### Add back vessel info from db ----
+fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_db <-
   fuzzyjoin_vessel_ids__dist_grp__match_solo |>
   # unnest_wider(matching_vessel_id, names_sep = "_") |>
   rowwise() |>
@@ -343,15 +343,10 @@ fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back <-
   ) |>
   ungroup()
 
-View(fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back)
-    # regex_left_join(df2 %>%
-    #                      rowwise() %>% 
-    #                      mutate(key = paste(VA, VB, sep = "|")),
-    #                  by = c(V1 = "key")) %>% 
-    # select(-key) %>% 
-    # arrange(V1)
+# View(fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_db)
 
-fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back |>
+#' check 
+fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_db |>
   select(
     survey_vessel_id,
     matching_vessel_id,
@@ -367,9 +362,40 @@ fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back |>
     # VESSEL_ALT_NUM,
     # P_VESSEL_ID
   ) |>
-  distinct() |> View()
+  distinct() |> 
+  head(20) |> 
+  tail(10) |> 
+  glimpse()
+
+#### Add back vessel info from survey ----
+
+fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv <-
+  fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_db |>
+  left_join(survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num,
+            join_by(survey_vessel_id),
+            relationship = "many-to-many")
+
+fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv |> 
+  select(
+  survey_vessel_id,
+  matching_vessel_id,
+  matching_vessel_id_regex,
+  use_vessel_id,
+  SERO_HOME_PORT_CITY,
+  SERO_HOME_PORT_COUNTY,
+  SERO_HOME_PORT_STATE,
+  vsl_num,
+  cnty,
+  st
+) |>
+  distinct() |>
+  head(20) |>
+  # tail(10) |>
+  glimpse()
 
 
+
+  
 ## add combined states back to i1 ----
 survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty__all <-
   survey_data_l_2022_i1_w_dates_clean_vsl |>
