@@ -847,15 +847,6 @@ survey_i1_i2_released_dates <-
 
 glimpse(survey_i1_i2_released_dates)
 
-diffdf::diffdf(survey_i1_i2_released_dates,
-               survey_i1_i2_released_dates1)
-
-  #  VARIABLE  ..ROWNUMBER..     BASE     COMPARE  
-  # -----------------------------------------------
-  #  vsl_num         1         FL9207ST   fl9207st 
-  #  vsl_num        13        FL 1912 PM  fl1912pm 
-  #  vsl_num        23         FL9488PW   fl9488pw 
-
 ## i1 and i3 ----
 survey_i1_i3_harvested <-
   full_join(survey_data_l_2022_short$i1,
@@ -871,10 +862,13 @@ dim(survey_i1_i3_harvested)
 # [1] 11794    21
 # View(survey_i1_i3_harvested)
 
-### add dates to i1_i3 ----
-survey_i1_i3_harvested_dates <- 
-  get_date_from_id_code_survey(survey_i1_i3_harvested)
+### add dates to i1_i3 and clean vessel ids ----
+survey_i1_i3_harvested_dates1 <- 
+  get_date_from_id_code_survey(survey_i1_i3_harvested) |> 
+  clean_up_survey_vessel_ids()
 
+diffdf::diffdf(survey_i1_i3_harvested_dates,
+               survey_i1_i3_harvested_dates1)
 # glimpse(survey_i1_i3_harvested_dates)
 
 #' result names:
