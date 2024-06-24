@@ -1,3 +1,5 @@
+library(english)
+
 # prepare data ----
 
 # survey_data_l_2022 |> 
@@ -247,9 +249,7 @@ vessel_permit_owner_from_db_clean_vsl <-
   vessel_permit_owner_from_db |> 
   mutate(use_vessel_id = tolower(P_VESSEL_ID))
   
-print_df_names(vessel_permit_owner_from_db)
-
-### remove NA states from survey
+### change NA states from survey ----
 survey_data_l_2022_i1_w_dates_clean_vsl_no_na_st <- 
   survey_data_l_2022_i1_w_dates_clean_vsl |> 
   mutate(survey_vessel_id = tidyr::replace_na(vsl_num, ""))
@@ -259,10 +259,56 @@ fuzzyjoin_vessel_ids <-
   fuzzyjoin::stringdist_left_join(
     survey_data_l_2022_i1_w_dates_clean_vsl_no_na_st,
     vessel_permit_owner_from_db_clean_vsl,
-    by = c("survey_vessel_id" = "VESSEL_ID"),
+    by = c("survey_vessel_id" = "use_vessel_id"),
     distance_col = "vessel_id_dist"
   )
 
+### matched vsl ids -----
+fuzzyjoin_vessel_ids_matched <-
+  fuzzyjoin_vessel_ids |>
+  filter(!is.na(use_vessel_id))
+  
+#' check 
+fuzzyjoin_vessel_ids_matched |>
+  select(survey_vessel_id, use_vessel_id, vessel_id_dist) |>
+  distinct() |> 
+  count(vessel_id_dist)
+#   vessel_id_dist     n
+#            <dbl> <int>
+# 1              0   266
+# 2              1    60
+# 3              2   811
+
+# if a vessel in more than in one distance group ----
+#' change distance to words, to easier operations with column names
+fuzzyjoin_vessel_ids__dist_grp <- 
+  fuzzyjoin_vessel_ids_matched |>
+  select(survey_vessel_id, use_vessel_id, vessel_id_dist) |>
+  distinct() |> 
+  dplyr::mutate(vessel_id_dist = english::english(vessel_id_dist)) |> 
+  tidyr::pivot_wider(names_from = vessel_id_dist,
+                     values_from = use_vessel_id,
+                     values_fn = list)
+
+#' clean groups
+#' 
+# fuzzyjoin_vessel_ids__dist_grp[1,] |> glimpse()
+
+fuzzyjoin_vessel_ids__dist_grp__match <-
+  fuzzyjoin_vessel_ids__dist_grp |>
+  rowwise() |>
+  mutate(
+    grp0_len = length(`0`),
+    grp1_len = length(`1`),
+    grp2_len = length(`2`)
+  ) |>
+  mutate(matching_vessel_id =
+           case_when(
+             grp0_len > 0 ~ list(`0`),
+             (grp0_len == 0 & grp1_len > 0) ~ list(`1`),
+             .default = list(`2`)
+           )) |>
+  ungroup()
 
 
 ## add combined states back to i1 ----
