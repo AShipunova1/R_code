@@ -61,7 +61,7 @@ setdiff(survey_data_l_2022$i1$id_code,
         survey_data_l_2022$ref$id_code) |> length()
 # 1835
 
-#' get dates from survey's id_code
+## get dates from survey's id_code ----
 get_date_from_id_code_survey <- 
   function(my_df) {
     my_df__w_dates <-
@@ -91,7 +91,6 @@ get_date_from_id_code_survey <-
     return(my_df__w_dates)
   }
 
-# prepare i1 dates ----
 survey_data_l_2022_vsl_date <-
   survey_data_l_2022$i1 |>
   dplyr::select(vsl_num, id_code, time, hrsf) |>
@@ -165,14 +164,14 @@ dim(survey_data_l_2022$i1)
 dim(survey_data_l_2022_i1_w_dates)
 # [1] 1835   42
 
-# clean up survey vessel ids ----
+## clean up survey vessel ids ----
 survey_data_l_2022_i1_w_dates_clean_vsl <-
   survey_data_l_2022_i1_w_dates |>
   dplyr::mutate(vsl_num = stringr::str_replace_all(vsl_num, " ", "")) |>
   dplyr::mutate(vsl_num = stringr::str_replace_all(vsl_num, "-", "")) |>
   dplyr::mutate(vsl_num = tolower(vsl_num))
-  
-# prepare geo data ----
+
+## prepare geo data ----
 
 #' The following is adopted from Dominique's code
 gulf_states <- c("AL", "TX", "MS", "LA")
@@ -216,8 +215,8 @@ florida_gulf_counties <- c(33,
 #   count(st, cnty) |> 
 #   head()
   
-survey_data_l_2022_i1_w_dates__states_by_cnty <-
-  survey_data_l_2022_i1_w_dates |>
+survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty <-
+  survey_data_l_2022_i1_w_dates_clean_vsl |>
   dplyr::select(st, cnty) |>
   dplyr::distinct() |>
   dplyr::group_by(cnty) |>
@@ -231,13 +230,20 @@ survey_data_l_2022_i1_w_dates__states_by_cnty <-
   dplyr::distinct() |>
   dplyr::arrange(cnty)
 
-# survey_data_l_2022_i1_w_dates__states_by_cnty |>
-#   select(states_l_by_cnty) |>
-#   distinct() |>
-#   glimpse()
+survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty |>
+  select(states_l_by_cnty) |>
+  distinct() |>
+  glimpse()
 
 # TODO: check by PIMS county/state
-  
+
+## add restored states back to i1 ----
+survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty__all <-
+  survey_data_l_2022_i1_w_dates_clean_vsl |>
+  inner_join(survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty)
+#' Joining with `by = join_by(cnty, st)`
+#' 
+
 # prepare logbooks ----
 db_logbooks_2022_clean_vesl <-
   db_logbooks_2022 |>
@@ -312,7 +318,7 @@ str(db_logbooks_2022_short_date_time)
 lgb_join_i1 <-
   dplyr::right_join(
     db_logbooks_2022_short_date_time,
-    survey_data_l_2022_vsl_date_time_all,
+    survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty__all,
     dplyr::join_by(
       VESSEL_OFFICIAL_NBR == vsl_num,
       trip_end_date_only == interview_date
@@ -322,13 +328,19 @@ lgb_join_i1 <-
 # ℹ Row 1391 of `x` matches multiple rows in `y`.
 # ℹ Row 74 of `y` matches multiple rows in `x`.
 
+lgb_join_i1 |> 
+  head() |> 
+  glimpse()
+
+lgb_join_i1 |> 
+  tail() |> 
+  glimpse()
+
 dim(lgb_join_i1)
-# 2016 24
+# 2030 24
 
 n_distinct(lgb_join_i1$VESSEL_OFFICIAL_NBR)
-# 476
-
-# str(lgb_join_i1)
+# 429
 
 # Add interview and trip time difference ----
 #' to align interviews with logbooks if there are more than one a day
@@ -364,7 +376,7 @@ lgb_join_i1__t_diff_short_has_trip <-
   dplyr::filter(!is.na(TRIP_ID))
 
 dim(lgb_join_i1__t_diff_short_has_trip)
-# 1055
+# 1197    
 
 # Don't have logbooks ----
 lgb_join_i1__t_diff_short_has_no_trip <-
@@ -372,7 +384,7 @@ lgb_join_i1__t_diff_short_has_no_trip <-
   dplyr::filter(is.na(TRIP_ID))
 
 dim(lgb_join_i1__t_diff_short_has_no_trip)
-# 961
+# 833   
 
 # n_distinct(lgb_join_i1__t_diff_short_has_trip$VESSEL_OFFICIAL_NBR)
 # 228
@@ -676,10 +688,10 @@ lgb_names_to_use <- c(
 # "UNIT_MEASURE",
 
 db_logbooks_2022_short <-
-  db_logbooks_2022 |>
+  db_logbooks_2022_clean_vesl |>
   dplyr::select(tidyselect::all_of(lgb_names_to_use))
 
-# dim(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_shorter)
+dim(db_logbooks_2022_short)
 
 ## add logbooks to the df joined by day/time ----
 catch_info_lgb <- 
