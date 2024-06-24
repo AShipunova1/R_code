@@ -250,14 +250,14 @@ vessel_permit_owner_from_db_clean_vsl <-
   mutate(use_vessel_id = tolower(P_VESSEL_ID))
   
 ### change NA states from survey ----
-survey_data_l_2022_i1_w_dates_clean_vsl_no_na_st <- 
+survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num <- 
   survey_data_l_2022_i1_w_dates_clean_vsl |> 
   mutate(survey_vessel_id = tidyr::replace_na(vsl_num, ""))
 
 ### fuzzyjoin by vessel_ids ----
 fuzzyjoin_vessel_ids <-
   fuzzyjoin::stringdist_left_join(
-    survey_data_l_2022_i1_w_dates_clean_vsl_no_na_st,
+    survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num,
     vessel_permit_owner_from_db_clean_vsl,
     by = c("survey_vessel_id" = "use_vessel_id"),
     distance_col = "vessel_id_dist"
@@ -294,22 +294,39 @@ fuzzyjoin_vessel_ids__dist_grp <-
 #' 
 # fuzzyjoin_vessel_ids__dist_grp[1,] |> glimpse()
 
+### keep a vessel only in one group ----
 fuzzyjoin_vessel_ids__dist_grp__match <-
   fuzzyjoin_vessel_ids__dist_grp |>
   rowwise() |>
   mutate(
-    grp0_len = length(`0`),
-    grp1_len = length(`1`),
-    grp2_len = length(`2`)
+    grp0_len = length(zero),
+    grp1_len = length(one),
+    grp2_len = length(two)
   ) |>
   mutate(matching_vessel_id =
            case_when(
-             grp0_len > 0 ~ list(`0`),
-             (grp0_len == 0 & grp1_len > 0) ~ list(`1`),
-             .default = list(`2`)
+             grp0_len > 0 ~ list(zero),
+             (grp0_len == 0 & grp1_len > 0) ~ list(one),
+             .default = list(two)
            )) |>
   ungroup()
 
+#' check
+fuzzyjoin_vessel_ids__dist_grp__match |>
+  filter(grp0_len == 0 & !grp1_len == 0) |>
+  select(survey_vessel_id, one, two, matching_vessel_id) |> 
+  head() |> 
+  glimpse()
+
+### add back state and county ----
+fuzzyjoin_vessel_ids__dist_grp__match_solo <- 
+  fuzzyjoin_vessel_ids__dist_grp__match |> 
+  select(survey_vessel_id, matching_vessel_id)
+
+dim(fuzzyjoin_vessel_ids__dist_grp__match_solo)
+# 355
+
+fuzzyjoin_vessel_ids__dist_grp__match_solo
 
 ## add combined states back to i1 ----
 survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty__all <-
