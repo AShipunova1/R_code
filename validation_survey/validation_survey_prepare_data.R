@@ -320,7 +320,7 @@ str(db_logbooks_2022_short_date_time)
 #     str(db_logbooks_2022_short0)
 # lubridate::date("2022-01-04 23:00:00")
 
-# Join interview and logbooks by day and vessel ----
+# JOIN interview and logbooks by day and vessel ----
 lgb_join_i1 <-
   dplyr::right_join(
     db_logbooks_2022_short_date_time,
@@ -863,15 +863,13 @@ dim(survey_i1_i3_harvested)
 # View(survey_i1_i3_harvested)
 
 ### add dates to i1_i3 and clean vessel ids ----
-survey_i1_i3_harvested_dates1 <- 
+survey_i1_i3_harvested_dates <- 
   get_date_from_id_code_survey(survey_i1_i3_harvested) |> 
   clean_up_survey_vessel_ids()
 
-diffdf::diffdf(survey_i1_i3_harvested_dates,
-               survey_i1_i3_harvested_dates1)
 # glimpse(survey_i1_i3_harvested_dates)
 
-#' result names:
+# Prepared data result names ----
 data_names <-
   c("lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short",
     "db_logbooks_2022_short",
