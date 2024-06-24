@@ -212,7 +212,7 @@ vessel_permit_owner_query <-
   f_p.license_nbr,
   f_p.participant_id,
   f_p.permit_id,
-  f_p.status
+  f_p.status f_p_status
 FROM
        safis.full_participant@secapxdv_dblk.sfsc.noaa.gov f_p
   JOIN (
@@ -226,7 +226,7 @@ FROM
       v.hull_id_nbr,
       v.owner_id,
       v.state_reg_nbr,
-      v.status,
+      v.status v_status,
       v.supplier_vessel_id,
       v.ue,
       v.vessel_id v_vessel_id,
@@ -272,15 +272,17 @@ get_vessel_permit_owner <-
     read_rds_or_run(vessel_permit_owner_query_file_path,
                     vessel_permit_owner_query,
                     vessel_permit_owner_query_fun
-                    #, force_from_db = TRUE
+                    # , force_from_db = TRUE
                     )
   }
 
 vessel_permit_owner_from_db <- get_vessel_permit_owner()
-# 2024-06-21 run for vessel_permit_owner_2024-06-21.rds: 8.11 sec elapsed
+# 2024-06-24 run for vessel_permit_owner_2024-06-24.rds: 8.66 sec elapsed
 
 nrow(vessel_permit_owner_from_db)
 # [1] 31369
+
+# print_df_names(vessel_permit_owner_from_db)
 
 # Clean data ----
 #'
