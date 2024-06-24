@@ -165,11 +165,20 @@ dim(survey_data_l_2022_i1_w_dates)
 # [1] 1835   42
 
 ## clean up survey vessel ids ----
-survey_data_l_2022_i1_w_dates_clean_vsl <-
+clean_up_survey_vessel_ids <- function(my_df) {
+  my_df |>
+    dplyr::mutate(vsl_num = stringr::str_replace_all(vsl_num, " ", "")) |>
+    dplyr::mutate(vsl_num = stringr::str_replace_all(vsl_num, "-", "")) |>
+    dplyr::mutate(vsl_num = tolower(vsl_num))
+  
+}
+
+survey_data_l_2022_i1_w_dates_clean_vsl1 <-
   survey_data_l_2022_i1_w_dates |>
-  dplyr::mutate(vsl_num = stringr::str_replace_all(vsl_num, " ", "")) |>
-  dplyr::mutate(vsl_num = stringr::str_replace_all(vsl_num, "-", "")) |>
-  dplyr::mutate(vsl_num = tolower(vsl_num))
+  clean_up_survey_vessel_ids()
+
+diffdf::diffdf(survey_data_l_2022_i1_w_dates_clean_vsl,
+               survey_data_l_2022_i1_w_dates_clean_vsl1)
 
 ## prepare geo data ----
 
@@ -586,7 +595,7 @@ trip_dups_only <-
   dplyr::distinct()
 
 dim(trip_dups_only)
-# 163
+# 177
 
 ## remove duplicates 2 trips. 1 interview ----
 #' Only keep logbooks with a correspondent interview
@@ -607,30 +616,30 @@ fields_to_cnt <- c("TRIP_ID", "VESSEL_OFFICIAL_NBR", "id_code")
 lgb_join_i1 |>
   select(all_of(fields_to_cnt)) |>
   auxfunctions::data_overview()
-# TRIP_ID             1027
-# VESSEL_OFFICIAL_NBR   476
+# TRIP_ID             1167
+# VESSEL_OFFICIAL_NBR  429
 # id_code              1835
 
 lgb_join_i1__t_diff_short__w_int_all |>
   select(all_of(fields_to_cnt)) |>
   auxfunctions::data_overview()
-# TRIP_ID             1026
-# VESSEL_OFFICIAL_NBR  214
-# id_code              874
+# TRIP_ID             1166
+# VESSEL_OFFICIAL_NBR  250
+# id_code             1002
 
 lgb_join_i1__t_diff_short__w_int_all_dup_rm |>
   select(all_of(fields_to_cnt)) |>
   auxfunctions::data_overview()
-# TRIP_ID             1024
-# VESSEL_OFFICIAL_NBR  214
-# id_code              869
+# TRIP_ID             1164
+# VESSEL_OFFICIAL_NBR  250
+# id_code              997
 
 lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm |>
   select(all_of(fields_to_cnt)) |>
   auxfunctions::data_overview()
-# TRIP_ID             861
-# VESSEL_OFFICIAL_NBR 214
-# id_code             860
+# TRIP_ID             987
+# VESSEL_OFFICIAL_NBR 249
+# id_code             986
 
 # View(lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm)
 
@@ -700,7 +709,7 @@ catch_info_lgb <-
 #' Joining with `by = join_by(TRIP_ID, VESSEL_OFFICIAL_NBR)`
 
 dim(catch_info_lgb)
-# [1] 3502   24
+# [1] 3799   24
 
 ## shorten survey_data_l_2022 ----
 
@@ -778,7 +787,7 @@ catch_info_lgb_i1_i2 <-
 #' ! Can't join `x$st` with `y$st` due to incompatible types.
 
 dim(catch_info_lgb_i1_i2)
-# [1] 8418   42
+# [1] 9172   42
 
 catch_info_lgb_i1_i2_i3 <-
   left_join(catch_info_lgb_i1_i2,
@@ -796,7 +805,6 @@ catch_info_lgb_i1_i2_i3 <-
 #' Joining with `by = join_by(id_code, num_typ3, tsn)`
 
 dim(catch_info_lgb_i1_i2_i3)
-# [1] 89466    50
 
 # join all survey info ----
 
@@ -829,6 +837,8 @@ survey_i1_i2_released <-
 dim(survey_i1_i2_released)
 # 3218  left join
 # 3683  full join
+
+# TODO: check how it is joining if "st" is NA
 
 n_distinct(survey_i1_i2_released$id_code)
 # 1835
