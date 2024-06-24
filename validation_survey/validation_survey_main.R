@@ -69,10 +69,7 @@ source(get_data_path)
 #' 
 #' vessel_permit_owner_from_db
 #' 
----
-
 # ---
-
 
 # source prepare data ----
 #' %%%%% Prepare data
