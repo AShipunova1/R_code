@@ -223,6 +223,28 @@ florida_gulf_counties <- c(33,
 #   count(st, cnty) |> 
 #   head()
 
+# Restore missing port state ----
+
+#' Number of States restored by vessel and county is different from
+#' the number of states restored by home port.
+#' 
+#' In the first case we can use only the survey data, assuming that if a survey county for the same vessel is the same, than the state is also the same. 
+#' 
+#' For example if a vessel "ABC" has one survey in county "075" and state "22" and another survey in county "075" with a state "NA", the state is "22".
+#'  
+#'  In the second case we 
+#'  
+#'  1) did a fuzzy match by survey vessel id to PIMS vessel id, 
+#'  
+#'  2) than pull home port info for that vessels (several if there are several matches)
+#'  
+#'  3) converted the PIMS county and the tidycensus::fips_codes$county to the same unified format
+#'  
+#'  4) added fips numeric codes to the pims county and state, to be able to compare with the survey
+#'  
+#'  5) restore missing survey states by the following algorithm: if a survey state is missing and a survey county is the same as the pims county, use the pims home port state for the survey state.
+#'  
+#' That leaves unchanged not missing survey states, and missing survey states with a county different from the home port. That is because the home port is obtained by an approximate match and can be erroneous or because the home port and the interview/survey places are different.
 
 ## Restore state by vessel_id, cnty ----
 #' For the same vessel same cnty, st is NA or the same
@@ -376,7 +398,7 @@ fuzzyjoin_vessel_ids__dist_grp__match_solo <-
   fuzzyjoin_vessel_ids__dist_grp__match |> 
   select(survey_vessel_id, matching_vessel_id)
 
-str(fuzzyjoin_vessel_ids__dist_grp__match_solo)
+dim(fuzzyjoin_vessel_ids__dist_grp__match_solo)
 # 355
 
 #### Add back vessel info from db ----
@@ -392,7 +414,9 @@ fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_db <-
   ) |>
   ungroup()
 
-# View(fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_db)
+fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_db |> 
+  head() |> 
+  glimpse()
 
 #' check 
 fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_db |>
@@ -474,7 +498,7 @@ fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv_fips_short |>
   tail() |> 
   glimpse()
 
-### simplify county names ----
+### unify county names ----
 words_to_remove <- " county| parish| municipio| islands| island| municipality| district| city"
 
 #### county names in my_df ----
@@ -554,12 +578,9 @@ grep("john",
      value = T) |> 
   unique()
 
-# grep("john", 
-#      fips_code_to_use$county, 
-#      value = T)
-
-
 ### join state and county ----
+#'add fips numbers to PIMS vessel home state and county name
+
 vessel_ids_w_state_cnty_fips <-
   fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv_fips_to_use |>
   left_join(fips_code_to_use,
@@ -602,6 +623,7 @@ vessel_ids_w_state_cnty_fips__compare_counties_states <-
   ) |>
   distinct()
 
+#' rename fields for easy comparisson
 vessel_ids_w_state_cnty_fips__compare_counties_states_rename <- 
   vessel_ids_w_state_cnty_fips__compare_counties_states |> 
   dplyr::rename(
@@ -636,6 +658,7 @@ vessel_ids_w_state_cnty_fips__compare_counties_states_rename |>
 # 131
 
 #' home port cnty not the same as the survey cnty
+#' one example
 vessel_ids_w_state_cnty_fips__compare_counties_states_rename |> 
   filter(grepl("santa rosa", tolower(county_short))) |>
   glimpse()
@@ -650,7 +673,7 @@ tidycensus::fips_codes |>
            state_code %in% c(12, 22)) |>
   glimpse()
 
-# restore missing states from pims ----
+### restore missing states from pims ----
 vessel_ids_w_state_cnty_fips__compare_counties_states_rename__st_restored_from_pims <-
   vessel_ids_w_state_cnty_fips__compare_counties_states_rename |>
   rowwise() |>
@@ -664,8 +687,8 @@ vessel_ids_w_state_cnty_fips__compare_counties_states_rename__st_restored_from_p
   ) |>
   ungroup()
 
+### compare states restored by vessel and county with these restored from pims ----
 
-#' check
 vessel_ids_w_state_cnty_fips__compare_counties_states_rename__st_restored_from_pims |>
   count(state_restored_from_pims)
 # # A tibble: 6 × 2
@@ -678,19 +701,41 @@ vessel_ids_w_state_cnty_fips__compare_counties_states_rename__st_restored_from_p
 # 5 28                          15
 # 6 48                          29
 
-### compare states restored by vessel and county with these restored from pims ----
+survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored__fips |>   
+  count(restored_st)
+#   restored_st     n
+#   <chr>       <int>
+# 1 01             85
+# 2 12            250
+# 3 22             97
+# 4 28             21
+# 5 48             53
+# 6 NA             30
 
-vessel_ids_w_state_cnty_fips__compare_counties_states_rename__st_restored_from_pims
+survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored__fips |>   
+  filter(restored_st == "48") |> 
+  head() |> 
+  glimpse()
 
-# --- HERE ---
+vessel_ids_w_state_cnty_fips__compare_counties_states_rename__st_restored_from_pims |> 
+  filter(state_restored_from_pims == "48") |> 
+  head() |> 
+  glimpse()
 
+n_distinct(vessel_ids_w_state_cnty_fips__compare_counties_states_rename__st_restored_from_pims$survey_vessel_id)
+# [1] 355
 
-## add combined states back to i1 ----
-survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty__all <-
-  survey_data_l_2022_i1_w_dates_clean_vsl |>
-  inner_join(survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty)
-#' Joining with `by = join_by(cnty, st)`
-#' 
+n_distinct(vessel_ids_w_state_cnty_fips__compare_counties_states_rename__st_restored_from_pims$use_vessel_id)
+# [1] 375
+
+n_distinct(survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored__fips$vsl_num)
+# [1] 429
+
+intersect(
+  vessel_ids_w_state_cnty_fips__compare_counties_states_rename__st_restored_from_pims$survey_vessel_id,
+  survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored__fips$vsl_num
+) |> length()
+# 355
 
 # prepare logbooks ----
 db_logbooks_2022_clean_vesl <-
