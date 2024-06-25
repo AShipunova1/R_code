@@ -214,7 +214,7 @@ florida_gulf_counties <- c(33,
                            21,
                            87)
 
-#' ASSIGN RECORDS IN COUNTY=75 WITH NO STATE TO GULF (FL OR LA)
+#' Dominique: ASSIGN RECORDS IN COUNTY=75 WITH NO STATE TO GULF (FL OR LA)
 # is.na(st) & cnty == c(75) ~ ,
 
 #' check st, cnty
@@ -635,7 +635,7 @@ vessel_ids_w_state_cnty_fips__compare_counties_states_rename |>
   glimpse()
 # 131
 
-#' errors in survey cnty
+#' home port cnty not the same as the survey cnty
 vessel_ids_w_state_cnty_fips__compare_counties_states_rename |> 
   filter(grepl("santa rosa", tolower(county_short))) |>
   glimpse()
@@ -645,8 +645,42 @@ tidycensus::fips_codes |>
   glimpse()
 # only 113 in FL
 
+tidycensus::fips_codes |>
+  filter(grepl("075|033", county_code) &
+           state_code %in% c(12, 22)) |>
+  glimpse()
+
+# restore missing states from pims ----
+vessel_ids_w_state_cnty_fips__compare_counties_states_rename__st_restored_from_pims <-
+  vessel_ids_w_state_cnty_fips__compare_counties_states_rename |>
+  rowwise() |>
+  mutate(
+    state_restored_from_pims =
+      case_when(
+        cnty_from_survey == county_code &
+          state_from_survey == "00" ~ state_code,
+        .default = state_from_survey
+      )
+  ) |>
+  ungroup()
+
+
+#' check
+vessel_ids_w_state_cnty_fips__compare_counties_states_rename__st_restored_from_pims |>
+  count(state_restored_from_pims)
+# # A tibble: 6 × 2
+#   state_restored_from_pims     n
+#   <chr>                    <int>
+# 1 00                          63
+# 2 01                          80
+# 3 12                         257
+# 4 22                         124
+# 5 28                          15
+# 6 48                          29
 
 ### compare states restored by vessel and county with these restored from pims ----
+
+vessel_ids_w_state_cnty_fips__compare_counties_states_rename__st_restored_from_pims
 
 # --- HERE ---
 
