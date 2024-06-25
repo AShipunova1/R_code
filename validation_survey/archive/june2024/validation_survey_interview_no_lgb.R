@@ -781,7 +781,7 @@ join_by_date_captain__has_lgb <-
 #     dplyr::filter(state_code == state_both & county_code == cnty_3) |>
 #     dplyr::select(county) |>
 #     dplyr::mutate(county_short =
-#              stringr::str_replace_all(county, " County| Parish", "") |> 
+#              stringr::str_replace_all(county, " County| Parish", "") |>
 #              tolower())
 #   
 #   county_short <- res[["county_short"]]
