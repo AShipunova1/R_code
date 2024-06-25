@@ -273,6 +273,7 @@ survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored |>
   head() |> 
   glimpse()
 
+### format state and county codes ----
 format_state_and_county_codes <-
   function(my_df, state_code_field) {
     my_df |>
@@ -283,6 +284,12 @@ format_state_and_county_codes <-
              fips = paste0(st_2, cnty_3))
   }
 
+survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored__fips <-
+  survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored |>
+  format_state_and_county_codes("restored_st")
+
+survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored__fips |>
+  head() |> 
   glimpse()
 
 ## Restore state by PIMS county/state ----
@@ -435,114 +442,7 @@ fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv |>
   # tail(10) |>
   glimpse()
 
-### Restore state by vessel_id, cnty ----
-#' For the same vessel same cnty, st is NA or the same
-survey_data_l_2022_i1_w_dates_clean_vsl |> 
-  filter(vsl_num == "fl9207st") |>
-  select(cnty, st) |>
-  distinct() |>
-  glimpse()
-# $ cnty <int> 17, 17
-# $ st   <chr> NA, "12"
-
-survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v <- 
-  survey_data_l_2022_i1_w_dates_clean_vsl |>
-  dplyr::select(vsl_num, st, cnty) |>
-  dplyr::distinct() |>
-  dplyr::group_by(vsl_num, cnty) |>
-  # dplyr::group_by(cnty) |>
-  dplyr::mutate(st_with_char_na =
-                  dplyr::case_when(is.na(st) ~ "NA", .default = st)) |>
-  dplyr::mutate(states_l_by_cnty_v = list(paste(unique(
-    sort(st_with_char_na)
-  )))) |>
-  dplyr::ungroup() |>
-  dplyr::select(-st_with_char_na) |>
-  dplyr::distinct() |>
-  dplyr::arrange(vsl_num, cnty)
-
-survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v |>
-  rowwise() |> 
-  filter(length(states_l_by_cnty_v) > 2) |> 
-  glimpse()
-# 0
-  
-survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored <- 
-  survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v |>
-  dplyr::rowwise() |>
-  dplyr::mutate(temp_res =
-                  case_when(is.na(st) ~
-                              paste(unlist(states_l_by_cnty_v), collapse = ""), .default = st)) |>
-  dplyr::mutate(restored_st =
-                  stringr::str_extract(temp_res, "\\d+")) |>
-  dplyr::select(-temp_res) |>
-  dplyr::ungroup()
-
-survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored |> 
-  # select(cnty, st, restored_st) |>
-  distinct() |>
-  head() |> 
-  glimpse()
-
-### format state and county codes ----
-format_state_and_county_codes <-
-  function(my_df, state_code_field) {
-    my_df |>
-      dplyr::mutate(st_2 =
-               case_when(is.na(!!sym(state_code_field)) ~ "00", .default =
-                           stringr::str_pad(!!sym(state_code_field), 2, pad = "0"))) |>
-      dplyr::mutate(cnty_3 = stringr::str_pad(cnty, 3, pad = "0"),
-             fips = paste0(st_2, cnty_3))
-  }
-
-survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored__fips <-
-  survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored |>
-  format_state_and_county_codes("restored_st")
-
-survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored__fips |>
-  head() |> 
-  glimpse()
-
 ### convert cnty and state names to fips for restored from PIMS ----
-get_fips <- function(my_df, field_name) {
-  # browser()
-  # state_both = "34"
-  # cnty_3 = "315"
-  res <-
-    tidycensus::fips_codes |>
-    dplyr::filter(state_code == state_both & county_code == cnty_3) |>
-    dplyr::select(county) |>
-    dplyr::mutate(county_short =
-             stringr::str_replace_all(county, " County| Parish", "") |> 
-             tolower())
-  
-  county_short <- res[["county_short"]]
-  if (nrow(res) == 0) {
-    county_short <- NA
-  }
-  
-  return(county_short)
-}
-# get_county_name <- function(state_both, cnty_3) {
-#   # browser()
-#   # state_both = "34"
-#   # cnty_3 = "315"
-#   res <-
-#     tidycensus::fips_codes |>
-#     dplyr::filter(state_code == state_both & county_code == cnty_3) |>
-#     dplyr::select(county) |>
-#     dplyr::mutate(county_short =
-#              stringr::str_replace_all(county, " County| Parish", "") |> 
-#              tolower())
-#   
-#   county_short <- res[["county_short"]]
-#   if (nrow(res) == 0) {
-#     county_short <- NA
-#   }
-#   
-#   return(county_short)
-# }
-
 
 fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv_fips <- 
   fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv |> 
