@@ -510,7 +510,7 @@ fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv_fips |>
   head() |> 
   glimpse()
 
-fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv_fips_to_use <-
+fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv_fips_short <-
   fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv_fips |>
   select(
     survey_vessel_id,
@@ -525,10 +525,9 @@ fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv_fips_to_use <-
     cnty_3,
     fips
   ) |> 
-  distinct() |> 
-  mutate(across(everything(), tolower))
+  distinct()
 
-fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv_fips_to_use |> 
+fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv_fips_short |> 
   head(15) |> 
   tail() |> 
   glimpse()
@@ -537,31 +536,54 @@ fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv_fips_to_use |>
 words_to_remove <- " county| parish| municipio| islands| island| municipality| district| city"
 
 #### county names in my_df ----
+#' check
 grep(
   " ",
-  fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv_fips_to_use$SERO_HOME_PORT_COUNTY,
+  fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv_fips_short$SERO_HOME_PORT_COUNTY,
   value = T
 ) |>
   unique() |>
   sort() |>
   print()
 
-fips_codes_temp11 <-
+#' check in fips code
+fips_codes_temp_1 <-
   tidycensus::fips_codes$county |>
   tolower() |> 
   stringr::str_replace_all(words_to_remove, "") |> 
   stringr::str_replace_all("st\\. ", "saint")
 
-grep(" ", fips_codes_temp11, value = T) |> 
+#' check
+grep(" ", fips_codes_temp_1, value = T) |> 
   unique() |> 
   print()
 
-fips_code_to_use <- 
-  tidycensus::fips_codes |> 
-  dplyr::mutate(county_short =
-                  # stringr::str_replace_all(county, "County|Parish", "") |>
-                  stringr::str_replace_all(county, "^([^ ]+) .+", "\\1")) |>
-  dplyr::mutate(dplyr::across(dplyr::everything(), tolower))
+grep(" ", fips_codes_temp_1, value = T) |> 
+  unique() |> 
+  stringr::str_extract(".*gulf.*") |> 
+    unique()
+
+unify_county_names <- function(my_df, county_col_name) {
+  res_df <-
+    my_df |>
+    dplyr::mutate(dplyr::across(dplyr::everything(), tolower)) |> 
+    dplyr::mutate(
+      county_short =
+        stringr::str_replace_all(!!dplyr::sym(county_col_name),
+                                 words_to_remove, "") |>
+        stringr::str_replace_all("st\\. ", "saint") |>
+        stringr::str_squish()
+    )
+  
+  return(res_df)  
+}
+
+#### unify_county_names in fips code ----
+fips_code_to_use <-
+  tidycensus::fips_codes |>
+  unify_county_names("county")
+
+glimpse(fips_code_to_use)
 
 #' check 
 fips_code_to_use |>
@@ -569,20 +591,89 @@ fips_code_to_use |>
   distinct() |> 
   head() |> 
   glimpse()
-  
 
+#### unify_county_names in my_df ----
+fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv_fips_to_use <- 
+  fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv_fips_short |>
+  unify_county_names("SERO_HOME_PORT_COUNTY")
+
+glimpse(fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv_fips_to_use)
 
 ### join state and county ----
-fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv_fips_to_use |> 
+vessel_ids_w_state_cnty_fips <-
+  fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv_fips_to_use |>
   left_join(fips_code_to_use,
-            join_by(SERO_HOME_PORT_STATE == state,
-                    SERO_HOME_PORT_COUNTY == county_short
-                    )) |> glimpse()
+            join_by(SERO_HOME_PORT_STATE == state, county_short))
 
-# fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv_fips[1,] |> View()
-tidycensus::fips_codes[337,]
-# 321    FL         12    Florida         001 Alachua County
-  
+dim(vessel_ids_w_state_cnty_fips)
+# 568
+
+#' check
+vessel_ids_w_state_cnty_fips |>
+  filter(!cnty_3 == county_code &
+           !st_2 == state_code) |>
+  select(
+    survey_vessel_id,
+    use_vessel_id,
+    SERO_HOME_PORT_COUNTY,
+    SERO_HOME_PORT_STATE,
+    cnty_3,
+    st_2,
+    county_short,
+    county_code,
+    state_code
+  ) |>
+  distinct() |>
+  dim()
+# 153
+
+vessel_ids_w_state_cnty_fips__compare_counties_states <-
+  vessel_ids_w_state_cnty_fips |>
+  select(
+    survey_vessel_id,
+    use_vessel_id,
+    SERO_HOME_PORT_COUNTY,
+    SERO_HOME_PORT_STATE,
+    cnty_3,
+    st_2,
+    county_short,
+    county_code,
+    state_code
+  ) |>
+  distinct()
+
+vessel_ids_w_state_cnty_fips__compare_counties_states_rename <- 
+  vessel_ids_w_state_cnty_fips__compare_counties_states |> 
+  dplyr::rename(
+ # = survey_vessel_id,
+ # = use_vessel_id,
+cnty_from_db = SERO_HOME_PORT_COUNTY,
+state_from_db = SERO_HOME_PORT_STATE,
+cnty_from_survey = cnty_3,
+state_from_survey = st_2
+# ,
+ # = county_short,
+ # = county_code,
+ # = state_code,
+  )
+
+vessel_ids_w_state_cnty_fips__compare_counties_states_rename |> 
+  head() |> 
+  glimpse()
+
+vessel_ids_w_state_cnty_fips__compare_counties_states_rename |>
+  select(-contains("vessel")) |>
+  distinct() |>
+  head() |>
+  glimpse()
+
+vessel_ids_w_state_cnty_fips__compare_counties_states_rename |>
+  select(-contains("vessel")) |>
+  distinct() |>
+  filter(!cnty_from_db == county_short) |> 
+  glimpse()
+# 15
+
 ### compare states restored by vessel and county with these restored from pims ----
 
 # --- HERE ---
