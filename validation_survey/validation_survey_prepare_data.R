@@ -571,7 +571,7 @@ unify_county_names <- function(my_df, county_col_name) {
       county_short =
         stringr::str_replace_all(!!dplyr::sym(county_col_name),
                                  words_to_remove, "") |>
-        stringr::str_replace_all("st\\. ", "saint") |>
+        stringr::str_replace_all("\\bst\\.* ", "saint ") |>
         stringr::str_squish()
     )
   
@@ -597,7 +597,25 @@ fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv_fips_to_use <-
   fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv_fips_short |>
   unify_county_names("SERO_HOME_PORT_COUNTY")
 
-glimpse(fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv_fips_to_use)
+fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv_fips_to_use |> 
+  head() |> 
+  glimpse()
+
+#' check 
+grep("john", 
+     fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv_fips_to_use$county_short, 
+     value = T) |> 
+  unique()
+
+grep("john", 
+     fips_code_to_use$county_short, 
+     value = T) |> 
+  unique()
+
+# grep("john", 
+#      fips_code_to_use$county, 
+#      value = T)
+
 
 ### join state and county ----
 vessel_ids_w_state_cnty_fips <-
@@ -625,7 +643,7 @@ vessel_ids_w_state_cnty_fips |>
   ) |>
   distinct() |>
   dim()
-# 153
+# 160
 
 vessel_ids_w_state_cnty_fips__compare_counties_states <-
   vessel_ids_w_state_cnty_fips |>
@@ -670,9 +688,21 @@ vessel_ids_w_state_cnty_fips__compare_counties_states_rename |>
 vessel_ids_w_state_cnty_fips__compare_counties_states_rename |>
   select(-contains("vessel")) |>
   distinct() |>
-  filter(!cnty_from_db == county_short) |> 
+  filter(!cnty_from_survey == county_code) |> 
+  head() |> 
   glimpse()
-# 15
+# 131
+
+#' errors in survey cnty
+vessel_ids_w_state_cnty_fips__compare_counties_states_rename |> 
+  filter(grepl("santa rosa", tolower(county_short))) |>
+  glimpse()
+
+tidycensus::fips_codes |>
+  filter(grepl("santa rosa", tolower(county))) |>
+  glimpse()
+# only 113 in FL
+
 
 ### compare states restored by vessel and county with these restored from pims ----
 
