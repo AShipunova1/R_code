@@ -63,7 +63,7 @@ setdiff(survey_data_l_2022$i1$id_code,
         survey_data_l_2022$ref$id_code) |> length()
 # 1835
 
-## get dates from survey's id_code ----
+## Get dates from survey's id_code ----
 get_date_from_id_code_survey <- 
   function(my_df) {
     my_df__w_dates <-
@@ -459,7 +459,35 @@ survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored__fips <-
 
 glimpse(survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored__fips)
 
+### convert cnty and state names to fips
+get_county_name <- function(state_both, cnty_3) {
+  # browser()
+  # state_both = "34"
+  # cnty_3 = "315"
+  res <-
+    tidycensus::fips_codes |>
+    dplyr::filter(state_code == state_both & county_code == cnty_3) |>
+    dplyr::select(county) |>
+    dplyr::mutate(county_short =
+             stringr::str_replace_all(county, " County| Parish", "") |> 
+             tolower())
   
+  county_short <- res[["county_short"]]
+  if (nrow(res) == 0) {
+    county_short <- NA
+  }
+  
+  return(county_short)
+}
+
+
+fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv |> print_df_names()
+
+### compare states restored by vessel and county with these restored from pims ----
+
+# --- HERE ---
+
+
 ## add combined states back to i1 ----
 survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty__all <-
   survey_data_l_2022_i1_w_dates_clean_vsl |>
