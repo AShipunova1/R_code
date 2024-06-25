@@ -772,25 +772,25 @@ join_by_date_captain__has_lgb <-
 # dim(join_by_date_captain__has_lgb)
 # 771
 
-get_county_name <- function(state_both, cnty_3) {
-  # browser()
-  # state_both = "34"
-  # cnty_3 = "315"
-  res <-
-    tidycensus::fips_codes |>
-    dplyr::filter(state_code == state_both & county_code == cnty_3) |>
-    dplyr::select(county) |>
-    dplyr::mutate(county_short =
-             stringr::str_replace_all(county, " County| Parish", "") |> 
-             tolower())
-  
-  county_short <- res[["county_short"]]
-  if (nrow(res) == 0) {
-    county_short <- NA
-  }
-  
-  return(county_short)
-}
+# get_county_name <- function(state_both, cnty_3) {
+#   # browser()
+#   # state_both = "34"
+#   # cnty_3 = "315"
+#   res <-
+#     tidycensus::fips_codes |>
+#     dplyr::filter(state_code == state_both & county_code == cnty_3) |>
+#     dplyr::select(county) |>
+#     dplyr::mutate(county_short =
+#              stringr::str_replace_all(county, " County| Parish", "") |> 
+#              tolower())
+#   
+#   county_short <- res[["county_short"]]
+#   if (nrow(res) == 0) {
+#     county_short <- NA
+#   }
+#   
+#   return(county_short)
+# }
 
 #### check vessel ids in join_by_date_captain__has_lgb ----
 
