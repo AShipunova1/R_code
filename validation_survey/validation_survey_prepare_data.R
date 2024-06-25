@@ -442,6 +442,23 @@ survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored |>
   head() |> 
   glimpse()
 
+### format state and county codes ----
+format_state_and_county_codes <-
+  function(my_df, state_code_field) {
+    my_df |>
+      dplyr::mutate(st_2 =
+               case_when(is.na(!!sym(state_code_field)) ~ "00", .default =
+                           stringr::str_pad(!!sym(state_code_field), 2, pad = "0"))) |>
+      dplyr::mutate(cnty_3 = stringr::str_pad(cnty, 3, pad = "0"),
+             fips = paste0(st_2, cnty_3))
+  }
+
+survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored__fips <-
+  survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored |>
+  format_state_and_county_codes("restored_st")
+
+glimpse(survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored__fips)
+
   
 ## add combined states back to i1 ----
 survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty__all <-
