@@ -393,7 +393,54 @@ fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv |>
   # tail(10) |>
   glimpse()
 
+### Restore state by vessel_id, cnty ----
+#' For the same vessel same cnty, st is NA or the same
+survey_data_l_2022_i1_w_dates_clean_vsl |> 
+  filter(vsl_num == "fl9207st") |>
+  select(cnty, st) |>
+  distinct() |>
+  glimpse()
+# $ cnty <int> 17, 17
+# $ st   <chr> NA, "12"
 
+survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v <- 
+  survey_data_l_2022_i1_w_dates_clean_vsl |>
+  dplyr::select(vsl_num, st, cnty) |>
+  dplyr::distinct() |>
+  dplyr::group_by(vsl_num, cnty) |>
+  # dplyr::group_by(cnty) |>
+  dplyr::mutate(st_with_char_na =
+                  dplyr::case_when(is.na(st) ~ "NA", .default = st)) |>
+  dplyr::mutate(states_l_by_cnty_v = list(paste(unique(
+    sort(st_with_char_na)
+  )))) |>
+  dplyr::ungroup() |>
+  dplyr::select(-st_with_char_na) |>
+  dplyr::distinct() |>
+  dplyr::arrange(vsl_num, cnty)
+
+survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v |>
+  rowwise() |> 
+  filter(length(states_l_by_cnty_v) > 2) |> 
+  glimpse()
+# 0
+  
+survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored <- 
+  survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v |>
+  dplyr::rowwise() |>
+  dplyr::mutate(temp_res =
+                  case_when(is.na(st) ~
+                              paste(unlist(states_l_by_cnty_v), collapse = ""), .default = st)) |>
+  dplyr::mutate(restored_st =
+                  stringr::str_extract(temp_res, "\\d+")) |>
+  dplyr::select(-temp_res) |>
+  dplyr::ungroup()
+
+survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored |> 
+  # select(cnty, st, restored_st) |>
+  distinct() |>
+  head() |> 
+  glimpse()
 
   
 ## add combined states back to i1 ----
