@@ -744,6 +744,16 @@ survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty <- left_join(
 )
 # Joining with `by = join_by(vsl_num, cnty, st)`
 
+#' check
+View(survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty)
+# 1835
+
+n_distinct(survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty$id_code)
+# 1835
+
+#' survey i1 info to use
+#' survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty
+
 # prepare logbooks ----
 db_logbooks_2022_clean_vesl <-
   db_logbooks_2022 |>
@@ -813,6 +823,9 @@ db_logbooks_2022_short_date_time <-
 #' tidyverse combine year, month and day into a date lubridate
 #     str(db_logbooks_2022_short0)
 # lubridate::date("2022-01-04 23:00:00")
+
+#' logbooks data to use
+#' db_logbooks_2022_short_date_time 
 
 # JOIN interview and logbooks by day and vessel ----
 lgb_join_i1 <-
