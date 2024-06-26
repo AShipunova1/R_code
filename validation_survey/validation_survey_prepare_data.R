@@ -931,8 +931,8 @@ lgb_join_i1__t_diff_short_has_no_trip <-
 dim(lgb_join_i1__t_diff_short_has_no_trip)
 # 833   
 
-# n_distinct(lgb_join_i1__t_diff_short_has_trip$VESSEL_OFFICIAL_NBR)
-# 228
+n_distinct(lgb_join_i1__t_diff_short_has_trip$VESSEL_OFFICIAL_NBR)
+# 250
 
 # find duplicates ----
 
@@ -1024,13 +1024,14 @@ dup_interviews <-
   dplyr::filter(dup_interviews > 1)
 
 nrow(dup_interviews)
-# 58
+# 62
 
 dup_interviews |> 
-  dplyr::filter(big_diff_time == "yes") |> 
+  dplyr::filter(big_diff_time == "yes") |>
+  # dim()
   head() |> 
   dplyr::glimpse()
-# 31
+# 33
 
 ## remove duplicated trip/interview ----
 #' They are a result of full join on a day, e.g. 2 trips, 2 interviews
@@ -1048,7 +1049,7 @@ int_dups_only <-
   dplyr::distinct()
 
 dim(int_dups_only)
-# 31
+# 33
 
 ### remove duplicates ----
 lgb_join_i1__t_diff_short__w_int_all_dup_rm <-
@@ -1111,7 +1112,7 @@ lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup <-
 lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup |> 
   dplyr::filter(dup_id_codes > 1) |> 
   dim()
-  # 310
+# 334
 
 #' check diff time
 lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup |>
@@ -1119,7 +1120,7 @@ lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup |>
   dplyr::arrange(id_code, TRIP_ID, VESSEL_OFFICIAL_NBR, trip_end_date_time) |>
   dplyr::filter(big_diff_time == "no") |>
   dim()
-# [1] 147  13
+# [1] 157  13
 
 ## get interview duplicates only ----
 
@@ -1191,8 +1192,6 @@ lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short |>
   head() |> 
   dplyr::glimpse()
 
-# TODO: why id_code amount > TRIP_ID?
-
 # TODO: check interview before trip end, joined a wrong trip?
 
 # combine all catch info ----
@@ -1237,6 +1236,7 @@ db_logbooks_2022_short <-
   dplyr::select(tidyselect::all_of(lgb_names_to_use))
 
 dim(db_logbooks_2022_short)
+# [1] 328091     21
 
 ## add logbooks to the df joined by day/time ----
 catch_info_lgb <- 
@@ -1318,9 +1318,6 @@ catch_info_lgb_i1_i2 <-
 #' 
 #' Joining with `by = join_by(id_code, st, num_typ2)`
 #' 
-#' Error in `left_join()`:
-#' 
-#' ! Can't join `x$st` with `y$st` due to incompatible types.
 
 dim(catch_info_lgb_i1_i2)
 # [1] 9172   42
@@ -1341,11 +1338,14 @@ catch_info_lgb_i1_i2_i3 <-
 #' Joining with `by = join_by(id_code, num_typ3, tsn)`
 
 dim(catch_info_lgb_i1_i2_i3)
+# [1] 95918    50
 
 # join all survey info ----
+#' TODO join i2 and i3 to  survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty
 
 lubridate::intersect(names(survey_data_l_2022_short$i1),
                      names(survey_data_l_2022_short$i2))
+# [1] "id_code"  "st"       "num_typ2"
 
 #' unify classes
 survey_data_l_2022_short <-
@@ -1361,6 +1361,17 @@ survey_data_l_2022_short <-
 ## i1 and i2 ----
 survey_data_l_2022_short |> 
   purrr::map(~n_distinct(.x$id_code))
+# $i1
+# [1] 1835
+# 
+# $i2
+# [1] 1403
+# 
+# $i3
+# [1] 1634
+# 
+# $ref
+# [1] 19
 
 # TODO: left_join or full_join?
 survey_i1_i2_released <-
@@ -1406,16 +1417,23 @@ survey_i1_i3_harvested_dates <-
   get_date_from_id_code_survey(survey_i1_i3_harvested) |> 
   clean_up_survey_vessel_ids()
 
-# glimpse(survey_i1_i3_harvested_dates)
+survey_i1_i3_harvested_dates |> 
+  head() |> 
+  glimpse()
+
 
 # Prepared data result names ----
 data_names <-
-  c("lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short",
-    "db_logbooks_2022_short",
+  c('db_logbooks_2022_short_date_time',
+    'survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty',
+
+    "lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short",
+
     "catch_info_lgb_i1_i2_i3",
     "survey_i1_i2_released",
     "survey_i1_i3_harvested")
 
 auxfunctions::pretty_print(my_title = "Processed Data are in:", 
                            my_text = data_names)
+
 
