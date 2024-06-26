@@ -18,14 +18,9 @@ my_date_end <- stringr::str_glue('31-DEC-{my_year}') |>
 #' Dominique Lazarre, Sept 14, 2023
 #' "my_inputs\validation_survey\Merged_Validation_Survey_Data.zip"
 
-validation_survey_data_dir_path <- file.path(my_paths$inputs,
-                                         "validation_survey")
-
-# dir.exists(validation_survey_data_dir_path)
-
 # read 
 csv_filenames <-
-  list.files(validation_survey_data_dir_path,
+  list.files(curr_proj_input_path,
              pattern = "*.csv",
              full.names = TRUE)
 
