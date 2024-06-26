@@ -831,16 +831,42 @@ db_logbooks_2022_short_date_time <-
 lgb_join_i1 <-
   dplyr::right_join(
     db_logbooks_2022_short_date_time,
-    survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty__all,
+    survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty,
     dplyr::join_by(
       VESSEL_OFFICIAL_NBR == vsl_num,
       trip_end_date_only == interview_date
     ),
     relationship = "many-to-many"
   )
-# ℹ Row 1391 of `x` matches multiple rows in `y`.
-# ℹ Row 74 of `y` matches multiple rows in `x`.
 
+## Investigate relationship = "many-to-many" ----
+#' ℹ Row 1391 of `x` matches multiple rows in `y`.
+#' ℹ Row 74 of `y` matches multiple rows in `x`.
+
+lgb_1391 <-
+  db_logbooks_2022_short_date_time[1391, ]
+
+survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty |>
+  filter(
+    lgb_1391$VESSEL_OFFICIAL_NBR == vsl_num,
+    lgb_1391$trip_end_date_only == interview_date
+  ) |> 
+  glimpse()
+#' 2 interviews in one day for the same vessel, ok 
+
+#' ℹ Row 74 of `y` matches multiple rows in `x`.
+survey_74 <- 
+  survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty[74,]
+
+db_logbooks_2022_short_date_time |> 
+  filter(
+    VESSEL_OFFICIAL_NBR == survey_74$vsl_num,
+    trip_end_date_only == survey_74$interview_date
+  ) |> 
+  glimpse()
+#' 2 trips/logbooks on the day, ok
+
+## check lgb_join_i1 ----
 lgb_join_i1 |> 
   head() |> 
   glimpse()
@@ -850,10 +876,16 @@ lgb_join_i1 |>
   glimpse()
 
 dim(lgb_join_i1)
-# 2030 24
+# 2030 58
 
 n_distinct(lgb_join_i1$VESSEL_OFFICIAL_NBR)
 # 429
+
+n_distinct(lgb_join_i1$TRIP_ID)
+# 1167
+
+n_distinct(lgb_join_i1$id_code)
+# 1835
 
 # Add interview and trip time difference ----
 #' to align interviews with logbooks if there are more than one a day
