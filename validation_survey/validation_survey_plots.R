@@ -82,12 +82,17 @@ interviews_by_state_to_plot_w_labels <-
 # plot interviews ----
 
 plot_counties <- 
-  function(my_df) {
+  function(my_df, county_cnt_col_name = "total_int_by_st_county") {
+    # rename a column, because plot_usmap doesn't allow dynamic naming
+    my_df <- 
+      rename(my_df,
+             "cnt_by_county" = !!county_cnt_col_name)
+    
   usmap::plot_usmap(
     regions = "counties",
     include = c(gulf_states, "FL"),
     data = my_df,
-    values = "total_int_by_st_county",
+    values = "cnt_by_county",
     color = "lightgrey"
   ) +
     ggplot2::scale_fill_gradient(
@@ -117,7 +122,8 @@ no_state_interview_no_lgb_num <-
 #' and title
 plot_counties_res_with_labels <-
   plot_counties_res +
-  ggplot2::geom_sf_text(data = interviews_by_state_to_plot_w_labels, ggplot2::aes(geometry = geom, label = label_st_cnt)) +
+  ggplot2::geom_sf_text(data = interviews_by_state_to_plot_w_labels,
+                        ggplot2::aes(geometry = geom, label = label_st_cnt)) +
   ggplot2::geom_sf(data = selected_states_df,
                    color = "green",
                    fill = NA) +
