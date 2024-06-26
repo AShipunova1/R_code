@@ -14,25 +14,6 @@ survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty |>
 # 5 28      108
 # 6 48       78
 
-count_interviews <-
-  function(my_df,
-           cnt_field = "st_2") {
-    
-    my_df |>
-      dplyr::group_by(fips) |>
-      dplyr::mutate(total_int_by_st_county = n()) |>
-      dplyr::ungroup() |>
-      dplyr::group_by(!!sym(cnt_field)) |>
-      dplyr::add_count(!!sym(cnt_field), 
-                       name = "total_int_by_state") |>
-      dplyr::ungroup()
-  }
-
-survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty__cnts <-
-  survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty |>
-  select(id_code, vsl_num, st_2, cnty_3, fips) |>
-  count_interviews()
-
 survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty__cnts |> 
   select(st_2, total_int_by_state) |> 
   distinct() |> 
