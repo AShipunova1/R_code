@@ -299,6 +299,47 @@ source(prepare_data_pims_path)
 # vessels_from_pims_double_bind
 # vessel_permit_owner_from_db
 
+# Get Bluefin suppressed logbooks ----
+#' VESL logbooks submitted by SEFHIER accounts/permitted vessels that have not successfully passed to SAFIS.
+#' The file of all the SEFHIER reports that have errors from SAFIS. 
+ 
+vesl_suppressed_logbooks_path <-
+  file.path(curr_proj_input_path,
+            "sefhier_reports_with_safis_errors___2024_06_25.csv")
+
+file.exists(vesl_suppressed_logbooks_path)
+
+vesl_suppressed_logbooks <-
+  readr::read_csv(
+    vesl_suppressed_logbooks_path,
+    col_types = readr::cols(.default = 'c'),
+    trim_ws = TRUE,
+    na = c("", "NA", "NaN"),
+    name_repair = auxfunctions::fix_names
+  )
+
+vesl_suppressed_logbooks_clean_errs <-
+  vesl_suppressed_logbooks |>
+  select(-c(errors_concat, errors)) |>
+  filter(!is.na(vesselid))
+
+vesl_suppressed_logbooks_clean_2022 <-
+  vesl_suppressed_logbooks_clean_errs |>
+  mutate(trip_start_parsed =
+           lubridate::parse_date_time2(tripstart, 
+                                       "mdY IMS %p %z", 
+                                       tz = Sys.timezone())) |> 
+  filter(lubridate::year(trip_start_parsed) == '2022')
+
+#' check
+dim(vesl_suppressed_logbooks_clean_1)
+# 1010
+
+dim(vesl_suppressed_logbooks_clean_2022)
+# 361
+
+# readr::problems(vesl_suppressed_logbooks)
+
 # result df names ----
 data_names <-
   c(
@@ -310,7 +351,8 @@ data_names <-
     "permit_info_from_db",
     "permits_from_pims__split1_short__split2",
     "vessels_from_pims_double_bind",
-    "vessel_permit_owner_from_db"
+    "vessel_permit_owner_from_db",
+    "vesl_suppressed_logbooks_clean_2022"
   )
 
 auxfunctions::pretty_print(my_title = "Data are in:", 
