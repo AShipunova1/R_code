@@ -52,22 +52,24 @@ source(get_data_path)
 #' Data are in:
 #' 
 #' survey_data_l_2022
-#' 
+#'
 #' processed_logbooks_2022
-#' 
+#'
 #' processed_logbooks_2022_calendar
-#' 
+#'
 #' db_logbooks_2022
-#' 
+#'
 #' db_dnfs_2022
-#' 
+#'
 #' permit_info_from_db
-#' 
+#'
 #' permits_from_pims__split1_short__split2
-#' 
+#'
 #' vessels_from_pims_double_bind
-#' 
+#'
 #' vessel_permit_owner_from_db
+#'
+#' vesl_suppressed_logbooks_clean_2022
 #' 
 # ---
 
@@ -80,15 +82,20 @@ prepare_data_path <-
 file.exists(prepare_data_path)
 
 source(prepare_data_path)
+
 #' Processed Data are in:
 #' 
+#' db_logbooks_2022_short_date_time
+#'
+#' survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty
+#'
 #' lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short
-#' 
-#' db_logbooks_2022_short
-#' 
+#'
 #' catch_info_lgb_i1_i2_i3
-#' 
-# ---
+#'
+#' survey_i1_i2_released
+#'
+#' survey_i1_i3_harvested
 
 lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short |>
  head() |>
