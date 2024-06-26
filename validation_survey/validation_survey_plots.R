@@ -46,11 +46,7 @@ survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty__cnts |>
 # 5 28                   108
 # 6 48                    78
 
-
-
-
 ### prep state info for plotting ----
-
 
 # prep state info for plotting ----
 plot_states <- usmap::plot_usmap(include = c(gulf_states, "FL")) 
@@ -73,12 +69,18 @@ centroid_labels <-
   centroid_labels |>
   dplyr::rename("st_2" = "fips")
 
-make_state_labels <-
+make_state_labels_w_cnts <-
   function(my_df,
-           state_field_name = "st_2",
-           number_to_show_field_name) {
+           number_to_show_field_name,
+           state_field_name = "st_2"
+           ) {
+    
     temp_df <-
-      dplyr::inner_join(my_df,
+      my_df |> 
+      mutate(across(everything(), as.character))
+
+    temp_df <-
+      dplyr::inner_join(temp_df,
                         centroid_labels,
                         dplyr::join_by(!!state_field_name == st_2))
     
@@ -94,4 +96,8 @@ make_state_labels <-
       dplyr::arrange(full)
   }
 
+my_df_to_plot_w_labels <- 
+  make_state_labels_w_cnts(survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty__cnts,
+           "total_int_by_state")
+   
 
