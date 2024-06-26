@@ -112,14 +112,6 @@ catch_info_lgb_i1_i2_i3 |>
 # db_logbooks_2022_short$ANYTHING_CAUGHT_FLAG |> unique()
 # [1] NA  "Y" "N"
 
-# plots ----
-validation_survey_plots_path <- 
-  file.path(current_project_dir_name, "validation_survey_plots.R")
-
-file.exists(validation_survey_plots_path)
-
-source(validation_survey_plots_path)
-
 # compare field names ----
 # source(file.path(current_project_dir_name, "validation_survey_fields.R"))
 
@@ -879,4 +871,12 @@ survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty |>
 
 #' Michelle:
 #' I don't think the provided data would allow you to check if they have a state permit. The comment I made was that perhaps the number entered was the state's vessel registration/permit number. We don't have a list of state registration numbers, so there's no way to explicitly check. Its just an implicit assumption that if the number is not one of our permit numbers then possibly (1) it is a typo, or (2) it is a state permit number. 
+
+# plots ----
+validation_survey_plots_path <- 
+  file.path(current_project_dir_name, "validation_survey_plots.R")
+
+file.exists(validation_survey_plots_path)
+
+source(validation_survey_plots_path)
 
