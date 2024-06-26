@@ -113,7 +113,12 @@ catch_info_lgb_i1_i2_i3 |>
 # [1] NA  "Y" "N"
 
 # plots ----
-# source(file.path(current_project_dir_name, "validation_survey_plots.R"))
+validation_survey_plots_path <- 
+  file.path(current_project_dir_name, "validation_survey_plots.R")
+
+file.exists(validation_survey_plots_path)
+
+source(validation_survey_plots_path)
 
 # compare field names ----
 # source(file.path(current_project_dir_name, "validation_survey_fields.R"))
@@ -837,3 +842,41 @@ survey_data_l_2022_i1_w_dates |>
   # srhs_vessel     n
 # 1           1     4
 # 2           2   472
+
+# interviewing vessels with state or federal permits ---- 
+
+survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty |> 
+    select(vsl_num, prefix1, permit_number1, prefix2, permit_number2) |> 
+    arrange(vsl_num) |> 
+    distinct() |> 
+    head()
+
+# 1 05063054 RCG     294            CHG     301           
+# 2 1000042  RCG     999999         NA      NA            
+# 3 1000042  RCG     1514           CHG     1564          
+# 4 1000042  RCG     1514           NA      NA            
+# 5 1011849  CHG     806            NA      NA            
+# 6 1023529  CHG     155            RCG     149           
+
+survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty |>
+  select(prefix1, prefix2) |>
+  tidyr::pivot_longer(cols = everything()) |>
+  select(-name) |>
+  distinct() |> 
+  arrange(value)
+
+# 1 CHG  
+# 2 HCHG 
+# 3 HRCG 
+# 4 RCG  
+# 5 NA   
+
+#' no permit info
+survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty |> 
+  filter(is.na(prefix1)) |> 
+  dim()
+# 113
+
+#' Michelle:
+#' I don't think the provided data would allow you to check if they have a state permit. The comment I made was that perhaps the number entered was the state's vessel registration/permit number. We don't have a list of state registration numbers, so there's no way to explicitly check. Its just an implicit assumption that if the number is not one of our permit numbers then possibly (1) it is a typo, or (2) it is a state permit number. 
+
