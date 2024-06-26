@@ -149,10 +149,14 @@ WHERE
 ORDER BY
   vessel_id")
 
+current_month <-
+  format(lubridate::parse_date_time(lubridate::today(), orders = c("Ymd")),
+         "%Y_%m")
+
 permits_query_file_path <-
   file.path(my_paths$inputs,
             "get_db_data",
-            stringr::str_glue("permit_info_{lubridate::today()}.rds"))
+            stringr::str_glue("permit_info_{current_month}.rds"))
 
 file.exists(permits_query_file_path)
 # T
