@@ -745,8 +745,9 @@ survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty <- left_join(
 # Joining with `by = join_by(vsl_num, cnty, st)`
 
 #' check
-View(survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty)
-# 1835
+survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty |>
+  head() |>
+  glimpse()
 
 n_distinct(survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty$id_code)
 # 1835

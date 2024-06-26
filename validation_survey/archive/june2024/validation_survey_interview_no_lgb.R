@@ -219,7 +219,9 @@ fuzzyjoin_vessel_ids__dist_grp_duplicates <-
                    .by = c(survey_vessel_id, vessel_id_dist)) |>
   dplyr::filter(n > 1L)
 
-View(fuzzyjoin_vessel_ids__dist_grp_duplicates)
+fuzzyjoin_vessel_ids__dist_grp_duplicates |> 
+  head() |> 
+  glimpse()
 
 #' clean groups
 #' 
@@ -244,7 +246,7 @@ fuzzyjoin_vessel_ids__dist_grp__match <-
 fuzzyjoin_vessel_ids__dist_grp__match |>
   filter(grp0_len == 0) |>
   select(survey_vessel_id, `1`, `2`, matching_vessel_id) |> 
-  View()
+  glimpse()
 
 # 
 #   group_by(vessel_id_dist) |> 
