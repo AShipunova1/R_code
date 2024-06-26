@@ -1,7 +1,7 @@
 library(ggplot2)
 
 # prep survey data for plotting ----
-survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty |> 
+survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty__cnts |> 
   select(id_code, vsl_num, st_2, cnty_3, fips) |> 
   # group_by()
   count(st_2)
@@ -26,8 +26,6 @@ survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty__cnts |>
 # 4 22                   332
 # 5 28                   108
 # 6 48                    78
-
-### prep state info for plotting ----
 
 # prep state info for plotting ----
 plot_states <- usmap::plot_usmap(include = c(gulf_states, "FL")) 
@@ -77,8 +75,57 @@ make_state_labels_w_cnts <-
       dplyr::arrange(full)
   }
 
-my_df_to_plot_w_labels <- 
+interviews_by_state_to_plot_w_labels <- 
   make_state_labels_w_cnts(survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty__cnts,
            "total_int_by_state")
    
+# plot interviews ----
 
+plot_counties <- 
+  function(my_df) {
+  usmap::plot_usmap(
+    regions = "counties",
+    include = c(gulf_states, "FL"),
+    data = my_df,
+    values = "total_int_by_st_county",
+    color = "lightgrey"
+  ) +
+    ggplot2::scale_fill_gradient(
+      name = "",
+      high = "blue",
+      low = "yellow",
+      na.value = "transparent"
+    ) +
+    ggplot2::theme(legend.position = "right",
+                   legend.margin = ggplot2::margin(0, 0, 0, 0)
+    )
+}
+
+plot_counties_res <-
+  plot_counties(survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty__cnts)
+
+#' check
+no_state_interview_no_lgb_num <- 
+  survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty__cnts |>
+  dplyr::filter(st_2 == "00") |> 
+  dplyr::select(total_int_by_state) |> 
+  dplyr::distinct()
+#' 35
+
+#' add state labels,
+#' state boundaries,
+#' and title
+plot_counties_res_with_labels <-
+  plot_counties_res +
+  ggplot2::geom_sf_text(data = interviews_by_state_to_plot_w_labels, ggplot2::aes(geometry = geom, label = label_st_cnt)) +
+  ggplot2::geom_sf(data = selected_states_df,
+                   color = "green",
+                   fill = NA) +
+  ggplot2::labs(title = "Number of interviews by state/county",
+                caption = stringr::str_glue("{no_state_interview_no_lgb_num} interviews have no state info and are not included."))
+
+## interview count plot show ----
+# #| column: screen
+#| out-width: 100%
+
+plot_counties_res_with_labels
