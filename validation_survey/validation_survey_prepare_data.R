@@ -1423,6 +1423,46 @@ survey_i1_i3_harvested_dates |>
   glimpse()
 
 
+# count interview by state and county ----
+
+#' check
+survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty |> 
+  select(id_code, vsl_num, st_2, cnty_3, fips) |> 
+  count(st_2)
+#   st_2      n
+#   <chr> <int>
+# 1 00       35
+# 2 01      252
+# 3 12     1030
+# 4 22      332
+# 5 28      108
+# 6 48       78
+
+count_interviews <-
+  function(my_df,
+           cnt_field = "st_2") {
+    
+    my_df |>
+      dplyr::group_by(fips) |>
+      dplyr::mutate(total_int_by_st_county = n()) |>
+      dplyr::ungroup() |>
+      dplyr::group_by(!!sym(cnt_field)) |>
+      dplyr::add_count(!!sym(cnt_field), 
+                       name = "total_int_by_state") |>
+      dplyr::ungroup()
+  }
+
+survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty__cnts <-
+  survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty |>
+  select(id_code, vsl_num, st_2, cnty_3, fips) |>
+  count_interviews()
+
+#' check
+survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty__cnts |> 
+  select(st_2, total_int_by_state) |> 
+  distinct() |> 
+  arrange(st_2)
+
 # Prepared data result names ----
 data_names <-
   c('db_logbooks_2022_short_date_time',
@@ -1432,7 +1472,8 @@ data_names <-
 
     "catch_info_lgb_i1_i2_i3",
     "survey_i1_i2_released",
-    "survey_i1_i3_harvested")
+    "survey_i1_i3_harvested",
+    "survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty__cnts")
 
 auxfunctions::pretty_print(my_title = "Processed Data are in:", 
                            my_text = data_names)
