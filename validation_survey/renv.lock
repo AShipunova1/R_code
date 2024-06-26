@@ -270,7 +270,7 @@
     },
     "SparseM": {
       "Package": "SparseM",
-      "Version": "1.83",
+      "Version": "1.84",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -280,7 +280,7 @@
         "stats",
         "utils"
       ],
-      "Hash": "f2b9f6a10ac6bc136be10c508ee890f9"
+      "Hash": "0648c7c4e275c265356649f818dbfcf5"
     },
     "WikidataQueryServiceR": {
       "Package": "WikidataQueryServiceR",
@@ -338,7 +338,7 @@
     },
     "XML": {
       "Package": "XML",
-      "Version": "3.99-0.16.1",
+      "Version": "3.99-0.17",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -346,7 +346,7 @@
         "methods",
         "utils"
       ],
-      "Hash": "da3098169c887914551b607c66fe2a28"
+      "Hash": "bc2a8a1139d8d4bd9c46086708945124"
     },
     "abind": {
       "Package": "abind",
@@ -425,7 +425,7 @@
       "RemoteRepo": "R_code",
       "RemoteSubdir": "auxfunctions",
       "RemoteRef": "development",
-      "RemoteSha": "e03a59fc39346756f82abeb01cb235653f95d3c5",
+      "RemoteSha": "6cc9ff71d09260030d752da6a3cf9a8e98b7fca3",
       "RemoteHost": "api.github.com",
       "Requirements": [
         "DBI",
@@ -448,7 +448,7 @@
         "tidyr",
         "tidyselect"
       ],
-      "Hash": "c41877428d0a3e50aae657a123d33e5b"
+      "Hash": "43427eab18bae60048baf1a14d0ef54c"
     },
     "backports": {
       "Package": "backports",
@@ -996,6 +996,13 @@
         "rlang"
       ],
       "Hash": "bb0eec2fe32e88d9e2836c2f73ea2077"
+    },
+    "english": {
+      "Package": "english",
+      "Version": "1.2-6",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "eae5ce5432c3e995bc4aab2e612df7a5"
     },
     "evaluate": {
       "Package": "evaluate",
@@ -1853,10 +1860,10 @@
     },
     "nloptr": {
       "Package": "nloptr",
-      "Version": "2.1.0",
+      "Version": "2.1.1",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "2f436f0a4e224ae7542c68f1896a00d9"
+      "Hash": "27550641889a3abf3aec4d91186311ec"
     },
     "nnet": {
       "Package": "nnet",
