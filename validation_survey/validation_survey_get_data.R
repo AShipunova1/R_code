@@ -20,7 +20,7 @@ my_date_end <- stringr::str_glue('31-DEC-{my_year}') |>
 
 # read 
 csv_filenames <-
-  list.files(curr_proj_input_path,
+  list.files(file.path(curr_proj_input_path, "survey_csv"),
              pattern = "*.csv",
              full.names = TRUE)
 
@@ -73,6 +73,8 @@ survey_data_l_not_na <-
 
 # Pull out 2022 only ----
 # survey_data_l |> purrr::map(print_df_names)
+
+# View(survey_data_l)
 survey_data_l_2022 <-
   survey_data_l |>
   purrr::map(~ dplyr::filter(.x, year == my_year))
@@ -327,7 +329,7 @@ vesl_suppressed_logbooks_clean_2022 <-
   filter(lubridate::year(trip_start_parsed) == '2022')
 
 #' check
-dim(vesl_suppressed_logbooks_clean_1)
+dim(vesl_suppressed_logbooks_clean_errs)
 # 1010
 
 dim(vesl_suppressed_logbooks_clean_2022)
