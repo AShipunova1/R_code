@@ -19,3 +19,50 @@ survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty |>
   add_count()
 
 
+
+### prep state info for plotting ----
+
+
+# prep state info for plotting ----
+plot_states <- usmap::plot_usmap(include = c(gulf_states, "FL")) 
+
+plot_cnties_only <-
+  plot_usmap(regions = "counties",
+             include = c(florida_gulf_counties))
+
+selected_states_df <- usmap::us_map(include = c(gulf_states, "FL"))
+
+#' Get centroids for state labels
+centroid_labels <- usmapdata::centroid_labels("states")
+
+#' Join centroids to data
+
+#' rename centroid_labels to the same names as in survey data
+old_names <- names(centroid_labels)
+
+centroid_labels <-
+  centroid_labels |>
+  dplyr::rename("st_2" = "fips")
+
+make_state_labels <-
+  function(my_df,
+           state_field_name = "st_2",
+           number_to_show_field_name) {
+    temp_df <-
+      dplyr::inner_join(my_df,
+                        centroid_labels,
+                        dplyr::join_by(!!state_field_name == st_2))
+    
+    temp_df |>
+      dplyr::select(!!state_field_name,
+                    abbr,
+                    full,
+                    !!number_to_show_field_name,
+                    geom) |>
+      dplyr::distinct() |>
+      dplyr::mutate(label_st_cnt =
+                      paste(abbr, !!sym(number_to_show_field_name))) |>
+      dplyr::arrange(full)
+  }
+
+
