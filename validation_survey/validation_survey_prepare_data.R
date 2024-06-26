@@ -737,6 +737,13 @@ intersect(
 ) |> length()
 # 355
 
+## add restored states back to all survey i1 info ----
+survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty <- left_join(
+  survey_data_l_2022_i1_w_dates_clean_vsl,
+  survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored__fips
+)
+# Joining with `by = join_by(vsl_num, cnty, st)`
+
 # prepare logbooks ----
 db_logbooks_2022_clean_vesl <-
   db_logbooks_2022 |>
@@ -800,7 +807,7 @@ db_logbooks_2022_short_date_time <-
     )
   )
 
-str(db_logbooks_2022_short_date_time)
+# str(db_logbooks_2022_short_date_time)
 
 #' compare trips/vessels
 #' tidyverse combine year, month and day into a date lubridate
