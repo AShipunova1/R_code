@@ -228,7 +228,7 @@ florida_gulf_counties <- c(33,
 ## vessel_permit_owner_from_db tolower vessel ids ----
 vessel_permit_owner_from_db_clean_vsl <-
   vessel_permit_owner_from_db |> 
-  mutate(use_vessel_id = tolower(P_VESSEL_ID))
+  mutate(permit_vessel_id = tolower(P_VESSEL_ID))
   
 ## change NA vsl_num from survey ----
 survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num <- 
@@ -240,14 +240,14 @@ fuzzyjoin_vessel_ids <-
   fuzzyjoin::stringdist_left_join(
     survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num,
     vessel_permit_owner_from_db_clean_vsl,
-    by = c("survey_vessel_id" = "use_vessel_id"),
+    by = c("survey_vessel_id" = "permit_vessel_id"),
     distance_col = "vessel_id_dist"
   )
 
 ## not matched vsl ids -----
 fuzzyjoin_vessel_ids_not_matched <-
   fuzzyjoin_vessel_ids |>
-  filter(is.na(use_vessel_id))
+  filter(is.na(permit_vessel_id))
 
 #' fuzzyjoin_vessel_ids_not_matched
 n_distinct(fuzzyjoin_vessel_ids_not_matched$survey_vessel_id)  
@@ -256,7 +256,7 @@ n_distinct(fuzzyjoin_vessel_ids_not_matched$survey_vessel_id)
 ## matched vsl ids -----
 fuzzyjoin_vessel_ids_matched <-
   fuzzyjoin_vessel_ids |>
-  filter(!is.na(use_vessel_id))
+  filter(!is.na(permit_vessel_id))
 
 #' fuzzyjoin_vessel_ids_matched
 n_distinct(fuzzyjoin_vessel_ids_matched$survey_vessel_id)  
@@ -264,7 +264,7 @@ n_distinct(fuzzyjoin_vessel_ids_matched$survey_vessel_id)
 
 #' check 
 fuzzyjoin_vessel_ids_matched |>
-  select(survey_vessel_id, use_vessel_id, vessel_id_dist) |>
+  select(survey_vessel_id, permit_vessel_id, vessel_id_dist) |>
   distinct() |> 
   count(vessel_id_dist)
 #   vessel_id_dist     n
@@ -278,11 +278,11 @@ fuzzyjoin_vessel_ids_matched |>
 #' change distance to words, to easier operations with column names
 fuzzyjoin_vessel_ids__dist_grp <- 
   fuzzyjoin_vessel_ids_matched |>
-  dplyr::select(survey_vessel_id, use_vessel_id, vessel_id_dist) |>
+  dplyr::select(survey_vessel_id, permit_vessel_id, vessel_id_dist) |>
   dplyr::distinct() |> 
   dplyr::mutate(vessel_id_dist = english::english(vessel_id_dist)) |> 
   tidyr::pivot_wider(names_from = vessel_id_dist,
-                     values_from = use_vessel_id,
+                     values_from = permit_vessel_id,
                      values_fn = list)
 
 #' check
@@ -354,7 +354,7 @@ dim(fuzzyjoin_vessel_ids__dist_grp__match_solo)
 n_distinct(fuzzyjoin_vessel_ids__dist_grp__match_solo)
 # 356
 
-### Add back vessel info from db ----
+### Add back vessel info from PIMS ----
 fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_db <-
   fuzzyjoin_vessel_ids__dist_grp__match_solo |>
   rowwise() |>
@@ -362,37 +362,34 @@ fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_db <-
            paste(matching_vessel_id, collapse = "|")) |>
   fuzzyjoin::regex_left_join(
     vessel_permit_owner_from_db_clean_vsl,
-    by = c("matching_vessel_id_regex" = "use_vessel_id")
+    by = c("matching_vessel_id_regex" = "permit_vessel_id")
   ) |>
   ungroup()
 
+#' check
 fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_db |> 
-  head() |> 
+  filter(grepl("\\|", matching_vessel_id_regex)) |> 
+  head() |>
   glimpse()
 
-#' check 
 fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_db |>
   select(
     survey_vessel_id,
     matching_vessel_id,
     matching_vessel_id_regex,
-    use_vessel_id,
+    permit_vessel_id,
     SERO_HOME_PORT_CITY,
     SERO_HOME_PORT_COUNTY,
-    SERO_HOME_PORT_STATE
-    # SERO_OFFICIAL_NUMBER,
-    # COAST_GUARD_NBR,
-    # STATE_REG_NBR,
-    # VESSEL_NAME,
-    # VESSEL_ALT_NUM,
-    # P_VESSEL_ID
+    SERO_HOME_PORT_STATE,
+    FIRST_NAME,
+    LAST_NAME
   ) |>
-  distinct() |> 
-  head(20) |> 
-  tail(10) |> 
+  distinct() |>
+  filter(grepl("\\|", matching_vessel_id_regex)) |> 
+  head() |>
   glimpse()
 
-#### Add back vessel info from survey ----
+### Add back vessel info from the survey ----
 
 fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv <-
   fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_db |>
@@ -405,23 +402,26 @@ fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv |>
   survey_vessel_id,
   matching_vessel_id,
   matching_vessel_id_regex,
-  use_vessel_id,
+  permit_vessel_id,
   SERO_HOME_PORT_CITY,
   SERO_HOME_PORT_COUNTY,
   SERO_HOME_PORT_STATE,
-  vsl_num,
+  FIRST_NAME, 
+  LAST_NAME,
   cnty,
-  st
+  st,
+  interviewee_f_name, 
+  interviewee_l_name
 ) |>
   distinct() |>
-  head(20) |>
-  # tail(10) |>
+  filter(grepl("\\|", matching_vessel_id_regex)) |> 
+  head() |>
   glimpse()
 
 # Restore missing port state ----
 
 #' Number of States restored by vessel and county is different from
-#' the number of states restored by home port.
+#' the number of states restored by PIMS home port.
 #' 
 #' In the first case we can use only the survey data, assuming that if a survey county for the same vessel is the same, than the state is also the same. 
 #' 
@@ -431,7 +431,7 @@ fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv |>
 #'  
 #'  1) did a fuzzy match by survey vessel id to PIMS vessel id, 
 #'  
-#'  2) than pull home port info for that vessels (several if there are several matches)
+#'  2) than pull home port info for that vessels (several if there are several fuzzy matches)
 #'  
 #'  3) converted the PIMS county and the tidycensus::fips_codes$county to the same unified format
 #'  
@@ -530,7 +530,7 @@ fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv_fips_short <-
     matching_vessel_id_regex,
     SERO_HOME_PORT_COUNTY,
     SERO_HOME_PORT_STATE,
-    use_vessel_id,
+    permit_vessel_id,
     vsl_num,
     cnty,
     st,
@@ -634,7 +634,7 @@ vessel_ids_w_state_cnty_fips <-
             join_by(SERO_HOME_PORT_STATE == state, county_short))
 
 dim(vessel_ids_w_state_cnty_fips)
-# 568
+# 571
 
 #' check
 vessel_ids_w_state_cnty_fips |>
@@ -642,7 +642,7 @@ vessel_ids_w_state_cnty_fips |>
            !st_2 == state_code) |>
   select(
     survey_vessel_id,
-    use_vessel_id,
+    permit_vessel_id,
     SERO_HOME_PORT_COUNTY,
     SERO_HOME_PORT_STATE,
     cnty_3,
@@ -653,13 +653,13 @@ vessel_ids_w_state_cnty_fips |>
   ) |>
   distinct() |>
   dim()
-# 160
+# 163
 
 vessel_ids_w_state_cnty_fips__compare_counties_states <-
   vessel_ids_w_state_cnty_fips |>
   select(
     survey_vessel_id,
-    use_vessel_id,
+    permit_vessel_id,
     SERO_HOME_PORT_COUNTY,
     SERO_HOME_PORT_STATE,
     cnty_3,
@@ -675,15 +675,11 @@ vessel_ids_w_state_cnty_fips__compare_counties_states_rename <-
   vessel_ids_w_state_cnty_fips__compare_counties_states |> 
   dplyr::rename(
  # = survey_vessel_id,
- # = use_vessel_id,
+ # = permit_vessel_id,
 cnty_from_db = SERO_HOME_PORT_COUNTY,
 state_from_db = SERO_HOME_PORT_STATE,
 cnty_from_survey = cnty_3,
 state_from_survey = st_2
-# ,
- # = county_short,
- # = county_code,
- # = state_code,
   )
 
 vessel_ids_w_state_cnty_fips__compare_counties_states_rename |> 
@@ -770,10 +766,10 @@ vessel_ids_w_state_cnty_fips__compare_counties_states_rename__st_restored_from_p
   glimpse()
 
 n_distinct(vessel_ids_w_state_cnty_fips__compare_counties_states_rename__st_restored_from_pims$survey_vessel_id)
-# [1] 355
+# [1] 356
 
-n_distinct(vessel_ids_w_state_cnty_fips__compare_counties_states_rename__st_restored_from_pims$use_vessel_id)
-# [1] 375
+n_distinct(vessel_ids_w_state_cnty_fips__compare_counties_states_rename__st_restored_from_pims$permit_vessel_id)
+# [1] 378
 
 n_distinct(survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored__fips$vsl_num)
 # [1] 429
@@ -782,7 +778,7 @@ intersect(
   vessel_ids_w_state_cnty_fips__compare_counties_states_rename__st_restored_from_pims$survey_vessel_id,
   survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored__fips$vsl_num
 ) |> length()
-# 355
+# 356
 
 ## add restored states back to all survey i1 info ----
 survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty <- left_join(
@@ -1239,8 +1235,6 @@ lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short <- lgb_join_i1__t_
 lgb_join_i1__t_diff_short__w_int_all_dup_rm__int_dup_rm_short |>
   head() |> 
   dplyr::glimpse()
-
-# TODO: check interview before trip end, joined a wrong trip?
 
 # combine all catch info ----
 
