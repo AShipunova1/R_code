@@ -28,21 +28,24 @@ lgb_join_i1__t_diff_short_has_no_trip_not_empty__with_total_cnts <-
     join_by(id_code, VESSEL_OFFICIAL_NBR == vsl_num)
   )
 
-View(lgb_join_i1__t_diff_short_has_no_trip_not_empty__with_total_cnts)
+# View(lgb_join_i1__t_diff_short_has_no_trip_not_empty__with_total_cnts)
 # [1] 833  9
 
 lgb_join_i1__t_diff_short_has_no_trip_not_empty__with_total_cnts__with_no_lgb_cnts <- 
 lgb_join_i1__t_diff_short_has_no_trip_not_empty__with_total_cnts |> 
   add_count(st_2, name = "no_lgb_int_by_state") |> 
   add_count(fips, name = "no_lgb_int_by_st_county")
-#   st_2      n
-#   <chr> <int>
-# 1 00       35
-# 2 01      252
-# 3 12     1030
-# 4 22      332
-# 5 28      108
-# 6 48       78
+
+lgb_join_i1__t_diff_short_has_no_trip_not_empty__with_total_cnts__with_no_lgb_cnts |> 
+  select(st_2, no_lgb_int_by_state) |> 
+  distinct() |> 
+  arrange(st_2)
+# 1 00                     28
+# 2 01                     37
+# 3 12                    440
+# 4 22                    245
+# 5 28                     28
+# 6 48                     55
 
 lgb_join_i1__t_diff_short_has_no_trip_not_empty__with_total_cnts__with_no_lgb_cnts_perc <-
   lgb_join_i1__t_diff_short_has_no_trip_not_empty__with_total_cnts__with_no_lgb_cnts |>
