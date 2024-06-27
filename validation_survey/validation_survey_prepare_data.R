@@ -225,17 +225,17 @@ florida_gulf_counties <- c(33,
 
 # Restore vessel ids ----
 
-### vessel_permit_owner_from_db tolower vessel ids ----
+## vessel_permit_owner_from_db tolower vessel ids ----
 vessel_permit_owner_from_db_clean_vsl <-
   vessel_permit_owner_from_db |> 
   mutate(use_vessel_id = tolower(P_VESSEL_ID))
   
-### change NA vsl_num from survey ----
+## change NA vsl_num from survey ----
 survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num <- 
   survey_data_l_2022_i1_w_dates_clean_vsl |> 
   mutate(survey_vessel_id = tidyr::replace_na(vsl_num, ""))
 
-### fuzzyjoin by vessel_ids ----
+## fuzzyjoin by vessel_ids ----
 fuzzyjoin_vessel_ids <-
   fuzzyjoin::stringdist_left_join(
     survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num,
@@ -244,7 +244,7 @@ fuzzyjoin_vessel_ids <-
     distance_col = "vessel_id_dist"
   )
 
-### not matched vsl ids -----
+## not matched vsl ids -----
 fuzzyjoin_vessel_ids_not_matched <-
   fuzzyjoin_vessel_ids |>
   filter(is.na(use_vessel_id))
@@ -253,7 +253,7 @@ fuzzyjoin_vessel_ids_not_matched <-
 n_distinct(fuzzyjoin_vessel_ids_not_matched$survey_vessel_id)  
 # 73
 
-### matched vsl ids -----
+## matched vsl ids -----
 fuzzyjoin_vessel_ids_matched <-
   fuzzyjoin_vessel_ids |>
   filter(!is.na(use_vessel_id))
@@ -273,7 +273,7 @@ fuzzyjoin_vessel_ids_matched |>
 # 2              1    60
 # 3              2   811
 
-### change if a vessel in more than in one distance group ----
+## fix if a vessel is in more than in one distance group ----
 
 #' change distance to words, to easier operations with column names
 fuzzyjoin_vessel_ids__dist_grp <- 
@@ -319,119 +319,44 @@ fuzzyjoin_vessel_ids__dist_grp__match |>
   head() |> 
   glimpse()
 
-# There is no more than one match in group 1 
+#' There is no more than one match in group 1 
 fuzzyjoin_vessel_ids__dist_grp__match |>
   filter(grp0_len == 0) |>
   filter(grp1_len > 1) |>
   select(survey_vessel_id, one, two, matching_vessel_id) |>
   nrow()
-# 0
+#' 0
 
-# Restore missing port state ----
+#' vessel ids with fuzzy match distance 2 
+fuzzyjoin_vessel_ids__dist_grp__match_dist2 <-
+  fuzzyjoin_vessel_ids__dist_grp__match |>
+  dplyr::filter(grp0_len == 0 & grp1_len == 0) |>
+  dplyr::select(survey_vessel_id, two, grp2_len) |>
+  dplyr::distinct()
 
-#' Number of States restored by vessel and county is different from
-#' the number of states restored by home port.
-#' 
-#' In the first case we can use only the survey data, assuming that if a survey county for the same vessel is the same, than the state is also the same. 
-#' 
-#' For example if a vessel "ABC" has one survey in county "075" and state "22" and another survey in county "075" with a state "NA", the state is "22".
-#'  
-#'  In the second case we 
-#'  
-#'  1) did a fuzzy match by survey vessel id to PIMS vessel id, 
-#'  
-#'  2) than pull home port info for that vessels (several if there are several matches)
-#'  
-#'  3) converted the PIMS county and the tidycensus::fips_codes$county to the same unified format
-#'  
-#'  4) added fips numeric codes to the pims county and state, to be able to compare with the survey
-#'  
-#'  5) restore missing survey states by the following algorithm: if a survey state is missing and a survey county is the same as the pims county, use the pims home port state for the survey state.
-#'  
-#' That leaves unchanged not missing survey states, and missing survey states with a county different from the home port. That is because the home port is obtained by an approximate match and can be erroneous or because the home port and the interview/survey places are different.
+dplyr::n_distinct(fuzzyjoin_vessel_ids__dist_grp__match_dist2$survey_vessel_id)
+# 61
 
-## Restore state by vessel_id, cnty ----
-#' For the same vessel same cnty, st is NA or the same
-survey_data_l_2022_i1_w_dates_clean_vsl |> 
-  filter(vsl_num == "fl9207st") |>
-  select(cnty, st) |>
-  distinct() |>
-  glimpse()
-# $ cnty <int> 17, 17
-# $ st   <chr> NA, "12"
+# readr::write_csv(fuzzyjoin_vessel_ids__dist_grp__match_dist2,
+                 # file.path(curr_proj_output_path,
+                           # "fuzzyjoin_vessel_ids__dist_grp__match_dist2.csv"))
 
-survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v <- 
-  survey_data_l_2022_i1_w_dates_clean_vsl |>
-  dplyr::select(vsl_num, st, cnty) |>
-  dplyr::distinct() |>
-  dplyr::group_by(vsl_num, cnty) |>
-  # dplyr::group_by(cnty) |>
-  dplyr::mutate(st_with_char_na =
-                  dplyr::case_when(is.na(st) ~ "NA", .default = st)) |>
-  dplyr::mutate(states_l_by_cnty_v = list(paste(unique(
-    sort(st_with_char_na)
-  )))) |>
-  dplyr::ungroup() |>
-  dplyr::select(-st_with_char_na) |>
-  dplyr::distinct() |>
-  dplyr::arrange(vsl_num, cnty)
+## add back info to the fuzzy match ----
 
-survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v |>
-  rowwise() |> 
-  filter(length(states_l_by_cnty_v) > 2) |> 
-  glimpse()
-# 0
-  
-survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored <- 
-  survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v |>
-  dplyr::rowwise() |>
-  dplyr::mutate(temp_res =
-                  case_when(is.na(st) ~
-                              paste(unlist(states_l_by_cnty_v), collapse = ""), .default = st)) |>
-  dplyr::mutate(restored_st =
-                  stringr::str_extract(temp_res, "\\d+")) |>
-  dplyr::select(-temp_res) |>
-  dplyr::ungroup()
-
-survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored |> 
-  # select(cnty, st, restored_st) |>
-  distinct() |>
-  head() |> 
-  glimpse()
-
-### format state and county codes ----
-format_state_and_county_codes <-
-  function(my_df, state_code_field) {
-    my_df |>
-      dplyr::mutate(st_2 =
-               case_when(is.na(!!sym(state_code_field)) ~ "00", .default =
-                           stringr::str_pad(!!sym(state_code_field), 2, pad = "0"))) |>
-      dplyr::mutate(cnty_3 = stringr::str_pad(cnty, 3, pad = "0"),
-             fips = paste0(st_2, cnty_3))
-  }
-
-survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored__fips <-
-  survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored |>
-  format_state_and_county_codes("restored_st")
-
-survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored__fips |>
-  head() |> 
-  glimpse()
-
-## Restore state by PIMS county/state ----
-
-### add back state and county to the fuzzy match ----
+#' keep the result only
 fuzzyjoin_vessel_ids__dist_grp__match_solo <- 
   fuzzyjoin_vessel_ids__dist_grp__match |> 
   select(survey_vessel_id, matching_vessel_id)
 
 dim(fuzzyjoin_vessel_ids__dist_grp__match_solo)
-# 355
+# 356
 
-#### Add back vessel info from db ----
+n_distinct(fuzzyjoin_vessel_ids__dist_grp__match_solo)
+# 356
+
+### Add back vessel info from db ----
 fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_db <-
   fuzzyjoin_vessel_ids__dist_grp__match_solo |>
-  # unnest_wider(matching_vessel_id, names_sep = "_") |>
   rowwise() |>
   mutate(matching_vessel_id_regex = 
            paste(matching_vessel_id, collapse = "|")) |>
@@ -492,6 +417,101 @@ fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv |>
   head(20) |>
   # tail(10) |>
   glimpse()
+
+# Restore missing port state ----
+
+#' Number of States restored by vessel and county is different from
+#' the number of states restored by home port.
+#' 
+#' In the first case we can use only the survey data, assuming that if a survey county for the same vessel is the same, than the state is also the same. 
+#' 
+#' For example if a vessel "ABC" has one survey in county "075" and state "22" and another survey in county "075" with a state "NA", the state is "22".
+#'  
+#'  In the second case we 
+#'  
+#'  1) did a fuzzy match by survey vessel id to PIMS vessel id, 
+#'  
+#'  2) than pull home port info for that vessels (several if there are several matches)
+#'  
+#'  3) converted the PIMS county and the tidycensus::fips_codes$county to the same unified format
+#'  
+#'  4) added fips numeric codes to the pims county and state, to be able to compare with the survey
+#'  
+#'  5) restore missing survey states by the following algorithm: if a survey state is missing and a survey county is the same as the pims county, use the pims home port state for the survey state.
+#'  
+#' That leaves unchanged not missing survey states, and missing survey states with a county different from the home port. That is because the home port is obtained by an approximate match and can be erroneous or because the home port and the interview/survey places are different.
+
+## Restore state by vessel_id, cnty ----
+#' For the same vessel same cnty, st is NA or the same
+survey_data_l_2022_i1_w_dates_clean_vsl |> 
+  filter(vsl_num == "fl9207st") |>
+  select(cnty, st) |>
+  distinct() |>
+  glimpse()
+# $ cnty <int> 17, 17
+# $ st   <chr> NA, "12"
+
+survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v <- 
+  survey_data_l_2022_i1_w_dates_clean_vsl |>
+  dplyr::select(vsl_num, st, cnty) |>
+  dplyr::distinct() |>
+  dplyr::group_by(vsl_num, cnty) |>
+  # dplyr::group_by(cnty) |>
+  dplyr::mutate(st_with_char_na =
+                  dplyr::case_when(is.na(st) ~ "NA", .default = st)) |>
+  dplyr::mutate(states_l_by_cnty_v = list(paste(unique(
+    sort(st_with_char_na)
+  )))) |>
+  dplyr::ungroup() |>
+  dplyr::select(-st_with_char_na) |>
+  dplyr::distinct() |>
+  dplyr::arrange(vsl_num, cnty)
+
+#' for each vessel_county there are no more than 2 states
+survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v |>
+  rowwise() |> 
+  filter(length(states_l_by_cnty_v) > 2) |> 
+  glimpse()
+# 0
+  
+survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored <- 
+  survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v |>
+  dplyr::rowwise() |>
+  dplyr::mutate(temp_res =
+                  case_when(is.na(st) ~
+                              paste(unlist(states_l_by_cnty_v), collapse = ""), 
+                            .default = st)) |>
+  dplyr::mutate(restored_st =
+                  stringr::str_extract(temp_res, "\\d+")) |>
+  dplyr::select(-temp_res) |>
+  dplyr::ungroup()
+
+#' check 
+survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored |> 
+  distinct() |>
+  head() |> 
+  glimpse()
+
+### format state and county codes ----
+format_state_and_county_codes <-
+  function(my_df, state_code_field) {
+    my_df |>
+      dplyr::mutate(st_2 =
+               case_when(is.na(!!sym(state_code_field)) ~ "00", .default =
+                           stringr::str_pad(!!sym(state_code_field), 2, pad = "0"))) |>
+      dplyr::mutate(cnty_3 = stringr::str_pad(cnty, 3, pad = "0"),
+             fips = paste0(st_2, cnty_3))
+  }
+
+survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored__fips <-
+  survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored |>
+  format_state_and_county_codes("restored_st")
+
+survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored__fips |>
+  head() |> 
+  glimpse()
+
+## Restore state by PIMS county/state ----
 
 ### convert cnty and state names to fips for restored from PIMS ----
 
