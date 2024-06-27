@@ -126,6 +126,14 @@ add_state_labels <- function(my_df_w_labels) {
                         ggplot2::aes(geometry = geom, 
                                      label = label_st_cnt))
 }
+
+add_st_boundaries <-
+  function(variables) {
+    ggplot2::geom_sf(data = selected_states_df,
+                     color = "green",
+                     fill = NA)
+  }
+
 plot_counties_res_with_labels <-
   plot_counties_res +
   ggplot2::geom_sf_text(data = interviews_by_state_to_plot_w_labels,
