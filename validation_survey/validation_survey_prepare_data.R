@@ -223,6 +223,87 @@ florida_gulf_counties <- c(33,
 #   count(st, cnty) |> 
 #   head()
 
+# Restore vessel ids ----
+
+### vessel_permit_owner_from_db tolower vessel ids ----
+vessel_permit_owner_from_db_clean_vsl <-
+  vessel_permit_owner_from_db |> 
+  mutate(use_vessel_id = tolower(P_VESSEL_ID))
+  
+### change NA vsl_num from survey ----
+survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num <- 
+  survey_data_l_2022_i1_w_dates_clean_vsl |> 
+  mutate(survey_vessel_id = tidyr::replace_na(vsl_num, ""))
+
+### fuzzyjoin by vessel_ids ----
+fuzzyjoin_vessel_ids <-
+  fuzzyjoin::stringdist_left_join(
+    survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num,
+    vessel_permit_owner_from_db_clean_vsl,
+    by = c("survey_vessel_id" = "use_vessel_id"),
+    distance_col = "vessel_id_dist"
+  )
+
+### matched vsl ids -----
+fuzzyjoin_vessel_ids_matched <-
+  fuzzyjoin_vessel_ids |>
+  filter(!is.na(use_vessel_id))
+  
+#' check 
+fuzzyjoin_vessel_ids_matched |>
+  select(survey_vessel_id, use_vessel_id, vessel_id_dist) |>
+  distinct() |> 
+  count(vessel_id_dist)
+#   vessel_id_dist     n
+#            <dbl> <int>
+# 1              0   266
+# 2              1    60
+# 3              2   811
+
+### if a vessel in more than in one distance group ----
+#' change distance to words, to easier operations with column names
+fuzzyjoin_vessel_ids__dist_grp <- 
+  fuzzyjoin_vessel_ids_matched |>
+  select(survey_vessel_id, use_vessel_id, vessel_id_dist) |>
+  distinct() |> 
+  dplyr::mutate(vessel_id_dist = english::english(vessel_id_dist)) |> 
+  tidyr::pivot_wider(names_from = vessel_id_dist,
+                     values_from = use_vessel_id,
+                     values_fn = list)
+
+fuzzyjoin_vessel_ids__dist_grp |> 
+  head() |> 
+  glimpse()
+
+#' clean groups
+#' 
+# fuzzyjoin_vessel_ids__dist_grp[1,] |> glimpse()
+
+### keep a vessel only in one group ----
+fuzzyjoin_vessel_ids__dist_grp__match <-
+  fuzzyjoin_vessel_ids__dist_grp |>
+  rowwise() |>
+  mutate(
+    grp0_len = length(zero),
+    grp1_len = length(one),
+    grp2_len = length(two)
+  ) |>
+  mutate(matching_vessel_id =
+           case_when(
+             grp0_len > 0 ~ list(zero),
+             (grp0_len == 0 & grp1_len > 0) ~ list(one),
+             .default = list(two)
+           )) |>
+  ungroup()
+
+#' check
+fuzzyjoin_vessel_ids__dist_grp__match |>
+  filter(grp0_len == 0 & !grp1_len == 0) |>
+  select(survey_vessel_id, one, two, matching_vessel_id) |> 
+  head() |> 
+  glimpse()
+
+
 # Restore missing port state ----
 
 #' Number of States restored by vessel and county is different from
@@ -315,85 +396,8 @@ survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored__fips |>
   glimpse()
 
 ## Restore state by PIMS county/state ----
-### vessel_permit_owner_from_db tolower vessel ids ----
-vessel_permit_owner_from_db_clean_vsl <-
-  vessel_permit_owner_from_db |> 
-  mutate(use_vessel_id = tolower(P_VESSEL_ID))
-  
-### change NA vsl_num from survey ----
-survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num <- 
-  survey_data_l_2022_i1_w_dates_clean_vsl |> 
-  mutate(survey_vessel_id = tidyr::replace_na(vsl_num, ""))
 
-### fuzzyjoin by vessel_ids ----
-fuzzyjoin_vessel_ids <-
-  fuzzyjoin::stringdist_left_join(
-    survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num,
-    vessel_permit_owner_from_db_clean_vsl,
-    by = c("survey_vessel_id" = "use_vessel_id"),
-    distance_col = "vessel_id_dist"
-  )
-
-### matched vsl ids -----
-fuzzyjoin_vessel_ids_matched <-
-  fuzzyjoin_vessel_ids |>
-  filter(!is.na(use_vessel_id))
-  
-#' check 
-fuzzyjoin_vessel_ids_matched |>
-  select(survey_vessel_id, use_vessel_id, vessel_id_dist) |>
-  distinct() |> 
-  count(vessel_id_dist)
-#   vessel_id_dist     n
-#            <dbl> <int>
-# 1              0   266
-# 2              1    60
-# 3              2   811
-
-### if a vessel in more than in one distance group ----
-#' change distance to words, to easier operations with column names
-fuzzyjoin_vessel_ids__dist_grp <- 
-  fuzzyjoin_vessel_ids_matched |>
-  select(survey_vessel_id, use_vessel_id, vessel_id_dist) |>
-  distinct() |> 
-  dplyr::mutate(vessel_id_dist = english::english(vessel_id_dist)) |> 
-  tidyr::pivot_wider(names_from = vessel_id_dist,
-                     values_from = use_vessel_id,
-                     values_fn = list)
-
-fuzzyjoin_vessel_ids__dist_grp |> 
-  head() |> 
-  glimpse()
-
-#' clean groups
-#' 
-# fuzzyjoin_vessel_ids__dist_grp[1,] |> glimpse()
-
-### keep a vessel only in one group ----
-fuzzyjoin_vessel_ids__dist_grp__match <-
-  fuzzyjoin_vessel_ids__dist_grp |>
-  rowwise() |>
-  mutate(
-    grp0_len = length(zero),
-    grp1_len = length(one),
-    grp2_len = length(two)
-  ) |>
-  mutate(matching_vessel_id =
-           case_when(
-             grp0_len > 0 ~ list(zero),
-             (grp0_len == 0 & grp1_len > 0) ~ list(one),
-             .default = list(two)
-           )) |>
-  ungroup()
-
-#' check
-fuzzyjoin_vessel_ids__dist_grp__match |>
-  filter(grp0_len == 0 & !grp1_len == 0) |>
-  select(survey_vessel_id, one, two, matching_vessel_id) |> 
-  head() |> 
-  glimpse()
-
-### add back state and county ----
+### add back state and county to the fuzzy match ----
 fuzzyjoin_vessel_ids__dist_grp__match_solo <- 
   fuzzyjoin_vessel_ids__dist_grp__match |> 
   select(survey_vessel_id, matching_vessel_id)
