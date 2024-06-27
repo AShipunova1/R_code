@@ -244,11 +244,24 @@ fuzzyjoin_vessel_ids <-
     distance_col = "vessel_id_dist"
   )
 
+### not matched vsl ids -----
+fuzzyjoin_vessel_ids_not_matched <-
+  fuzzyjoin_vessel_ids |>
+  filter(is.na(use_vessel_id))
+
+#' fuzzyjoin_vessel_ids_not_matched
+n_distinct(fuzzyjoin_vessel_ids_not_matched$survey_vessel_id)  
+# 73
+
 ### matched vsl ids -----
 fuzzyjoin_vessel_ids_matched <-
   fuzzyjoin_vessel_ids |>
   filter(!is.na(use_vessel_id))
-  
+
+#' fuzzyjoin_vessel_ids_matched
+n_distinct(fuzzyjoin_vessel_ids_matched$survey_vessel_id)  
+# 356
+
 #' check 
 fuzzyjoin_vessel_ids_matched |>
   select(survey_vessel_id, use_vessel_id, vessel_id_dist) |>
