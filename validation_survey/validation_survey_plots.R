@@ -110,7 +110,7 @@ plot_counties_res <-
   plot_counties(survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty__cnts)
 
 #' check
-no_state_interview_no_lgb_num <- 
+no_state_lgb_num <- 
   survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty__cnts |>
   dplyr::filter(st_2 == "00") |> 
   dplyr::select(total_int_by_state) |> 
@@ -136,13 +136,14 @@ add_st_boundaries <-
 
 plot_counties_res_with_labels <-
   plot_counties_res +
-  ggplot2::geom_sf_text(data = interviews_by_state_to_plot_w_labels,
-                        ggplot2::aes(geometry = geom, label = label_st_cnt)) +
-  ggplot2::geom_sf(data = selected_states_df,
-                   color = "green",
-                   fill = NA) +
-  ggplot2::labs(title = "Number of interviews by state/county",
-                caption = stringr::str_glue("{no_state_interview_no_lgb_num} interviews have no state info and are not included."))
+  add_state_labels(interviews_by_state_to_plot_w_labels) +
+  add_st_boundaries() +
+  ggplot2::labs(
+    title = "Number of interviews by state/county",
+    caption = stringr::str_glue(
+      "{no_state_lgb_num} interviews have no state info and are not included."
+    )
+  )
 
 ## interview count plot show ----
 # #| column: screen
