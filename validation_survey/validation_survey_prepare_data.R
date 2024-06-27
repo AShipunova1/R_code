@@ -273,26 +273,29 @@ fuzzyjoin_vessel_ids_matched |>
 # 2              1    60
 # 3              2   811
 
-### if a vessel in more than in one distance group ----
+### change if a vessel in more than in one distance group ----
+
 #' change distance to words, to easier operations with column names
 fuzzyjoin_vessel_ids__dist_grp <- 
   fuzzyjoin_vessel_ids_matched |>
-  select(survey_vessel_id, use_vessel_id, vessel_id_dist) |>
-  distinct() |> 
+  dplyr::select(survey_vessel_id, use_vessel_id, vessel_id_dist) |>
+  dplyr::distinct() |> 
   dplyr::mutate(vessel_id_dist = english::english(vessel_id_dist)) |> 
   tidyr::pivot_wider(names_from = vessel_id_dist,
                      values_from = use_vessel_id,
                      values_fn = list)
 
+#' check
 fuzzyjoin_vessel_ids__dist_grp |> 
   head() |> 
   glimpse()
 
-#' clean groups
-#' 
-# fuzzyjoin_vessel_ids__dist_grp[1,] |> glimpse()
+fuzzyjoin_vessel_ids__dist_grp[2,] |> glimpse()
 
 ### keep a vessel only in one group ----
+#' if there is a full match - no changes,
+#' if no full match, but there is a match with a distance equal 1 - use it,
+#' otherwise - all matches with the distacne equal 2
 fuzzyjoin_vessel_ids__dist_grp__match <-
   fuzzyjoin_vessel_ids__dist_grp |>
   rowwise() |>
@@ -309,13 +312,20 @@ fuzzyjoin_vessel_ids__dist_grp__match <-
            )) |>
   ungroup()
 
-#' check
+#' check not perfect matches
 fuzzyjoin_vessel_ids__dist_grp__match |>
   filter(grp0_len == 0 & !grp1_len == 0) |>
   select(survey_vessel_id, one, two, matching_vessel_id) |> 
   head() |> 
   glimpse()
 
+# There is no more than one match in group 1 
+fuzzyjoin_vessel_ids__dist_grp__match |>
+  filter(grp0_len == 0) |>
+  filter(grp1_len > 1) |>
+  select(survey_vessel_id, one, two, matching_vessel_id) |>
+  nrow()
+# 0
 
 # Restore missing port state ----
 
