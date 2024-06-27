@@ -149,14 +149,15 @@ WHERE
 ORDER BY
   vessel_id")
 
-current_month <-
+#' formatted current month to use in file names, e.g. "2024_06"
+current_year_month <-
   format(lubridate::parse_date_time(lubridate::today(), orders = c("Ymd")),
          "%Y_%m")
 
 permits_query_file_path <-
   file.path(my_paths$inputs,
             "get_db_data",
-            stringr::str_glue("permit_info_{current_month}.rds"))
+            stringr::str_glue("permit_info_{current_year_month}.rds"))
 
 file.exists(permits_query_file_path)
 # T
@@ -261,7 +262,7 @@ FROM
 vessel_permit_owner_query_file_path <-
   file.path(my_paths$inputs,
             "get_db_data",
-            stringr::str_glue("vessel_permit_owner_{lubridate::today()}.rds"))
+            stringr::str_glue("vessel_permit_owner_{current_year_month}.rds"))
 
 file.exists(vessel_permit_owner_query_file_path)
 # T
