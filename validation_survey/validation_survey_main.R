@@ -115,6 +115,33 @@ catch_info_lgb_i1_i2_i3 |>
 # compare field names ----
 # source(file.path(current_project_dir_name, "validation_survey_fields.R"))
 
+make_state_labels_w_cnts <-
+  function(my_df,
+           number_to_show_field_name,
+           state_field_name = "st_2"
+           ) {
+    
+    temp_df <-
+      my_df |> 
+      mutate(across(everything(), as.character))
+
+    temp_df <-
+      dplyr::inner_join(temp_df,
+                        centroid_labels,
+                        dplyr::join_by(!!state_field_name == st_2))
+    
+    temp_df |>
+      dplyr::select(!!state_field_name,
+                    abbr,
+                    full,
+                    !!number_to_show_field_name,
+                    geom) |>
+      dplyr::distinct() |>
+      dplyr::mutate(label_st_cnt =
+                      paste(abbr, !!sym(number_to_show_field_name))) |>
+      dplyr::arrange(full)
+  }
+
 # how many interviews with no logbooks ----
 #' %%%%% Interviews With No Logbooks
 interview_no_lgb_path <-
