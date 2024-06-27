@@ -120,6 +120,12 @@ no_state_interview_no_lgb_num <-
 #' add state labels,
 #' state boundaries,
 #' and title
+
+add_state_labels <- function(my_df_w_labels) {
+  ggplot2::geom_sf_text(data = my_df_w_labels, 
+                        ggplot2::aes(geometry = geom, 
+                                     label = label_st_cnt))
+}
 plot_counties_res_with_labels <-
   plot_counties_res +
   ggplot2::geom_sf_text(data = interviews_by_state_to_plot_w_labels,
