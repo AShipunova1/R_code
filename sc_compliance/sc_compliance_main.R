@@ -29,9 +29,7 @@
 
 # set up ----
 library(devtools)
-devtools::install_github("AShipunova1/R_code/auxfunctions@development")
-                         # ,
-                         # force = T)
+devtools::install_github("AShipunova1/R_code/auxfunctions")
 library(auxfunctions)
 
 ## assign dates to variables ----
@@ -63,11 +61,14 @@ annas_processed_data_path <-
 
 # set the path to SC vessels data on Anna’s computer
 # this number is from the file provided by SC, e.g. "scdnrFedVessels_05312024.xlsx"
-sc_file_date <- "05312024"
+# Change it with every new file
+sc_file_date <- "06282024"
+sc_file_dir <- "2024_07"
 
 annas_sc_mismatch_file_path <-
   file.path(annas_path$inputs,
-            r"(sc_mismatches\2024_06)",
+            "sc_mismatches",
+            sc_file_dir,
             stringr::str_glue("scdnrFedVessels_",
             sc_file_date,
             ".xlsx"))
