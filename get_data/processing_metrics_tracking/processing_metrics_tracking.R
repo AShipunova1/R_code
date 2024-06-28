@@ -16,7 +16,7 @@
 # Raw data in the Detail Report includes "fringe weeks”. Fringe weeks are defined as
 # compliance week 52 of the previous year, and/or compliance week 1 of the next year. Calendar dates of my_year sometimes fall into these extra “fringe weeks” before and after my year, because 365 days do not neatly fit into 52 weeks. We want to include the entire range of compliance weeks that encompass the calendar year, which may include the weeks that are in both the previous and the next compliance year. We will filter the data set by the current year’s compliance and calendar dates in further scripts (DNF and Logbook).
 
-# Compliance weeks are defined in FHIER, and based on ISO week (Mon-Sun) determination. # 'my_date_beg` is calculated as the beginning of the compliance week containing the calendar start date. `my_date_end` is calculated as the end of the compliance week containing the calendar end date.  E.g. The first week that is included in the Detail Report dataset is the week that includes Jan 1st. The last week that is included in the Detail Report dataset is the week that includes Dec 31st. This might include week 52 of the previous, or week 1 of the next year.
+# Compliance weeks are defined in FHIER, and based on ISO week (Mon-Sun) determination. # 'my_date_beg' is calculated as the beginning of the compliance week containing the calendar start date. 'my_date_end' is calculated as the end of the compliance week containing the calendar end date.  E.g. The first week that is included in the Detail Report dataset is the week that includes Jan 1st. The last week that is included in the Detail Report dataset is the week that includes Dec 31st. This might include week 52 of the previous, or week 1 of the next year.
 
 # Use get_the_dates(my_year).
 
@@ -49,24 +49,24 @@ my_year <- '2023'
 
 # ---
 # Explanations:
-# - This function, `get_the_dates`, generates a list of date strings and date objects based on a specified year and a start day for weeks.
-# - It takes two parameters: `my_year`, which defaults to "2023", and `week_start_day`, which defaults to "Monday".
-# - The function returns a list (`lst`) of the start and end dates for the calendar year, as well as the beg and end dates for compliance weeks to be included, based on week boundaries. lst is used to keep entries names.
+# - This function, 'get_the_dates', generates a list of date strings and date objects based on a specified year and a start day for weeks.
+# - It takes two parameters: 'my_year', which defaults to "2023", and 'week_start_day', which defaults to "Monday".
+# - The function returns a list ('lst') of the start and end dates for the calendar year, as well as the beg and end dates for compliance weeks to be included, based on week boundaries. lst is used to keep entries names.
 # The beg and end dates include the "fringe" weeks if needed.
 #
 # 1. **Generating Calendar Dates**:
-#     - The function first creates two strings representing the start and end dates of the calendar year based on the provided `my_year` parameter.
-#     - `my_calendar_date_beg` is set to "01-JAN-{my_year}" and `my_calendar_date_end` is set to "31-DEC-{my_year}" using string interpolation (`str_glue`).
+#     - The function first creates two strings representing the start and end dates of the calendar year based on the provided 'my_year' parameter.
+#     - 'my_calendar_date_beg' is set to "01-JAN-{my_year}" and 'my_calendar_date_end' is set to "31-DEC-{my_year}" using string interpolation ('str_glue').
 #
 # 2. **Calculating Beg and End Date Boundaries**:
-#     - The function calculates the compliance week start and end dates based on the provided `week_start_day` option.
-#     - It uses `lubridate` functions to convert the calendar date strings to date objects (`dmy`) and then adjust them to the nearest week boundaries.
-#     - `my_date_beg` is calculated as the beginning of the compliance week containing the calendar start date.
-#     - `my_date_end` is calculated as the end of the compliance week containing the calendar end date.
-#     - The `getOption` function is used to ensure the start of the week is set according to `week_start_day`.
+#     - The function calculates the compliance week start and end dates based on the provided 'week_start_day' option.
+#     - It uses 'lubridate' functions to convert the calendar date strings to date objects ('dmy') and then adjust them to the nearest week boundaries.
+#     - 'my_date_beg' is calculated as the beginning of the compliance week containing the calendar start date.
+#     - 'my_date_end' is calculated as the end of the compliance week containing the calendar end date.
+#     - The 'getOption' function is used to ensure the start of the week is set according to 'week_start_day'.
 #
 # 3. **Creating the List of Dates**:
-#     - The function combines the four calculated dates (`my_calendar_date_beg`, `my_calendar_date_end`, `my_date_beg`, and `my_date_end`) into a list using the `lst` function.
+#     - The function combines the four calculated dates ('my_calendar_date_beg', 'my_calendar_date_end', 'my_date_beg', and 'my_date_end') into a list using the 'lst' function.
 #
 week_start_day = "Monday"
 
@@ -146,26 +146,26 @@ my_tee <- function(my_text,
 # Explanation:
 #
 # 1. **Define Function with Optional Parameter:**
-#    - `my_stats <- function(my_df, title_msg = NA) { ... }`: Define a function named 'my_stats' that takes a dataframe 'my_df' as input and an optional 'title_msg' parameter with a default value of NA.
+#    - 'my_stats <- function(my_df, title_msg = NA) { ... }': Define a function named 'my_stats' that takes a dataframe 'my_df' as input and an optional 'title_msg' parameter with a default value of NA.
 #
 # 2. **Check and Assign Default Title Message:**
-#    - `if (is.na(title_msg))  { ... }`: Check if 'title_msg' is NA, and if so, assign the dataframe name as the default title message using 'deparse(substitute(my_df))'.
+#    - 'if (is.na(title_msg))  { ... }': Check if 'title_msg' is NA, and if so, assign the dataframe name as the default title message using 'deparse(substitute(my_df))'.
 #
 # 3. **Extract Statistics:**
-#    - `rows_n_columns <- dim(my_df)`: Extract the number of rows and columns in the dataframe.
-#    - `uniq_vessels_num <- n_distinct(my_df[["VESSEL_OFFICIAL_NUMBER"]])`: Count the number of distinct vessel numbers.
-#    - `uniq_trips_num <- n_distinct(my_df[["TRIP_ID"]])`: Count the number of distinct trip IDs.
+#    - 'rows_n_columns <- dim(my_df)': Extract the number of rows and columns in the dataframe.
+#    - 'uniq_vessels_num <- n_distinct(my_df[["VESSEL_OFFICIAL_NUMBER"]])': Count the number of distinct vessel numbers.
+#    - 'uniq_trips_num <- n_distinct(my_df[["TRIP_ID"]])': Count the number of distinct trip IDs.
 #
 # 4. **Create Formatted Text with Statistics:**
-#    - `stat_text <- str_glue("rows: {rows_n_columns[[1]]} ... Unique trips (logbooks): {uniq_trips_num}")`: Use 'str_glue' to format the statistics into a text string.
+#    - 'stat_text <- str_glue("rows: {rows_n_columns[[1]]} ... Unique trips (logbooks): {uniq_trips_num}")': Use 'str_glue' to format the statistics into a text string.
 #
 # 5. **Print Title Message and Statistics to Console:**
-#    - `title_message_print(title_msg)`: Use the helper function 'title_message_print' to print the title message in blue.
-#    - `print(stat_text)`: Print the formatted statistics to the console.
+#    - 'title_message_print(title_msg)': Use the helper function 'title_message_print' to print the title message in blue.
+#    - 'print(stat_text)': Print the formatted statistics to the console.
 #
 # 6. **Write Statistics to Log File:**
-#    - `stat_log_file_path <- file.path(Path, Outputs, str_glue("stat_info_{today()}.log"))`: Define the file path for the log file, including the date.
-#    - `cat(c(title_msg, stat_text), file = stat_log_file_path, sep = "\n", append = TRUE)`: Write the title message and formatted statistics to the log file, appending to the file if it already exists.
+#    - 'stat_log_file_path <- file.path(Path, Outputs, str_glue("stat_info_{today()}.log"))': Define the file path for the log file, including the date.
+#    - 'cat(c(title_msg, stat_text), file = stat_log_file_path, sep = "\n", append = TRUE)': Write the title message and formatted statistics to the log file, appending to the file if it already exists.
 
 my_stats <- function(my_df, title_msg = NA) {
 
@@ -227,8 +227,8 @@ SEFHIER_metrics_tracking <- read.csv(SEFHIER_metrics_tracking_path)
 # rename column headers
 SEFHIER_metrics_tracking <-
   SEFHIER_metrics_tracking |>
-  rename(PERMIT_REGION = `Permit.Grouping.Region`,
-         VESSEL_OFFICIAL_NUMBER = `Vessel.Official.Number`)
+  rename(PERMIT_REGION = 'Permit.Grouping.Region',
+         VESSEL_OFFICIAL_NUMBER = 'Vessel.Official.Number')
 
 # import the list of SRHS vessels
 # this is a single spreadsheet with all vessels listed, as opposed to the version where they are separated by region (bothregions_asSheets)
