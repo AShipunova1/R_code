@@ -1,18 +1,24 @@
 # remove SRHS vessels from the Metrics tracking data
 
 # Creates
-# "SEFHIER_permitted_vessels_nonSRHS_{my_year}.rds"
+# "Permitted_vessels_nonSRHS_{my_year}_plusfringedates.rds"
 
 # Steps for Input files
-# 1) set date range (use compliance dates, see below) and download data from Metrics Tracking Detail Report in FHIER as is, no need to filter data or delete any columns
-# we use this file to collect the vessel permit information that is included in the table, but the file itself is an output of tallies of types of submitted reports for each vessel for the date range selected, regardless of if the vessel was permitted in that date range
-# 2) name it: Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)_{my_year}.csv
-# 3) add year manually to downloaded file name
+# 1) set date range (use my_date_beg and my_date_end , see below) and download data from Metrics Tracking Detail Report in FHIER as is, no need to filter data or delete any columns
+# We use this file to collect the vessel permit information that is included in the table, but the file itself is an output of tallies of types of submitted reports for each vessel for the date range selected, regardless of if the vessel was permitted in that date range.
+# 3) manually to download the file
+# 2) add year and name it: Detail Report - via Valid and Renewable Permits Filter (SERO_NEW Source)_{my_year}.csv
 # 4) save file to the directory that has this R script, in an “input” sub-directory
 
 # 5) download the SRHS list from Google Drive (comes from Ken Brennan/SRHS branch chief)
 # 6) save as "{my_year}SRHSvessels.csv" to the directory that has this R script, in an “input” sub-directory
-# Compliance dates include the "fringe" weeks, the weeks which are in both the previous and the next year (if any). Use get_the_dates(my_year).
+
+# Raw data in the Detail Report includes "fringe weeks”. Fringe weeks are defined as
+# compliance week 52 of the previous year, and/or compliance week 1 of the next year. Calendar dates of my_year sometimes fall into these extra “fringe weeks” before and after my year, because 365 days do not neatly fit into 52 weeks. We want to include the entire range of compliance weeks that encompass the calendar year, which may include the weeks that are in both the previous and the next compliance year. We will filter the data set by the current year’s compliance and calendar dates in further scripts (DNF and Logbook).
+
+#Compliance weeks are defined in FHIER, and based on ISO week (Mon-Sun) determination. #‘my_date_beg` is calculated as the beginning of the compliance week containing the calendar start date. `my_date_end` is calculated as the end of the compliance week containing the calendar end date.  E.g. The first week that is included in the Detail Report dataset is the week that includes Jan 1st. The last week that is included in the Detail Report dataset is the week that includes Dec 31st. This might include week 52 of the previous, or week 1 of the next year.
+
+#Use get_the_dates(my_year).
 
 # setup ----
 library(tidyverse)
@@ -38,30 +44,166 @@ Outputs <- "Outputs/"
 # Set the date ranges for the logbook and compliance data you are pulling
 # this is the year to assign to the output file name
 # my_year <- '2022'
-# my_year <- '2023'
-my_year <- '2024'
+my_year <- '2023'
+# my_year <- '2024'
 
-# Auxiliary methods ----
-annas_git_path <-
-r"(~\R_code_github\get_data)"
+# ---
+# Explanations:
+# - This function, `get_the_dates`, generates a list of date strings and date objects based on a specified year and a start day for weeks.
+# - It takes two parameters: `my_year`, which defaults to "2023", and `week_start_day`, which defaults to "Monday".
+# - The function returns a list (`lst`) of the start and end dates for the calendar year, as well as the beg and end dates for compliance weeks to be included, based on week boundaries. lst is used to keep entries names.
+# The beg and end dates include the "fringe" weeks if needed.
+#
+# 1. **Generating Calendar Dates**:
+#     - The function first creates two strings representing the start and end dates of the calendar year based on the provided `my_year` parameter.
+#     - `my_calendar_date_beg` is set to "01-JAN-{my_year}" and `my_calendar_date_end` is set to "31-DEC-{my_year}" using string interpolation (`str_glue`).
+#
+# 2. **Calculating Beg and End Date Boundaries**:
+#     - The function calculates the compliance week start and end dates based on the provided `week_start_day` option.
+#     - It uses `lubridate` functions to convert the calendar date strings to date objects (`dmy`) and then adjust them to the nearest week boundaries.
+#     - `my_date_beg` is calculated as the beginning of the compliance week containing the calendar start date.
+#     - `my_date_end` is calculated as the end of the compliance week containing the calendar end date.
+#     - The `getOption` function is used to ensure the start of the week is set according to `week_start_day`.
+#
+# 3. **Creating the List of Dates**:
+#     - The function combines the four calculated dates (`my_calendar_date_beg`, `my_calendar_date_end`, `my_date_beg`, and `my_date_end`) into a list using the `lst` function.
+#
+week_start_day = "Monday"
 
-if (Path == annas_path) {
-  auxiliary_methods_file_path <-
-    file.path(annas_git_path,
-              "processing_auxiliary_methods.R")
-} else {
-  auxiliary_methods_file_path <-
-    file.path(Path,
-              "processing_auxiliary_methods.R")
-}
+get_the_dates <-
+  function(my_year = "2023",
+           week_start_day = "Monday") {
+    my_calendar_date_beg <- str_glue("01-JAN-{my_year}")
+    my_calendar_date_end <- str_glue("31-DEC-{my_year}")
+    my_date_beg <-
+      dmy(my_calendar_date_beg) |>
+      floor_date('weeks', week_start = getOption("lubridate.week.start", week_start_day))
+    my_date_end <-
+      dmy(my_calendar_date_end) |>
+      ceiling_date('weeks',
+                   week_start = getOption("lubridate.week.start", week_start_day)) - 1
 
-# file.exists(auxiliary_methods_file_path)
+    my_dates <- lst(
+      my_calendar_date_beg,
+      my_calendar_date_end,
+      my_date_beg,
+      my_date_end
+    )
 
-source(auxiliary_methods_file_path)
+    return(my_dates)
+  }
 
 curr_dates <- get_the_dates(my_year)
-my_compliance_date_beg <- curr_dates$my_compliance_date_beg
-my_compliance_date_end <- curr_dates$my_compliance_date_end
+my_date_beg <- curr_dates$my_date_beg
+my_date_end <- curr_dates$my_date_end
+
+#‘my_date_beg’ and ‘my_date_end’ represent the maximum and minimum compliance weeks #that  my_year falls into. This may include week 52 of the previous year, and/or week 1 of the #next year, because 365 days do not neatly fit into 52 weeks. These values are the bookends #for the entire range of compliance weeks that encompass the current year.
+
+# — This section produces a log output file that details the variables defined here
+# Pretty message print
+function_message_print <- function(text_msg) {
+  cat(crayon::bgCyan$bold(text_msg),
+      sep = "\n")
+}
+
+# Define a helper function 'title_message_print' to print the title message in blue.
+title_message_print <- function(title_msg) {
+  cat(crayon::blue(title_msg), sep = "\n")
+}
+
+# Define a helper function 'my_tee' to print the message to the console and a file.
+my_tee <- function(my_text,
+                   my_title = NA,
+                   stat_log_file_path = NA,
+                   date_range = my_year) {
+
+  the_end = "---"
+
+  # Print out to console
+  title_message_print(my_title)
+  cat(c(my_text, the_end),
+      sep = "\n")
+
+  # Create a new file every day
+  if (is.na(stat_log_file_path)) {
+    stat_log_file_path <-
+      file.path(Path,
+                Outputs,
+                str_glue("processing_stats_{date_range}_run_{today()}.log"))
+  }
+
+  # Write to a log file
+  cat(c(my_title, my_text, the_end),
+      file = stat_log_file_path,
+      sep = "\n",
+      append = TRUE)
+}
+
+# ---
+# A function to print out stats.
+# Usage: my_stats(Logbooks)
+
+# Explanation:
+#
+# 1. **Define Function with Optional Parameter:**
+#    - `my_stats <- function(my_df, title_msg = NA) { ... }`: Define a function named 'my_stats' that takes a dataframe 'my_df' as input and an optional 'title_msg' parameter with a default value of NA.
+#
+# 2. **Check and Assign Default Title Message:**
+#    - `if (is.na(title_msg))  { ... }`: Check if 'title_msg' is NA, and if so, assign the dataframe name as the default title message using 'deparse(substitute(my_df))'.
+#
+# 3. **Extract Statistics:**
+#    - `rows_n_columns <- dim(my_df)`: Extract the number of rows and columns in the dataframe.
+#    - `uniq_vessels_num <- n_distinct(my_df[["VESSEL_OFFICIAL_NUMBER"]])`: Count the number of distinct vessel numbers.
+#    - `uniq_trips_num <- n_distinct(my_df[["TRIP_ID"]])`: Count the number of distinct trip IDs.
+#
+# 4. **Create Formatted Text with Statistics:**
+#    - `stat_text <- str_glue("rows: {rows_n_columns[[1]]} ... Unique trips (logbooks): {uniq_trips_num}")`: Use 'str_glue' to format the statistics into a text string.
+#
+# 5. **Print Title Message and Statistics to Console:**
+#    - `title_message_print(title_msg)`: Use the helper function 'title_message_print' to print the title message in blue.
+#    - `print(stat_text)`: Print the formatted statistics to the console.
+#
+# 6. **Write Statistics to Log File:**
+#    - `stat_log_file_path <- file.path(Path, Outputs, str_glue("stat_info_{today()}.log"))`: Define the file path for the log file, including the date.
+#    - `cat(c(title_msg, stat_text), file = stat_log_file_path, sep = "\n", append = TRUE)`: Write the title message and formatted statistics to the log file, appending to the file if it already exists.
+
+my_stats <- function(my_df, title_msg = NA) {
+
+  # A title
+  if (is.na(title_msg))  {
+    df_name = deparse(substitute(my_df))
+    title_msg <- df_name
+  }
+
+  # Extract statistics
+  rows_n_columns <- dim(my_df)
+  uniq_vessels_num <- n_distinct(my_df[["VESSEL_OFFICIAL_NUMBER"]])
+  uniq_trips_num <- n_distinct(my_df[["TRIP_ID"]])
+
+  # Create a formatted text with statistics
+  # include trips, only if > 0
+  trip_cnts <-
+    if (uniq_trips_num > 0) {
+      str_glue("Unique trips: {uniq_trips_num}")
+    }
+  else {
+    ""
+  }
+
+  stat_text <- str_glue(
+    "
+rows: {rows_n_columns[[1]]}
+columns: {rows_n_columns[[2]]}
+Unique vessels: {uniq_vessels_num}
+{trip_cnts}
+"
+  )
+
+  # Print out to console and to the log file
+  my_tee(stat_text,
+         my_title = title_msg,
+         stat_log_file_path = NA)
+}
 
 # Start the log ----
 my_tee(date(),
@@ -78,8 +220,6 @@ SEFHIER_metrics_tracking_path <-
     ".csv"
   )
 )
-
-file.exists(SEFHIER_metrics_tracking_path)
 
 # read in metrics tracking data
 SEFHIER_metrics_tracking <- read.csv(SEFHIER_metrics_tracking_path)
@@ -149,12 +289,6 @@ processed_metrics_permit_info |>
 # 2           gom_only  987
 # 3            sa_only 2149
 
-# 2024
-#   permit_sa_gom_dual    n
-# 1               dual  194
-# 2           gom_only 1036
-# 3            sa_only 1930
-
 # stats
 my_stats(processed_metrics_permit_info, "Metrics tracking minus SRHS vsls")
 
@@ -170,6 +304,8 @@ processed_metrics_permit_info_short <-
       toupper()
   })
 
+
+
 # change the format of the date for these two columns
 processed_metrics_permit_info_short <-
   processed_metrics_permit_info_short |>
@@ -179,13 +315,13 @@ processed_metrics_permit_info_short <-
            as.Date(END_DATE, "%m/%d/%Y")
   )
 
-# filter data to only include permits with an effective and end date within the current compliance year
+# filter data to only include permits with an effective and end date within the current year
 # this step is necessary because the original data frame downloaded from FHIER includes some vessels that were not permitted in my_year, and we need to remove them
 processed_metrics_permit_info_short_this_year <-
   processed_metrics_permit_info_short |>
   filter(
-    EFFECTIVE_DATE <= as.Date(my_compliance_date_end, "%d-%b-%Y") &
-      END_DATE >= as.Date(my_compliance_date_beg, "%d-%b-%Y")
+    EFFECTIVE_DATE <= as.Date(my_date_end, "%d-%b-%Y") &
+      END_DATE >= as.Date(my_date_beg, "%d-%b-%Y")
   )
 
 ## Check vessels removed by dates ----
@@ -212,7 +348,7 @@ my_stats(processed_metrics_permit_info_short_this_year)
 all_metrics_tracking_vessels_path <-
   file.path(Path,
             Outputs,
-            str_glue("SEFHIER_permitted_vessels_nonSRHS_{my_year}.rds"))
+            str_glue("Permitted_vessels_nonSRHS_{my_year}_plusfringedates.rds"))
 
 write_rds(processed_metrics_permit_info_short_this_year,
           all_metrics_tracking_vessels_path)
