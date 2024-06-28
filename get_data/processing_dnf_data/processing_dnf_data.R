@@ -87,7 +87,7 @@ output_file_path <-
 my_year <- "2024"
 
 # years range for srfh_vessel_comp db download, see below
-db_year_1 <- "2021"
+db_year_1 <- "2023"
 db_year_2 <- "2024"
 
 # ---
@@ -461,7 +461,7 @@ processed_metrics_tracking_path <-
             str_glue("SEFHIER_permitted_vessels_nonSRHS_{my_year}.rds"))
 
 # optional
-# file.exists(processed_metrics_tracking_path)
+file.exists(processed_metrics_tracking_path)
 
 # reads the file in the path into a data frame
 processed_metrics_tracking <-
@@ -736,7 +736,6 @@ in_dnfs_not_in_compl <-
 
 nrow(in_dnfs_not_in_compl)
 
-# TODO: validate in_compl_not_in_dnfs and in_dnfs_not_in_compl
 # my_year
 # View(in_dnfs_not_in_compl)
 
@@ -1012,3 +1011,4 @@ write_rds(
   file = file.path(output_file_path,
                    SEFHIER_processed_dnfs_file_name)
 )
+
