@@ -4,18 +4,20 @@
 # 1) The result will be in
 # SEFHIER_processed_Logbooks_compliance_weeks_{my_year}.rds
 # SEFHIER_logbooks_processed__calendar_{my_year}.rds
-# SEFHIER_processed_Logbooks_{my_year}.rds
+
 
 # Files to read in:
-# 1) SEFHIER_permitted_vessels_nonSRHS_{my_year}.rds
+# 1) Permitted_vessels_nonSRHS_{my_year}_plusfringedates.rds
        # use processing_metrics_tracking.R to create this file or download it from Google Drive
        # before running this code
-# 2) processing_auxiliary_methods.R
-       # get from Google Drive R code folder, put in path directory with this code
 
-# Files this code will pull from Oracle:
-# 1) Raw_Oracle_Downloaded_compliance_2021_plus.rds
-# 2) Raw_Oracle_Downloaded_logbook_{my_compliance_date_beg}__{my_compliance_date_end}.rds
+# Files this code will create by pulling data from Oracle:
+# 1) Raw_Oracle_Downloaded_compliance_{db_year_1}_to_{db_year_2}.rds
+# 2) Raw_Oracle_Downloaded_logbook_{my_date_beg}__{my_date_end}.rds
+
+# Files this code will produce as a result:
+# 1) SEFHIER_processed_logbooks__compliance_weeks_{my_year}.rds
+# 2) SEFHIER_processed_logbooks_calendar_{my_year}.rds
 
 # This code pulls in logbook data from Oracle database,
 # then cleans it up, so that we can use it in any logbook data analysis:
@@ -29,7 +31,14 @@
 #   (a) mark all trips where the week was overridden, because the submission date is unknown, more notes further in the code
 # (4) Add permit region information (GOM, SA, or dual), using permit names (optional)
 
-# For 2022 we don't keep trips starting in 2021 and ending in 2022. We only keep trips starting in 2022, because 2021 was the first year of the program and we don’t think it’s very reliable data
+
+# Notes:
+
+#Compliance weeks are defined in FHIER, and based on ISO week (Mon-Sun) determination. #‘my_date_beg` is calculated as the beginning of the compliance week containing the calendar start date. `my_date_end` is calculated as the end of the compliance week containing the calendar end date.  E.g. The first week that is included in the dataset is the week that includes Jan 1st. The last week that is included in the dataset is the week that includes Dec 31st. This might include week 52 of the previous, or week 1 of the next year, a.k.a. fringe weeks.
+
+#Fringe weeks are defined as compliance week 52 of the previous year, and/or compliance week 1 of the next year. Calendar dates of my_year sometimes fall into these extra “fringe weeks” before and after my year, because 365 days do not neatly fit into 52 weeks. We want to include the entire range of compliance weeks that encompass the calendar year, which may include the weeks that are in both the previous and the next compliance year. We will filter the data set by the current year’s compliance and calendar dates later in the script.
+
+# For 2022 we don't keep trips starting in 2021 and ending in 2022. We only keep trips starting in 2022, because 2021 was the first year of the program and we don’t think it’s very reliable data.
 
 # Caveats:
 # 1) The way COMP_WEEK is calculated could get messed up depending on a given year time frame. It's due to something
@@ -37,7 +46,7 @@
 # new data set, check your weeks to make sure it's calculating correctly.
 
 # Running the code
-# To run the file as a whole, you can type this in the console: source('Processing Logbook Data.R') and hit enter.
+# To run the file as a whole, you can type this in the console: source('ProcessingLogbookData.R') and hit enter.
 # Pressing F2 when the custom function name is under the cursor will show the function definition.
 # Pressing F1 when the R function name is under the cursor will show the function definition
 # and examples in the help panel.
@@ -57,7 +66,7 @@ michelles_path <-
 
 jennys_path <-
   "//ser-fs1/sf/LAPP-DM Documents/Ostroff/SEFHIER/Rcode/ProcessinglogbookData/"
-# r"(C:\Users\jenny.ostroff\Desktop\Backups\Rcode\ProcessinglogbookData)"
+# r"(C:\Users\jenny.ostroff\Desktop\Backups\Rcode\ProcessingLogbookData)"
 
 # Input files are the same here
 annas_path <-
@@ -76,7 +85,7 @@ Outputs <- "Outputs"
 output_file_path <-
   file.path(Path, Outputs)
 
-# dir.exists(output_file_path)
+dir.exists(output_file_path)
 
 # Set the date ranges for the logbook and compliance data you are pulling
 # this is the year to assign to the output file name
@@ -86,29 +95,29 @@ my_year <- "2024"
 
 # years range for srfh_vessel_comp db download, see below
 # this should at least run the year before my_year to the year after my_year
-db_year_1 <- "2021"
-db_year_2 <- "2024"
+db_year_1 <- as.numeric(my_year) - 1
+db_year_2 <- as.numeric(my_year) + 1
 
 # ---
 # Explanations:
 # - This function, `get_the_dates`, generates a list of date strings and date objects based on a specified year and a start day for weeks.
 # - It takes two parameters: `my_year`, which defaults to "2023", and `week_start_day`, which defaults to "Monday".
-# - The function returns a list (`lst`) of the start and end dates for the calendar year, as well as the start and end dates for compliance based on week boundaries. lst is used to keep entries names.
-# The compliance dates include the "fringe" weeks if needed.
+# - The function returns a list (`lst`) of the start and end dates for the calendar year, as well as the start and end dates for compliance weeks to be included, based on week boundaries. lst is used to keep entries names.
+# The beg and end dates include the "fringe" weeks if needed.
 #
 # 1. **Generating Calendar Dates**:
 #     - The function first creates two strings representing the start and end dates of the calendar year based on the provided `my_year` parameter.
 #     - `my_calendar_date_beg` is set to "01-JAN-{my_year}" and `my_calendar_date_end` is set to "31-DEC-{my_year}" using string interpolation (`str_glue`).
 #
-# 2. **Calculating Compliance Date Boundaries**:
-#     - The function calculates the compliance start and end dates based on the provided `week_start_day` option.
+# 2. **Calculating Beg and End Date Boundaries**:
+#     - The function calculates the compliance week start and end dates based on the provided `week_start_day` option.
 #     - It uses `lubridate` functions to convert the calendar date strings to date objects (`dmy`) and then adjust them to the nearest week boundaries.
-#     - `my_compliance_date_beg` is calculated as the beginning of the week containing the calendar start date.
-#     - `my_compliance_date_end` is calculated as the end of the week containing the calendar end date, minus one day.
+#     - `my_date_beg` is calculated as the beginning of the week containing the calendar start date.
+#     - `my_date_end` is calculated as the end of the week containing the calendar end date, minus one day.
 #     - The `getOption` function is used to ensure the start of the week is set according to `week_start_day`.
 #
 # 3. **Creating the List of Dates**:
-#     - The function combines the four calculated dates (`my_calendar_date_beg`, `my_calendar_date_end`, `my_compliance_date_beg`, and `my_compliance_date_end`) into a list using the `lst` function.
+#     - The function combines the four calculated dates (`my_calendar_date_beg`, `my_calendar_date_end`, `my_date_beg`, and `my_date_end`) into a list using the `lst` function.
 #
 week_start_day = "Monday"
 
@@ -117,10 +126,10 @@ get_the_dates <-
            week_start_day = "Monday") {
     my_calendar_date_beg <- str_glue("01-JAN-{my_year}")
     my_calendar_date_end <- str_glue("31-DEC-{my_year}")
-    my_compliance_date_beg <-
+    my_date_beg <-
       dmy(my_calendar_date_beg) |>
       floor_date('weeks', week_start = getOption("lubridate.week.start", week_start_day))
-    my_compliance_date_end <-
+    my_date_end <-
       dmy(my_calendar_date_end) |>
       ceiling_date('weeks',
                    week_start = getOption("lubridate.week.start", week_start_day)) - 1
@@ -128,18 +137,19 @@ get_the_dates <-
     my_dates <- lst(
       my_calendar_date_beg,
       my_calendar_date_end,
-      my_compliance_date_beg,
-      my_compliance_date_end
+      my_date_beg,
+      my_date_end
     )
 
     return(my_dates)
   }
 
 curr_dates <- get_the_dates(my_year)
-my_compliance_date_beg <- curr_dates$my_compliance_date_beg
-my_compliance_date_end <- curr_dates$my_compliance_date_end
+my_date_beg <- curr_dates$my_date_beg
+my_date_end <- curr_dates$my_date_end
 
-# ---
+# This section produces a log output file that details the variables defined here ----
+
 # Pretty message print
 function_message_print <- function(text_msg) {
   cat(crayon::bgCyan$bold(text_msg),
@@ -295,7 +305,7 @@ toc()
 compl_override_data_file_path <-
   file.path(Path,
             Outputs,
-            str_glue("Raw_Oracle_Downloaded_compliance_2021_plus.rds"))
+            str_glue("Raw_Oracle_Downloaded_compliance_{db_year_1}_to_{db_year_2}.rds"))
 
 # Check if the file path is correct, optional
 # file.exists(compl_override_data_file_path)
@@ -323,7 +333,7 @@ WHERE
 # See usage below at the `Grab compliance file from Oracle` section
 read_rds_or_run_query <- function(my_file_path,
                                   my_query,
-                                  force_from_db = TRUE) {
+                                  force_from_db = NULL) {
 
   if (file.exists(my_file_path)) {
     modif_time <- file.info(my_file_path)$mtime
@@ -389,7 +399,7 @@ read_rds_or_run_query <- function(my_file_path,
 compl_override_data <-
   read_rds_or_run_query(compl_override_data_file_path,
                         compl_err_query,
-                        force_from_db = TRUE
+                        force_from_db = NULL
                         )
 
 ### prep the compliance/override data ----
@@ -412,32 +422,31 @@ my_stats(compl_override_data__renamed)
 min(compl_override_data__renamed$COMP_WEEK_START_DT)
 # [1] "2021-01-04 EST"
 
-# keep only year of analysis, including the week 52 of the previous year if needed
+# keep only year of analysis, including fringe weeks if needed
 
 # Explanations:
 # 1. 'compl_override_data__renamed__this_year' is a new data frame created from 'compl_override_data__renamed'.
 # 2. In this data frame, only rows meeting specific date criteria are retained.
 # 3. The 'filter' function is used to subset rows based on the following conditions:
-#    a. 'COMP_WEEK_START_DT' should be greater than or equal to 'my_compliance_date_beg' (start date).
-#    b. 'COMP_WEEK_START_DT' should be less than or equal to 'my_compliance_date_end' (end date).
+#    a. 'COMP_WEEK_END_DT' should be greater than or equal to 'my_date_beg' (start date).
+#    b. 'COMP_WEEK_START_DT' should be less than or equal to 'my_date_end' (end date).
 # 4. Dates are converted using 'as.Date' with the appropriate format ("%d-%b-%Y") and time zone.
 # 5. 'Sys.timezone()' retrieves the current system's time zone.
 # 6. The filtered data frame 'compl_override_data__renamed__this_year' contains only rows within the specified date range.
 compl_override_data__renamed__this_year <-
   compl_override_data__renamed |>
   filter(
-    COMP_WEEK_END_DT >= as.Date(my_compliance_date_beg, "%d-%b-%Y",
+    COMP_WEEK_END_DT >= as.Date(my_date_beg, "%d-%b-%Y",
                                 tz = Sys.timezone()) &
-      COMP_WEEK_START_DT <= as.Date(my_compliance_date_end, "%d-%b-%Y",
+      COMP_WEEK_START_DT <= as.Date(my_date_end, "%d-%b-%Y",
                                     tz = Sys.timezone())
   )
 
 # check
-# That's the week 52 of the previous year (my_year - 1):
-min(compl_override_data__renamed__this_year$COMP_WEEK_START_DT)
-# [1] "2021-12-27 EST" # this might contain the last week in the year before my_year, to account for a compliance week that overlaps last week of the year and first week of my_year
+# min(compl_override_data__renamed__this_year$COMP_WEEK_START_DT)
+# [1] "2021-12-27 EST" # this might contain the last week in the year before my_year, to account for dates in my_year that fall in a compliance week of a different year
 min(compl_override_data__renamed__this_year$COMP_WEEK_END_DT)
-# [1] "2022-01-02 EST" # this might contain the last week in the year before my_year, to account for a compliance week that overlaps last week of the previous year and first week of my_year
+# [1] "2022-01-02 EST" # this might contain the last week in the year before my_year, to account for dates in my_year that fall in a compliance week of a different year
 
 # change data type of this column if needed
 if (!class(compl_override_data__renamed__this_year$VESSEL_OFFICIAL_NUMBER) == "character") {
@@ -449,7 +458,7 @@ if (!class(compl_override_data__renamed__this_year$VESSEL_OFFICIAL_NUMBER) == "c
 processed_metrics_tracking_path <-
   file.path(Path,
             Outputs,
-            str_glue("SEFHIER_permitted_vessels_nonSRHS_{my_year}.rds"))
+            str_glue("Permitted_vessels_nonSRHS_{my_year}_plusfringedates.rds"))
 # some may make this file path the Inputs file, because you are inputting this file into this script
 # it doesn’t matter as long as your file location on your computer matches what you say here.
 
@@ -470,7 +479,7 @@ processed_metrics_tracking <-
 logbooks_file_path <-
   file.path(Path,
             Outputs,
-            str_glue("Raw_Oracle_Downloaded_logbook_{my_compliance_date_beg}__{my_compliance_date_end}.rds"))
+            str_glue("Raw_Oracle_Downloaded_logbook_{my_date_beg}__{my_date_end}.rds"))
 
 # 2) create a variable with an SQL query to call data from the database
 
@@ -484,9 +493,10 @@ logbooks_download_query <-
 FROM
   srh.mv_safis_trip_download@secapxdv_dblk
 WHERE
-    trip_end_date >= TO_DATE('{my_compliance_date_beg}', 'yyyy-mm-dd')
-  AND trip_start_date <= TO_DATE('{my_compliance_date_end}', 'yyyy-mm-dd')"
+    trip_end_date >= TO_DATE('{my_date_beg}', 'yyyy-mm-dd')
+  AND trip_end_date <= TO_DATE('{my_date_end}', 'yyyy-mm-dd')"
   )
+#We only use trip end date to determine what week and year the trip “belongs” to
 
 # Use 'read_rds_or_run_query' defined above to either read logbook information from an RDS file or execute a query to obtain it and write a file for future use.
 # Change "force_from_db = NULL" to "force_from_db = TRUE" for force db downloading (must be on VPN)
@@ -494,7 +504,7 @@ WHERE
 Logbooks_raw <-
   read_rds_or_run_query(logbooks_file_path,
                         logbooks_download_query,
-                        force_from_db = TRUE)
+                        force_from_db = NULL)
 
 # Rename column to be consistent with other dataframes
 Logbooks_raw_renamed <-
@@ -511,7 +521,7 @@ my_stats(Logbooks_raw_renamed, "Logbooks from the db")
 # Unique trips (logbooks): 94737
 
 ### reformat trip start/end date ----
-# Explanation:
+# Explanation: date and time clean-up
 #
 # 1. **Create New Dataframe:**
 #    - `Logbooks <- Logbooks |> ...`: Create a new dataframe 'Logbooks' by using the pipe operator '|>' on the existing 'Logbooks'.
@@ -598,16 +608,16 @@ max(Logbooks_raw_renamed__to_date_time4$TRIP_START_DATE)
 # [1] "2023-12-31"
 
 # Now filter for just my analysis year
-# this will keep all rows where trip start and/or end date falls in my_year
+# this will keep all rows where trip end date falls in my_year
 # so if all rows meet this criteria, it may not remove any rows, that is ok
 Logbooks_raw_renamed__to_date_time4__my_year <-
   Logbooks_raw_renamed__to_date_time4 |>
   filter(
     TRIP_END_DATE >=
-      as.Date(my_compliance_date_beg, "%d-%b-%Y",
+      as.Date(my_date_beg, "%d-%b-%Y",
               tz = Sys.timezone()) &
-      TRIP_START_DATE <=
-      as.Date(my_compliance_date_end, "%d-%b-%Y",
+      TRIP_END_DATE <=
+      as.Date(my_date_end, "%d-%b-%Y",
               tz = Sys.timezone())
   )
 
@@ -628,17 +638,11 @@ my_stats(Logbooks_raw_renamed__to_date_time4__my_year,
 # Unique vessels: 1885
 # Unique trips: 94733
 
-# check the min and max start dates, after filtering DF to just my analysis year
-min(Logbooks_raw_renamed__to_date_time4__my_year$TRIP_START_DATE)
-# [1] "2022-01-01"
-max(Logbooks_raw_renamed__to_date_time4__my_year$TRIP_START_DATE)
-# [1] "2022-12-31"
-
 # check the min and max end dates, after filtering DF to just my analysis year
 min(Logbooks_raw_renamed__to_date_time4__my_year$TRIP_END_DATE)
 # [1] "2018-06-04"
 max(Logbooks_raw_renamed__to_date_time4__my_year$TRIP_END_DATE)
-# [1] "2023-05-26"
+# [1] "2023-05-26" # this may be an unexpected date, but we haven’t thrown out long trips yet
 
 # create column for start and end date & time —--
 # Used in "the Time Stamp Error" and "the trip is too long".
@@ -698,7 +702,7 @@ compl_override_data__renamed__this_year |>
 # 2      2023       2023-01-08         1
 # 3      2023       2023-01-15         2
 
-# Needed to adjust for week 52 of the previous year and use in joins
+# Needed to adjust for fringe weeks and use in joins
 # Explanations:
 # 1. 'Logbooks_raw_renamed__to_date_time4__my_year__format_time__iso' is an extension of 'Logbooks_raw_renamed__to_date_time4__my_year__format_time'.
 # 2. Two new columns, 'TRIP_END_WEEK' and 'TRIP_END_YEAR', are added to this data frame.
@@ -1174,15 +1178,21 @@ removed_logbooks_and_vessels_text <- c(
 my_tee(removed_logbooks_and_vessels_text,
        "\nRemoved logbooks and vessels stats")
 
+# this is an optional line that will produce a subset of the final dataset, if you want to check that the results in these column came out correctly
+# check_results <-
+# SEFHIER_logbooks_processed_p_regions[, c(1:7, 10:13, 60, 150:153, 159:163, 174:178)]
+
+
+
 # Export processed logbooks ----
 
 # create 3 different dfs by
 # a) compliance weeks;
-# b) calendar dates;
+# b) calendar dates
 # c) the whole year including "straddling" weeks
 
 # check
-# compliance dates:
+# beg and end dates:
 # min(SEFHIER_logbooks_processed$TRIP_END_DATE)
 # [1] "2022-12-26"
 # max(SEFHIER_logbooks_processed$TRIP_START_DATE)
@@ -1194,48 +1204,27 @@ my_tee(removed_logbooks_and_vessels_text,
 # - `SEFHIER_logbooks_processed__compliance_weeks <-` assigns the final result of the pipeline to the variable `SEFHIER_logbooks_processed__compliance_weeks`.
 # - `SEFHIER_logbooks_processed_p_regions |>` starts the pipeline with the data frame `SEFHIER_logbooks_processed_p_regions`, allowing subsequent transformations.
 # - `mutate(` begins a transformation to add or modify columns in the data frame.
-#   - `COMP_START_YEAR = isoyear(COMP_WEEK_START_DT),` creates a new column `COMP_START_YEAR` by extracting the ISO year from the `COMP_WEEK_START_DT` column using the `isoyear` function.
 #   - `COMP_END_YEAR = isoyear(COMP_WEEK_END_DT)` creates another new column `COMP_END_YEAR` by extracting the ISO year from the `COMP_WEEK_END_DT` column using the `isoyear` function.
-# - `filter(COMP_START_YEAR == my_year & COMP_END_YEAR == my_year)` filters the rows of the data frame to include only those where both `COMP_START_YEAR` and `COMP_END_YEAR` are equal to the value of `my_year`.
-#   - `COMP_START_YEAR == my_year & COMP_END_YEAR == my_year` is a logical condition that checks if both columns have the same value as `my_year`.
+# - `filter( COMP_END_YEAR == my_year)` filters the rows of the data frame to include only those where `COMP_END_YEAR` is equal to the value of `my_year`.
+#  COMP_END_YEAR == my_year` is a logical condition that checks if column has the same value as `my_year`.
 #
-# This code processes the `SEFHIER_logbooks_processed_p_regions` data frame to include only the rows where the compliance week start and end dates fall within the specified year (`my_year`). It returns a new data frame stored in `SEFHIER_logbooks_processed__compliance_weeks` with the added columns for compliance start and end years and filtered based on the specified year.
+# This code processes the `SEFHIER_logbooks_processed_p_regions` data frame to include only the rows where the logbook end date falls within the specified year (`my_year`). It returns a new data frame stored in `SEFHIER_logbooks_processed__compliance_weeks` with the added columns for compliance end year and filtered based on the specified year.
 SEFHIER_logbooks_processed__compliance_weeks <-
   SEFHIER_logbooks_processed_p_regions |>
-  mutate(
-    COMP_START_YEAR = isoyear(COMP_WEEK_START_DT),
-    COMP_END_YEAR = isoyear(COMP_WEEK_END_DT)
+  mutate(COMP_END_YEAR = isoyear(COMP_WEEK_END_DT)
   ) |>
-  filter(COMP_START_YEAR == my_year &
-           COMP_END_YEAR == my_year)
+  filter(COMP_END_YEAR == my_year)
 
 # check
-# was:
-SEFHIER_logbooks_processed_p_regions |>
-  mutate(
-    COMP_START_WEEK = isoweek(COMP_WEEK_START_DT),
-    COMP_START_YEAR = isoyear(COMP_WEEK_START_DT),
-    COMP_END_WEEK = isoweek(COMP_WEEK_END_DT),
-    COMP_END_YEAR = isoyear(COMP_WEEK_END_DT)
-  ) |>
-  filter(COMP_WEEK_START_DT == "2022-12-26") |>
-    select(contains("COMP"),
-           -SRH_VESSEL_COMP_ID,
-           -contains("override")) |>
-    distinct() |>
-    glimpse()
-# 2
-
-# now:
 SEFHIER_logbooks_processed__compliance_weeks |>
   filter(COMP_WEEK_START_DT == "2022-12-26") |>
   dim()
-# 0, OK
+# 0 181 - this is OK (181 variables, but 0 = no rows of data)
 
 min(SEFHIER_logbooks_processed__compliance_weeks$TRIP_END_DATE)
 # [1] "2023-01-02"
 
-max(SEFHIER_logbooks_processed__compliance_weeks$TRIP_START_DATE)
+max(SEFHIER_logbooks_processed__compliance_weeks$TRIP_END_DATE)
 # [1] "2023-12-31"
 
 # get filename
@@ -1257,7 +1246,7 @@ SEFHIER_logbooks_processed__calendar_year <-
     TRIP_END_DATE >=
       as.Date(my_calendar_date_beg, "%d-%b-%Y",
               tz = Sys.timezone()) &
-      TRIP_START_DATE <=
+      TRIP_END_DATE <=
       as.Date(my_calendar_date_end, "%d-%b-%Y",
               tz = Sys.timezone())
   )
@@ -1266,7 +1255,7 @@ SEFHIER_logbooks_processed__calendar_year <-
 min(SEFHIER_logbooks_processed__calendar_year$TRIP_END_DATE)
 # [1] "2023-01-01"
 
-max(SEFHIER_logbooks_processed__calendar_year$TRIP_START_DATE)
+max(SEFHIER_logbooks_processed__calendar_year$TRIP_END_DATE)
 # [1] "2023-12-31"
 
 SEFHIER_logbooks_processed__calendar_year_file_name <-
@@ -1278,11 +1267,11 @@ write_rds(
 )
 
 ## c) the whole year including "straddling" weeks ----
-SEFHIER_logbooks_processed__file_name <-
-  str_glue("SEFHIER_processed_Logbooks_{my_year}.rds")
+# SEFHIER_logbooks_processed__file_name <-
+#  str_glue("SEFHIER_processed_Logbooks_{my_year}.rds")
 
-write_rds(
-  SEFHIER_logbooks_processed_p_regions,
-  file = file.path(output_file_path, SEFHIER_logbooks_processed__file_name)
-)
+# write_rds(
+# SEFHIER_logbooks_processed_p_regions,
+#  file = file.path(output_file_path, SEFHIER_logbooks_processed__file_name)
+# )
 
