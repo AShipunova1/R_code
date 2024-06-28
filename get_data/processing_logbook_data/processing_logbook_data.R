@@ -5,7 +5,6 @@
 # SEFHIER_processed_Logbooks_compliance_weeks_{my_year}.rds
 # SEFHIER_logbooks_processed__calendar_{my_year}.rds
 
-
 # Files to read in:
 # 1) Permitted_vessels_nonSRHS_{my_year}_plusfringedates.rds
        # use processing_metrics_tracking.R to create this file or download it from Google Drive
@@ -34,9 +33,9 @@
 
 # Notes:
 
-#Compliance weeks are defined in FHIER, and based on ISO week (Mon-Sun) determination. #‘my_date_beg` is calculated as the beginning of the compliance week containing the calendar start date. `my_date_end` is calculated as the end of the compliance week containing the calendar end date.  E.g. The first week that is included in the dataset is the week that includes Jan 1st. The last week that is included in the dataset is the week that includes Dec 31st. This might include week 52 of the previous, or week 1 of the next year, a.k.a. fringe weeks.
+# Compliance weeks are defined in FHIER, and based on ISO week (Mon-Sun) determination. # 'my_date_beg` is calculated as the beginning of the compliance week containing the calendar start date. `my_date_end` is calculated as the end of the compliance week containing the calendar end date.  E.g. The first week that is included in the dataset is the week that includes Jan 1st. The last week that is included in the dataset is the week that includes Dec 31st. This might include week 52 of the previous, or week 1 of the next year, a.k.a. fringe weeks.
 
-#Fringe weeks are defined as compliance week 52 of the previous year, and/or compliance week 1 of the next year. Calendar dates of my_year sometimes fall into these extra “fringe weeks” before and after my year, because 365 days do not neatly fit into 52 weeks. We want to include the entire range of compliance weeks that encompass the calendar year, which may include the weeks that are in both the previous and the next compliance year. We will filter the data set by the current year’s compliance and calendar dates later in the script.
+# Fringe weeks are defined as compliance week 52 of the previous year, and/or compliance week 1 of the next year. Calendar dates of my_year sometimes fall into these extra "fringe weeks" before and after my year, because 365 days do not neatly fit into 52 weeks. We want to include the entire range of compliance weeks that encompass the calendar year, which may include the weeks that are in both the previous and the next compliance year. We will filter the data set by the current year’s compliance and calendar dates later in the script.
 
 # For 2022 we don't keep trips starting in 2021 and ending in 2022. We only keep trips starting in 2022, because 2021 was the first year of the program and we don’t think it’s very reliable data.
 
@@ -291,7 +290,7 @@ connect_to_secpr <- function() {
   return(con)
 }
 
-# test if you are connected to VPN
+# test if you are connected to VPN and connect if not
 tic("try_connection")
 try(con <- connect_to_secpr())
 toc()
@@ -463,7 +462,7 @@ processed_metrics_tracking_path <-
 # it doesn’t matter as long as your file location on your computer matches what you say here.
 
 # optional
-# file.exists(processed_metrics_tracking_path)
+file.exists(processed_metrics_tracking_path)
 
 # reads the file in the path into a data frame
 processed_metrics_tracking <-
@@ -496,7 +495,7 @@ WHERE
     trip_end_date >= TO_DATE('{my_date_beg}', 'yyyy-mm-dd')
   AND trip_end_date <= TO_DATE('{my_date_end}', 'yyyy-mm-dd')"
   )
-#We only use trip end date to determine what week and year the trip “belongs” to
+# We only use trip end date to determine what week and year the trip "belongs" to
 
 # Use 'read_rds_or_run_query' defined above to either read logbook information from an RDS file or execute a query to obtain it and write a file for future use.
 # Change "force_from_db = NULL" to "force_from_db = TRUE" for force db downloading (must be on VPN)
@@ -649,9 +648,9 @@ max(Logbooks_raw_renamed__to_date_time4__my_year$TRIP_END_DATE)
 
 # Explanations:
 # 1. 'Logbooks_raw_renamed__to_date_time4__my_year__format_time' is a modified version of 'Logbooks_raw_renamed__to_date_time4__my_year'.
-# 2. Two new columns, 'STARTDATETIME' and 'ENDDATETIME', are added to this data frame.
-# 3. The values for these columns are obtained by combining 'TRIP_START_DATE' with 'TRIP_START_TIME' for 'STARTDATETIME'
-#    and 'TRIP_END_DATE' with 'TRIP_END_TIME' for 'ENDDATETIME'.
+# 2. Two new columns, 'START_DATE_TIME' and 'END_DATE_TIME', are added to this data frame.
+# 3. The values for these columns are obtained by combining 'TRIP_START_DATE' with 'TRIP_START_TIME' for 'START_DATE_TIME'
+#    and 'TRIP_END_DATE' with 'TRIP_END_TIME' for 'END_DATE_TIME'.
 # 4. 'paste' function is used to concatenate date and time strings.
 # 5. The resulting combined strings are then converted to POSIXct objects using 'as.POSIXct'.
 # 6. 'format' parameter specifies the format of the input strings ("%Y-%m-%d %H%M").
@@ -660,17 +659,17 @@ max(Logbooks_raw_renamed__to_date_time4__my_year$TRIP_END_DATE)
 
 Logbooks_raw_renamed__to_date_time4__my_year__format_time <-
   Logbooks_raw_renamed__to_date_time4__my_year |>
-  mutate(STARTDATETIME =
+  mutate(START_DATE_TIME =
            as.POSIXct(paste(TRIP_START_DATE,                                           TRIP_START_TIME),
                       format = "%Y-%m-%d %H%M",
                       tz = Sys.timezone())) |>
-  mutate(ENDDATETIME =
+  mutate(END_DATE_TIME =
            as.POSIXct(paste(TRIP_END_DATE,                                           TRIP_END_TIME),
                       format = "%Y-%m-%d %H%M",
                       tz = Sys.timezone()))
 
 # check date and time values are correctly parsed and stored as datetime objects in the specified time zone
-Logbooks_raw_renamed__to_date_time4__my_year__format_time$ENDDATETIME |>
+Logbooks_raw_renamed__to_date_time4__my_year__format_time$END_DATE_TIME |>
   head(1)
 # "2022-07-07 08:00:00 EDT"
 
@@ -779,7 +778,7 @@ logbooks_join_overr <-
             TRIP_END_WEEK == COMP_WEEK),
     relationship = "many-to-many"
   )
-# We need the “many-to-many” relationship. There will be many logbooks that match a compliance week, because a logbook is submitted for any day in the week.
+# We need the "many-to-many" relationship. There will be many logbooks that match a compliance week, because a logbook is submitted for any day in the week.
 # to see the many-to-many relationship see find_duplicates_in_compl.R
 
 # check the difference
@@ -851,7 +850,7 @@ logbooks_join_overr__all_logbooks |>
 # 4       0          1
 # 5       0          0
 
-## NOTE: IF “Is_Overriden == 1 & is_Comp == 0, then the vessel should be considered compliant in any compliance analyses
+## NOTE: IF "Is_Overriden == 1 & is_Comp == 0, then the vessel should be considered compliant in any compliance analyses
 
 tic("Add a compliant_after_override column")
 logbooks_join_overr__compl <-
@@ -877,7 +876,7 @@ logbooks_join_overr |>
   dim()
 # 401
 
-# check the distinct values in new DF for ‘compliant after override’, ‘is_comp’ and ‘overridden’ columns
+# check the distinct values in new DF for 'compliant after override’, 'is_comp’ and 'overridden’ columns
 logbooks_join_overr__compl |>
   select(compliant_after_override,
          IS_COMP,
@@ -896,7 +895,7 @@ logbooks_join_overr__compl |>
 # the Time Stamp Error is true if start date/time is greater than or equal to end date/time, false if not
 logbooks_join_overr__compl['time_stamp_error'] <-
   ifelse(
-    logbooks_join_overr__compl$STARTDATETIME >= logbooks_join_overr__compl$ENDDATETIME,
+    logbooks_join_overr__compl$START_DATE_TIME >= logbooks_join_overr__compl$END_DATE_TIME,
     TRUE,
     FALSE
   )
@@ -930,8 +929,8 @@ my_tee(n_distinct(thrown_by_time_stamp_error$TRIP_ID),
 logbooks_join_overr__compl__start_end_ok['trip_length'] <-
   as.numeric(
     difftime(
-      logbooks_join_overr__compl__start_end_ok$ENDDATETIME,
-      logbooks_join_overr__compl__start_end_ok$STARTDATETIME,
+      logbooks_join_overr__compl__start_end_ok$END_DATE_TIME,
+      logbooks_join_overr__compl__start_end_ok$START_DATE_TIME,
       units = "hours"
     )
   )
