@@ -20,9 +20,9 @@
 #   2) "Raw_Oracle_Downloaded_compliance_2021_plus.rds"
           # this file is downloaded from the Oracle db or read in below
 #   3) "SEFHIER_processed_dnfs_{my_year}.rds"
-          # this file comes from running the DNF processing code for a given year, it should be available to download on Google Drive
+          # this file comes from running the DNF processing code for a given year, it should be available to download on Google Drive or ran from the sourced code below
 #   4) "SEFHIER_processed_Logbooks_{my_year}.rds"
-          # this file comes from running the logbook processing code for a given year, it should be available to download on Google Drive
+          # this file comes from running the logbook processing code for a given year, it should be available to download on Google Drive  or ran from the sourced code below
 #   5) "Vessel_List_{my_year}.csv" (Southeast Region Headboat Survey, SRHS)
           # this file comes from Ken Brennan at the SRHS program, it should be available to download on Google Drive
 #   6) “column_definitions.csv” (csv file of column definitions written by Michelle, used for the ReadMe tab of the output Excel spreadsheet, it should be available to download on Google Drive)
