@@ -79,10 +79,10 @@ SEFHIER_metrics_tracking_path <-
   )
 )
 
+file.exists(SEFHIER_metrics_tracking_path)
+
 # read in metrics tracking data
 SEFHIER_metrics_tracking <- read.csv(SEFHIER_metrics_tracking_path)
-
-file.exists(SEFHIER_metrics_tracking_path)
 
 # rename column headers
 SEFHIER_metrics_tracking <-
