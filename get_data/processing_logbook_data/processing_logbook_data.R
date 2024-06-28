@@ -33,7 +33,7 @@
 
 # Notes:
 
-# Compliance weeks are defined in FHIER, and based on ISO week (Mon-Sun) determination. # 'my_date_beg` is calculated as the beginning of the compliance week containing the calendar start date. `my_date_end` is calculated as the end of the compliance week containing the calendar end date.  E.g. The first week that is included in the dataset is the week that includes Jan 1st. The last week that is included in the dataset is the week that includes Dec 31st. This might include week 52 of the previous, or week 1 of the next year, a.k.a. fringe weeks.
+# Compliance weeks are defined in FHIER, and based on ISO week (Mon-Sun) determination. # 'my_date_beg' is calculated as the beginning of the compliance week containing the calendar start date. 'my_date_end' is calculated as the end of the compliance week containing the calendar end date.  E.g. The first week that is included in the dataset is the week that includes Jan 1st. The last week that is included in the dataset is the week that includes Dec 31st. This might include week 52 of the previous, or week 1 of the next year, a.k.a. fringe weeks.
 
 # Fringe weeks are defined as compliance week 52 of the previous year, and/or compliance week 1 of the next year. Calendar dates of my_year sometimes fall into these extra "fringe weeks" before and after my year, because 365 days do not neatly fit into 52 weeks. We want to include the entire range of compliance weeks that encompass the calendar year, which may include the weeks that are in both the previous and the next compliance year. We will filter the data set by the current year’s compliance and calendar dates later in the script.
 
@@ -99,24 +99,24 @@ db_year_2 <- as.numeric(my_year) + 1
 
 # ---
 # Explanations:
-# - This function, `get_the_dates`, generates a list of date strings and date objects based on a specified year and a start day for weeks.
-# - It takes two parameters: `my_year`, which defaults to "2023", and `week_start_day`, which defaults to "Monday".
-# - The function returns a list (`lst`) of the start and end dates for the calendar year, as well as the start and end dates for compliance weeks to be included, based on week boundaries. lst is used to keep entries names.
+# - This function, 'get_the_dates', generates a list of date strings and date objects based on a specified year and a start day for weeks.
+# - It takes two parameters: 'my_year', which defaults to "2023", and 'week_start_day', which defaults to "Monday".
+# - The function returns a list ('lst') of the start and end dates for the calendar year, as well as the start and end dates for compliance weeks to be included, based on week boundaries. lst is used to keep entries names.
 # The beg and end dates include the "fringe" weeks if needed.
 #
 # 1. **Generating Calendar Dates**:
-#     - The function first creates two strings representing the start and end dates of the calendar year based on the provided `my_year` parameter.
-#     - `my_calendar_date_beg` is set to "01-JAN-{my_year}" and `my_calendar_date_end` is set to "31-DEC-{my_year}" using string interpolation (`str_glue`).
+#     - The function first creates two strings representing the start and end dates of the calendar year based on the provided 'my_year' parameter.
+#     - 'my_calendar_date_beg' is set to "01-JAN-{my_year}" and 'my_calendar_date_end' is set to "31-DEC-{my_year}" using string interpolation ('str_glue').
 #
 # 2. **Calculating Beg and End Date Boundaries**:
-#     - The function calculates the compliance week start and end dates based on the provided `week_start_day` option.
-#     - It uses `lubridate` functions to convert the calendar date strings to date objects (`dmy`) and then adjust them to the nearest week boundaries.
-#     - `my_date_beg` is calculated as the beginning of the week containing the calendar start date.
-#     - `my_date_end` is calculated as the end of the week containing the calendar end date, minus one day.
-#     - The `getOption` function is used to ensure the start of the week is set according to `week_start_day`.
+#     - The function calculates the compliance week start and end dates based on the provided 'week_start_day' option.
+#     - It uses 'lubridate' functions to convert the calendar date strings to date objects ('dmy') and then adjust them to the nearest week boundaries.
+#     - 'my_date_beg' is calculated as the beginning of the week containing the calendar start date.
+#     - 'my_date_end' is calculated as the end of the week containing the calendar end date, minus one day.
+#     - The 'getOption' function is used to ensure the start of the week is set according to 'week_start_day'.
 #
 # 3. **Creating the List of Dates**:
-#     - The function combines the four calculated dates (`my_calendar_date_beg`, `my_calendar_date_end`, `my_date_beg`, and `my_date_end`) into a list using the `lst` function.
+#     - The function combines the four calculated dates ('my_calendar_date_beg', 'my_calendar_date_end', 'my_date_beg', and 'my_date_end') into a list using the 'lst' function.
 #
 week_start_day = "Monday"
 
@@ -195,26 +195,26 @@ my_tee <- function(my_text,
 # Explanation:
 #
 # 1. **Define Function with Optional Parameter:**
-#    - `my_stats <- function(my_df, title_msg = NA) { ... }`: Define a function named 'my_stats' that takes a dataframe 'my_df' as input and an optional 'title_msg' parameter with a default value of NA.
+#    - 'my_stats <- function(my_df, title_msg = NA) { ... }': Define a function named 'my_stats' that takes a dataframe 'my_df' as input and an optional 'title_msg' parameter with a default value of NA.
 #
 # 2. **Check and Assign Default Title Message:**
-#    - `if (is.na(title_msg))  { ... }`: Check if 'title_msg' is NA, and if so, assign the dataframe name as the default title message using 'deparse(substitute(my_df))'.
+#    - 'if (is.na(title_msg))  { ... }': Check if 'title_msg' is NA, and if so, assign the dataframe name as the default title message using 'deparse(substitute(my_df))'.
 #
 # 3. **Extract Statistics:**
-#    - `rows_n_columns <- dim(my_df)`: Extract the number of rows and columns in the dataframe.
-#    - `uniq_vessels_num <- n_distinct(my_df[["VESSEL_OFFICIAL_NUMBER"]])`: Count the number of distinct vessel numbers.
-#    - `uniq_trips_num <- n_distinct(my_df[["TRIP_ID"]])`: Count the number of distinct trip IDs.
+#    - 'rows_n_columns <- dim(my_df)': Extract the number of rows and columns in the dataframe.
+#    - 'uniq_vessels_num <- n_distinct(my_df[["VESSEL_OFFICIAL_NUMBER"]])': Count the number of distinct vessel numbers.
+#    - 'uniq_trips_num <- n_distinct(my_df[["TRIP_ID"]])': Count the number of distinct trip IDs.
 #
 # 4. **Create Formatted Text with Statistics:**
-#    - `stat_text <- str_glue("rows: {rows_n_columns[[1]]} ... Unique trips (logbooks): {uniq_trips_num}")`: Use 'str_glue' to format the statistics into a text string.
+#    - 'stat_text <- str_glue("rows: {rows_n_columns[[1]]} ... Unique trips (logbooks): {uniq_trips_num}")': Use 'str_glue' to format the statistics into a text string.
 #
 # 5. **Print Title Message and Statistics to Console:**
-#    - `title_message_print(title_msg)`: Use the helper function 'title_message_print' to print the title message in blue.
-#    - `print(stat_text)`: Print the formatted statistics to the console.
+#    - 'title_message_print(title_msg)': Use the helper function 'title_message_print' to print the title message in blue.
+#    - 'print(stat_text)': Print the formatted statistics to the console.
 #
 # 6. **Write Statistics to Log File:**
-#    - `stat_log_file_path <- file.path(Path, Outputs, str_glue("stat_info_{today()}.log"))`: Define the file path for the log file, including the date.
-#    - `cat(c(title_msg, stat_text), file = stat_log_file_path, sep = "\n", append = TRUE)`: Write the title message and formatted statistics to the log file, appending to the file if it already exists.
+#    - 'stat_log_file_path <- file.path(Path, Outputs, str_glue("stat_info_{today()}.log"))': Define the file path for the log file, including the date.
+#    - 'cat(c(title_msg, stat_text), file = stat_log_file_path, sep = "\n", append = TRUE)': Write the title message and formatted statistics to the log file, appending to the file if it already exists.
 
 my_stats <- function(my_df, title_msg = NA) {
 
@@ -329,7 +329,7 @@ WHERE
 # A function to use every time we want to read a ready file or query the database if no files exist.
 
 # The read_rds_or_run_query function is designed to read data from an RDS file if it exists or run an SQL query to pull the data from Oracle db if the file doesn't exist.
-# See usage below at the `Grab compliance file from Oracle` section
+# See usage below at the 'Grab compliance file from Oracle' section
 read_rds_or_run_query <- function(my_file_path,
                                   my_query,
                                   force_from_db = NULL) {
@@ -523,18 +523,18 @@ my_stats(Logbooks_raw_renamed, "Logbooks from the db")
 # Explanation: date and time clean-up
 #
 # 1. **Create New Dataframe:**
-#    - `Logbooks <- Logbooks |> ...`: Create a new dataframe 'Logbooks' by using the pipe operator '|>' on the existing 'Logbooks'.
+#    - 'Logbooks <- Logbooks |> ...': Create a new dataframe 'Logbooks' by using the pipe operator '|>' on the existing 'Logbooks'.
 #
 # 2. **Use 'mutate' to Convert Columns:**
-#    - `mutate(across(..., as.Date))`: Utilize the 'mutate' function with 'across' to apply a transformation to multiple columns.
+#    - 'mutate(across(..., as.Date))': Utilize the 'mutate' function with 'across' to apply a transformation to multiple columns.
 #
 # 3. **Column Selection with 'across':**
-#    - `c(!where(is.Date) & ends_with("_DATE"))`: Select columns that meet the specified conditions:
-#      - `!where(is.Date)`: Columns that are not already of type 'Date'.
-#      - `ends_with("_DATE")`: Columns whose names end with "_DATE".
+#    - 'c(!where(is.Date) & ends_with("_DATE"))': Select columns that meet the specified conditions:
+#      - '!where(is.Date)': Columns that are not already of type 'Date'.
+#      - 'ends_with("_DATE")': Columns whose names end with "_DATE".
 #
 # 4. **Convert Columns to Date:**
-#    - `as.Date`: Use the 'as.Date' function to convert the selected columns to the 'Date' format.
+#    - 'as.Date': Use the 'as.Date' function to convert the selected columns to the 'Date' format.
 Logbooks_raw_renamed__to_date <-
   Logbooks_raw_renamed |>
   mutate(across(c(!where(is.Date) & ends_with("_DATE")),
@@ -560,27 +560,27 @@ Logbooks_raw_renamed__to_date$TRIP_START_DATE |>
 # Explanation:
 #
 # 1. **Create New Dataframe:**
-#    - `Logbooks <- Logbooks |> ...`: Create a new dataframe 'Logbooks' by using the pipe operator '|>' on the existing 'Logbooks'.
+#    - 'Logbooks <- Logbooks |> ...': Create a new dataframe 'Logbooks' by using the pipe operator '|>' on the existing 'Logbooks'.
 #
 # 2. **Use 'mutate' to Convert Columns to Numeric:**
-#    - `mutate(across(..., as.numeric))`: Utilize the 'mutate' function with 'across' to apply a transformation to specific non-numeric columns, converting them to numeric using 'as.numeric'.
+#    - 'mutate(across(..., as.numeric))': Utilize the 'mutate' function with 'across' to apply a transformation to specific non-numeric columns, converting them to numeric using 'as.numeric'.
 #
 # 3. **Column Selection with 'across':**
-#    - `c(!where(is.numeric) & all_of(time_col_names))`: Select columns that meet the specified conditions:
-#      - `!where(is.numeric)`: Columns that are not already of type 'numeric'.
-#      - `all_of(time_col_names)`: Columns specified by 'time_col_names'.
+#    - 'c(!where(is.numeric) & all_of(time_col_names))': Select columns that meet the specified conditions:
+#      - '!where(is.numeric)': Columns that are not already of type 'numeric'.
+#      - 'all_of(time_col_names)': Columns specified by 'time_col_names'.
 #
 # 4. **Convert Columns to Numeric:**
-#    - `as.numeric`: Use the 'as.numeric' function to convert the selected columns to numeric.
+#    - 'as.numeric': Use the 'as.numeric' function to convert the selected columns to numeric.
 #
 # 5. **Use 'mutate' to Format Columns with Leading Zeros:**
-#    - `mutate(across(..., ~ sprintf("%04d", .x)))`: Utilize 'mutate' with 'across' to format specific columns specified by 'time_col_names' with leading zeros using the 'sprintf' function.
+#    - 'mutate(across(..., ~ sprintf("%04d", .x)))': Utilize 'mutate' with 'across' to format specific columns specified by 'time_col_names' with leading zeros using the 'sprintf' function.
 #
 # 6. **Column Selection with 'across':**
-#    - `all_of(time_col_names)`: Select columns specified by 'time_col_names'.
+#    - 'all_of(time_col_names)': Select columns specified by 'time_col_names'.
 #
 # 7. **Format Columns with Leading Zeros:**
-#    - `~ sprintf("%04d", .x)`: Format each column value with leading zeros using 'sprintf("%04d", .x)'.
+#    - '~ sprintf("%04d", .x)': Format each column value with leading zeros using 'sprintf("%04d", .x)'.
 
 # create list of column headers, to be used in the next piece of code
 time_col_names <-
@@ -975,11 +975,11 @@ logbooks_join_overr_e_usable_date <-
   mutate(USABLE_DATE_TIME =
            TRIP_END_DATE + days(30)) |>
   mutate(USABLE_DATE_TIME =
-           `hour<-`(USABLE_DATE_TIME, 23)) |>
+           'hour<-'(USABLE_DATE_TIME, 23)) |>
   mutate(USABLE_DATE_TIME =
-           `minute<-`(USABLE_DATE_TIME, 59)) |>
+           'minute<-'(USABLE_DATE_TIME, 59)) |>
   mutate(USABLE_DATE_TIME =
-           `second<-`(USABLE_DATE_TIME, 59))
+           'second<-'(USABLE_DATE_TIME, 59))
 
 # subtract the usable date from the date of submission —
 # value is true if the logbook was submitted within 30 days, false if the logbook was not
@@ -1074,18 +1074,18 @@ SEFHIER_logbooks_processed <-
 # Explanation:
 #
 # 1. **Create New Dataframe:**
-#    - `SEFHIER_logbooks_processed_regions <- SEFHIER_logbooks_processed |> ...`: Create a new dataframe 'SEFHIER_logbooks_processed_regions' based on the 'SEFHIER_logbooks_processed' dataframe.
+#    - 'SEFHIER_logbooks_processed_regions <- SEFHIER_logbooks_processed |> ...': Create a new dataframe 'SEFHIER_logbooks_processed_regions' based on the 'SEFHIER_logbooks_processed' dataframe.
 #
 # 2. **Use 'mutate' to Add Column:**
-#    - `mutate(permit_sa_gom = dplyr::case_when(...))`: Utilize the 'mutate' function to add a new column 'permit_sa_gom' with values determined by the conditions specified in the 'case_when' function.
+#    - 'mutate(permit_sa_gom = dplyr::case_when(...))': Utilize the 'mutate' function to add a new column 'permit_sa_gom' with values determined by the conditions specified in the 'case_when' function.
 #
 # 3. **Conditions with 'case_when':**
-#    - `!grepl("RCG|HRCG|CHG|HCHG", PERMIT_GROUP) ~ "sa_only"`: If 'PERMIT_GROUP' does not contain the specified patterns, assign "sa_only".
-#    - `!grepl("CDW|CHS|SC", PERMIT_GROUP) ~ "gom_only"`: If 'PERMIT_GROUP' does not contain the specified patterns, assign "gom_only".
-#    - `.default = "dual"`: For any other case, assign "dual".
+#    - '!grepl("RCG|HRCG|CHG|HCHG", PERMIT_GROUP) ~ "sa_only"': If 'PERMIT_GROUP' does not contain the specified patterns, assign "sa_only".
+#    - '!grepl("CDW|CHS|SC", PERMIT_GROUP) ~ "gom_only"': If 'PERMIT_GROUP' does not contain the specified patterns, assign "gom_only".
+#    - '.default = "dual"': For any other case, assign "dual".
 #
 # 4. **'dplyr::' Prefix:**
-#    - `dplyr::case_when(...)`: Prefix 'dplyr::' is used to explicitly specify that the 'case_when' function is from the 'dplyr' package, ensuring there is no ambiguity if other packages also have a 'case_when' function.
+#    - 'dplyr::case_when(...)': Prefix 'dplyr::' is used to explicitly specify that the 'case_when' function is from the 'dplyr' package, ensuring there is no ambiguity if other packages also have a 'case_when' function.
 
 SEFHIER_logbooks_processed_p_regions <-
   SEFHIER_logbooks_processed |>
@@ -1200,14 +1200,14 @@ my_tee(removed_logbooks_and_vessels_text,
 ## a) compliance weeks ----
 
 # Explanations:
-# - `SEFHIER_logbooks_processed__compliance_weeks <-` assigns the final result of the pipeline to the variable `SEFHIER_logbooks_processed__compliance_weeks`.
-# - `SEFHIER_logbooks_processed_p_regions |>` starts the pipeline with the data frame `SEFHIER_logbooks_processed_p_regions`, allowing subsequent transformations.
-# - `mutate(` begins a transformation to add or modify columns in the data frame.
-#   - `COMP_END_YEAR = isoyear(COMP_WEEK_END_DT)` creates another new column `COMP_END_YEAR` by extracting the ISO year from the `COMP_WEEK_END_DT` column using the `isoyear` function.
-# - `filter( COMP_END_YEAR == my_year)` filters the rows of the data frame to include only those where `COMP_END_YEAR` is equal to the value of `my_year`.
-#  COMP_END_YEAR == my_year` is a logical condition that checks if column has the same value as `my_year`.
+# - 'SEFHIER_logbooks_processed__compliance_weeks <-' assigns the final result of the pipeline to the variable 'SEFHIER_logbooks_processed__compliance_weeks'.
+# - 'SEFHIER_logbooks_processed_p_regions |>' starts the pipeline with the data frame 'SEFHIER_logbooks_processed_p_regions', allowing subsequent transformations.
+# - 'mutate(' begins a transformation to add or modify columns in the data frame.
+#   - 'COMP_END_YEAR = isoyear(COMP_WEEK_END_DT)' creates another new column 'COMP_END_YEAR' by extracting the ISO year from the 'COMP_WEEK_END_DT' column using the 'isoyear' function.
+# - 'filter( COMP_END_YEAR == my_year)' filters the rows of the data frame to include only those where 'COMP_END_YEAR' is equal to the value of 'my_year'.
+#  COMP_END_YEAR == my_year' is a logical condition that checks if column has the same value as 'my_year'.
 #
-# This code processes the `SEFHIER_logbooks_processed_p_regions` data frame to include only the rows where the logbook end date falls within the specified year (`my_year`). It returns a new data frame stored in `SEFHIER_logbooks_processed__compliance_weeks` with the added columns for compliance end year and filtered based on the specified year.
+# This code processes the 'SEFHIER_logbooks_processed_p_regions' data frame to include only the rows where the logbook end date falls within the specified year ('my_year'). It returns a new data frame stored in 'SEFHIER_logbooks_processed__compliance_weeks' with the added columns for compliance end year and filtered based on the specified year.
 SEFHIER_logbooks_processed__compliance_weeks <-
   SEFHIER_logbooks_processed_p_regions |>
   mutate(COMP_END_YEAR = isoyear(COMP_WEEK_END_DT)
