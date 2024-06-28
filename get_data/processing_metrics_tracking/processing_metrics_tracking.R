@@ -43,8 +43,8 @@ Outputs <- "Outputs/"
 
 # Set the date ranges for the logbook and compliance data you are pulling
 # this is the year to assign to the output file name
-# my_year <- '2022'
-my_year <- '2023'
+my_year <- '2022'
+# my_year <- '2023'
 # my_year <- '2024'
 
 # ---
@@ -97,7 +97,7 @@ curr_dates <- get_the_dates(my_year)
 my_date_beg <- curr_dates$my_date_beg
 my_date_end <- curr_dates$my_date_end
 
-# 'my_date_beg’ and 'my_date_end’ represent the maximum and minimum compliance weeks #that  my_year falls into. This may include week 52 of the previous year, and/or week 1 of the #next year, because 365 days do not neatly fit into 52 weeks. These values are the bookends #for the entire range of compliance weeks that encompass the current year.
+# 'my_date_beg’ and 'my_date_end’ represent the maximum and minimum compliance weeks that  my_year falls into. This may include week 52 of the previous year, and/or week 1 of the next year, because 365 days do not neatly fit into 52 weeks. These values are the bookends for the entire range of compliance weeks that encompass the current year.
 
 # — This section produces a log output file that details the variables defined here
 # Pretty message print
