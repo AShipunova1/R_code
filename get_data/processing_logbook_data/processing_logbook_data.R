@@ -88,9 +88,9 @@ dir.exists(output_file_path)
 
 # Set the date ranges for the logbook and compliance data you are pulling
 # this is the year to assign to the output file name
-# my_year <- "2022"
+my_year <- "2022"
 # my_year <- "2023"
-my_year <- "2024"
+# my_year <- "2024"
 
 # years range for srfh_vessel_comp db download, see below
 # this should at least run the year before my_year to the year after my_year
@@ -307,7 +307,7 @@ compl_override_data_file_path <-
             str_glue("Raw_Oracle_Downloaded_compliance_{db_year_1}_to_{db_year_2}.rds"))
 
 # Check if the file path is correct, optional
-# file.exists(compl_override_data_file_path)
+file.exists(compl_override_data_file_path)
 
 # 2) Create a variable with a table name to call data from, define year.
 # >= 2021 because of when the program started or between 2 years defined above
@@ -412,10 +412,10 @@ compl_override_data__renamed <-
 
 # stats
 my_stats(compl_override_data__renamed)
-# compl_override_data__renamed
-# rows: 460724
+# 2022
+# rows: 310842
 # columns: 23
-# Unique vessels: 4390
+# Unique vessels: 4087
 
 # stats (check the min date in the data)
 min(compl_override_data__renamed$COMP_WEEK_START_DT)
@@ -442,7 +442,7 @@ compl_override_data__renamed__this_year <-
   )
 
 # check
-# min(compl_override_data__renamed__this_year$COMP_WEEK_START_DT)
+min(compl_override_data__renamed__this_year$COMP_WEEK_START_DT)
 # [1] "2021-12-27 EST" # this might contain the last week in the year before my_year, to account for dates in my_year that fall in a compliance week of a different year
 min(compl_override_data__renamed__this_year$COMP_WEEK_END_DT)
 # [1] "2022-01-02 EST" # this might contain the last week in the year before my_year, to account for dates in my_year that fall in a compliance week of a different year
@@ -495,6 +495,7 @@ WHERE
     trip_end_date >= TO_DATE('{my_date_beg}', 'yyyy-mm-dd')
   AND trip_end_date <= TO_DATE('{my_date_end}', 'yyyy-mm-dd')"
   )
+
 # We only use trip end date to determine what week and year the trip "belongs" to
 
 # Use 'read_rds_or_run_query' defined above to either read logbook information from an RDS file or execute a query to obtain it and write a file for future use.
@@ -516,8 +517,17 @@ my_stats(Logbooks_raw_renamed, "Logbooks from the db")
 # 2022
 # rows: 327847
 # columns: 149
+# Unique vessels: 1900
+# Unique trips: 96014
+
+# 2023
+# after changing the query to the last 3 years
+# rows: 181127
+# columns: 149
 # Unique vessels: 1885
 # Unique trips (logbooks): 94737
+# Unique vessels: 1719
+# Unique trips: 57038
 
 ### reformat trip start/end date ----
 # Explanation: date and time clean-up
@@ -601,7 +611,7 @@ Logbooks_raw_renamed__to_date_time4 <-
 # first check the min and max start date in the DF
 min(Logbooks_raw_renamed__to_date_time4$TRIP_START_DATE)
 # [1] "2022-01-01"
-# [1] "2023-01-01"
+# [1] "2022-02-25" (for 2023)
 max(Logbooks_raw_renamed__to_date_time4$TRIP_START_DATE)
 # [1] "2022-12-31"
 # [1] "2023-12-31"
@@ -627,15 +637,21 @@ logbooks_stat_correct_dates_before_filtering <-
     n_distinct(Logbooks_raw_renamed__to_date_time4__my_year$TRIP_ID)
   )
 # [1] 327823    149   1885  94733
+# [1] 332720    149   1900  96014 (2022)
+# [1] 181127    149   1719  57038 (2023)
 
 # check the number of logbooks after filtering by my analysis year
 my_stats(Logbooks_raw_renamed__to_date_time4__my_year,
          "Logbooks after filtering by dates")
 # Logbooks after filtering by dates
 # rows: 327823
+# 2023
+# rows: 181127
 # columns: 149
 # Unique vessels: 1885
 # Unique trips: 94733
+# Unique vessels: 1719
+# Unique trips: 57038
 
 # check the min and max end dates, after filtering DF to just my analysis year
 min(Logbooks_raw_renamed__to_date_time4__my_year$TRIP_END_DATE)
@@ -741,6 +757,8 @@ vessels_not_in_metrics
 my_tee(vessels_not_in_metrics,
        "Vessels removed if a vessel is not in Metrics tracking")
 # 244 (2022)
+# 119 (2022)
+# 287 (2023)
 
 ## add compliance/override data to logbooks ----
 # We add data from the compliance module to the DNF data frame to associate weeks where compliance was overridden with the corresponding DNFs.
@@ -756,9 +774,15 @@ my_tee(vessels_not_in_metrics,
 my_stats(SEFHIER_compl_override_data__renamed__this_year,
          "Compliance and override data from the db")
 # Compliance and override data from the db
+# 2022
 # rows: 141557
 # columns: 23
 # Unique vessels: 3382
+# 2023
+# rows: 145219
+# columns: 23
+# Unique vessels: 3357
+
 
 ### join the data frames ----
 
@@ -822,6 +846,11 @@ my_stats(logbooks_join_overr__all_logbooks)
 # columns: 173
 # Unique vessels: 3426
 # Unique trips: 94734
+# 2023
+# rows: 181132
+# columns: 173
+# Unique vessels: 1719
+# Unique trips: 57038
 
 ### Add a compliant_after_override column ----
 # This is needed so that we can easily filter out compliant or non-compliant vessels in the dataset, by adding an extra column that states yes or no regarding compliance. The NA in IS_COMP represents one of two possible scenarios: 1) a logbook was submitted for a vessel that is missing from the compliance module but is in metrics tracking, or 2) a logbook was submitted for a week when the vessel was not permitted. It is not simple to determine which. Deciding what to do with these DNFs will depend on the individual analysis question, and so is not addressed here, but simply left as NA.
@@ -842,13 +871,14 @@ my_stats(logbooks_join_overr__all_logbooks)
 logbooks_join_overr__all_logbooks |>
   select(IS_COMP,
          OVERRIDDEN) |>
-  distinct()
+  distinct() |>
+  arrange(IS_COMP, OVERRIDDEN)
 #   IS_COMP OVERRIDDEN
-# 1       1          0
-# 2       1          1
-# 3      NA         NA
-# 4       0          1
-# 5       0          0
+# 1       0          0
+# 2       0          1
+# 3       1          0
+# 4       1          1
+# 5      NA         NA
 
 ## NOTE: IF "Is_Overriden == 1 & is_Comp == 0, then the vessel should be considered compliant in any compliance analyses
 
@@ -912,6 +942,11 @@ my_stats(logbooks_join_overr__compl__start_end_ok)
 # columns: 175
 # Unique vessels: 1882
 # Unique trips: 94060
+# 2023
+# rows: 180472
+# columns: 175
+# Unique vessels: 1714
+# Unique trips: 56880
 
 # create a tibble of all trips with time_stamp_Error
 thrown_by_time_stamp_error <-
@@ -955,6 +990,7 @@ logbooks_too_long <-
 # number of trips thrown out because they exceed 10 days
 my_tee(n_distinct(logbooks_too_long$TRIP_ID),
        "Thrown away by trip_more_10_days (logbooks num)")
+
 # number of vessels impacted by tossing logbooks that exceed 10 day threshold
 my_tee(n_distinct(logbooks_too_long$VESSEL_ID),
        "Thrown away by trip_more_10_days (vessels num)")
@@ -1106,11 +1142,17 @@ my_stats(SEFHIER_logbooks_processed)
 # columns: 178
 # Unique vessels: 1882
 # Unique trips: 94060
+# 2023
+# rows: 180404
+# columns: 178
+# Unique vessels: 1711
+# Unique trips: 56848
 
 # number of logbooks from Oracle, before any processing done
 logbooks_before_filtering <-
   n_distinct(Logbooks_raw$TRIP_ID)
 # 94737 (2022)
+# 57038 (2023)
 
 # call out to console the # of logbooks before filtering
 my_tee(logbooks_before_filtering,
@@ -1120,6 +1162,7 @@ my_tee(logbooks_before_filtering,
 logbooks_after_filtering <-
   n_distinct(SEFHIER_logbooks_processed$TRIP_ID)
 # 94060 (2022)
+# 56848 (2023)
 
 # call out to console the # of logbooks before filtering
 my_tee(logbooks_after_filtering,
@@ -1137,6 +1180,7 @@ percent_of_removed_logbooks <-
 cat(percent_of_removed_logbooks, sep = "\n")
 # 5.400213 2022
 # 0.7146099 if keep overridden
+# 0.3331113 (2023)
 
 # number removed_vessels, after processing the logbook data from Oracle
 vessels_before_filtering <-
@@ -1179,9 +1223,7 @@ my_tee(removed_logbooks_and_vessels_text,
 
 # this is an optional line that will produce a subset of the final dataset, if you want to check that the results in these column came out correctly
 # check_results <-
-# SEFHIER_logbooks_processed_p_regions[, c(1:7, 10:13, 60, 150:153, 159:163, 174:178)]
-
-
+#   SEFHIER_logbooks_processed_p_regions[, c(1:7, 10:13, 60, 150:153, 159:163, 174:178)]
 
 # Export processed logbooks ----
 
@@ -1214,7 +1256,7 @@ SEFHIER_logbooks_processed__compliance_weeks <-
   ) |>
   filter(COMP_END_YEAR == my_year)
 
-# check
+# check for 2023
 SEFHIER_logbooks_processed__compliance_weeks |>
   filter(COMP_WEEK_START_DT == "2022-12-26") |>
   dim()
