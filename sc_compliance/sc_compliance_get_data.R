@@ -10,10 +10,10 @@ library(ROracle)
 ## Import compliance/override data ----
 # Prepare variables to use as parameters for read_rds_or_run_query()
 ### 1) Use file.path to construct the path to a file from components. ----
-# It will add the correct slashes between path parts.
+# file.path will add the correct slashes between path parts.
 compl_override_data_file_path <-
   file.path(processed_data_path,
-            "Raw_Oracle_Downloaded_compliance_2021_plus.rds")
+            "Raw_Oracle_Downloaded_compliance_2022_to_2024.rds")
 
 # Check if the file path is correct, optional
 file.exists(compl_override_data_file_path)
@@ -37,11 +37,13 @@ compl_override_data_fun <-
   }
 
 ### 4) make and run the function ----
+#' try to connect to the Oracle db
 try(con <- connect_to_secpr())
 
 get_compl_override_data <-
   function() {
-    auxfunctions::read_rds_or_run(my_file_path = compl_override_data_file_path,
+    auxfunctions::read_rds_or_run(my_file_path =
+                                    compl_override_data_file_path,
                                   compl_override_data_query,
                                   my_function = compl_override_data_fun)
   }
