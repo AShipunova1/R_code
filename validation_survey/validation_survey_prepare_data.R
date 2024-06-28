@@ -337,9 +337,14 @@ fuzzyjoin_vessel_ids__dist_grp__match_dist2 <-
 dplyr::n_distinct(fuzzyjoin_vessel_ids__dist_grp__match_dist2$survey_vessel_id)
 # 61
 
-# readr::write_csv(fuzzyjoin_vessel_ids__dist_grp__match_dist2,
-                 # file.path(curr_proj_output_path,
-                           # "fuzzyjoin_vessel_ids__dist_grp__match_dist2.csv"))
+#' write out the fuzy match result
+fuzzyjoin_vessel_ids__dist_grp__match |>
+  rowwise() |>
+  mutate_if(is.list, ~ paste(unlist(.), collapse = ', ')) |>
+  readr::write_csv(file.path(
+    curr_proj_output_path,
+    "fuzzyjoin_vessel_ids__dist_grp__match.csv"
+  ))
 
 ## add back info to the fuzzy match ----
 
