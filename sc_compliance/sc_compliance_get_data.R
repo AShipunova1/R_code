@@ -232,7 +232,7 @@ compl_override_data__renamed_m_short__m_compl |>
 # set the path to processed logbook data
 logbook_file_path <-
   file.path(processed_data_path,
-            stringr::str_glue("SEFHIER_processed_Logbooks_{my_year}.rds"))
+            stringr::str_glue("SEFHIER_logbooks_processed__calendar_{my_year}.rds"))
 
 file.exists(logbook_file_path)
 
