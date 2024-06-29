@@ -1,5 +1,3 @@
-library(fuzzyjoin)
-
 #' how many interviews with no logbooks?
 #' 
 
