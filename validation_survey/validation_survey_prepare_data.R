@@ -1,4 +1,5 @@
 library(english)
+library(fuzzyjoin)
 
 # prepare data ----
 
@@ -275,7 +276,7 @@ fuzzyjoin_vessel_ids_matched |>
 
 ## fix if a vessel is in more than in one distance group ----
 
-#' change distance to words, to easier operations with column names
+#' change distance to words, for easier operations with column names
 fuzzyjoin_vessel_ids__dist_grp <- 
   fuzzyjoin_vessel_ids_matched |>
   dplyr::select(survey_vessel_id, permit_vessel_id, vessel_id_dist) |>
@@ -346,7 +347,7 @@ fuzzyjoin_vessel_ids__dist_grp__match |>
     "fuzzyjoin_vessel_ids__dist_grp__match.csv"
   ))
 
-## add back info to the fuzzy match ----
+## add all info back to the fuzzy match ----
 
 #' keep the result only
 fuzzyjoin_vessel_ids__dist_grp__match_solo <- 
@@ -484,7 +485,8 @@ survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored <-
   dplyr::rowwise() |>
   dplyr::mutate(temp_res =
                   case_when(is.na(st) ~
-                              paste(unlist(states_l_by_cnty_v), collapse = ""), 
+                              paste(unlist(states_l_by_cnty_v), 
+                                collapse = ""), 
                             .default = st)) |>
   dplyr::mutate(restored_st =
                   stringr::str_extract(temp_res, "\\d+")) |>
