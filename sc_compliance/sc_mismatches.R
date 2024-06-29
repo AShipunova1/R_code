@@ -9,7 +9,7 @@ if (!require(tool_packages[[1]], character.only = T, quietly = T)) {
 }
 
 if (!require(tool_packages[[2]], character.only = T, quietly = T)) {
-  devtools::install_github("AShipunova1/R_code/auxfunctions@development")
+  devtools::install_github("AShipunova1/R_code/auxfunctions")
 }
 
 purrr::map(tool_packages, \(package) {
@@ -22,9 +22,9 @@ my_paths <- set_work_dir()
 # from FHIER
 # https://grunt.sefsc.noaa.gov/apex/f?p=162...
 
-csv_names_list = list(r"(sc_mismatches\2024_06\fhier_report_06_05_2024.csv)")
+csv_names_list = list(r"(sc_mismatches\2024_07\fhier_report_06_28_2024.csv)")
 
-xsl_names_list = list(r"(sc_mismatches\2024_06\scdnrFedVessels_05312024.xlsx)")
+xsl_names_list = list(r"(sc_mismatches\2024_07\scdnrFedVessels_06282024.xlsx)")
 
 SC_vessels_FHIERData_0 <- load_csv_names(my_paths$inputs, csv_names_list)[[1]]
 
