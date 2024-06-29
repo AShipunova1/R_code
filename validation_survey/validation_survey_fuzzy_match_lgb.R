@@ -58,3 +58,21 @@ db_logbooks_2022_short_date_time__short |>
   glimpse()
 # 2 trips in a day
 
+
+lgb_join_i1__t_diff_short_has_trip <-
+  lgb_join_i1__t_diff_short |>
+  dplyr::filter(!is.na(TRIP_ID))
+
+dim(lgb_join_i1__t_diff_short_has_trip)
+# 1197    
+
+# Don't have logbooks ----
+lgb_join_i1_fuzzy_matched_has_no_trip <-
+  lgb_join_i1_fuzzy_matched |>
+  dplyr::filter(is.na(TRIP_ID))
+
+dim(lgb_join_i1_fuzzy_matched)
+# [1] 2309    4
+dim(lgb_join_i1_fuzzy_matched_has_no_trip)
+# 1322
+
