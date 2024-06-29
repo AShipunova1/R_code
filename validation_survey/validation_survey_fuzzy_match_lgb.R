@@ -9,12 +9,12 @@ fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv |>
 
 db_logbooks_2022_short_date_time__short <-
   db_logbooks_2022_short_date_time |>
-  select(VESSEL_OFFICIAL_NBR, trip_end_date_only) |> 
+  select(VESSEL_OFFICIAL_NBR, trip_end_date_only, TRIP_ID) |> 
   distinct()
 
 fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv__short <-
   fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv |>
-  select(SERO_OFFICIAL_NUMBER, interview_date) |>
+  select(SERO_OFFICIAL_NUMBER, interview_date, id_code) |>
   distinct()
 
 lgb_join_i1_fuzzy_matched  <-
@@ -24,7 +24,37 @@ lgb_join_i1_fuzzy_matched  <-
     dplyr::join_by(
       VESSEL_OFFICIAL_NBR == SERO_OFFICIAL_NUMBER,
       trip_end_date_only == interview_date
-    )
+    ),
+    relationship = "many-to-many"
   )
 
-View(lgb_join_i1_fuzzy_matched)
+n_distinct(lgb_join_i1_fuzzy_matched$VESSEL_OFFICIAL_NBR)
+# 378
+
+## many-to-many relationship ----
+#' ℹ Row 1391 of `x` matches multiple rows in `y`.
+
+db_logbooks_2022_short_date_time__short_1391 <-
+  db_logbooks_2022_short_date_time__short[1391, ]
+
+glimpse(db_logbooks_2022_short_date_time__short_1391)
+
+fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv__short |>
+  filter(SERO_OFFICIAL_NUMBER == db_logbooks_2022_short_date_time__short_1391$VESSEL_OFFICIAL_NBR &
+           interview_date == db_logbooks_2022_short_date_time__short_1391$trip_end_date_only)  |> 
+  glimpse()
+# 2 id_codes in a day
+
+# ℹ Row 574 of `y` matches multiple rows in `x`.
+
+fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv__short_574 <-
+  fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv__short[574, ]
+
+# glimpse(fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv__short_574)
+
+db_logbooks_2022_short_date_time__short |>
+  filter(VESSEL_OFFICIAL_NBR == fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv__short_574$SERO_OFFICIAL_NUMBER &
+           trip_end_date_only == fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv__short_574$interview_date)  |> 
+  glimpse()
+# 2 trips in a day
+
