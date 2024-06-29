@@ -268,7 +268,6 @@ compliant_vessels_in_sc_and_non_compl_fhier__for_output <-
 dim(compliant_vessels_in_sc_and_non_compl_fhier__for_output)
 # [1] 559   7
 
-# TODO: add spreadsheets
 ## 3. List of vessels non compliant in both ----
 sc__fhier_compl__join_w_month__non_compl_in_both <-
   sc__fhier_compl__join_w_month |>
@@ -286,8 +285,6 @@ sc__fhier_compl__join_w_month__compl_in_both <-
 
 dim(sc__fhier_compl__join_w_month__compl_in_both)
 # [1] 7759   24
-
-# TODO: check if March non compl is the same as in the previous SC file
 
 # Write results to xlsx ----
 # 1. Create a wb with all output dfs ----
@@ -550,6 +547,6 @@ output_file_name <-
   file.path(output_path,
             stringr::str_glue("sc_compliance_{sc_file_date}.xlsx"))
 
-# write the workbook unto file
+# write the workbook unto a file
 openxlsx::saveWorkbook(wb, output_file_name, overwrite = T)
 
