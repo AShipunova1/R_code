@@ -115,7 +115,7 @@ processed_logbooks_2022 <-
   readr::read_rds(
     file.path(
       my_paths$inputs,
-      r"(processing_logbook_data\Outputs\SEFHIER_processed_Logbooks_2022.rds)"
+      r"(processing_logbook_data\Outputs\SEFHIER_processed_Logbooks_compliance_weeks_2022.rds)"
     )
   )
 
