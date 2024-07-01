@@ -60,28 +60,3 @@ lgb_join_i1__t_diff_short_has_no_trip_not_empty__with_total_cnts__with_no_lgb_cn
   head() |> 
   glimpse()
 
-int_no_lgb_by_state_to_plot_w_labels <- 
-  make_state_labels_w_cnts(lgb_join_i1__t_diff_short_has_no_trip_not_empty__with_total_cnts__with_no_lgb_cnts_perc,
-           "percent_st_label")
-   
-
-no_state_lgb_num <- 
-lgb_join_i1__t_diff_short_has_no_trip_not_empty__with_total_cnts__with_no_lgb_cnts |> 
-  filter(st_2 == '00') |> 
-  select(no_lgb_int_by_state) |> 
-  distinct()
-
-
-plot_counties_res_with_labels <-
-  lgb_join_i1__t_diff_short_has_no_trip_not_empty__with_total_cnts__with_no_lgb_cnts_perc |> 
-  plot_counties(county_cnt_col_name = "percent_cnty_round")  +
-  add_state_labels(int_no_lgb_by_state_to_plot_w_labels) +
-  add_st_boundaries() +
-  ggplot2::labs(
-    title = "Percent of interviews without logbooks by state/county",
-    caption = stringr::str_glue(
-      "{no_state_lgb_num$no_lgb_int_by_state} interviews have no state info and are not included."
-    )
-  )
-
-plot_counties_res_with_labels
