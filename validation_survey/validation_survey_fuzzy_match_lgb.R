@@ -4,7 +4,6 @@ fuzzyjoin_vessel_ids__dist_grp__match_solo__join_back_surv |>
 
 # survey_vessel_id, matching_vessel_id, matching_vessel_id_regex, SERO_HOME_PORT_CITY, SERO_HOME_PORT_COUNTY, SERO_HOME_PORT_STATE, SERO_OFFICIAL_NUMBER, COAST_GUARD_NBR, EVENT_ID, HULL_ID_NBR, OWNER_ID, STATE_REG_NBR, V_STATUS, SUPPLIER_VESSEL_ID, UE, V_VESSEL_ID, VESSEL_NAME, EFFECTIVE_DATE, END_DATE, ENTITY_ID, EXPIRATION_DATE, NEW_OWNER, PERMIT, PERMIT_STATUS, PRIOR_OWNER, VESSEL_ALT_NUM, P_VESSEL_ID, FIRST_NAME, MIDDLE_NAME, LAST_NAME, NAME_SUFFIX, ADDRESS_1, ADDRESS_2, STATE, POSTAL_CODE, PHONE_NBR, EMAIL, LICENSE_NBR, PARTICIPANT_ID, PERMIT_ID, F_P_STATUS, permit_vessel_id, id_code, time, hrsf, year, wave, sub_reg, intsite, vessel_name, num_typ2, num_typ3, status, for_hire_permit, la_charter_license, prefix1, prefix2, la_charter_permit_number, operating_type, srhs_vessel, interviewee_f_name, interviewee_l_name, interviewee_m_name, interviewee_suffix, interviewee_role, fishing_distance, people_fishing, no_harvested_selected, permit_number1, permit_number2, vsl_num, cnty, date1, st, comments, int_year, int_month, int_day, interview_date, int_hour, int_sec, interview_date_time, minutes_fishing, start_time
 
-
 # JOIN interview and logbooks by day and fuzzy-matched vessel ----
 
 db_logbooks_2022_short_date_time__short <-
@@ -58,7 +57,6 @@ db_logbooks_2022_short_date_time__short |>
   glimpse()
 # 2 trips in a day
 
-
 lgb_join_i1__t_diff_short_has_trip <-
   lgb_join_i1__t_diff_short |>
   dplyr::filter(!is.na(TRIP_ID))
@@ -66,13 +64,20 @@ lgb_join_i1__t_diff_short_has_trip <-
 dim(lgb_join_i1__t_diff_short_has_trip)
 # 1197    
 
+n_distinct(lgb_join_i1__t_diff_short_has_trip$id_code)
+# [1] 1002
+
 # Don't have logbooks ----
 lgb_join_i1_fuzzy_matched_has_no_trip <-
   lgb_join_i1_fuzzy_matched |>
   dplyr::filter(is.na(TRIP_ID))
+
+n_distinct(lgb_join_i1_fuzzy_matched_has_no_trip$id_code)
+# 918
 
 dim(lgb_join_i1_fuzzy_matched)
 # [1] 2309    4
 dim(lgb_join_i1_fuzzy_matched_has_no_trip)
 # 1322
 
+# Still a half has no lgbs
