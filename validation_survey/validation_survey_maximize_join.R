@@ -156,7 +156,7 @@ survey_data_l_2022_vsl_date_time <-
       lubridate::make_datetime(int_year, int_month, int_day, int_hour, int_sec, tz = Sys.timezone())
   )
 
-str(survey_data_l_2022_vsl_date_time)
+# str(survey_data_l_2022_vsl_date_time)
 
 survey_data_l_2022_i1_w_dates <-
   dplyr::inner_join(survey_data_l_2022$i1,
@@ -185,6 +185,7 @@ survey_data_l_2022_i1_w_dates_clean_vsl <-
   survey_data_l_2022_i1_w_dates |>
   clean_up_survey_vessel_ids()
 
+## change NA vsl_num from survey ----
 survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num <- 
   survey_data_l_2022_i1_w_dates_clean_vsl |> 
   mutate(survey_vessel_id = tidyr::replace_na(vsl_num, ""))
@@ -198,4 +199,11 @@ vessel_permit_owner_from_db_clean_vsl <-
   vessel_permit_owner_from_db |> 
   mutate(permit_vessel_id = tolower(P_VESSEL_ID))
   
-## change NA vsl_num from survey ----
+# fuzzyjoin by vessel_ids ----
+fuzzyjoin_vessel_ids <-
+  fuzzyjoin::stringdist_left_join(
+    survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num,
+    vessel_permit_owner_from_db_clean_vsl,
+    by = c("survey_vessel_id" = "permit_vessel_id"),
+    distance_col = "vessel_id_dist"
+  )
