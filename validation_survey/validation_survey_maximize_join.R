@@ -375,6 +375,13 @@ dim(fuzzyjoin_vessel_ids)
 
 ## keep each vessel in only one distance group ----
 
+# Note the extra distance column, which in this case will always be less than or equal to 2. We could then pick the closest match for each, and examine how many of our closest matches were 1 or 2 away:
+
+closest <- fuzzyjoin_vessel_ids %>%
+  group_by(survey_vessel_id) %>%
+  slice_max(vessel_id_dist, n = 1) %>%
+  ungroup()
+
 ### change distance to words ----
 #' for easier operations with column names 
 #' 
