@@ -358,7 +358,7 @@ fuzzyjoin_vessel_ids <-
   fuzzyjoin::stringdist_left_join(
     survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num__short,
     vessel_permit_owner_from_db_clean_vsl__cln_county__short__fips,
-    by = c("survey_vessel_id" = "permit_vessel_id"),
+    by = c("survey_vessel_id" = "SERO_OFFICIAL_NUMBER"),
     distance_col = "vessel_id_dist"
   ) |> 
   distinct()
@@ -366,14 +366,14 @@ fuzzyjoin_vessel_ids <-
 dim(fuzzyjoin_vessel_ids)
 # [1] 32776    58
 
-## keep a vessel in only one distance group ----
+## keep each vessel in only one distance group ----
 
 ### change distance to words ----
 #' for easier operations with column names 
 #' 
 fuzzyjoin_vessel_ids__dist_char <-
   fuzzyjoin_vessel_ids |>
-  dplyr::select(survey_vessel_id, permit_vessel_id, vessel_id_dist) |>
+  dplyr::select(survey_vessel_id, SERO_OFFICIAL_NUMBER, vessel_id_dist) |>
   dplyr::distinct() |>
   dplyr::mutate(vessel_id_dist = english::english(vessel_id_dist))
 
@@ -382,7 +382,7 @@ fuzzyjoin_vessel_ids__dist_char__no_na <-
   fuzzyjoin_vessel_ids__dist_char |>
   dplyr::filter(stats::complete.cases(vessel_id_dist))
 
-#' pivot wider 
+#' pivot wider to combine vessel ids by match distances
 # Explanations:
 # - `fuzzyjoin_vessel_ids__dist_char__no_na |>` starts the pipeline with the data frame `fuzzyjoin_vessel_ids__dist_char__no_na`.
 # - `tidyr::pivot_wider(names_from = vessel_id_dist, values_from = permit_vessel_id, values_fn = list)` reshapes the data from long to wide format:
@@ -396,7 +396,7 @@ fuzzyjoin_vessel_ids__dist_char__no_na <-
 fuzzyjoin_vessel_ids__dist_grp <-
   fuzzyjoin_vessel_ids__dist_char__no_na |>
     tidyr::pivot_wider(names_from = vessel_id_dist,
-                     values_from = permit_vessel_id,
+                     values_from = SERO_OFFICIAL_NUMBER,
                      values_fn = list)
 
 #' check
@@ -406,7 +406,7 @@ fuzzyjoin_vessel_ids__dist_grp |>
 
 fuzzyjoin_vessel_ids__dist_grp[2,] |> glimpse()
 
-### keep a vessel only in one group ----
+### keep a vessel in one distance group only ----
 #' if there is a full match - no changes,
 #' if no full match, but there is a match with a distance equal 1 - use it,
 #' otherwise - all matches with the distacne equal 2
@@ -487,7 +487,7 @@ fuzzyjoin_vessel_ids__dist_grp__match_solo__add_back_pims <-
            paste(matching_vessel_ids, collapse = "|")) |>
   fuzzyjoin::regex_left_join(
     vessel_permit_owner_from_db_clean_vsl__cln_county__short__fips,
-    by = c("matching_vessel_id_regex" = "permit_vessel_id")
+    by = c("matching_vessel_id_regex" = "SERO_OFFICIAL_NUMBER")
   ) |>
   ungroup()
 
