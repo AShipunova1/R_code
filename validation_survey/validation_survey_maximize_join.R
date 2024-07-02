@@ -354,7 +354,7 @@ fuzzyjoin_vessel_ids <-
   ) |> 
   distinct()
 
-dim(fuzzyjoin_vessel_ids)
+# View(fuzzyjoin_vessel_ids)
 # [1] 32776    58
 
 ## keep a vessel in only one distance group
@@ -367,9 +367,35 @@ fuzzyjoin_vessel_ids__dist_char <-
   dplyr::select(survey_vessel_id, permit_vessel_id, vessel_id_dist) |>
   dplyr::distinct() |>
   dplyr::mutate(vessel_id_dist = english::english(vessel_id_dist))
+
+#' keep complete cases only 
 fuzzyjoin_vessel_ids__dist_char__no_na <-
   fuzzyjoin_vessel_ids__dist_char |>
   dplyr::filter(stats::complete.cases(vessel_id_dist))
+
+# Explanations:
+# - `fuzzyjoin_vessel_ids__dist_char__no_na |>` starts the pipeline with the data frame `fuzzyjoin_vessel_ids__dist_char__no_na`.
+# - `tidyr::pivot_wider(names_from = vessel_id_dist, values_from = permit_vessel_id, values_fn = list)` reshapes the data from long to wide format:
+#   - `tidyr::pivot_wider()` is used to transform a data frame from long to wide format.
+#   - `names_from = vessel_id_dist` specifies that the new column names in the wide format will come from the `vessel_id_dist` column.
+#   - `values_from = permit_vessel_id` specifies that the values to fill the new columns will come from the `permit_vessel_id` column.
+#   - `values_fn = list` specifies that if there are multiple values for a given `vessel_id_dist`, they should be combined into a list.
+# 
+# This code takes the `fuzzyjoin_vessel_ids__dist_char__no_na` data frame and pivots it to a wider format. In the wide format, new column names are derived from the unique values of `vessel_id_dist`, and the corresponding values from `permit_vessel_id` are placed in these new columns. If multiple `permit_vessel_id` values correspond to the same `vessel_id_dist`, they are combined into a list.
+
+fuzzyjoin_vessel_ids__dist_grp <-
+  fuzzyjoin_vessel_ids__dist_char__no_na |>
+    tidyr::pivot_wider(names_from = vessel_id_dist,
+                     values_from = permit_vessel_id,
+                     values_fn = list)
+
+#' check
+fuzzyjoin_vessel_ids__dist_grp |> 
+  head() |> 
+  glimpse()
+
+fuzzyjoin_vessel_ids__dist_grp[2,] |> glimpse()
+
 #' too many vessels for the same id_code
 #' 
 #' filters for fuzzy matching vessel ids
