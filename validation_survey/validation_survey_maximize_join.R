@@ -264,6 +264,27 @@ survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v |>
   glimpse()
 # 0
   
+#' restore state for each vessel/county if possible,
+#' collapse "NA" and the state code in a string and extract the code only
+survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored <- 
+  survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v |>
+  dplyr::rowwise() |>
+  dplyr::mutate(temp_res =
+                  case_when(is.na(st) ~
+                              paste(unlist(states_l_by_cnty_v), 
+                                collapse = ""), 
+                            .default = st)) |>
+  dplyr::mutate(restored_st =
+                  stringr::str_extract(temp_res, "\\d+")) |>
+  dplyr::select(-temp_res) |>
+  dplyr::ungroup()
+
+#' check 
+survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored |> 
+  distinct() |>
+  head() |> 
+  glimpse()
+
 
 # Prepare FIPS codes ----
 ## unify_county_names in fips code ----
