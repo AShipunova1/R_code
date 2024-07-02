@@ -202,15 +202,6 @@ vessel_permit_owner_from_db_clean_vsl <-
 ## unify county names ----
 words_to_remove <- " county| parish| municipio| islands| island| municipality| district| city"
 
-#### unify_county_names in fips code ----
-fips_code_to_use <-
-  tidycensus::fips_codes |>
-  unify_county_names("county")
-
-# glimpse(fips_code_to_use)
-
-#### unify_county_names in PIMS data ----
-
 unify_county_names <- function(my_df, county_col_name) {
   res_df <-
     my_df |>
@@ -226,6 +217,15 @@ unify_county_names <- function(my_df, county_col_name) {
   
   return(res_df)  
 }
+
+#### unify_county_names in fips code ----
+fips_code_to_use <-
+  tidycensus::fips_codes |>
+  unify_county_names("county")
+
+# glimpse(fips_code_to_use)
+
+#### unify_county_names in PIMS data ----
 
 vessel_permit_owner_from_db_clean_vsl__cln_county <- 
   vessel_permit_owner_from_db_clean_vsl |>
@@ -246,6 +246,31 @@ grep("john",
      fips_code_to_use$county_short, 
      value = T) |> 
   unique()
+
+#### shorten pims data ----
+pims_data_cols_to_keep <-
+  c(
+    "SERO_HOME_PORT_COUNTY",
+    "SERO_HOME_PORT_STATE",
+    "SERO_OFFICIAL_NUMBER",
+    "VESSEL_NAME",
+    "PERMIT",
+    "P_VESSEL_ID",
+    "FIRST_NAME",
+    "MIDDLE_NAME",
+    "LAST_NAME",
+    "STATE",
+    "permit_vessel_id",
+    "county_short"
+  )
+
+vessel_permit_owner_from_db_clean_vsl__cln_county__short <- 
+  vessel_permit_owner_from_db_clean_vsl__cln_county |> 
+  dplyr::select(tidyselect::all_of(pims_data_cols_to_keep)) |> 
+  distinct()
+
+dim(vessel_permit_owner_from_db_clean_vsl__cln_county__short)
+# [1] 18992    12
 
 # Fuzzyjoin PIMS & survey by vessel_ids ----
 fuzzyjoin_vessel_ids <-
