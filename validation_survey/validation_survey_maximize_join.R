@@ -286,11 +286,9 @@ pims_data_cols_to_keep <-
     "SERO_OFFICIAL_NUMBER",
     "VESSEL_NAME",
     "PERMIT",
-    "P_VESSEL_ID",
     "FIRST_NAME",
     "MIDDLE_NAME",
     "LAST_NAME",
-    "permit_vessel_id",
     "county_short"
   )
 
