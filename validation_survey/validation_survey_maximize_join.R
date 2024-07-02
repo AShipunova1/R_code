@@ -347,8 +347,8 @@ vessel_permit_owner_from_db_clean_vsl__cln_county__short |>
 # Fuzzyjoin PIMS & survey by vessel_ids ----
 fuzzyjoin_vessel_ids <-
   fuzzyjoin::stringdist_left_join(
-    survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num,
-    vessel_permit_owner_from_db_clean_vsl__cln_county,
+    survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num__short,
+    vessel_permit_owner_from_db_clean_vsl__cln_county__short__fips,
     by = c("survey_vessel_id" = "permit_vessel_id"),
     distance_col = "vessel_id_dist"
   ) |> 
