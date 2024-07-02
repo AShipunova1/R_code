@@ -209,7 +209,6 @@ survey_data_cols_to_keep <-
     "survey_vessel_id"
   )
 
-
 survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num__short <-
   survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num |>
   dplyr::select(tidyselect::all_of(survey_data_cols_to_keep)) |>
@@ -218,26 +217,7 @@ survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num__short <-
 dim(survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num__short)
 # [1] 1835   12
 
-# Prepare FIPS codes ----
-## unify_county_names in fips code ----
-fips_code_to_use <-
-  tidycensus::fips_codes |>
-  unify_county_names("county") |> 
-  distinct()
-
-#' there are duplicates
-#      state state_code state_name county_code           county county_short
-# 1196    md         24   maryland         005 baltimore county    baltimore
-# 1217    md         24   maryland         510   baltimore city    baltimore
-
-# Prepare PIMS data ----
-
-## vessel_permit_owner_from_db tolower vessel ids ----
-vessel_permit_owner_from_db_clean_vsl <-
-  vessel_permit_owner_from_db |> 
-  mutate(permit_vessel_id = tolower(P_VESSEL_ID))
-  
-## unify county names ----
+# unify county names ----
 words_to_remove <- " county| parish| municipio| islands| island| municipality| district| city"
 
 unify_county_names <- function(my_df, county_col_name) {
@@ -256,7 +236,26 @@ unify_county_names <- function(my_df, county_col_name) {
   return(res_df)  
 }
 
-#### unify_county_names in PIMS data ----
+# Prepare FIPS codes ----
+## unify_county_names in fips code ----
+fips_code_to_use <-
+  tidycensus::fips_codes |>
+  unify_county_names("county") |> 
+  distinct()
+
+#' there are duplicates
+#      state state_code state_name county_code           county county_short
+# 1196    md         24   maryland         005 baltimore county    baltimore
+# 1217    md         24   maryland         510   baltimore city    baltimore
+
+# Prepare PIMS data ----
+
+## tolower vessel ids ----
+vessel_permit_owner_from_db_clean_vsl <-
+  vessel_permit_owner_from_db |> 
+  mutate(permit_vessel_id = tolower(P_VESSEL_ID))
+
+## unify_county_names in PIMS data ----
 
 vessel_permit_owner_from_db_clean_vsl__cln_county <- 
   vessel_permit_owner_from_db_clean_vsl |>
@@ -266,7 +265,7 @@ vessel_permit_owner_from_db_clean_vsl__cln_county |>
   head() |> 
   glimpse()
 
-#' check 
+#' compare counties PIMS vs. FIPS
 grep("john", 
      vessel_permit_owner_from_db_clean_vsl__cln_county$county_short, 
      value = T) |> 
@@ -314,8 +313,7 @@ vessel_permit_owner_from_db_clean_vsl__cln_county__short__fips <-
   )
 
 ### check relationship = "many-to-many" ----
-# ℹ Row 13055 of `x` matches multiple rows in `y`.
-# ℹ Row 2360 of `y` matches multiple rows in `x`.
+#' ℹ Row 13055 of `x` matches multiple rows in `y`.
 
 vessel_permit_owner_from_db_clean_vsl__cln_county__short_13055 <-
   vessel_permit_owner_from_db_clean_vsl__cln_county__short[13055, ]
@@ -328,10 +326,10 @@ fips_code_to_use |>
 #      state state_code state_name county_code           county county_short
 # 1196    md         24   maryland         005 baltimore county    baltimore
 # 1217    md         24   maryland         510   baltimore city    baltimore
-
+#' duplicates in FIPS county_short
 #' Check manually?
 
-# ℹ Row 2360 of `y` matches multiple rows in `x`.
+#' ℹ Row 2360 of `y` matches multiple rows in `x`.
 
 fips_code_to_use_2360 <-
   fips_code_to_use[2360, ]
@@ -357,7 +355,7 @@ fuzzyjoin_vessel_ids <-
 # View(fuzzyjoin_vessel_ids)
 # [1] 32776    58
 
-## keep a vessel in only one distance group
+## keep a vessel in only one distance group ----
 
 ### change distance to words ----
 #' for easier operations with column names 
@@ -373,6 +371,7 @@ fuzzyjoin_vessel_ids__dist_char__no_na <-
   fuzzyjoin_vessel_ids__dist_char |>
   dplyr::filter(stats::complete.cases(vessel_id_dist))
 
+#' pivot wider 
 # Explanations:
 # - `fuzzyjoin_vessel_ids__dist_char__no_na |>` starts the pipeline with the data frame `fuzzyjoin_vessel_ids__dist_char__no_na`.
 # - `tidyr::pivot_wider(names_from = vessel_id_dist, values_from = permit_vessel_id, values_fn = list)` reshapes the data from long to wide format:
@@ -441,7 +440,7 @@ fuzzyjoin_vessel_ids__dist_grp__match_dist2 <-
 dplyr::n_distinct(fuzzyjoin_vessel_ids__dist_grp__match_dist2$survey_vessel_id)
 # 62
 
-#' #' write out the fuzy match result
+#' write out the fuzy match result
 #' fuzzyjoin_vessel_ids__dist_grp__match |>
 #'   rowwise() |>
 #'   mutate_if(is.list, ~ paste(unlist(.), collapse = ', ')) |>
