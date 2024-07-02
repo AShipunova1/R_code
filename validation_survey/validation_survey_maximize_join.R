@@ -384,8 +384,18 @@ fuzzyjoin_vessel_ids__closest <-
   slice_min(vessel_id_dist, n = 1) %>%
   ungroup()
 
+#' check
 dim(fuzzyjoin_vessel_ids__closest)
 # [1] 4346   24
+
+n_distinct(fuzzyjoin_vessel_ids$SERO_OFFICIAL_NUMBER)
+# 832
+
+n_distinct(fuzzyjoin_vessel_ids__closest$survey_vessel_id)
+# 429
+
+n_distinct(fuzzyjoin_vessel_ids__closest$SERO_OFFICIAL_NUMBER)
+# 376
 
 #' check a vessel with no id 
 fuzzyjoin_vessel_ids__closest |> 
@@ -436,7 +446,7 @@ fuzzyjoin_vessel_ids__closest |>
     select(vessel_id_dist) |> 
     distinct() |> 
     glimpse()
-# 0 correct
+# dist == 0, correct choce between 0 and 2
 
 ### keep a vessel in one distance group only ----
 #' if there is a full match - no changes,
@@ -485,6 +495,25 @@ fuzzyjoin_vessel_ids__dist_grp__match_dist2 <-
 
 dplyr::n_distinct(fuzzyjoin_vessel_ids__dist_grp__match_dist2$survey_vessel_id)
 # 62
+
+#' compare with slace_min
+
+res1 <- 
+fuzzyjoin_vessel_ids__dist_grp__match_dist2 |> 
+    filter(survey_vessel_id == '1288921') |> 
+    select(two) |> 
+    unlist() |> 
+    glimpse()
+
+res2 <- 
+fuzzyjoin_vessel_ids__closest |> 
+    filter(survey_vessel_id == '1288921') |> 
+    select(SERO_OFFICIAL_NUMBER) |> 
+    distinct() |> 
+    glimpse()
+
+res1 == res2$SERO_OFFICIAL_NUMBER
+# T
 
 #' write out the fuzy match result
 #' fuzzyjoin_vessel_ids__dist_grp__match |>
