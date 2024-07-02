@@ -200,8 +200,8 @@ survey_data_cols_to_keep <-
     "interviewee_f_name",
     "interviewee_l_name",
     "interviewee_m_name",
-    "prefix1",
-    "prefix2",
+    # "prefix1",
+    # "prefix2",
     "vsl_num",
     "cnty",
     "st",
@@ -215,7 +215,7 @@ survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num__short <-
   distinct()
 
 dim(survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num__short)
-# [1] 1835   12
+# [1] 1835   10
 
 # unify county names ----
 words_to_remove <- " county| parish| municipio| islands| island| municipality| district| city"
@@ -285,7 +285,7 @@ pims_data_cols_to_keep <-
     "SERO_HOME_PORT_STATE",
     "SERO_OFFICIAL_NUMBER",
     "VESSEL_NAME",
-    "PERMIT",
+    # "PERMIT",
     "FIRST_NAME",
     "MIDDLE_NAME",
     "LAST_NAME",
@@ -319,20 +319,21 @@ vessel_permit_owner_from_db_clean_vsl__cln_county__short__fips <-
   left_join(
     vessel_permit_owner_from_db_clean_vsl__cln_county__short,
     fips_code_to_use,
-    join_by(SERO_HOME_PORT_STATE == state, county_short),
-    relationship = "many-to-many"
+    join_by(SERO_HOME_PORT_STATE == state, county_short)
+    # ,
+    # relationship = "many-to-many"
   )
 
 ### check relationship = "many-to-many" ----
-#' ℹ Row 13055 of `x` matches multiple rows in `y`.
+#' ℹ Row 4953 of `x` matches multiple rows in `y`.
 
-vessel_permit_owner_from_db_clean_vsl__cln_county__short_13055 <-
-  vessel_permit_owner_from_db_clean_vsl__cln_county__short[13055, ]
+vessel_permit_owner_from_db_clean_vsl__cln_county__short_4953 <-
+  vessel_permit_owner_from_db_clean_vsl__cln_county__short[4953, ]
 
 fips_code_to_use |>
   filter(
-    county_short == vessel_permit_owner_from_db_clean_vsl__cln_county__short_13055$county_short &
-      state == vessel_permit_owner_from_db_clean_vsl__cln_county__short_13055$SERO_HOME_PORT_STATE
+    county_short == vessel_permit_owner_from_db_clean_vsl__cln_county__short_4953$county_short &
+      state == vessel_permit_owner_from_db_clean_vsl__cln_county__short_4953$SERO_HOME_PORT_STATE
   )
 #      state state_code state_name county_code           county county_short
 # 1196    md         24   maryland         005 baltimore county    baltimore
@@ -340,15 +341,15 @@ fips_code_to_use |>
 #' duplicates in FIPS county_short
 #' Check manually?
 
-#' ℹ Row 2360 of `y` matches multiple rows in `x`.
+#' ℹ Row 380 of `y` matches multiple rows in `x`.
 
-fips_code_to_use_2360 <-
-  fips_code_to_use[2360, ]
+fips_code_to_use_380 <-
+  fips_code_to_use[380, ]
 
 vessel_permit_owner_from_db_clean_vsl__cln_county__short |>
   filter(
-    county_short == fips_code_to_use_2360$county_short &
-      SERO_HOME_PORT_STATE == fips_code_to_use_2360$state
+    county_short == fips_code_to_use_380$county_short &
+      SERO_HOME_PORT_STATE == fips_code_to_use_380$state
   ) |> 
   glimpse()
 #' Correct, many vessels have the same st & county
@@ -364,7 +365,7 @@ fuzzyjoin_vessel_ids <-
   distinct()
 
 dim(fuzzyjoin_vessel_ids)
-# [1] 32776    58
+# [1] 12079    24
 
 ## keep each vessel in only one distance group ----
 
@@ -504,20 +505,28 @@ fuzzyjoin_vessel_ids__dist_grp__match_solo__add_back_pims_n_survey <-
 # Joining with `by = join_by(survey_vessel_id)`
 #' relationship = "many-to-many": many id_codes (surveys) X many vessels in fuzzy match
 
+dim(fuzzyjoin_vessel_ids__dist_grp__match_solo__add_back_pims_n_survey)
+# [1] 11607    28
+
+fuzzyjoin_vessel_ids__dist_grp__match_solo__add_back_pims_n_survey |> View()
+
 # too many vessels for the same id_code ----
 #' 
 #' filters for fuzzy matching vessel ids
-#' permits
-
-permits_filter <-
-  rlang::quo(permit_number1 == PERMIT |
-               permit_number2 == PERMIT)
-
-fuzzyjoin_vessel_ids_short |>
-  filter(!!permits_filter) |>
-  dim()
-# [1] 5111   25
 
 geo_filter <-
-  rlang::quo(permit_number1 == PERMIT |
-               permit_number2 == PERMIT)
+  rlang::quo(state_code == st &
+               county_code == cnty)
+
+name_filter <-
+  rlang::quo(interviewee_f_name == FIRST_NAME &
+               interviewee_l_name == LAST_NAME)
+# interviewee_m_name == MIDDLE_NAME              
+
+vsl_name_filter <-
+  rlang::quo(vessel_name == VESSEL_NAME)
+
+fuzzyjoin_vessel_ids__dist_grp__match_solo__add_back_pims_n_survey |> 
+  filter(!!geo_filter) |> 
+  glimpse()
+# 1379
