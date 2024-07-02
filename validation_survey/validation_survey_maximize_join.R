@@ -192,6 +192,32 @@ survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num <-
 
 # View(survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num)
 
+## shorten survey data ----
+survey_data_cols_to_keep <-
+  c(
+    "id_code",
+    "vessel_name",
+    "interviewee_f_name",
+    "interviewee_l_name",
+    "interviewee_m_name",
+    "permit_number1",
+    "permit_number2",
+    "vsl_num",
+    "cnty",
+    "st",
+    "interview_date",
+    "survey_vessel_id"
+  )
+
+
+survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num__short <-
+  survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num |>
+  dplyr::select(tidyselect::all_of(survey_data_cols_to_keep)) |>
+  distinct()
+
+dim(survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num__short)
+# [1] 1835   12
+
 # Prepare PIMS data ----
 
 ## vessel_permit_owner_from_db tolower vessel ids ----
