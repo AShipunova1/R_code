@@ -352,7 +352,7 @@ fuzzyjoin_vessel_ids <-
   ) |> 
   distinct()
 
-# View(fuzzyjoin_vessel_ids)
+dim(fuzzyjoin_vessel_ids)
 # [1] 32776    58
 
 ## keep a vessel in only one distance group ----
@@ -451,7 +451,37 @@ dplyr::n_distinct(fuzzyjoin_vessel_ids__dist_grp__match_dist2$survey_vessel_id)
 
 # View(fuzzyjoin_vessel_ids__dist_grp__match)
 
-#' too many vessels for the same id_code
+## add all info back to the fuzzy match ----
+
+#' keep the result only
+fuzzyjoin_vessel_ids__dist_grp__match_solo <-
+  fuzzyjoin_vessel_ids__dist_grp__match |>
+  select(survey_vessel_id, matching_vessel_ids)
+
+dim(fuzzyjoin_vessel_ids__dist_grp__match_solo)
+# 354
+
+n_distinct(fuzzyjoin_vessel_ids__dist_grp__match_solo)
+# 354
+
+### Add back vessel info from PIMS ----
+
+    # survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num__short,
+    # vessel_permit_owner_from_db_clean_vsl__cln_county__short__fips,
+
+fuzzyjoin_vessel_ids__dist_grp__match_solo__add_back_pims <-
+  fuzzyjoin_vessel_ids__dist_grp__match_solo |>
+  rowwise() |>
+  mutate(matching_vessel_id_regex =
+           paste(matching_vessel_ids, collapse = "|")) |>
+  fuzzyjoin::regex_left_join(
+    vessel_permit_owner_from_db_clean_vsl__cln_county__short__fips,
+    by = c("matching_vessel_id_regex" = "permit_vessel_id")
+  ) |>
+  ungroup()
+
+dim(fuzzyjoin_vessel_ids__dist_grp__match_solo__add_back_pims)
+# [1] 2265   19
 #' 
 #' filters for fuzzy matching vessel ids
 #' permits
