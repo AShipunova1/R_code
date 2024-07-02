@@ -354,6 +354,12 @@ vessel_permit_owner_from_db_clean_vsl__cln_county__short |>
   glimpse()
 #' Correct, many vessels have the same st & county
 
+#' check survey vsl id
+survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num__short |> 
+  filter(is.na(vsl_num)) |> 
+  glimpse()
+#' no vsl_num!
+
 # Fuzzyjoin PIMS & survey by vessel_ids ----
 fuzzyjoin_vessel_ids <-
   fuzzyjoin::stringdist_left_join(
