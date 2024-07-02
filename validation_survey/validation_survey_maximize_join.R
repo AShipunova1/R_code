@@ -396,6 +396,26 @@ fuzzyjoin_vessel_ids__dist_grp |>
 
 fuzzyjoin_vessel_ids__dist_grp[2,] |> glimpse()
 
+### keep a vessel only in one group ----
+#' if there is a full match - no changes,
+#' if no full match, but there is a match with a distance equal 1 - use it,
+#' otherwise - all matches with the distacne equal 2
+fuzzyjoin_vessel_ids__dist_grp__match <-
+  fuzzyjoin_vessel_ids__dist_grp |>
+  rowwise() |>
+  mutate(
+    grp0_len = length(zero),
+    grp1_len = length(one),
+    grp2_len = length(two)
+  ) |>
+  mutate(matching_vessel_id =
+           case_when(
+             grp0_len > 0 ~ list(zero),
+             (grp0_len == 0 & grp1_len > 0) ~ list(one),
+             .default = list(two)
+           )) |>
+  ungroup()
+
 #' too many vessels for the same id_code
 #' 
 #' filters for fuzzy matching vessel ids
