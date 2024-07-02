@@ -323,7 +323,33 @@ survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored__fips__short
 # 1 999999      2
 # ok
 
+## combine processed survey data and restored states ----
 
+survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num__short__restored_st <-
+  survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num__short |>
+  left_join(
+    survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored__fips__short,
+    relationship = "many-to-many"
+  )
+# Joining with `by = join_by(vsl_num)`
+
+#' check
+#   Detected an unexpected many-to-many relationship between `x` and `y`.
+# ℹ Row 200 of `x` matches multiple rows in `y`.
+# ℹ Row 117 of `y` matches multiple rows in `x`.
+
+survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num__short[200,]$vsl_num == "999999"
+# T
+
+survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num__short |>
+  filter(
+    vsl_num ==
+      survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored__fips__short[117, ]$vsl_num
+  ) |>
+  glimpse()
+#' same vsl has many id_codes, correct
+
+    
 # Prepare FIPS codes ----
 ## unify_county_names in fips code ----
 fips_code_to_use <-
