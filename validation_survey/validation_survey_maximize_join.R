@@ -375,7 +375,7 @@ dim(fuzzyjoin_vessel_ids)
 
 ## keep each vessel in only one distance group ----
 
-# Note the extra distance column, which in this case will always be less than or equal to 2. We could then pick the closest match for each, and examine how many of our closest matches were 1 or 2 away:
+# Note the extra distance column, which in this case will always be less than or equal to 2. We could then pick the closest match for each.
 
 fuzzyjoin_vessel_ids__closest <- 
   fuzzyjoin_vessel_ids %>%
@@ -448,7 +448,7 @@ fuzzyjoin_vessel_ids__closest__clean_name <-
   distinct()
 
 dim(fuzzyjoin_vessel_ids__closest__clean_name)
-# [1] 4214   25
+# [1] 4346   24
 
 name_filter <-
     rlang::quo(interviewee_f_name == FIRST_NAME &
@@ -475,7 +475,7 @@ fuzzyjoin_vessel_ids__closest__clean_vsl_name <-
   distinct()
 
 dim(fuzzyjoin_vessel_ids__closest__clean_vsl_name)
-# [1] 4214   25
+# [1] 4346   24
 
 vsl_name_filter <-
   rlang::quo(vessel_name == VESSEL_NAME)
@@ -503,12 +503,11 @@ diff_vessel_names <-
   select(vessel_name, VESSEL_NAME) |>
   distinct()
   
-
-diff_vessel_names
-  fuzzyjoin::stringdist_left_join(
-    survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num__short,
-    vessel_permit_owner_from_db_clean_vsl__cln_county__short__fips,
-    by = c("survey_vessel_id" = "SERO_OFFICIAL_NUMBER"),
-    distance_col = "vessel_id_dist"
-  ) |> 
-  distinct()
+# diff_vessel_names
+#   fuzzyjoin::stringdist_left_join(
+#     survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num__short,
+#     vessel_permit_owner_from_db_clean_vsl__cln_county__short__fips,
+#     by = c("survey_vessel_id" = "SERO_OFFICIAL_NUMBER"),
+#     distance_col = "vessel_id_dist"
+#   ) |> 
+#   distinct()
