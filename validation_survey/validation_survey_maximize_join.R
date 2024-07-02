@@ -289,3 +289,33 @@ fuzzyjoin_vessel_ids_short <-
 dim(fuzzyjoin_vessel_ids_short)
 # 39080
 
+#' too many vessels for the same id_code
+#' 
+# View(fuzzyjoin_vessel_ids)
+fuzzyjoin_vessel_ids |>
+  filter(HULL_ID_NBR == 'NOB39180880') |>
+  glimpse()
+
+#' filters for fuzzy matching vessel ids
+#' permits
+
+permits_filter <-
+  rlang::quo(permit_number1 == PERMIT |
+               permit_number2 == PERMIT)
+
+fuzzyjoin_vessel_ids |>
+  filter(
+    HULL_ID_NBR == 'NOB39180880' &
+             id_code == '1523620220326003' 
+           # !!permits_filter
+             ) |>
+  dim()
+# 15
+
+fuzzyjoin_vessel_ids |>
+  filter(!!permits_filter) |>
+  View()
+# 9023    
+
+
+
