@@ -633,10 +633,20 @@ fuzzyjoin_vessel_ids__closest__clean_vsl_name__3_filt <-
            !!vsl_name_filter)
 
 fuzzyjoin_vessel_ids__closest__clean_vsl_name__3_filt |>
-  filter(vessel_id_dist == 1) |>
-  select(-c(id_code, vsl_num, cnty, st, SERO_HOME_PORT_CITY)) |>
+  filter(vessel_id_dist == 2) |>
+  select(-c(id_code, interview_date, vsl_num, cnty, st, SERO_HOME_PORT_CITY)) |>
   distinct() |>
-  View()
+  head() |>
+  glimpse()
+
+n_distinct(fuzzyjoin_vessel_ids__closest__clean_vsl_name__3_filt$SERO_OFFICIAL_NUMBER)
+# 258
+
+n_distinct(fuzzyjoin_vessel_ids$SERO_OFFICIAL_NUMBER)
+# 832
+
+# 258*100/832
+# 31% vessels pass 1 of 3 filters
 
 #' fuzzy join and check again
 diff_vessel_names <-
