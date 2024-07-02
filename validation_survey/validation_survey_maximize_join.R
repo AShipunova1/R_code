@@ -425,7 +425,7 @@ vessel_permit_owner_from_db_clean_vsl__cln_county__short <-
   distinct()
 
 dim(vessel_permit_owner_from_db_clean_vsl__cln_county__short)
-# [1] 15854    12
+# 6034
 
 ## add fips codes to pims data ----
 
@@ -453,7 +453,7 @@ fips_code_to_use |>
 # 1196    md         24   maryland         005 baltimore county    baltimore
 # 1217    md         24   maryland         510   baltimore city    baltimore
 #' duplicates in FIPS county_short
-#' Check manually?
+#' Check manually in further analysis
 
 #' ℹ Row 380 of `y` matches multiple rows in `x`.
 
@@ -477,7 +477,7 @@ survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num__short |>
 # Fuzzyjoin PIMS & survey by vessel_ids ----
 fuzzyjoin_vessel_ids <-
   fuzzyjoin::stringdist_left_join(
-    survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num__short,
+    survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num__short__restored_st,
     vessel_permit_owner_from_db_clean_vsl__cln_county__short__fips,
     by = c("survey_vessel_id" = "SERO_OFFICIAL_NUMBER"),
     distance_col = "vessel_id_dist"
@@ -485,7 +485,7 @@ fuzzyjoin_vessel_ids <-
   distinct()
 
 dim(fuzzyjoin_vessel_ids)
-# [1] 12079    24
+# [1] 12088    27
 
 ## keep each vessel in only one distance group ----
 
@@ -499,7 +499,7 @@ fuzzyjoin_vessel_ids__closest <-
 
 #' check
 dim(fuzzyjoin_vessel_ids__closest)
-# [1] 4346   24
+# [1] 4355   27
 
 n_distinct(fuzzyjoin_vessel_ids$SERO_OFFICIAL_NUMBER)
 # 832
@@ -522,21 +522,34 @@ glimpse(fuzzyjoin_vessel_ids__closest)
 #' 
 #' filters for fuzzy matching vessel ids
 
+## by geo ----
 geo_filter <-
-  rlang::quo(state_code == st &
-               county_code == cnty)
+  rlang::quo(state_code == st_2 &
+               county_code == cnty_3)
+
+# fuzzyjoin_vessel_ids__closest__geo <- 
+#   fuzzyjoin_vessel_ids__closest |> 
+#   mutate(same_geo = case_when(!!geo_filter))
 
 #' same cnty/state
 fuzzyjoin_vessel_ids__closest |> 
   filter(!!geo_filter) |> 
   dim()
-# 370
+# [1] 2930   27
 
 #' different cnty/state
-fuzzyjoin_vessel_ids__closest |> 
-  filter(!(!!geo_filter)) |> 
+
+fuzzyjoin_vessel_ids__closest__diff_geo <-
+  fuzzyjoin_vessel_ids__closest |>
+  filter(!(!!geo_filter))
+
+fuzzyjoin_vessel_ids__closest__diff_geo |> 
   dim()
-# [1] 3672   25
+# [1] 1272   27
+
+glimpse(fuzzyjoin_vessel_ids__closest__diff_geo)
+
+## by captain/interviewee names ----
 
 #' unify names
 to_clean_names <- function(name) {
@@ -547,7 +560,7 @@ to_clean_names <- function(name) {
     stringr::str_squish()
 }
 
-#' by captain/interviewee names
+#' clean names 
 fuzzyjoin_vessel_ids__closest__clean_name <-
   fuzzyjoin_vessel_ids__closest |>
   dplyr::mutate(dplyr::across(
@@ -562,7 +575,7 @@ fuzzyjoin_vessel_ids__closest__clean_name <-
   distinct()
 
 dim(fuzzyjoin_vessel_ids__closest__clean_name)
-# [1] 4346   24
+# [1] 4355   27
 
 name_filter <-
     rlang::quo(interviewee_f_name == FIRST_NAME &
@@ -579,9 +592,9 @@ fuzzyjoin_vessel_ids__closest__clean_name |>
 fuzzyjoin_vessel_ids__closest__clean_name |> 
   filter(!(!!name_filter)) |> 
   dim()
-# [1] 2402   25
+# [1] 2408   27
 
-#' vessel names
+## by vessel names ----
 fuzzyjoin_vessel_ids__closest__clean_vsl_name <-
   fuzzyjoin_vessel_ids__closest |>
   dplyr::mutate(dplyr::across(c("vessel_name", "VESSEL_NAME"), 
@@ -589,7 +602,7 @@ fuzzyjoin_vessel_ids__closest__clean_vsl_name <-
   distinct()
 
 dim(fuzzyjoin_vessel_ids__closest__clean_vsl_name)
-# [1] 4346   24
+# [1] 4355   27
 
 vsl_name_filter <-
   rlang::quo(vessel_name == VESSEL_NAME)
@@ -598,13 +611,13 @@ vsl_name_filter <-
 fuzzyjoin_vessel_ids__closest__clean_vsl_name |> 
   filter(!!vsl_name_filter) |> 
   dim()
-# [1] 2380   25
+# [1] 2380   27
 
 #' diff vessel name 
 fuzzyjoin_vessel_ids__closest__clean_vsl_name |> 
   filter(!(!!vsl_name_filter)) |> 
   dim()
-# [1] 1834   25
+# [1] 1834   27
 
 # 1834+2380 = 4214
 
@@ -616,12 +629,6 @@ diff_vessel_names <-
   filter(!(!!vsl_name_filter)) |>
   select(vessel_name, VESSEL_NAME) |>
   distinct()
-  
-# diff_vessel_names
-#   fuzzyjoin::stringdist_left_join(
-#     survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num__short,
-#     vessel_permit_owner_from_db_clean_vsl__cln_county__short__fips,
-#     by = c("survey_vessel_id" = "SERO_OFFICIAL_NUMBER"),
-#     distance_col = "vessel_id_dist"
-#   ) |> 
-#   distinct()
+
+glimpse(diff_vessel_names)
+
