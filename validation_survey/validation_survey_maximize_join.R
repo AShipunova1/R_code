@@ -375,12 +375,23 @@ dim(fuzzyjoin_vessel_ids)
 
 ## keep each vessel in only one distance group ----
 
+### using slice_min() ----
 # Note the extra distance column, which in this case will always be less than or equal to 2. We could then pick the closest match for each, and examine how many of our closest matches were 1 or 2 away:
 
-closest <- fuzzyjoin_vessel_ids %>%
+fuzzyjoin_vessel_ids__closest <- 
+  fuzzyjoin_vessel_ids %>%
   group_by(survey_vessel_id) %>%
-  slice_max(vessel_id_dist, n = 1) %>%
+  slice_min(vessel_id_dist, n = 1) %>%
   ungroup()
+
+dim(fuzzyjoin_vessel_ids__closest)
+# [1] 4346   24
+
+#' check a vessel with no id 
+fuzzyjoin_vessel_ids__closest |> 
+  filter(tolower(vessel_name) == "yellowfin") |> 
+  glimpse()
+#' same vsl name, diff names and geo
 
 ### change distance to words ----
 #' for easier operations with column names 
@@ -419,6 +430,13 @@ fuzzyjoin_vessel_ids__dist_grp |>
   glimpse()
 
 fuzzyjoin_vessel_ids__dist_grp[2,] |> glimpse()
+
+fuzzyjoin_vessel_ids__closest |> 
+  filter(survey_vessel_id == fuzzyjoin_vessel_ids__dist_grp[2,]$survey_vessel_id) |> 
+    select(vessel_id_dist) |> 
+    distinct() |> 
+    glimpse()
+# 0 correct
 
 ### keep a vessel in one distance group only ----
 #' if there is a full match - no changes,
