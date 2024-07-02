@@ -416,6 +416,20 @@ fuzzyjoin_vessel_ids__dist_grp__match <-
            )) |>
   ungroup()
 
+#' check not perfect matches
+fuzzyjoin_vessel_ids__dist_grp__match |>
+  filter(grp0_len == 0 & !grp1_len == 0) |>
+  select(survey_vessel_id, one, two, matching_vessel_id) |> 
+  head() |> 
+  glimpse()
+
+#' There is no more than one match in group 1 
+fuzzyjoin_vessel_ids__dist_grp__match |>
+  filter(grp0_len == 0) |>
+  filter(grp1_len > 1) |>
+  select(survey_vessel_id, one, two, matching_vessel_id) |>
+  nrow()
+#' 0
 #' too many vessels for the same id_code
 #' 
 #' filters for fuzzy matching vessel ids
