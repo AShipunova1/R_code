@@ -237,24 +237,33 @@ survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num__short <-
 dim(survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num__short)
 # [1] 1835   10
 
-# unify county names ----
-words_to_remove <- " county| parish| municipio| islands| island| municipality| district| city"
+## Restore state by vessel_id, cnty ----
+#' For the same vessel same cnty, st is NA or the same
+#' Group by vessel/county and use the same state for this vessel if NA
+#' 
+#' Combine states in a list by vessel and county
+survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v <- 
+  survey_data_l_2022_i1_w_dates_clean_vsl |>
+  dplyr::select(vsl_num, st, cnty) |>
+  dplyr::distinct() |>
+  dplyr::group_by(vsl_num, cnty) |>
+  dplyr::mutate(st_with_char_na =
+                  dplyr::case_when(is.na(st) ~ "NA", .default = st)) |>
+  dplyr::mutate(states_l_by_cnty_v = list(paste(unique(
+    sort(st_with_char_na)
+  )))) |>
+  dplyr::ungroup() |>
+  dplyr::select(-st_with_char_na) |>
+  dplyr::distinct() |>
+  dplyr::arrange(vsl_num, cnty)
 
-unify_county_names <- function(my_df, county_col_name) {
-  res_df <-
-    my_df |>
-    dplyr::mutate(dplyr::across(dplyr::everything(), tolower)) |> 
-    dplyr::mutate(
-      county_short =
-        stringr::str_replace_all(!!dplyr::sym(county_col_name),
-                                 words_to_remove, "") |>
-        stringr::str_replace_all("\\bst\\.* ", "saint ") |>
-        stringr::str_replace_all("[^A-z0-9 ]", "") |>
-        stringr::str_squish()
-    )
+#' check: for each vessel_county there are no more than 2 states
+survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v |>
+  rowwise() |> 
+  filter(length(states_l_by_cnty_v) > 2) |> 
+  glimpse()
+# 0
   
-  return(res_df)  
-}
 
 # Prepare FIPS codes ----
 ## unify_county_names in fips code ----
