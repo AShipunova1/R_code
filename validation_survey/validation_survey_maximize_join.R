@@ -218,6 +218,18 @@ survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num__short <-
 dim(survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num__short)
 # [1] 1835   12
 
+# Prepare FIPS codes ----
+## unify_county_names in fips code ----
+fips_code_to_use <-
+  tidycensus::fips_codes |>
+  unify_county_names("county") |> 
+  distinct()
+
+#' there are duplicates
+#      state state_code state_name county_code           county county_short
+# 1196    md         24   maryland         005 baltimore county    baltimore
+# 1217    md         24   maryland         510   baltimore city    baltimore
+
 # Prepare PIMS data ----
 
 ## vessel_permit_owner_from_db tolower vessel ids ----
@@ -243,13 +255,6 @@ unify_county_names <- function(my_df, county_col_name) {
   
   return(res_df)  
 }
-
-#### unify_county_names in fips code ----
-fips_code_to_use <-
-  tidycensus::fips_codes |>
-  unify_county_names("county")
-
-# glimpse(fips_code_to_use)
 
 #### unify_county_names in PIMS data ----
 
