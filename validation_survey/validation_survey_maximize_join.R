@@ -430,6 +430,27 @@ fuzzyjoin_vessel_ids__dist_grp__match |>
   select(survey_vessel_id, one, two, matching_vessel_id) |>
   nrow()
 #' 0
+
+#' check vessel ids with fuzzy match distance 2 
+fuzzyjoin_vessel_ids__dist_grp__match_dist2 <-
+  fuzzyjoin_vessel_ids__dist_grp__match |>
+  dplyr::filter(grp0_len == 0 & grp1_len == 0) |>
+  dplyr::select(survey_vessel_id, two, grp2_len) |>
+  dplyr::distinct()
+
+dplyr::n_distinct(fuzzyjoin_vessel_ids__dist_grp__match_dist2$survey_vessel_id)
+# 62
+
+#' #' write out the fuzy match result
+#' fuzzyjoin_vessel_ids__dist_grp__match |>
+#'   rowwise() |>
+#'   mutate_if(is.list, ~ paste(unlist(.), collapse = ', ')) |>
+#'   readr::write_csv(file.path(
+#'     curr_proj_output_path,
+#'     "fuzzyjoin_vessel_ids__dist_grp__match.csv"
+#'   ))
+
+
 #' too many vessels for the same id_code
 #' 
 #' filters for fuzzy matching vessel ids
