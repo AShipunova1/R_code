@@ -355,42 +355,7 @@ fuzzyjoin_vessel_ids <-
   distinct()
 
 dim(fuzzyjoin_vessel_ids)
-# [1] 63758    82
-
-fuzzyjoin_vessel_ids_short <-
-  fuzzyjoin_vessel_ids |>
-  select(
-    id_code,
-    vessel_name,
-    interviewee_f_name,
-    interviewee_l_name,
-    interviewee_m_name,
-    permit_number1,
-    permit_number2,
-    vsl_num,
-    cnty,
-    st,
-    comments,
-    interview_date,
-    survey_vessel_id,
-    SERO_HOME_PORT_COUNTY,
-    SERO_HOME_PORT_STATE,
-    SERO_OFFICIAL_NUMBER,
-    VESSEL_NAME,
-    PERMIT,
-    P_VESSEL_ID,
-    FIRST_NAME,
-    MIDDLE_NAME,
-    LAST_NAME,
-    STATE,
-    permit_vessel_id,
-    county_short,
-    vessel_id_dist
-  ) |>
-  distinct()
-
-dim(fuzzyjoin_vessel_ids_short)
-# [1] 39068    25
+# [1] 32776    58
 
 #' too many vessels for the same id_code
 #' 
