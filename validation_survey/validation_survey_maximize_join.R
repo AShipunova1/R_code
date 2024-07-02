@@ -357,6 +357,16 @@ fuzzyjoin_vessel_ids <-
 dim(fuzzyjoin_vessel_ids)
 # [1] 32776    58
 
+## keep a vessel in only one distance group
+
+### change distance to words ----
+#' for easier operations with column names 
+#' 
+fuzzyjoin_vessel_ids__dist_char <-
+  fuzzyjoin_vessel_ids |>
+  dplyr::select(survey_vessel_id, permit_vessel_id, vessel_id_dist) |>
+  dplyr::distinct() |>
+  dplyr::mutate(vessel_id_dist = english::english(vessel_id_dist))
 #' too many vessels for the same id_code
 #' 
 #' filters for fuzzy matching vessel ids
