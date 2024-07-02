@@ -367,6 +367,9 @@ fuzzyjoin_vessel_ids__dist_char <-
   dplyr::select(survey_vessel_id, permit_vessel_id, vessel_id_dist) |>
   dplyr::distinct() |>
   dplyr::mutate(vessel_id_dist = english::english(vessel_id_dist))
+fuzzyjoin_vessel_ids__dist_char__no_na <-
+  fuzzyjoin_vessel_ids__dist_char |>
+  dplyr::filter(stats::complete.cases(vessel_id_dist))
 #' too many vessels for the same id_code
 #' 
 #' filters for fuzzy matching vessel ids
