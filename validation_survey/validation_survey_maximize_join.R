@@ -292,6 +292,19 @@ pims_data_cols_to_keep <-
     "county_short"
   )
 
+#' check vessel_id columns
+vessel_permit_owner_from_db_clean_vsl__cln_county |>
+  filter(!SERO_OFFICIAL_NUMBER == P_VESSEL_ID) |> 
+  nrow()
+# 0
+
+vessel_permit_owner_from_db_clean_vsl__cln_county |>
+  filter(!SERO_OFFICIAL_NUMBER == permit_vessel_id) |> 
+  nrow()
+# 0
+
+#' we can use either of these cols
+
 vessel_permit_owner_from_db_clean_vsl__cln_county__short <- 
   vessel_permit_owner_from_db_clean_vsl__cln_county |> 
   dplyr::select(tidyselect::all_of(pims_data_cols_to_keep)) |> 
