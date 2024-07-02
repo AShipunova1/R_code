@@ -199,6 +199,49 @@ vessel_permit_owner_from_db_clean_vsl <-
   vessel_permit_owner_from_db |> 
   mutate(permit_vessel_id = tolower(P_VESSEL_ID))
   
+## unify county names ----
+words_to_remove <- " county| parish| municipio| islands| island| municipality| district| city"
+
+#### unify_county_names in fips code ----
+fips_code_to_use <-
+  tidycensus::fips_codes |>
+  unify_county_names("county")
+
+# glimpse(fips_code_to_use)
+
+#### unify_county_names in PIMS data ----
+
+unify_county_names <- function(my_df, county_col_name) {
+  res_df <-
+    my_df |>
+    dplyr::mutate(dplyr::across(dplyr::everything(), tolower)) |> 
+    dplyr::mutate(
+      county_short =
+        stringr::str_replace_all(!!dplyr::sym(county_col_name),
+                                 words_to_remove, "") |>
+        stringr::str_replace_all("\\bst\\.* ", "saint ") |>
+        stringr::str_replace_all("[^A-z0-9 ]", "") |>
+        stringr::str_squish()
+    )
+  
+  return(res_df)  
+}
+
+vessel_permit_owner_from_db_clean_vsl__cln_county <- 
+  vessel_permit_owner_from_db_clean_vsl |>
+  unify_county_names("SERO_HOME_PORT_COUNTY")
+
+vessel_permit_owner_from_db_clean_vsl__cln_county |> 
+  head() |> 
+  glimpse()
+
+#' check 
+grep("john", 
+     vessel_permit_owner_from_db_clean_vsl__cln_county$county_short, 
+     value = T) |> 
+  unique()
+# [1] "saint johns"
+
 # fuzzyjoin by vessel_ids ----
 fuzzyjoin_vessel_ids <-
   fuzzyjoin::stringdist_left_join(
