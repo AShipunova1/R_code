@@ -301,7 +301,48 @@ vessel_permit_owner_from_db_clean_vsl__cln_county__short <-
   distinct()
 
 dim(vessel_permit_owner_from_db_clean_vsl__cln_county__short)
-# [1] 18992    12
+# [1] 15854    12
+
+## add fips codes to pims data ----
+
+vessel_permit_owner_from_db_clean_vsl__cln_county__short__fips <-
+  left_join(
+    vessel_permit_owner_from_db_clean_vsl__cln_county__short,
+    fips_code_to_use,
+    join_by(SERO_HOME_PORT_STATE == state, county_short),
+    relationship = "many-to-many"
+  )
+
+### check relationship = "many-to-many" ----
+# ℹ Row 13055 of `x` matches multiple rows in `y`.
+# ℹ Row 2360 of `y` matches multiple rows in `x`.
+
+vessel_permit_owner_from_db_clean_vsl__cln_county__short_13055 <-
+  vessel_permit_owner_from_db_clean_vsl__cln_county__short[13055, ]
+
+fips_code_to_use |>
+  filter(
+    county_short == vessel_permit_owner_from_db_clean_vsl__cln_county__short_13055$county_short &
+      state == vessel_permit_owner_from_db_clean_vsl__cln_county__short_13055$SERO_HOME_PORT_STATE
+  )
+#      state state_code state_name county_code           county county_short
+# 1196    md         24   maryland         005 baltimore county    baltimore
+# 1217    md         24   maryland         510   baltimore city    baltimore
+
+#' Check manually?
+
+# ℹ Row 2360 of `y` matches multiple rows in `x`.
+
+fips_code_to_use_2360 <-
+  fips_code_to_use[2360, ]
+
+vessel_permit_owner_from_db_clean_vsl__cln_county__short |>
+  filter(
+    county_short == fips_code_to_use_2360$county_short &
+      SERO_HOME_PORT_STATE == fips_code_to_use_2360$state
+  ) |> 
+  glimpse()
+#' Correct, many vessels have the same st & county
 
 # Fuzzyjoin PIMS & survey by vessel_ids ----
 fuzzyjoin_vessel_ids <-
