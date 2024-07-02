@@ -408,7 +408,7 @@ fuzzyjoin_vessel_ids__dist_grp__match <-
     grp1_len = length(one),
     grp2_len = length(two)
   ) |>
-  mutate(matching_vessel_id =
+  mutate(matching_vessel_ids =
            case_when(
              grp0_len > 0 ~ list(zero),
              (grp0_len == 0 & grp1_len > 0) ~ list(one),
@@ -419,7 +419,7 @@ fuzzyjoin_vessel_ids__dist_grp__match <-
 #' check not perfect matches
 fuzzyjoin_vessel_ids__dist_grp__match |>
   filter(grp0_len == 0 & !grp1_len == 0) |>
-  select(survey_vessel_id, one, two, matching_vessel_id) |> 
+  select(survey_vessel_id, one, two, matching_vessel_ids) |> 
   head() |> 
   glimpse()
 
@@ -427,7 +427,7 @@ fuzzyjoin_vessel_ids__dist_grp__match |>
 fuzzyjoin_vessel_ids__dist_grp__match |>
   filter(grp0_len == 0) |>
   filter(grp1_len > 1) |>
-  select(survey_vessel_id, one, two, matching_vessel_id) |>
+  select(survey_vessel_id, one, two, matching_vessel_ids) |>
   nrow()
 #' 0
 
@@ -450,6 +450,7 @@ dplyr::n_distinct(fuzzyjoin_vessel_ids__dist_grp__match_dist2$survey_vessel_id)
 #'     "fuzzyjoin_vessel_ids__dist_grp__match.csv"
 #'   ))
 
+# View(fuzzyjoin_vessel_ids__dist_grp__match)
 
 #' too many vessels for the same id_code
 #' 
