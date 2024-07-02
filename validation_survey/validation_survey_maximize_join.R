@@ -413,13 +413,13 @@ geo_filter <-
                county_code == cnty)
 
 #' same cnty/state
-fuzzyjoin_vessel_ids__dist_grp__match_solo__add_back_pims_n_survey |> 
+fuzzyjoin_vessel_ids__closest |> 
   filter(!!geo_filter) |> 
   dim()
 # 370
 
 #' different cnty/state
-fuzzyjoin_vessel_ids__dist_grp__match_solo__add_back_pims_n_survey |> 
+fuzzyjoin_vessel_ids__closest |> 
   filter(!(!!geo_filter)) |> 
   dim()
 # [1] 3672   25
@@ -434,8 +434,8 @@ to_clean_names <- function(name) {
 }
 
 #' by captain/interviewee names
-fuzzyjoin_vessel_ids__dist_grp__match_solo__add_back_pims_n_survey__clean_name <-
-  fuzzyjoin_vessel_ids__dist_grp__match_solo__add_back_pims_n_survey |>
+fuzzyjoin_vessel_ids__closest__clean_name <-
+  fuzzyjoin_vessel_ids__closest |>
   dplyr::mutate(dplyr::across(
     c(
       "interviewee_f_name",
@@ -447,7 +447,7 @@ fuzzyjoin_vessel_ids__dist_grp__match_solo__add_back_pims_n_survey__clean_name <
   )) |> 
   distinct()
 
-dim(fuzzyjoin_vessel_ids__dist_grp__match_solo__add_back_pims_n_survey__clean_name)
+dim(fuzzyjoin_vessel_ids__closest__clean_name)
 # [1] 4214   25
 
 name_filter <-
@@ -456,38 +456,38 @@ name_filter <-
 # interviewee_m_name == MIDDLE_NAME              
 
 #' same name
-fuzzyjoin_vessel_ids__dist_grp__match_solo__add_back_pims_n_survey__clean_name |> 
+fuzzyjoin_vessel_ids__closest__clean_name |> 
   filter(!!name_filter) |> 
   dim()
 # [1] 159  25
 
 #' diff name 
-fuzzyjoin_vessel_ids__dist_grp__match_solo__add_back_pims_n_survey__clean_name |> 
+fuzzyjoin_vessel_ids__closest__clean_name |> 
   filter(!(!!name_filter)) |> 
   dim()
 # [1] 2402   25
 
 #' vessel names
-fuzzyjoin_vessel_ids__dist_grp__match_solo__add_back_pims_n_survey__clean_vsl_name <-
-  fuzzyjoin_vessel_ids__dist_grp__match_solo__add_back_pims_n_survey |>
+fuzzyjoin_vessel_ids__closest__clean_vsl_name <-
+  fuzzyjoin_vessel_ids__closest |>
   dplyr::mutate(dplyr::across(c("vessel_name", "VESSEL_NAME"), 
                               ~ to_clean_names(.))) |> 
   distinct()
 
-dim(fuzzyjoin_vessel_ids__dist_grp__match_solo__add_back_pims_n_survey__clean_vsl_name)
+dim(fuzzyjoin_vessel_ids__closest__clean_vsl_name)
 # [1] 4214   25
 
 vsl_name_filter <-
   rlang::quo(vessel_name == VESSEL_NAME)
 
 #' same vessel name
-fuzzyjoin_vessel_ids__dist_grp__match_solo__add_back_pims_n_survey__clean_vsl_name |> 
+fuzzyjoin_vessel_ids__closest__clean_vsl_name |> 
   filter(!!vsl_name_filter) |> 
   dim()
 # [1] 2380   25
 
 #' diff vessel name 
-fuzzyjoin_vessel_ids__dist_grp__match_solo__add_back_pims_n_survey__clean_vsl_name |> 
+fuzzyjoin_vessel_ids__closest__clean_vsl_name |> 
   filter(!(!!vsl_name_filter)) |> 
   dim()
 # [1] 1834   25
@@ -495,10 +495,10 @@ fuzzyjoin_vessel_ids__dist_grp__match_solo__add_back_pims_n_survey__clean_vsl_na
 # 1834+2380 = 4214
 
 #' check
-# View(fuzzyjoin_vessel_ids__dist_grp__match_solo__add_back_pims_n_survey__clean_vsl_name)
+# View(fuzzyjoin_vessel_ids__closest__clean_vsl_name)
 
 diff_vessel_names <-
-  fuzzyjoin_vessel_ids__dist_grp__match_solo__add_back_pims_n_survey__clean_vsl_name |>
+  fuzzyjoin_vessel_ids__closest__clean_vsl_name |>
   filter(!(!!vsl_name_filter)) |>
   select(vessel_name, VESSEL_NAME) |>
   distinct()
