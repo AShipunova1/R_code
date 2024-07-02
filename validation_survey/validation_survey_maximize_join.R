@@ -302,6 +302,27 @@ survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored__fips <-
 
 glimpse(survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored__fips)
 
+### shorten restored st df ----
+survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored__fips__short <-
+  survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored__fips |>
+  select(vsl_num, st_2, cnty_3) |>
+  distinct()
+
+dim(survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored__fips__short)
+# 430
+
+n_distinct(survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored__fips__short$vsl_num)
+# 429
+
+#' why diff? 
+survey_data_l_2022_i1_w_dates_clean_vsl__states_by_cnty_v__restored__fips__short |> 
+     count(vsl_num) |> 
+     filter(n > 1)
+# A tibble: 1 × 2
+  # vsl_num     n
+# 1 999999      2
+# ok
+
 
 # Prepare FIPS codes ----
 ## unify_county_names in fips code ----
