@@ -242,18 +242,23 @@ grep("john",
   unique()
 # [1] "saint johns"
 
-# fuzzyjoin by vessel_ids ----
+grep("john", 
+     fips_code_to_use$county_short, 
+     value = T) |> 
+  unique()
+
+# Fuzzyjoin PIMS & survey by vessel_ids ----
 fuzzyjoin_vessel_ids <-
   fuzzyjoin::stringdist_left_join(
     survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num,
-    vessel_permit_owner_from_db_clean_vsl,
+    vessel_permit_owner_from_db_clean_vsl__cln_county,
     by = c("survey_vessel_id" = "permit_vessel_id"),
     distance_col = "vessel_id_dist"
   ) |> 
   distinct()
 
 dim(fuzzyjoin_vessel_ids)
-# [1] 63767    81
+# [1] 63758    82
 
 fuzzyjoin_vessel_ids_short <-
   fuzzyjoin_vessel_ids |>
@@ -282,20 +287,16 @@ fuzzyjoin_vessel_ids_short <-
     LAST_NAME,
     STATE,
     permit_vessel_id,
+    county_short,
     vessel_id_dist
   ) |>
   distinct()
 
 dim(fuzzyjoin_vessel_ids_short)
-# 39080
+# [1] 39068    25
 
 #' too many vessels for the same id_code
 #' 
-# View(fuzzyjoin_vessel_ids)
-fuzzyjoin_vessel_ids |>
-  filter(HULL_ID_NBR == 'NOB39180880') |>
-  glimpse()
-
 #' filters for fuzzy matching vessel ids
 #' permits
 
@@ -303,19 +304,11 @@ permits_filter <-
   rlang::quo(permit_number1 == PERMIT |
                permit_number2 == PERMIT)
 
-fuzzyjoin_vessel_ids |>
-  filter(
-    HULL_ID_NBR == 'NOB39180880' &
-             id_code == '1523620220326003' 
-           # !!permits_filter
-             ) |>
-  dim()
-# 15
-
-fuzzyjoin_vessel_ids |>
+fuzzyjoin_vessel_ids_short |>
   filter(!!permits_filter) |>
-  View()
-# 9023    
+  dim()
+# [1] 5111   25
 
-
-
+geo_filter <-
+  rlang::quo(permit_number1 == PERMIT |
+               permit_number2 == PERMIT)
