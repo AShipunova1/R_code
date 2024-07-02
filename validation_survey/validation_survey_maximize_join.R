@@ -624,6 +624,21 @@ fuzzyjoin_vessel_ids__closest__clean_vsl_name |>
 #' check
 # View(fuzzyjoin_vessel_ids__closest__clean_vsl_name)
 
+## combine 3 filters ----
+
+fuzzyjoin_vessel_ids__closest__clean_vsl_name__3_filt <-
+  fuzzyjoin_vessel_ids__closest__clean_vsl_name |>
+  filter(!!geo_filter |
+           !!name_filter |
+           !!vsl_name_filter)
+
+fuzzyjoin_vessel_ids__closest__clean_vsl_name__3_filt |>
+  filter(vessel_id_dist == 1) |>
+  select(-c(id_code, vsl_num, cnty, st, SERO_HOME_PORT_CITY)) |>
+  distinct() |>
+  View()
+
+#' fuzzy join and check again
 diff_vessel_names <-
   fuzzyjoin_vessel_ids__closest__clean_vsl_name |>
   filter(!(!!vsl_name_filter)) |>
