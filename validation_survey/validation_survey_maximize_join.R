@@ -281,6 +281,7 @@ grep("john",
 #### shorten pims data ----
 pims_data_cols_to_keep <-
   c(
+    "SERO_HOME_PORT_CITY",
     "SERO_HOME_PORT_COUNTY",
     "SERO_HOME_PORT_STATE",
     "SERO_OFFICIAL_NUMBER",
@@ -290,7 +291,6 @@ pims_data_cols_to_keep <-
     "FIRST_NAME",
     "MIDDLE_NAME",
     "LAST_NAME",
-    "STATE",
     "permit_vessel_id",
     "county_short"
   )
