@@ -475,10 +475,7 @@ dim(fuzzyjoin_vessel_ids__dist_grp__match_solo)
 n_distinct(fuzzyjoin_vessel_ids__dist_grp__match_solo)
 # 354
 
-### Add back vessel info from PIMS ----
-
-    # survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num__short,
-    # vessel_permit_owner_from_db_clean_vsl__cln_county__short__fips,
+### add back PIMS info to each fuzzy matching vessel id ----
 
 fuzzyjoin_vessel_ids__dist_grp__match_solo__add_back_pims <-
   fuzzyjoin_vessel_ids__dist_grp__match_solo |>
@@ -493,6 +490,21 @@ fuzzyjoin_vessel_ids__dist_grp__match_solo__add_back_pims <-
 
 dim(fuzzyjoin_vessel_ids__dist_grp__match_solo__add_back_pims)
 # [1] 2265   19
+# [1] 20086    32
+
+#' fuzzyjoin_vessel_ids__dist_grp__match_solo__add_back_pims
+#' has PIMS info for each survey vessel id by fuzzy match,
+#' one survey_vessel_id can have multiple matches with distance 2
+
+### add back survey info ----
+fuzzyjoin_vessel_ids__dist_grp__match_solo__add_back_pims_n_survey <-
+  fuzzyjoin_vessel_ids__dist_grp__match_solo__add_back_pims |>
+  inner_join(survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num__short,
+             relationship = "many-to-many")
+# Joining with `by = join_by(survey_vessel_id)`
+#' relationship = "many-to-many": many id_codes (surveys) X many vessels in fuzzy match
+
+# too many vessels for the same id_code ----
 #' 
 #' filters for fuzzy matching vessel ids
 #' permits
