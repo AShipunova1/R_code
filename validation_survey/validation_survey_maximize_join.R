@@ -80,6 +80,26 @@ source(get_data_path)
 #' 
 # ---
 
+# Aux methods ----
+## unify county names ----
+words_to_remove <- " county| parish| municipio| islands| island| municipality| district| city"
+
+unify_county_names <- function(my_df, county_col_name) {
+  res_df <-
+    my_df |>
+    dplyr::mutate(dplyr::across(dplyr::everything(), tolower)) |> 
+    dplyr::mutate(
+      county_short =
+        stringr::str_replace_all(!!dplyr::sym(county_col_name),
+                                 words_to_remove, "") |>
+        stringr::str_replace_all("\\bst\\.* ", "saint ") |>
+        stringr::str_replace_all("[^A-z0-9 ]", "") |>
+        stringr::str_squish()
+    )
+  
+  return(res_df)  
+}
+
 # Prepare survey data ----
 ## Get dates from survey's id_code ----
 get_date_from_id_code_survey <- 
