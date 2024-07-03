@@ -824,6 +824,8 @@ my_url <- "https://docs.google.com/spreadsheets/d/1bCNbWBlSvQ-uP5z8NntxAduw6SNVb
 my_g_sh <- 
   read_sheet(my_url)
 
+View(my_g_sh)
+
 # by ID
 read_sheet(meta$id)
 # by name (beware of multiple sheets having the same name => error)
