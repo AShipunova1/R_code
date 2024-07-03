@@ -848,7 +848,7 @@ fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs <-
   )
 
 ## sorten marked filters df ----
-fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs__short <-
+fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs__to_csv <-
   fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs |>
   select(
     -c(
@@ -862,15 +862,22 @@ fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs__short <-
       vsl_num # same as survey_vessel_id
     )
   ) |>
+  # to prevent sci notation
+  mutate(id_code = as.character(id_code)) |> 
   distinct()
 
-dim(fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs__short)
+str(fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs__to_csv)
 # [1] 4355   24
 
-# stringr::str_length("survey_n_pims__same_vsl_id__diff_all_else")
-#' run once
-# ss_validation_survey <- googlesheets4::gs4_create(
-#   name = "validation_survey",
-#   sheets = list("survey_n_pims__same_vsl_id__diff_all_else" =
-#                   survey_n_pims__same_vsl_id__diff_all_else)
+# sheet_properties(ss_validation_survey)
+my_ss <- gs4_find("validation_survey")
+
+#' uncomment if needed
+# write_sheet(
+#   fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs__to_csv,
+#   ss = my_ss,
+#   sheet = "survey_n_pims_by_vessel_ids_fuzzy_join__filtrs"
 # )
+
+
+
