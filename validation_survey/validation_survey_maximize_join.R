@@ -718,24 +718,36 @@ fuzzyjoin_vessel_ids__closest__clean_vsl_name__all_filtrs_pass <-
 #' check dist 2
 fuzzyjoin_vessel_ids__closest__clean_vsl_name__all_filtrs_pass |>
   filter(vessel_id_dist == 2) |>
-  select(-c(id_code, interview_date, vsl_num, cnty, st, SERO_HOME_PORT_CITY)) |>
+  select(
+    -c(
+      id_code,
+      interview_date,
+      vsl_num,
+      cnty,
+      st,
+      SERO_HOME_PORT_CITY,
+      vsl_names_dist,
+      vsl_names_dist_round
+    )
+  ) |>
   distinct() |>
   head() |>
   glimpse()
 
-#' check if survey_vessel_id amount didn't change
+#' check survey_vessel_id amount
 
 n_distinct(fuzzyjoin_vessel_ids__closest$survey_vessel_id)
 # 429
 
 n_distinct(fuzzyjoin_vessel_ids__closest__clean_vsl_name__vsl_name_dist$survey_vessel_id)
 # 429
+#' OK, same
 
 n_distinct(fuzzyjoin_vessel_ids__closest__clean_vsl_name__all_filtrs_pass$survey_vessel_id)
 # 290
+# Only these who passed
 
-#' check if SERO_OFFICIAL_NUMBER amount didn't change
-
+#' check SERO_OFFICIAL_NUMBER amount
 n_distinct(fuzzyjoin_vessel_ids__closest$SERO_OFFICIAL_NUMBER)
 # 376
 
@@ -744,6 +756,7 @@ n_distinct(fuzzyjoin_vessel_ids__closest__clean_vsl_name__vsl_name_dist$SERO_OFF
 
 n_distinct(fuzzyjoin_vessel_ids__closest__clean_vsl_name__all_filtrs_pass$SERO_OFFICIAL_NUMBER)
 # 258
+# OK, Only these who passed
 
 # 258*100/832
 # 31% vessels pass 1 of the filters
@@ -798,66 +811,26 @@ fuzzyjoin_vessel_ids__closest__clean_vsl_name__all_filtrs |>
   distinct() |> 
   glimpse()
 
+columns_to_remove_from_marked_filters <- 
+  c(
+    "interviewee_m_name",     # not used
+    "MIDDLE_NAME",            # not used
+    "SERO_HOME_PORT_CITY",    # not used
+    "county",                 # full name, not used
+    "cnty",                   # use cnty_3
+    "st",                     # use st_2
+    "vsl_num",                # same as survey_vessel_id,
+    "vsl_names_dist",         # use vsl_names_dissim
+    "vsl_names_dist_round"    # use vsl_names_dissim
+  )
+
 survey_n_pims__same_vsl_id__diff_all_else <-
   fuzzyjoin_vessel_ids__closest__clean_vsl_name__all_filtrs |>
+  # to prevent sci notation
+  mutate(id_code = as.character(id_code)) |> 
   filter(passed_a_filter == "not pass" & vessel_id_dist == 0) |>
-  select(
-    -c(
-      interviewee_m_name,
-      MIDDLE_NAME,
-      SERO_HOME_PORT_CITY,
-      county,
-      vsl_names_dist,
-      cnty,
-      st
-    )
-  ) |>
+  select(-all_of(columns_to_remove_from_marked_filters)) |>
   distinct()
-
-  # readr::write_csv(
-  #   file.path(
-  #     curr_proj_output_path,
-  #     "survey_n_pims__same_vsl_id__diff_all_else.csv"
-  #   )
-  # )
-
-# write to google sheets ----
-## List all your Google sheets ----
-# googlesheets4::gs4_find()
-
-## Write Google Sheet -----
-
-# stringr::str_length("survey_n_pims__same_vsl_id__diff_all_else")
-#' run once
-# ss_validation_survey <- googlesheets4::gs4_create(
-#   name = "validation_survey",
-#   sheets = list("survey_n_pims__same_vsl_id__diff_all_else" =
-#                   survey_n_pims__same_vsl_id__diff_all_else)
-# )
-
-# glimpse(survey_n_pims__same_vsl_id__diff_all_else)
-
-#' check            vessel_id_dist     n
-# 6 pass                         1    22
-# 7 pass                         2    18
-
-survey_n_pims__not_vsl_id__ok_filters <-
-  fuzzyjoin_vessel_ids__closest__clean_vsl_name__all_filtrs |>
-  filter(passed_a_filter == "pass" & vessel_id_dist %in% c(1, 2)) |>
-  select(
-    -c(
-      interviewee_m_name,
-      MIDDLE_NAME,
-      SERO_HOME_PORT_CITY,
-      county,
-      cnty,
-      st,
-      vsl_names_dist
-    )
-  ) |>
-  distinct()
-
-# View(survey_n_pims__not_vsl_id__ok_filters)
 
 # mark passed filters ----
 fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs <-
@@ -872,34 +845,42 @@ fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs <-
 ## sorten marked filters df ----
 fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs__to_csv <-
   fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs |>
-  select(
-    -c(
-      interviewee_m_name, # not used
-      MIDDLE_NAME, # not used
-      SERO_HOME_PORT_CITY, # not used
-      county, # full name, not used
-      cnty, # use cnty_3
-      st,   # use st_2
-      vsl_names_dist, # keep round
-      vsl_num # same as survey_vessel_id
-    )
-  ) |>
+  select(-all_of(columns_to_remove_from_marked_filters)) |>
   # to prevent sci notation
   mutate(id_code = as.character(id_code)) |> 
   distinct()
 
-str(fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs__to_csv)
+dim(fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs__to_csv)
 # [1] 4355   24
 
-# sheet_properties(ss_validation_survey)
+# glimpse(survey_n_pims__same_vsl_id__diff_all_else)
+
+#' check            vessel_id_dist     n
+# 6 pass                         1    22
+# 7 pass                         2    18
+
+survey_n_pims__not_vsl_id__ok_filters <-
+  fuzzyjoin_vessel_ids__closest__clean_vsl_name__all_filtrs |>
+  filter(passed_a_filter == "pass" & vessel_id_dist %in% c(1, 2)) |>
+  select(-all_of(columns_to_remove_from_marked_filters)) |>
+  distinct()
+
+glimpse(survey_n_pims__not_vsl_id__ok_filters)
+
+# Write to google sheets ----
 my_ss <- gs4_find("validation_survey")
 
 #' uncomment if needed
+
+# write_sheet(
+#   survey_n_pims__same_vsl_id__diff_all_else,
+#   ss = my_ss,
+#   sheet = "survey_n_pims__same_vsl_id__diff_all_else"
+# )
+
 # write_sheet(
 #   fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs__to_csv,
 #   ss = my_ss,
 #   sheet = "survey_n_pims_by_vessel_ids_fuzzy_join__filtrs"
 # )
-
-
 
