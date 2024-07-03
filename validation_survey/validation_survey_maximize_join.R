@@ -21,6 +21,7 @@ library(lubridate)
 library(ROracle)
 library(tidycensus)
 library(usmap)
+library(stringdist)
 
 Sys.setenv(TZ = Sys.timezone())
 Sys.setenv(ORA_SDTZ = Sys.timezone())
@@ -424,7 +425,7 @@ vessel_permit_owner_from_db_clean_vsl__cln_county__short <-
   dplyr::select(tidyselect::all_of(pims_data_cols_to_keep)) |> 
   distinct()
 
-dim(vessel_permit_owner_from_db_clean_vsl__cln_county__short)
+View(vessel_permit_owner_from_db_clean_vsl__cln_county__short)
 # 6034
 
 ## add fips codes to pims data ----
@@ -618,7 +619,7 @@ fuzzyjoin_vessel_ids__closest__clean_vsl_name |>
   dim()
 # [1] 1834   27
 
-# 1834+2380 = 4214
+# 1834 + 2380 = 4214
 
 #' check
 diff_vessel_names <-
@@ -627,36 +628,161 @@ diff_vessel_names <-
   select(vessel_name, VESSEL_NAME) |>
   distinct()
 
-## combine 3 filters ----
+glimpse(diff_vessel_names)
 
-fuzzyjoin_vessel_ids__closest__clean_vsl_name__3_filt <-
-  fuzzyjoin_vessel_ids__closest__clean_vsl_name |>
+### measure vessel names distance and check again ----
+fuzzyjoin_vessel_ids__closest__clean_vsl_name__vsl_name_dist <- 
+  fuzzyjoin_vessel_ids__closest__clean_vsl_name |> 
+  group_by(SERO_OFFICIAL_NUMBER) |> 
+  mutate(vsl_names_dist = stringdist::stringsim(vessel_name, VESSEL_NAME)) |> 
+  mutate(vsl_names_dist_round = round(vsl_names_dist, 1)) |> 
+  ungroup()
+
+#' check 
+fuzzyjoin_vessel_ids__closest__clean_vsl_name__vsl_name_dist |> 
+  select(SERO_OFFICIAL_NUMBER, vsl_names_dist_round) |> 
+  distinct() |> 
+  count(vsl_names_dist_round)
+  # count(wt = n)
+  # 456
+
+#' similar vessel name
+
+fuzzyjoin_vessel_ids__closest__clean_vsl_name__vsl_name_dist |> 
+  filter(vsl_names_dist_round >= 0.7) |> 
+  dim()
+# 2710
+
+# the same vessel names was
+# 2380
+
+#' less similar vessel name
+fuzzyjoin_vessel_ids__closest__clean_vsl_name__vsl_name_dist |> 
+  filter(vsl_names_dist_round < 0.7) |> 
+  dim()
+# 1513
+
+# 1513 + 2710 = 4223
+
+fuzzyjoin_vessel_ids__closest__clean_vsl_name__vsl_name_dist |> 
+  select(survey_vessel_id, SERO_OFFICIAL_NUMBER,
+         vessel_name, VESSEL_NAME,
+         vsl_names_dist_round) |> 
+  distinct() |> 
+  head() |> 
+  glimpse()
+
+## combine all filters ----
+### check filters combination ----
+#' the result has at least one filter match 
+
+fuzzyjoin_vessel_ids__closest__clean_vsl_name__all_filtrs_pass <-
+  fuzzyjoin_vessel_ids__closest__clean_vsl_name__vsl_name_dist |>
   filter(!!geo_filter |
            !!name_filter |
-           !!vsl_name_filter)
+           !!vsl_name_filter |
+           vsl_names_dist_round >= 0.7)
 
-fuzzyjoin_vessel_ids__closest__clean_vsl_name__3_filt |>
+#' check dist 2
+fuzzyjoin_vessel_ids__closest__clean_vsl_name__all_filtrs_pass |>
   filter(vessel_id_dist == 2) |>
   select(-c(id_code, interview_date, vsl_num, cnty, st, SERO_HOME_PORT_CITY)) |>
   distinct() |>
   head() |>
   glimpse()
 
-n_distinct(fuzzyjoin_vessel_ids__closest__clean_vsl_name__3_filt$SERO_OFFICIAL_NUMBER)
+#' check if survey_vessel_id amount didn't change
+
+n_distinct(fuzzyjoin_vessel_ids__closest$survey_vessel_id)
+# 429
+
+n_distinct(fuzzyjoin_vessel_ids__closest__clean_vsl_name__vsl_name_dist$survey_vessel_id)
+# 429
+
+n_distinct(fuzzyjoin_vessel_ids__closest__clean_vsl_name__all_filtrs_pass$survey_vessel_id)
+# 290
+
+#' check if SERO_OFFICIAL_NUMBER amount didn't change
+
+n_distinct(fuzzyjoin_vessel_ids__closest$SERO_OFFICIAL_NUMBER)
+# 376
+
+n_distinct(fuzzyjoin_vessel_ids__closest__clean_vsl_name__vsl_name_dist$SERO_OFFICIAL_NUMBER)
+# 376
+
+n_distinct(fuzzyjoin_vessel_ids__closest__clean_vsl_name__all_filtrs_pass$SERO_OFFICIAL_NUMBER)
 # 258
 
-n_distinct(fuzzyjoin_vessel_ids$SERO_OFFICIAL_NUMBER)
-# 832
-
 # 258*100/832
-# 31% vessels pass 1 of 3 filters
+# 31% vessels pass 1 of the filters
 
-#' fuzzy join and check again
-diff_vessel_names <-
-  fuzzyjoin_vessel_ids__closest__clean_vsl_name |>
-  filter(!(!!vsl_name_filter)) |>
-  select(vessel_name, VESSEL_NAME) |>
-  distinct()
+### mark if passed any of the filters ----
+fuzzyjoin_vessel_ids__closest__clean_vsl_name__all_filtrs <-
+  fuzzyjoin_vessel_ids__closest__clean_vsl_name__vsl_name_dist |>
+  mutate(
+    passed_a_filter = case_when(
+      !!geo_filter |
+        !!name_filter |
+        !!vsl_name_filter |
+        vsl_names_dist_round >= 0.7 ~
+        "pass",
+      .default = "not pass"
+    )
+  )
 
-glimpse(diff_vessel_names)
+#' check 
+n_distinct(fuzzyjoin_vessel_ids__closest__clean_vsl_name__all_filtrs$SERO_OFFICIAL_NUMBER)
+# 376, correct, see above
 
+# View(fuzzyjoin_vessel_ids__closest__clean_vsl_name__all_filtrs)
+
+fuzzyjoin_vessel_ids__closest__clean_vsl_name__all_filtrs |>
+  select(survey_vessel_id, SERO_OFFICIAL_NUMBER, passed_a_filter) |>
+  distinct() |>
+  count(passed_a_filter)
+#   passed_a_filter     n
+# 1 not pass          220
+# 2 pass              290
+# 220*100/(220+290)
+# 43.13725% not passed any filters
+
+### Check combinations of vessel_ids distance and additional filters ---- 
+fuzzyjoin_vessel_ids__closest__clean_vsl_name__all_filtrs |>
+  select(survey_vessel_id, SERO_OFFICIAL_NUMBER, vessel_id_dist, passed_a_filter) |>
+  distinct() |>
+  count(passed_a_filter, vessel_id_dist)
+
+#   passed_a_filter vessel_id_dist     n
+# 1 not pass                     0    14
+# 2 not pass                     1     8
+# 3 not pass                     2   123
+# 4 not pass                    NA    75
+# 5 pass                         0   250
+# 6 pass                         1    22
+# 7 pass                         2    18
+
+fuzzyjoin_vessel_ids__closest__clean_vsl_name__all_filtrs |> 
+  filter(passed_a_filter == "not pass" & vessel_id_dist == 0) |> 
+  distinct() |> 
+  glimpse()
+
+fuzzyjoin_vessel_ids__closest__clean_vsl_name__all_filtrs |>
+  filter(passed_a_filter == "not pass" & vessel_id_dist == 0) |>
+  select(
+    -c(
+      interviewee_m_name,
+      MIDDLE_NAME,
+      SERO_HOME_PORT_CITY,
+      county,
+      vsl_names_dist,
+      cnty,
+      st
+    )
+  ) |>
+  distinct() |>
+  readr::write_csv(
+    file.path(
+      curr_proj_output_path,
+      "survey_n_pims__same_vsl_id__diff_all_else.csv"
+    )
+  )
