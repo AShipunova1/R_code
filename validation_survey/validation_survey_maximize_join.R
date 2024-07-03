@@ -685,31 +685,16 @@ fuzzyjoin_vessel_ids__closest__clean_vsl_name__vsl_name_dist |>
 fuzzyjoin_vessel_ids__closest__clean_vsl_name__vsl_name_dist |> 
   mutate(vsl_names_category = cut(
     vsl_names_dissim,
-    breaks = c(-Inf, 0.3, Inf),
-    labels = c("similar", "dissimilar")
+    breaks = c(-Inf, 0.0, 0.3, Inf),
+    labels = c("same", "similar", "dissimilar")
   )) |> 
   select(survey_vessel_id, vsl_names_category) |> 
   distinct() |> 
   count(vsl_names_category)
-# 1 similar              250
-# 2 dissimilar           120
-# 3 NA                    75
-
-#' exactly the same vessel names:
-fuzzyjoin_vessel_ids__closest__clean_vsl_name |> 
-  filter(!!vsl_name_filter) |> 
-  select(survey_vessel_id) |> 
-  distinct() |> 
-  dim()
-# 233
-
-#' less similar vessel name
-fuzzyjoin_vessel_ids__closest__clean_vsl_name__vsl_name_dist |>
-  filter(vsl_names_dissim > 0.3) |>
-  select(survey_vessel_id) |>
-  distinct() |>
-  dim()
-# 120
+# 1 same                 233
+# 2 similar               43
+# 3 dissimilar           120
+# 4 NA                    75
 
 fuzzyjoin_vessel_ids__closest__clean_vsl_name__vsl_name_dist |> 
   select(survey_vessel_id, SERO_OFFICIAL_NUMBER,
