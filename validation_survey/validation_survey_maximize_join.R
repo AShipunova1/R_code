@@ -30,8 +30,8 @@ if (!require(googledrive)) install.packages("googledrive")
 library(googlesheets4) # Google Sheets via the Sheets API v4 
 library(googledrive) # interact with Google Drive 
 
-## Authentificate to Google Drive ----
-googledrive::drive_auth()
+#' don't convert long numbers to scientific notation
+options(scipen = 999)
 
 Sys.setenv(TZ = Sys.timezone())
 Sys.setenv(ORA_SDTZ = Sys.timezone())
