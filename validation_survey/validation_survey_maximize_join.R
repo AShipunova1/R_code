@@ -807,10 +807,70 @@ survey_n_pims__same_vsl_id__diff_all_else <-
 
 # stringr::str_length("survey_n_pims__same_vsl_id__diff_all_else")
 #' run once
-ss_validation_survey <- googlesheets4::gs4_create(
-  name = "validation_survey",
-  sheets = list("survey_n_pims__same_vsl_id__diff_all_else" =
-                  survey_n_pims__same_vsl_id__diff_all_else)
-)
+# ss_validation_survey <- googlesheets4::gs4_create(
+#   name = "validation_survey",
+#   sheets = list("survey_n_pims__same_vsl_id__diff_all_else" =
+#                   survey_n_pims__same_vsl_id__diff_all_else)
+# )
 
-glimpse(survey_n_pims__same_vsl_id__diff_all_else)
+# glimpse(survey_n_pims__same_vsl_id__diff_all_else)
+
+#' check            vessel_id_dist     n
+# 6 pass                         1    22
+# 7 pass                         2    18
+
+survey_n_pims__not_vsl_id__ok_filters <-
+  fuzzyjoin_vessel_ids__closest__clean_vsl_name__all_filtrs |>
+  filter(passed_a_filter == "pass" & vessel_id_dist %in% c(1, 2)) |>
+  select(
+    -c(
+      interviewee_m_name,
+      MIDDLE_NAME,
+      SERO_HOME_PORT_CITY,
+      county,
+      cnty,
+      st,
+      vsl_names_dist
+    )
+  ) |>
+  distinct()
+
+# View(survey_n_pims__not_vsl_id__ok_filters)
+
+# mark passed filters ----
+fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs <-
+  fuzzyjoin_vessel_ids__closest__clean_vsl_name__vsl_name_dist |>
+  mutate(
+    st_pass = case_when(state_code == st_2 ~ "st_pass"),
+    cnty_pass = case_when(county_code == cnty_3 ~ "cnty_pass"),
+    name_pass = case_when(!!name_filter ~ "same_names_pass"),
+    vsl_name_pass = case_when(vsl_names_dist_round >= 0.7 ~ "similar_vsl_name_pass")
+  )
+
+## sorten marked filters df ----
+fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs__short <-
+  fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs |>
+  select(
+    -c(
+      interviewee_m_name, # not used
+      MIDDLE_NAME, # not used
+      SERO_HOME_PORT_CITY, # not used
+      county, # full name, not used
+      cnty, # use cnty_3
+      st,   # use st_2
+      vsl_names_dist, # keep round
+      vsl_num # same as survey_vessel_id
+    )
+  ) |>
+  distinct()
+
+dim(fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs__short)
+# [1] 4355   24
+
+# stringr::str_length("survey_n_pims__same_vsl_id__diff_all_else")
+#' run once
+# ss_validation_survey <- googlesheets4::gs4_create(
+#   name = "validation_survey",
+#   sheets = list("survey_n_pims__same_vsl_id__diff_all_else" =
+#                   survey_n_pims__same_vsl_id__diff_all_else)
+# )
