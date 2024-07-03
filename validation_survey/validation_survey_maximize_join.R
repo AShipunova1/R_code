@@ -838,15 +838,19 @@ survey_n_pims__not_vsl_id__ok_filters <-
 # View(survey_n_pims__not_vsl_id__ok_filters)
 
 # mark passed filters ----
-fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs <-
+fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs1 <-
   fuzzyjoin_vessel_ids__closest__clean_vsl_name__vsl_name_dist |>
+  rowwise() |> 
   mutate(
     st_pass = case_when(state_code == st_2 ~ "st_pass"),
     cnty_pass = case_when(county_code == cnty_3 ~ "cnty_pass"),
     name_pass = case_when(!!name_filter ~ "same_names_pass"),
     vsl_name_pass = case_when(vsl_names_dist_round >= 0.7 ~ "similar_vsl_name_pass")
-  )
+  ) |> 
+  ungroup()
 
+all.equal(fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs,
+          fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs1)
 ## sorten marked filters df ----
 fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs__to_csv <-
   fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs |>
