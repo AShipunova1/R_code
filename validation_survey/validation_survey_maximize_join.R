@@ -433,9 +433,8 @@ vessel_permit_owner_from_db_clean_vsl__cln_county__short__fips <-
   left_join(
     vessel_permit_owner_from_db_clean_vsl__cln_county__short,
     fips_code_to_use,
-    join_by(SERO_HOME_PORT_STATE == state, county_short)
-    # ,
-    # relationship = "many-to-many"
+    join_by(SERO_HOME_PORT_STATE == state, county_short),
+    relationship = "many-to-many"
   )
 
 ### check relationship = "many-to-many" ----
