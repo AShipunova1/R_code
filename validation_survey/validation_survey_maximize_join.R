@@ -812,8 +812,18 @@ ss_validation_survey <- googlesheets4::gs4_create(
                   survey_n_pims__same_vsl_id__diff_all_else)
 )
 
+googlesheets4::gs4_find("validation_survey")
+# 1 validation_survey 13obT2URTPlK2DHCxzdtHTNE4p_KyQYiERnMcp4YHrTY 
+survey_n_pims__same_vsl_id__diff_all_else_1 <-
+  drive_get("validation_survey") %>%
+  read_sheet()
 
-read_sheet(ss)
+diffdf::diffdf(survey_n_pims__same_vsl_id__diff_all_else,
+          survey_n_pims__same_vsl_id__diff_all_else_1)
+
+#     VARIABLE     CLASS.BASE        CLASS.COMP       
+#  interview_date     Date     c("POSIXct", "POSIXt") 
+
 
 ## Read Google Sheet ----
 # by URL
@@ -824,7 +834,7 @@ my_url <- "https://docs.google.com/spreadsheets/d/1bCNbWBlSvQ-uP5z8NntxAduw6SNVb
 my_g_sh <- 
   read_sheet(my_url)
 
-View(my_g_sh)
+glimpse(my_g_sh)
 
 # by ID
 read_sheet(meta$id)
