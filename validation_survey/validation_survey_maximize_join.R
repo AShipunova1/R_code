@@ -435,7 +435,7 @@ vessel_permit_owner_from_db_clean_vsl__cln_county__short <-
   dplyr::select(tidyselect::all_of(pims_data_cols_to_keep)) |> 
   distinct()
 
-View(vessel_permit_owner_from_db_clean_vsl__cln_county__short)
+dim(vessel_permit_owner_from_db_clean_vsl__cln_county__short)
 # 6034
 
 ## add fips codes to pims data ----
@@ -883,4 +883,120 @@ my_ss <- gs4_find("validation_survey")
 #   ss = my_ss,
 #   sheet = "survey_n_pims_by_vessel_ids_fuzzy_join__filtrs"
 # )
+
+#' result survey with PIMS is in 
+#' fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs__to_csv
+
+# Join logbooks ----
+#' TODO: mv to a separate file
+
+# prepare logbooks ----
+db_logbooks_2022_clean_vesl <-
+  db_logbooks_2022 |>
+  dplyr::mutate(VESSEL_OFFICIAL_NBR = tolower(VESSEL_OFFICIAL_NBR))
+
+## shorten
+#' as.character(TRIP_ID) to avoid sci notation in csv
+db_logbooks_2022_short0 <-
+  db_logbooks_2022_clean_vesl |>
+  dplyr::select(
+    TRIP_ID,
+    VESSEL_OFFICIAL_NBR,
+    TRIP_START_DATE,
+    TRIP_START_TIME,
+    TRIP_END_DATE,
+    TRIP_END_TIME
+  ) |>
+  dplyr::distinct() |> 
+  dplyr::mutate(trip_end_date_only = lubridate::date(TRIP_END_DATE),
+                TRIP_ID = as.character(TRIP_ID))
+  
+db_logbooks_2022_short_date_time <-
+  db_logbooks_2022_short0 |>
+  dplyr::mutate(start_hour_sec =
+           stringr::str_replace(TRIP_START_TIME, "(\\d+)(\\d{2})", "\\1 \\2")) |>
+  tidyr::separate_wider_delim(
+    start_hour_sec,
+    delim = " ",
+    names = c("trip_start_hour", "trip_start_sec")
+  ) |>
+  dplyr::mutate(end_hour_sec =
+           stringr::str_replace(TRIP_END_TIME, "(\\d+)(\\d{2})", "\\1 \\2")) |>
+  tidyr::separate_wider_delim(end_hour_sec,
+                              delim = " ",
+                              names = c("trip_end_hour", "trip_end_sec")) |>
+  dplyr::mutate(dplyr::across(
+    c(
+      "trip_start_hour",
+      "trip_start_sec",
+      "trip_end_hour",
+      "trip_end_sec"
+    ),
+    ~ as.numeric(.x)
+  )) |>
+  dplyr::mutate(
+    trip_start_date_time = lubridate::make_datetime(
+      lubridate::year(TRIP_START_DATE),
+      lubridate::month(TRIP_START_DATE),
+      lubridate::day(TRIP_START_DATE),
+      as.numeric(trip_start_hour),
+      as.numeric(trip_start_sec),
+      tz = Sys.timezone()
+    )
+  ) |>
+  dplyr::mutate(
+    trip_end_date_time = lubridate::make_datetime(
+      lubridate::year(TRIP_END_DATE),
+      lubridate::month(TRIP_END_DATE),
+      lubridate::day(TRIP_END_DATE),
+      as.numeric(trip_end_hour),
+      as.numeric(trip_end_sec),
+      tz = Sys.timezone()
+    )
+  )
+
+# str(db_logbooks_2022_short_date_time)
+
+#' logbooks data to use
+#' db_logbooks_2022_short_date_time 
+
+# JOIN interview and logbooks by day and vessel ----
+lgb_join_i1 <-
+  dplyr::right_join(
+    db_logbooks_2022_short_date_time,
+    fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs__to_csv,
+    dplyr::join_by(
+      VESSEL_OFFICIAL_NBR == SERO_OFFICIAL_NUMBER,
+      trip_end_date_only == interview_date
+    )
+    # ,
+    # relationship = "many-to-many"
+  )
+
+## Investigate relationship = "many-to-many" ----
+#' ℹ Row 1391 of `x` matches multiple rows in `y`.
+#' ℹ Row 74 of `y` matches multiple rows in `x`.
+
+lgb_1391 <-
+  db_logbooks_2022_short_date_time[1391, ]
+
+survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty |>
+  filter(
+    lgb_1391$VESSEL_OFFICIAL_NBR == vsl_num,
+    lgb_1391$trip_end_date_only == interview_date
+  ) |> 
+  glimpse()
+#' 2 interviews in one day for the same vessel, ok 
+
+#' ℹ Row 74 of `y` matches multiple rows in `x`.
+survey_74 <- 
+  survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty[74,]
+
+db_logbooks_2022_short_date_time |> 
+  filter(
+    VESSEL_OFFICIAL_NBR == survey_74$vsl_num,
+    trip_end_date_only == survey_74$interview_date
+  ) |> 
+  glimpse()
+#' 2 trips/logbooks on the day, ok
 
