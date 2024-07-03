@@ -621,7 +621,11 @@ fuzzyjoin_vessel_ids__closest__clean_vsl_name |>
 # 1834+2380 = 4214
 
 #' check
-# View(fuzzyjoin_vessel_ids__closest__clean_vsl_name)
+diff_vessel_names <-
+  fuzzyjoin_vessel_ids__closest__clean_vsl_name |>
+  filter(!(!!vsl_name_filter)) |>
+  select(vessel_name, VESSEL_NAME) |>
+  distinct()
 
 ## combine 3 filters ----
 
