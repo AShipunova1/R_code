@@ -801,14 +801,16 @@ survey_n_pims__same_vsl_id__diff_all_else <-
 
 # write to google sheets ----
 ## List all your Google sheets ----
-googlesheets4::gs4_find()
+# googlesheets4::gs4_find()
 
 ## Write Google Sheet -----
 
 # stringr::str_length("survey_n_pims__same_vsl_id__diff_all_else")
+#' run once
 ss_validation_survey <- googlesheets4::gs4_create(
   name = "validation_survey",
   sheets = list("survey_n_pims__same_vsl_id__diff_all_else" =
                   survey_n_pims__same_vsl_id__diff_all_else)
 )
 
+glimpse(survey_n_pims__same_vsl_id__diff_all_else)
