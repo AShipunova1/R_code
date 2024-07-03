@@ -960,7 +960,7 @@ db_logbooks_2022_short_date_time <-
 #' logbooks data to use
 #' db_logbooks_2022_short_date_time 
 
-# JOIN interview and logbooks by day and vessel ----
+# JOIN interview (fuzyy joined to PIMS) and logbooks by day and vessel ----
 lgb_join_i1 <-
   dplyr::right_join(
     db_logbooks_2022_short_date_time,
@@ -974,29 +974,31 @@ lgb_join_i1 <-
   )
 
 ## Investigate relationship = "many-to-many" ----
-#' ℹ Row 1391 of `x` matches multiple rows in `y`.
-#' ℹ Row 74 of `y` matches multiple rows in `x`.
+#' ℹ Row 193  of `x` matches multiple rows in `y`.
+#' ℹ Row 2662 of `y` matches multiple rows in `x`.
 
-lgb_1391 <-
-  db_logbooks_2022_short_date_time[1391, ]
+lgb_193 <-
+  db_logbooks_2022_short_date_time[193, ]
 
-survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty |>
+fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs__to_csv |>
   filter(
-    lgb_1391$VESSEL_OFFICIAL_NBR == vsl_num,
-    lgb_1391$trip_end_date_only == interview_date
+    lgb_193$VESSEL_OFFICIAL_NBR == SERO_OFFICIAL_NUMBER,
+    lgb_193$trip_end_date_only == interview_date
   ) |> 
   glimpse()
-#' 2 interviews in one day for the same vessel, ok 
+#' many names for the same entry
+#' also could be 2 interviews in one day for the same vessel
 
-#' ℹ Row 74 of `y` matches multiple rows in `x`.
-survey_74 <- 
-  survey_data_l_2022_i1_w_dates_clean_vsl__st_restored_by_v_cnty[74,]
+#' ℹ Row 2662 of `y` matches multiple rows in `x`.
+survey_2662 <- 
+  fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs__to_csv[2662,]
 
 db_logbooks_2022_short_date_time |> 
   filter(
-    VESSEL_OFFICIAL_NBR == survey_74$vsl_num,
-    trip_end_date_only == survey_74$interview_date
+    VESSEL_OFFICIAL_NBR == survey_2662$SERO_OFFICIAL_NUMBER,
+    trip_end_date_only == survey_2662$interview_date
   ) |> 
   glimpse()
-#' 2 trips/logbooks on the day, ok
+
+#' 2 trips/logbooks on the day with 1 interview, ok
 
