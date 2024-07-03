@@ -641,43 +641,80 @@ diff_vessel_names <-
 glimpse(diff_vessel_names)
 
 ### measure vessel names distance and check again ----
+#' measure similarity between vessel_name and VESSEL_NAME
+#' turn into vsl_names_dissim so it looks close to Levenstein distance (as in vessel_id fuzzy match)
+
 fuzzyjoin_vessel_ids__closest__clean_vsl_name__vsl_name_dist <- 
   fuzzyjoin_vessel_ids__closest__clean_vsl_name |> 
   group_by(SERO_OFFICIAL_NUMBER) |> 
-  mutate(vsl_names_dist = stringdist::stringsim(vessel_name, VESSEL_NAME)) |> 
-  mutate(vsl_names_dist_round = round(vsl_names_dist, 1)) |> 
+  mutate(vsl_names_dist = 
+           stringdist::stringsim(vessel_name, VESSEL_NAME)) |> 
+  mutate(vsl_names_dist_round = round(vsl_names_dist, 1),
+         vsl_names_dissim = 1 - vsl_names_dist_round) |> 
   ungroup()
 
 #' check 
 fuzzyjoin_vessel_ids__closest__clean_vsl_name__vsl_name_dist |> 
-  select(SERO_OFFICIAL_NUMBER, vsl_names_dist_round) |> 
+  select(SERO_OFFICIAL_NUMBER, vsl_names_dissim) |> 
   distinct() |> 
-  count(vsl_names_dist_round)
+  count(vsl_names_dissim)
   # count(wt = n)
   # 456
 
+fuzzyjoin_vessel_ids__closest__clean_vsl_name__vsl_name_dist |> 
+  select(SERO_OFFICIAL_NUMBER, survey_vessel_id, vsl_names_dissim) |> 
+  distinct() |> 
+  count(vsl_names_dissim)
+
 #' similar vessel name
+#' check the threshold 
+fuzzyjoin_vessel_ids__closest__clean_vsl_name__vsl_name_dist |> 
+  filter(vsl_names_dissim == 0.4) |> 
+    select(vessel_name, VESSEL_NAME) |> 
+    distinct() |> 
+    glimpse()
+#' not good enough
 
 fuzzyjoin_vessel_ids__closest__clean_vsl_name__vsl_name_dist |> 
-  filter(vsl_names_dist_round >= 0.7) |> 
+  filter(vsl_names_dissim <= 0.3) |> 
+  select(survey_vessel_id) |> 
+  distinct() |> 
   dim()
-# 2710
+# 250
 
-# the same vessel names was
-# 2380
+fuzzyjoin_vessel_ids__closest__clean_vsl_name__vsl_name_dist |> 
+  mutate(vsl_names_category = cut(
+    vsl_names_dissim,
+    breaks = c(-Inf, 0.3, Inf),
+    labels = c("similar", "dissimilar")
+  )) |> 
+  select(survey_vessel_id, vsl_names_category) |> 
+  distinct() |> 
+  count(vsl_names_category)
+# 1 similar              250
+# 2 dissimilar           120
+# 3 NA                    75
+
+#' exactly the same vessel names:
+fuzzyjoin_vessel_ids__closest__clean_vsl_name |> 
+  filter(!!vsl_name_filter) |> 
+  select(survey_vessel_id) |> 
+  distinct() |> 
+  dim()
+# 233
 
 #' less similar vessel name
-fuzzyjoin_vessel_ids__closest__clean_vsl_name__vsl_name_dist |> 
-  filter(vsl_names_dist_round < 0.7) |> 
+fuzzyjoin_vessel_ids__closest__clean_vsl_name__vsl_name_dist |>
+  filter(vsl_names_dissim > 0.3) |>
+  select(survey_vessel_id) |>
+  distinct() |>
   dim()
-# 1513
-
-# 1513 + 2710 = 4223
+# 120
 
 fuzzyjoin_vessel_ids__closest__clean_vsl_name__vsl_name_dist |> 
   select(survey_vessel_id, SERO_OFFICIAL_NUMBER,
          vessel_name, VESSEL_NAME,
-         vsl_names_dist_round) |> 
+         vsl_names_dissim) |> 
   distinct() |> 
   head() |> 
   glimpse()
@@ -691,7 +728,7 @@ fuzzyjoin_vessel_ids__closest__clean_vsl_name__all_filtrs_pass <-
   filter(!!geo_filter |
            !!name_filter |
            !!vsl_name_filter |
-           vsl_names_dist_round >= 0.7)
+           vsl_names_dissim <= 0.3)
 
 #' check dist 2
 fuzzyjoin_vessel_ids__closest__clean_vsl_name__all_filtrs_pass |>
@@ -734,7 +771,7 @@ fuzzyjoin_vessel_ids__closest__clean_vsl_name__all_filtrs <-
       !!geo_filter |
         !!name_filter |
         !!vsl_name_filter |
-        vsl_names_dist_round >= 0.7 ~
+        vsl_names_dissim <= 0.3 ~
         "pass",
       .default = "not pass"
     )
@@ -838,19 +875,15 @@ survey_n_pims__not_vsl_id__ok_filters <-
 # View(survey_n_pims__not_vsl_id__ok_filters)
 
 # mark passed filters ----
-fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs1 <-
+fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs <-
   fuzzyjoin_vessel_ids__closest__clean_vsl_name__vsl_name_dist |>
-  rowwise() |> 
   mutate(
     st_pass = case_when(state_code == st_2 ~ "st_pass"),
     cnty_pass = case_when(county_code == cnty_3 ~ "cnty_pass"),
     name_pass = case_when(!!name_filter ~ "same_names_pass"),
-    vsl_name_pass = case_when(vsl_names_dist_round >= 0.7 ~ "similar_vsl_name_pass")
-  ) |> 
-  ungroup()
+    vsl_name_pass = case_when(vsl_names_dissim <= 0.3 ~ "similar_vsl_name_pass")
+  )
 
-all.equal(fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs,
-          fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs1)
 ## sorten marked filters df ----
 fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs__to_csv <-
   fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs |>
