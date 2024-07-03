@@ -968,9 +968,8 @@ lgb_join_i1 <-
     dplyr::join_by(
       VESSEL_OFFICIAL_NBR == SERO_OFFICIAL_NUMBER,
       trip_end_date_only == interview_date
-    )
-    # ,
-    # relationship = "many-to-many"
+    ),
+    relationship = "many-to-many"
   )
 
 ## Investigate relationship = "many-to-many" ----
@@ -1002,3 +1001,50 @@ db_logbooks_2022_short_date_time |>
 
 #' 2 trips/logbooks on the day with 1 interview, ok
 
+# How many int no lgb
+lgb_join_i1 |> 
+  data_overview()
+
+# TRIP_ID               1161
+# id_code               1835
+
+lgb_join_i1__short <-
+  lgb_join_i1 |>
+  select(TRIP_ID, id_code, trip_end_date_only) |>
+  distinct()
+
+dim(lgb_join_i1__short)
+
+lgb_join_i1__short |> 
+  filter(!is.na(TRIP_ID)) |> 
+    summarise(n_distinct(trip_end_date_only))
+#' 187 days with at least one trip
+#' 
+
+lgb_join_i1__short |> 
+  filter(is.na(TRIP_ID)) |> 
+    summarise(n_distinct(trip_end_date_only))
+# 200 says with no trips/lgbks
+
+lgb_join_i1__short |>
+  filter(!is.na(TRIP_ID)) |>
+  group_by(trip_end_date_only) %>%
+  # distinct(user, situation) %>%
+  summarise(entries_per_day = n())
+
+lgb_join_i1__short |>
+  filter(is.na(TRIP_ID)) |>
+  group_by(trip_end_date_only) %>%
+  # distinct(user, situation) %>%
+  summarise(entries_per_day = n())
+
+lgb_join_i1__short |> 
+  select(-id_code) |> 
+  distinct() |> 
+  filter(!is.na(TRIP_ID)) |>
+  group_by(trip_end_date_only) |> 
+  # distinct(user, situation) %>%
+  mutate(entries_per_day = n()) |> 
+  ungroup() 
+  # filter(entries_per_day > 1)
+# 0  
