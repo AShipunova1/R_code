@@ -805,39 +805,10 @@ googlesheets4::gs4_find()
 
 ## Write Google Sheet -----
 
-sheet_name1 <- head("survey_n_pims__same_vsl_id__diff_all_else", 30)
+# stringr::str_length("survey_n_pims__same_vsl_id__diff_all_else")
 ss_validation_survey <- googlesheets4::gs4_create(
   name = "validation_survey",
-  sheets = list(sheet_name1 =
+  sheets = list("survey_n_pims__same_vsl_id__diff_all_else" =
                   survey_n_pims__same_vsl_id__diff_all_else)
 )
 
-googlesheets4::gs4_find("validation_survey")
-# 1 validation_survey 13obT2URTPlK2DHCxzdtHTNE4p_KyQYiERnMcp4YHrTY 
-survey_n_pims__same_vsl_id__diff_all_else_1 <-
-  drive_get("validation_survey") %>%
-  read_sheet()
-
-diffdf::diffdf(survey_n_pims__same_vsl_id__diff_all_else,
-          survey_n_pims__same_vsl_id__diff_all_else_1)
-
-#     VARIABLE     CLASS.BASE        CLASS.COMP       
-#  interview_date     Date     c("POSIXct", "POSIXt") 
-
-
-## Read Google Sheet ----
-# by URL
-# url <- paste@("https://docs.google.com/spreadsheets/d/", meta$id)
-# read_sheet(url)
-my_url <- "https://docs.google.com/spreadsheets/d/1bCNbWBlSvQ-uP5z8NntxAduw6SNVbzfLZfIWsTnApzc/edit?usp=sharing"
-
-my_g_sh <- 
-  read_sheet(my_url)
-
-glimpse(my_g_sh)
-
-# by ID
-read_sheet(meta$id)
-# by name (beware of multiple sheets having the same name => error)
-drive_get("txhousing") %>%
-read_sheet()
