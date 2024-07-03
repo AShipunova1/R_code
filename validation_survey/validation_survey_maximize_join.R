@@ -23,6 +23,16 @@ library(tidycensus)
 library(usmap)
 library(stringdist)
 
+## Install and attach R packages for googlesheets ----
+# https://felixanalytix.medium.com/how-to-read-write-append-google-sheet-data-using-r-programming-ecf278108691#:~:text=There%20are%203%20ways%20to%20read%20this%20Google%20sheet%20into%20R.&text=Just%20to%20take%20the%20URL,URL%20but%20just%20the%20ID).
+if (!require(googlesheets4)) install.packages("googlesheetsa") 
+if (!require(googledrive)) install.packages("googledrive") 
+library(googlesheets4) # Google Sheets via the Sheets API v4 
+library(googledrive) # interact with Google Drive 
+
+## Authentificate to Google Drive ----
+googledrive::drive_auth()
+
 Sys.setenv(TZ = Sys.timezone())
 Sys.setenv(ORA_SDTZ = Sys.timezone())
 
@@ -766,7 +776,8 @@ fuzzyjoin_vessel_ids__closest__clean_vsl_name__all_filtrs |>
   distinct() |> 
   glimpse()
 
-fuzzyjoin_vessel_ids__closest__clean_vsl_name__all_filtrs |>
+survey_n_pims__same_vsl_id__diff_all_else <-
+  fuzzyjoin_vessel_ids__closest__clean_vsl_name__all_filtrs |>
   filter(passed_a_filter == "not pass" & vessel_id_dist == 0) |>
   select(
     -c(
@@ -779,10 +790,42 @@ fuzzyjoin_vessel_ids__closest__clean_vsl_name__all_filtrs |>
       st
     )
   ) |>
-  distinct() |>
-  readr::write_csv(
-    file.path(
-      curr_proj_output_path,
-      "survey_n_pims__same_vsl_id__diff_all_else.csv"
-    )
-  )
+  distinct()
+
+  # readr::write_csv(
+  #   file.path(
+  #     curr_proj_output_path,
+  #     "survey_n_pims__same_vsl_id__diff_all_else.csv"
+  #   )
+  # )
+
+# write to google sheets ----
+## List all your Google sheets ----
+googlesheets4::gs4_find()
+
+## Write Google Sheet -----
+
+sheet_name1 <- head("survey_n_pims__same_vsl_id__diff_all_else", 30)
+ss_validation_survey <- googlesheets4::gs4_create(
+  name = "validation_survey",
+  sheets = list(sheet_name1 =
+                  survey_n_pims__same_vsl_id__diff_all_else)
+)
+
+
+read_sheet(ss)
+
+## Read Google Sheet ----
+# by URL
+# url <- paste@("https://docs.google.com/spreadsheets/d/", meta$id)
+# read_sheet(url)
+my_url <- "https://docs.google.com/spreadsheets/d/1bCNbWBlSvQ-uP5z8NntxAduw6SNVbzfLZfIWsTnApzc/edit?usp=sharing"
+
+my_g_sh <- 
+  read_sheet(my_url)
+
+# by ID
+read_sheet(meta$id)
+# by name (beware of multiple sheets having the same name => error)
+drive_get("txhousing") %>%
+read_sheet()
