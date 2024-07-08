@@ -101,7 +101,8 @@ db_compliance_2022__comp_after_overr__short_m__interv__wide <-
   ) |>
   dplyr::ungroup()
 
-# glimpse(db_compliance_2022__comp_after_overr__short_m__interv__wide)
+# dim(db_compliance_2022__comp_after_overr__short_m__interv__wide)
+# 1 192
 
 ## turn back year compliance to the long format ----
 db_compliance_2022__comp_after_overr__short_m__interv__wide_long <-
@@ -111,7 +112,9 @@ db_compliance_2022__comp_after_overr__short_m__interv__wide_long <-
   tibble::rownames_to_column(var = "vessel_official_number") |> 
   rename("is_compl_or_both_year" = V1)
 
-# View(db_compliance_2022__comp_after_overr__short_m__interv__wide_long)
+dim(db_compliance_2022__comp_after_overr__short_m__interv__wide_long)
+# [1] 192   2
+
 # check
 db_compliance_2022__comp_after_overr__short_m__interv__wide_long |> 
     count(is_compl_or_both_year)
@@ -120,7 +123,7 @@ db_compliance_2022__comp_after_overr__short_m__interv__wide_long |>
 #                 no_yes   3
 #                    yes 187
 
-## get compliance per month ----
+# get compliance per month ----
 db_compliance_2022__comp_after_overr__short_m__interv__compl_m_wider <-
     db_compliance_2022__comp_after_overr__short_m__interv |>
     select(-starts_with("COMP_WEEK")) |> 
@@ -132,18 +135,26 @@ db_compliance_2022__comp_after_overr__short_m__interv__compl_m_wider <-
   ) |>
   dplyr::ungroup()
 
-# View(db_compliance_2022__comp_after_overr__short_m__interv__compl_m_wider)
-# 
-#   
-#   # count grouped by other columns
-#   dplyr::add_count(year_month, is_compl_or_both,
-#             name = "compl_or_not_cnt") |>
-#   unique() |>
-#   dplyr::ungroup()
-# 
-# # View(db_compliance_2022__comp_after_overr__short_m__interv__wide_long_cnt)
-# is_compl_or_both_month  n
-#   <chr>            <int>
-# 1 no                  57
-# 2 yes               5550
-# 3 NA                1725
+dim(db_compliance_2022__comp_after_overr__short_m__interv__compl_m_wider)
+# [1]  12 193
+
+db_compliance_2022__comp_after_overr__short_m__interv__compl_m_wider |> 
+  arrange(year_month) |> 
+  glimpse()
+
+## compliance per month in longer format ----
+db_compliance_2022__comp_after_overr__short_m__interv__compl_m_wider__long <- 
+  db_compliance_2022__comp_after_overr__short_m__interv__compl_m_wider |> 
+  tidyr::pivot_longer(
+    # all other columns are vessel ids, use them
+    cols = -year_month,
+    values_to = "is_compl_or_both",
+    names_to = "vessel_official_number"
+  )
+
+dim(db_compliance_2022__comp_after_overr__short_m__interv__compl_m_wider__long)
+# [1] 2304    3
+
+n_distinct(db_compliance_2022__comp_after_overr__short_m__interv__compl_m_wider__long$vessel_official_number)
+# [1] 192, ok, as above
+
