@@ -77,13 +77,13 @@ dim(lgb_join_i1__no_lgb__short)
 # get compliance information for vessels from survey no lgb ----
 db_compliance_2022__comp_after_overr__short_m__interv <-
   db_compliance_2022__comp_after_overr__short_m |>
-  filter(VESSEL_OFFICIAL_NBR %in% lgb_join_i1__no_lgb__short$VESSEL_OFFICIAL_NBR)
+  filter(tolower(VESSEL_OFFICIAL_NBR) %in% tolower(lgb_join_i1__no_lgb__short$VESSEL_OFFICIAL_NBR))
 
-View(db_compliance_2022__comp_after_overr__short_m__interv)
-# 5607    
+dim(db_compliance_2022__comp_after_overr__short_m__interv)
+# [1] 7600    6
 
 n_distinct(db_compliance_2022__comp_after_overr__short_m__interv$VESSEL_OFFICIAL_NBR)
-# 141
+# 192
 
 # get compl, no compl, or both per year ----
 db_compliance_2022__comp_after_overr__short_m__interv__wide <-
@@ -115,16 +115,10 @@ db_compliance_2022__comp_after_overr__short_m__interv__wide_long <-
 # check
 db_compliance_2022__comp_after_overr__short_m__interv__wide_long |> 
     count(is_compl_or_both_year)
-#   is_compl_or_both_year   n
-# 1                    no   1
-# 2                no_yes   2
-# 3                   yes 138
-
-# is_compl_or_both_month  n
-#   <chr>            <int>
-# 1 no                  57
-# 2 yes               5550
-# 3 NA                1725
+#  is_compl_or_both_year   n
+#                     no   2
+#                 no_yes   3
+#                    yes 187
 
 ## get compliance per month ----
 db_compliance_2022__comp_after_overr__short_m__interv__compl_m_wider <-
@@ -148,3 +142,8 @@ db_compliance_2022__comp_after_overr__short_m__interv__compl_m_wider <-
 #   dplyr::ungroup()
 # 
 # # View(db_compliance_2022__comp_after_overr__short_m__interv__wide_long_cnt)
+# is_compl_or_both_month  n
+#   <chr>            <int>
+# 1 no                  57
+# 2 yes               5550
+# 3 NA                1725
