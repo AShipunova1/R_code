@@ -44,8 +44,11 @@ db_compliance_2022__comp_after_overr__short <-
 dim(db_compliance_2022__comp_after_overr__short)
 # [1] 125845      5
 
-# check compliance for interviews w no logbooks ----
-# View(db_compliance_2022__comp_after_overr__short)
+## add a column for month  ----
+
+db_compliance_2022__comp_after_overr__short_m <-
+  db_compliance_2022__comp_after_overr__short |>
+  dplyr::mutate(year_month = zoo::as.yearmon(COMP_WEEK_START_DT))
 
 dim(lgb_join_i1)
 # [1] 4722   35
