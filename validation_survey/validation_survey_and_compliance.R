@@ -63,7 +63,15 @@ lgb_join_i1__no_lgb <-
 
 dim(lgb_join_i1__no_lgb)
 # [1] 2241   35
-  
+
+#' Vessels in survey list with no lgb
+
+vessels_in_survey_no_lgb <- 
+  unique(lgb_join_i1__no_lgb$VESSEL_OFFICIAL_NBR)
+
+n_distinct(lgb_join_i1__no_lgb$VESSEL_OFFICIAL_NBR)
+# 230
+
 lgb_join_i1__no_lgb__short <- 
   lgb_join_i1__no_lgb |> 
   select(-c(TRIP_ID, TRIP_START_DATE, TRIP_START_TIME, TRIP_END_DATE, TRIP_END_TIME, trip_start_hour, trip_start_sec, trip_end_hour, trip_end_sec, trip_start_date_time, trip_end_date_time, id_code, vessel_name, interviewee_f_name, interviewee_l_name, survey_vessel_id, st_2, cnty_3, SERO_HOME_PORT_COUNTY, SERO_HOME_PORT_STATE, VESSEL_NAME, FIRST_NAME, LAST_NAME, county_short, state_code, state_name, county_code, vessel_id_dist, vsl_names_dissim, st_pass, cnty_pass, name_pass, vsl_name_pass)) |> 
@@ -82,8 +90,17 @@ db_compliance_2022__comp_after_overr__short_m__interv <-
 dim(db_compliance_2022__comp_after_overr__short_m__interv)
 # [1] 7600    6
 
+vessels_in_survey_no_lgb__n__compl <- 
+  unique(db_compliance_2022__comp_after_overr__short_m__interv$VESSEL_OFFICIAL_NBR)
+
+glimpse(vessels_in_survey_no_lgb__n__compl)
+
 n_distinct(db_compliance_2022__comp_after_overr__short_m__interv$VESSEL_OFFICIAL_NBR)
 # 192
+
+#' Why there are vessels in survey_no_lgb with no compliance info?
+setdiff(vessels_in_survey_no_lgb,
+        vessels_in_survey_no_lgb__n__compl)
 
 # get compl, no compl, or both per year ----
 db_compliance_2022__comp_after_overr__short_m__interv__wide <-
@@ -167,3 +184,5 @@ db_compliance_2022__comp_after_overr__short_m__interv__compl_m_wider__long_cnts 
   unique()
   
 # View(db_compliance_2022__comp_after_overr__short_m__interv__compl_m_wider__long_cnts)
+
+# Result: thes vessels are mostly compliant.
