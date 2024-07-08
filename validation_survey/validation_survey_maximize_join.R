@@ -1001,7 +1001,7 @@ db_logbooks_2022_short_date_time |>
 
 #' 2 trips/logbooks on the day with 1 interview, ok
 
-# How many int no lgb
+# How many int no lgb ----
 lgb_join_i1 |> 
   data_overview()
 
@@ -1024,7 +1024,7 @@ lgb_join_i1__short |>
 lgb_join_i1__short |> 
   filter(is.na(TRIP_ID)) |> 
     summarise(n_distinct(trip_end_date_only))
-# 200 says with no trips/lgbks
+# 200 days with no trips/lgbks
 
 lgb_join_i1__short |>
   filter(!is.na(TRIP_ID)) |>
@@ -1048,3 +1048,4 @@ lgb_join_i1__short |>
   ungroup() 
   # filter(entries_per_day > 1)
 # 0  
+
