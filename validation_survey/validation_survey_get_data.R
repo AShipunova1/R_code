@@ -337,12 +337,51 @@ dim(vesl_suppressed_logbooks_clean_2022)
 
 # readr::problems(vesl_suppressed_logbooks)
 
+# Get compliance data ----
+
+db_compliance_2022_query <-
+  stringr::str_glue("SELECT
+  *
+FROM
+  srh.srfh_vessel_comp@secapxdv_dblk.sfsc.noaa.gov
+WHERE
+    comp_year = '{my_year}'
+")
+
+db_compliance_2022_file_name <-
+  file.path(curr_proj_input_path,
+                      stringr::str_glue("db_compliance_{my_year}.rds"))
+
+file.exists(db_compliance_2022_file_name)
+
+db_compliance_2022_fun <-
+  function(db_compliance_2022_query) {
+    return(try(DBI::dbGetQuery(con,
+                      db_compliance_2022_query)))
+  }
+
+get_db_compliance_2022 <-
+  function() {
+    auxfunctions::read_rds_or_run(db_compliance_2022_file_name,
+                    db_compliance_2022_query,
+                    db_compliance_2022_fun)
+  }
+
+db_compliance_2022 <- 
+  get_db_compliance_2022() |> 
+  auxfunctions::remove_empty_cols()
+# 2024-07-08 run for db_compliance_2022.rds: 19.08 sec elapsed
+
+dim(db_compliance_2022)
+# [1] 126105     21
+
 # result df names ----
 data_names <-
   c(
     "survey_data_l_2022",
     "processed_logbooks_2022",
     "processed_logbooks_2022_calendar",
+    "db_compliance_2022",
     "db_logbooks_2022",
     "db_dnfs_2022",
     "permit_info_from_db",
