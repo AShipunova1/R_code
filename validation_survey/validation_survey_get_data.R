@@ -338,6 +338,7 @@ dim(vesl_suppressed_logbooks_clean_2022)
 # readr::problems(vesl_suppressed_logbooks)
 
 # Get compliance data ----
+## from db ----
 
 db_compliance_2022_query <-
   stringr::str_glue("SELECT
@@ -375,20 +376,37 @@ db_compliance_2022 <-
 dim(db_compliance_2022)
 # [1] 126105     21
 
+## get compliance from FHIER ----
+fhier_compliance_file_path <-
+  file.path(curr_proj_input_path, "FHIER Compliance 2022.csv")
+
+file.exists(fhier_compliance_file_path)
+
+fhier_compliance_2022 <-
+  readr::read_csv(
+    fhier_compliance_file_path,
+    col_types = readr::cols(.default = 'c'),
+    trim_ws = TRUE,
+    na = c("", "NA", "NaN"),
+    name_repair = auxfunctions::fix_names
+  ) |>
+  readr::type_convert(guess_integer = TRUE)
+
 # result df names ----
 data_names <-
   c(
     "survey_data_l_2022",
     "processed_logbooks_2022",
     "processed_logbooks_2022_calendar",
-    "db_compliance_2022",
     "db_logbooks_2022",
     "db_dnfs_2022",
     "permit_info_from_db",
     "permits_from_pims__split1_short__split2",
     "vessels_from_pims_double_bind",
     "vessel_permit_owner_from_db",
-    "vesl_suppressed_logbooks_clean_2022"
+    "vesl_suppressed_logbooks_clean_2022",
+    "db_compliance_2022",
+    "fhier_compliance_2022"
   )
 
 auxfunctions::pretty_print(my_title = "Data are in:", 
