@@ -125,3 +125,26 @@ db_compliance_2022__comp_after_overr__short_m__interv__wide_long |>
 # 1 no                  57
 # 2 yes               5550
 # 3 NA                1725
+
+## get compliance per month ----
+db_compliance_2022__comp_after_overr__short_m__interv__compl_m_wider <-
+    db_compliance_2022__comp_after_overr__short_m__interv |>
+    select(-starts_with("COMP_WEEK")) |> 
+    tidyr::pivot_wider(
+    names_from = VESSEL_OFFICIAL_NBR,
+    values_from = compliant_after_override,
+    # make it "NO_YES" if both
+    values_fn = ~ paste0(unique(sort(.x)), collapse = "_")
+  ) |>
+  dplyr::ungroup()
+
+# View(db_compliance_2022__comp_after_overr__short_m__interv__compl_m_wider)
+# 
+#   
+#   # count grouped by other columns
+#   dplyr::add_count(year_month, is_compl_or_both,
+#             name = "compl_or_not_cnt") |>
+#   unique() |>
+#   dplyr::ungroup()
+# 
+# # View(db_compliance_2022__comp_after_overr__short_m__interv__wide_long_cnt)
