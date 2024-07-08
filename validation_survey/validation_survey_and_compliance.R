@@ -1,3 +1,4 @@
+library(zoo)
 # compare list of vessels from survey with no lgb
 # with
 # fhier compliance monthly and annually
@@ -14,7 +15,7 @@ tictoc::toc()
 dim(db_compliance_2022__comp_after_overr)
 # [1] 126105     22
 
-# shorten db_compliance_2022__comp_after_overr
+## shorten db_compliance_2022__comp_after_overr ----
 
 db_compliance_2022__comp_after_overr__short <-
   db_compliance_2022__comp_after_overr |>
@@ -50,6 +51,9 @@ db_compliance_2022__comp_after_overr__short_m <-
   db_compliance_2022__comp_after_overr__short |>
   dplyr::mutate(year_month = zoo::as.yearmon(COMP_WEEK_START_DT))
 
+# View(db_compliance_2022__comp_after_overr__short_m)
+
+# check compliance for interviews w no logbooks ----
 dim(lgb_join_i1)
 # [1] 4722   35
 
@@ -68,13 +72,16 @@ lgb_join_i1__no_lgb__short <-
   filter(!is.na(VESSEL_OFFICIAL_NBR))
 
 dim(lgb_join_i1__no_lgb__short)
-# [1] 1082    2# get compliance information for vessels from survey no lgb ----
+# [1] 1082    2
+
+# get compliance information for vessels from survey no lgb ----
 db_compliance_2022__comp_after_overr__short_m__interv <-
   db_compliance_2022__comp_after_overr__short_m |>
   filter(VESSEL_OFFICIAL_NBR %in% lgb_join_i1__no_lgb__short$VESSEL_OFFICIAL_NBR)
 
 View(db_compliance_2022__comp_after_overr__short_m__interv)
 # 5607    
+
 ## get compl, no compl, or both per year ----
 
 db_compliance_2022__comp_after_overr__short_m__interv__wide <-
