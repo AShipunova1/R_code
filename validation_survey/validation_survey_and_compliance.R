@@ -68,4 +68,10 @@ lgb_join_i1__no_lgb__short <-
   filter(!is.na(VESSEL_OFFICIAL_NBR))
 
 dim(lgb_join_i1__no_lgb__short)
-# [1] 1082    2
+# [1] 1082    2# get compliance information for vessels from survey no lgb ----
+db_compliance_2022__comp_after_overr__short_m__interv <-
+  db_compliance_2022__comp_after_overr__short_m |>
+  filter(VESSEL_OFFICIAL_NBR %in% lgb_join_i1__no_lgb__short$VESSEL_OFFICIAL_NBR)
+
+View(db_compliance_2022__comp_after_overr__short_m__interv)
+# 5607    
