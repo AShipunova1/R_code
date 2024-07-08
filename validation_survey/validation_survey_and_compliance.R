@@ -158,3 +158,12 @@ dim(db_compliance_2022__comp_after_overr__short_m__interv__compl_m_wider__long)
 n_distinct(db_compliance_2022__comp_after_overr__short_m__interv__compl_m_wider__long$vessel_official_number)
 # [1] 192, ok, as above
 
+## count compliance per month ----
+db_compliance_2022__comp_after_overr__short_m__interv__compl_m_wider__long_cnts <-
+  db_compliance_2022__comp_after_overr__short_m__interv__compl_m_wider__long |>
+  select(-vessel_official_number) |>
+  dplyr::add_count(year_month, is_compl_or_both,
+                   name = "compl_or_not_cnt_m") |> 
+  unique()
+  
+# View(db_compliance_2022__comp_after_overr__short_m__interv__compl_m_wider__long_cnts)
