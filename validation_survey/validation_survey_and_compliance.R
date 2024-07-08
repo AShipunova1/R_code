@@ -4,7 +4,8 @@ library(zoo)
 # fhier compliance monthly and annually
 
 # Prepare compliance data ----
-## complaince after ovrridden ----
+## compliance from db ----
+### db: complaince after ovrridden ----
 tictoc::tic("compl_overr")
 db_compliance_2022__comp_after_overr <-
   db_compliance_2022 |>
@@ -15,7 +16,7 @@ tictoc::toc()
 dim(db_compliance_2022__comp_after_overr)
 # [1] 126105     22
 
-## shorten db_compliance_2022__comp_after_overr ----
+### db: shorten db_compliance_2022__comp_after_overr ----
 
 db_compliance_2022__comp_after_overr__short <-
   db_compliance_2022__comp_after_overr |>
@@ -45,13 +46,67 @@ db_compliance_2022__comp_after_overr__short <-
 dim(db_compliance_2022__comp_after_overr__short)
 # [1] 125845      5
 
-## add a column for month  ----
+### db: add a column for month  ----
 
 db_compliance_2022__comp_after_overr__short_m <-
   db_compliance_2022__comp_after_overr__short |>
   dplyr::mutate(year_month = zoo::as.yearmon(COMP_WEEK_START_DT))
 
 # View(db_compliance_2022__comp_after_overr__short_m)
+
+## compliance from FHIER ----
+
+### FHIER: complaince after ovrridden ----
+
+tictoc::tic("fhier_compliance compl_overr")
+fhier_compliance_2022__comp_after_overr <-
+  fhier_compliance_2022 |>
+  auxfunctions::add_compliant_after_override(overridden_col_name = "overridden_",
+                                             compliance_col_name = "compliant_")
+tictoc::toc()
+# fhier_compliance compl_overr: 30.16 sec elapsed
+
+# dim(fhier_compliance_2022__comp_after_overr)
+
+### FHIER: shorten db_compliance_2022__comp_after_overr ----
+
+# CHANGE to FHIER from here 
+
+fhier_compliance_2022__comp_after_overr__short <-
+  fhier_compliance_2022__comp_after_overr |>
+  select(
+    -c(
+      SRH_VESSEL_COMP_ID,
+      SAFIS_VESSEL_ID,
+      PERMIT_GROUP,
+      PRM_GRP_EXP_DATE,
+      COMP_YEAR,
+      IS_CREATED_PERIOD,
+      IS_COMP,
+      IS_COMP_OVERRIDE,
+      COMP_OVERRIDE_DT,
+      COMP_OVERRIDE_USER_ID,
+      SRFH_FOR_HIRE_TYPE_ID,
+      CREATED_DT,
+      CREATED_USER_ID,
+      LU_DT,
+      LU_USER_ID,
+      COMP_OVERRIDE_CMT,
+      IS_PMT_ON_HOLD
+    )
+  ) |>
+  distinct()
+
+dim(fhier_compliance_2022__comp_after_overr__short)
+# [1] 125845      5
+
+### FHIER: add a column for month  ----
+
+fhier_compliance_2022__comp_after_overr__short_m <-
+  fhier_compliance_2022__comp_after_overr__short |>
+  dplyr::mutate(year_month = zoo::as.yearmon(COMP_WEEK_START_DT))
+
+# View(fhier_compliance_2022__comp_after_overr__short_m)
 
 # check compliance for interviews w no logbooks ----
 dim(lgb_join_i1)
