@@ -75,3 +75,21 @@ db_compliance_2022__comp_after_overr__short_m__interv <-
 
 View(db_compliance_2022__comp_after_overr__short_m__interv)
 # 5607    
+## get compl, no compl, or both per year ----
+
+db_compliance_2022__comp_after_overr__short_m__interv__wide <-
+  db_compliance_2022__comp_after_overr__short_m__interv %>%
+  # group_by everything but
+      dplyr::group_by_at(vars(-c("VESSEL_OFFICIAL_NBR", "compliant_after_override"))) %>%
+  # can unique, because we are looking at vessels, not weeks
+  unique() %>%
+  # more columns, a column per vessel
+  tidyr::pivot_wider(
+    names_from = VESSEL_OFFICIAL_NBR,
+    values_from = compliant_after_override,
+    # make it "NO_YES" if both
+    values_fn = ~ paste0(sort(.x), collapse = "_")
+  ) %>%
+  dplyr::ungroup()
+
+# View(db_compliance_2022__comp_after_overr__short_m__interv__wide)
