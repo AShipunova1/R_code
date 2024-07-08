@@ -93,3 +93,25 @@ db_compliance_2022__comp_after_overr__short_m__interv__wide <-
   dplyr::ungroup()
 
 # View(db_compliance_2022__comp_after_overr__short_m__interv__wide)
+
+### count compl, no compl, or both per year ----
+db_compliance_2022__comp_after_overr__short_m__interv__wide_long <-
+  db_compliance_2022__comp_after_overr__short_m__interv__wide |> 
+  # turn back to a longer format, vessel ids in one column
+  tidyr::pivot_longer(
+    # all other columns are vessel ids, use them as a names
+    cols = -c(COMP_WEEK, COMP_WEEK_START_DT, COMP_WEEK_END_DT, year_month),
+    values_to = "is_compl_or_both",
+    names_to = "vessel_official_number"
+  )
+
+# View(db_compliance_2022__comp_after_overr__short_m__interv__wide_long)
+# check
+db_compliance_2022__comp_after_overr__short_m__interv__wide_long |> 
+    count(is_compl_or_both)
+
+#   is_compl_or_both     n
+#   <chr>            <int>
+# 1 no                  57
+# 2 yes               5550
+# 3 NA                1725
