@@ -82,7 +82,6 @@ db_compliance_2022__comp_after_overr__short_m__interv <-
 View(db_compliance_2022__comp_after_overr__short_m__interv)
 # 5607    
 
-## get compl, no compl, or both per year ----
 
 db_compliance_2022__comp_after_overr__short_m__interv__wide <-
   db_compliance_2022__comp_after_overr__short_m__interv %>%
