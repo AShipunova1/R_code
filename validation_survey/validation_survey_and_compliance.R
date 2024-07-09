@@ -322,104 +322,24 @@ db_compliance_2022__comp_after_overr__short_m__interv__compl_m_wider__long_cnts 
 # get fhier compliance information for vessels from survey no lgb ----
 fhier_compliance_2022__comp_after_overr__short__clean_weeeks__clean_vsl_id__m__interv <-
   fhier_compliance_2022__comp_after_overr__short__clean_weeeks__clean_vsl_id__m |>
-  filter(tolower(VESSEL_OFFICIAL_NBR) %in% tolower(lgb_join_i1__no_lgb__short$VESSEL_OFFICIAL_NBR))
+  filter(tolower(vessel_official_number) %in% tolower(lgb_join_i1__no_lgb__short$VESSEL_OFFICIAL_NBR))
 
 dim(fhier_compliance_2022__comp_after_overr__short__clean_weeeks__clean_vsl_id__m__interv)
-# [1] 7600    6
+# [1] 7600    9
 
-vessels_in_survey_no_lgb__n__compl <- 
-  unique(fhier_compliance_2022__comp_after_overr__short__clean_weeeks__clean_vsl_id__m__interv$VESSEL_OFFICIAL_NBR)
+vessels_in_survey_no_lgb__n__compl_fhier <- 
+  unique(fhier_compliance_2022__comp_after_overr__short__clean_weeeks__clean_vsl_id__m__interv$vessel_official_number)
 
-glimpse(vessels_in_survey_no_lgb__n__compl)
+setdiff(tolower(vessels_in_survey_no_lgb__n__compl), vessels_in_survey_no_lgb__n__compl_fhier)
+# 0
 
-n_distinct(fhier_compliance_2022__comp_after_overr__short__clean_weeeks__clean_vsl_id__m__interv$VESSEL_OFFICIAL_NBR)
+n_distinct(fhier_compliance_2022__comp_after_overr__short__clean_weeeks__clean_vsl_id__m__interv$vessel_official_number)
 # 192
 
 #' Why there are vessels in survey_no_lgb with no compliance info?
 setdiff(vessels_in_survey_no_lgb,
-        vessels_in_survey_no_lgb__n__compl)
+        vessels_in_survey_no_lgb__n__compl_fhier) |> 
+  length()
+# 38
 
-# get compl, no compl, or both per year ----
-fhier_compliance_2022__comp_after_overr__short__clean_weeeks__clean_vsl_id__m__interv__wide <-
-  fhier_compliance_2022__comp_after_overr__short__clean_weeeks__clean_vsl_id__m__interv |> 
-  # remove weeks and month
-  select(-starts_with("COMP_WEEK"), -year_month) |> 
-  # unique compliance per vessel
-  distinct() |> 
-  # more columns, a column per vessel
-  tidyr::pivot_wider(
-    names_from = VESSEL_OFFICIAL_NBR,
-    values_from = compliant_after_override,
-    # make it "NO_YES" if both
-    values_fn = ~ paste0(sort(.x), collapse = "_")
-  ) |>
-  dplyr::ungroup()
-
-# dim(fhier_compliance_2022__comp_after_overr__short__clean_weeeks__clean_vsl_id__m__interv__wide)
-# 1 192
-
-## turn back year compliance to the long format ----
-fhier_compliance_2022__comp_after_overr__short__clean_weeeks__clean_vsl_id__m__interv__wide_long <-
-  fhier_compliance_2022__comp_after_overr__short__clean_weeeks__clean_vsl_id__m__interv__wide |> 
-  t() |> 
-  as.data.frame() |> 
-  tibble::rownames_to_column(var = "vessel_official_number") |> 
-  rename("is_compl_or_both_year" = V1)
-
-dim(fhier_compliance_2022__comp_after_overr__short__clean_weeeks__clean_vsl_id__m__interv__wide_long)
-# [1] 192   2
-
-# check
-fhier_compliance_2022__comp_after_overr__short__clean_weeeks__clean_vsl_id__m__interv__wide_long |> 
-    count(is_compl_or_both_year)
-#  is_compl_or_both_year   n
-#                     no   2
-#                 no_yes   3
-#                    yes 187
-
-# get compliance per month ----
-fhier_compliance_2022__comp_after_overr__short__clean_weeeks__clean_vsl_id__m__interv__compl_m_wider <-
-    fhier_compliance_2022__comp_after_overr__short__clean_weeeks__clean_vsl_id__m__interv |>
-    select(-starts_with("COMP_WEEK")) |> 
-    tidyr::pivot_wider(
-    names_from = VESSEL_OFFICIAL_NBR,
-    values_from = compliant_after_override,
-    # make it "NO_YES" if both
-    values_fn = ~ paste0(unique(sort(.x)), collapse = "_")
-  ) |>
-  dplyr::ungroup()
-
-dim(fhier_compliance_2022__comp_after_overr__short__clean_weeeks__clean_vsl_id__m__interv__compl_m_wider)
-# [1]  12 193
-
-fhier_compliance_2022__comp_after_overr__short__clean_weeeks__clean_vsl_id__m__interv__compl_m_wider |> 
-  arrange(year_month) |> 
-  glimpse()
-
-## compliance per month in longer format ----
-fhier_compliance_2022__comp_after_overr__short__clean_weeeks__clean_vsl_id__m__interv__compl_m_wider__long <- 
-  fhier_compliance_2022__comp_after_overr__short__clean_weeeks__clean_vsl_id__m__interv__compl_m_wider |> 
-  tidyr::pivot_longer(
-    # all other columns are vessel ids, use them
-    cols = -year_month,
-    values_to = "is_compl_or_both",
-    names_to = "vessel_official_number"
-  )
-
-dim(fhier_compliance_2022__comp_after_overr__short__clean_weeeks__clean_vsl_id__m__interv__compl_m_wider__long)
-# [1] 2304    3
-
-n_distinct(fhier_compliance_2022__comp_after_overr__short__clean_weeeks__clean_vsl_id__m__interv__compl_m_wider__long$vessel_official_number)
-# [1] 192, ok, as above
-
-## count compliance per month ----
-fhier_compliance_2022__comp_after_overr__short__clean_weeeks__clean_vsl_id__m__interv__compl_m_wider__long_cnts <-
-  fhier_compliance_2022__comp_after_overr__short__clean_weeeks__clean_vsl_id__m__interv__compl_m_wider__long |>
-  select(-vessel_official_number) |>
-  dplyr::add_count(year_month, is_compl_or_both,
-                   name = "compl_or_not_cnt_m") |> 
-  unique()
-  
-# View(fhier_compliance_2022__comp_after_overr__short__clean_weeeks__clean_vsl_id__m__interv__compl_m_wider__long_cnts)
-
-# Result: thes vessels are mostly compliant.
+#' stop repeating here, the vessel ids are the same as from db.
