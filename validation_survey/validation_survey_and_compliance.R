@@ -113,6 +113,30 @@ fhier_compliance_2022__comp_after_overr__short__clean_weeeks <-
 dim(fhier_compliance_2022__comp_after_overr__short__clean_weeeks)
 # [1] 125823      8
 
+### trim vesselofficialnumber, there are 273 white spaces in Feb 2023 ----
+trim_all_vessel_ids_simple <-
+  function(my_df, col_name_to_trim = NA) {
+    # browser()
+    #' get col name to trim
+    if (is.na(col_name_to_trim)) {
+      col_name_to_trim <- grep("vessel.*official.*number", tolower(names(my_df)), value = T)
+    }
+    col_name_to_trim_s <- sym(col_name_to_trim)
+    #' Hard code vessel_official_number as vessel id col name
+    res_df <-
+      my_df |>
+      dplyr::mutate(vessel_official_number = trimws(!!col_name_to_trim_s) |>
+                      tolower())
+    
+    return(res_df)
+    
+  }
+
+fhier_compliance_2022__comp_after_overr__short__clean_weeeks__clean_vsl_id <-
+  trim_all_vessel_ids_simple(fhier_compliance_2022__comp_after_overr__short__clean_weeeks)
+
+glimpse(fhier_compliance_2022__comp_after_overr__short__clean_weeeks__clean_vsl_id)
+
 ### FHIER: add a column for month  ----
 
 fhier_compliance_2022__comp_after_overr__short_m <-
