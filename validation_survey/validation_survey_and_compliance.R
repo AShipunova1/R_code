@@ -337,9 +337,25 @@ n_distinct(fhier_compliance_2022__comp_after_overr__short__clean_weeeks__clean_v
 # 192
 
 #' Why there are vessels in survey_no_lgb with no compliance info?
-setdiff(vessels_in_survey_no_lgb,
-        vessels_in_survey_no_lgb__n__compl_fhier) |> 
-  length()
+
+vessels_in_survey_not_in_compl <-
+  setdiff(vessels_in_survey_no_lgb,
+          vessels_in_survey_no_lgb__n__compl_fhier)
+
+length(vessels_in_survey_not_in_compl)
 # 38
 
+#' To use as a filter in FHIER/compliance
+vessels_in_survey_not_in_compl |> 
+  paste(collapse = ", ") |> 
+  print()
+#' nothing found for 2022, are these artefacts from fuzzy join to PIMS? - Not all
+
+vessels_in_survey_and_not_in_compl <-
+  survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num__short |>
+  filter(survey_vessel_id %in% vessels_in_survey_not_in_compl) |>
+  select(survey_vessel_id) |>
+  distinct()
+
+vessels_in_survey_and_not_in_compl
 #' stop repeating here, the vessel ids are the same as from db.
