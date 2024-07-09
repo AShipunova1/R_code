@@ -165,11 +165,47 @@ vessels_in_survey_no_lgb <-
 n_distinct(lgb_join_i1__no_lgb$VESSEL_OFFICIAL_NBR)
 # 230
 
-lgb_join_i1__no_lgb__short <- 
-  lgb_join_i1__no_lgb |> 
-  select(-c(TRIP_ID, TRIP_START_DATE, TRIP_START_TIME, TRIP_END_DATE, TRIP_END_TIME, trip_start_hour, trip_start_sec, trip_end_hour, trip_end_sec, trip_start_date_time, trip_end_date_time, id_code, vessel_name, interviewee_f_name, interviewee_l_name, survey_vessel_id, st_2, cnty_3, SERO_HOME_PORT_COUNTY, SERO_HOME_PORT_STATE, VESSEL_NAME, FIRST_NAME, LAST_NAME, county_short, state_code, state_name, county_code, vessel_id_dist, vsl_names_dissim, st_pass, cnty_pass, name_pass, vsl_name_pass)) |> 
-  distinct() |> 
-  rename("interview_date" = trip_end_date_only) |> 
+lgb_join_i1__no_lgb__short <-
+  lgb_join_i1__no_lgb |>
+  select(
+    -c(
+      TRIP_ID,
+      TRIP_START_DATE,
+      TRIP_START_TIME,
+      TRIP_END_DATE,
+      TRIP_END_TIME,
+      trip_start_hour,
+      trip_start_sec,
+      trip_end_hour,
+      trip_end_sec,
+      trip_start_date_time,
+      trip_end_date_time,
+      id_code,
+      vessel_name,
+      interviewee_f_name,
+      interviewee_l_name,
+      survey_vessel_id,
+      st_2,
+      cnty_3,
+      SERO_HOME_PORT_COUNTY,
+      SERO_HOME_PORT_STATE,
+      VESSEL_NAME,
+      FIRST_NAME,
+      LAST_NAME,
+      county_short,
+      state_code,
+      state_name,
+      county_code,
+      vessel_id_dist,
+      vsl_names_dissim,
+      st_pass,
+      cnty_pass,
+      name_pass,
+      vsl_name_pass
+    )
+  ) |>
+  distinct() |>
+  rename("interview_date" = trip_end_date_only) |>
   filter(!is.na(VESSEL_OFFICIAL_NBR))
 
 dim(lgb_join_i1__no_lgb__short)
