@@ -314,7 +314,7 @@ db_compliance_2022__comp_after_overr__short_m__interv__compl_m_wider__long_cnts 
   
 # View(db_compliance_2022__comp_after_overr__short_m__interv__compl_m_wider__long_cnts)
 
-# Result: thes vessels are mostly compliant.
+# Result: these vessels are mostly compliant.
 
 # Survey comparison with FHIER compliance ----
 # fhier_compliance_2022__comp_after_overr__short__clean_weeeks__clean_vsl_id__m
@@ -349,13 +349,18 @@ length(vessels_in_survey_not_in_compl)
 vessels_in_survey_not_in_compl |> 
   paste(collapse = ", ") |> 
   print()
-#' nothing found for 2022, are these artefacts from fuzzy join to PIMS? - Not all
+#' nothing found for 2022
 
-vessels_in_survey_and_not_in_compl <-
+#' check these vessels in original survey, found 8, the rest is from the fuzzy join with PIMS
+vessels_in_survey_and_in_compl <-
   survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num__short |>
   filter(survey_vessel_id %in% vessels_in_survey_not_in_compl) |>
   select(survey_vessel_id) |>
   distinct()
+#' Manually checked in FHIER, no compliance  found for 2022
 
-vessels_in_survey_and_not_in_compl
+vessels_in_survey_and_in_compl
+
 #' stop repeating here, the vessel ids are the same as from db.
+
+# Look at days in survey and compliance?
