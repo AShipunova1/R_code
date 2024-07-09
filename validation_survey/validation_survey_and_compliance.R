@@ -43,6 +43,8 @@ db_compliance_2022__comp_after_overr__short <-
   ) |>
   distinct()
 
+# VESSEL_OFFICIAL_NBR, COMP_WEEK, COMP_WEEK_START_DT, COMP_WEEK_END_DT, compliant_after_override
+
 dim(db_compliance_2022__comp_after_overr__short)
 # [1] 125845      5
 
@@ -68,37 +70,24 @@ tictoc::toc()
 
 # dim(fhier_compliance_2022__comp_after_overr)
 
-### FHIER: shorten db_compliance_2022__comp_after_overr ----
-
-# CHANGE to FHIER from here 
+### FHIER: shorten _compliance_2022__comp_after_overr ----
 
 fhier_compliance_2022__comp_after_overr__short <-
   fhier_compliance_2022__comp_after_overr |>
   select(
-    -c(
-      SRH_VESSEL_COMP_ID,
-      SAFIS_VESSEL_ID,
-      PERMIT_GROUP,
-      PRM_GRP_EXP_DATE,
-      COMP_YEAR,
-      IS_CREATED_PERIOD,
-      IS_COMP,
-      IS_COMP_OVERRIDE,
-      COMP_OVERRIDE_DT,
-      COMP_OVERRIDE_USER_ID,
-      SRFH_FOR_HIRE_TYPE_ID,
-      CREATED_DT,
-      CREATED_USER_ID,
-      LU_DT,
-      LU_USER_ID,
-      COMP_OVERRIDE_CMT,
-      IS_PMT_ON_HOLD
+    c(
+      vessel_official_number,
+      week,
+      gom_permitteddeclarations__,
+      captainreports__,
+      negativereports__,
+      compliant_after_override
     )
   ) |>
   distinct()
 
 dim(fhier_compliance_2022__comp_after_overr__short)
-# [1] 125845      5
+# [1] 125823      6
 
 ### FHIER: add a column for month  ----
 
