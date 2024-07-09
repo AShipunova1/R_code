@@ -139,11 +139,12 @@ glimpse(fhier_compliance_2022__comp_after_overr__short__clean_weeeks__clean_vsl_
 
 ### FHIER: add a column for month  ----
 
-fhier_compliance_2022__comp_after_overr__short_m <-
-  fhier_compliance_2022__comp_after_overr__short |>
-  dplyr::mutate(year_month = zoo::as.yearmon(COMP_WEEK_START_DT))
+fhier_compliance_2022__comp_after_overr__short__clean_weeeks__clean_vsl_id__m <-
+  fhier_compliance_2022__comp_after_overr__short__clean_weeeks__clean_vsl_id |>
+  dplyr::mutate(year_month = zoo::as.yearmon(week_start))
 
-# View(fhier_compliance_2022__comp_after_overr__short_m)
+dim(fhier_compliance_2022__comp_after_overr__short__clean_weeeks__clean_vsl_id__m)
+# [1] 125823      9
 
 # check compliance for interviews w no logbooks ----
 dim(lgb_join_i1)
