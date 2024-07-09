@@ -89,6 +89,30 @@ fhier_compliance_2022__comp_after_overr__short <-
 dim(fhier_compliance_2022__comp_after_overr__short)
 # [1] 125823      6
 
+### split week column ----
+#' split week column ("52: 12/26/2022 - 01/01/2023") into 3 columns with proper classes, week_num (week order number), week_start and week_end
+clean_weeks <- function(my_df) {
+  my_df %>%
+    tidyr::separate_wider_delim(week, ":", names = c("week_num", "week_rest")) %>%
+    tidyr::separate_wider_delim(week_rest, " - ", names = c("week_start", "week_end")) ->
+    temp_df
+
+  my_df$week_num <- as.integer(trimws(temp_df$week_num))
+  my_df$week_start <- as.Date(trimws(temp_df$week_start), "%m/%d/%Y")
+  my_df$week_end <- as.Date(trimws(temp_df$week_end), "%m/%d/%Y")
+
+  return(my_df)
+}
+
+fhier_compliance_2022__comp_after_overr__short__clean_weeeks <-
+  fhier_compliance_2022__comp_after_overr__short |> 
+  clean_weeks() |> 
+  select(-week) |> 
+  distinct()
+  
+dim(fhier_compliance_2022__comp_after_overr__short__clean_weeeks)
+# [1] 125823      8
+
 ### FHIER: add a column for month  ----
 
 fhier_compliance_2022__comp_after_overr__short_m <-
