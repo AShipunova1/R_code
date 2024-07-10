@@ -435,7 +435,7 @@
       "RemoteRepo": "R_code",
       "RemoteSubdir": "auxfunctions",
       "RemoteRef": "development",
-      "RemoteSha": "c0b09b2d623f6913211395d3c23e034c9341867e",
+      "RemoteSha": "5cb8509f20c6ed16ddd9bdb6bce28f8cacfa18c2",
       "RemoteHost": "api.github.com",
       "Requirements": [
         "DBI",
@@ -458,7 +458,7 @@
         "tidyr",
         "tidyselect"
       ],
-      "Hash": "0b285b47507e26e9e63b91b15b701d39"
+      "Hash": "58efa1d0b834d6b428deb038334e0eb6"
     },
     "backports": {
       "Package": "backports",
@@ -1769,7 +1769,7 @@
     },
     "knitr": {
       "Package": "knitr",
-      "Version": "1.47",
+      "Version": "1.48",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -1781,7 +1781,7 @@
         "xfun",
         "yaml"
       ],
-      "Hash": "7c99b2d55584b982717fcc0950378612"
+      "Hash": "acf380f300c721da9fde7df115a5f86f"
     },
     "labeling": {
       "Package": "labeling",
@@ -1845,7 +1845,7 @@
     },
     "lme4": {
       "Package": "lme4",
-      "Version": "1.1-35.4",
+      "Version": "1.1-35.5",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -1867,7 +1867,7 @@
         "stats",
         "utils"
       ],
-      "Hash": "a6f5390caceaa1b23b68f57d663b2061"
+      "Hash": "16a08fc75007da0d08e0c0388c7c33e6"
     },
     "lubridate": {
       "Package": "lubridate",
@@ -2190,7 +2190,7 @@
     },
     "pkgdown": {
       "Package": "pkgdown",
-      "Version": "2.0.9",
+      "Version": "2.1.0",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -2201,11 +2201,11 @@
         "desc",
         "digest",
         "downlit",
+        "fontawesome",
         "fs",
-        "httr",
+        "httr2",
         "jsonlite",
-        "magrittr",
-        "memoise",
+        "openssl",
         "purrr",
         "ragg",
         "rlang",
@@ -2216,7 +2216,7 @@
         "xml2",
         "yaml"
       ],
-      "Hash": "8bf1151ed1a48328d71b937e651117a6"
+      "Hash": "0d3d789055c873f48521ce7e23c23f48"
     },
     "pkgload": {
       "Package": "pkgload",
@@ -3503,13 +3503,13 @@
     },
     "wk": {
       "Package": "wk",
-      "Version": "0.9.1",
+      "Version": "0.9.2",
       "Source": "Repository",
       "Repository": "RSPM",
       "Requirements": [
         "R"
       ],
-      "Hash": "5d4545e140e36476f35f20d0ca87963e"
+      "Hash": "877644b9b942d429f3708e12c98d1a22"
     },
     "worrms": {
       "Package": "worrms",
@@ -3574,10 +3574,10 @@
     },
     "yaml": {
       "Package": "yaml",
-      "Version": "2.3.8",
+      "Version": "2.3.9",
       "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "29240487a071f535f5e5d5a323b7afbd"
+      "Repository": "RSPM",
+      "Hash": "9cb28d11799d93c953f852083d55ee9e"
     },
     "yulab.utils": {
       "Package": "yulab.utils",
