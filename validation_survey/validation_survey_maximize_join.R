@@ -1066,29 +1066,85 @@ int_no_lgb_cnt <- total_interviews - int_w_lgb_cnt
 # 829
 
 int_no_lgb_cnt * 100 / total_interviews
-# 45% interviews have no logbboks
+#' 45% interviews have no logbooks
 
 summarise(int_has_lgb, n_distinct(id_code)) * 100 /
   n_distinct(lgb_join_i1$id_code)
-# 55% interviews have logbboks
+#' 55% interviews have logbooks
 
-# the same interview have and do not have a trip id? Yes, if more than 1 per day.
+#' The same interview has and do not have a trip id? Yes, if more than 1 per day.
 
+#' Check if combinations of trip/id_code are unique
 
-lgb_join_i1 |>
+lgb_join_i1_lgb_int_cnt <-
+  lgb_join_i1 |>
   select(TRIP_ID, VESSEL_OFFICIAL_NBR, trip_end_date_only, id_code) |>
-  distinct() |> 
-  count(TRIP_ID, id_code, name = "trip_int_pair") |>
-  filter(!is.na(TRIP_ID)) |>
-  arrange(desc(trip_int_pair)) |> 
-  # filter(trip_int_pair > 1) |> 
-  head()
-#' combinations of trip/id_code are unique 
+  distinct() |>
+  add_count(TRIP_ID, id_code, name = "trip_int_pair") |>
+  arrange(desc(trip_int_pair))
 
-tidyr::pivot_wider(
-    names_from = VESSEL_OFFICIAL_NBR,
-    values_from = compliant_after_override,
-    # make it "NO_YES" if both
-    values_fn = ~ paste0(sort(.x), collapse = "_")
-  ) |>
-  
+lgb_join_i1_lgb_int_cnt |> 
+  filter(!is.na(TRIP_ID)) |>
+  filter(trip_int_pair > 1) |>
+  nrow()
+# 0
+#' Yes, if there is a trip per interview, there is only 1
+
+
+#' check by vessel
+
+lgb_join_i1__vsl_lgb_int_cnt <-
+  lgb_join_i1 |>
+  select(TRIP_ID, VESSEL_OFFICIAL_NBR, trip_end_date_only, id_code) |>
+  distinct() |>
+  add_count(VESSEL_OFFICIAL_NBR, 
+            TRIP_ID, id_code, name = "vsl_trip_int_pair") |>
+  arrange(desc(vsl_trip_int_pair))
+
+lgb_join_i1__vsl_lgb_int_cnt |>
+  filter(!is.na(TRIP_ID)) |>
+  filter(vsl_trip_int_pair > 1) |>
+  nrow()
+#' 0
+#' Vessel/trip/interview combinations are unique 
+
+lgb_join_i1__vsl_lgb_int_cnt__id_codes <-
+  lgb_join_i1__vsl_lgb_int_cnt |>
+  filter(!is.na(TRIP_ID)) |>
+  select(id_code) |> 
+  distinct()
+
+nrow(lgb_join_i1__vsl_lgb_int_cnt__id_codes)
+
+#' same id_code can have more than 1 lgb
+
+#' 
+#' 
+lgb_join_i1__id_codes_w_lgb <- 
+  lgb_join_i1 |>
+  filter(!is.na(TRIP_ID)) |>
+  select(id_code) |> 
+  distinct()
+dim(lgb_join_i1__id_codes_w_lgb)
+# 1006
+
+#' get id_codes with no lgb
+
+lgb_join_i1__no_lgb_id_codes <- 
+  lgb_join_i1 |>
+  filter(is.na(TRIP_ID)) |>
+  select(id_code) |> 
+  distinct()
+
+dim(lgb_join_i1__no_lgb_id_codes)
+# 868 (should be 829)
+
+intersect(lgb_join_i1__vsl_lgb_int_cnt__id_codes,
+        lgb_join_i1__no_lgb_id_codes)
+# 39
+
+#' An example of false positive (fuzzy join by vessel id dist == 2)
+lgb_join_i1 |> 
+  filter(id_code == "1905120220529006") |> 
+  glimpse()
+
