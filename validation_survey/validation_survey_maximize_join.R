@@ -12,7 +12,8 @@
 library('devtools')
 
 if (!require('auxfunctions')) {
-  devtools::install_github("AShipunova1/R_code/auxfunctions@development")
+  devtools::install_github("AShipunova1/R_code/auxfunctions@development",
+                           force = TRUE)
   
   library('auxfunctions')
 }
@@ -37,24 +38,20 @@ options(scipen = 999)
 Sys.setenv(TZ = Sys.timezone())
 Sys.setenv(ORA_SDTZ = Sys.timezone())
 
+#' Change the following 2 lists to your environment if needed
+#' General directories (to look up additional files, e.g. processed data) 
+my_paths("inputs"  = "~/Documents/my_inputs",
+         "outputs" = "~/Documents/my_outputs",
+         "git_r"   = "~/Documents/R_code_github")
+
 my_paths <- auxfunctions::set_work_dir()
 current_in_out_paths <- auxfunctions::current_project_paths()
 
-#' get this project name
-current_project_dir_name <- this.path::this.dir()
-
-#' find its base name
-current_project_name <-
-  basename(current_project_dir_name)
-
-#' use current_project_name to create input and output path
-curr_proj_input_path <- file.path(my_paths$inputs,
-                         current_project_name)
+curr_proj_input_path <- current_in_out_paths$input
 
 auxfunctions::create_dir_if_not(curr_proj_input_path)
 
-curr_proj_output_path <- file.path(my_paths$outputs,
-                         current_project_name)
+curr_proj_output_path <- current_in_out_paths$output
 
 auxfunctions::create_dir_if_not(curr_proj_output_path)
 
