@@ -12,8 +12,7 @@
 library('devtools')
 
 if (!require('auxfunctions')) {
-  devtools::install_github("AShipunova1/R_code/auxfunctions@development",
-                           force = TRUE)
+  devtools::install_github("AShipunova1/R_code/auxfunctions@development", force = TRUE)
   
   library('auxfunctions')
 }
@@ -892,10 +891,9 @@ survey_n_pims__not_vsl_id__ok_filters <-
 
 glimpse(survey_n_pims__not_vsl_id__ok_filters)
 
-# Write to google sheets ----
-my_ss <- gs4_find("validation_survey")
-
 #' uncomment if needed
+# Write to google sheets ----
+# my_ss <- gs4_find("validation_survey")
 
 # write_sheet(
 #   survey_n_pims__same_vsl_id__diff_all_else,
