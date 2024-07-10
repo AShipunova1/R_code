@@ -431,14 +431,15 @@
       "Version": "1.1",
       "Source": "GitHub",
       "RemoteType": "github",
-      "RemoteUsername": "AShipunova1",
-      "RemoteRepo": "R_code",
-      "RemoteSubdir": "auxfunctions",
-      "RemoteRef": "development",
-      "RemoteSha": "5cb8509f20c6ed16ddd9bdb6bce28f8cacfa18c2",
       "RemoteHost": "api.github.com",
+      "RemoteRepo": "R_code",
+      "RemoteUsername": "AShipunova1",
+      "RemoteRef": "development",
+      "RemoteSha": "6d650ecf0dace00f1d1d0500bf1b476e941e75be",
+      "RemoteSubdir": "auxfunctions",
       "Requirements": [
         "DBI",
+        "R",
         "cowplot",
         "crayon",
         "data.table",
@@ -458,7 +459,7 @@
         "tidyr",
         "tidyselect"
       ],
-      "Hash": "58efa1d0b834d6b428deb038334e0eb6"
+      "Hash": "813c898e4744f0076d8f4c2d624b31ce"
     },
     "backports": {
       "Package": "backports",
