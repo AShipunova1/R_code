@@ -147,15 +147,15 @@ dim(fhier_compliance_2022__comp_after_overr__short__clean_weeeks__clean_vsl_id__
 # [1] 125823      9
 
 # check compliance for interviews w no logbooks ----
-dim(lgb_join_i1)
-# [1] 4722   35
+dim(lgb_join_i1__int_lgb__short)
+# [1] 2294    9
 
-lgb_join_i1__no_lgb <-
-  lgb_join_i1 |>
-  filter(is.na(TRIP_ID))
+lgb_join_i1__no_lgb <- 
+  lgb_join_i1__int_lgb__short |> 
+  filter(int_lgb == "no_lgb")
 
 dim(lgb_join_i1__no_lgb)
-# [1] 2241   35
+# [1] 1113    9
 
 #' Vessels in survey list with no lgb
 
@@ -163,58 +163,72 @@ vessels_in_survey_no_lgb <-
   unique(lgb_join_i1__no_lgb$VESSEL_OFFICIAL_NBR)
 
 n_distinct(lgb_join_i1__no_lgb$VESSEL_OFFICIAL_NBR)
-# 230
+# 220
 
-lgb_join_i1__no_lgb__short <-
+#' Should we use this instead?
+#' If at least on of the filters is passed the PIMS vessel id is more likely to be the same as survey vessel id. Didn't use the State filter pass, too few states, the possibility of a random match is too high.
+
+good_match_in_survey_no_lgb <-
   lgb_join_i1__no_lgb |>
-  select(
-    -c(
-      TRIP_ID,
-      TRIP_START_DATE,
-      TRIP_START_TIME,
-      TRIP_END_DATE,
-      TRIP_END_TIME,
-      trip_start_hour,
-      trip_start_sec,
-      trip_end_hour,
-      trip_end_sec,
-      trip_start_date_time,
-      trip_end_date_time,
-      id_code,
-      vessel_name,
-      interviewee_f_name,
-      interviewee_l_name,
-      survey_vessel_id,
-      st_2,
-      cnty_3,
-      SERO_HOME_PORT_COUNTY,
-      SERO_HOME_PORT_STATE,
-      VESSEL_NAME,
-      FIRST_NAME,
-      LAST_NAME,
-      county_short,
-      state_code,
-      state_name,
-      county_code,
-      vessel_id_dist,
-      vsl_names_dissim,
-      st_pass,
-      cnty_pass,
-      name_pass,
-      vsl_name_pass
-    )
-  ) |>
-  distinct() |>
-  rename("interview_date" = trip_end_date_only) |>
-  filter(!is.na(VESSEL_OFFICIAL_NBR))
+  filter(!(is.na(cnty_pass) &
+             is.na(name_pass) &
+             is.na(vsl_name_pass)))
 
-dim(lgb_join_i1__no_lgb__short)
-# [1] 1082    2
+n_distinct(good_match_in_survey_no_lgb$VESSEL_OFFICIAL_NBR)
+# 115
+
+#' For now use all
+
+# lgb_join_i1__no_lgb__short <-
+#   lgb_join_i1__no_lgb |>
+#   select(
+#     -c(
+#       TRIP_ID,
+#       TRIP_START_DATE,
+#       TRIP_START_TIME,
+#       TRIP_END_DATE,
+#       TRIP_END_TIME,
+#       trip_start_hour,
+#       trip_start_sec,
+#       trip_end_hour,
+#       trip_end_sec,
+#       trip_start_date_time,
+#       trip_end_date_time,
+#       id_code,
+#       vessel_name,
+#       interviewee_f_name,
+#       interviewee_l_name,
+#       survey_vessel_id,
+#       st_2,
+#       cnty_3,
+#       SERO_HOME_PORT_COUNTY,
+#       SERO_HOME_PORT_STATE,
+#       VESSEL_NAME,
+#       FIRST_NAME,
+#       LAST_NAME,
+#       county_short,
+#       state_code,
+#       state_name,
+#       county_code,
+#       vessel_id_dist,
+#       vsl_names_dissim,
+#       st_pass,
+#       cnty_pass,
+#       name_pass,
+#       vsl_name_pass
+#     )
+#   ) |>
+#   distinct() |>
+#   rename("interview_date" = trip_end_date_only) |>
+#   filter(!is.na(VESSEL_OFFICIAL_NBR))
+# 
+# dim(lgb_join_i1__no_lgb__short)
+# # [1] 1082    2
 
 # get compliance information for vessels from survey no lgb ----
 db_compliance_2022__comp_after_overr__short_m__interv <-
   db_compliance_2022__comp_after_overr__short_m |>
-  filter(tolower(VESSEL_OFFICIAL_NBR) %in% tolower(lgb_join_i1__no_lgb__short$VESSEL_OFFICIAL_NBR))
+  filter(tolower(VESSEL_OFFICIAL_NBR) %in% tolower(vessels_in_survey_no_lgb))
 
 dim(db_compliance_2022__comp_after_overr__short_m__interv)
 # [1] 7600    6
