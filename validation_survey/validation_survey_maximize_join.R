@@ -1165,7 +1165,6 @@ lgb_join_i1__int_lgb <-
 
 lgb_join_i1__int_lgb__short <-
   lgb_join_i1__int_lgb |>
-  filter(int_lgb == "no_lgb") |>
   select(
     VESSEL_OFFICIAL_NBR,
     trip_end_date_only,
@@ -1179,5 +1178,7 @@ lgb_join_i1__int_lgb__short <-
   ) |> 
   distinct()
 
-View(lgb_join_i1__int_lgb__short)
-# [1] 1113   10
+
+dim(lgb_join_i1__int_lgb__short)
+# [1] 2294   9
+
