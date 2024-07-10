@@ -1049,38 +1049,31 @@ lgb_join_i1__short |>
 
 #' count interviews/lgbks
 
-# has logbooks
+total_interviews <- n_distinct(lgb_join_i1$id_code)
+# 1835
+
+# has at least one lgb logbooks
 int_has_lgb <-
   lgb_join_i1 |>
   filter(!is.na(TRIP_ID))
 
-int_no_lgb <-
-  lgb_join_i1 |>
-  filter(is.na(TRIP_ID))
-
-int_has_lgb |>
+int_w_lgb_cnt <-
+  int_has_lgb |>
   summarise(n_distinct(id_code))
 # 1006 interviews with a lgb
 
-int_no_lgb |>
-  summarise(n_distinct(id_code))
-# 868 interviews with no lgb
+int_no_lgb_cnt <- total_interviews - int_w_lgb_cnt
+# 829
 
-summarise(int_no_lgb, n_distinct(id_code)) * 100 /
-  n_distinct(lgb_join_i1$id_code)
-# 47% interviews have no logbboks
+int_no_lgb_cnt * 100 / total_interviews
+# 45% interviews have no logbboks
 
 summarise(int_has_lgb, n_distinct(id_code)) * 100 /
   n_distinct(lgb_join_i1$id_code)
 # 55% interviews have logbboks
 
-# 55+47 = 102% !
-
 # the same interview have and do not have a trip id? Yes, if more than 1 per day.
 
-summarise(lgb_join_i1, n_distinct(id_code)) == 
-  n_distinct(lgb_join_i1$id_code)
-# 1835
 
 lgb_join_i1 |>
   select(TRIP_ID, VESSEL_OFFICIAL_NBR, trip_end_date_only, id_code) |>
