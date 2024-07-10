@@ -33,7 +33,7 @@ read_an_answer(my_prompt)
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  Anna Shipunova
+Anna Shipunova
 }
 \note{
 Is not used.

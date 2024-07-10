@@ -32,7 +32,7 @@ concat_unique(x)
 From https://stackoverflow.com/questions/53781563/combine-rows-based-on-multiple-columns-and-keep-all-unique-values
 }
 \author{
-%%  Anna Shipunova
+Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

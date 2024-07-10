@@ -43,7 +43,7 @@ A spatial object.
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  Anna Shipunova
+Anna Shipunova
 }
 \note{
 Example:

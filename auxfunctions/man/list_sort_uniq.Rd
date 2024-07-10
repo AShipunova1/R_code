@@ -46,7 +46,7 @@ The `list_sort_uniq` function is designed to take a list of character vectors, c
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  Anna Shipunova
+Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

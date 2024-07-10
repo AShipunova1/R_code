@@ -44,7 +44,7 @@ It returns the resulting data frame ('result_df') containing the merged data fro
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  Anna Shipunova
+Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

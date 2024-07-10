@@ -49,7 +49,7 @@ Here's the breakdown of the `write_to_1_flat_file` function:
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  Anna Shipunova
+Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

@@ -44,7 +44,7 @@ The `fix_names` function is designed to clean and standardize column names withi
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  Anna Shipunova
+Anna Shipunova
 }
 \note{
 Example:

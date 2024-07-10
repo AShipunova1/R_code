@@ -37,7 +37,7 @@ It returns the established database connection (con), which can be used to inter
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  Anna Shipunova
+Anna Shipunova
 }
 \note{
 con <- connect_to_secpr()

@@ -49,7 +49,7 @@ Here's a detailed explanation of the `load_xls_names` function:
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  Anna Shipunova
+Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

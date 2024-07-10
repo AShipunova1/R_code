@@ -37,7 +37,7 @@ The function does not explicitly return any value. It prints summary statistics 
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  Anna Shipunova
+Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

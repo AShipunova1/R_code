@@ -37,7 +37,7 @@ The `get_current_file_directory` function is designed to retrieve the directory 
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  Anna Shipunova
+Anna Shipunova
 }
 \note{
 Doesn't work everywhere, use 

@@ -36,7 +36,7 @@ count_uniq_by_column(my_df)
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  Anna Shipunova
+Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

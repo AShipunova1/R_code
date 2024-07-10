@@ -37,7 +37,7 @@ It returns the 'result_df', which is the input data frame with the specified col
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  Anna Shipunova
+Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

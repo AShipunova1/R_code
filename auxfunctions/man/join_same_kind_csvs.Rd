@@ -38,7 +38,7 @@ The `join_same_kind_csvs` function is designed to bind together multiple data fr
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  Anna Shipunova
+Anna Shipunova
 }
 \note{
 Mostly used inside another functions.

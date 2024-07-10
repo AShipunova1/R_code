@@ -42,7 +42,7 @@ Here's the breakdown of the `vessels_permits_id_clean` function:
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  Anna Shipunova
+Anna Shipunova
 }
 \note{
 my_df usually comes from join of Oracle database tables with vessels and permits

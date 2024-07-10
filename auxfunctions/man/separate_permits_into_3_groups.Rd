@@ -44,7 +44,7 @@ separate_permits_into_3_groups(my_df, permit_group_field_name = "permitgroup")
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  Anna Shipunova
+Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

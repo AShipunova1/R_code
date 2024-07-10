@@ -39,7 +39,7 @@ The `function_message_print` function is a utility function for printing message
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  Anna Shipunova
+Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

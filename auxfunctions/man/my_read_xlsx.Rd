@@ -53,7 +53,7 @@ my_read_xlsx(file_path, sheet_n, start_row = 1)
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  Anna Shipunova
+Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

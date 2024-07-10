@@ -52,7 +52,7 @@ read_rds_or_run(my_file_path,
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  Anna Shipunova
+Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

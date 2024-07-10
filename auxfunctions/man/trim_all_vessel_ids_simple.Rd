@@ -46,7 +46,7 @@ trim_all_vessel_ids_simple(csvs_clean_ws, col_name_to_trim = NA)
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  Anna Shipunova
+Anna Shipunova
 }
 \note{
 Usually used from auxfunctions::clean_all_csvs()

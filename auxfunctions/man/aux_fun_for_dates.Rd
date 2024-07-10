@@ -32,7 +32,7 @@ aux_fun_for_dates(x, date_format)
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  Anna Shipunova
+Anna Shipunova
 }
 \note{
 Not used anymore, in the old code only.

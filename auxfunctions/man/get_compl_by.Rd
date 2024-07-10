@@ -58,7 +58,7 @@ The `get_compl_by` function aims to organize compliance data by grouping and piv
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  Anna Shipunova
+Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

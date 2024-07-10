@@ -47,7 +47,7 @@ Here's an explanation of the `prepare_csv_names` function:
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  Anna Shipunova
+Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

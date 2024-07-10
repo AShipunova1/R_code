@@ -48,7 +48,7 @@ An optional date range used to customize the log file's name. The default value 
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  Anna Shipunova
+Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

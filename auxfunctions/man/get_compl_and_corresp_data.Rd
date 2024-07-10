@@ -61,7 +61,7 @@ It uses other functions from this package.
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  Anna Shipunova
+Anna Shipunova
 }
 \note{
 Example: 

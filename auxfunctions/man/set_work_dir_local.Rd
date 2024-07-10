@@ -51,7 +51,7 @@ Here's the breakdown of the `set_work_dir_local` function:
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  Anna Shipunova
+Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

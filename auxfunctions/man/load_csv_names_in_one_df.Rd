@@ -50,7 +50,7 @@ The `load_csv_names_in_one_df` function is designed to load multiple CSV files i
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  Anna Shipunova
+Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

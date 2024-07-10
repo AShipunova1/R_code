@@ -38,7 +38,7 @@ The function 'compl__back_to_longer_format' performs the following operations:
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  Anna Shipunova
+Anna Shipunova
 }
 \note{
 Usage example:

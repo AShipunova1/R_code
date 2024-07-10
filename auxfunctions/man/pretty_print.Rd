@@ -46,7 +46,7 @@ pretty_print(my_text, my_title, the_end = "---")
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  Anna Shipunova
+Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

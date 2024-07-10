@@ -50,7 +50,7 @@ The `corresp_cleaning` function processes a list of cleaned CSV files related to
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  Anna Shipunova
+Anna Shipunova
 }
 \note{
 This is one of the steps in auxfunctions::get_compl_and_corresp_data()

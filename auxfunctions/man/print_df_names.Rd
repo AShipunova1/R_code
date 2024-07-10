@@ -46,7 +46,7 @@ print_df_names(my_df, names_num = 100)
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  Anna Shipunova
+Anna Shipunova
 }
 \note{
 %%  ~~further notes~~

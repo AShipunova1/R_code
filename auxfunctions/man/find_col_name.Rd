@@ -48,7 +48,7 @@ The function is designed to search for column names within a dataframe that cont
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  Anna Shipunova
+Anna Shipunova
 }
 \note{
 %%  ~~further notes~~
