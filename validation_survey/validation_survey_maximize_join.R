@@ -1024,51 +1024,56 @@ db_logbooks_2022_short_date_time |>
 
 #' 2 trips/logbooks on the day with 1 interview, ok
 
-# How many int no lgb ----
+# count interviews and logbooks ----
+
+#' overview
 lgb_join_i1 |> 
   data_overview()
 
 # TRIP_ID               1161
 # id_code               1835
 
+#' count days 
 lgb_join_i1__short <-
   lgb_join_i1 |>
   select(TRIP_ID, id_code, trip_end_date_only) |>
   distinct()
 
 dim(lgb_join_i1__short)
+# 2062
 
 lgb_join_i1__short |> 
   filter(!is.na(TRIP_ID)) |> 
     summarise(n_distinct(trip_end_date_only))
 #' 187 days with at least one trip
-#' 
 
-lgb_join_i1__short |> 
-  filter(is.na(TRIP_ID)) |> 
-    summarise(n_distinct(trip_end_date_only))
-# 200 days with no trips/lgbks
+#' count interviews/lgbks
 
-lgb_join_i1__short |>
-  filter(!is.na(TRIP_ID)) |>
-  group_by(trip_end_date_only) %>%
-  # distinct(user, situation) %>%
-  summarise(entries_per_day = n())
+# has logbooks
+int_has_lgb <-
+  lgb_join_i1 |>
+  filter(!is.na(TRIP_ID))
 
-lgb_join_i1__short |>
-  filter(is.na(TRIP_ID)) |>
-  group_by(trip_end_date_only) %>%
-  # distinct(user, situation) %>%
-  summarise(entries_per_day = n())
+int_no_lgb <-
+  lgb_join_i1 |>
+  filter(is.na(TRIP_ID))
 
-lgb_join_i1__short |> 
-  select(-id_code) |> 
-  distinct() |> 
-  filter(!is.na(TRIP_ID)) |>
-  group_by(trip_end_date_only) |> 
-  # distinct(user, situation) %>%
-  mutate(entries_per_day = n()) |> 
-  ungroup() 
-  # filter(entries_per_day > 1)
-# 0  
+int_has_lgb |>
+  summarise(n_distinct(id_code))
+# 1006 interviews with a lgb
 
+int_no_lgb |>
+  summarise(n_distinct(id_code))
+# 868 interviews with no lgb
+
+summarise(int_no_lgb, n_distinct(id_code)) * 100 /
+  n_distinct(lgb_join_i1$id_code)
+# 47% interviews have no logbboks
+
+summarise(int_has_lgb, n_distinct(id_code)) * 100 /
+  n_distinct(lgb_join_i1$id_code)
+# 55% interviews have logbboks
+
+# 55+47 = 102% !
+
+# the same interview have and do not have a trip id?
