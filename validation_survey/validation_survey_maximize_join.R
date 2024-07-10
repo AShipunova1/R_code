@@ -33,10 +33,12 @@ library(googledrive) # interact with Google Drive
 #' don't convert long numbers to scientific notation
 options(scipen = 999)
 
+#' The same timezone across subsystems
 Sys.setenv(TZ = Sys.timezone())
 Sys.setenv(ORA_SDTZ = Sys.timezone())
 
 my_paths <- auxfunctions::set_work_dir()
+current_in_out_paths <- auxfunctions::current_project_paths()
 
 #' get this project name
 current_project_dir_name <- this.path::this.dir()
