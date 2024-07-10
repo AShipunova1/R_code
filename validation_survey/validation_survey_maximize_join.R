@@ -1150,8 +1150,9 @@ lgb_join_i1 |>
 
 # Multiple vessel ids for the same interview ----
 
-lgb_join_i1__int_lgb1 <-
+lgb_join_i1__int_lgb <-
   lgb_join_i1 |>
+  #' the same if grouped by `id_code` only
   group_by(id_code, survey_vessel_id) |>
   mutate(int_lgb = case_when(any(!is.na(TRIP_ID)) ~ "has_lgb",
                              .default = "no_lgb")) |>
@@ -1162,8 +1163,6 @@ lgb_join_i1__int_lgb1 <-
   # filter(int_lgb == "no_lgb") |> 
   # View()
 
-diffdf::diffdf(lgb_join_i1__int_lgb,
-               lgb_join_i1__int_lgb1)
 lgb_join_i1__int_lgb__short <-
   lgb_join_i1__int_lgb |>
   filter(int_lgb == "no_lgb") |>
