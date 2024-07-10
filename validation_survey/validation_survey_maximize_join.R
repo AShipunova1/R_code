@@ -1076,4 +1076,26 @@ summarise(int_has_lgb, n_distinct(id_code)) * 100 /
 
 # 55+47 = 102% !
 
-# the same interview have and do not have a trip id?
+# the same interview have and do not have a trip id? Yes, if more than 1 per day.
+
+summarise(lgb_join_i1, n_distinct(id_code)) == 
+  n_distinct(lgb_join_i1$id_code)
+# 1835
+
+lgb_join_i1 |>
+  select(TRIP_ID, VESSEL_OFFICIAL_NBR, trip_end_date_only, id_code) |>
+  distinct() |> 
+  count(TRIP_ID, id_code, name = "trip_int_pair") |>
+  filter(!is.na(TRIP_ID)) |>
+  arrange(desc(trip_int_pair)) |> 
+  # filter(trip_int_pair > 1) |> 
+  head()
+#' combinations of trip/id_code are unique 
+
+tidyr::pivot_wider(
+    names_from = VESSEL_OFFICIAL_NBR,
+    values_from = compliant_after_override,
+    # make it "NO_YES" if both
+    values_fn = ~ paste0(sort(.x), collapse = "_")
+  ) |>
+  
