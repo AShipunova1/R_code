@@ -48,7 +48,7 @@ if (auxfunctions::get_username() == "anna.shipunova") {
 } else {
   
   auxfunctions::function_message_print(
-    "Please change the following 2 lists to your environment if needed. Use full path to the directories."
+    "Please CHANGE the following 2 lists values to your environment if needed. Use full path to your directories in quotes."
   )
   
   #' 1) General directories (to look up additional files, e.g. processed data)
@@ -58,11 +58,21 @@ if (auxfunctions::get_username() == "anna.shipunova") {
   
   #' 2) Current project code, input and output directories
   current_in_out_paths <-
-    list(code = "~/validation_survey/code",
-         input = "~/validation_survey/input",
-         output = "~/validation_survey/output")
+    list(
+      project_name = "validation_survey",
+      code = "~/validation_survey/code",
+      input = "~/validation_survey/input",
+      output = "~/validation_survey/output"
+    )
 }
 
+#' The following section uses provided directory names lists to create separate variables for future use and create current input/output directories if they do not exists.
+#' 
+
+current_project_name <- current_in_out_paths$project_name
+
+current_project_dir_name <- current_in_out_paths$code
+            
 curr_proj_input_path <- current_in_out_paths$input
 
 auxfunctions::create_dir_if_not(curr_proj_input_path)
