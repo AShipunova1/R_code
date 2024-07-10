@@ -34,18 +34,34 @@ library(googledrive) # interact with Google Drive
 #' don't convert long numbers to scientific notation
 options(scipen = 999)
 
-#' The same timezone across subsystems
+#' Keep the same timezone across subsystems
 Sys.setenv(TZ = Sys.timezone())
 Sys.setenv(ORA_SDTZ = Sys.timezone())
 
-#' Change the following 2 lists to your environment if needed
-#' General directories (to look up additional files, e.g. processed data) 
-my_paths("inputs"  = "~/Documents/my_inputs",
-         "outputs" = "~/Documents/my_outputs",
-         "git_r"   = "~/Documents/R_code_github")
+#' Change the following 2 lists to your environment if needed. The variable names are used throughout the code, so please change only the values inside the lists.
 
-my_paths <- auxfunctions::set_work_dir()
-current_in_out_paths <- auxfunctions::current_project_paths()
+if (auxfunctions::get_username() == "anna.shipunova") {
+  # If the condition is true, use Anna's directory structure
+  my_paths <- auxfunctions::set_work_dir()
+  current_in_out_paths <- auxfunctions::current_project_paths()
+  
+} else {
+  
+  auxfunctions::function_message_print(
+    "Please change the following 2 lists to your environment if needed. Use full path to the directories."
+  )
+  
+  #' 1) General directories (to look up additional files, e.g. processed data)
+  my_paths <- list(inputs  = "~/my_inputs",
+                   outputs = "~/my_outputs",
+                   git_r   = "~/R_code")
+  
+  #' 2) Current project code, input and output directories
+  current_in_out_paths <-
+    list(code = "~/validation_survey/code",
+         input = "~/validation_survey/input",
+         output = "~/validation_survey/output")
+}
 
 curr_proj_input_path <- current_in_out_paths$input
 
