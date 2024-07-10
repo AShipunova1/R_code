@@ -19,9 +19,12 @@ current_project_paths <- function() {
   auxfunctions::create_dir_if_not(curr_proj_output_path)
   
   current_proj_paths <-
-    list("code" = current_project_dir_name,
-         "input" = curr_proj_input_path,
-         "output" = curr_proj_output_path)
+    list(
+      "project_name" = current_project_name,
+      "code" = current_project_dir_name,
+      "input" = curr_proj_input_path,
+      "output" = curr_proj_output_path
+    )
   
   return(current_proj_paths)
 }
