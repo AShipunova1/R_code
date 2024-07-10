@@ -5,41 +5,30 @@
 Creates a List of Paths to the Current Project Code, Input and Output directories
 }
 \description{
-Creates a list of paths to the current project code, input, and output directories. By default uses Anna's computer setup. It also creates directories if they do not exist.
+Creates a list of paths to the current project code, input, and output directories. By default uses Anna's computer setup. It also creates input and output directories if they do not exist.
 }
 \usage{
 current_project_paths()
-or
-current_project_paths(code_path, my_paths)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{code_path}{
-An optional parameter. If provided used as a current base name.
-}
-  \item{my_paths}{
-An optional parameter. A list like
-
-  my_paths <- list("inputs" = full_path_to_in_dir,
-  
-                   "outputs" = full_path_to_out_dir,
-                   
-                   "git_r" = full_path_to_r_git_dir)
-}
-
 }
 \details{
 %%  ~~ If necessary, more details than the description above ~~
 }
 \value{
-A list of string for paths.
-An example:
+A list of strings for paths.
+For example:
 
-   list("code" = current_project_dir_name,
+   list( 
    
-         "input" = curr_proj_input_path,
+   project_name = current_project_name,
+   
+   code = current_project_dir_name,
+   
+   input = curr_proj_input_path,
          
-         "output" = curr_proj_output_path)
+   output = curr_proj_output_path)
  
 %%  ~Describe the value returned
 %%  If it is a LIST, use
@@ -65,9 +54,6 @@ Anna Shipunova
 
 }
 \examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or standard data sets, see data().
 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
