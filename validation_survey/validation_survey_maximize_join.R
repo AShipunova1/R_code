@@ -1148,3 +1148,37 @@ lgb_join_i1 |>
   filter(id_code == "1905120220529006") |> 
   glimpse()
 
+# Multiple vessel ids for the same interview ----
+
+lgb_join_i1__int_lgb1 <-
+  lgb_join_i1 |>
+  group_by(id_code, survey_vessel_id) |>
+  mutate(int_lgb = case_when(any(!is.na(TRIP_ID)) ~ "has_lgb",
+                             .default = "no_lgb")) |>
+  ungroup()
+
+# lgb_join_i1__int_lgb |> 
+  # filter(id_code == "1905120220529006") |> 
+  # filter(int_lgb == "no_lgb") |> 
+  # View()
+
+diffdf::diffdf(lgb_join_i1__int_lgb,
+               lgb_join_i1__int_lgb1)
+lgb_join_i1__int_lgb__short <-
+  lgb_join_i1__int_lgb |>
+  filter(int_lgb == "no_lgb") |>
+  select(
+    VESSEL_OFFICIAL_NBR,
+    trip_end_date_only,
+    id_code,
+    survey_vessel_id,
+    st_pass,
+    cnty_pass,
+    name_pass,
+    vsl_name_pass,
+    int_lgb
+  ) |> 
+  distinct()
+
+View(lgb_join_i1__int_lgb__short)
+# [1] 1113   10
