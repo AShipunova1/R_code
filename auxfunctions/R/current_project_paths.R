@@ -1,16 +1,9 @@
-current_project_paths <- function(code_path = NA,
-                                  my_paths = NA) {
-  if (is.na(my_paths)) {
-    my_paths <- auxfunctions::set_work_dir()
-  }
+current_project_paths <- function() {
   
-  if (is.na(code_path)) {
-    #' get this project name
-    current_project_dir_name <- this.path::this.dir()
-  }
-  else {
-    current_project_dir_name = code_path
-  }
+  my_paths <- auxfunctions::set_work_dir()
+  
+  #' get this project name
+  current_project_dir_name <- this.path::this.dir()
   
   #' find its base name
   current_project_name <-
