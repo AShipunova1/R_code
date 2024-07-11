@@ -37,12 +37,16 @@ library(devtools)
 #   - `"AShipunova1/R_code/auxfunctions"` specifies the repository and subdirectory containing the package.
 # 
 # This code checks if the `auxfunctions` package is available, and if not, it installs it from the GitHub repository `AShipunova1/R_code/auxfunctions`.
+# One doesn't have to have a github account to use it.
 if (!require('auxfunctions')) {
   devtools::install_github("AShipunova1/R_code/auxfunctions")
 }
 
+#' Auxiliary functions for SEFHIER data analysis.
 library(auxfunctions)
+#' Helps with time series.
 library(zoo)
+#' Compares 2 dataframes and outputs any differences.
 library(diffdf)
 
 my_paths <- auxfunctions::set_work_dir()
