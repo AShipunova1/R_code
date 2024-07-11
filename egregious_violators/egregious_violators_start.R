@@ -49,23 +49,53 @@ library(zoo)
 #' Compares 2 dataframes and outputs any differences.
 library(diffdf)
 
-my_paths <- auxfunctions::set_work_dir()
+## Set up paths ----
 
-current_project_path <- this.path::this.dir()
+#' Change the following 2 lists to your environment if needed. The variable _names_ are used throughout the code, so please change only the quoted _values_ inside the lists.
 
-current_project_basename <-
-  basename(current_project_path)
+if (!auxfunctions::get_username() == "anna.shipunova") {
+  auxfunctions::function_message_print(
+    "Please CHANGE the following 2 lists values to your environment if needed. Use full path to your directories in quotes."
+  )
+  
+  #' 1) General directories (to look up additional files, e.g. processed data)
+  my_paths <- list(inputs  = "~/my_inputs",
+                   outputs = "~/my_outputs",
+                   git_r   = "~/R_code")
+  
+  #' 2) Current project code, input and output directories
+  current_in_out_paths <-
+    list(
+      project_name = "validation_survey",
+      code = "~/validation_survey/code",
+      input = "~/validation_survey/input",
+      output = "~/validation_survey/output"
+    )
+  
+} else {
+  # If the username is "anna.shipunova", use Anna's directory structure.
+  my_paths <- auxfunctions::set_work_dir()
+  current_in_out_paths <- auxfunctions::current_project_paths()
+}
 
-curr_proj_output_path <- file.path(my_paths$outputs,
-                         current_project_basename)
+#' The following section uses provided directory names lists to automatically create separate variables for future use and create current input/output directories if they do not exists.
 
-curr_proj_input_path <- file.path(my_paths$inputs,
-                         current_project_basename)
+#' Usually the current directory name
+current_project_name <- current_in_out_paths$project_name
 
-current_project_name <- current_project_basename
+current_project_dir_name <- current_in_out_paths$code
+            
+curr_proj_input_path <- current_in_out_paths$input
 
-all_inputs <- my_paths$inputs
+auxfunctions::create_dir_if_not(curr_proj_input_path)
 
+curr_proj_output_path <- current_in_out_paths$output
+
+auxfunctions::create_dir_if_not(curr_proj_output_path)
+
+## Define dates ----
+
+#' my_year1 and my_year2 values might be changed
 my_year1 <- "2023"
 my_beginning1 <- stringr::str_glue("{my_year1}-01-01")
 my_end1 <- stringr::str_glue("{my_year1}-12-31")
@@ -74,32 +104,32 @@ my_year2 <- "2024"
 my_beginning2 <- stringr::str_glue("{my_year2}-01-01")
 my_end2 <- stringr::str_glue("{my_year2}-12-31")
 
+#' Following are the definitions of dates used throughout the code.
 data_file_date <- 
   lubridate::today()
-  # lubridate::ymd("2024-02-21")
   
+#' How many weeks and days to take in to the account?
 number_of_weeks_for_non_compliancy = 26
 days_in_non_compl_weeks <- 
   number_of_weeks_for_non_compliancy * 7
-# 182
+
+#' test
+days_in_non_compl_weeks == 182
 
 grace_period = 7 # days
 
 half_year_ago <-
   data_file_date - days_in_non_compl_weeks - grace_period
-# [1] "2023-10-04"
 
-#' check week and day of the period's start
-# week("2023-10-04") 
-# 40
+#' check week and day of the period's start, can compare with a calendar
+lubridate::week(half_year_ago)
 
-# wday("2023-10-04",
-#      label = T)
-# Wed
+lubridate::wday(half_year_ago, label = T)
 
-#' 30 days from today
+#' Permit expiration minimum is 30 days from today
 permit_expired_check_date <- data_file_date + 30
 
+#' Do not use the last week data
 last_week_start <- data_file_date - grace_period
 
 # get_data ----
