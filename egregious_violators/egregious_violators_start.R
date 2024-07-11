@@ -1,7 +1,9 @@
+#' title: Egregious Violators
+
 #' %%%%% Set Up
 #' 
 
-#' Read me
+#' The "egregious violator" definition:
 #' 
 #' 1) NO reports for all 26 weeks back from week ago today;
 #' 
@@ -17,13 +19,29 @@
 #' 
 
 # set up ----
-# install.packages("devtools")
-# library(devtools)
 
-#' Install if needed and load the package
-if (!require("auxfunctions")) devtools::install_github("AShipunova1/R_code/auxfunctions")
+#' Install if needed and load all the packages
+#' NB. It is better to install/load each package separately, if any one suggest updates it is safe to choose option 1 (update all)
 
+#' Instantiate an Oracle client from the current R session
 library(ROracle)
+#' Collection of package development tools.
+library(devtools)
+
+# Explanations:
+# - `if (!require("auxfunctions"))` checks if the `auxfunctions` package is installed and loaded:
+#   - `require("auxfunctions")` attempts to load the `auxfunctions` package.
+#   - The `!` operator negates the result, so the condition is true if the package is not installed or cannot be loaded.
+# - `devtools::install_github("AShipunova1/R_code/auxfunctions")` installs the `auxfunctions` package from the specified GitHub repository:
+#   - `devtools::install_github()` is a function from the `devtools` package that installs an R package directly from a GitHub repository.
+#   - `"AShipunova1/R_code/auxfunctions"` specifies the repository and subdirectory containing the package.
+# 
+# This code checks if the `auxfunctions` package is available, and if not, it installs it from the GitHub repository `AShipunova1/R_code/auxfunctions`.
+if (!require('auxfunctions')) {
+  devtools::install_github("AShipunova1/R_code/auxfunctions")
+}
+
+library(auxfunctions)
 library(zoo)
 library(diffdf)
 
