@@ -89,7 +89,14 @@ corresp_full_path <-
   prepare_csv_full_path(all_csv_names_list[[1]],
                         add_path = "from_Fhier/Correspondence",
                         input_dir_part = my_paths$inputs)
-file.exists(corresp_full_path[[1]])
+
+compliance_full_paths <-
+  prepare_csv_full_path(all_csv_names_list[2:3],
+                        add_path = "from_Fhier/FHIER Compliance",
+                        input_dir_part = my_paths$inputs)
+
+
+purrr::map(compliance_full_paths, file.exists)
 
 
 all_csv_full_paths_list <- 
