@@ -350,4 +350,119 @@ db_compliance_2022__comp_after_overr__short_m__interv__good_match__compl_m_wider
 
 # Still mostly compliant
 
+# Cluster PIMS vessel ids for each vessel in survey with they compliance?
 # Look at days in survey and compliance?
+
+# All vessels compliance
+# lgb_join_i1__int_lgb__short
+  
+## get compliance information for vessels in both with and witout logbooks ----
+db_compliance_2022__comp_after_overr__short_m__all_vsl <-
+  db_compliance_2022__comp_after_overr__short_m |>
+  filter(tolower(VESSEL_OFFICIAL_NBR) %in% tolower(lgb_join_i1__int_lgb__short$VESSEL_OFFICIAL_NBR))
+
+dim(db_compliance_2022__comp_after_overr__short_m__all_vsl)
+# [1] 13860     6
+
+vessels_in_survey_no_lgb__n__compl__good_match <- 
+  unique(db_compliance_2022__comp_after_overr__short_m__all_vsl$VESSEL_OFFICIAL_NBR)
+
+glimpse(vessels_in_survey_no_lgb__n__compl__good_match)
+
+n_distinct(db_compliance_2022__comp_after_overr__short_m__all_vsl$VESSEL_OFFICIAL_NBR)
+# 338
+
+n_distinct(lgb_join_i1__int_lgb__short$VESSEL_OFFICIAL_NBR)
+# 376
+
+n_distinct(lgb_join_i1__int_lgb__short$VESSEL_OFFICIAL_NBR)-
+n_distinct(db_compliance_2022__comp_after_overr__short_m__all_vsl$VESSEL_OFFICIAL_NBR)
+# only 38 vessels (PIMS/survey fuzzy matched) have no compliance info at all for 2022
+
+# get compl, no compl, or both per year ----
+db_compliance_2022__comp_after_overr__short_m__all_vsl__wide <-
+  db_compliance_2022__comp_after_overr__short_m__all_vsl |> 
+  # remove weeks and month
+  select(-starts_with("COMP_WEEK"), -year_month) |> 
+  # unique compliance per vessel
+  distinct() |> 
+  # more columns, a column per vessel
+  tidyr::pivot_wider(
+    names_from = VESSEL_OFFICIAL_NBR,
+    values_from = compliant_after_override,
+    # make it "NO_YES" if both
+    values_fn = ~ paste0(sort(.x), collapse = "_")
+  ) |>
+  dplyr::ungroup()
+
+dim(db_compliance_2022__comp_after_overr__short_m__all_vsl__wide)
+# 1 338
+
+## turn back year compliance to the long format ----
+db_compliance_2022__comp_after_overr__short_m__all_vsl__wide_long <-
+  db_compliance_2022__comp_after_overr__short_m__all_vsl__wide |> 
+  t() |> 
+  as.data.frame() |> 
+  tibble::rownames_to_column(var = "vessel_official_number") |> 
+  rename("is_compl_or_both_year" = V1)
+
+dim(db_compliance_2022__comp_after_overr__short_m__all_vsl__wide_long)
+# [1] 338   2
+
+# check
+db_compliance_2022__comp_after_overr__short_m__all_vsl__wide_long |> 
+    count(is_compl_or_both_year)
+#   is_compl_or_both_year   n
+# 1                    no   2
+# 2                no_yes   3
+# 3                   yes 333
+
+# get compliance per month ----
+db_compliance_2022__comp_after_overr__short_m__all_vsl__compl_m_wider <-
+    db_compliance_2022__comp_after_overr__short_m__all_vsl |>
+    select(-starts_with("COMP_WEEK")) |> 
+    tidyr::pivot_wider(
+    names_from = VESSEL_OFFICIAL_NBR,
+    values_from = compliant_after_override,
+    # make it "NO_YES" if both
+    values_fn = ~ paste0(unique(sort(.x)), collapse = "_")
+  ) |>
+  dplyr::ungroup()
+
+dim(db_compliance_2022__comp_after_overr__short_m__all_vsl__compl_m_wider)
+# [1]  12 339
+
+db_compliance_2022__comp_after_overr__short_m__all_vsl__compl_m_wider |> 
+  arrange(year_month) |> 
+  glimpse()
+
+## compliance per month in longer format ----
+db_compliance_2022__comp_after_overr__short_m__all_vsl__compl_m_wider__long <- 
+  db_compliance_2022__comp_after_overr__short_m__all_vsl__compl_m_wider |> 
+  tidyr::pivot_longer(
+    # all other columns are vessel ids, use them
+    cols = -year_month,
+    values_to = "is_compl_or_both",
+    names_to = "vessel_official_number"
+  )
+
+dim(db_compliance_2022__comp_after_overr__short_m__all_vsl__compl_m_wider__long)
+# [1] 4056    3
+
+n_distinct(db_compliance_2022__comp_after_overr__short_m__all_vsl__compl_m_wider__long$vessel_official_number)
+# [1] 338, ok, as above
+
+## count compliance per month ----
+db_compliance_2022__comp_after_overr__short_m__all_vsl__compl_m_wider__long_cnts <-
+  db_compliance_2022__comp_after_overr__short_m__all_vsl__compl_m_wider__long |>
+  select(-vessel_official_number) |>
+  dplyr::add_count(year_month, is_compl_or_both,
+                   name = "compl_or_not_cnt_m") |> 
+  unique()
+  
+db_compliance_2022__comp_after_overr__short_m__all_vsl__compl_m_wider__long_cnts |> 
+  filter(!is.na(is_compl_or_both)) |> 
+  arrange(year_month, desc(is_compl_or_both)) |> 
+  summary()
+
+# mostly compliant
