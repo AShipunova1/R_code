@@ -83,7 +83,7 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
 #' Usually the current directory name
 current_project_name <- current_in_out_paths$project_name
 
-current_project_dir_name <- current_in_out_paths$code
+current_project_path <- current_in_out_paths$code
             
 curr_proj_input_path <- current_in_out_paths$input
 
