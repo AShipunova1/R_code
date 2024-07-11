@@ -84,12 +84,64 @@ all_csv_names_list = c("Correspondence_2024_06_17.csv",
                          r"(2024_06_17\FHIER_Compliance_2023__06_17_2024.csv)",
                          r"(2024_06_17\FHIER_Compliance_2024__06_17_2024.csv)")
 
-## get compliance and correspondence csv data into variables ----
-from_fhier_data_path <-
-  file.path(my_paths$inputs)
+# add a full path in front of each file name
+corresp_full_path <-
+  prepare_csv_full_path(all_csv_names_list[[1]],
+                        add_path = "from_Fhier/Correspondence",
+                        input_dir_part = my_paths$inputs)
+file.exists(corresp_full_path[[1]])
 
+
+all_csv_full_paths_list <- 
+    
+    lapply(all_csv_names_list, function(x) file.path(my_paths$inputs, x))
+}
+
+
+prepare_csv_full_path <-
+  function(filenames_list,
+           add_path,
+           input_dir_part = NA) {
+    #' mypath is a default
+    if (is.na(input_dir_part)) {
+      input_dir_part <- auxfunctions::set_work_dir()
+    }
+    
+    #' add_path
+    #' Use subdirectory names for correspondence and compliance files.
+    #' add_path <- "from_Fhier/Correspondence"
+    #' or
+    #' add_path <- "from_Fhier/FHIER Compliance"
+    
+    # Use 'sapply' to add paths in front of each filename in the 'filenames_list' vector.
+    my_list <- sapply(filenames_list, function(x) {
+      file.path(input_dir_part, add_path, x)
+    })
+    
+    # Convert the resulting list into a character vector and return it.
+    return(paste(my_list) %>% as.list())
+  }
+
+
+#' read correspondence and compliance csvs
+contents <- 
+  lapply(all_csv_full_paths_list, 
+         readr::read_csv, col_types = readr::cols(.default = 'c'))
+
+# ---
+    csv_names_list <- prepare_csv_names(filenames)
+  csv_contents <- load_csv_names(my_paths, csv_names_list)
+  csvs_clean1 <- clean_all_csvs(csv_contents, vessel_id_field_name)
+  corresp_arr_contact_cnts_clean <- corresp_cleaning(csvs_clean1)
+  compl_arr <- csvs_clean1[2:length(csvs_clean1)]
+  compl_clean <- compliance_cleaning(compl_arr)
+  return(list(compl_clean, corresp_arr_contact_cnts_clean))
+
+
+
+## get compliance and correspondence csv data into variables ----
 temp_var <-
-  auxfunctions::get_compl_and_corresp_data(from_fhier_data_path, all_csv_names_list)
+  auxfunctions::get_compl_and_corresp_data(my_paths$inputs, all_csv_names_list)
 
 compl_clean_list <- temp_var[[1]]
 corresp_contact_cnts_clean0 <- temp_var[[2]]
