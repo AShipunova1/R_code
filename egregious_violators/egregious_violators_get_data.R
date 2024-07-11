@@ -1,6 +1,8 @@
 # get data for egregious violators
 # use from egregious_violators_start.R
 
+#' The following data are loaded from files or from the Oracle database
+#' 
 #' 1) compliance data
 #' 
 #' Download files from FHIER / Reports / FHIER COMPLIANCE REPORT 
@@ -23,6 +25,8 @@
 
 #' 3) processed Metrics tracking
 #' 
+#' From a separate code
+#'  
 #' For the last 6 month
 #' 
 #' SEFHIER_permitted_vessels_nonSRHS_YEAR.csv
@@ -61,7 +65,21 @@
 #' permit info from processed metrics tracking
 #' 
 
-#' Download from FHIER first
+#' Download from FHIER first.
+#' 
+#' Provide full paths here, changing _values_ inside the quotes:
+#' 
+correspondence_csv_path <- "Your full path to correspondence.csv"
+fhier_compliance_csv_path_list <- 
+  list("Your full path to fhier_compliance.csv year 1",
+       "Your full path to fhier_compliance.csv year 2")
+
+#' Depending on a user name who runs the code, the file paths are constructed here.
+if (!auxfunctions::get_username() == "anna.shipunova") {
+  all_csv_full_paths_list <- c(correspondence_csv_path,
+                          fhier_compliance_csv_path_list)
+} else {
+#' Change file names to the last download
 all_csv_names_list = c("Correspondence_2024_06_17.csv",
                          r"(2024_06_17\FHIER_Compliance_2023__06_17_2024.csv)",
                          r"(2024_06_17\FHIER_Compliance_2024__06_17_2024.csv)")
