@@ -48,8 +48,9 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
   # For Anna Shipunova
   # rebuild the package
   devtools::install_github("AShipunova1/R_code/auxfunctions@development", force = TRUE)
+  # restart R session to pick up changes
+  # .rs.restartR()
 }
-
 
 #' Auxiliary functions for SEFHIER data analysis.
 library(auxfunctions)
