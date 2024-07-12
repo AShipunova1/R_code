@@ -108,13 +108,13 @@ current_project_name <- current_in_out_paths$project_name
 
 current_project_path <- current_in_out_paths$code
             
-curr_proj_input_path <- current_in_out_paths$input
+current_project_input_path <- current_in_out_paths$input
 
-auxfunctions::create_dir_if_not(curr_proj_input_path)
+auxfunctions::create_dir_if_not(current_project_input_path)
 
-curr_proj_output_path <- current_in_out_paths$output
+current_project_output_path <- current_in_out_paths$output
 
-auxfunctions::create_dir_if_not(curr_proj_output_path)
+auxfunctions::create_dir_if_not(current_project_output_path)
 
 ### Additional individual paths to data files ----
 #### Compliance and Correspondence ----
@@ -245,7 +245,7 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
 } else {
   # for Anna Shipunova, update file name's date
   prev_result_path <-
-    file.path(curr_proj_input_path,
+    file.path(current_project_input_path,
               "egregious_violators_to_investigate_2024-05-17.xlsx")
 }
 
@@ -1133,8 +1133,7 @@ out_file_name <-
   stringr::str_glue("egregious_violators_to_investigate_{lubridate::today()}.csv")
 
 result_path <- 
-  file.path(my_paths$outputs,
-            current_project_basename,
+  file.path(c
             out_file_name)
 
 compl_corr_to_investigation_short_dup_marked__permit_region__add_columns |>

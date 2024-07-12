@@ -180,7 +180,7 @@ SRH.MV_SERO_VESSEL_ENTITY@secapxdv_dblk
 
 #' It uses the predefined path to the input directory and a file name to read or write to.
 db_participants_address_file_path <-
-  file.path(curr_proj_input_path,
+  file.path(current_project_input_path,
             "db_participants_address.rds")
  
 #' Try to connect to Oracle if it is not done already.
@@ -241,7 +241,7 @@ ORDER BY
 
 #' It uses the predefined path to the input directory and a file name to read or write to.
 permit_vessel_w_changed_owner_file_path <-
-  file.path(curr_proj_input_path,
+  file.path(current_project_input_path,
             "permit_vessel_w_changed_owner.rds")
  
 # err msg if no connection, but keep running
