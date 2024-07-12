@@ -76,35 +76,35 @@ fhier_compliance_csv_path_list <-
 
 #' Depending on a user name who runs the code, the file paths are constructed here.
 if (!auxfunctions::get_username() == "anna.shipunova") {
-  all_csv_full_paths_list <- c(correspondence_csv_path,
-                          fhier_compliance_csv_path_list)
+  all_csv_full_paths_list <- c(correspondence_csv_path, fhier_compliance_csv_path_list)
 } else {
   #' For Anna Shipunova
-#' Change file names to the last download
-all_csv_names_list = c("Correspondence_2024_06_17.csv",
-                         r"(2024_06_17\FHIER_Compliance_2023__06_17_2024.csv)",
-                         r"(2024_06_17\FHIER_Compliance_2024__06_17_2024.csv)")
+  #' Change file names to the last download
+  all_csv_names_list = c(
+    "Correspondence_2024_06_17.csv",
+    r"(2024_06_17\FHIER_Compliance_2023__06_17_2024.csv)",
+    r"(2024_06_17\FHIER_Compliance_2024__06_17_2024.csv)"
+  )
+  
+  #' add a full path in front of each file name
+  corresp_full_path <-
+    prepare_csv_full_path(all_csv_names_list[[1]],
+                          add_path = "from_Fhier/Correspondence",
+                          input_dir_part = my_paths$inputs)
+  
+  compliance_full_paths <-
+    auxfunctions::prepare_csv_full_path(all_csv_names_list[2:3],
+                                        add_path = "from_Fhier/FHIER Compliance",
+                                        input_dir_part = my_paths$inputs)
+  
+  all_csv_full_paths_list <-
+    c(corresp_full_path,
+      compliance_full_paths)
 
-# add a full path in front of each file name
-corresp_full_path <-
-  prepare_csv_full_path(all_csv_names_list[[1]],
-                        add_path = "from_Fhier/Correspondence",
-                        input_dir_part = my_paths$inputs)
-
-compliance_full_paths <-
-  auxfunctions::prepare_csv_full_path(all_csv_names_list[2:3],
-                        add_path = "from_Fhier/FHIER Compliance",
-                        input_dir_part = my_paths$inputs)
-
-
-purrr::map(compliance_full_paths, file.exists)
-
-
-all_csv_full_paths_list <- 
-    
-    lapply(all_csv_names_list, function(x) file.path(my_paths$inputs, x))
+  # check if files exist
+  purrr::map(all_csv_full_paths_list, file.exists)
 }
-# HERE
+
 #' read correspondence and compliance csvs
 contents <- 
   lapply(all_csv_full_paths_list, 
