@@ -28,24 +28,26 @@ library(ROracle)
 #' Collection of package development tools.
 library(devtools)
 
-# Explanations:
-# - `if (!require("auxfunctions"))` checks if the `auxfunctions` package is installed and loaded:
-#   - `require("auxfunctions")` attempts to load the `auxfunctions` package.
-#   - The `!` operator negates the result, so the condition is true if the package is not installed or cannot be loaded.
-# - `devtools::install_github("AShipunova1/R_code/auxfunctions")` installs the `auxfunctions` package from the specified GitHub repository:
-#   - `devtools::install_github()` is a function from the `devtools` package that installs an R package directly from a GitHub repository.
-#   - `"AShipunova1/R_code/auxfunctions"` specifies the repository and subdirectory containing the package.
-# 
-# This code checks if the `auxfunctions` package is available, and if not, it installs it from the GitHub repository `AShipunova1/R_code/auxfunctions`.
-# One doesn't have to have a github account to use it.
-if (!require('auxfunctions')) {
-  if (!auxfunctions::get_username() == "anna.shipunova") {
+#' Explanations:
+#' - `if (!require("auxfunctions"))` checks if the `auxfunctions` package is installed and loaded:
+#'   - `require("auxfunctions")` attempts to load the `auxfunctions` package.
+#'   - The `!` operator negates the result, so the condition is true if the package is not installed or cannot be loaded.
+#' - `devtools::install_github("AShipunova1/R_code/auxfunctions")` installs the `auxfunctions` package from the specified GitHub repository:
+#'   - `devtools::install_github()` is a function from the `devtools` package that installs an R package directly from a GitHub repository.
+#'   - `"AShipunova1/R_code/auxfunctions"` specifies the repository and subdirectory containing the package.
+#' 
+#' This code checks if the `auxfunctions` package is available, and if not, it installs it from the GitHub repository `AShipunova1/R_code/auxfunctions`.
+#' One doesn't have to have a github account to use it.
+#' Check the username
+#' 
+if (!auxfunctions::get_username() == "anna.shipunova") {
+  if (!require('auxfunctions')) {
     devtools::install_github("AShipunova1/R_code/auxfunctions")
-  } else {
-    # For Anna Shipunova
-    devtools::install_github("AShipunova1/R_code/auxfunctions@development", force = TRUE)
-    
   }
+} else {
+  # For Anna Shipunova
+  # rebuild the package
+  devtools::install_github("AShipunova1/R_code/auxfunctions@development", force = TRUE)
 }
 
 
@@ -103,10 +105,12 @@ auxfunctions::create_dir_if_not(curr_proj_output_path)
 ## Define dates ----
 
 #' my_year1 and my_year2 values might be changed
+#' start year for the analysis
 my_year1 <- "2023"
 my_beginning1 <- stringr::str_glue("{my_year1}-01-01")
 my_end1 <- stringr::str_glue("{my_year1}-12-31")
 
+#' last year for the analysis
 my_year2 <- "2024"
 my_beginning2 <- stringr::str_glue("{my_year2}-01-01")
 my_end2 <- stringr::str_glue("{my_year2}-12-31")
@@ -136,7 +140,7 @@ lubridate::wday(half_year_ago, label = T)
 #' Permit expiration minimum is 30 days from today
 permit_expired_check_date <- data_file_date + 30
 
-#' Do not use the last week data
+#' We will not use the last week data
 last_week_start <- data_file_date - grace_period
 
 # get_data ----
