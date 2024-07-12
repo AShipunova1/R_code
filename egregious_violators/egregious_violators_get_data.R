@@ -4,14 +4,12 @@
 #' The following data are loaded from files or from the Oracle database
 #' 
 #' 1) compliance data
-#' 
 #' Download files from FHIER / Reports / FHIER COMPLIANCE REPORT 
 #' 
 #' For the last 6 month
 #' 
 #' FHIER_Compliance_...csv
 #' 
-
 #' 2) correspondence data
 #' 
 #' Download files from FHIER / Home / Correspondence
@@ -64,6 +62,8 @@
 #' 
 #' permit info from processed metrics tracking
 #' 
+
+## Compliance and Correspondence data ----
 
 #' read correspondence and compliance csvs
 csv_contents <- 
@@ -239,6 +239,7 @@ ORDER BY
   vessel_id
 "
 
+#' It uses the predefined path to the input directory and a file name to read or write to.
 permit_vessel_w_changed_owner_file_path <-
   file.path(curr_proj_input_path,
             "permit_vessel_w_changed_owner.rds")
