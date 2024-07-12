@@ -907,14 +907,20 @@ compl_corr_to_investigation__corr_date |>
   dplyr::glimpse()
 
 ### add pims home port info ----
+
+#' change pims home port info column names 
+processed_pims_home_ports_renamed <- 
+  processed_pims_home_ports |> 
+  dplyr::rename("hailing_port_city" = city_fixed,
+         "hailing_port_state" = state_fixed)
+
+#' join home ports and compliance/correspondence by vessel id
 compl_corr_to_investigation__corr_date__hailing_port <- 
   dplyr::left_join(
     compl_corr_to_investigation__corr_date,
-    processed_pims_home_ports,
+    processed_pims_home_ports_renamed,
     dplyr::join_by(vessel_official_number)
-  ) |> 
-  dplyr::rename("hailing_port_city" = city_fixed,
-         "hailing_port_state" = state_fixed)
+  )
 
 ### add prepared addresses ----
 
