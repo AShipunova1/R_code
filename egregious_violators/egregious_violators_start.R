@@ -39,8 +39,15 @@ library(devtools)
 # This code checks if the `auxfunctions` package is available, and if not, it installs it from the GitHub repository `AShipunova1/R_code/auxfunctions`.
 # One doesn't have to have a github account to use it.
 if (!require('auxfunctions')) {
-  devtools::install_github("AShipunova1/R_code/auxfunctions")
+  if (!auxfunctions::get_username() == "anna.shipunova") {
+    devtools::install_github("AShipunova1/R_code/auxfunctions")
+  } else {
+    # For Anna Shipunova
+    devtools::install_github("AShipunova1/R_code/auxfunctions@development", force = TRUE)
+    
+  }
 }
+
 
 #' Auxiliary functions for SEFHIER data analysis.
 library(auxfunctions)
