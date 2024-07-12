@@ -1131,17 +1131,6 @@ compl_corr_to_investigation_short_dup_marked__permit_region__add_columns <-
 #' Check what are the column names now
 auxfunctions::print_df_names(compl_corr_to_investigation_short_dup_marked__permit_region__add_columns)
 
-#' Don't! In case there are 2 years 
-#' remove the "year" column, its value is the same for all rows
-compl_corr_to_investigation_short_dup_marked__permit_region__add_columns |>
-  select(year) |>
-  distinct()
-# 1 2023, 2024
-
-compl_corr_to_investigation_short_dup_marked__permit_region__add_columns <- 
-  compl_corr_to_investigation_short_dup_marked__permit_region__add_columns |>
-  select(-year)
-
 out_file_name <-
   stringr::str_glue("egregious_violators_to_investigate_{lubridate::today()}.csv")
 
@@ -1152,7 +1141,9 @@ result_path <-
 compl_corr_to_investigation_short_dup_marked__permit_region__add_columns |>
   readr::write_csv(result_path)
 
-cat("Result:",
+print_df_names(compl_corr_to_investigation_short_dup_marked__permit_region__add_columns)
+
+cat("Results:",
     "compl_corr_to_investigation_short_dup_marked__permit_region__add_columns",
     "and",
     out_file_name,
