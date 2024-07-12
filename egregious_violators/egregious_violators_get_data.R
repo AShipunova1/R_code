@@ -106,18 +106,34 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
 }
 
 #' read correspondence and compliance csvs
-contents <- 
+csv_contents <- 
   lapply(all_csv_full_paths_list, 
          readr::read_csv, col_types = readr::cols(.default = 'c'))
 
-# ---
-    csv_names_list <- prepare_csv_names(filenames)
-  csv_contents <- load_csv_names(my_paths, csv_names_list)
-  csvs_clean1 <- clean_all_csvs(csv_contents, vessel_id_field_name)
-  corresp_arr_contact_cnts_clean <- corresp_cleaning(csvs_clean1)
-  compl_arr <- csvs_clean1[2:length(csvs_clean1)]
-  compl_clean <- compliance_cleaning(compl_arr)
-  return(list(compl_clean, corresp_arr_contact_cnts_clean))
+  # csv_names_list <- prepare_csv_names(filenames)
+  # csv_contents <- load_csv_names(my_paths, csv_names_list)
+
+#' Trim all vessel ids.
+#' Clean column names.
+#' Replace all non-alphanumeric characters with underscores ('_').
+csvs_clean1 <- 
+  auxfunctions::clean_all_csvs(csv_contents)
+
+#' Every time processing for Compliance and Correspondence downloaded from FHIER
+
+#' For correspondence:
+#' - Then, it adds a new column named "was_contacted", which indicates whether a contact was made with each vessel based on the presence of a contact date. If the contact date is missing (`NA`), it assigns "no"; otherwise, it assigns "yes".
+#' - The `add_count` function is then used to count the number of contacts per vessel, distinguishing between vessels that were contacted and those that were not. The result is stored in a new column named "contact_freq".
+#'  
+corresp_arr_contact_cnts_clean <- corresp_cleaning(csvs_clean1)
+
+#' For compliance:
+compl_clean <-
+  csvs_clean1[2:length(csvs_clean1)] |>
+  compliance_cleaning()
+
+
+# list(compl_clean, corresp_arr_contact_cnts_clean))
 
 
 
