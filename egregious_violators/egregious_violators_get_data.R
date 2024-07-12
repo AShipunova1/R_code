@@ -79,6 +79,7 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
   all_csv_full_paths_list <- c(correspondence_csv_path,
                           fhier_compliance_csv_path_list)
 } else {
+  #' For Anna Shipunova
 #' Change file names to the last download
 all_csv_names_list = c("Correspondence_2024_06_17.csv",
                          r"(2024_06_17\FHIER_Compliance_2023__06_17_2024.csv)",
@@ -91,7 +92,7 @@ corresp_full_path <-
                         input_dir_part = my_paths$inputs)
 
 compliance_full_paths <-
-  prepare_csv_full_path(all_csv_names_list[2:3],
+  auxfunctions::prepare_csv_full_path(all_csv_names_list[2:3],
                         add_path = "from_Fhier/FHIER Compliance",
                         input_dir_part = my_paths$inputs)
 
@@ -103,33 +104,7 @@ all_csv_full_paths_list <-
     
     lapply(all_csv_names_list, function(x) file.path(my_paths$inputs, x))
 }
-
-
-prepare_csv_full_path <-
-  function(filenames_list,
-           add_path,
-           input_dir_part = NA) {
-    #' mypath is a default
-    if (is.na(input_dir_part)) {
-      input_dir_part <- auxfunctions::set_work_dir()
-    }
-    
-    #' add_path
-    #' Use subdirectory names for correspondence and compliance files.
-    #' add_path <- "from_Fhier/Correspondence"
-    #' or
-    #' add_path <- "from_Fhier/FHIER Compliance"
-    
-    # Use 'sapply' to add paths in front of each filename in the 'filenames_list' vector.
-    my_list <- sapply(filenames_list, function(x) {
-      file.path(input_dir_part, add_path, x)
-    })
-    
-    # Convert the resulting list into a character vector and return it.
-    return(paste(my_list) %>% as.list())
-  }
-
-
+# HERE
 #' read correspondence and compliance csvs
 contents <- 
   lapply(all_csv_full_paths_list, 
