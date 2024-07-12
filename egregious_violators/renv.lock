@@ -188,8 +188,8 @@
       "RemoteHost": "api.github.com",
       "RemoteRepo": "R_code",
       "RemoteUsername": "AShipunova1",
-      "RemoteRef": "HEAD",
-      "RemoteSha": "f7401357b19dda01cd5c114fef2d370e10595f10",
+      "RemoteRef": "development",
+      "RemoteSha": "1f610ce59b978c5962b00da423bca6f1a4ea40f5",
       "RemoteSubdir": "auxfunctions",
       "Requirements": [
         "DBI",
@@ -213,7 +213,7 @@
         "tidyr",
         "tidyselect"
       ],
-      "Hash": "57e445b03f48573a4c165650e1dc98dc"
+      "Hash": "41551edb61b7a7624d6e608d9ef8ee76"
     },
     "backports": {
       "Package": "backports",
