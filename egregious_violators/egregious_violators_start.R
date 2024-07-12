@@ -1133,7 +1133,7 @@ out_file_name <-
   stringr::str_glue("egregious_violators_to_investigate_{lubridate::today()}.csv")
 
 result_path <- 
-  file.path(c
+  file.path(current_project_output_path,
             out_file_name)
 
 compl_corr_to_investigation_short_dup_marked__permit_region__add_columns |>
