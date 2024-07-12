@@ -3,7 +3,7 @@
 #' %%%%% Set Up
 #' 
 
-#' The "egregious violator" definition:
+# The "egregious violator" definition ----
 #' 
 #' 1) NO reports for all 26 weeks back from week ago today;
 #' 
@@ -361,7 +361,7 @@ max(compl_clean_w_permit_exp__not_exp$week_start)
 max(compl_clean_w_permit_exp__not_exp$week_end)
 # [1] "2024-06-23"
 
-## add year_month column from week_start ----
+### add year_month column from week_start ----
 
 compl_clean_w_permit_exp_last_half_year <-
   compl_clean_w_permit_exp__not_exp |>
@@ -376,7 +376,7 @@ dim(compl_clean_w_permit_exp)
 dim(compl_clean_w_permit_exp_last_half_year)
 # [1] 57296    22
 
-## Have only SA and dual permits ----
+### Have only SA and dual permits ----
 #' Use 'filter' to select rows where 'permitgroup' contains "CDW", "CHS", or "SC".
 compl_clean_w_permit_exp_last_half_year__sa <-
   compl_clean_w_permit_exp_last_half_year |>
@@ -386,8 +386,8 @@ compl_clean_w_permit_exp_last_half_year__sa <-
 dim(compl_clean_w_permit_exp_last_half_year__sa)
 # [1] 38761    22
 
-## Keep fewer columns ----
-remove_columns <- c(
+### Keep fewer columns ----
+remove_columns_from_compliance <- c(
   "name",
   "gom_permitteddeclarations__",
   "captainreports__",
@@ -409,7 +409,7 @@ remove_columns <- c(
 #' 
 compl_clean_w_permit_exp_last_half_year__sa__short <-
   compl_clean_w_permit_exp_last_half_year__sa |>
-  dplyr::select(-tidyselect::any_of(remove_columns)) |> 
+  dplyr::select(-tidyselect::any_of(remove_columns_from_compliance)) |> 
   dplyr::distinct()
 
 # Check
@@ -419,7 +419,7 @@ dim(compl_clean_w_permit_exp_last_half_year__sa__short)
 #' Work with the whole period
 #' 
 
-## add compliant_after_overr ----
+### add compliant_after_overr ----
 #' use tictoc package for benchmarking 
 
 tictoc::tic("compl_overr")
@@ -456,7 +456,7 @@ dplyr::n_distinct(compl_clean_w_permit_exp_last_half_year__sa$vessel_official_nu
   )
 # T
 
-## get only non-compliant entries for the past half year ----
+### get only non-compliant entries for the past half year ----
 compl_clean_w_permit_exp_last_half_year__sa_non_c <-
   compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr |>
   # not compliant
@@ -467,7 +467,7 @@ dim(compl_clean_w_permit_exp_last_half_year__sa_non_c)
 # E.g.
 # [1] 10768    12
 
-## keep only vessels with info for all weeks in the period ----
+### keep only vessels with info for all weeks in the period ----
 
 #' That should eliminate entries for vessels having permits only a part of the period
  
@@ -505,8 +505,8 @@ dim(compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present)
 # E.g.
 # [1] 3278   11
 
-## check the last report date ----
-### get ids only ----
+### check the last report date ----
+#### get ids only ----
 compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present__vesl_ids <-
   compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present |>
   dplyr::select(vessel_official_number) |>
@@ -517,7 +517,7 @@ dim(compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present__vesl_i
 #' E.g.
 #' 149 
 
-### check these ids in the full compliance information ----
+#### check these ids in the full compliance information ----
 #' Is there a new submitted report?
 compl_clean_w_permit_exp_last_half_year__sa |>
   dplyr::filter(
@@ -556,13 +556,25 @@ corresp_contact_cnts_clean |>
   dplyr::select(calltype, voicemail, contacttype) |>
   dplyr::distinct() |> head(10)
 
-## Filters ----
+## Correspondence Filters ----
 #' The functions below are creating filter conditions using quosures. Quosures are a part of tidy evaluation in R, allowing expressions to be captured without evaluation, which is useful for creating functions with flexible inputs.
 
+#' Explanations:
+#' 
+#' **Expression inside quo()**:
+#'
+#'Check if any entry was an "outgoing call"
+#'
 we_called_filter <-
   dplyr::quo(any(tolower(contacttype) == "call" &
         tolower(calltype) == "outgoing"))
 
+#' Explanations:
+#' 
+#' **Expression inside quo()**:
+#'
+#'Check if any entry was an "outgoing email or other"
+#'
 we_emailed_once_filter <-
   dplyr::quo(any(
     tolower(contacttype) %in% c("email", "other") &
@@ -587,26 +599,18 @@ exclude_no_contact_made_filter <-
             ignore.case = TRUE))
 
 #' don't need a second contact
+#' Explanations:
+#' 
+#' **Expression inside quo()**:
+#'
+#' Check if any contact was "incoming"
+#'
 they_contacted_direct_filter <-
   dplyr::quo(
     any(
       tolower(calltype) == "incoming"
       )
   )
-
-# corresp_filter <-
-#   quo(!!they_contacted_direct_filter |
-#         (
-#           contact_freq > 1 &
-#             (!!we_called_filter &
-#                !!we_emailed_once_filter)
-#         ))
-
-# calltype voicemail contacttype
-
-# two_attempts_filter <-
-#   quo(contact_freq > 1 &
-#         any(tolower(contacttype) == "call"))
 
 ### use the filters ----
 corresp_contact_cnts_clean_direct_cnt_2atmps <-
