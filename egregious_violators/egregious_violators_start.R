@@ -288,14 +288,15 @@ get_data_path <-
   file.path(current_project_path, "egregious_violators_get_data.R")
 source(get_data_path)
 
-# Data are in:
-# compl_clean
-# corresp_contact_cnts_clean0
-# processed_metrics_tracking_permits
-# fhier_addresses
-# processed_pims_home_ports
-# db_participants_address
-# prev_result
+#' Data are in:
+#' compl_clean
+#' corresp_contact_cnts_clean0
+#' processed_metrics_tracking_permits
+#' fhier_addresses
+#' processed_pims_home_ports
+#' db_participants_address
+#' permit_vessel_w_changed_owner
+#' prev_result
 # 
 
 # Preparing compliance info ----
@@ -322,7 +323,7 @@ compl_clean_w_permit_exp <-
 
 # glimpse(compl_clean_w_permit_exp)
 
-### get only not expired last 27 weeks of data minus grace period ----
+### get only not expired last 27 weeks of data minus grace period (total 26 weeks) ----
 compl_clean_w_permit_exp__not_exp <-
   compl_clean_w_permit_exp |>
   # the last 27 week
@@ -332,29 +333,35 @@ compl_clean_w_permit_exp__not_exp <-
   # not expired
   dplyr::filter(tolower(permit_expired) == "no")
 
+#' Check if the dates make sense
 min(compl_clean_w_permit_exp__not_exp$permit_groupexpiration)
-# [1] "2024-02-29 EST"
+# E.g.
+# [1] "2024-08-31 EDT"
 
 min(compl_clean_w_permit_exp__not_exp$week_start)
-# [1] "2023-08-14"
+# E.g.
+# [1] "2024-01-08"
 
 max(compl_clean_w_permit_exp__not_exp$week_start)
-# [1] "2024-01-29"
+# [1] "2024-06-17"
 
 max(compl_clean_w_permit_exp__not_exp$week_end)
-# [1] "2024-02-04"
+# [1] "2024-06-23"
 
-## add year_month column ----
+## add year_month column from week_start ----
 
 compl_clean_w_permit_exp_last_half_year <-
   compl_clean_w_permit_exp__not_exp |>
   dplyr::mutate(year_month = as.yearmon(week_start)) |>
-  # keep entries for the last check period
+  # keep entries for the current check period
   dplyr::filter(year_month >= as.yearmon(half_year_ago))
 
+#' Check
 dim(compl_clean_w_permit_exp)
+# [1] 221081     21
 
 dim(compl_clean_w_permit_exp_last_half_year)
+# [1] 57296    22
 
 ## Have only SA and dual permits ----
 #' Use 'filter' to select rows where 'permitgroup' contains "CDW", "CHS", or "SC".
@@ -362,17 +369,11 @@ compl_clean_w_permit_exp_last_half_year__sa <-
   compl_clean_w_permit_exp_last_half_year |>
   dplyr::filter(grepl("CDW|CHS|SC", permitgroup))
 
-# lubridate::today()
-# [1] "2023-08-01"
-# [1] "2023-07-10"
-# [1] "2023-08-10"
-# [1] "2024-02-16"
-# [1] "2024-04-09"
-# [1] "2024-05-16"
-
+# check 
 dim(compl_clean_w_permit_exp_last_half_year__sa)
+# [1] 38761    22
 
-## fewer columns ----
+## Keep fewer columns ----
 remove_columns <- c(
   "name",
   "gom_permitteddeclarations__",
@@ -398,12 +399,15 @@ compl_clean_w_permit_exp_last_half_year__sa__short <-
   dplyr::select(-tidyselect::any_of(remove_columns)) |> 
   dplyr::distinct()
 
+# Check
 dim(compl_clean_w_permit_exp_last_half_year__sa__short)
+# [1] 38761    11
 
 #' Work with the whole period
 #' 
 
 ## add compliant_after_overr ----
+#' use tictoc package for benchmarking 
 
 tictoc::tic("compl_overr")
 compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr <-
@@ -413,24 +417,26 @@ compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr <-
 tictoc::toc()
 # compl_overr: 8.76 sec elapsed
 
-#' check
+#' check compliant/overridden combinations' counts
 compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr |> 
   dplyr::select(compliant_, overridden_, compliant_after_override) |>
   dplyr::count(compliant_, overridden_, compliant_after_override)
+# E.g.
 #   compliant_ overridden_ compliant_after_override     n
 #   <chr>      <chr>       <chr>                    <int>
-# 1 NO         NO          no                       11258
-# 2 NO         YES         yes                         70
-# 3 YES        NO          yes                      29628
+# 1 NO         NO          no                       10768
+# 2 NO         YES         yes                        199
+# 3 YES        NO          yes                      27794
 
-#' check
-compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr$compliant_after_override |> 
-  unique()
-# [1] "yes" "no" 
+#' check the results
+compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr$compliant_after_override |>
+  unique() == c("yes", "no")
 
 dim(compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr)
+# E.g.
+# [1] 38761    12
 
-#' check
+#' check if the amount of vessels didn't change
 dplyr::n_distinct(compl_clean_w_permit_exp_last_half_year__sa$vessel_official_number) ==
   dplyr::n_distinct(
     compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr$vessel_official_number
