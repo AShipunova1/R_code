@@ -152,21 +152,42 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
 
 #' Processed Metric Tracking (permits from FHIER)
 #' 
-#' Add your path instead of "Your full path here"
+#' Add your full path to processed Metrics tracking for each year instead of "Your full path here"
 #' 
 if (!auxfunctions::get_username() == "anna.shipunova") {
-  processed_input_data_path <- "Your full path here"
+  processed_metrics_tracking_file_names <- 
+    c("Your full path here/SEFHIER_permitted_vessels_nonSRHS_2022.rds",
+      "Your full path here/SEFHIER_permitted_vessels_nonSRHS_2023.rds")
 } else {
   # for Anna Shipunova
   processed_input_data_path <-
     file.path(my_paths$inputs, "processing_logbook_data", "Outputs")
+
+  #' check
+  dir.exists(processed_input_data_path)
+  #' if not TRUE: Check your provided path and/or create manually.
+  
+  #' Get file names for all years
+  processed_metrics_tracking_file_names_all <-
+  list.files(path = processed_input_data_path,
+             pattern = "SEFHIER_permitted_vessels_nonSRHS_*",
+             recursive = TRUE,
+             full.names = TRUE)
+
+  #' Exclude links
+  processed_metrics_tracking_file_names <-
+  grep(
+    processed_metrics_tracking_file_names_all,
+    pattern = "Shortcut.lnk",
+    invert = TRUE,
+    value = TRUE
+  )
+
 }
 
-# check
-dir.exists(processed_input_data_path)
-# if not TRUE: Check your provided path and/or create manually.
-
-
+#' Check if provided paths are correct
+purrr::map(processed_metrics_tracking_file_names, file.exists)
+#' if not TRUE: Check your provided path and/or create manually.
 
 ## Define dates ----
 

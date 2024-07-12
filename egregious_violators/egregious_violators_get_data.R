@@ -124,24 +124,8 @@ dim(corresp_contact_cnts_clean0)
 # [1] 34549    22
 
 ## get Metric Tracking (permits from FHIER) ----
-# here ----
-#' file names for all years
-processed_metrics_tracking_file_names_all <-
-  list.files(path = processed_input_data_path,
-             pattern = "SEFHIER_permitted_vessels_nonSRHS_*",
-             recursive = TRUE,
-             full.names = TRUE)
 
-#' exclude links
-processed_metrics_tracking_file_names <-
-  grep(
-    processed_metrics_tracking_file_names_all,
-    pattern = "Shortcut.lnk",
-    invert = TRUE,
-    value = TRUE
-  )
-
-#' read the rest
+#' read the processed_metrics files for all years
 processed_metrics_tracking_permits <-
   purrr::map_df(processed_metrics_tracking_file_names,
          readr::read_rds)
