@@ -204,7 +204,7 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
 #' Check, correct the path if it is doesn't exist
 file.exists(fhier_addresses_path)
 
-## home port processed city and state ----
+#### home port processed city and state ----
 #' Download first from Google drive
 #' 
 #' Add your full path instead of "Your full path here"
@@ -221,6 +221,23 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
 
 # Check, correct the path if it is doesn't exist
 file.exists(processed_pims_home_ports_path)
+
+#### Data from the previous results of "egregious violators for investigation" ----
+# Download first as .xlsx from Google drive
+
+#' Add your full path instead of "Your full path here"
+#' 
+if (!auxfunctions::get_username() == "anna.shipunova") {
+  prev_result_path <- "Your full path here"
+} else {
+  # for Anna Shipunova, update file name's date
+  prev_result_path <-
+    file.path(curr_proj_input_path,
+              "egregious_violators_to_investigate_2024-05-17.xlsx")
+}
+
+# Check, correct the path if it is doesn't exist
+file.exists(prev_result_path)
 
 ## Define dates ----
 
