@@ -734,41 +734,35 @@ compl_corr_to_investigation <-
     relationship = "many-to-many"
   )
 
-dim(compl_corr_to_investigation)
-
 #' check
+dim(compl_corr_to_investigation)
+# E.g.
+# [1] 30844    32
 dplyr::n_distinct(compl_corr_to_investigation$vesselofficial_number)
+# E.g.
+# 141
 
-# View(compl_corr_to_investigation)
+head(compl_corr_to_investigation) |> 
+  glimpse()
 
-## save number of vessels to investigate for checks ----
+## save number of vessels to investigate for further checks ----
 num_of_vsl_to_investigate <- 
   dplyr::n_distinct(compl_corr_to_investigation$vesselofficial_number)
 
-#' Results: Compl & corresondence together are in
+#' Results: Compliance & Correspondence joined together are in
 #' compl_corr_to_investigation
 #' 
 
-# output needed investigation ----
+# Output needed investigation ----
 #' %%%%% Prepare output
 #' 
-#' 1. remove unused columns
-#' 2. create additional columns
-#' 3. mark vessels already in the know list (prev_result)
+#' 1. Remove unused columns.
+#' 2. Create additional columns.
+#' 3. Mark vessels already in the know list (prev_result).
 #' 4. duals vs. sa_only
 #' 
 
 ## 1. remove extra columns ----
-
-#' Explanations:
-#' 
-#' Group the dataframe by the 'vessel_official_number' column and then apply the 'summarise_all' function.
-#' 
-#' The 'summarise_all' function applies the specified function (in this case, 'concat_unique') to each column.
-#' 
-
-colnames(compl_corr_to_investigation) |> 
-  cat(sep = '",\n"')
 
 unused_fields <- c(
   "vesselofficial_number",
@@ -806,31 +800,30 @@ unused_fields <- c(
 #'
 #' 2. Group the data frame by 'vessel_official_number'.
 #'
-#' 3. Apply the custom function 'concat_unique' to all columns to concatenate unique non-missing values into a single string.
-#'
+#' 3. `summarise_all` applies the function 'concat_unique' to all columns to concatenate unique non-missing values into a single string.
+#' 
 #' 4. Remove the grouping from the data frame.
 #' 
 
 compl_corr_to_investigation_short <-
   compl_corr_to_investigation |>
-  # compl_corr_to_investigation_w_non_compliant_weeks_n_date__contacttype_per_id |>
   dplyr::select(-any_of(unused_fields)) |>
   dplyr::group_by(vessel_official_number) |>
   dplyr::summarise_all(auxfunctions::concat_unique) |>
   dplyr::ungroup()
 
-# print_df_names(compl_corr_to_investigation_short)
-
+#' Visual check if data make sense
 compl_corr_to_investigation_short |> 
   head() |> 
   dplyr::glimpse()
 
-dim(compl_corr_to_investigation_short)
+#' Check if number of vessels didn't change
+nrow(compl_corr_to_investigation_short) == num_of_vsl_to_investigate
 
 ## 2. create additional columns ----
 ### add list of contact dates and contact type in parentheses  ----
 
-#' put names into vars (needed, bc spaces and underscores placements vary from source to source)
+#' put coumn names into variables (needed, bc spaces and underscores placements vary from source to source)
 contactdate_field_name <-
   auxfunctions::find_col_name(compl_corr_to_investigation_short, "contact", "date")[1]
 
@@ -843,8 +836,6 @@ contactphonenumber_field_name <-
 #' Explanations:
 #' 
 #' Define a function 'get_date_contacttype' that takes a dataframe 'compl_corr_to_investigation' as input.
-#' 
-#' Perform several data manipulation steps to extract and organize relevant information.
 #' 
 #' 1. Add a new column 'date__contacttype' by concatenating the values from 'contactdate_field_name' and 'contacttype'.
 #' 
@@ -873,11 +864,12 @@ get_date_contacttype <-
                       )) |>
       # use 2 columns only
       dplyr::select(vessel_official_number, date__contacttype) |>
+      dplyr::distinct() |>
       # sort
       dplyr::arrange(vessel_official_number, date__contacttype) |>
-      dplyr::distinct() |>
+      # for each vessel id...
       dplyr::group_by(vessel_official_number) |>
-      # for each vessel id combine all date__contacttypes separated by comma in one cell
+      # ...combine all date__contacttypes separated by comma in one cell
       dplyr::summarise(date__contacttypes =
                          paste(date__contacttype, collapse = ", ")) |> 
       dplyr::ungroup()
@@ -889,8 +881,10 @@ get_date_contacttype <-
 date__contacttype_per_id <-
   get_date_contacttype(compl_corr_to_investigation_short)
 
-dim(date__contacttype_per_id)
+#' Check if number of vessels didn't change
+nrow(date__contacttype_per_id) == num_of_vsl_to_investigate
 
+#' Check how the result looks like 
 date__contacttype_per_id |>
   head() |>
   dplyr::glimpse()
@@ -900,13 +894,14 @@ compl_corr_to_investigation__corr_date <-
   dplyr::left_join(compl_corr_to_investigation_short,
             date__contacttype_per_id) |>
   # Joining with `by = join_by(vessel_official_number)`
-  # this columns are not longer needed
+  # these columns are not longer needed
   dplyr::select(-dplyr::all_of(c(
     contactdate_field_name,
     contacttype_field_name
   )))
   
-#' check
+#' check, the last column should be like 
+#' $ date__contacttypes     <chr> "03/13/2024 11:59AM, 09/21/2023 03:41PM, 08/18/2023 10:52AM,…
 compl_corr_to_investigation__corr_date |> 
   head() |> 
   dplyr::glimpse()
