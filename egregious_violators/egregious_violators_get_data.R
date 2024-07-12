@@ -213,7 +213,11 @@ db_participants_address <-
   auxfunctions::clean_headers()
 
 ## Get vessels with changed owner ----
-#' Select only with SA permits,
+#' The same as above with new parameters. 
+#' Prepare the parameters.
+
+#' The SQL query.
+#' Select only vessels with SA permits,
 #' not expired by today,
 #' with different owners or 
 #' permit status indicating something other than usual
@@ -236,13 +240,9 @@ ORDER BY
 "
 
 permit_vessel_w_changed_owner_file_path <-
-  file.path(my_paths$inputs,
-            current_project_name,
+  file.path(curr_proj_input_path,
             "permit_vessel_w_changed_owner.rds")
  
-dir.exists(file.path(my_paths$inputs,
-            current_project_name))
-
 # err msg if no connection, but keep running
 if (!exists("con")) {
   try(con <- auxfunctions::connect_to_secpr())
@@ -254,6 +254,10 @@ permit_vessel_w_changed_owner_fun <-
                       permit_vessel_w_changed_owner))
   }
 
+#' Read the file with db_participants_address if exists, 
+#' load from the Oracle database if not,
+#' remove empty columns,
+#' change column names the same way as everything else.
 permit_vessel_w_changed_owner <-
   auxfunctions::read_rds_or_run(
     permit_vessel_w_changed_owner_file_path,
@@ -274,24 +278,21 @@ permit_vessel_w_changed_owner |>
   dplyr::glimpse()
 
 # Data from the previous results of "egregious violators for investigation" ----
-# Download first as .xlsx
+#' Download first as .xlsx from Google drive
 
-# get previous results ---
-prev_result_path <- 
-  file.path(my_paths$inputs,
-            current_project_basename,
-            "egregious_violators_to_investigate_2024-05-17.xlsx")
-
-file.exists(prev_result_path)
-
+#' Read,
+#' remove empty columns,
+#' change column names the same way as everything else.
 prev_result0 <-
   auxfunctions::my_read_xlsx(prev_result_path) |> 
   auxfunctions::remove_empty_cols() |>
   auxfunctions::clean_headers()
 
+# An example
 dim(prev_result0)    
+# [1] 151  42
 
-#' clean excel conversions, remove ".0" at the end
+#' clean excel number conversions, remove ".0" at the end
 prev_result <-
   prev_result0 |>
   dplyr::mutate(vessel_official_number =
