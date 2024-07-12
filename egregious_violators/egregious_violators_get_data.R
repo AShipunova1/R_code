@@ -170,15 +170,6 @@ processed_pims_home_ports <-
 dim(processed_pims_home_ports)
 # [1] 23303     3
 
-# get permits and vessels from PIMS
-get_pims_data_path <- 
-  file.path(my_paths$git_r, 
-            r"(get_data\prepare_data_pims\prepare_data_pims.R)")
-
-file.exists(get_pims_data_path)
-
-source(get_pims_data_path)
-
 # Oracle db ----
 ## get owners addresses ----
 db_participants_address_query <-
