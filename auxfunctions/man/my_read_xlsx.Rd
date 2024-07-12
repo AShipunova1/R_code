@@ -36,7 +36,7 @@ my_read_xlsx(file_path, sheet_n, start_row = 1)
      - `sep.names`: A character used to separate column names with multiple parts (e.g., spaces or underscores).
 
 3. **Cleaning Headers:**
-   - `clean_headers(...)`: Applies the `clean_headers` function to the data frame read from the Excel file. This function likely performs tasks such as removing leading/trailing spaces, converting column names to lowercase, and replacing spaces with underscores.
+   - `clean_headers(...)`: Applies the `clean_headers` function to the data frame read from the Excel file. This function performs tasks such as removing leading/trailing spaces, converting column names to lowercase, and replacing spaces with underscores.
 
 4. **Return Result:**
    - `return(res_df)`: Returns the cleaned data frame obtained from reading the Excel file. This data frame contains the data read from the specified Excel sheet, with any necessary header cleaning applied.

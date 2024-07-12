@@ -2,7 +2,7 @@
 \alias{clean_all_csvs}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Cleans sn uploaded csv
+Cleans Uploaded CSV files
 }
 \description{
 Cleaning, regularly done for csvs downloaded from FHIER,

@@ -28,7 +28,7 @@ Here's an explanation of the `prepare_csv_names` function:
 3. **Creating File Paths:**
    - `my_list <- sapply(filenames, function(x) \{ ... \})`: Uses `sapply` to iterate over each filename in the `filenames` vector and apply a function.
    - Within the function:
-     - `my_headers_case_function(x)`: Calls a function `my_headers_case_function` (not defined in the provided code) with each filename `x` as an argument. This function likely adjusts the case of the filename.
+     - `my_headers_case_function(x)`: Calls a function `my_headers_case_function` with each filename `x` as an argument. This function adjusts the case of the filename.
      - `startsWith(...)`: Checks if the adjusted filename starts with specific prefixes.
      - `file.path(...)`: Constructs a file path using the appropriate directory (`add_path_corresp` or `add_path_compl`) based on the filename's prefix.
      - `dplyr::case_when(...)`: Performs a conditional operation based on the filename's prefix, assigning the corresponding file path.

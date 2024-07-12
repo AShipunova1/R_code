@@ -19,7 +19,7 @@ compliance_cleaning(compl_arr)
 }
 \details{
 1. **Initialization of Variables:**
-   - `compl <- compl_arr`: This line initializes a variable `compl` with the same value as `compl_arr`, which likely represents a list of compliance data frames.
+   - `compl <- compl_arr`: This line initializes a variable `compl` with the same value as `compl_arr`, which represents a list of compliance data frames.
 
 2. **Data Cleaning with `map`:**
    - `compl_clean <- map(compl, clean_weeks)`: Here, each data frame in the list `compl` undergoes cleaning using the `clean_weeks` function. The `map` function applies `clean_weeks` to each element of `compl`, returning a list of cleaned data frames stored in `compl_clean`.
