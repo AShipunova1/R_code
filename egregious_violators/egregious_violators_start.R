@@ -18,6 +18,19 @@
 #' NB. Update (download) all input files every time before run.
 #' 
 
+## new requirement 2023-08-09 ----
+#' It should be at least 2 contact "attempts". i.e., if they are ignoring our calls and emails then they cannot continue to go on in perpetuity without reporting and never be seen as egregious. So, at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough at this point and they need to be passed to OLE.
+#' at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough
+#' 
+
+## new requirement 2024-02-26 ----
+#' It needs to be that we called at least 1 time and emailed at least 1 time. Or they contacted us at least once.
+#' 
+
+## new requirement 2024-05-06 ----
+#' Exclude any correspondence (regardless of the type - email/call, voicemail or not) that includes "No contact made" in the text of the entry as a actual "direct" contact for any egregious vessel.
+#' 
+
 # set up ----
 
 #' Install if needed and load all the packages
@@ -527,36 +540,16 @@ compl_clean_w_permit_exp_last_half_year__sa |>
 # Preparing Correspondence ----
 
 ## remove 999999 ----
-#' Explanations:
-#' 
-#' Create a new data frame 'corresp_contact_cnts_clean' by filtering 'corresp_contact_cnts_clean0' based on the condition.
-#' 
-#' 1. Use 'filter' to select rows where 'vessel_official_number' does not start with "99999".
+#' Use 'filter' to select rows where 'vessel_official_number' does not start with "99999".
 #' 
 corresp_contact_cnts_clean <-
   corresp_contact_cnts_clean0 |>
   dplyr::filter(!grepl("^99999", vessel_official_number))
 
+#' check number of vessels in correspondence 
 dplyr::n_distinct(corresp_contact_cnts_clean$vesselofficial_number)
-
-#' "2023-08-09"
-#' 
-#' Michelle
-#' 
-#' It should be at least 2 contact "attempts". i.e., if they are ignoring our calls and emails then they cannot continue to go on in perpetuity without reporting and never be seen as egregious. So, at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough at this point and they need to be passed to OLE.
-#' 
-
-## new requirement 2023-08-09 ----
-#' at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough
-#' 
-
-## new requirement 2024-02-26 ----
-#' It needs to be that we called at least 1 time and emailed at least 1 time. Or they contacted us at least once.
-#' 
-
-## new requirement 2024-05-06 ----
-#' Exclude any correspondence (regardless of the type - email/call, voicemail or not) that includes "No contact made" in the text of the entry as a actual "direct" contact for any egregious vessel.
-#' 
+#' E.g.
+#' 4281
 
 #' check
 corresp_contact_cnts_clean |>
