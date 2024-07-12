@@ -170,26 +170,26 @@ processed_pims_home_ports <-
 dim(processed_pims_home_ports)
 # [1] 23303     3
 
-# Oracle db ----
+# Load from Oracle db ----
 ## get owners addresses ----
+#' Create parameters for `read_rds_or_run` function to read or download "participants address"
 db_participants_address_query <-
   "select * from
 SRH.MV_SERO_VESSEL_ENTITY@secapxdv_dblk
 "
 
+#' It uses the predefined path to the input directory and a file name to read or write to.
 db_participants_address_file_path <-
-  file.path(my_paths$inputs,
-            current_project_name,
+  file.path(curr_proj_input_path,
             "db_participants_address.rds")
  
-dir.exists(file.path(my_paths$inputs,
-            current_project_name))
-
-#' Print an error message if no connection, but keep running
+#' Try to connect to Oracle if it is not done already.
+#' Print an error message if no connection, but keep running the code.
 if (!exists("con")) {
   try(con <- auxfunctions::connect_to_secpr())
 }
 
+#' The function parameter for read_rds_or_run
 db_participants_address_fun <-
   function(db_participants_address) {
     # browser()
@@ -197,17 +197,20 @@ db_participants_address_fun <-
                       db_participants_address))
   }
 
+#' Read the file with db_participants_address if exists, 
+#' load from the Oracle database if not,
+#' remove empty columns,
+#' change column names the same way as everything else.
 db_participants_address <-
   auxfunctions::read_rds_or_run(
     db_participants_address_file_path,
     db_participants_address_query,
-    db_participants_address_fun
-    # ,
-    # force_from_db = "yes"
+    db_participants_address_fun,
+    #' If you want to update the existing file, change the NULL to "yes" 
+    force_from_db = NULL
   ) |>
   auxfunctions::remove_empty_cols() |>
   auxfunctions::clean_headers()
-# 2024-06-18 run for db_participants_address.rds: 33.32 sec elapsed
 
 ## Get vessels with changed owner ----
 #' Select only with SA permits,
