@@ -68,7 +68,7 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
     "Please CHANGE the following 2 lists values to your environment if needed. Use full path to your directories in quotes."
   )
   
-  #' 1) General directories (to look up additional files, e.g. processed data)
+  #' 1) General directories (to look up additional files, e.g. processed data). It can be left as is if you don't have it.
   my_paths <- list(inputs  = "~/my_inputs",
                    outputs = "~/my_outputs",
                    git_r   = "~/R_code")
@@ -90,7 +90,7 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
 
 #' The following section uses provided directory names lists to automatically create separate variables for future use and create current input/output directories if they do not exists.
 
-#' Usually the current directory name
+#' This is usually the current directory name
 current_project_name <- current_in_out_paths$project_name
 
 current_project_path <- current_in_out_paths$code
@@ -102,6 +102,71 @@ auxfunctions::create_dir_if_not(curr_proj_input_path)
 curr_proj_output_path <- current_in_out_paths$output
 
 auxfunctions::create_dir_if_not(curr_proj_output_path)
+
+### Additional individual paths to data files ----
+#' Compliance
+#' 
+#' and
+#' 
+#' Correspondence
+#' 
+#' Download from FHIER first.
+#' 
+#' Provide full paths here, changing _values_ inside the quotes:
+#' 
+correspondence_csv_path <- "Your full path to correspondence.csv"
+fhier_compliance_csv_path_list <- 
+  list("Your full path to fhier_compliance.csv year 1",
+       "Your full path to fhier_compliance.csv year 2")
+
+#' Depending on a user name who runs the code, the file paths are constructed here.
+if (!auxfunctions::get_username() == "anna.shipunova") {
+  all_csv_full_paths_list <- c(correspondence_csv_path, fhier_compliance_csv_path_list)
+} else {
+  #' For Anna Shipunova
+  #' Change file names to the last download
+  all_csv_names_list = c(
+    "Correspondence_2024_06_17.csv",
+    r"(2024_06_17\FHIER_Compliance_2023__06_17_2024.csv)",
+    r"(2024_06_17\FHIER_Compliance_2024__06_17_2024.csv)"
+  )
+  
+  #' add a full path in front of each file name
+  corresp_full_path <-
+    prepare_csv_full_path(all_csv_names_list[[1]],
+                          add_path = "from_Fhier/Correspondence",
+                          input_dir_part = my_paths$inputs)
+  
+  compliance_full_paths <-
+    auxfunctions::prepare_csv_full_path(all_csv_names_list[2:3],
+                                        add_path = "from_Fhier/FHIER Compliance",
+                                        input_dir_part = my_paths$inputs)
+  
+  all_csv_full_paths_list <-
+    c(corresp_full_path,
+      compliance_full_paths)
+
+  # check if files exist
+  purrr::map(all_csv_full_paths_list, file.exists)
+}
+
+#' Processed Metric Tracking (permits from FHIER)
+#' 
+#' Add your path instead of "Your full path here"
+#' 
+if (!auxfunctions::get_username() == "anna.shipunova") {
+  processed_input_data_path <- "Your full path here"
+} else {
+  # for Anna Shipunova
+  processed_input_data_path <-
+    file.path(my_paths$inputs, "processing_logbook_data", "Outputs")
+}
+
+# check
+dir.exists(processed_input_data_path)
+# if not TRUE: Check your provided path and/or create manually.
+
+
 
 ## Define dates ----
 

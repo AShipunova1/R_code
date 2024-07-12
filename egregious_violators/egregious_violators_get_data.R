@@ -65,46 +65,6 @@
 #' permit info from processed metrics tracking
 #' 
 
-#' Download from FHIER first.
-#' 
-#' Provide full paths here, changing _values_ inside the quotes:
-#' 
-correspondence_csv_path <- "Your full path to correspondence.csv"
-fhier_compliance_csv_path_list <- 
-  list("Your full path to fhier_compliance.csv year 1",
-       "Your full path to fhier_compliance.csv year 2")
-
-#' Depending on a user name who runs the code, the file paths are constructed here.
-if (!auxfunctions::get_username() == "anna.shipunova") {
-  all_csv_full_paths_list <- c(correspondence_csv_path, fhier_compliance_csv_path_list)
-} else {
-  #' For Anna Shipunova
-  #' Change file names to the last download
-  all_csv_names_list = c(
-    "Correspondence_2024_06_17.csv",
-    r"(2024_06_17\FHIER_Compliance_2023__06_17_2024.csv)",
-    r"(2024_06_17\FHIER_Compliance_2024__06_17_2024.csv)"
-  )
-  
-  #' add a full path in front of each file name
-  corresp_full_path <-
-    prepare_csv_full_path(all_csv_names_list[[1]],
-                          add_path = "from_Fhier/Correspondence",
-                          input_dir_part = my_paths$inputs)
-  
-  compliance_full_paths <-
-    auxfunctions::prepare_csv_full_path(all_csv_names_list[2:3],
-                                        add_path = "from_Fhier/FHIER Compliance",
-                                        input_dir_part = my_paths$inputs)
-  
-  all_csv_full_paths_list <-
-    c(corresp_full_path,
-      compliance_full_paths)
-
-  # check if files exist
-  purrr::map(all_csv_full_paths_list, file.exists)
-}
-
 #' read correspondence and compliance csvs
 csv_contents <- 
   lapply(all_csv_full_paths_list, 
@@ -131,7 +91,7 @@ corresp_contact_cnts_clean0 <-
   csvs_clean1[[1]] |> 
   auxfunctions::corresp_cleaning()
 
-glimpse(corresp_arr_contact_cnts_clean)
+glimpse(corresp_contact_cnts_clean0)
 
 #' For compliance:
 #' clean
@@ -145,7 +105,7 @@ names(compl_clean_list) <- c(my_year1, my_year2)
 #' check
 purrr::map(compl_clean_list, dim)
 
-#' check results example
+#' check result example
 # $`2023`
 # [1] 149731     20
 # 
@@ -156,18 +116,15 @@ purrr::map(compl_clean_list, dim)
 compl_clean <-
   rbind(compl_clean_list[[my_year1]], compl_clean_list[[my_year2]])
 
+# Results examples
 dim(compl_clean)
+# [1] 221081     20
 
 dim(corresp_contact_cnts_clean0)
+# [1] 34549    22
 
 ## get Metric Tracking (permits from FHIER) ----
-processed_input_data_path <- 
-  file.path(my_paths$inputs,
-            "processing_logbook_data",
-            "Outputs")
-dir.exists(processed_input_data_path)
-# T  
-
+# here ----
 #' file names for all years
 processed_metrics_tracking_file_names_all <-
   list.files(path = processed_input_data_path,
