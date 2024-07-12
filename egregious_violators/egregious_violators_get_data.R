@@ -130,48 +130,45 @@ processed_metrics_tracking_permits <-
   purrr::map_df(processed_metrics_tracking_file_names,
          readr::read_rds)
 
-#' lower names case
+#' Lower column names case to be consistent with the rest
 names(processed_metrics_tracking_permits) <-
   names(processed_metrics_tracking_permits) |>
   tolower()
 
+#' Column names now are:
 # [1] "vessel_official_number, vessel_name, effective_date, end_date, permits, sa_permits_, gom_permits_, permit_region, permit_sa_gom_dual"
 
+#' check
 dim(processed_metrics_tracking_permits)
+#' An example 
+# [1] 9977    9
 
-## get Physical Address List from FHIER ----
+## Physical Address List from FHIER ----
 #' REPORTS / For-hire Primary Physical Address List
-
-fhier_addresses_path <-
-  file.path(
-    my_paths$inputs,
-    r"(from_Fhier\address\For-hire Primary Physical Address List_06_17_2024.csv)"
-  )
-
-file.exists(fhier_addresses_path)
-
+#' 
+#' Load FHIER addresses
+#' 
 fhier_addresses <-
   readr::read_csv(fhier_addresses_path,
            # read all as characters
            col_types = readr::cols(.default = 'c'),
+           # use the same col names convention
            name_repair = auxfunctions::fix_names)
 
+#' check
 dim(fhier_addresses)
+#' Example
+# [1] 3386   16
 
 # PIMS ----
-## get home port processed city and state ----
-
-processed_pims_home_ports_path <-
-  file.path(my_paths$outputs,
-              "home_ports",
-              "vessels_from_pims_ports_2024-06-18.csv")
-
-file.exists(processed_pims_home_ports_path)
+## home port processed city and state ----
 
 processed_pims_home_ports <- 
   readr::read_csv(processed_pims_home_ports_path)
 
-# View(processed_pims_home_ports)
+# Example
+dim(processed_pims_home_ports)
+# [1] 23303     3
 
 # get permits and vessels from PIMS
 get_pims_data_path <- 

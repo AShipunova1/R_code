@@ -104,11 +104,7 @@ curr_proj_output_path <- current_in_out_paths$output
 auxfunctions::create_dir_if_not(curr_proj_output_path)
 
 ### Additional individual paths to data files ----
-#' Compliance
-#' 
-#' and
-#' 
-#' Correspondence
+#### Compliance and Correspondence ----
 #' 
 #' Download from FHIER first.
 #' 
@@ -150,7 +146,7 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
   purrr::map(all_csv_full_paths_list, file.exists)
 }
 
-#' Processed Metric Tracking (permits from FHIER)
+#### Processed Metric Tracking (permits from FHIER) ----
 #' 
 #' Add your full path to processed Metrics tracking for each year instead of "Your full path here"
 #' 
@@ -188,6 +184,43 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
 #' Check if provided paths are correct
 purrr::map(processed_metrics_tracking_file_names, file.exists)
 #' if not TRUE: Check your provided path and/or create manually.
+
+#### Physical Address List from FHIER ----
+#' Download first from REPORTS / For-hire Primary Physical Address List
+#' 
+#' Add your full path instead of "Your full path here"
+#' 
+if (!auxfunctions::get_username() == "anna.shipunova") {
+  fhier_addresses_path <- "Your full path here"
+} else {
+  # for Anna Shipunova, update file name's date
+  fhier_addresses_path <-
+    file.path(
+      my_paths$inputs,
+      r"(from_Fhier\address\For-hire Primary Physical Address List_06_17_2024.csv)"
+    )
+}
+
+#' Check, correct the path if it is doesn't exist
+file.exists(fhier_addresses_path)
+
+## home port processed city and state ----
+#' Download first from Google drive
+#' 
+#' Add your full path instead of "Your full path here"
+#' 
+if (!auxfunctions::get_username() == "anna.shipunova") {
+  processed_pims_home_ports_path <- "Your full path here"
+} else {
+  # for Anna Shipunova, update file name's date
+  processed_pims_home_ports_path <-
+    file.path(my_paths$outputs,
+              "home_ports",
+              "vessels_from_pims_ports_2024-06-18.csv")
+}
+
+# Check, correct the path if it is doesn't exist
+file.exists(processed_pims_home_ports_path)
 
 ## Define dates ----
 
