@@ -926,7 +926,7 @@ compl_corr_to_investigation__corr_date__hailing_port <-
 
 prep_addresses_path <-
   file.path(current_project_path,
-            stringr::str_glue("{current_project_basename}_prep_addresses.R"))
+            stringr::str_glue("{current_project_name}_prep_addresses.R"))
 
 file.exists(prep_addresses_path)
 
