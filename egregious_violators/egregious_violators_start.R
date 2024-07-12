@@ -534,7 +534,8 @@ compl_clean_w_permit_exp_last_half_year__sa |>
 #' 0 OK!
 #' 
 
-#' Results: prepared Compliance is in compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present
+#' End of Compliance preparations 
+#' Results: processed Compliance is in compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present
 #' 
 
 # Preparing Correspondence ----
@@ -613,9 +614,41 @@ they_contacted_direct_filter <-
   )
 
 ### use the filters ----
+
+#' Explanations:
+
+#' - `corresp_contact_cnts_clean |> ...` starts the pipeline with the data frame `corresp_contact_cnts_clean`.
+
+#' - `dplyr::filter(tolower(calltype) == "incoming" | ...)` filters rows based on the conditions specified:
+
+#'   - `dplyr::filter()` is used to subset rows in the data frame.
+
+#'   - `tolower(calltype) == "incoming"` converts the `calltype` column to lowercase and checks if it equals "incoming".
+
+#'   - The `|` operator means logical OR, so it includes rows where the condition on either side is true.
+
+#'   - `(contact_freq > 1 & (!!we_called_filter & !!we_emailed_once_filter))`:
+
+#'     - `contact_freq > 1` checks if the `contact_freq` column is greater than 1.
+
+#'     - `&` is the logical AND operator, so it requires both conditions to be true.
+
+#'     - `!!we_called_filter` evaluates the `we_called_filter` variable as a logical expression.
+
+#'     - `!!we_emailed_once_filter` evaluates the `we_emailed_once_filter` variable as a logical expression.
+
+#'     - The parentheses around this subexpression ensure it is evaluated as a single logical unit.
+
+#' - `dplyr::filter(!!exclude_no_contact_made_filter)` applies another filter condition:
+
+#'   - `!!exclude_no_contact_made_filter` evaluates the `exclude_no_contact_made_filter` variable as a logical expression.
+
+#' 
+
+#' This code filters the `corresp_contact_cnts_clean` data frame to include rows where either the `calltype` is "incoming" or the `contact_freq` is greater than 1 and both `we_called_filter` and `we_emailed_once_filter` are true. Additionally, it filters rows based on the `exclude_no_contact_made_filter` condition.
+
 corresp_contact_cnts_clean_direct_cnt_2atmps <-
   corresp_contact_cnts_clean |>
-  # select(calltype) |> distinct()
   dplyr::filter(tolower(calltype) == "incoming" |
            (
              contact_freq > 1 &
@@ -624,13 +657,19 @@ corresp_contact_cnts_clean_direct_cnt_2atmps <-
            )) |> 
   dplyr::filter(!!exclude_no_contact_made_filter)
 
+#' check amount of rows before and after filtering
 dim(corresp_contact_cnts_clean)
+# E.g. [1] 33001    22
 dim(corresp_contact_cnts_clean_direct_cnt_2atmps)
+# E.g. [1] 31061    22
 
+#' Check how many vessels left after filtering 
 dplyr::n_distinct(corresp_contact_cnts_clean_direct_cnt_2atmps$vesselofficial_number)
+# E.g.
+# [1] 3865
 
 ## fix dates ----
-#' check
+#' check how the dates look
 head(corresp_contact_cnts_clean_direct_cnt_2atmps$contact_date, 1) |> str()
  # chr "02/15/2024 03:15PM"
 
@@ -659,11 +698,14 @@ corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates <-
                                  c("mdY R"))
   )
 
-#' check
-str(corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates$contact_date_dttm)
-# POSIXct[1:29089], format: "2024-02-15 15:15:00" 
+#' check how the dates look now
+head(corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates$contact_date_dttm, 1) |> 
+  str()
+# E.g.
+# POSIXct[1:1], format: "2024-06-17 15:24:00"
 
-#' preprared Correspondence is in 
+#' End of Correspondence preparations 
+#' Processed Correspondence is in 
 #' corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates
 #' 
 
