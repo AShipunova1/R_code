@@ -443,15 +443,22 @@ dplyr::n_distinct(compl_clean_w_permit_exp_last_half_year__sa$vessel_official_nu
   )
 # T
 
-## get only non-compliant for the past half year ----
+## get only non-compliant entries for the past half year ----
 compl_clean_w_permit_exp_last_half_year__sa_non_c <-
   compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr |>
   # not compliant
   dplyr::filter(tolower(compliant_after_override) == "no")
 
+# check
 dim(compl_clean_w_permit_exp_last_half_year__sa_non_c)
+# E.g.
+# [1] 10768    12
 
 ## keep only vessels with info for all weeks in the period ----
+
+#' That should eliminate entries for vessels having permits only a part of the period
+ 
+#' get the current number of weeks 
 all_weeks_num <-
   compl_clean_w_permit_exp_last_half_year__sa_non_c |>
   dplyr::select(week) |>
@@ -476,9 +483,14 @@ compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present <-
   dplyr::ungroup() |> 
   dplyr::select(-week)
 
-compl_clean_w_permit_exp_last_half_year__sa_non_c |> dim()
+#' Check how many entries were removed
+dim(compl_clean_w_permit_exp_last_half_year__sa_non_c)
+# E.g.
+# [1] 10768    12
 
 dim(compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present)
+# E.g.
+# [1] 3278   11
 
 ## check the last report date ----
 ### get ids only ----
@@ -487,16 +499,17 @@ compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present__vesl_ids <
   dplyr::select(vessel_official_number) |>
   dplyr::distinct()
 
+#' check vessel's number
 dim(compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present__vesl_ids)
+#' E.g.
+#' 149 
 
 ### check these ids in the full compliance information ----
+#' Is there a new submitted report?
 compl_clean_w_permit_exp_last_half_year__sa |>
   dplyr::filter(
     vessel_official_number %in% compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present__vesl_ids$vessel_official_number
   ) |>
-  # dim()
-  # [1] 3146   23
-  # [1] 1938   22
   dplyr::group_by(vessel_official_number) |>
   dplyr::filter(
     tolower(compliant_) == "yes" &
