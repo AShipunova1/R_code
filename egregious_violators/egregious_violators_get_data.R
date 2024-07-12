@@ -312,7 +312,4 @@ results <-
     "prev_result"
   )
 
-cat(c("Data are in:",
-      results),
-    sep = "\n")
-
+auxfunctions::pretty_print(results, "Data are in:")
