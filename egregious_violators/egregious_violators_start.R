@@ -1128,6 +1128,8 @@ compl_corr_to_investigation_short_dup_marked__permit_region__add_columns <-
     .before = 2
   )
 
+#' Don't remove the "year" column, in case there are 2 years in the current period.
+
 #' Check what are the column names now
 auxfunctions::print_df_names(compl_corr_to_investigation_short_dup_marked__permit_region__add_columns)
 
@@ -1140,8 +1142,6 @@ result_path <-
 
 compl_corr_to_investigation_short_dup_marked__permit_region__add_columns |>
   readr::write_csv(result_path)
-
-print_df_names(compl_corr_to_investigation_short_dup_marked__permit_region__add_columns)
 
 cat("Results:",
     "compl_corr_to_investigation_short_dup_marked__permit_region__add_columns",
