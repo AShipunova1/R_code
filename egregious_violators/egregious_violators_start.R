@@ -932,19 +932,22 @@ file.exists(prep_addresses_path)
 
 source(prep_addresses_path)
 
-#' result: compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr
+#' Results are in compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr
 #' 
 
 ## 3. mark vessels already in the know list ----
+#' From the email:
 #' The first column (report created) indicates the vessels that we have created a case for. My advice would be not to exclude those vessels. EOs may have provided compliance assistance and/or warnings already. If that is the case and they continue to be non-compliant after that, they will want to know and we may need to reopen those cases.
 
+#' get vessel ids from the previous result 
 vessels_to_mark_ids <-
   prev_result |>
   dplyr::select(vessel_official_number)
 
+#' Check the amount 
 dim(vessels_to_mark_ids)
 
-#### mark these vessels ----
+#### Mark these vessels ----
 
 #' Explanations:
 #'
@@ -966,11 +969,17 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_m
       )
   )
 
-dim(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked)
 
 ### check ----
-dplyr::n_distinct(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked$vessel_official_number)
+#' Check that number of vessels didn't change.
+dplyr::n_distinct(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked$vessel_official_number) ==
+  num_of_vsl_to_investigate
 
+#' Check that there is one row per vessel.
+nrow(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked) == 
+  num_of_vsl_to_investigate 
+
+#' Count how many duplicates 
 compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked |>
   dplyr::count(duplicate_w_last_time)
 # 1 duplicate               108
@@ -1076,9 +1085,11 @@ compl_corr_to_investigation_short_dup_marked__permit_region__status |>
            !permit_status_all == "NA") |>
   dplyr::glimpse()
 
+
 # Print out results ----
 ## add additional columns in front ----
 
+#' Create a variable with the long column name
 additional_column_name1 <-
   stringr::str_glue(
     "Confirmed Egregious? (permits must still be active till {permit_expired_check_date}, missing past 6 months, and (1) they called/emailed us (incoming), or (2) at least 2 contacts (outgoing) with at least 1 call/other (voicemail counts) and at least 1 email)"
@@ -1095,7 +1106,7 @@ additional_column_name1 <-
 #'
 #' 2. **Column Specifications:**
 #'
-#'    - `!!(additional_column_name1) := NA`: Adds a new column named `additional_column_name1` filled with NA values.
+#'    - `!!(additional_column_name1) := NA`: Adds a new column with a name in `additional_column_name1` variable filled with NA values.
 #'
 #'      - `!!`: This is a tidy evaluation feature that allows the use of non-standard evaluation. It evaluates the expression `additional_column_name1` dynamically.
 #'
@@ -1105,24 +1116,26 @@ additional_column_name1 <-
 #'
 #'    - `.before = 2`: Specifies that the new columns should be inserted before the second column in the dataframe.
 #' 
-#' This code effectively adds two new columns, "additional_column_name1" and "Notes", filled with NA values, to the dataframe.
+#' This code effectively adds two new columns, with names from `additional_column_name1` and "Notes", filled with NA values, to the dataframe.
 #' 
 
 compl_corr_to_investigation_short_dup_marked__permit_region__add_columns <-
-  # compl_corr_to_investigation_short_dup_marked__permit_region |>
-  compl_corr_to_investigation_short_dup_marked__permit_region__status |> 
+  compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked |>
+  # compl_corr_to_investigation_short_dup_marked__permit_region__status |> 
   tibble::add_column(
     !!(additional_column_name1) := NA,
     Notes = NA,
     .before = 2
   )
 
-# print_df_names(compl_corr_to_investigation_short_dup_marked__permit_region__add_columns)
+#' Check what are the column names now
+auxfunctions::print_df_names(compl_corr_to_investigation_short_dup_marked__permit_region__add_columns)
 
+#' Don't! In case there are 2 years 
 #' remove the "year" column, its value is the same for all rows
-# compl_corr_to_investigation_short_dup_marked__permit_region__add_columns |> 
-#   select(year) |> 
-#   distinct()
+compl_corr_to_investigation_short_dup_marked__permit_region__add_columns |>
+  select(year) |>
+  distinct()
 # 1 2023, 2024
 
 compl_corr_to_investigation_short_dup_marked__permit_region__add_columns <- 
