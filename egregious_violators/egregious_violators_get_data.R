@@ -127,33 +127,32 @@ csvs_clean1 <-
 #' - The `add_count` function is then used to count the number of contacts per vessel, distinguishing between vessels that were contacted and those that were not. The result is stored in a new column named "contact_freq".
 #' Change to date format `created_on` and `contact_date` fields
 
-corresp_arr_contact_cnts_clean <- 
+corresp_contact_cnts_clean0 <- 
   csvs_clean1[[1]] |> 
   auxfunctions::corresp_cleaning()
 
+glimpse(corresp_arr_contact_cnts_clean)
+
 #' For compliance:
-compl_clean <-
+#' clean
+compl_clean_list <-
   csvs_clean1[2:length(csvs_clean1)] |>
   auxfunctions::compliance_cleaning()
 
-
-# list(compl_clean, corresp_arr_contact_cnts_clean))
-
-
-
-## get compliance and correspondence csv data into variables ----
-temp_var <-
-  auxfunctions::get_compl_and_corresp_data(my_paths$inputs, all_csv_names_list)
-
-compl_clean_list <- temp_var[[1]]
-corresp_contact_cnts_clean0 <- temp_var[[2]]
-
+#' Use the analysis years as df names for compliance
 names(compl_clean_list) <- c(my_year1, my_year2)
 
 #' check
 purrr::map(compl_clean_list, dim)
 
-#' combine years in one df
+#' check results example
+# $`2023`
+# [1] 149731     20
+# 
+# $`2024`
+# [1] 71350    20
+
+#' combine complaince years in one df
 compl_clean <-
   rbind(compl_clean_list[[my_year1]], compl_clean_list[[my_year2]])
 
