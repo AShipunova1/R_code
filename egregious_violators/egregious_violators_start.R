@@ -33,8 +33,8 @@
 
 # set up ----
 
-#' Install if needed and load all the packages
-#' NB. It is better to install/load each package separately, if any one suggest updates it is safe to choose option 1 (update all)
+#' Install if needed and load all the packages.
+#' NB. It is better to install/load each package separately, if any one suggest updates it is safe to choose option 1 (update all).
 
 #' Instantiate an Oracle client from the current R session
 library(ROracle)
@@ -51,7 +51,8 @@ library(devtools)
 #' 
 #' This code checks if the `auxfunctions` package is available, and if not, it installs it from the GitHub repository `AShipunova1/R_code/auxfunctions`.
 #' One doesn't have to have a github account to use it.
-#' Check the username
+#' 
+#' The installation details depend on the username.
 #' 
 if (!auxfunctions::get_username() == "anna.shipunova") {
   if (!require('auxfunctions')) {
@@ -71,6 +72,20 @@ library(auxfunctions)
 library(zoo)
 #' Compares 2 dataframes and outputs any differences.
 library(diffdf)
+
+#' Install and attach R packages for googlesheets
+#' https://felixanalytix.medium.com/how-to-read-write-append-google-sheet-data-using-r-programming-ecf278108691#:~:text=There%20are%203%20ways%20to%20read%20this%20Google%20sheet%20into%20R.&text=Just%20to%20take%20the%20URL,URL%20but%20just%20the%20ID).
+if (!require(googlesheets4)) install.packages("googlesheetsa") 
+if (!require(googledrive)) install.packages("googledrive") 
+library(googlesheets4) # Google Sheets via the Sheets API v4 
+library(googledrive) # interact with Google Drive 
+
+#' Don't convert long numbers to scientific notation for input/output in spreadsheets and csv files.
+options(scipen = 999)
+
+#' Keep the same timezone across R and Oracle subsystems
+Sys.setenv(TZ = Sys.timezone())
+Sys.setenv(ORA_SDTZ = Sys.timezone())
 
 ## Set up paths ----
 
@@ -1142,6 +1157,36 @@ result_path <-
 
 compl_corr_to_investigation_short_dup_marked__permit_region__add_columns |>
   readr::write_csv(result_path)
+
+#' Un-comment to write to Google drive spreadsheet.
+## Write to google sheets ----
+#' When asked for authentication the first time choose the option 1 and follow the instructions. If you writing again in the same R session you can choose the option 2 and it will confirm your access automatically.
+my_current_ss <- googlesheets4::gs4_find("Egregious Violators Current")
+
+#' An example of my_current_ss:
+#'   name                        id                                           drive_resource   
+  # <chr>                       <drv_id>                                     <list>           
+# 1 Egregious Violators Current ...--o6BpLWpb4-... <named list [36]>
+
+#' 1) load it to R
+#' 2) create a new spread sheet with the date of loaded workseeht and dump the content into it
+#' 3) create a new worksheet in the 
+#' current spreadsheet with today's date
+#' write the code output into it
+#' check in browser
+
+ 
+# write_sheet(
+#   survey_n_pims__same_vsl_id__diff_all_else,
+#   ss = my_ss,
+#   sheet = "survey_n_pims__same_vsl_id__diff_all_else"
+# )
+
+# write_sheet(
+#   fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs__to_csv,
+#   ss = my_ss,
+#   sheet = "survey_n_pims_by_vessel_ids_fuzzy_join__filtrs"
+# )
 
 cat("Results:",
     "compl_corr_to_investigation_short_dup_marked__permit_region__add_columns",
