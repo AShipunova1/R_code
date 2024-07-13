@@ -1175,6 +1175,15 @@ my_current_ss <- googlesheets4::gs4_find("Egregious Violators Current")
 #' write the code output into it
 #' check in browser
 
+#' 1) load it to R
+previous_current_content <- googlesheets4::read_sheet(my_current_ss)
+
+#' 2) create a new spread sheet with the date of loaded worksheet and dump the content into it
+#' get previous spreadsheet name
+ss_info <- gs4_get(my_current_ss)
+previous_current_spread_sheet_name <- ss_info$sheets$name
+# E.g. "egregious_violators_to_investigate_2024-06-18"
+
  
 # write_sheet(
 #   survey_n_pims__same_vsl_id__diff_all_else,
