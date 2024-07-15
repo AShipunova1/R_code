@@ -12,7 +12,6 @@ library(tools)
 # ```{r setup current project, results='hide', message=FALSE, warning=FALSE}
 # 2) Change the title
 
-
 # change dir name
 # comment out the "answers" for the next to readline()
 curent_project_name <- readline(prompt = "Print your project name: ")
