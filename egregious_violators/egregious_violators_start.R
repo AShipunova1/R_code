@@ -155,7 +155,7 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
   
   #' add a full path in front of each file name
   corresp_full_path <-
-    prepare_csv_full_path(all_csv_names_list[[1]],
+    auxfunctions::prepare_csv_full_path(all_csv_names_list[[1]],
                           add_path = "from_Fhier/Correspondence",
                           input_dir_part = my_paths$inputs)
   
