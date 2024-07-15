@@ -273,8 +273,12 @@ egr_violators_googledrive_folder_name <- "Egregious violators"
 output_egr_violators_googledrive_folder_name <- "output"
 
 #' Get the parent folder path.
+#' 
 #' It is used to read the previous result and for saving the new result.
-#' When asked for the authentication the first time choose the appropriate option and follow the instructions. If you writing again in the same R session you can choose the option 2 and it will confirm your access automatically.
+#' 
+#' When asked for the authentication the first time choose the appropriate option and follow the instructions. 
+#' 
+#' If there is an option with your google email account (like your.name@noaa.gov) you can choose that option (usually #2) and it will confirm your access automatically.
 #'
 
 egr_violators_googledrive_folder_path <-
@@ -375,6 +379,7 @@ compl_clean_w_permit_exp <-
              .default = "yes"
            ))
 
+# check
 # glimpse(compl_clean_w_permit_exp)
 
 ### get only not expired last 27 weeks of data minus grace period (total 26 weeks) ----
@@ -1294,7 +1299,6 @@ current_output_file_link <- write_res_to_google_sheets()
 
 cat("Results:",
     "compl_corr_to_investigation_short_dup_marked__permit_region__add_columns",
-    "and",
     out_file_name,
     current_output_file_link,
     sep = "\n")
