@@ -1194,9 +1194,12 @@ compl_corr_to_investigation_short_dup_marked__permit_region__add_columns |>
 #' It need to be a function, this way we can call it if needed, not every time we run the code.
 #'
 #'
+
+
 write_res_to_google_sheets <- 
   function() {
-  browser()    
+  browser()
+
     current_result_google_ss_name <- "Egregious Violators Current"
     
     #' When asked for the authentication the first time choose the appropriate option and follow the instructions. If you writing again in the same R session you can choose the option 2 and it will confirm your access automatically.
@@ -1249,13 +1252,16 @@ write_res_to_google_sheets <-
 
     #' Create a new empty spread sheet in the google drive output folder
     #' 
-    #' 
+    current_result_google_ss_name_info1 <- 
     googledrive::drive_create(
       name = current_result_google_ss_name,
       path = googledrive::as_id(output_egr_violators_googledrive_folder_path),
       type = "spreadsheet",
       overwrite = FALSE
     )
+    
+    current_result_google_ss_name_info1$id ==
+      current_result_google_ss_name_info$id
     
     # Get info for the created file
     current_result_google_ss_name_info <-
