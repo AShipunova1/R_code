@@ -310,6 +310,8 @@ prev_result <- get_previous_result_from_local_file()
 
 #' Or get it directly from google drive, then don't run get_previous_result_from_local_file()
 
+get_previous_result_from_google_drive <- function() {
+  
 previous_result_google_ss_name <- 
   basename(prev_result_path) |> 
   tools::file_path_sans_ext()
@@ -326,6 +328,12 @@ previous_result <-
   googlesheets4::read_sheet(my_previous_ss) |>
   auxfunctions::remove_empty_cols() |>
   auxfunctions::clean_headers()
+
+return(previous_result)
+}
+
+#' run the function
+prev_result <- get_previous_result_from_google_drive()
 
 # Results ----
 results <-
