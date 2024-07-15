@@ -279,27 +279,36 @@ permit_vessel_w_changed_owner |>
   dplyr::glimpse()
 
 # Data from the previous results of "egregious violators for investigation" ----
-#' Download first as .xlsx from Google drive
 
-#' Read,
-#' remove empty columns,
-#' change column names the same way as everything else.
-prev_result0 <-
-  auxfunctions::my_read_xlsx(prev_result_path) |> 
-  auxfunctions::remove_empty_cols() |>
-  auxfunctions::clean_headers()
+get_previous_result_from_local_file <- function() {
+  
+  #' Download first as .xlsx from Google drive
+  
+  #' Read,
+  #' remove empty columns,
+  #' change column names the same way as everything else.
+  prev_result0 <-
+    auxfunctions::my_read_xlsx(prev_result_path) |>
+    auxfunctions::remove_empty_cols() |>
+    auxfunctions::clean_headers()
+  
+  # An example
+  dim(prev_result0)
+  # [1] 151  42
+  
+  #' clean excel number conversions, remove ".0" at the end
+  prev_result <-
+    prev_result0 |>
+    dplyr::mutate(vessel_official_number =
+                    stringr::str_replace(vessel_official_number, "\\.0$", ""))
+  
+  return(prev_result)
+}
 
-# An example
-dim(prev_result0)    
-# [1] 151  42
+#' You can skip this and run the next function instead, to get data directly from Google drive
+prev_result <- get_previous_result_from_local_file()
 
-#' clean excel number conversions, remove ".0" at the end
-prev_result <-
-  prev_result0 |>
-  dplyr::mutate(vessel_official_number =
-                  stringr::str_replace(vessel_official_number, "\\.0$", ""))
-
-#' Or get it directly from google drive
+#' Or get it directly from google drive, then don't run get_previous_result_from_local_file()
 
 previous_result_google_ss_name <- 
   basename(prev_result_path) |> 
