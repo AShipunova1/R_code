@@ -1201,7 +1201,16 @@ write_res_to_google_sheets <-
     
     #' When asked for the authentication the first time choose the appropriate option and follow the instructions. If you writing again in the same R session you can choose the option 2 and it will confirm your access automatically.
     #'
-    my_current_ss <- googlesheets4::gs4_find(current_result_google_ss_name)
+    # my_current_ss <- googlesheets4::gs4_find(current_result_google_ss_name)
+    
+    my_current_ss <-
+      googledrive::drive_ls(
+        path = googledrive::as_id(output_egr_violators_googledrive_folder_path),
+        pattern = current_result_google_ss_name,
+        type = "spreadsheet",
+        n_max = 1
+      )
+
     
     #' An example of my_current_ss:
     #'   name                        id                                           drive_resource
