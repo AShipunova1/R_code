@@ -280,6 +280,15 @@ permit_vessel_w_changed_owner |>
 
 # Data from the previous results of "egregious violators for investigation" ----
 
+#' There are 2 functions, 
+#' 
+#' get_previous_result_from_local_file() assumes you have downloaded the previous results and 
+#' 
+#' get_previous_result_from_google_drive() gets data directly from Google drive
+#' 
+#' Run only one of them and save the dataframe in prev_result variable. 
+
+#' From a local file
 get_previous_result_from_local_file <- function() {
   
   #' Download first as .xlsx from Google drive
@@ -305,11 +314,7 @@ get_previous_result_from_local_file <- function() {
   return(prev_result)
 }
 
-#' You can skip this and run the next function instead, to get data directly from Google drive
-prev_result <- get_previous_result_from_local_file()
-
-#' Or get it directly from google drive, then don't run get_previous_result_from_local_file()
-
+#' To get previous data directly from Google drive
 get_previous_result_from_google_drive <- function() {
   
 previous_result_google_ss_name <- 
@@ -332,7 +337,9 @@ previous_result <-
 return(previous_result)
 }
 
-#' run the function
+#' run one of the functions
+# prev_result <- get_previous_result_from_local_file()
+# or
 prev_result <- get_previous_result_from_google_drive()
 
 # Results ----
