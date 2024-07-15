@@ -1237,12 +1237,14 @@ write_res_to_google_sheets <-
     new_result_sheet <-
       gs4_create(
         name = current_result_google_ss_name,
-        sheets = c(out_file_basename)
+        sheets = out_file_basename
       )
     
 my_current_ss <- googlesheets4::gs4_find(current_result_google_ss_name)
 
 my_current_ss_all <- googlesheets4::gs4_find(current_result_google_ss_name)
+
+View(my_current_ss_all$drive_resource)
 
 my_google_drive_root_id <-
   my_current_ss_all$drive_resource[[1]]$parents[[1]]
@@ -1257,7 +1259,6 @@ googledrive::drive_rm(files_to_remove)
 # Files deleted:
 # • Egregious Violators Current <id: 1VRWVXqubVfT2cak-SpUWNjBumdijUS6tno8foaHPLEM>
 # • Egregious Violators Current <id: 15DaJMUhf8Ov5wSe_GRkJBic2qVaWDRj-5a0CGImcQ7Q>
-
 
 # Move your spreadsheet to the desired location
     googledrive::drive_mv(
