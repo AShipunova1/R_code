@@ -5,7 +5,7 @@ function(csvs, vessel_id_field_name = NA) {
 
   # Trim 'vesselofficialnumber' column (if specified) in all cleaned CSVs
   csvs_clean1 <-
-    trim_all_vessel_ids_simple(csvs_clean0, vessel_id_field_name)
+    auxfunctions::trim_all_vessel_ids_simple(csvs_clean0, vessel_id_field_name)
 
   # Return the list of cleaned CSVs
   return(csvs_clean1)
