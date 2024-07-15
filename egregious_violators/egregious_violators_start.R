@@ -1148,8 +1148,11 @@ compl_corr_to_investigation_short_dup_marked__permit_region__add_columns <-
 #' Check what are the column names now
 auxfunctions::print_df_names(compl_corr_to_investigation_short_dup_marked__permit_region__add_columns)
 
+out_file_basename <- 
+  stringr::str_glue("egregious_violators_to_investigate_{lubridate::today()}")
+
 out_file_name <-
-  stringr::str_glue("egregious_violators_to_investigate_{lubridate::today()}.csv")
+  stringr::str_glue("{out_file_basename}.csv")
 
 result_path <- 
   file.path(current_project_output_path,
@@ -1160,8 +1163,11 @@ compl_corr_to_investigation_short_dup_marked__permit_region__add_columns |>
 
 #' Un-comment to write to Google drive spreadsheet.
 ## Write to google sheets ----
+
+current_result_google_ss_name <- "Egregious Violators Current"
 #' When asked for authentication the first time choose the option 1 and follow the instructions. If you writing again in the same R session you can choose the option 2 and it will confirm your access automatically.
-my_current_ss <- googlesheets4::gs4_find("Egregious Violators Current")
+#' 
+my_current_ss <- googlesheets4::gs4_find(current_result_google_ss_name)
 
 #' An example of my_current_ss:
 #'   name                        id                                           drive_resource   
@@ -1180,35 +1186,65 @@ previous_current_content <- googlesheets4::read_sheet(my_current_ss)
 
 #' 2) create a new spread sheet with the date of loaded worksheet and dump the content into it
 #' a) get the previous spreadsheet name
+#' Confirm your athentication if asked
 ss_info <- googlesheets4::gs4_get(my_current_ss)
 previous_current_spread_sheet_name <- ss_info$sheets$name
 # E.g. "egregious_violators_to_investigate_2024-06-18"
 
-#' b) the folder path
-egr_violators_folder_path <-
+#' b) the parent folder path
+egr_violators_googledrive_folder_path <-
   googledrive::drive_find(pattern = "Egregious violators", 
                           type = "folder",
                           n_max = 1)
 
-code_egr_violators_folder_path <- drive_ls(
-  path = googledrive::as_id(egr_violators_folder_path),
-  pattern = "Code",
+#' c) output path 
+output_egr_violators_googledrive_folder_path <- drive_ls(
+  path = googledrive::as_id(egr_violators_googledrive_folder_path),
+  pattern = "output",
   type = "folder",
   n_max = 1)
 
-googledrive::drive_mv()
- 
-# write_sheet(
-#   survey_n_pims__same_vsl_id__diff_all_else,
-#   ss = my_ss,
-#   sheet = "survey_n_pims__same_vsl_id__diff_all_else"
-# )
+googledrive::drive_mv(my_current_ss,
+                      path = googledrive::as_id(output_egr_violators_googledrive_folder_path),
+                      overwrite = FALSE,
+                      name = previous_current_spread_sheet_name)
+#  
+# Original file:
+# • Egregious Violators Current <id: 1meB1j6i-e--o6BpLWpb4-ZOD96YigeP1SP6UA6qZOrk>
+# Has been renamed and moved:
+# • output/egregious_violators_to_investigate_2024-06-18
+#   <id: 1meB1j6i-e--o6BpLWpb4-ZOD96YigeP1SP6UA6qZOrk>
 
-# write_sheet(
-#   fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs__to_csv,
-#   ss = my_ss,
-#   sheet = "survey_n_pims_by_vessel_ids_fuzzy_join__filtrs"
-# )
+#' Create a new spread sheet in the google drive output folder
+googledrive::drive_create(
+  name = current_result_google_ss_name,
+  path = googledrive::as_id(output_egr_violators_googledrive_folder_path),
+  type = "spreadsheet",
+  overwrite = FALSE
+)
+
+# check if the file was created
+current_result_google_ss_name_info <- 
+  drive_ls(pattern = current_result_google_ss_name,
+         n_max = 1)
+
+googlesheets4::write_sheet(
+  compl_corr_to_investigation_short_dup_marked__permit_region__add_columns,
+  ss = current_result_google_ss_name_info,
+  sheet = out_file_basename
+)
+
+#' See in browser to check
+googledrive::drive_browse(current_result_google_ss_name_info)
+#' see sheets/tabs to check
+googlesheets4::sheet_properties(ss = current_result_google_ss_name_info)
+
+#' Remove an empty Sheet1
+googlesheets4::sheet_delete(ss = current_result_google_ss_name_info,
+             "Sheet1")
+#' check the existing tabs 
+googlesheets4::sheet_properties(ss = current_result_google_ss_name_info)$name
+# [1] "egregious_violators_to_investigate_2024-07-15"
 
 cat("Results:",
     "compl_corr_to_investigation_short_dup_marked__permit_region__add_columns",
