@@ -1201,8 +1201,8 @@ compl_corr_to_investigation_short_dup_marked__permit_region__add_columns |>
 
 write_res_to_google_sheets <- 
   function() {
-  browser()
-
+  
+    # define the file name with the last result
     current_result_google_ss_name <- "Egregious Violators Current"
     
     my_current_ss <-
@@ -1268,26 +1268,34 @@ write_res_to_google_sheets <-
     
     #' see sheets/tabs to check
     googlesheets4::sheet_properties(ss = current_result_google_ss_name_info)
-    #' There is an empty Sheet1.
+    #' There is an empty Sheet1 created automatically by googledrive::drive_create().
     
     #' Remove an empty Sheet1
     googlesheets4::sheet_delete(ss = current_result_google_ss_name_info, "Sheet1")
     
     #' check the existing tabs again
     googlesheets4::sheet_properties(ss = current_result_google_ss_name_info)$name
-    #' Should be only one name 
+    #' Should be only one name now, like
     # [1] "egregious_violators_to_investigate_2024-07-15"
     
     #' See in browser to check
     googledrive::drive_browse(current_result_google_ss_name_info)
+    
+    #' Print out a link to share with others
+    current_output_file_link <- googledrive::drive_link(current_result_google_ss_name_info)
 
+    auxfunctions::title_message_print(current_output_file_link)
+    
+    return(current_output_file_link)
+    
   }
 
-write_res_to_google_sheets()
+current_output_file_link <- write_res_to_google_sheets()
 
 cat("Results:",
     "compl_corr_to_investigation_short_dup_marked__permit_region__add_columns",
     "and",
     out_file_name,
+    current_output_file_link,
     sep = "\n")
 
