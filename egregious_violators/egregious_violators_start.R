@@ -1184,6 +1184,19 @@ ss_info <- googlesheets4::gs4_get(my_current_ss)
 previous_current_spread_sheet_name <- ss_info$sheets$name
 # E.g. "egregious_violators_to_investigate_2024-06-18"
 
+#' b) the folder path
+egr_violators_folder_path <-
+  googledrive::drive_find(pattern = "Egregious violators", 
+                          type = "folder",
+                          n_max = 1)
+
+code_egr_violators_folder_path <- drive_ls(
+  path = googledrive::as_id(egr_violators_folder_path),
+  pattern = "Code",
+  type = "folder",
+  n_max = 1)
+
+googledrive::drive_mv()
  
 # write_sheet(
 #   survey_n_pims__same_vsl_id__diff_all_else,
