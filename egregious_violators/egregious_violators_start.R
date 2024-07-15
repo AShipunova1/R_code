@@ -1234,22 +1234,7 @@ write_res_to_google_sheets <-
     previous_current_spread_sheet_name <- ss_info$sheets$name
     # E.g. "egregious_violators_to_investigate_2024-06-18"
     
-    #' b) Get the parent folder path
-    egr_violators_googledrive_folder_path <-
-      googledrive::drive_find(pattern = "Egregious violators",
-                              type = "folder",
-                              n_max = 1)
-    
-    #' c) Get the output path
-    output_egr_violators_googledrive_folder_path <-
-      googledrive::drive_ls(
-        path = googledrive::as_id(egr_violators_googledrive_folder_path),
-        pattern = "output",
-        type = "folder",
-        n_max = 1
-      )
-    
-    #' Rename the file from current to the previous date 
+    #' Rename the file from "current" to the previous date 
     googledrive::drive_mv(
       my_current_ss,
       path = googledrive::as_id(output_egr_violators_googledrive_folder_path),
