@@ -267,6 +267,29 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
 # Check, correct the path if it is doesn't exist
 file.exists(prev_result_path)
 
+### Set up Google Drive paths ----
+#' Hard coded Google drive folder names, change if changeing in Google drive.
+egr_violators_googledrive_folder_name <- "Egregious violators"
+output_egr_violators_googledrive_folder_name <- "output"
+
+#' Get the parent folder path
+#' It is used to read the previous result and for saving the new result
+egr_violators_googledrive_folder_path <-
+  googledrive::drive_find(pattern =
+                            egr_violators_googledrive_folder_name,
+                          type = "folder",
+                          n_max = 1)
+
+#' Get the output path
+output_egr_violators_googledrive_folder_path <-
+  googledrive::drive_ls(
+    path = googledrive::as_id(egr_violators_googledrive_folder_path),
+    pattern = output_egr_violators_googledrive_folder_name,
+    type = "folder",
+    n_max = 1
+  )
+
+
 ## Define dates ----
 
 #' my_year1 and my_year2 values might be changed
