@@ -306,7 +306,8 @@ previous_result_google_ss_name <-
   tools::file_path_sans_ext()
 
 #' When asked for the authentication the first time choose the appropriate option and follow the instructions. If you writing again in the same R session you can choose the option 2 and it will confirm your access automatically.
-#' 
+#' Assuming that there is only one file with that name.
+
 my_previous_ss <- googlesheets4::gs4_find(previous_result_google_ss_name,
                                           n_max = 1)
 
@@ -316,11 +317,6 @@ previous_result <-
   googlesheets4::read_sheet(my_previous_ss) |>
   auxfunctions::remove_empty_cols() |>
   auxfunctions::clean_headers()
-
-# View(previous_result)
-
-diffdf::diffdf(previous_result,
-               prev_result0)
 
 # Results ----
 results <-
