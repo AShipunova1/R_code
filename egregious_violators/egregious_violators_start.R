@@ -75,8 +75,6 @@ library(diffdf)
 
 #' Install and attach R packages for googlesheets
 #' https://felixanalytix.medium.com/how-to-read-write-append-google-sheet-data-using-r-programming-ecf278108691#:~:text=There%20are%203%20ways%20to%20read%20this%20Google%20sheet%20into%20R.&text=Just%20to%20take%20the%20URL,URL%20but%20just%20the%20ID).
-if (!require(googlesheets4)) install.packages("googlesheetsa") 
-if (!require(googledrive)) install.packages("googledrive") 
 library(googlesheets4) # Google Sheets via the Sheets API v4 
 library(googledrive) # interact with Google Drive 
 
