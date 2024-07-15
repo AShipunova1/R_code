@@ -1168,12 +1168,12 @@ compl_corr_to_investigation_short_dup_marked__permit_region__add_columns |>
 #' 
 #' Then it will create a new 'Egregious Violators Current' file with the new results in the same directory ("Egregious violators/output").
 #' 
-#' It need to be a function, so we can call it if needed, not every time we run the code.
+#' It need to be a function, this way we can call it if needed, not every time we run the code.
 #'
 #'
 write_res_to_google_sheets <- 
   function() {
-    
+  browser()    
     current_result_google_ss_name <- "Egregious Violators Current"
     
     #' When asked for the authentication the first time choose the appropriate option and follow the instructions. If you writing again in the same R session you can choose the option 2 and it will confirm your access automatically.
@@ -1230,45 +1230,6 @@ write_res_to_google_sheets <-
     # Has been renamed and moved:
     # • output/egregious_violators_to_investigate_2024-06-18
 
-        # ---
-    ## Direct storage
-    # Create a new spreadsheet. It is stored as an object with a sheet_id and drive_id in your google drive root directory
-    
-    new_result_sheet <-
-      gs4_create(
-        name = current_result_google_ss_name,
-        sheets = out_file_basename
-      )
-    
-my_current_ss <- googlesheets4::gs4_find(current_result_google_ss_name)
-
-my_current_ss_all <- googlesheets4::gs4_find(current_result_google_ss_name)
-
-View(my_current_ss_all$drive_resource)
-
-my_google_drive_root_id <-
-  my_current_ss_all$drive_resource[[1]]$parents[[1]]
-
-files_to_remove <-
-  googledrive::drive_ls(
-    path = "~/",
-    pattern = current_result_google_ss_name)
-  
-googledrive::drive_rm(files_to_remove)
-# Auto-refreshing stale OAuth token.
-# Files deleted:
-# • Egregious Violators Current <id: 1VRWVXqubVfT2cak-SpUWNjBumdijUS6tno8foaHPLEM>
-# • Egregious Violators Current <id: 15DaJMUhf8Ov5wSe_GRkJBic2qVaWDRj-5a0CGImcQ7Q>
-
-# Move your spreadsheet to the desired location
-    googledrive::drive_mv(
-      file = new_result_sheet,
-      path = googledrive::as_id(output_egr_violators_googledrive_folder_path),
-      overwrite = FALSE
-    )
-    
-    # ---
-
     #' Create a new empty spread sheet in the google drive output folder
     #' 
     #' 
@@ -1279,7 +1240,7 @@ googledrive::drive_rm(files_to_remove)
       overwrite = FALSE
     )
     
-    # check if the file was created
+    # Get info for the created file
     current_result_google_ss_name_info <-
       drive_ls(pattern = current_result_google_ss_name, n_max = 1)
     
@@ -1291,15 +1252,19 @@ googledrive::drive_rm(files_to_remove)
     
     #' See in browser to check
     googledrive::drive_browse(current_result_google_ss_name_info)
+    
     #' see sheets/tabs to check
-    googlesheets4::sheet_properties(ss = current_result_google_ss_name_info)
+    googlesheets4::sheet_properties(ss = current_result_google_ss_name_info) |> View()
     
     #' Remove an empty Sheet1
     googlesheets4::sheet_delete(ss = current_result_google_ss_name_info, "Sheet1")
+    
     #' check the existing tabs
     googlesheets4::sheet_properties(ss = current_result_google_ss_name_info)$name
     # [1] "egregious_violators_to_investigate_2024-07-15"
   }
+
+write_res_to_google_sheets()
 
 cat("Results:",
     "compl_corr_to_investigation_short_dup_marked__permit_region__add_columns",
