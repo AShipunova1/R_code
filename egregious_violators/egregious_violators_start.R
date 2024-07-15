@@ -1229,8 +1229,48 @@ write_res_to_google_sheets <-
     # • Egregious Violators Current
     # Has been renamed and moved:
     # • output/egregious_violators_to_investigate_2024-06-18
+
+        # ---
+    ## Direct storage
+    # Create a new spreadsheet. It is stored as an object with a sheet_id and drive_id in your google drive root directory
     
+    new_result_sheet <-
+      gs4_create(
+        name = current_result_google_ss_name,
+        sheets = c(out_file_basename)
+      )
+    
+my_current_ss <- googlesheets4::gs4_find(current_result_google_ss_name)
+
+my_current_ss_all <- googlesheets4::gs4_find(current_result_google_ss_name)
+
+my_google_drive_root_id <-
+  my_current_ss_all$drive_resource[[1]]$parents[[1]]
+
+files_to_remove <-
+  googledrive::drive_ls(
+    path = "~/",
+    pattern = current_result_google_ss_name)
+  
+googledrive::drive_rm(files_to_remove)
+# Auto-refreshing stale OAuth token.
+# Files deleted:
+# • Egregious Violators Current <id: 1VRWVXqubVfT2cak-SpUWNjBumdijUS6tno8foaHPLEM>
+# • Egregious Violators Current <id: 15DaJMUhf8Ov5wSe_GRkJBic2qVaWDRj-5a0CGImcQ7Q>
+
+
+# Move your spreadsheet to the desired location
+    googledrive::drive_mv(
+      file = new_result_sheet,
+      path = googledrive::as_id(output_egr_violators_googledrive_folder_path),
+      overwrite = FALSE
+    )
+    
+    # ---
+
     #' Create a new empty spread sheet in the google drive output folder
+    #' 
+    #' 
     googledrive::drive_create(
       name = current_result_google_ss_name,
       path = googledrive::as_id(output_egr_violators_googledrive_folder_path),
