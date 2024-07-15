@@ -296,7 +296,6 @@ output_egr_violators_googledrive_folder_path <-
     n_max = 1
   )
 
-
 ## Define dates ----
 
 #' my_year1 and my_year2 values might be changed
@@ -784,6 +783,7 @@ compl_corr_to_investigation <-
 dim(compl_corr_to_investigation)
 # E.g.
 # [1] 30844    32
+
 dplyr::n_distinct(compl_corr_to_investigation$vesselofficial_number)
 # E.g.
 # 141
@@ -954,7 +954,7 @@ compl_corr_to_investigation__corr_date |>
 
 ### add pims home port info ----
 
-#' change pims home port info column names 
+#' change PIMS home port info column names 
 processed_pims_home_ports_renamed <- 
   processed_pims_home_ports |> 
   dplyr::rename("hailing_port_city" = city_fixed,
@@ -1203,7 +1203,6 @@ compl_corr_to_investigation_short_dup_marked__permit_region__add_columns |>
 #'
 #'
 
-
 write_res_to_google_sheets <- 
   function() {
   
@@ -1236,11 +1235,13 @@ write_res_to_google_sheets <-
     #' 2) create a new spread sheet with the date of loaded worksheet and dump the content into it
     #' a) get the previous spreadsheet name
     ss_info <- googlesheets4::gs4_get(my_current_ss)
-    previous_current_spread_sheet_name <- ss_info$sheets$name
+    #' grep for the pattern in case there are additional tabs 
+    previous_current_spread_sheet_name <- 
+      grep("egregious_violators_to_investigate_20\\d\\d-\\d\\d-\\d\\d", ss_info$sheets$name, value = T)
     # E.g. "egregious_violators_to_investigate_2024-06-18"
     
-    #' Rename the file from "current" to the previous date.
-    #' NB. It will rise an error if a file with this name already exists, to change that behavior remove 'overwrite = FALSE,"
+    #' Rename the file from "current" to the previous_current_spread_sheet_name with the previous date.
+    #' NB. The nex line will rise an error if a file with this name already exists, to change that behavior remove 'overwrite = FALSE,"
     googledrive::drive_mv(
       my_current_ss,
       path = googledrive::as_id(output_egr_violators_googledrive_folder_path),
@@ -1275,10 +1276,10 @@ write_res_to_google_sheets <-
     googlesheets4::sheet_properties(ss = current_result_google_ss_name_info)
     #' There is an empty Sheet1 created automatically by googledrive::drive_create().
     
-    #' Remove an empty Sheet1
+    #' Remove the empty Sheet1.
     googlesheets4::sheet_delete(ss = current_result_google_ss_name_info, "Sheet1")
     
-    #' check the existing tabs again
+    #' Check the existing tabs again.
     googlesheets4::sheet_properties(ss = current_result_google_ss_name_info)$name
     #' Should be only one name now, like
     # [1] "egregious_violators_to_investigate_2024-07-15"
@@ -1289,17 +1290,17 @@ write_res_to_google_sheets <-
     #' Print out a link to share with others
     current_output_file_link <- googledrive::drive_link(current_result_google_ss_name_info)
 
-    auxfunctions::title_message_print(current_output_file_link)
+    print(current_output_file_link)
     
     return(current_output_file_link)
     
   }
 
-current_output_file_link <- write_res_to_google_sheets()
+#' Un-comment to write results directly to Google drive
+# current_output_file_link <- write_res_to_google_sheets()
 
 cat("Results:",
     "compl_corr_to_investigation_short_dup_marked__permit_region__add_columns",
     out_file_name,
-    current_output_file_link,
     sep = "\n")
 
