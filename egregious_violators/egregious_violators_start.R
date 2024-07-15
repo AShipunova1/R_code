@@ -1165,7 +1165,8 @@ compl_corr_to_investigation_short_dup_marked__permit_region__add_columns |>
 ## Write to google sheets ----
 
 current_result_google_ss_name <- "Egregious Violators Current"
-#' When asked for authentication the first time choose the option 1 and follow the instructions. If you writing again in the same R session you can choose the option 2 and it will confirm your access automatically.
+
+#' When asked for the authentication the first time choose the appropriate option and follow the instructions. If you writing again in the same R session you can choose the option 2 and it will confirm your access automatically.
 #' 
 my_current_ss <- googlesheets4::gs4_find(current_result_google_ss_name)
 
