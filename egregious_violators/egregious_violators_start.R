@@ -1254,13 +1254,14 @@ write_res_to_google_sheets <-
     googledrive::drive_browse(current_result_google_ss_name_info)
     
     #' see sheets/tabs to check
-    googlesheets4::sheet_properties(ss = current_result_google_ss_name_info) |> View()
+    googlesheets4::sheet_properties(ss = current_result_google_ss_name_info)
     
     #' Remove an empty Sheet1
     googlesheets4::sheet_delete(ss = current_result_google_ss_name_info, "Sheet1")
     
     #' check the existing tabs
     googlesheets4::sheet_properties(ss = current_result_google_ss_name_info)$name
+    #' Should be only one name 
     # [1] "egregious_violators_to_investigate_2024-07-15"
   }
 
