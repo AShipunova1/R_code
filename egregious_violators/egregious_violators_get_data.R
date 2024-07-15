@@ -299,6 +299,29 @@ prev_result <-
   dplyr::mutate(vessel_official_number =
                   stringr::str_replace(vessel_official_number, "\\.0$", ""))
 
+#' Or get it directly from google drive
+
+previous_result_google_ss_name <- 
+  basename(prev_result_path) |> 
+  tools::file_path_sans_ext()
+
+#' When asked for the authentication the first time choose the appropriate option and follow the instructions. If you writing again in the same R session you can choose the option 2 and it will confirm your access automatically.
+#' 
+my_previous_ss <- googlesheets4::gs4_find(previous_result_google_ss_name,
+                                          n_max = 1)
+
+#' load it to R
+#' And clean it as usual, changing headers to lower case with underscores and removing empty columns
+previous_result <-
+  googlesheets4::read_sheet(my_previous_ss) |>
+  auxfunctions::remove_empty_cols() |>
+  auxfunctions::clean_headers()
+
+# View(previous_result)
+
+diffdf::diffdf(previous_result,
+               prev_result0)
+
 # Results ----
 results <-
   c(
