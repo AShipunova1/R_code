@@ -272,8 +272,11 @@ file.exists(prev_result_path)
 egr_violators_googledrive_folder_name <- "Egregious violators"
 output_egr_violators_googledrive_folder_name <- "output"
 
-#' Get the parent folder path
-#' It is used to read the previous result and for saving the new result
+#' Get the parent folder path.
+#' It is used to read the previous result and for saving the new result.
+#' When asked for the authentication the first time choose the appropriate option and follow the instructions. If you writing again in the same R session you can choose the option 2 and it will confirm your access automatically.
+#'
+
 egr_violators_googledrive_folder_path <-
   googledrive::drive_find(pattern =
                             egr_violators_googledrive_folder_name,
@@ -1202,10 +1205,6 @@ write_res_to_google_sheets <-
 
     current_result_google_ss_name <- "Egregious Violators Current"
     
-    #' When asked for the authentication the first time choose the appropriate option and follow the instructions. If you writing again in the same R session you can choose the option 2 and it will confirm your access automatically.
-    #'
-    # my_current_ss <- googlesheets4::gs4_find(current_result_google_ss_name)
-    
     my_current_ss <-
       googledrive::drive_ls(
         path = googledrive::as_id(output_egr_violators_googledrive_folder_path),
@@ -1214,7 +1213,6 @@ write_res_to_google_sheets <-
         n_max = 1
       )
 
-    
     #' An example of my_current_ss:
     #'   name                        id                                           drive_resource
     # <chr>                       <drv_id>                                     <list>
@@ -1232,12 +1230,12 @@ write_res_to_google_sheets <-
     
     #' 2) create a new spread sheet with the date of loaded worksheet and dump the content into it
     #' a) get the previous spreadsheet name
-    #' Confirm your authentication if asked
     ss_info <- googlesheets4::gs4_get(my_current_ss)
     previous_current_spread_sheet_name <- ss_info$sheets$name
     # E.g. "egregious_violators_to_investigate_2024-06-18"
     
-    #' Rename the file from "current" to the previous date 
+    #' Rename the file from "current" to the previous date.
+    #' NB. It will rise an error if a file with this name already exists, to change that behavior remove 'overwrite = FALSE,"
     googledrive::drive_mv(
       my_current_ss,
       path = googledrive::as_id(output_egr_violators_googledrive_folder_path),
@@ -1247,12 +1245,13 @@ write_res_to_google_sheets <-
     # E.g.
     # Original file:
     # • Egregious Violators Current
-    # Has been renamed and moved:
+    # Has been renamed:
     # • output/egregious_violators_to_investigate_2024-06-18
 
-    #' Create a new empty spread sheet in the google drive output folder
-    #' 
-    current_result_google_ss_name_info1 <- 
+    #' Create a new empty spread sheet in the google drive output folder,
+    #' And save its properties into current_result_google_ss_name_info
+    
+    current_result_google_ss_name_info <- 
     googledrive::drive_create(
       name = current_result_google_ss_name,
       path = googledrive::as_id(output_egr_violators_googledrive_folder_path),
@@ -1260,32 +1259,28 @@ write_res_to_google_sheets <-
       overwrite = FALSE
     )
     
-    current_result_google_ss_name_info1$id ==
-      current_result_google_ss_name_info$id
-    
-    # Get info for the created file
-    current_result_google_ss_name_info <-
-      drive_ls(pattern = current_result_google_ss_name, n_max = 1)
-    
+    #' Write our results into the newly created spreadsheet "Egregious Violators Current" into a sheet/tab with a name defined in out_file_basename (e.g. "egregious_violators_to_investigate_2024-07-15")
     googlesheets4::write_sheet(
       compl_corr_to_investigation_short_dup_marked__permit_region__add_columns,
       ss = current_result_google_ss_name_info,
       sheet = out_file_basename
     )
     
-    #' See in browser to check
-    googledrive::drive_browse(current_result_google_ss_name_info)
-    
     #' see sheets/tabs to check
     googlesheets4::sheet_properties(ss = current_result_google_ss_name_info)
+    #' There is an empty Sheet1.
     
     #' Remove an empty Sheet1
     googlesheets4::sheet_delete(ss = current_result_google_ss_name_info, "Sheet1")
     
-    #' check the existing tabs
+    #' check the existing tabs again
     googlesheets4::sheet_properties(ss = current_result_google_ss_name_info)$name
     #' Should be only one name 
     # [1] "egregious_violators_to_investigate_2024-07-15"
+    
+    #' See in browser to check
+    googledrive::drive_browse(current_result_google_ss_name_info)
+
   }
 
 write_res_to_google_sheets()
