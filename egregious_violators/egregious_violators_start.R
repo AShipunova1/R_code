@@ -118,7 +118,7 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
 
 #' The following section uses provided directory names lists to automatically create separate variables for future use and create current input/output directories if they do not exists.
 
-#' This is usually the current directory name
+#' This is usually the current directory name.
 current_project_name <- current_in_out_paths$project_name
 
 current_project_path <- current_in_out_paths$code
@@ -211,7 +211,9 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
 
 #' Check if provided paths are correct
 purrr::map(processed_metrics_tracking_file_names, file.exists)
+
 #' if not TRUE: Check your provided path and/or create manually.
+#' 
 
 #### Physical Address List from FHIER ----
 #' Download first from REPORTS / For-hire Primary Physical Address List
@@ -251,7 +253,6 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
 file.exists(processed_pims_home_ports_path)
 
 #### Data from the previous results of "egregious violators for investigation" ----
-# Download first as .xlsx from Google drive
 
 #' Add your full path instead of "Your full path here"
 #' 
@@ -264,11 +265,11 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
               "egregious_violators_to_investigate_2024-05-17.xlsx")
 }
 
-# Check, correct the path if it is doesn't exist
+# If it is doesn't exist download it first and correct the path, or load directly from Google drive, see Get data
 file.exists(prev_result_path)
 
 ### Set up Google Drive paths ----
-#' Hard coded Google drive folder names, change if changeing in Google drive.
+#' Hard coded Google drive folder names, change if changing in Google drive.
 egr_violators_googledrive_folder_name <- "Egregious violators"
 output_egr_violators_googledrive_folder_name <- "output"
 
@@ -974,6 +975,7 @@ prep_addresses_path <-
   file.path(current_project_path,
             stringr::str_glue("{current_project_name}_prep_addresses.R"))
 
+#' Check if the file exists.
 file.exists(prep_addresses_path)
 
 source(prep_addresses_path)
