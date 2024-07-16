@@ -65,7 +65,7 @@
 
 ## Compliance and Correspondence data ----
 
-#' read correspondence and compliance csvs
+#' Read correspondence and compliance csvs
 csv_contents <- 
   lapply(all_csv_full_paths_list, 
          readr::read_csv, col_types = readr::cols(.default = 'c'))
