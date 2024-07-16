@@ -403,7 +403,8 @@ dplyr::n_distinct(db_participants_address__needed_short__erv_erb_combined_short$
 db_participants_address__needed_short__erv_erb_combined_short__u_temp <-
   col_part_names |>
   purrr::map(\(curr_col_part)  {
-    # browser()
+    # browser() # Commented out browser function for debugging
+
     old_col_name <- stringr::str_glue("db_{curr_col_part}")
     new_col_name <- stringr::str_glue("db_{curr_col_part}_u")
     cat(new_col_name, sep = "\n")
