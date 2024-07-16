@@ -1217,7 +1217,7 @@ compl_corr_to_investigation_short_dup_marked__permit_region__add_columns |>
   readr::write_csv(result_path)
 
 ## Write to google sheets ----
-#' A function to write to Google drive spreadsheets.
+#' Define the function to write results to Google Sheets
 #' 
 #' It will rename the existing 'Egregious Violators Current' file to a file with the name with a date from its tab (e.g. "egregious_violators_to_investigate_2024-06-18".
 #' 
@@ -1230,7 +1230,7 @@ compl_corr_to_investigation_short_dup_marked__permit_region__add_columns |>
 write_res_to_google_sheets <- 
   function() {
   
-    # define the file name with the last result
+    # Define the current result Google Sheets name
     current_result_google_ss_name <- "Egregious Violators Current"
     
     my_current_ss <-
@@ -1241,31 +1241,31 @@ write_res_to_google_sheets <-
         n_max = 1
       )
 
-    #' An example of my_current_ss:
-    #'   name                        id                                           drive_resource
+    # An example of my_current_ss:
+    #   name                        id                                           drive_resource
     # <chr>                       <drv_id>                                     <list>
     # 1 Egregious Violators Current ...--o6BpLWpb4-... <named list [36]>
     
-    #' 1) load it to R
-    #' 2) create a new spread sheet with the date of loaded workseeht and dump the content into it
-    #' 3) create a new worksheet in the
-    #' current spreadsheet with today's date
-    #' write the code output into it
-    #' check in browser
+    # 1) load it to R
+    # 2) create a new spread sheet with the date of loaded workseeht and dump the content into it
+    # 3) create a new worksheet in the
+    # current spreadsheet with today's date
+    # write the code output into it
+    # check in browser
     
-    #' 1) load it to R
+    # 1) load it to R
     previous_current_content <- googlesheets4::read_sheet(my_current_ss)
     
-    #' 2) create a new spread sheet with the date of loaded worksheet and dump the content into it
-    #' a) get the previous spreadsheet name
+    # 2) create a new spread sheet with the date of loaded worksheet and dump the content into it
+    # a) get the previous spreadsheet name
     ss_info <- googlesheets4::gs4_get(my_current_ss)
-    #' grep for the pattern in case there are additional tabs 
+    # grep for the pattern in case there are additional tabs 
     previous_current_spread_sheet_name <- 
       grep("egregious_violators_to_investigate_20\\d\\d-\\d\\d-\\d\\d", ss_info$sheets$name, value = T)
     # E.g. "egregious_violators_to_investigate_2024-06-18"
     
-    #' Rename the file from "current" to the previous_current_spread_sheet_name with the previous date.
-    #' NB. The nex line will rise an error if a file with this name already exists, to change that behavior remove 'overwrite = FALSE,"
+    # Rename the file from "current" to the previous_current_spread_sheet_name with the previous date.
+    # NB. The nex line will rise an error if a file with this name already exists, to change that behavior remove 'overwrite = FALSE,"
     googledrive::drive_mv(
       my_current_ss,
       path = googledrive::as_id(output_egr_violators_googledrive_folder_path),
@@ -1278,8 +1278,8 @@ write_res_to_google_sheets <-
     # Has been renamed:
     # • output/egregious_violators_to_investigate_2024-06-18
 
-    #' Create a new empty spread sheet in the google drive output folder,
-    #' And save its properties into current_result_google_ss_name_info
+    # Create a new empty spread sheet in the google drive output folder,
+    # And save its properties into current_result_google_ss_name_info
     
     current_result_google_ss_name_info <- 
     googledrive::drive_create(
@@ -1289,29 +1289,29 @@ write_res_to_google_sheets <-
       overwrite = FALSE
     )
     
-    #' Write our results into the newly created spreadsheet "Egregious Violators Current" into a sheet/tab with a name defined in out_file_basename (e.g. "egregious_violators_to_investigate_2024-07-15")
+    # Write our results into the newly created spreadsheet "Egregious Violators Current" into a sheet/tab with a name defined in out_file_basename (e.g. "egregious_violators_to_investigate_2024-07-15")
     googlesheets4::write_sheet(
       compl_corr_to_investigation_short_dup_marked__permit_region__add_columns,
       ss = current_result_google_ss_name_info,
       sheet = out_file_basename
     )
     
-    #' see sheets/tabs to check
+    # see sheets/tabs to check
     googlesheets4::sheet_properties(ss = current_result_google_ss_name_info)
-    #' There is an empty Sheet1 created automatically by googledrive::drive_create().
+    # There is an empty Sheet1 created automatically by googledrive::drive_create().
     
-    #' Remove the empty Sheet1.
+    # Remove the empty Sheet1.
     googlesheets4::sheet_delete(ss = current_result_google_ss_name_info, "Sheet1")
     
-    #' Check the existing tabs again.
+    # Check the existing tabs again.
     googlesheets4::sheet_properties(ss = current_result_google_ss_name_info)$name
-    #' Should be only one name now, like
+    # Should be only one name now, like
     # [1] "egregious_violators_to_investigate_2024-07-15"
     
-    #' See in browser to check
+    # See in browser to check
     googledrive::drive_browse(current_result_google_ss_name_info)
     
-    #' Print out a link to share with others
+    # Print out a link to share with others
     current_output_file_link <- googledrive::drive_link(current_result_google_ss_name_info)
 
     print(current_output_file_link)
