@@ -93,6 +93,7 @@ Sys.setenv(ORA_SDTZ = Sys.timezone())
 ## Set up paths ----
 
 #' Manually: Change the following 2 lists (*my_paths* and *current_in_out_paths*) to your environment if needed. The variable _names_ are used throughout the code, so please change only the quoted _values_ inside the lists.
+#' 
 
 #' Check if the current username is not "anna.shipunova"
 if (!auxfunctions::get_username() == "anna.shipunova") {
@@ -100,12 +101,12 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
     "Please CHANGE the following 2 lists values to your environment if needed. Use full path to your directories in quotes."
   )
   
-  #' 1) General directories (to look up additional files, e.g. processed data). It can be left as is if you don't have it.
+  # 1) General directories (to look up additional files, e.g. processed data). It can be left as is if you don't have it.
   my_paths <- list(inputs  = "~/my_inputs",
                    outputs = "~/my_outputs",
                    git_r   = "~/R_code")
   
-  #' 2) Current project code, input and output directories
+  # 2) Current project code, input and output directories
   current_in_out_paths <-
     list(
       project_name = "validation_survey",
@@ -146,6 +147,7 @@ correspondence_csv_path <- "Your full path to correspondence.csv"
 fhier_compliance_csv_path_list <- 
   list("Your full path to fhier_compliance.csv year 1",
        "Your full path to fhier_compliance.csv year 2")
+
 
 #' Depending on a user name who runs the code, the file paths are constructed here.
 #' 
@@ -688,35 +690,33 @@ they_contacted_direct_filter <-
 ### use the filters ----
 
 #' Explanations:
-
+#'
 #' - `corresp_contact_cnts_clean |> ...` starts the pipeline with the data frame `corresp_contact_cnts_clean`.
-
+#'
 #' - `dplyr::filter(tolower(calltype) == "incoming" | ...)` filters rows based on the conditions specified:
-
+#'
 #'   - `dplyr::filter()` is used to subset rows in the data frame.
-
+#'
 #'   - `tolower(calltype) == "incoming"` converts the `calltype` column to lowercase and checks if it equals "incoming".
-
+#'
 #'   - The `|` operator means logical OR, so it includes rows where the condition on either side is true.
-
+#'
 #'   - `(contact_freq > 1 & (!!we_called_filter & !!we_emailed_once_filter))`:
-
+#'
 #'     - `contact_freq > 1` checks if the `contact_freq` column is greater than 1.
-
+#'
 #'     - `&` is the logical AND operator, so it requires both conditions to be true.
-
+#'
 #'     - `!!we_called_filter` evaluates the `we_called_filter` variable as a logical expression.
-
+#'
 #'     - `!!we_emailed_once_filter` evaluates the `we_emailed_once_filter` variable as a logical expression.
-
+#'
 #'     - The parentheses around this subexpression ensure it is evaluated as a single logical unit.
-
+#'
 #' - `dplyr::filter(!!exclude_no_contact_made_filter)` applies another filter condition:
-
+#'
 #'   - `!!exclude_no_contact_made_filter` evaluates the `exclude_no_contact_made_filter` variable as a logical expression.
-
 #' 
-
 #' This code filters the `corresp_contact_cnts_clean` data frame to include rows where either the `calltype` is "incoming" or the `contact_freq` is greater than 1 and both `we_called_filter` and `we_emailed_once_filter` are true. Additionally, it filters rows based on the `exclude_no_contact_made_filter` condition.
 
 corresp_contact_cnts_clean_direct_cnt_2atmps <-
@@ -777,7 +777,9 @@ head(corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates$contact_date_dttm,
 # POSIXct[1:1], format: "2024-06-17 15:24:00"
 
 #' End of Correspondence preparations 
+#' 
 #' Processed Correspondence is in 
+#' 
 #' corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates
 #' 
 
@@ -796,6 +798,7 @@ head(corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates$contact_date_dttm,
 #' 1. Use the 'inner_join' function from the dplyr package to combine the two dataframes based on the specified columns.
 #'
 #' 2. Pass the column names and other parameters to the 'by', 'multiple', and 'relationship' arguments.
+#' 
 
 compl_corr_to_investigation <-
   dplyr::inner_join(
@@ -830,8 +833,11 @@ num_of_vsl_to_investigate <-
 #' %%%%% Prepare output
 #' 
 #' 1. Remove unused columns.
+#' 
 #' 2. Create additional columns.
+#' 
 #' 3. Mark vessels already in the know list (prev_result).
+#' 
 #' 4. duals vs. sa_only
 #' 
 
