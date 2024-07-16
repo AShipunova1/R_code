@@ -5,15 +5,15 @@
 
 # The "egregious violator" definition ----
 #' 
-#' 1) NO reports for all 26 weeks back from week ago today;
-#' 
-#' 2) permits have not expired and were active for the same period as (1);
-#' 
-#' 3) the grace period is 7 days back from today.
-#' 
-#' 4) It needs to be that we called at least 1 time and emailed at least 1 time. Or they contacted us at least once.
-#' 
-#' 5) not counting any correspondence (regardless of the type - email/call, voicemail or not) that includes "No contact made" in the text of the entry as a actual "direct" contact for any egregious vessel (May 6 2024)
+#' 1. NO reports for all 26 weeks back from week ago today;
+
+#' 2. Permits have not expired and were active for the same period as (1);
+
+#' 3. The grace period is 7 days back from today.
+
+#' 4. It needs to be that we called at least 1 time and emailed at least 1 time. Or they contacted us at least once.
+
+#' 5. Not counting any correspondence (regardless of the type - email/call, voicemail or not) that includes "No contact made" in the text of the entry as an actual "direct" contact for any egregious vessel (May 6 2024)
 
 #' NB. Update (download) all input files every time before run.
 #' 
@@ -36,7 +36,7 @@
 #' Install if needed and load all the packages.
 #' NB. It is better to install/load each package separately, if any one suggest updates it is safe to choose option 1 (update all).
 
-#' Instantiate an Oracle client from the current R session
+#' Load the ROracle package for database interactions with Oracle databases
 library(ROracle)
 #' Collection of package development tools.
 library(devtools)
@@ -50,17 +50,18 @@ library(devtools)
 #'   - `"AShipunova1/R_code/auxfunctions"` specifies the repository and subdirectory containing the package.
 #' 
 #' This code checks if the `auxfunctions` package is available, and if not, it installs it from the GitHub repository `AShipunova1/R_code/auxfunctions`.
-#' One doesn't have to have a github account to use it.
+#' One doesn't have to have a GitHub account to use it.
 #' 
 #' The installation details depend on the username.
 #' 
+#' Check if the username is not "anna.shipunova"
 if (!auxfunctions::get_username() == "anna.shipunova") {
+    # If the auxfunctions package is not installed, install it from GitHub
   if (!require('auxfunctions')) {
     devtools::install_github("AShipunova1/R_code/auxfunctions")
   }
 } else {
-  # For Anna Shipunova
-  # rebuild the package
+  # For Anna Shipunova, rebuild the package from the development branch and force the installation
   devtools::install_github("AShipunova1/R_code/auxfunctions@development", force = TRUE)
   # restart R session to pick up changes
   # .rs.restartR()
@@ -73,12 +74,12 @@ library(zoo)
 #' Compares 2 dataframes and outputs any differences.
 library(diffdf)
 
-#' Install and attach R packages for googlesheets
-#' https://felixanalytix.medium.com/how-to-read-write-append-google-sheet-data-using-r-programming-ecf278108691#:~:text=There%20are%203%20ways%20to%20read%20this%20Google%20sheet%20into%20R.&text=Just%20to%20take%20the%20URL,URL%20but%20just%20the%20ID).
+#' Install and attach R packages for Google Sheets and Google Drive
+#' Refer to this guide: https://felixanalytix.medium.com/how-to-read-write-append-google-sheet-data-using-r-programming-ecf278108691#:~:text=There%20are%203%20ways%20to%20read%20this%20Google%20sheet%20into%20R.&text=Just%20to%20take%20the%20URL,URL%20but%20just%20the%20ID).
 library(googlesheets4) # Google Sheets via the Sheets API v4 
-library(googledrive) # interact with Google Drive 
+library(googledrive) # Interact with Google Drive 
 
-#' Don't convert long numbers to scientific notation for input/output in spreadsheets and csv files.
+#' Set options to prevent converting long numbers to scientific notation for input/output in spreadsheets and csv files
 options(scipen = 999)
 
 #' Keep the same timezone across R and Oracle subsystems
@@ -87,8 +88,9 @@ Sys.setenv(ORA_SDTZ = Sys.timezone())
 
 ## Set up paths ----
 
-#' Change the following 2 lists to your environment if needed. The variable _names_ are used throughout the code, so please change only the quoted _values_ inside the lists.
+#' Manually: Change the following 2 lists (*my_paths* and *current_in_out_paths*) to your environment if needed. The variable _names_ are used throughout the code, so please change only the quoted _values_ inside the lists.
 
+# Check if the current username is not "anna.shipunova"
 if (!auxfunctions::get_username() == "anna.shipunova") {
   auxfunctions::function_message_print(
     "Please CHANGE the following 2 lists values to your environment if needed. Use full path to your directories in quotes."
@@ -134,7 +136,7 @@ auxfunctions::create_dir_if_not(current_project_output_path)
 #' 
 #' Download from FHIER first.
 #' 
-#' Provide full paths here, changing _values_ inside the quotes:
+#' Manually: Provide full paths here, changing _values_ inside the quotes:
 #' 
 correspondence_csv_path <- "Your full path to correspondence.csv"
 fhier_compliance_csv_path_list <- 
@@ -142,40 +144,52 @@ fhier_compliance_csv_path_list <-
        "Your full path to fhier_compliance.csv year 2")
 
 #' Depending on a user name who runs the code, the file paths are constructed here.
+#' 
+#' Check if the username is not "anna.shipunova"
+#' 
 if (!auxfunctions::get_username() == "anna.shipunova") {
-  all_csv_full_paths_list <- c(correspondence_csv_path, fhier_compliance_csv_path_list)
+    # Combine correspondence CSV path and compliance CSV paths into one list
+  all_csv_full_paths_list <-
+    c(correspondence_csv_path, fhier_compliance_csv_path_list)
 } else {
-  #' For Anna Shipunova
-  #' Change file names to the last download
+  # For Anna Shipunova
+  # Manually: Change file names to the last download
   all_csv_names_list = c(
     "Correspondence_2024_06_17.csv",
     r"(2024_06_17\FHIER_Compliance_2023__06_17_2024.csv)",
     r"(2024_06_17\FHIER_Compliance_2024__06_17_2024.csv)"
   )
   
-  #' add a full path in front of each file name
+  # Add a full path in front of each file name for correspondence CSV
   corresp_full_path <-
     auxfunctions::prepare_csv_full_path(all_csv_names_list[[1]],
                           add_path = "from_Fhier/Correspondence",
                           input_dir_part = my_paths$inputs)
   
+  # Add a full path in front of each file name for compliance CSVs
   compliance_full_paths <-
     auxfunctions::prepare_csv_full_path(all_csv_names_list[2:3],
                                         add_path = "from_Fhier/FHIER Compliance",
                                         input_dir_part = my_paths$inputs)
   
+  # Combine correspondence full path and compliance full paths into one list
   all_csv_full_paths_list <-
     c(corresp_full_path,
       compliance_full_paths)
 
-  # check if files exist
+  # Check if files exist
   purrr::map(all_csv_full_paths_list, file.exists)
 }
 
 #### Processed Metric Tracking (permits from FHIER) ----
 #' 
-#' Add your full path to processed Metrics tracking for each year instead of "Your full path here"
+#' Manually: Add your full path to processed Metrics tracking for each year instead of "Your full path here"
 #' 
+#' Define paths for processed Metrics tracking CSVs
+#' 
+#' Depending on a user name who runs the code, the file paths are constructed here.
+#' 
+#' Check if the username is not "anna.shipunova"
 if (!auxfunctions::get_username() == "anna.shipunova") {
   processed_metrics_tracking_file_names <- 
     c("Your full path here/SEFHIER_permitted_vessels_nonSRHS_2022.rds",
@@ -185,18 +199,18 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
   processed_input_data_path <-
     file.path(my_paths$inputs, "processing_logbook_data", "Outputs")
 
-  #' check
+  # check
   dir.exists(processed_input_data_path)
-  #' if not TRUE: Check your provided path and/or create manually.
+  # if not TRUE: Check your provided path and/or create manually.
   
-  #' Get file names for all years
+  # Get file names for all years
   processed_metrics_tracking_file_names_all <-
   list.files(path = processed_input_data_path,
              pattern = "SEFHIER_permitted_vessels_nonSRHS_*",
              recursive = TRUE,
              full.names = TRUE)
 
-  #' Exclude links
+  # Exclude links
   processed_metrics_tracking_file_names <-
   grep(
     processed_metrics_tracking_file_names_all,
@@ -216,7 +230,7 @@ purrr::map(processed_metrics_tracking_file_names, file.exists)
 #### Physical Address List from FHIER ----
 #' Download first from REPORTS / For-hire Primary Physical Address List
 #' 
-#' Add your full path instead of "Your full path here"
+#' Manually: Add your full path instead of "Your full path here"
 #' 
 if (!auxfunctions::get_username() == "anna.shipunova") {
   fhier_addresses_path <- "Your full path here"
@@ -235,7 +249,7 @@ file.exists(fhier_addresses_path)
 #### home port processed city and state ----
 #' Download first from Google drive
 #' 
-#' Add your full path instead of "Your full path here"
+#' Manually: Add your full path instead of "Your full path here"
 #' 
 if (!auxfunctions::get_username() == "anna.shipunova") {
   processed_pims_home_ports_path <- "Your full path here"
@@ -252,7 +266,7 @@ file.exists(processed_pims_home_ports_path)
 
 #### Data from the previous results of "egregious violators for investigation" ----
 
-#' Add your full path instead of "Your full path here"
+#' Manually: Add your full path instead of "Your full path here"
 #' 
 if (!auxfunctions::get_username() == "anna.shipunova") {
   prev_result_path <- "Your full path here"
@@ -267,7 +281,7 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
 file.exists(prev_result_path)
 
 ### Set up Google Drive paths ----
-#' Hard coded Google drive folder names, change if changing in Google drive.
+#' Hard coded Google drive folder names, manually change here if changing in Google drive.
 egr_violators_googledrive_folder_name <- "Egregious violators"
 output_egr_violators_googledrive_folder_name <- "output"
 
@@ -297,7 +311,7 @@ output_egr_violators_googledrive_folder_path <-
 
 ## Define dates ----
 
-#' my_year1 and my_year2 values might be changed
+#' Manually: my_year1 and my_year2 values might be changed
 #' start year for the analysis
 my_year1 <- "2023"
 my_beginning1 <- stringr::str_glue("{my_year1}-01-01")
