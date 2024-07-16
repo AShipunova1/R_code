@@ -485,12 +485,19 @@ my_used_function_texts <-
 # View(my_used_function_texts)
 
 ## get all my used function helps ----
-my_used_function_helps <-
-  my_used_function_names |>
-  map(\(one_f_name) {
-    get_help_text(one_f_name)
-  }) |>
-  set_names(my_used_function_names)
+get_my_used_function_helps <-
+  function(my_used_function_names) {
+    my_used_function_helps <-
+      my_used_function_names |>
+      map(\(one_f_name) {
+        get_help_text(one_f_name)
+      }) |>
+      set_names(my_used_function_names)
+    return(my_used_function_helps)
+  }
+
+my_used_function_helps <- 
+  get_my_used_function_helps(my_used_function_names)
 
 # glimpse(my_used_function_helps)
 
