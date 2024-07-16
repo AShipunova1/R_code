@@ -268,9 +268,9 @@ permit_vessel_w_changed_owner <-
   auxfunctions::read_rds_or_run(
     permit_vessel_w_changed_owner_file_path,
     permit_vessel_w_changed_owner_query,
-    permit_vessel_w_changed_owner_fun
-    ,
-    force_from_db = "yes"
+    permit_vessel_w_changed_owner_fun,
+    #' If you want to update the existing file, change the NULL to "yes" 
+    force_from_db = NULL
   ) |>
   auxfunctions::remove_empty_cols() |>
   auxfunctions::clean_headers()
