@@ -1,4 +1,5 @@
 library(tidyverse)
+
 library(tools)
 
 # How to use the result qmd:
@@ -640,6 +641,7 @@ library(openxlsx)
 #     kable_styling('striped', full_width = FALSE)
 # }
 
+# Define a custom print function for data frames in knitr
 knit_print.data.frame = function(x, ...) {
   res = paste(c(
     '',
@@ -651,13 +653,16 @@ knit_print.data.frame = function(x, ...) {
   knitr::asis_output(res)
 }
 
+# Register the custom print function for data frames in the knitr namespace
 registerS3method(
   'knit_print', 'data.frame', knit_print.data.frame,
   envir = asNamespace('knitr')
 )
 
+# Set global chunk options in knitr if needed
 # knitr::opts_chunk$set(echo = TRUE)
 
+# Set the table format for knitr to HTML if needed
 # options(knitr.table.format = 'HTML')
 
 ```
