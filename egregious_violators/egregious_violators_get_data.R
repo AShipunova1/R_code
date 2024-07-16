@@ -65,6 +65,7 @@
 
 ## Compliance and Correspondence data ----
 #' This part reads Compliance and Correspondence CSV files, cleans them by trimming vessel IDs and cleaning column names, and processes correspondence data to add a column indicating if a contact was made. The file paths and the processing logic differ based on the username running the code.
+#' 
 
 #' Read correspondence and compliance csvs
 #' 
@@ -75,18 +76,24 @@ csv_contents <-
          col_types = readr::cols(.default = 'c'))
 
 #' Clean all CSVs: Trim vessel IDs and clean column names
+#' 
 #' Replace all non-alphanumeric characters with underscores ('_')
 csvs_clean1 <- 
   auxfunctions::clean_all_csvs(csv_contents)
 
 #' Every time processing for Compliance and Correspondence downloaded from FHIER
-
+#' 
 #' For correspondence:
+#'
 #' Extract the first element (correspondence data) from the cleaned CSV list.
+#'
 #' Add a new column named "was_contacted", which indicates whether a contact was made with each vessel based on the presence of a contact date. If the contact date is missing (`NA`), it assigns "no"; otherwise, it assigns "yes".
+#'
 #' - The `add_count` function is then used to count the number of contacts per vessel, distinguishing between vessels that were contacted and those that were not. The result is stored in a new column named "contact_freq".
+#'
 #' Change to date format `created_on` and `contact_date` fields
 
+#'
 #' Process and clean the correspondence data
 corresp_contact_cnts_clean0 <- 
   csvs_clean1[[1]] |> 
@@ -97,6 +104,7 @@ head(corresp_contact_cnts_clean0) |>
   glimpse()
 
 #' For compliance:
+#' 
 #' Clean compliance data
 compl_clean_list <-
   csvs_clean1[2:length(csvs_clean1)] |>
@@ -155,6 +163,7 @@ dim(processed_metrics_tracking_permits)
 #' Read all columns as characters
 #' 
 #' Use the same column names convention
+#' 
 
 fhier_addresses <-
   readr::read_csv(fhier_addresses_path,
@@ -189,6 +198,7 @@ db_participants_address_file_path <-
             "db_participants_address.rds")
  
 #' Try to connect to Oracle if it is not done already.
+#' 
 #' Print an error message if no connection, but keep running the code.
 if (!exists("con")) {
   try(con <- auxfunctions::connect_to_secpr())
@@ -203,9 +213,13 @@ db_participants_address_fun <-
   }
 
 #' Read the file with db_participants_address if exists, 
+#'
 #' load from the Oracle database if not,
+#'
 #' remove empty columns,
+#'
 #' change column names the same way as everything else.
+#' 
 db_participants_address <-
   auxfunctions::read_rds_or_run(
     db_participants_address_file_path,
@@ -219,12 +233,17 @@ db_participants_address <-
 
 ## Get vessels with changed owner ----
 #' The same as above with new parameters. 
+#' 
 #' Prepare the parameters.
 
 #' The SQL query.
+#'
 #' Select only vessels with SA permits,
+#'
 #' not expired by today,
+#'
 #' with different owners or 
+#'
 #' permit status indicating something other than usual
 #' 
 permit_vessel_w_changed_owner_query <- 
@@ -260,16 +279,21 @@ permit_vessel_w_changed_owner_fun <-
                       permit_vessel_w_changed_owner))
   }
 
+#'
 #' Read the file with db_participants_address if exists, 
+#'
 #' load from the Oracle database if not,
+#'
 #' remove empty columns,
+#'
 #' change column names the same way as everything else.
+#' 
 permit_vessel_w_changed_owner <-
   auxfunctions::read_rds_or_run(
     permit_vessel_w_changed_owner_file_path,
     permit_vessel_w_changed_owner_query,
     permit_vessel_w_changed_owner_fun,
-    #' If you want to update the existing file, change the NULL to "yes" 
+    # If you want to update the existing file, change the NULL to "yes" 
     force_from_db = NULL
   ) |>
   auxfunctions::remove_empty_cols() |>
@@ -292,15 +316,16 @@ permit_vessel_w_changed_owner |>
 #' get_previous_result_from_google_drive() gets data directly from Google drive
 #' 
 #' Run only one of them and save the dataframe in prev_result variable. 
+#' 
 
 #' From a local file
 get_previous_result_from_local_file <- function() {
   
-  #' Download first as .xlsx from Google drive
+  # Download first as .xlsx from Google drive
   
-  #' Read,
-  #' remove empty columns,
-  #' change column names the same way as everything else.
+  # Read,
+  # remove empty columns,
+  # change column names the same way as everything else.
   prev_result0 <-
     auxfunctions::my_read_xlsx(prev_result_path) |>
     auxfunctions::remove_empty_cols() |>
@@ -310,7 +335,7 @@ get_previous_result_from_local_file <- function() {
   dim(prev_result0)
   # [1] 151  42
   
-  #' clean excel number conversions, remove ".0" at the end
+  # clean excel number conversions, remove ".0" at the end
   prev_result <-
     prev_result0 |>
     dplyr::mutate(vessel_official_number =
@@ -343,6 +368,7 @@ get_previous_result_from_google_drive <- function() {
 }
 
 #' Un-comment and run one of the functions
+#' 
 # prev_result <- get_previous_result_from_local_file()
 # or
 prev_result <- get_previous_result_from_google_drive()
