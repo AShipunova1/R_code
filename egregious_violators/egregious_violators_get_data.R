@@ -197,7 +197,7 @@ if (!exists("con")) {
 #' The function parameter for read_rds_or_run
 db_participants_address_fun <-
   function(db_participants_address) {
-    # browser()
+    # browser() # Commented out browser function for debugging
     return(dbGetQuery(con,
                       db_participants_address))
   }
