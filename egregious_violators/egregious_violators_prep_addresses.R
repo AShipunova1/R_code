@@ -215,10 +215,10 @@ db_participants_address__needed_short <-
 
 #' check
 nrow(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
-#' 199
+# 199
 dplyr::n_distinct(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr$vessel_official_number)
-#' 199
-#' 
+# 199
+# 
 #' one vessel per row, OK
 #' 
 
