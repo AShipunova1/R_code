@@ -21,6 +21,7 @@
 
 ## new requirement 2023-08-09 ----
 #' It should be at least 2 contact "attempts". i.e., if they are ignoring our calls and emails then they cannot continue to go on in perpetuity without reporting and never be seen as egregious. So, at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough at this point and they need to be passed to OLE.
+#' 
 #' at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough
 #' 
 
@@ -34,13 +35,13 @@
 
 ## Set up packages and options ----
 
-#' Install if needed and load all the packages.
-#' 
-#' *NB*. It is better to install/load each package separately, if any one suggest updates it is safe to choose option 1 (update all).
-#' 
-#' Load the ROracle package for database interactions with Oracle databases
+# Install if needed and load all the packages.
+# 
+# *NB*. It is better to install/load each package separately, if any one suggest updates it is safe to choose option 1 (update all).
+# 
+# Load the ROracle package for database interactions with Oracle databases
 library(ROracle)
-#' Collection of package development tools.
+# Collection of package development tools.
 library(devtools)
 
 #' Explanations:
@@ -240,6 +241,7 @@ purrr::map(processed_metrics_tracking_file_names, file.exists)
 #' 
 #' Check if the username is not "anna.shipunova"
 #' Manually: Add your full path instead of "Your full path here"
+#' 
 if (!auxfunctions::get_username() == "anna.shipunova") {
   fhier_addresses_path <- "Your full path here"
 } else {
@@ -328,6 +330,7 @@ output_egr_violators_googledrive_folder_path <-
 ## Define dates ----
 
 #' Manually: my_year1 and my_year2 values might be changed
+#' 
 #' start year for the analysis
 my_year1 <- "2023"
 my_beginning1 <- stringr::str_glue("{my_year1}-01-01")
@@ -375,15 +378,23 @@ get_data_path <-
 source(get_data_path)
 
 #' Data are in:
+#' 
 #' compl_clean
+#' 
 #' corresp_contact_cnts_clean0
+#'
 #' processed_metrics_tracking_permits
+#'
 #' fhier_addresses
+#'
 #' processed_pims_home_ports
+#'
 #' db_participants_address
+#'
 #' permit_vessel_w_changed_owner
+#'
 #' prev_result
-# 
+#'
 
 # Preparing compliance info ----
 
@@ -609,6 +620,7 @@ compl_clean_w_permit_exp_last_half_year__sa |>
 #' 
 
 #' End of Compliance preparations 
+#' 
 #' Results: processed Compliance is in compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present
 #' 
 
@@ -633,6 +645,7 @@ corresp_contact_cnts_clean |>
 
 ## Correspondence Filters ----
 #' The functions below are creating filter conditions using quosures. Quosures are a part of tidy evaluation in R, allowing expressions to be captured without evaluation, which is useful for creating functions with flexible inputs.
+#' 
 
 #' Explanations:
 #' 
@@ -674,6 +687,7 @@ exclude_no_contact_made_filter <-
             ignore.case = TRUE))
 
 #' don't need a second contact
+#' 
 #' Explanations:
 #' 
 #' **Expression inside quo()**:
@@ -718,6 +732,7 @@ they_contacted_direct_filter <-
 #'   - `!!exclude_no_contact_made_filter` evaluates the `exclude_no_contact_made_filter` variable as a logical expression.
 #' 
 #' This code filters the `corresp_contact_cnts_clean` data frame to include rows where either the `calltype` is "incoming" or the `contact_freq` is greater than 1 and both `we_called_filter` and `we_emailed_once_filter` are true. Additionally, it filters rows based on the `exclude_no_contact_made_filter` condition.
+#' 
 
 corresp_contact_cnts_clean_direct_cnt_2atmps <-
   corresp_contact_cnts_clean |>
@@ -743,7 +758,7 @@ dplyr::n_distinct(corresp_contact_cnts_clean_direct_cnt_2atmps$vesselofficial_nu
 ## fix dates ----
 #' check how the dates look
 head(corresp_contact_cnts_clean_direct_cnt_2atmps$contact_date, 1) |> str()
- # chr "02/15/2024 03:15PM"
+# chr "02/15/2024 03:15PM"
 
 #'
 #' Explanations:
@@ -980,6 +995,7 @@ compl_corr_to_investigation__corr_date <-
   )))
   
 #' check, the last column should be like 
+#' 
 #' $ date__contacttypes     <chr> "03/13/2024 11:59AM, 09/21/2023 03:41PM, 08/18/2023 10:52AM,…
 compl_corr_to_investigation__corr_date |> 
   head() |> 
@@ -1017,7 +1033,9 @@ source(prep_addresses_path)
 
 ## 3. mark vessels already in the know list ----
 #' From the email:
+#' 
 #' The first column (report created) indicates the vessels that we have created a case for. My advice would be not to exclude those vessels. EOs may have provided compliance assistance and/or warnings already. If that is the case and they continue to be non-compliant after that, they will want to know and we may need to reopen those cases.
+#' 
 
 #' get vessel ids from the previous result 
 vessels_to_mark_ids <-
@@ -1208,6 +1226,7 @@ compl_corr_to_investigation_short_dup_marked__permit_region__add_columns <-
   )
 
 #' Don't remove the "year" column, in case there are 2 years in the current period.
+#' 
 
 #' Check what are the column names now
 auxfunctions::print_df_names(compl_corr_to_investigation_short_dup_marked__permit_region__add_columns)
