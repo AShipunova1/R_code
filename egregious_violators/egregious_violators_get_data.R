@@ -64,18 +64,18 @@
 #' 
 
 ## Compliance and Correspondence data ----
+#' This part reads Compliance and Correspondence CSV files, cleans them by trimming vessel IDs and cleaning column names, and processes correspondence data to add a column indicating if a contact was made. The file paths and the processing logic differ based on the username running the code.
 
 #' Read correspondence and compliance csvs
+#' 
+#' Read all columns as characters
 csv_contents <- 
   lapply(all_csv_full_paths_list, 
-         readr::read_csv, col_types = readr::cols(.default = 'c'))
+         readr::read_csv, 
+         col_types = readr::cols(.default = 'c'))
 
-  # csv_names_list <- prepare_csv_names(filenames)
-  # csv_contents <- load_csv_names(my_paths, csv_names_list)
-
-#' Trim all vessel ids.
-#' Clean column names:
-#' Replace all non-alphanumeric characters with underscores ('_').
+#' Clean all CSVs: Trim vessel IDs and clean column names
+#' Replace all non-alphanumeric characters with underscores ('_')
 csvs_clean1 <- 
   auxfunctions::clean_all_csvs(csv_contents)
 
@@ -87,78 +87,83 @@ csvs_clean1 <-
 #' - The `add_count` function is then used to count the number of contacts per vessel, distinguishing between vessels that were contacted and those that were not. The result is stored in a new column named "contact_freq".
 #' Change to date format `created_on` and `contact_date` fields
 
+#' Process and clean the correspondence data
 corresp_contact_cnts_clean0 <- 
   csvs_clean1[[1]] |> 
   auxfunctions::corresp_cleaning()
 
-glimpse(corresp_contact_cnts_clean0)
+# Display the structure of the cleaned correspondence data
+head(corresp_contact_cnts_clean0) |> 
+  glimpse()
 
 #' For compliance:
-#' clean
+#' Clean compliance data
 compl_clean_list <-
   csvs_clean1[2:length(csvs_clean1)] |>
   auxfunctions::compliance_cleaning()
 
-#' Use the analysis years as df names for compliance
+#' Use the analysis years as data frame names for compliance
 names(compl_clean_list) <- c(my_year1, my_year2)
 
-#' check
+#' Check dimensions of each cleaned compliance data frame
 purrr::map(compl_clean_list, dim)
 
-#' check result example
+#' Example result for dimensions check
 # $`2023`
 # [1] 149731     20
 # 
 # $`2024`
 # [1] 71350    20
 
-#' combine complaince years in one df
+#' Combine compliance data for all years into one data frame
 compl_clean <-
   rbind(compl_clean_list[[my_year1]], compl_clean_list[[my_year2]])
 
-# Results examples
+#' Check dimensions of the combined compliance data frame
 dim(compl_clean)
 # [1] 221081     20
 
+#' Check dimensions of the cleaned correspondence data frame
 dim(corresp_contact_cnts_clean0)
 # [1] 34549    22
 
 ## get Metric Tracking (permits from FHIER) ----
 
-#' read the processed_metrics files for all years
+#' Read the processed metrics tracking files for all years
 processed_metrics_tracking_permits <-
   purrr::map_df(processed_metrics_tracking_file_names,
          readr::read_rds)
 
-#' Lower column names case to be consistent with the rest
+#' Convert column names to lowercase for consistency
 names(processed_metrics_tracking_permits) <-
   names(processed_metrics_tracking_permits) |>
   tolower()
 
-#' Column names now are:
+#' Example of column names
 # [1] "vessel_official_number, vessel_name, effective_date, end_date, permits, sa_permits_, gom_permits_, permit_region, permit_sa_gom_dual"
 
-#' check
+#' Check dimensions of the processed metrics tracking data frame
 dim(processed_metrics_tracking_permits)
 #' An example 
 # [1] 9977    9
 
 ## Physical Address List from FHIER ----
-#' REPORTS / For-hire Primary Physical Address List
+#' Download first from REPORTS / For-hire Primary Physical Address List
 #' 
-#' Load FHIER addresses
+#' Load FHIER addresses from the provided path
 #' 
+#' Read all columns as characters
+#' 
+#' Use the same column names convention
+
 fhier_addresses <-
   readr::read_csv(fhier_addresses_path,
-           # read all as characters
            col_types = readr::cols(.default = 'c'),
-           # use the same col names convention
            name_repair = auxfunctions::fix_names)
 
-#' check
+#' Check dimensions of the loaded FHIER addresses data frame
 dim(fhier_addresses)
-#' Example
-# [1] 3386   16
+# Example result: [1] 3386    7
 
 # PIMS ----
 ## home port processed city and state ----
