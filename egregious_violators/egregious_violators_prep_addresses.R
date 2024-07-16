@@ -1,7 +1,7 @@
 #' Manually check missing addresses
 #' 
 
-# From FHIER ----
+# Addresses from FHIER ----
 
 ## fewer fields ----
 #' fhier_addresses are from get_data (For-hire Primary Physical Address List)
@@ -115,7 +115,7 @@ dplyr::n_distinct(no_addr_vsl_ids$vessel_official_number)
 # 109
 # 71
 
-# From Oracle db ----
+# Addresses from Oracle db ----
 
 #' Explanation:
 #' 
