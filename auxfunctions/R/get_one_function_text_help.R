@@ -20,7 +20,7 @@ get_one_function_text_help <-
     
     # Create a pattern to search for the function name in the text
     my_function_name_to_search <-
-      str_glue("(",
+      stringr::str_glue("(",
                my_split_newline_char,
                ".+{my_used_function_names[[idx]]})")
     
@@ -43,7 +43,7 @@ get_one_function_text_help <-
     # Change back to \s and \b in functions
     my_function_name_w_txt_split_rmd_text <-
       my_function_name_w_txt_split_rmd_text |>
-      str_replace_all(my_slash_replacement, "\\\\")
+      stringr::str_replace_all(my_slash_replacement, "\\\\")
     
     # Print the final R Markdown formatted text
     cat(my_function_name_w_txt_split_rmd_text, sep = "\n")
