@@ -227,7 +227,7 @@ purrr::map(processed_metrics_tracking_file_names, file.exists)
 #' if not TRUE: Check your provided path and/or create manually.
 #' 
 
-#### Physical Address List from FHIER ----
+#### Physical Address List from FHIER path ----
 #' Download first from REPORTS / For-hire Primary Physical Address List
 #' 
 #' Depending on a user name who runs the code, the file paths are constructed here.
@@ -248,7 +248,7 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
 #' Check, correct the path if it is doesn't exist
 file.exists(fhier_addresses_path)
 
-#### home port processed city and state ----
+#### home port processed city and state path ----
 #' Download first from Google drive
 #' 
 #' Depending on a user name who runs the code, the file paths are constructed here.
@@ -270,7 +270,7 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
 # Check, correct the path if it is doesn't exist
 file.exists(processed_pims_home_ports_path)
 
-#### Data from the previous results of "egregious violators for investigation" ----
+#### Data from the previous results of "egregious violators for investigation" path ----
 
 #' Depending on a user name who runs the code, the file paths are constructed here.
 #' 
@@ -1278,7 +1278,7 @@ write_res_to_google_sheets <-
     # Has been renamed:
     # • output/egregious_violators_to_investigate_2024-06-18
 
-    # Create a new empty spread sheet in the google drive output folder,
+      # Create a new empty spreadsheet in the Google Drive output folder
     # And save its properties into current_result_google_ss_name_info
     
     current_result_google_ss_name_info <- 
@@ -1289,21 +1289,21 @@ write_res_to_google_sheets <-
       overwrite = FALSE
     )
     
-    # Write our results into the newly created spreadsheet "Egregious Violators Current" into a sheet/tab with a name defined in out_file_basename (e.g. "egregious_violators_to_investigate_2024-07-15")
+  # Write our results into the newly created spreadsheet "Egregious Violators Current"
+  # into a sheet/tab with a name defined in out_file_basename
     googlesheets4::write_sheet(
       compl_corr_to_investigation_short_dup_marked__permit_region__add_columns,
       ss = current_result_google_ss_name_info,
       sheet = out_file_basename
     )
     
-    # see sheets/tabs to check
+    # See sheets/tabs to check
     googlesheets4::sheet_properties(ss = current_result_google_ss_name_info)
-    # There is an empty Sheet1 created automatically by googledrive::drive_create().
     
-    # Remove the empty Sheet1.
+      # Remove the empty Sheet1 created automatically by googledrive::drive_create()
     googlesheets4::sheet_delete(ss = current_result_google_ss_name_info, "Sheet1")
     
-    # Check the existing tabs again.
+    # Check the existing tabs again
     googlesheets4::sheet_properties(ss = current_result_google_ss_name_info)$name
     # Should be only one name now, like
     # [1] "egregious_violators_to_investigate_2024-07-15"
@@ -1316,6 +1316,7 @@ write_res_to_google_sheets <-
 
     print(current_output_file_link)
     
+    # The function returns the current output file link
     return(current_output_file_link)
     
   }
