@@ -1,10 +1,10 @@
 get_one_function_text_help <- 
-  function(fun_name,
+  function(function_name,
            my_split_newline_char = "@@@") {
     
     
-    my_used_function_names <- c(fun_name)
-    # my_used_function_names <- c("trim_all_vessel_ids_simple")
+    my_used_function_names <- c(function_name)
+    # E.g. my_used_function_names <- c("trim_all_vessel_ids_simple")
     
     # get all my_used_function_texts ----
     my_used_function_texts <-
