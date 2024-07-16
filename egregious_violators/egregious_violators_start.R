@@ -1,9 +1,10 @@
 #' title: Egregious Violators
 
+# Set Up ----
 #' %%%%% Set Up
 #' 
 
-# The "egregious violator" definition ----
+## The "egregious violator" definition ----
 #' 
 #' 1. NO reports for all 26 weeks back from week ago today;
 
@@ -31,11 +32,12 @@
 #' Exclude any correspondence (regardless of the type - email/call, voicemail or not) that includes "No contact made" in the text of the entry as a actual "direct" contact for any egregious vessel.
 #' 
 
-# set up ----
+## Set up packages and options ----
 
 #' Install if needed and load all the packages.
-#' NB. It is better to install/load each package separately, if any one suggest updates it is safe to choose option 1 (update all).
-
+#' 
+#' *NB*. It is better to install/load each package separately, if any one suggest updates it is safe to choose option 1 (update all).
+#' 
 #' Load the ROracle package for database interactions with Oracle databases
 library(ROracle)
 #' Collection of package development tools.
@@ -75,7 +77,9 @@ library(zoo)
 library(diffdf)
 
 #' Install and attach R packages for Google Sheets and Google Drive
+#' 
 #' Refer to this guide: https://felixanalytix.medium.com/how-to-read-write-append-google-sheet-data-using-r-programming-ecf278108691#:~:text=There%20are%203%20ways%20to%20read%20this%20Google%20sheet%20into%20R.&text=Just%20to%20take%20the%20URL,URL%20but%20just%20the%20ID).
+#' 
 library(googlesheets4) # Google Sheets via the Sheets API v4 
 library(googledrive) # Interact with Google Drive 
 
@@ -90,7 +94,7 @@ Sys.setenv(ORA_SDTZ = Sys.timezone())
 
 #' Manually: Change the following 2 lists (*my_paths* and *current_in_out_paths*) to your environment if needed. The variable _names_ are used throughout the code, so please change only the quoted _values_ inside the lists.
 
-# Check if the current username is not "anna.shipunova"
+#' Check if the current username is not "anna.shipunova"
 if (!auxfunctions::get_username() == "anna.shipunova") {
   auxfunctions::function_message_print(
     "Please CHANGE the following 2 lists values to your environment if needed. Use full path to your directories in quotes."
@@ -1039,7 +1043,6 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_m
       )
   )
 
-
 ### check ----
 #' Check that number of vessels didn't change.
 dplyr::n_distinct(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked$vessel_official_number) ==
@@ -1322,8 +1325,9 @@ write_res_to_google_sheets <-
   }
 
 #' Un-comment to write results directly to Google drive
-# current_output_file_link <- write_res_to_google_sheets()
+current_output_file_link <- write_res_to_google_sheets()
 
+#' Print result names to console 
 cat("Results:",
     "compl_corr_to_investigation_short_dup_marked__permit_region__add_columns",
     out_file_name,
