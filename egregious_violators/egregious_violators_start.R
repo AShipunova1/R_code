@@ -230,8 +230,10 @@ purrr::map(processed_metrics_tracking_file_names, file.exists)
 #### Physical Address List from FHIER ----
 #' Download first from REPORTS / For-hire Primary Physical Address List
 #' 
-#' Manually: Add your full path instead of "Your full path here"
+#' Depending on a user name who runs the code, the file paths are constructed here.
 #' 
+#' Check if the username is not "anna.shipunova"
+#' Manually: Add your full path instead of "Your full path here"
 if (!auxfunctions::get_username() == "anna.shipunova") {
   fhier_addresses_path <- "Your full path here"
 } else {
@@ -248,6 +250,10 @@ file.exists(fhier_addresses_path)
 
 #### home port processed city and state ----
 #' Download first from Google drive
+#' 
+#' Depending on a user name who runs the code, the file paths are constructed here.
+#' 
+#' Check if the username is not "anna.shipunova"
 #' 
 #' Manually: Add your full path instead of "Your full path here"
 #' 
@@ -266,6 +272,10 @@ file.exists(processed_pims_home_ports_path)
 
 #### Data from the previous results of "egregious violators for investigation" ----
 
+#' Depending on a user name who runs the code, the file paths are constructed here.
+#' 
+#' Check if the username is not "anna.shipunova"
+#' 
 #' Manually: Add your full path instead of "Your full path here"
 #' 
 if (!auxfunctions::get_username() == "anna.shipunova") {
