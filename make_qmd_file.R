@@ -482,7 +482,7 @@ get_my_used_function_texts <-
   }
 
 my_used_function_texts <-
-  my_used_function_texts(my_used_function_names)
+  get_my_used_function_texts(my_used_function_names)
 # View(my_used_function_texts)
 
 ## get all my used function helps ----
