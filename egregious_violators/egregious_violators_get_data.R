@@ -322,27 +322,27 @@ get_previous_result_from_local_file <- function() {
 #' To get previous data directly from Google drive
 get_previous_result_from_google_drive <- function() {
   
-previous_result_google_ss_name <- 
-  basename(prev_result_path) |> 
-  tools::file_path_sans_ext()
-
-#' When asked for the authentication the first time choose the appropriate option and follow the instructions. If you writing again in the same R session you can choose the option 2 and it will confirm your access automatically.
-#' Assuming that there is only one file with that name.
-
-my_previous_ss <- googlesheets4::gs4_find(previous_result_google_ss_name,
-                                          n_max = 1)
-
-#' load it to R
-#' And clean it as usual, changing headers to lower case with underscores and removing empty columns
-previous_result <-
-  googlesheets4::read_sheet(my_previous_ss) |>
-  auxfunctions::remove_empty_cols() |>
-  auxfunctions::clean_headers()
-
-return(previous_result)
+  
+  previous_result_google_ss_name <-
+    basename(prev_result_path) |>
+    tools::file_path_sans_ext()
+  
+  # When asked for the authentication the first time choose the appropriate option and follow the instructions. If you writing again in the same R session you can choose the option 2 and it will confirm your access automatically.
+  # Assuming that there is only one file with that name.
+  
+  my_previous_ss <- googlesheets4::gs4_find(previous_result_google_ss_name, n_max = 1)
+  
+  # load it to R
+  # And clean it as usual, changing headers to lower case with underscores and removing empty columns
+  previous_result <-
+    googlesheets4::read_sheet(my_previous_ss) |>
+    auxfunctions::remove_empty_cols() |>
+    auxfunctions::clean_headers()
+  
+  return(previous_result)
 }
 
-#' run one of the functions
+#' Un-comment and run one of the functions
 # prev_result <- get_previous_result_from_local_file()
 # or
 prev_result <- get_previous_result_from_google_drive()
