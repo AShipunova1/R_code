@@ -316,6 +316,7 @@ output_egr_violators_googledrive_folder_name <- "output"
 #' 
 #' If there is an option with your google email account (like your.name@noaa.gov) you can choose that option (usually #2) and it will confirm your access automatically.
 #'
+#' `n_max = 1` means we will use the first result, assuming we have only one folder with such name on Google dive.
 
 egr_violators_googledrive_folder_path <-
   googledrive::drive_find(pattern =
@@ -867,7 +868,7 @@ num_of_vsl_to_investigate <-
   dplyr::n_distinct(compl_corr_to_investigation$vesselofficial_number)
 #'
 #' Results: Compliance & Correspondence joined together are in
-#' compl_corr_to_investigation
+#' `compl_corr_to_investigation`
 #' 
 
 # Output needed investigation ----
@@ -879,10 +880,10 @@ num_of_vsl_to_investigate <-
 #' 
 #' 3. Mark vessels already in the know list (prev_result).
 #' 
-#' 4. duals vs. sa_only
+#' 4. Duals vs. sa_only
 #' 
 
-## 1. remove extra columns ----
+## 1. Remove extra columns ----
 
 unused_fields <- c(
   "vesselofficial_number",
@@ -940,10 +941,10 @@ compl_corr_to_investigation_short |>
 #' Check if number of vessels didn't change
 nrow(compl_corr_to_investigation_short) == num_of_vsl_to_investigate
 
-## 2. create additional columns ----
+## 2. Create additional columns ----
 ### Add list of contact dates and contact type in parentheses  ----
 #'
-#' put coumn names into variables (needed, bc spaces and underscores placements vary from source to source)
+#' put column names into variables (needed, bc spaces and underscores placements vary from source to source)
 contactdate_field_name <-
   auxfunctions::find_col_name(compl_corr_to_investigation_short, "contact", "date")[1]
 
@@ -1058,7 +1059,7 @@ source(prep_addresses_path)
 #' Results are in compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr
 #' 
 
-## 3. mark vessels already in the know list ----
+## 3. Mark vessels already in the know list ----
 #' From the email:
 #' 
 #' The first column (report created) indicates the vessels that we have created a case for. My advice would be not to exclude those vessels. EOs may have provided compliance assistance and/or warnings already. If that is the case and they continue to be non-compliant after that, they will want to know and we may need to reopen those cases.
@@ -1109,7 +1110,7 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_m
 # 1 duplicate               108
 # 2 new                      48
 
-## 4. how many are duals? ----
+## 4. How many are duals? ----
 #' Explanations:
 #' 
 #' Create a new dataframe 
