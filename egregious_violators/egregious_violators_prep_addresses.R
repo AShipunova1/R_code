@@ -154,7 +154,7 @@ dim(db_participants_address__needed)
 dplyr::n_distinct(db_participants_address__needed$official_number)
 # 71
 
-## Keep fewer columns ----
+## Keep fewer columns in db_participants_address__needed ----
 col_names_to_keep <-
   c(
     "official_number",
