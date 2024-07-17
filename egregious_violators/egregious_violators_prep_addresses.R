@@ -1,5 +1,24 @@
 #' Manually check missing addresses
-#' 
+#'
+#' This part of the code aims to gather and clean up address information for vessels from two main sources: FHIER and an Oracle database. It then combines this information to create a more complete set of address data for each vessel.
+#' The main output is a dataset called `compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr`, which combines vessel information with address data from both FHIER and the Oracle database.
+#' The code starts by cleaning and simplifying the FHIER address data, keeping only the most relevant information. It identifies vessels that are missing address information in the FHIER data, and then retrieves additional address information for these vessels from the Oracle database. The code cleans and processes this Oracle database information, combining multiple entries for the same vessel when necessary. Finally, it joins all this information together, creating a more complete dataset with address information from both sources.
+#' Manually check missing addresses
+#'
+#' This part aims to gather and clean up address information for vessels from two main sources: FHIER and an Oracle database. It then combines this information to create a more complete set of address data for each vessel.
+#' The main output is a dataset called `compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr`, which combines vessel information with address data from both FHIER and the Oracle database.
+#'
+#' The code starts by cleaning and simplifying the FHIER address data, keeping only the most relevant information.
+#'
+#' It identifies vessels that are missing address information in the FHIER data.
+#'
+#' It then retrieves additional address information for these vessels from the Oracle database.
+#'
+#' The code cleans and processes this Oracle database information, combining multiple entries for the same vessel when necessary.
+#'
+#' Finally, it joins all this information together, creating a more complete dataset with address information from both sources.
+#'
+
 
 # Addresses from FHIER ----
 
@@ -22,15 +41,15 @@ fhier_addr_short <-
 
 fhier_addr_short_clean <-
   fhier_addr_short |>
-  auxfunctions::clean_names_and_addresses() |> 
+  auxfunctions::clean_names_and_addresses() |>
   dplyr::distinct()
 
 # nrow(fhier_addr_short_clean)
 
 #' don't combine address
-# fhier_addr_short__comb_addr <- 
-#   fhier_addr_short |> 
-#   clean_names_and_addresses() |> 
+# fhier_addr_short__comb_addr <-
+#   fhier_addr_short |>
+#   clean_names_and_addresses() |>
 #   mutate(
 #     fhier_address =
 #       str_glue(
@@ -49,7 +68,7 @@ fhier_addr_short_clean <-
 #       physical_zip_code
 #     )
 #   ) |>
-#   clean_names_and_addresses() |> 
+#   clean_names_and_addresses() |>
 #   distinct()
 
 # dim(fhier_addr_short__comb_addr)
@@ -62,7 +81,7 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr <-
   left_join(compl_corr_to_investigation__corr_date__hailing_port,
             fhier_addr_short_clean)
 #' Joining with `by = join_by(vessel_official_number)`
-#' 
+#'
 
 # View(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
 
@@ -80,9 +99,9 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>
 # print_df_names(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
 
 #' Explanation:
-#' 
+#'
 #' This code snippet creates a dataframe `no_addr_vsl_ids` containing unique `vessel_official_number` values based on certain conditions.
-#' 
+#'
 #' 1. **Starting with the DataFrame:**
 #'
 #'    - `compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>`: Pipes the dataframe `compl_corr_to_investigation__corr_date__hailing_port__fhier_addr` into the next function.
@@ -100,15 +119,15 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>
 #' 4. **Removing Duplicate Rows:**
 #'
 #'    - `dplyr::distinct()`: Removes duplicate rows from the dataframe, ensuring that each `vessel_official_number` appears only once in the final result.
-#' 
+#'
 #' The resulting `no_addr_vsl_ids` dataframe contains unique `vessel_official_number` values where the corresponding `physical_address_1` column is empty in the `compl_corr_to_investigation__corr_date__hailing_port__fhier_addr` dataframe.
-#' 
+#'
 is_empty <- c(NA, "NA", "", "UN", "N/A")
 
-no_addr_vsl_ids <- 
-  compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |> 
-  dplyr::filter(physical_address_1 %in% is_empty) |> 
-  dplyr::select(vessel_official_number) |> 
+no_addr_vsl_ids <-
+  compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>
+  dplyr::filter(physical_address_1 %in% is_empty) |>
+  dplyr::select(vessel_official_number) |>
   dplyr::distinct()
 
 dplyr::n_distinct(no_addr_vsl_ids$vessel_official_number)
@@ -118,13 +137,13 @@ dplyr::n_distinct(no_addr_vsl_ids$vessel_official_number)
 # Addresses from Oracle db ----
 
 #' Explanation:
-#' 
+#'
 #' This code snippet processes the `db_participants_address` dataframe by filtering rows based on the `official_number` and ensuring distinct rows in the resulting dataframe.
-#' 
+#'
 #' 1. **Starting with the DataFrame:**
-#' 
+#'
 #'    - `db_participants_address |>`: Starts with the `db_participants_address` dataframe and pipes it into the next function.
-#' 
+#'
 #'
 #' 2. **Filtering Rows:**
 #'
@@ -139,9 +158,9 @@ dplyr::n_distinct(no_addr_vsl_ids$vessel_official_number)
 #' 3. **Removing Duplicate Rows:**
 #'
 #'    - `dplyr::distinct()`: The `distinct` function from the `dplyr` package removes duplicate rows from the filtered dataframe, ensuring each row is unique.
-#' 
+#'
 #' The result is a new dataframe `db_participants_address__needed` that contains only the rows from `db_participants_address` where the `official_number` is present in the `no_addr_vsl_ids$vessel_official_number` column, and all duplicate rows are removed.
-#' 
+#'
 
 db_participants_address__needed <-
   db_participants_address |>
@@ -200,12 +219,12 @@ col_names_to_keep <-
 #' 3. **Removing Duplicate Rows:**
 #'
 #'    - `dplyr::distinct()`: Removes duplicate rows from the selected columns.
-#' 
+#'
 #' The result is a new dataframe `db_participants_address__needed_short1` that contains only the columns matching the specified pattern, with duplicates removed.
-#' 
+#'
 
-my_cols_ends <- paste0(col_names_to_keep, 
-                  '$', 
+my_cols_ends <- paste0(col_names_to_keep,
+                  '$',
                   collapse = '|')
 
 db_participants_address__needed_short <-
@@ -218,9 +237,9 @@ nrow(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
 # 199
 dplyr::n_distinct(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr$vessel_official_number)
 # 199
-# 
+#
 #' one vessel per row, OK
-#' 
+#'
 
 #' have to combine rows
 dim(db_participants_address__needed_short)
@@ -231,13 +250,13 @@ dplyr::n_distinct(db_participants_address__needed_short$official_number)
 ## Combine area and phone numbers ----
 
 #' Explanation:
-#' 
+#'
 #' This code creates a new dataframe `db_participants_address__needed_short__phone0` by modifying the `db_participants_address__needed_short` dataframe. It adds two new columns (`erv_phone` and `erb_phone`) that concatenate existing columns.
-#' 
+#'
 #' 1. **Starting with the Original Dataframe:**
-#' 
+#'
 #'    - `db_participants_address__needed_short |>`: Begins with the `db_participants_address__needed_short` dataframe and pipes it into the next function.
-#' 
+#'
 #' 2. **Adding New Columns:**
 #'
 #'    - `dplyr::mutate(...)`: The `mutate` function from the `dplyr` package is used to add or modify columns in the dataframe.
@@ -245,12 +264,12 @@ dplyr::n_distinct(db_participants_address__needed_short$official_number)
 #'      - `erv_phone = paste0(erv_ph_area, erv_ph_number)`: Creates a new column `erv_phone` by concatenating the `erv_ph_area` and `erv_ph_number` columns using `paste0`, which combines strings without any separator.
 #'
 #'      - `erb_phone = paste0(erb_ph_area, erb_ph_number)`: Similarly, creates a new column `erb_phone` by concatenating the `erb_ph_area` and `erb_ph_number` columns.
-#' 
+#'
 #' The result is a new dataframe `db_participants_address__needed_short__phone0` that contains all the original columns from `db_participants_address__needed_short` plus two new columns (`erv_phone` and `erb_phone`) that contain concatenated phone numbers.
-#' 
+#'
 
-db_participants_address__needed_short__phone0 <- 
-  db_participants_address__needed_short |> 
+db_participants_address__needed_short__phone0 <-
+  db_participants_address__needed_short |>
   dplyr::mutate(erv_phone = paste0(erv_ph_area, erv_ph_number),
          erb_phone = paste0(erb_ph_area, erb_ph_number))
 
@@ -300,9 +319,9 @@ col_part_names <-
 #' 6. **Binding Columns Together:**
 #'
 #'    - `dplyr::bind_cols(db_participants_address__needed_short__phone0, .)`: Finally, it binds the original dataframe `db_participants_address__needed_short__phone0` with the transformed columns obtained from the mapping operation using `bind_cols` from dplyr.
-#' 
+#'
 #' This code dynamically generates new columns in the dataframe based on the provided column parts, applies a custom function to each set of corresponding columns, and then binds the resulting columns back to the original dataframe.
-#' 
+#'
 
 tictoc::tic("map all pairs")
 db_participants_address__needed_short__erv_erb_combined3 <-
@@ -310,16 +329,16 @@ db_participants_address__needed_short__erv_erb_combined3 <-
   purrr::map(\(curr_col_part)  {
     new_col_name <- stringr::str_glue("db_{curr_col_part}")
     # cat(new_col_name, sep = "\n")
-    
+
     db_participants_address__needed_short__phone0 |>
       dplyr::group_by(official_number) |>
-      dplyr::mutate(!!new_col_name := 
+      dplyr::mutate(!!new_col_name :=
                       purrr::pmap(dplyr::across(dplyr::ends_with(curr_col_part)),
                                     ~ auxfunctions::list_sort_uniq(.)),
              .keep = "none" ) |>
       dplyr::ungroup() |>
       dplyr::select(-official_number)
-    
+
   }) %>%
   dplyr::bind_cols(db_participants_address__needed_short__phone0, .)
 tictoc::toc()
@@ -328,28 +347,28 @@ tictoc::toc()
 ### Shorten db_participants_address__needed_short__erv_erb_combined3 ----
 
 #' Explanation:
-#' 
+#'
 #' This code processes the `db_participants_address__needed_short__erv_erb_combined3` dataframe to create a new dataframe named `db_participants_address__needed_short__erv_erb_combined_short` by selecting specific columns and ensuring the rows are distinct.
-#' 
+#'
 #' 1. **Dataframe Selection and Transformation:**
-#' 
+#'
 #'    - `db_participants_address__needed_short__erv_erb_combined3 |>`: Starts with the input dataframe `db_participants_address__needed_short__erv_erb_combined3` and pipes it into the subsequent functions.
-#' 
+#'
 #' 2. **Selecting Specific Columns:**
-#' 
+#'
 #'    - `dplyr::select(official_number, tidyselect::all_of(tidyselect::starts_with("db_")))`: Uses `dplyr::select` to retain only the `official_number` column and any columns whose names start with "db_".
-#'    
+#'
 #'      - `tidyselect::all_of(tidyselect::starts_with("db_"))`: Uses the `tidyselect` package to identify all column names that start with "db_". The `all_of` function ensures that the selected columns exist within the dataframe.
-#' 
+#'
 #' 3. **Ensuring Unique Rows:**
 #'    - `dplyr::distinct()`: Ensures that the resulting dataframe contains only unique rows, removing any duplicate rows based on the selected columns.
-#' 
+#'
 #' The result is a new dataframe `db_participants_address__needed_short__erv_erb_combined_short` that contains only the `official_number` column and columns starting with "db_", with all duplicate rows removed.
-#' 
+#'
 
 db_participants_address__needed_short__erv_erb_combined_short <-
   db_participants_address__needed_short__erv_erb_combined3 |>
-  dplyr::select(official_number, 
+  dplyr::select(official_number,
                 tidyselect::all_of(tidyselect::starts_with("db_"))) |>
   dplyr::distinct()
 
@@ -360,7 +379,7 @@ dplyr::n_distinct(db_participants_address__needed_short__erv_erb_combined_short$
 # 71
 
 #' check
-# db_participants_address__needed_short__erv_erb_combined_short |> 
+# db_participants_address__needed_short__erv_erb_combined_short |>
 #   dplyr::filter(official_number == "1235397") |>
 #   dplyr::glimpse()
 # $ db_physical_city     <list> ["SOUTH ISLANDIA"], ["ISLANDIA"]
@@ -368,37 +387,37 @@ dplyr::n_distinct(db_participants_address__needed_short__erv_erb_combined_short$
 ## Combine similar fields ----
 
 #' Explanations:
-#' 
+#'
 #' 1. Iterate over each participant column using 'col_part_names'.
-#' 
+#'
 #'    - 'map' applies the provided function to each element of the list.
-#'    
+#'
 #' 2. Define the old and new column names based on the current participant column.
-#' 
+#'
 #'    - 'str_glue' is used for string interpolation to create column names.
-#'    
+#'
 #' 3. Group the DataFrame by 'official_number' using 'group_by'.
-#' 
+#'
 #' 4. For each group, create a new column with unique sorted values for the current participant.
-#' 
+#'
 #'    - 'list_sort_uniq' ensures unique values and sorts them.
-#'    
+#'
 #' 5. Ungroup the DataFrame and remove the 'official_number' column.
-#' 
+#'
 #'    - 'ungroup' removes grouping structure.
-#'    
+#'
 #'    - 'select' is used to exclude the 'official_number' column and keep only the new column.
-#'    
+#'
 #' 6. Bind the resulting columns to 'db_participants_address__needed_short__erv_erb_combined_short'.
-#' 
+#'
 #'    - 'bind_cols' combines columns horizontally.
-#'    
+#'
 #' 7. Select only the 'official_number' and columns ending with '_u'.
-#' 
+#'
 #' 8. Keep only distinct rows in the final DataFrame using 'distinct'.
-#' 
+#'
 #' 9. The resulting DataFrame is stored in 'db_participants_address__needed_short__erv_erb_combined_short__u'.
-#' 
+#'
 
 db_participants_address__needed_short__erv_erb_combined_short__u_temp <-
   col_part_names |>
@@ -408,7 +427,7 @@ db_participants_address__needed_short__erv_erb_combined_short__u_temp <-
     old_col_name <- stringr::str_glue("db_{curr_col_part}")
     new_col_name <- stringr::str_glue("db_{curr_col_part}_u")
     cat(new_col_name, sep = "\n")
-    
+
     db_participants_address__needed_short__erv_erb_combined_short |>
       dplyr::group_by(official_number) |>
       dplyr::mutate(!!new_col_name := list(paste(sort(unique(stringr::str_trim(purrr::list_flatten(!!sym(old_col_name))))))),
@@ -420,30 +439,30 @@ db_participants_address__needed_short__erv_erb_combined_short__u_temp <-
 # glimpse(db_participants_address__needed_short__erv_erb_combined_short)
 
 #' Explanation:
-#' 
-#' This code creates a new dataframe by combining columns with suffix "_u" from two existing dataframes (`db_participants_address__needed_short__erv_erb_combined_short` and `db_participants_address__needed_short__erv_erb_combined_short__u_temp`). 
-#' 
+#'
+#' This code creates a new dataframe by combining columns with suffix "_u" from two existing dataframes (`db_participants_address__needed_short__erv_erb_combined_short` and `db_participants_address__needed_short__erv_erb_combined_short__u_temp`).
+#'
 #' 1. **Binding Columns Together:**
-#' 
+#'
 #'    - `dplyr::bind_cols(...)`: It binds columns from two dataframes together. The columns from `db_participants_address__needed_short__erv_erb_combined_short` and `db_participants_address__needed_short__erv_erb_combined_short__u_temp` are combined horizontally.
-#' 
+#'
 #' 2. **Selecting Columns:**
-#' 
-#'    - `dplyr::select(official_number, dplyr::all_of(dplyr::ends_with("_u")))`: After binding columns, it selects the `official_number` column along with all columns that end with "_u" using `select` from dplyr. 
-#'    
+#'
+#'    - `dplyr::select(official_number, dplyr::all_of(dplyr::ends_with("_u")))`: After binding columns, it selects the `official_number` column along with all columns that end with "_u" using `select` from dplyr.
+#'
 #' 3. **Removing Duplicate Rows:**
-#' 
+#'
 #'    - `dplyr::distinct()`: It removes duplicate rows from the dataframe to ensure each row is unique.
-#' 
+#'
 #' This code essentially creates a new dataframe containing selected columns from two existing dataframes and ensures that there are no duplicate rows in the resulting dataframe.
-#' 
+#'
 
 db_participants_address__needed_short__erv_erb_combined_short__u <-
   dplyr::bind_cols(
     db_participants_address__needed_short__erv_erb_combined_short,
     db_participants_address__needed_short__erv_erb_combined_short__u_temp
   ) |>
-  dplyr::select(official_number, dplyr::all_of(dplyr::ends_with("_u"))) |> 
+  dplyr::select(official_number, dplyr::all_of(dplyr::ends_with("_u"))) |>
   dplyr::distinct()
 
 #' check
@@ -453,16 +472,16 @@ db_participants_address__needed_short__erv_erb_combined_short__u <-
 
 ### Convert to characters ----
 #' Explanation:
-#' 
+#'
 #' This code modifies the dataframe `db_participants_address__needed_short__erv_erb_combined_short__u` by concatenating the elements of list-type columns into a single string separated by semicolons. Here's a detailed explanation:
-#' 
+#'
 #' 1. **Row-wise Operation:**
-#' 
+#'
 #'    - `dplyr::rowwise()`: It sets the dataframe to be processed row-wise, meaning each operation will be applied independently to each row.
-#' 
+#'
 #' 2. **Mutating List-type Columns:**
 #'
-#'    - `dplyr::mutate_if(is.list, ~ paste(unlist(.), collapse = '; '))`: This line applies a mutation to each column of the dataframe that is of list type. 
+#'    - `dplyr::mutate_if(is.list, ~ paste(unlist(.), collapse = '; '))`: This line applies a mutation to each column of the dataframe that is of list type.
 #'
 #'      - `is.list`: Checks if a column is of list type.
 #'
@@ -471,9 +490,9 @@ db_participants_address__needed_short__erv_erb_combined_short__u <-
 #' 3. **Ungrouping:**
 #'
 #'    - `dplyr::ungroup()`: It removes the grouping previously applied to the dataframe, returning it to its original state.
-#' 
+#'
 #' This code effectively transforms list-type columns in the dataframe into character vectors, concatenating their elements into a single string with semicolons as separators.
-#' 
+#'
 
 db_participants_address__needed_short__erv_erb_combined_short__u_no_c <-
   db_participants_address__needed_short__erv_erb_combined_short__u |>
@@ -491,9 +510,9 @@ db_participants_address__needed_short__erv_erb_combined_short__u_no_c <-
 ## Rename fields ----
 
 #' Explanation:
-#' 
+#'
 #' This code renames the columns in the dataframe `db_participants_address__needed_short__erv_erb_combined_short__u_no_c` by removing the suffix "_u" from their names.
-#' 
+#'
 #' 1. **Renaming Columns:**
 #'
 #'    - `dplyr::rename_with( ~ stringr::str_replace(.x, pattern = "_u$", replacement = ""))`: It renames the columns of the dataframe using a function provided by `rename_with`.
@@ -501,13 +520,13 @@ db_participants_address__needed_short__erv_erb_combined_short__u_no_c <-
 #'      - `~`: It indicates the start of an anonymous function.
 #'
 #'      - `stringr::str_replace(.x, pattern = "_u$", replacement = "")`: For each column name (`x`), it applies the `str_replace` function from the `stringr` package to replace the pattern "_u" at the end of the column name with an empty string, effectively removing it.
-#' 
+#'
 #' This code removes the "_u" suffix from the column names in the dataframe.
-#' 
+#'
 
 db_participants_address__needed_short__erv_erb_combined_short__u_ok <-
   db_participants_address__needed_short__erv_erb_combined_short__u_no_c |>
-  dplyr::rename_with(~ stringr::str_replace(.x, pattern = "_u$", 
+  dplyr::rename_with(~ stringr::str_replace(.x, pattern = "_u$",
                                             replacement = ""))
 
 # Join FHIER and Oracle db addresses ----
