@@ -71,20 +71,20 @@ have_sa_permits_new__int$EFFECTIVE_DATE |>
     as.numeric() |> 
     cumsum()
 
-aa <- 
-have_sa_permits_new__int$first_end |> 
-    sort() |> 
-    unique() |> 
-    head() |> 
-    as.numeric() |> 
-    cummax() 
-
-    glimpse()
-
-        cummax(
-            as.numeric(first_end)
-        ))[-n()])) %>%
-
+# aa <- 
+# have_sa_permits_new__int$first_end |> 
+#     sort() |> 
+#     unique() |> 
+#     head() |> 
+#     as.numeric() |> 
+#     cummax() 
+# 
+#     glimpse()
+# 
+#         cummax(
+#             as.numeric(first_end)
+#         ))[-n()])) %>%
+# 
 
 have_sa_permits_new__int %>%
     group_by(VESSEL_ID) %>% 
