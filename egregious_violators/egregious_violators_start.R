@@ -1162,55 +1162,6 @@ dplyr::n_distinct(compl_corr_to_investigation_short_dup_marked__permit_region$ve
 
 region_counts$n[[1]] / (region_counts$n[[2]] + region_counts$n[[1]]) * 100
 
-## 5. Changed owner ----
-res_join_permit <-
-  dplyr::left_join(
-    compl_corr_to_investigation_short_dup_marked__permit_region,
-    permit_vessel_w_changed_owner,
-    dplyr::join_by(vessel_official_number == vessel_id)
-  )
-
-dim(permit_vessel_w_changed_owner)
-
-dim(res_join_permit)
-
-### Keep only permit_status from permits ----
-res_join_permit_short <-
-  res_join_permit |>
-  dplyr::select(tidyselect::all_of(
-    names(
-      compl_corr_to_investigation_short_dup_marked__permit_region
-    )
-  ), permit_status) |>
-  dplyr::distinct()
-
-dim(res_join_permit_short)
-# 138
-
-n_distinct(res_join_permit_short$vessel_official_number)
-# 137
-#'
-#' combine all permit_status
-compl_corr_to_investigation_short_dup_marked__permit_region__status <-
-  res_join_permit_short |>   
-  dplyr::group_by(vessel_official_number) |>
-  dplyr::mutate(permit_status_all =
-                     paste(permit_status, 
-                           collapse = ", "),
-                  .keep = c("unused")) |>
-  dplyr::ungroup() |> 
-  distinct()
-
-dim(compl_corr_to_investigation_short_dup_marked__permit_region__status)
-# 137 41
-#'
-#' check
-compl_corr_to_investigation_short_dup_marked__permit_region__status |>
-  dplyr::filter(!is.na(permit_status_all) &
-           !permit_status_all == "NA") |>
-  dplyr::glimpse()
-
-
 # Print out results ----
 ## Add additional columns in front ----
 #'
