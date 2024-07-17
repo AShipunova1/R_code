@@ -49,7 +49,7 @@ get_one_function_text_help(function_name,
 
   - `str_replace_all(my_slash_replacement, "\\\\")` replaces all occurrences of `my_slash_replacement` with backslashes.
 
-- `cat(my_fun_name_w_txt_split_rmd_text, sep = "\n")` prints the final R Markdown formatted text.
+- `cat(my_fun_name_w_txt_split_rmd_text, sep = "\\n")` prints the final R Markdown formatted text.
 
 - `return(my_fun_name_w_txt_split_rmd_text)` returns the final R Markdown formatted text.
 
