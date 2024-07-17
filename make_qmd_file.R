@@ -539,9 +539,9 @@ replace_function_with_def <-
     to_replace_with <-
       paste(
         "\n# <<<<",
-        my_used_function_texts[[idx]],
+        my_used_function_texts_all[[idx]],
         "\n# Explanations:",
-        my_used_function_helps[[idx]],
+        my_used_function_helps_all[[idx]],
         "# >>>>",
         "\\1", #to keep in place what's found
         sep = "\n"
@@ -574,7 +574,7 @@ length(text_replaced)
 # grep(my_used_function_names[[1]],
 #      text_replaced, value = T)
 
-# grep("\\\\s", str_escape(my_used_function_texts), value = T)
+# grep("\\\\s", str_escape(my_used_function_texts_all), value = T)
 # clean_names_and_addresses 
 
 # grep("\\\\s", text_replaced, value = T)
