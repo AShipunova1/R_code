@@ -513,6 +513,15 @@ length(my_used_function_helps_all) ==
   length(my_used_function_helps_from_nested) +
   length(my_used_function_helps)
 
+## Combine all function texts in one list ----
+
+my_used_function_texts_all <- 
+  c(my_used_function_texts_from_nested, my_used_function_texts)
+
+length(my_used_function_texts_all) ==
+  length(my_used_function_texts_from_nested) +
+  length(my_used_function_texts)
+
 ## Paste function code and description before it is used ----
 
 # check
