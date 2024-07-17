@@ -111,7 +111,7 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
     "Please CHANGE the following 2 lists values to your environment if needed. Use full path to your directories in quotes."
   )
   
-  # 1) General directories (to look up additional files, e.g. processed data). It can be left as is if you don't have it.
+  # 1) General directories (to look up additional files, e.g. processed data). It can be left as is if you don't have it. You can provide path to individual files later.
   my_paths <- list(inputs  = "~/my_inputs",
                    outputs = "~/my_outputs",
                    git_r   = "~/R_code")
@@ -197,9 +197,9 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
 
 #### Processed Metric Tracking (permits from FHIER) ----
 #' 
-#' Manually: Add your full path to processed Metrics tracking for each year instead of "Your full path here"
+#' Manually: Add your full path to processed Metrics tracking for each year instead of "Your full path here".
 #' 
-#' Define paths for processed Metrics tracking CSVs
+#' Define paths for processed Metrics tracking CSVs.
 #' 
 #' Depending on a user name who runs the code, the file paths are constructed here.
 #' 
@@ -324,6 +324,24 @@ egr_violators_googledrive_folder_path <-
                           n_max = 1)
 #'
 #' Get the output path
+#'
+#' Explanations:
+#'
+#' - `output_egr_violators_googledrive_folder_path <- ...` assigns the result of the `googledrive::drive_ls` function call to the variable `output_egr_violators_googledrive_folder_path`.
+#'
+#' - `googledrive::drive_ls(...)` lists the contents of a Google Drive folder based on the specified parameters:
+#'
+#'   - `path = googledrive::as_id(egr_violators_googledrive_folder_path)` specifies the path to the folder using its ID:
+#'
+#'     - `googledrive::as_id(egr_violators_googledrive_folder_path)` converts `egr_violators_googledrive_folder_path` into a format recognized as an ID by the `googledrive` package.
+#'
+#'   - `pattern = output_egr_violators_googledrive_folder_name` specifies a pattern to match folder names against, using `output_egr_violators_googledrive_folder_name`.
+#'
+#'   - `type = "folder"` specifies that only folders should be listed.
+#'
+#'   - `n_max = 1` specifies that only the first matching folder should be returned.
+#'   
+
 output_egr_violators_googledrive_folder_path <-
   googledrive::drive_ls(
     path = googledrive::as_id(egr_violators_googledrive_folder_path),
@@ -630,7 +648,7 @@ compl_clean_w_permit_exp_last_half_year__sa |>
 #'
 #' End of Compliance preparations 
 #' 
-#' Results: processed Compliance is in compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present
+#' Results: processed Compliance is in `compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present`
 #' 
 
 # Preparing Correspondence ----
@@ -803,8 +821,7 @@ head(corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates$contact_date_dttm,
 #' End of Correspondence preparations 
 #' 
 #' Processed Correspondence is in 
-#' 
-#' corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates
+#' `corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates`
 #' 
 
 # Join correspondence with compliance ----
@@ -1061,7 +1078,7 @@ dim(vessels_to_mark_ids)
 #'
 #' Create a new column 'duplicate_w_last_time' in the dataframe 'compl_corr_to_investigation_short'.
 #'
-#' This column is marked with "duplicate" for rows where 'vessel_official_number' is present in the list of vessel IDs to mark as duplicates ('vessels_to_mark_ids').
+#' This column is marked with "duplicate" for rows where 'vessel_official_number' is present in the list of vessel IDs ('vessels_to_mark_ids').
 #'
 #' For all other rows, it is marked as "new".
 #' 
