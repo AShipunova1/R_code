@@ -505,6 +505,12 @@ nested_functions_last_check <-
   my_used_function_texts_from_nested |>
   get_my_func_names_wo_prefix()
 
+str(my_used_function_helps_from_nested)
+str(my_used_function_helps)
+save1 <- my_used_function_helps
+my_used_function_helps <- c(my_used_function_helps_from_nested, my_used_function_helps)
+
+str(my_used_function_helps)
 ## Paste function code and description before it is used ----
 
 # check
