@@ -19,17 +19,17 @@
 #' NB. Update (download) all input files every time before run.
 #' 
 
-## new requirement 2023-08-09 ----
+## New requirement 2023-08-09 ----
 #' It should be at least 2 contact "attempts". i.e., if they are ignoring our calls and emails then they cannot continue to go on in perpetuity without reporting and never be seen as egregious. So, at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough at this point and they need to be passed to OLE.
 #' 
 #' at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough
 #' 
 
-## new requirement 2024-02-26 ----
+## New requirement 2024-02-26 ----
 #' It needs to be that we called at least 1 time and emailed at least 1 time. Or they contacted us at least once.
 #' 
 
-## new requirement 2024-05-06 ----
+## New requirement 2024-05-06 ----
 #' Exclude any correspondence (regardless of the type - email/call, voicemail or not) that includes "No contact made" in the text of the entry as a actual "direct" contact for any egregious vessel.
 #' 
 
@@ -57,7 +57,7 @@ library(devtools)
 #' 
 #' The installation details depend on the username.
 #' 
-#' Check if the username is not "anna.shipunova"
+# Check if the username is not "anna.shipunova"
 if (!auxfunctions::get_username() == "anna.shipunova") {
     # If the auxfunctions package is not installed, install it from GitHub
   if (!require('auxfunctions')) {
@@ -93,10 +93,12 @@ Sys.setenv(ORA_SDTZ = Sys.timezone())
 
 ## Set up paths ----
 
+#' In the code in this section all user provided values have the word "manually" in the description. Everything else is created automatically.
+
 #' Manually: Change the following 2 lists (*my_paths* and *current_in_out_paths*) to your environment if needed. The variable _names_ are used throughout the code, so please change only the quoted _values_ inside the lists.
 #' 
 
-#' Check if the current username is not "anna.shipunova"
+# Check if the current username is not "anna.shipunova"
 if (!auxfunctions::get_username() == "anna.shipunova") {
   auxfunctions::function_message_print(
     "Please CHANGE the following 2 lists values to your environment if needed. Use full path to your directories in quotes."
@@ -124,7 +126,7 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
 
 #' The following section uses provided directory names lists to automatically create separate variables for future use and create current input/output directories if they do not exists.
 
-#' This is usually the current directory name.
+# This is usually the current directory name.
 current_project_name <- current_in_out_paths$project_name
 
 current_project_path <- current_in_out_paths$code
@@ -149,11 +151,9 @@ fhier_compliance_csv_path_list <-
   list("Your full path to fhier_compliance.csv year 1",
        "Your full path to fhier_compliance.csv year 2")
 
-
 #' Depending on a user name who runs the code, the file paths are constructed here.
 #' 
-#' Check if the username is not "anna.shipunova"
-#' 
+# Check if the username is not "anna.shipunova"
 if (!auxfunctions::get_username() == "anna.shipunova") {
     # Combine correspondence CSV path and compliance CSV paths into one list
   all_csv_full_paths_list <-
@@ -196,7 +196,7 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
 #' 
 #' Depending on a user name who runs the code, the file paths are constructed here.
 #' 
-#' Check if the username is not "anna.shipunova"
+# Check if the username is not "anna.shipunova"
 if (!auxfunctions::get_username() == "anna.shipunova") {
   processed_metrics_tracking_file_names <- 
     c("Your full path here/SEFHIER_permitted_vessels_nonSRHS_2022.rds",
@@ -239,9 +239,9 @@ purrr::map(processed_metrics_tracking_file_names, file.exists)
 #' 
 #' Depending on a user name who runs the code, the file paths are constructed here.
 #' 
-#' Check if the username is not "anna.shipunova"
 #' Manually: Add your full path instead of "Your full path here"
 #' 
+# Check if the username is not "anna.shipunova"
 if (!auxfunctions::get_username() == "anna.shipunova") {
   fhier_addresses_path <- "Your full path here"
 } else {
@@ -256,15 +256,14 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
 #' Check, correct the path if it is doesn't exist
 file.exists(fhier_addresses_path)
 
-#### home port processed city and state path ----
+#### Home port processed city and state path ----
 #' Download first from Google drive
 #' 
 #' Depending on a user name who runs the code, the file paths are constructed here.
 #' 
-#' Check if the username is not "anna.shipunova"
-#' 
 #' Manually: Add your full path instead of "Your full path here"
 #' 
+# Check if the username is not "anna.shipunova"
 if (!auxfunctions::get_username() == "anna.shipunova") {
   processed_pims_home_ports_path <- "Your full path here"
 } else {
@@ -282,10 +281,9 @@ file.exists(processed_pims_home_ports_path)
 
 #' Depending on a user name who runs the code, the file paths are constructed here.
 #' 
-#' Check if the username is not "anna.shipunova"
-#' 
 #' Manually: Add your full path instead of "Your full path here"
 #' 
+# Check if the username is not "anna.shipunova"
 if (!auxfunctions::get_username() == "anna.shipunova") {
   prev_result_path <- "Your full path here"
 } else {
@@ -329,14 +327,14 @@ output_egr_violators_googledrive_folder_path <-
 
 ## Define dates ----
 
-#' Manually: my_year1 and my_year2 values might be changed
+#' Manually: my_year1 and my_year2 values might be changed.
 #' 
-#' start year for the analysis
+# start year for the analysis
 my_year1 <- "2023"
 my_beginning1 <- stringr::str_glue("{my_year1}-01-01")
 my_end1 <- stringr::str_glue("{my_year1}-12-31")
 
-#' last year for the analysis
+# last year for the analysis
 my_year2 <- "2024"
 my_beginning2 <- stringr::str_glue("{my_year2}-01-01")
 my_end2 <- stringr::str_glue("{my_year2}-12-31")
@@ -347,12 +345,14 @@ data_file_date <-
   
 #' How many weeks and days to take in to the account?
 number_of_weeks_for_non_compliancy = 26
+
 days_in_non_compl_weeks <- 
   number_of_weeks_for_non_compliancy * 7
 
-#' test
+# test, should be TRUE
 days_in_non_compl_weeks == 182
 
+#' Other useful dates
 grace_period = 7 # days
 
 half_year_ago <-
@@ -369,10 +369,11 @@ permit_expired_check_date <- data_file_date + 30
 #' We will not use the last week data
 last_week_start <- data_file_date - grace_period
 
-# get_data ----
+# Get data ----
 #' %%%%% Prepare data
 #' 
 
+# This is used only with source()
 get_data_path <- 
   file.path(current_project_path, "egregious_violators_get_data.R")
 source(get_data_path)
@@ -399,7 +400,7 @@ source(get_data_path)
 # Preparing compliance info ----
 
 ## Permit Expiration ----
-### add permit_expired column ----
+### Add permit_expired column ----
 #' Explanations:
 #' 
 #' 1. Add a new column 'permit_expired' using 'mutate'.
@@ -421,7 +422,7 @@ compl_clean_w_permit_exp <-
 # check
 # glimpse(compl_clean_w_permit_exp)
 
-### get only not expired last 27 weeks of data minus grace period (total 26 weeks) ----
+### Get only not expired last 27 weeks of data minus grace period (total 26 weeks) ----
 compl_clean_w_permit_exp__not_exp <-
   compl_clean_w_permit_exp |>
   # the last 27 week
@@ -446,7 +447,7 @@ max(compl_clean_w_permit_exp__not_exp$week_start)
 max(compl_clean_w_permit_exp__not_exp$week_end)
 # [1] "2024-06-23"
 
-### add year_month column from week_start ----
+### Add year_month column from week_start ----
 
 compl_clean_w_permit_exp_last_half_year <-
   compl_clean_w_permit_exp__not_exp |>
@@ -504,7 +505,7 @@ dim(compl_clean_w_permit_exp_last_half_year__sa__short)
 #' Work with the whole period
 #' 
 
-### add compliant_after_overr ----
+### Add compliant_after_overr ----
 #' use tictoc package for benchmarking 
 
 tictoc::tic("compl_overr")
@@ -541,7 +542,7 @@ dplyr::n_distinct(compl_clean_w_permit_exp_last_half_year__sa$vessel_official_nu
   )
 # T
 
-### get only non-compliant entries for the past half year ----
+### Get only non-compliant entries for the past half year ----
 compl_clean_w_permit_exp_last_half_year__sa_non_c <-
   compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr |>
   # not compliant
@@ -552,7 +553,7 @@ dim(compl_clean_w_permit_exp_last_half_year__sa_non_c)
 # E.g.
 # [1] 10768    12
 
-### keep only vessels with info for all weeks in the period ----
+### Keep only vessels with info for all weeks in the period ----
 
 #' That should eliminate entries for vessels having permits only a part of the period
  
@@ -590,8 +591,8 @@ dim(compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present)
 # E.g.
 # [1] 3278   11
 
-### check the last report date ----
-#### get ids only ----
+### Check the last report date ----
+#### Get ids only ----
 compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present__vesl_ids <-
   compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present |>
   dplyr::select(vessel_official_number) |>
@@ -602,7 +603,7 @@ dim(compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present__vesl_i
 # E.g.
 # 149 
 
-#### check these ids in the full compliance information ----
+#### Check these ids in the full compliance information ----
 #' Is there a new submitted report?
 compl_clean_w_permit_exp_last_half_year__sa |>
   dplyr::filter(
@@ -626,7 +627,7 @@ compl_clean_w_permit_exp_last_half_year__sa |>
 
 # Preparing Correspondence ----
 
-## remove 999999 ----
+## Remove 999999 ----
 #' Use 'filter' to select rows where 'vessel_official_number' does not start with "99999".
 #' 
 corresp_contact_cnts_clean <-
@@ -701,7 +702,7 @@ they_contacted_direct_filter <-
       )
   )
 
-### use the filters ----
+### Use the filters ----
 
 #' Explanations:
 #'
@@ -755,7 +756,7 @@ dplyr::n_distinct(corresp_contact_cnts_clean_direct_cnt_2atmps$vesselofficial_nu
 # E.g.
 # [1] 3865
 
-## fix dates ----
+## Fix dates ----
 #' check how the dates look
 head(corresp_contact_cnts_clean_direct_cnt_2atmps$contact_date, 1) |> str()
 # chr "02/15/2024 03:15PM"
@@ -836,7 +837,7 @@ dplyr::n_distinct(compl_corr_to_investigation$vesselofficial_number)
 head(compl_corr_to_investigation) |> 
   glimpse()
 
-## save number of vessels to investigate for further checks ----
+## Save number of vessels to investigate for further checks ----
 num_of_vsl_to_investigate <- 
   dplyr::n_distinct(compl_corr_to_investigation$vesselofficial_number)
 
@@ -915,7 +916,7 @@ compl_corr_to_investigation_short |>
 nrow(compl_corr_to_investigation_short) == num_of_vsl_to_investigate
 
 ## 2. create additional columns ----
-### add list of contact dates and contact type in parentheses  ----
+### Add list of contact dates and contact type in parentheses  ----
 
 #' put coumn names into variables (needed, bc spaces and underscores placements vary from source to source)
 contactdate_field_name <-
@@ -983,7 +984,7 @@ date__contacttype_per_id |>
   head() |>
   dplyr::glimpse()
 
-#### add the new column back ----
+#### Add the new column back ----
 compl_corr_to_investigation__corr_date <-
   dplyr::left_join(compl_corr_to_investigation_short,
             date__contacttype_per_id) |>
@@ -1001,7 +1002,7 @@ compl_corr_to_investigation__corr_date |>
   head() |> 
   dplyr::glimpse()
 
-### add pims home port info ----
+### Add pims home port info ----
 
 #' change PIMS home port info column names 
 processed_pims_home_ports_renamed <- 
@@ -1017,8 +1018,9 @@ compl_corr_to_investigation__corr_date__hailing_port <-
     dplyr::join_by(vessel_official_number)
   )
 
-### add prepared addresses ----
+### Add prepared addresses ----
 
+# This is used only with source()
 prep_addresses_path <-
   file.path(current_project_path,
             stringr::str_glue("{current_project_name}_prep_addresses.R"))
@@ -1067,7 +1069,7 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_m
       )
   )
 
-### check ----
+### Check ----
 #' Check that number of vessels didn't change.
 dplyr::n_distinct(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked$vessel_official_number) ==
   num_of_vsl_to_investigate
@@ -1130,7 +1132,7 @@ region_counts <-
 
 dplyr::n_distinct(compl_corr_to_investigation_short_dup_marked__permit_region$vessel_official_number)
 
-### dual permitted cnts ----
+### Dual permitted cnts ----
 
 region_counts$n[[1]] / (region_counts$n[[2]] + region_counts$n[[1]]) * 100
 
@@ -1146,7 +1148,7 @@ dim(permit_vessel_w_changed_owner)
 
 dim(res_join_permit)
 
-### keep only permit_status from permits ----
+### Keep only permit_status from permits ----
 res_join_permit_short <-
   res_join_permit |>
   dplyr::select(tidyselect::all_of(
@@ -1184,7 +1186,7 @@ compl_corr_to_investigation_short_dup_marked__permit_region__status |>
 
 
 # Print out results ----
-## add additional columns in front ----
+## Add additional columns in front ----
 
 #' Create a variable with the long column name
 additional_column_name1 <-
@@ -1357,4 +1359,3 @@ cat("Results:",
     "compl_corr_to_investigation_short_dup_marked__permit_region__add_columns",
     out_file_name,
     sep = "\n")
-
