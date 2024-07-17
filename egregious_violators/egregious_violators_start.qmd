@@ -74,6 +74,10 @@ registerS3method(
 
 ```
 
+# save setup chunk options to use later
+```{r setup current project, results='hide', message=FALSE, warning=FALSE}
+```
+
 ### The "egregious violator" definition 
 
 ```{r The egregious violator definition}
@@ -82,10 +86,15 @@ registerS3method(
 
 
 1. NO reports for all 26 weeks back from week ago today;
+
 2. Permits have not expired and were active for the same period as (1);
+
 3. The grace period is 7 days back from today.
+
 4. It needs to be that we called at least 1 time and emailed at least 1 time. Or they contacted us at least once.
+
 5. Not counting any correspondence (regardless of the type - email/call, voicemail or not) that includes "No contact made" in the text of the entry as an actual "direct" contact for any egregious vessel (May 6 2024)
+
 NB. Update (download) all input files every time before run.
 
 ### New requirement 2023-08-09 
@@ -118,43 +127,6 @@ Exclude any correspondence (regardless of the type - email/call, voicemail or no
 
 ```{r Set up packages and options}
 ## Set up packages and options ----
-# <<<<
-
-# Explanations:
-
-# This auxiliary function processes vessel ID columns in each data frame by trimming leading and trailing whitespace, making the data more consistent and easier to work with. If the column name is not provided, it attempts to detect it automatically.
-#  
-#  
-# 1. **Function Definition:**
-#    - `trim_all_vessel_ids_simple <- function (csvs_clean_ws, col_name_to_trim = NA)`: Defines a function named `trim_all_vessel_ids_simple` that takes two arguments: `csvs_clean_ws`, a list of data frames to process, and `col_name_to_trim`, the name of the column containing vessel IDs to be trimmed. This argument is set to `NA` by default.
-# 
-# 2. **Column Name Detection:**
-#    - `if (is.na(col_name_to_trim)) { ... }`: Checks if the `col_name_to_trim` argument is not provided. If it's not provided, the function attempts to detect the column name containing vessel IDs.
-#    - `col_name_to_trim <- grep("vessel.*official.*number", tolower(names(x)), value = TRUE)`: Uses `grep` to search for column names containing variations of "vessel official number" (case-insensitive) within the column names of the first data frame (`x`) in the list. This is assigned to `col_name_to_trim`.
-# 
-# 3. **Column Trimming:**
-#    - `col_name_to_trim_s <- rlang::sym(col_name_to_trim)`: Converts `col_name_to_trim` to a symbol using `rlang::sym`. Symbols are used to refer to columns in a non-standard evaluation context.
-#    - `x %>% dplyr::mutate(vessel_official_number = trimws(!!col_name_to_trim_s))`: Applies the `trimws` function to the column specified by `col_name_to_trim_s` within each data frame (`x`) in the list. This removes leading and trailing whitespace from the vessel IDs.
-# 
-# 4. **Returning Processed Data Frames:**
-#    - `return(csvs_clean)`: Returns the list of data frames with trimmed vessel IDs.
-# 
-
-#  trim_all_vessel_ids_simple  <-  function (csvs_clean_ws, col_name_to_trim = NA) 
-# {
-#     csvs_clean <- lapply(csvs_clean_ws, function(x) {
-#         if (is.na(col_name_to_trim)) {
-#             col_name_to_trim <- grep("vessel.*official.*number", 
-#                 tolower(names(x)), value = TRUE)
-#         }
-#         col_name_to_trim_s <- rlang::sym(col_name_to_trim)
-#         x %>% dplyr::mutate(vessel_official_number = trimws(!!col_name_to_trim_s)) %>% 
-#             return()
-#     })
-#     return(csvs_clean)
-# }
-# >>>>
-
 
 # Install if needed and load all the packages.
 # 
@@ -166,12 +138,20 @@ library(ROracle)
 library(devtools)
 ```
 
+
+
 Explanations:
+
 - `if (!require("auxfunctions"))` checks if the `auxfunctions` package is installed and loaded:
+
   - `require("auxfunctions")` attempts to load the `auxfunctions` package.
+
   - The `!` operator negates the result, so the condition is true if the package is not installed or cannot be loaded.
+
 - `devtools::install_github("AShipunova1/R_code/auxfunctions")` installs the `auxfunctions` package from the specified GitHub repository:
+
   - `devtools::install_github()` is a function from the `devtools` package that installs an R package directly from a GitHub repository.
+
   - `"AShipunova1/R_code/auxfunctions"` specifies the repository and subdirectory containing the package.
 
 This code checks if the `auxfunctions` package is available, and if not, it installs it from the GitHub repository `AShipunova1/R_code/auxfunctions`.
@@ -188,8 +168,8 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
     devtools::install_github("AShipunova1/R_code/auxfunctions")
   }
 } else {
-  # For Anna Shipunova, rebuild the package from the development branch and force the installation
-  devtools::install_github("AShipunova1/R_code/auxfunctions@development", force = TRUE)
+  # For Anna Shipunova, rebuild the package from the development branch. To force the installation change to 'force = TRUE'
+  devtools::install_github("AShipunova1/R_code/auxfunctions@development", force = FALSE)
   # restart R session to pick up changes
   # .rs.restartR()
 }
@@ -224,19 +204,24 @@ Sys.setenv(ORA_SDTZ = Sys.timezone())
 
 # Explanations:
 
-# # The add_count_contacts function is defined to add two new columns ('was_contacted' and 'contact_freq') to the input data frame ('all_data_df_clean') based on the presence of contact dates.
+# The add_count_contacts function is defined to add two new columns ('was_contacted' and 'contact_freq') to the input data frame ('all_data_df_clean') based on the presence of contact dates.
 # 
-# # It returns the 'result_df', which is the input data frame with the added columns indicating whether a vessel was contacted ('was_contacted') and the frequency of contacts ('contact_freq').
+# It returns the 'result_df', which is the input data frame with the added columns indicating whether a vessel was contacted ('was_contacted') and the frequency of contacts ('contact_freq').
 # 
-# # Use for contacts in the setup function before combining with compliant dataframes
+# Use for contacts in the setup function before combining with compliant dataframes.
 #  
 #  
-# Explanations:
+# 
 # - The `add_count_contacts` function takes a dataframe `all_data_df_clean` as input.
+# 
 # - It first finds the column names for "contact date" and "vessel number" using the `find_col_name` function.
+# 
 # - Then, it adds a new column named "was_contacted", which indicates whether a contact was made with each vessel based on the presence of a contact date. If the contact date is missing (`NA`), it assigns "no"; otherwise, it assigns "yes".
+# 
 # - The `add_count` function is then used to count the number of contacts per vessel, distinguishing between vessels that were contacted and those that were not. The result is stored in a new column named "contact_freq".
+# 
 # - Finally, the function returns the dataframe with the added columns.
+# 
 # 
 
 #  add_count_contacts  <-  function (all_data_df_clean) 
@@ -360,7 +345,9 @@ Sys.setenv(ORA_SDTZ = Sys.timezone())
 # >>>>
 ```
 
+
 In the code in this section all user provided values have the word "manually" in the description. Everything else is created automatically.
+
 Manually: Change the following 2 lists (*my_paths* and *current_in_out_paths*) to your environment if needed. The variable _names_ are used throughout the code, so please change only the quoted _values_ inside the lists.
 
 
@@ -371,7 +358,7 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
     "Please CHANGE the following 2 lists values to your environment if needed. Use full path to your directories in quotes."
   )
   
-  # 1) General directories (to look up additional files, e.g. processed data). It can be left as is if you don't have it.
+  # 1) General directories (to look up additional files, e.g. processed data). It can be left as is if you don't have it. You can provide path to individual files later.
   my_paths <- list(inputs  = "~/my_inputs",
                    outputs = "~/my_outputs",
                    git_r   = "~/R_code")
@@ -391,6 +378,7 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
   current_in_out_paths <- auxfunctions::current_project_paths()
 }
 ```
+
 
 The following section uses provided directory names lists to automatically create separate variables for future use and create current input/output directories if they do not exists.
 
@@ -457,6 +445,7 @@ fhier_compliance_csv_path_list <-
        "Your full path to fhier_compliance.csv year 2")
 ```
 
+
 Depending on a user name who runs the code, the file paths are constructed here.
 
 
@@ -504,9 +493,9 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
 ```
 
 
-Manually: Add your full path to processed Metrics tracking for each year instead of "Your full path here"
+Manually: Add your full path to processed Metrics tracking for each year instead of "Your full path here".
 
-Define paths for processed Metrics tracking CSVs
+Define paths for processed Metrics tracking CSVs.
 
 Depending on a user name who runs the code, the file paths are constructed here.
 
@@ -545,11 +534,13 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
 }
 ```
 
+
 Check if provided paths are correct
 
 ```{r}
 purrr::map(processed_metrics_tracking_file_names, file.exists)
 ```
+
 
 if not TRUE: Check your provided path and/or create manually.
 
@@ -563,7 +554,7 @@ Download first from REPORTS / For-hire Primary Physical Address List
 
 Depending on a user name who runs the code, the file paths are constructed here.
 
-Manually: Add your full path instead of "Your full path here"
+Manually: Add your full path instead of "Your full path here".
 
 
 ```{r}
@@ -580,6 +571,7 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
 }
 ```
 
+
 Check, correct the path if it is doesn't exist
 
 ```{r}
@@ -592,11 +584,11 @@ file.exists(fhier_addresses_path)
 #### Home port processed city and state path ----
 ```
 
-Download first from Google drive
+Download first from Google drive.
 
 Depending on a user name who runs the code, the file paths are constructed here.
 
-Manually: Add your full path instead of "Your full path here"
+Manually: Add your full path instead of "Your full path here".
 
 
 ```{r}
@@ -621,9 +613,10 @@ file.exists(processed_pims_home_ports_path)
 #### Data from the previous results of "egregious violators for investigation" path ----
 ```
 
+
 Depending on a user name who runs the code, the file paths are constructed here.
 
-Manually: Add your full path instead of "Your full path here"
+Manually: Add your full path instead of "Your full path here".
 
 
 ```{r}
@@ -654,6 +647,7 @@ egr_violators_googledrive_folder_name <- "Egregious violators"
 output_egr_violators_googledrive_folder_name <- "output"
 ```
 
+
 Get the parent folder path.
 
 It is used to read the previous result and for saving the new result.
@@ -662,6 +656,7 @@ When asked for the authentication the first time choose the appropriate option a
 
 If there is an option with your google email account (like your.name@noaa.gov) you can choose that option (usually #2) and it will confirm your access automatically.
 
+`n_max = 1` means we will use the first result, assuming we have only one folder with such name on Google dive.
 
 ```{r}
 egr_violators_googledrive_folder_path <-
@@ -671,7 +666,25 @@ egr_violators_googledrive_folder_path <-
                           n_max = 1)
 ```
 
+
 Get the output path
+
+Explanations:
+
+- `output_egr_violators_googledrive_folder_path <- ...` assigns the result of the `googledrive::drive_ls` function call to the variable `output_egr_violators_googledrive_folder_path`.
+
+- `googledrive::drive_ls(...)` lists the contents of a Google Drive folder based on the specified parameters:
+
+  - `path = googledrive::as_id(egr_violators_googledrive_folder_path)` specifies the path to the folder using its ID:
+
+    - `googledrive::as_id(egr_violators_googledrive_folder_path)` converts `egr_violators_googledrive_folder_path` into a format recognized as an ID by the `googledrive` package.
+
+  - `pattern = output_egr_violators_googledrive_folder_name` specifies a pattern to match folder names against, using `output_egr_violators_googledrive_folder_name`.
+
+  - `type = "folder"` specifies that only folders should be listed.
+
+  - `n_max = 1` specifies that only the first matching folder should be returned.
+  
 
 ```{r}
 output_egr_violators_googledrive_folder_path <-
@@ -689,6 +702,7 @@ output_egr_violators_googledrive_folder_path <-
 ## Define dates ----
 ```
 
+
 Manually: my_year1 and my_year2 values might be changed.
 
 
@@ -703,6 +717,7 @@ my_year2 <- "2024"
 my_beginning2 <- stringr::str_glue("{my_year2}-01-01")
 my_end2 <- stringr::str_glue("{my_year2}-12-31")
 ```
+
 
 Following are the definitions of dates used throughout the code.
 
@@ -723,6 +738,7 @@ days_in_non_compl_weeks <-
 days_in_non_compl_weeks == 182
 ```
 
+
 Other useful dates
 
 ```{r}
@@ -732,6 +748,7 @@ half_year_ago <-
   data_file_date - days_in_non_compl_weeks - grace_period
 ```
 
+
 check week and day of the period's start, can compare with a calendar
 
 ```{r}
@@ -740,11 +757,13 @@ lubridate::week(half_year_ago)
 lubridate::wday(half_year_ago, label = T)
 ```
 
+
 Permit expiration minimum is 30 days from today
 
 ```{r}
 permit_expired_check_date <- data_file_date + 30
 ```
+
 
 We will not use the last week data
 
@@ -900,6 +919,59 @@ Permit info from processed metrics tracking
 
 # Explanations:
 
+# The clean_headers function is designed to clean and fix the column names (using fix_names()) of a given dataframe (my_df).
+#  
+#  
+
+#  clean_headers  <-  function (my_df) 
+# {
+#     new_names <- fix_names(colnames(my_df))
+#     colnames(my_df) <- new_names
+#     return(my_df)
+# }
+# >>>>
+
+# <<<<
+
+# Explanations:
+
+# This auxiliary function processes vessel ID columns in each data frame by trimming leading and trailing whitespace, making the data more consistent and easier to work with. If the column name is not provided, it attempts to detect it automatically.
+#  
+#  
+# 1. **Function Definition:**
+#    - `trim_all_vessel_ids_simple <- function (csvs_clean_ws, col_name_to_trim = NA)`: Defines a function named `trim_all_vessel_ids_simple` that takes two arguments: `csvs_clean_ws`, a list of data frames to process, and `col_name_to_trim`, the name of the column containing vessel IDs to be trimmed. This argument is set to `NA` by default.
+# 
+# 2. **Column Name Detection:**
+#    - `if (is.na(col_name_to_trim)) { ... }`: Checks if the `col_name_to_trim` argument is not provided. If it's not provided, the function attempts to detect the column name containing vessel IDs.
+#    - `col_name_to_trim <- grep("vessel.*official.*number", tolower(names(x)), value = TRUE)`: Uses `grep` to search for column names containing variations of "vessel official number" (case-insensitive) within the column names of the first data frame (`x`) in the list. This is assigned to `col_name_to_trim`.
+# 
+# 3. **Column Trimming:**
+#    - `col_name_to_trim_s <- rlang::sym(col_name_to_trim)`: Converts `col_name_to_trim` to a symbol using `rlang::sym`. Symbols are used to refer to columns in a non-standard evaluation context.
+#    - `x %>% dplyr::mutate(vessel_official_number = trimws(!!col_name_to_trim_s))`: Applies the `trimws` function to the column specified by `col_name_to_trim_s` within each data frame (`x`) in the list. This removes leading and trailing whitespace from the vessel IDs.
+# 
+# 4. **Returning Processed Data Frames:**
+#    - `return(csvs_clean)`: Returns the list of data frames with trimmed vessel IDs.
+# 
+
+#  trim_all_vessel_ids_simple  <-  function (csvs_clean_ws, col_name_to_trim = NA) 
+# {
+#     csvs_clean <- lapply(csvs_clean_ws, function(x) {
+#         if (is.na(col_name_to_trim)) {
+#             col_name_to_trim <- grep("vessel.*official.*number", 
+#                 tolower(names(x)), value = TRUE)
+#         }
+#         col_name_to_trim_s <- rlang::sym(col_name_to_trim)
+#         x %>% dplyr::mutate(vessel_official_number = trimws(!!col_name_to_trim_s)) %>% 
+#             return()
+#     })
+#     return(csvs_clean)
+# }
+# >>>>
+
+# <<<<
+
+# Explanations:
+
 # Cleaning, regularly done for csvs downloaded from FHIER,
 # usually from inside other functions.
 # 
@@ -907,8 +979,6 @@ Permit info from processed metrics tracking
 # 
 # It returns the list of cleaned CSVs, where each CSV has had its headers unified and the vessel ID column (if specified) trimmed for consistency.
 # 
-#  
-#  
 
 #  clean_all_csvs  <-  function (csvs, vessel_id_field_name = NA) 
 # {
@@ -1025,6 +1095,8 @@ dim(corresp_contact_cnts_clean0)
 ## Get Metric Tracking (permits from FHIER) ----
 ```
 
+The file is processed with processing_metrics_tracking.R from Google drive.
+ 
 Read the processed metrics tracking files for all years
 
 ```{r}
@@ -1360,89 +1432,6 @@ db_participants_address <-
   auxfunctions::clean_headers()
 ```
 
-### Get vessels with changed owner 
-
-```{r Get vessels with changed owner}
-## Get vessels with changed owner ----
-```
-
-The same as above with new parameters. 
-
-Prepare the parameters.
-
-The SQL query.
-
-
-```{r}
-# Select only vessels with SA permits,
-# not expired by today,
-# with different owners or 
-# permit status indicating something other than usual
-# 
-permit_vessel_w_changed_owner_query <- 
-"SELECT
-  *
-FROM
-  srh.mv_sero_fh_permits_his@secapxdv_dblk.sfsc.noaa.gov
-WHERE
-  top IN ( 'CHS', 'SC', 'CDW' )
-  AND ( expiration_date >= sysdate
-        OR end_date >= sysdate )
-  AND ( ( new_owner != prior_owner
-          AND new_owner != 0
-          AND prior_owner != 0 )
-        OR permit_status NOT IN ( 'MAILED', 'RENEWED' ) )
-ORDER BY
-  vessel_id
-"
-
-# It uses the predefined path to the input directory and a file name to read or write to.
-permit_vessel_w_changed_owner_file_path <-
-  file.path(current_project_input_path,
-            "permit_vessel_w_changed_owner.rds")
- 
-# err msg if no connection, but keep running
-try(con <- auxfunctions::connect_to_secpr())
-
-permit_vessel_w_changed_owner_fun <-
-  function(permit_vessel_w_changed_owner) {
-    return(dbGetQuery(con,
-                      permit_vessel_w_changed_owner))
-  }
-```
-
-
-Read the file with db_participants_address if exists, 
-
-load from the Oracle database if not,
-
-remove empty columns,
-
-change column names the same way as everything else.
-
-
-```{r}
-permit_vessel_w_changed_owner <-
-  auxfunctions::read_rds_or_run(
-    permit_vessel_w_changed_owner_file_path,
-    permit_vessel_w_changed_owner_query,
-    permit_vessel_w_changed_owner_fun,
-    # If you want to update the existing file, change the NULL to "yes" 
-    force_from_db = NULL
-  ) |>
-  auxfunctions::remove_empty_cols() |>
-  auxfunctions::clean_headers()
-
-dim(permit_vessel_w_changed_owner)
-# 75
-# 143 with statuses
-
-permit_vessel_w_changed_owner |> 
-  head() |> 
-  dplyr::glimpse() |>
-  knitr::kable(caption = "")
-```
-
 ## Data from the previous results of "egregious violators for investigation" 
 
 ```{r Data from the previous results of egregious violators for investigation}
@@ -1550,21 +1539,6 @@ prev_result <- get_previous_result_from_google_drive()
 
 ```{r Results}
 # Results ----
-# <<<<
-
-# Explanations:
-
-# The clean_headers function is designed to clean and fix the column names (using fix_names()) of a given dataframe (my_df).
-#  
-#  
-
-#  clean_headers  <-  function (my_df) 
-# {
-#     new_names <- fix_names(colnames(my_df))
-#     colnames(my_df) <- new_names
-#     return(my_df)
-# }
-# >>>>
 
 results <-
   c(
@@ -1581,6 +1555,7 @@ results <-
 auxfunctions::pretty_print(results, "Data are in:")
 ```
 
+
 Data are in:
 
 compl_clean
@@ -1594,8 +1569,6 @@ fhier_addresses
 processed_pims_home_ports
 
 db_participants_address
-
-permit_vessel_w_changed_owner
 
 prev_result
 
@@ -1654,6 +1627,7 @@ compl_clean_w_permit_exp__not_exp <-
   dplyr::filter(tolower(permit_expired) == "no")
 ```
 
+
 Check if the dates make sense
 
 ```{r}
@@ -1683,6 +1657,7 @@ compl_clean_w_permit_exp_last_half_year <-
   # keep entries for the current check period
   dplyr::filter(year_month >= as.yearmon(half_year_ago))
 ```
+
 
 Check
 
@@ -1732,6 +1707,7 @@ remove_columns_from_compliance <- c(
 )
 ```
 
+
 Explanations:
 
 1. Use 'select' to remove columns specified in 'remove_columns'.
@@ -1749,6 +1725,7 @@ compl_clean_w_permit_exp_last_half_year__sa__short <-
 dim(compl_clean_w_permit_exp_last_half_year__sa__short)
 # [1] 38761    11
 ```
+
 
 Work with the whole period
 
@@ -1805,6 +1782,7 @@ tictoc::toc()
 # compl_overr: 8.76 sec elapsed
 ```
 
+
 check compliant/overridden combinations' counts
 
 ```{r}
@@ -1819,6 +1797,7 @@ compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr |>
 # 3 YES        NO          yes                      27794
 ```
 
+
 check the results
 
 ```{r}
@@ -1829,6 +1808,7 @@ dim(compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr)
 # E.g.
 # [1] 38761    12
 ```
+
 
 check if the amount of vessels didn't change
 
@@ -1861,7 +1841,9 @@ dim(compl_clean_w_permit_exp_last_half_year__sa_non_c)
 ### Keep only vessels with info for all weeks in the period ----
 ```
 
+
 That should eliminate entries for vessels having permits only a part of the period
+
 get the current number of weeks 
 
 ```{r}
@@ -1871,6 +1853,7 @@ all_weeks_num <-
   dplyr::distinct() |>
   nrow()
 ```
+
 
 Explanations:
 
@@ -1891,6 +1874,7 @@ compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present <-
   dplyr::ungroup() |> 
   dplyr::select(-week)
 ```
+
 
 Check how many entries were removed
 
@@ -1919,6 +1903,7 @@ compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present__vesl_ids <
   dplyr::select(vessel_official_number) |>
   dplyr::distinct()
 ```
+
 
 check vessel's number
 
@@ -1953,9 +1938,10 @@ compl_clean_w_permit_exp_last_half_year__sa |>
 
 0 OK!
 
+
 End of Compliance preparations 
 
-Results: processed Compliance is in compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present
+Results: processed Compliance is in `compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present`
 
 ## Preparing Correspondence 
 
@@ -1978,6 +1964,7 @@ corresp_contact_cnts_clean <-
   dplyr::filter(!grepl("^99999", vessel_official_number))
 ```
 
+
 check number of vessels in correspondence 
 
 ```{r}
@@ -1986,6 +1973,7 @@ dplyr::n_distinct(corresp_contact_cnts_clean$vesselofficial_number)
 
 E.g.
 4281
+
 check
 
 ```{r}
@@ -2002,6 +1990,7 @@ corresp_contact_cnts_clean |>
 
 The functions below are creating filter conditions using quosures. Quosures are a part of tidy evaluation in R, allowing expressions to be captured without evaluation, which is useful for creating functions with flexible inputs.
 
+
 Explanations:
 
 **Expression inside quo()**:
@@ -2014,6 +2003,7 @@ we_called_filter <-
   dplyr::quo(any(tolower(contacttype) == "call" &
         tolower(calltype) == "outgoing"))
 ```
+
 
 Explanations:
 
@@ -2029,6 +2019,7 @@ we_emailed_once_filter <-
       tolower(calltype) == "outgoing"
   ))
 ```
+
 
 Explanations:
 
@@ -2049,6 +2040,7 @@ exclude_no_contact_made_filter <-
             contactcomments, 
             ignore.case = TRUE))
 ```
+
 
 don't need a second contact
 
@@ -2073,6 +2065,7 @@ they_contacted_direct_filter <-
 ```{r Use the filters}
 ### Use the filters ----
 ```
+
 
 Explanations:
 
@@ -2117,6 +2110,7 @@ corresp_contact_cnts_clean_direct_cnt_2atmps <-
   dplyr::filter(!!exclude_no_contact_made_filter)
 ```
 
+
 check amount of rows before and after filtering
 
 ```{r}
@@ -2125,6 +2119,7 @@ dim(corresp_contact_cnts_clean)
 dim(corresp_contact_cnts_clean_direct_cnt_2atmps)
 # E.g. [1] 31061    22
 ```
+
 
 Check how many vessels left after filtering 
 
@@ -2146,6 +2141,7 @@ check how the dates look
 head(corresp_contact_cnts_clean_direct_cnt_2atmps$contact_date, 1) |> str()
 # chr "02/15/2024 03:15PM"
 ```
+
 
 
 Explanations:
@@ -2174,6 +2170,7 @@ corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates <-
   )
 ```
 
+
 check how the dates look now
 
 ```{r}
@@ -2183,11 +2180,11 @@ head(corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates$contact_date_dttm,
 # POSIXct[1:1], format: "2024-06-17 15:24:00"
 ```
 
+
 End of Correspondence preparations 
 
 Processed Correspondence is in 
-
-corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates
+`corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates`
 
 ## Join correspondence with compliance 
 
@@ -2222,6 +2219,7 @@ compl_corr_to_investigation <-
   )
 ```
 
+
 check
 
 ```{r}
@@ -2245,8 +2243,9 @@ num_of_vsl_to_investigate <-
   dplyr::n_distinct(compl_corr_to_investigation$vesselofficial_number)
 ```
 
+
 Results: Compliance & Correspondence joined together are in
-compl_corr_to_investigation
+`compl_corr_to_investigation`
 
 ## Output needed investigation 
 
@@ -2262,12 +2261,12 @@ compl_corr_to_investigation
 
 3. Mark vessels already in the know list (prev_result).
 
-4. duals vs. sa_only
+4. Duals vs. sa_only
 
-### 1. remove extra columns 
+### 1. Remove extra columns 
 
-```{r 1 remove extra columns}
-## 1. remove extra columns ----
+```{r 1 Remove extra columns}
+## 1. Remove extra columns ----
 
 unused_fields <- c(
   "vesselofficial_number",
@@ -2300,6 +2299,7 @@ unused_fields <- c(
 ```
 
 
+
 Explanations:
 
 1. Exclude columns specified in 'unused_fields' from the data frame.
@@ -2320,6 +2320,7 @@ compl_corr_to_investigation_short <-
   dplyr::ungroup()
 ```
 
+
 Visual check if data make sense
 
 ```{r}
@@ -2329,16 +2330,17 @@ compl_corr_to_investigation_short |>
   knitr::kable(caption = "")
 ```
 
+
 Check if number of vessels didn't change
 
 ```{r}
 nrow(compl_corr_to_investigation_short) == num_of_vsl_to_investigate
 ```
 
-### 2. create additional columns 
+### 2. Create additional columns 
 
-```{r 2 create additional columns}
-## 2. create additional columns ----
+```{r 2 Create additional columns}
+## 2. Create additional columns ----
 ```
 
 #### Add list of contact dates and contact type in parentheses  
@@ -2373,7 +2375,8 @@ nrow(compl_corr_to_investigation_short) == num_of_vsl_to_investigate
 # >>>>
 ```
 
-put coumn names into variables (needed, bc spaces and underscores placements vary from source to source)
+
+put column names into variables (needed, bc spaces and underscores placements vary from source to source)
 
 ```{r}
 contactdate_field_name <-
@@ -2385,6 +2388,7 @@ contacttype_field_name <-
 contactphonenumber_field_name <-
   auxfunctions::find_col_name(compl_corr_to_investigation_short, ".*contact", "number.*")[1]
 ```
+
 
 Explanations:
 
@@ -2433,6 +2437,7 @@ get_date_contacttype <-
   }
 ```
 
+
 use the function
 
 ```{r}
@@ -2440,11 +2445,13 @@ date__contacttype_per_id <-
   get_date_contacttype(compl_corr_to_investigation_short)
 ```
 
+
 Check if number of vessels didn't change
 
 ```{r}
 nrow(date__contacttype_per_id) == num_of_vsl_to_investigate
 ```
+
 
 Check how the result looks like 
 
@@ -2487,6 +2494,7 @@ compl_corr_to_investigation__corr_date |>
 ### Add pims home port info ----
 ```
 
+
 change PIMS home port info column names 
 
 ```{r}
@@ -2495,6 +2503,7 @@ processed_pims_home_ports_renamed <-
   dplyr::rename("hailing_port_city" = city_fixed,
          "hailing_port_state" = state_fixed)
 ```
+
 
 join home ports and compliance/correspondence by vessel id
 
@@ -2517,6 +2526,7 @@ prep_addresses_path <-
   file.path(current_project_path,
             stringr::str_glue("{current_project_name}_prep_addresses.R"))
 ```
+
 
 Check if the file exists.
 
@@ -3251,17 +3261,19 @@ cat("Result: ",
     sep = "\n")
 ```
 
+
 Results are in compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr
 
-### 3. mark vessels already in the know list 
+### 3. Mark vessels already in the know list 
 
-```{r 3 mark vessels already in the know list}
-## 3. mark vessels already in the know list ----
+```{r 3 Mark vessels already in the know list}
+## 3. Mark vessels already in the know list ----
 ```
 
 From the email:
 
 The first column (report created) indicates the vessels that we have created a case for. My advice would be not to exclude those vessels. EOs may have provided compliance assistance and/or warnings already. If that is the case and they continue to be non-compliant after that, they will want to know and we may need to reopen those cases.
+
 
 get vessel ids from the previous result 
 
@@ -3270,6 +3282,7 @@ vessels_to_mark_ids <-
   prev_result |>
   dplyr::select(vessel_official_number)
 ```
+
 
 Check the amount 
 
@@ -3283,11 +3296,12 @@ dim(vessels_to_mark_ids)
 #### Mark these vessels ----
 ```
 
+
 Explanations:
 
 Create a new column 'duplicate_w_last_time' in the dataframe 'compl_corr_to_investigation_short'.
 
-This column is marked with "duplicate" for rows where 'vessel_official_number' is present in the list of vessel IDs to mark as duplicates ('vessels_to_mark_ids').
+This column is marked with "duplicate" for rows where 'vessel_official_number' is present in the list of vessel IDs ('vessels_to_mark_ids').
 
 For all other rows, it is marked as "new".
 
@@ -3318,12 +3332,14 @@ dplyr::n_distinct(compl_corr_to_investigation__corr_date__hailing_port__fhier_ad
   num_of_vsl_to_investigate
 ```
 
+
 Check that there is one row per vessel.
 
 ```{r}
 nrow(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked) == 
   num_of_vsl_to_investigate 
 ```
+
 
 Count how many duplicates 
 
@@ -3334,10 +3350,10 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_m
 # 2 new                      48
 ```
 
-### 4. how many are duals? 
+### 4. How many are duals? 
 
-```{r 4 how many are duals}
-## 4. how many are duals? ----
+```{r 4 How many are duals}
+## 4. How many are duals? ----
 ```
 
 Explanations:
@@ -3367,6 +3383,7 @@ compl_corr_to_investigation_short_dup_marked__permit_region <-
              .default = "other"
            ))
 ```
+
 
 
 Explanations:
@@ -3400,69 +3417,6 @@ dplyr::n_distinct(compl_corr_to_investigation_short_dup_marked__permit_region$ve
 region_counts$n[[1]] / (region_counts$n[[2]] + region_counts$n[[1]]) * 100
 ```
 
-### 5. Changed owner 
-
-```{r 5 Changed owner}
-## 5. Changed owner ----
-res_join_permit <-
-  dplyr::left_join(
-    compl_corr_to_investigation_short_dup_marked__permit_region,
-    permit_vessel_w_changed_owner,
-    dplyr::join_by(vessel_official_number == vessel_id)
-  )
-
-dim(permit_vessel_w_changed_owner)
-
-dim(res_join_permit)
-```
-
-#### Keep only permit_status from permits 
-
-```{r Keep only permit_status from permits}
-### Keep only permit_status from permits ----
-res_join_permit_short <-
-  res_join_permit |>
-  dplyr::select(tidyselect::all_of(
-    names(
-      compl_corr_to_investigation_short_dup_marked__permit_region
-    )
-  ), permit_status) |>
-  dplyr::distinct()
-
-dim(res_join_permit_short)
-# 138
-
-n_distinct(res_join_permit_short$vessel_official_number)
-# 137
-```
-
-combine all permit_status
-
-```{r}
-compl_corr_to_investigation_short_dup_marked__permit_region__status <-
-  res_join_permit_short |>   
-  dplyr::group_by(vessel_official_number) |>
-  dplyr::mutate(permit_status_all =
-                     paste(permit_status, 
-                           collapse = ", "),
-                  .keep = c("unused")) |>
-  dplyr::ungroup() |> 
-  distinct()
-
-dim(compl_corr_to_investigation_short_dup_marked__permit_region__status)
-# 137 41
-```
-
-check
-
-```{r}
-compl_corr_to_investigation_short_dup_marked__permit_region__status |>
-  dplyr::filter(!is.na(permit_status_all) &
-           !permit_status_all == "NA") |>
-  dplyr::glimpse() |>
-  knitr::kable(caption = "")
-```
-
 ## Print out results 
 
 ```{r Print out results}
@@ -3475,6 +3429,7 @@ compl_corr_to_investigation_short_dup_marked__permit_region__status |>
 ## Add additional columns in front ----
 ```
 
+
 Create a variable with the long column name
 
 ```{r}
@@ -3483,6 +3438,7 @@ additional_column_name1 <-
     "Confirmed Egregious? (permits must still be active till {permit_expired_check_date}, missing past 6 months, and (1) they called/emailed us (incoming), or (2) at least 2 contacts (outgoing) with at least 1 call/other (voicemail counts) and at least 1 email)"
   )
 ```
+
 
 Explanation:
 
@@ -3519,7 +3475,9 @@ compl_corr_to_investigation_short_dup_marked__permit_region__add_columns <-
   )
 ```
 
+
 Don't remove the "year" column, in case there are 2 years in the current period.
+
 
 Check what are the column names now
 
@@ -3652,11 +3610,13 @@ write_res_to_google_sheets <-
   }
 ```
 
+
 Un-comment to write results directly to Google drive
 
 ```{r}
 current_output_file_link <- write_res_to_google_sheets()
 ```
+
 
 Print result names to console 
 
