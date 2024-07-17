@@ -3,7 +3,7 @@
 
 # Addresses from FHIER ----
 
-## fewer fields ----
+## Fewer fields ----
 #' fhier_addresses are from get_data (For-hire Primary Physical Address List)
 fhier_addr_short <-
   fhier_addresses |>
@@ -57,7 +57,7 @@ fhier_addr_short_clean <-
 
 # dim(fhier_addr_short_clean)
 
-## add addresses from FHIER ----
+## Add addresses from FHIER ----
 compl_corr_to_investigation__corr_date__hailing_port__fhier_addr <-
   left_join(compl_corr_to_investigation__corr_date__hailing_port,
             fhier_addr_short_clean)
@@ -75,7 +75,7 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>
   ) |> nrow()
 # 0
 
-## vessels with no addresses ----
+## Vessels with no addresses ----
 
 # print_df_names(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
 
@@ -154,7 +154,7 @@ dim(db_participants_address__needed)
 dplyr::n_distinct(db_participants_address__needed$official_number)
 # 71
 
-## keep fewer columns ----
+## Keep fewer columns ----
 col_names_to_keep <-
   c(
     "official_number",
@@ -228,7 +228,7 @@ dim(db_participants_address__needed_short)
 dplyr::n_distinct(db_participants_address__needed_short$official_number)
 # 71
 
-## combine area and phone numbers ----
+## Combine area and phone numbers ----
 
 #' Explanation:
 #' 
@@ -254,7 +254,7 @@ db_participants_address__needed_short__phone0 <-
   dplyr::mutate(erv_phone = paste0(erv_ph_area, erv_ph_number),
          erb_phone = paste0(erb_ph_area, erb_ph_number))
 
-## make erv and erb combinations ----
+## Make erv and erb combinations ----
 col_part_names <-
   c(
     "entity_name",
@@ -325,7 +325,7 @@ db_participants_address__needed_short__erv_erb_combined3 <-
 tictoc::toc()
 # map all pairs: 14.31 sec elapsed
 
-### shorten ----
+### Shorten db_participants_address__needed_short__erv_erb_combined3 ----
 
 #' Explanation:
 #' 
@@ -365,7 +365,7 @@ dplyr::n_distinct(db_participants_address__needed_short__erv_erb_combined_short$
 #   dplyr::glimpse()
 # $ db_physical_city     <list> ["SOUTH ISLANDIA"], ["ISLANDIA"]
 
-## combine similar fields ----
+## Combine similar fields ----
 
 #' Explanations:
 #' 
@@ -451,7 +451,7 @@ db_participants_address__needed_short__erv_erb_combined_short__u <-
 #   filter(official_number == "1235397") |>
 #   glimpse()
 
-### convert to characters ----
+### Convert to characters ----
 #' Explanation:
 #' 
 #' This code modifies the dataframe `db_participants_address__needed_short__erv_erb_combined_short__u` by concatenating the elements of list-type columns into a single string separated by semicolons. Here's a detailed explanation:
@@ -488,7 +488,7 @@ db_participants_address__needed_short__erv_erb_combined_short__u_no_c <-
 # $ db_mailing_state_u     <chr> "NY"
 # $ db_mailing_city_u      <chr> "ISLANDIA; SOUTH ISLANDIA"
 
-## rename fields ----
+## Rename fields ----
 
 #' Explanation:
 #' 
