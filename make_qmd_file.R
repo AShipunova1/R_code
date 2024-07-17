@@ -631,6 +631,9 @@ title: {curent_project_name}
 setup_text <- "
 ```{r no cache setup, results='hide', message=FALSE, warning=FALSE, cache=FALSE, include=FALSE}
 
+# Setup for Quarto
+
+# Load libraries
 # A general-purpose tool for dynamic report generation in R
 library(knitr)
 
