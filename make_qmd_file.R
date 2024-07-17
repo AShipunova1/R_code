@@ -453,8 +453,12 @@ get_my_used_function_texts <-
         return(with_first_line)
       }) |>
       rlang::set_names(my_used_function_names)
+
+    my_used_function_texts_commented <-
+      my_used_function_texts |>
+      stringr::str_replace_all("\n", "\n# ")
     
-    return(my_used_function_texts)
+    return(my_used_function_texts_commented)
   }
 
 my_used_function_texts <-
@@ -690,7 +694,7 @@ registerS3method(
 
 # End of Quarto setup
 
-#' In the following code '<<<<' and '>>>>' denote the start and the end of definitions and help documents for functions from the `auxfunctions` package.
+#' In the following code '<<<<' and '>>>>' mark the start and the end of definitions and help documents for functions from the `auxfunctions` package.
 
 ```
 
