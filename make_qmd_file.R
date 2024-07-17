@@ -448,7 +448,7 @@ get_my_used_function_texts <-
           stringr::str_replace_all("\\\\", my_slash_replacement)
         
         with_first_line <-
-          paste(one_f_name, " <- ", function_as_text)
+          paste("\n", one_f_name, " <- ", function_as_text)
         
         return(with_first_line)
       }) |>
