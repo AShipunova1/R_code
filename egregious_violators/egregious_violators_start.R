@@ -1,7 +1,7 @@
 #' title: Egregious Violators
 
-# Set Up ----
-#' %%%%% Set Up
+# Setup ----
+#' %%%%% Setup
 #' 
 
 ## The "egregious violator" definition ----
