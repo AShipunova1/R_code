@@ -139,6 +139,8 @@ dim(corresp_contact_cnts_clean0)
 
 ## Get Metric Tracking (permits from FHIER) ----
 
+#' The file is processed with processing_metrics_tracking.R from Google drive.
+#'  
 #' Read the processed metrics tracking files for all years
 processed_metrics_tracking_permits <-
   purrr::map_df(processed_metrics_tracking_file_names,
