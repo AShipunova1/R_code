@@ -169,7 +169,6 @@ purrr::map(source_paths, file.exists)
 # "C:\Users\anna.shipunova\Documents\R_code_github\validation_survey\validation_survey_get_data.R"
 # [1] "C:/Users/anna.shipunova/Documents/R_code_github/validation_survey/validation_survey_get_data_file.R"
 
-
 source_files_content <- read_source_files(source_paths) |>
   set_names(source_paths_matches)
 
@@ -539,9 +538,9 @@ replace_function_with_def <-
     to_replace_with <-
       paste(
         "\n# <<<<",
-        my_used_function_texts_all[[idx]],
         "\n# Explanations:",
         my_used_function_helps_all[[idx]],
+        my_used_function_texts_all[[idx]],
         "# >>>>",
         "\\1", #to keep in place what's found
         sep = "\n"
@@ -585,6 +584,7 @@ see_res_in_outfile <- function(text_to_output) {
   file.show(outfile)
 }
 
+# To debug
 # see_res_in_outfile(text_replaced)
 
 # TODO: check if newlines are correct now
@@ -687,6 +687,10 @@ registerS3method(
 
 # Set the table format for knitr to HTML if needed
 # options(knitr.table.format = 'HTML')
+
+# End of Quarto setup
+
+# In the following code '<<<<' and '>>>>' denote the start and the end of definitions and help documents for functions from the `auxfunctions` package.
 
 ```
 
