@@ -479,6 +479,17 @@ my_used_function_helps <-
 
 # glimpse(my_used_function_helps)
 
+## check functions code for nested function calls which are not in `my_used_function_names` yet ----
+
+nested_functions <-
+  my_used_function_texts |>
+  get_my_func_names_wo_prefix()
+
+my_used_function_names_from_nested <-
+  setdiff(nested_functions, my_used_function_names)
+
+grep("conn", my_used_function_names, value = T)
+
 ## Paste function code and description before it is used ----
 
 # check
