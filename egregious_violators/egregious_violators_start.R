@@ -4,6 +4,13 @@
 #' %%%%% Setup
 #' 
 
+#' This script identifies and processes "egregious violators" in the SEFHIER program.
+#' 
+#' It combines compliance and correspondence data, applies specific filters,
+#' and prepares a report of vessels requiring further investigation.
+#' 
+
+
 ## The "egregious violator" definition ----
 #' 
 #' 1. NO reports for all 26 weeks back from week ago today;
@@ -92,6 +99,8 @@ library(googlesheets4) # Google Sheets via the Sheets API v4
 library(googledrive) # Interact with Google Drive 
 
 # Set options to prevent converting long numbers to scientific notation for input/output in spreadsheets and csv files
+# This ensures vessel numbers and other large integers are displayed in full
+
 options(scipen = 999)
 
 # Keep the same timezone across R and Oracle subsystems
@@ -100,6 +109,10 @@ Sys.setenv(ORA_SDTZ = Sys.timezone())
 
 ## Set up paths ----
 #'
+#' Different path structures are used for different users.
+#'
+#' This allows the script to run correctly on multiple systems without manual path changes.
+#' 
 #' In the code in this section all user provided values have the word "manually" in the description. Everything else is created automatically.
 #' 
 #' Manually: Change the following 2 lists (*my_paths* and *current_in_out_paths*) to your environment if needed. The variable _names_ are used throughout the code, so please change only the quoted _values_ inside the lists.
@@ -370,8 +383,10 @@ data_file_date <-
   lubridate::today()
   
 #' How many weeks and days to take in to the account?
+#' The 26-week period is used to define long-term non-compliance
 number_of_weeks_for_non_compliancy = 26
 
+#' The 7-day grace period allows for recent reports that may not yet be processed
 days_in_non_compl_weeks <- 
   number_of_weeks_for_non_compliancy * 7
 
@@ -677,7 +692,7 @@ corresp_contact_cnts_clean |>
 #' 
 #' **Expression inside quo()**:
 #'
-#'Check if any entry was an "outgoing call"
+#' Check if any entry was an "outgoing call"
 #'
 we_called_filter <-
   dplyr::quo(any(tolower(contacttype) == "call" &
@@ -687,7 +702,7 @@ we_called_filter <-
 #' 
 #' **Expression inside quo()**:
 #'
-#'Check if any entry was an "outgoing email or other"
+#' Check if any entry was an "outgoing email or other"
 #'
 we_emailed_once_filter <-
   dplyr::quo(any(
@@ -825,6 +840,11 @@ head(corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates$contact_date_dttm,
 
 # Join correspondence with compliance ----
 #'
+#' An inner join is used to combine correspondence and compliance data.
+#'
+#' This ensures we only keep vessels that appear in both datasets, effectively filtering for vessels with both compliance and correspondence records
+#' 
+
 #' Explanations:
 #'
 #' Create a new dataframe 'compl_corr_to_investigation' by performing an inner join between
@@ -871,6 +891,10 @@ num_of_vsl_to_investigate <-
 
 # Output needed investigation ----
 #' %%%%% Prepare output
+#' 
+#' "Investigation" in this context refers to vessels that meet the criteria for egregious violations and require further action.
+#' 
+#' Steps:
 #' 
 #' 1. Remove unused columns.
 #' 
@@ -1222,14 +1246,24 @@ compl_corr_to_investigation_short_dup_marked__permit_region__add_columns |>
   readr::write_csv(result_path)
 
 ## Write to google sheets ----
-#' Define the function to write results to Google Sheets
+
+#' Define the function to write results to Google Sheets.
 #' 
-#' It will rename the existing 'Egregious Violators Current' file to a file with the name with a date from its tab (e.g. "egregious_violators_to_investigate_2024-06-18".
-#' 
-#' Then it will create a new 'Egregious Violators Current' file with the new results in the same directory ("Egregious violators/output").
+#' This function performs the following steps:
+#'
+#' 1. Renames the existing 'Egregious Violators Current' spreadsheet to a spreadsheet with the name with a date from its tab (e.g. "egregious_violators_to_investigate_2024-06-18"
+#'
+#' 2. Creates a new 'current' spreadsheet
+#'
+#' 3. Writes the new results to the new 'Egregious Violators Current' spreadsheet in the same Google drive directory ("Egregious violators/output")
+#'
+#' 4. Removes the default empty sheet
+#'
+#' 5. Opens the new spreadsheet in the browser for verification
+#'
+#' 6. Returns a shareable link to the new spreadsheet
 #' 
 #' It need to be a function, this way we can call it if needed, not every time we run the code.
-#'
 #'
 
 write_res_to_google_sheets <- 
