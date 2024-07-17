@@ -70,24 +70,24 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
   # .rs.restartR()
 }
 
-#' Auxiliary functions for SEFHIER data analysis.
+# Auxiliary functions for SEFHIER data analysis.
 library(auxfunctions)
-#' Helps with time series.
+# Helps with time series.
 library(zoo)
-#' Compares 2 dataframes and outputs any differences.
+# Compares 2 dataframes and outputs any differences.
 library(diffdf)
 
-#' Install and attach R packages for Google Sheets and Google Drive
-#' 
-#' Refer to this guide: https://felixanalytix.medium.com/how-to-read-write-append-google-sheet-data-using-r-programming-ecf278108691#:~:text=There%20are%203%20ways%20to%20read%20this%20Google%20sheet%20into%20R.&text=Just%20to%20take%20the%20URL,URL%20but%20just%20the%20ID).
-#' 
+# Install and attach R packages for Google Sheets and Google Drive
+# 
+# Refer to this guide: https://felixanalytix.medium.com/how-to-read-write-append-google-sheet-data-using-r-programming-ecf278108691#:~:text=There%20are%203%20ways%20to%20read%20this%20Google%20sheet%20into%20R.&text=Just%20to%20take%20the%20URL,URL%20but%20just%20the%20ID).
+# 
 library(googlesheets4) # Google Sheets via the Sheets API v4 
 library(googledrive) # Interact with Google Drive 
 
-#' Set options to prevent converting long numbers to scientific notation for input/output in spreadsheets and csv files
+# Set options to prevent converting long numbers to scientific notation for input/output in spreadsheets and csv files
 options(scipen = 999)
 
-#' Keep the same timezone across R and Oracle subsystems
+# Keep the same timezone across R and Oracle subsystems
 Sys.setenv(TZ = Sys.timezone())
 Sys.setenv(ORA_SDTZ = Sys.timezone())
 
@@ -599,8 +599,8 @@ compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present__vesl_ids <
 
 #' check vessel's number
 dim(compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present__vesl_ids)
-#' E.g.
-#' 149 
+# E.g.
+# 149 
 
 #### check these ids in the full compliance information ----
 #' Is there a new submitted report?
