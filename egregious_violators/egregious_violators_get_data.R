@@ -1,6 +1,19 @@
 # get data for egregious violators
 # use from egregious_violators_start.R
 
+#' This section retrieves data from various sources including:
+#'
+#' - Compliance records
+#'
+#' - Correspondence logs
+#'
+#' - Permit information
+#'
+#' - Address data
+#'
+#' The data is loaded from CSV files, databases, and previously processed results
+#' 
+
 #' The following data are loaded from files or from the Oracle database
 #' 
 #' 1) compliance data
