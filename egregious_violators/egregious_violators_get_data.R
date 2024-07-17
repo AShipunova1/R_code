@@ -51,6 +51,8 @@
 
 #' 7) Previous results (from google drive)
 #' 
+#' There are two options here, to downloaded the file as .xlsx or to get it directly from Google drive into R.
+#' 
 #' "~\egregious_violators\egregious_violators_to_investigate_2024-05-17.xlsx"
 #' 
 
@@ -60,7 +62,7 @@
 #' 
 #' Correspondence
 #' 
-#' permit info from processed metrics tracking
+#' Permit info from processed metrics tracking
 #' 
 
 ## Compliance and Correspondence data ----
@@ -135,7 +137,7 @@ dim(compl_clean)
 dim(corresp_contact_cnts_clean0)
 # [1] 34549    22
 
-## get Metric Tracking (permits from FHIER) ----
+## Get Metric Tracking (permits from FHIER) ----
 
 #' Read the processed metrics tracking files for all years
 processed_metrics_tracking_permits <-
@@ -175,7 +177,7 @@ dim(fhier_addresses)
 # Example result: [1] 3386    7
 
 # PIMS ----
-## home port processed city and state ----
+## Home port processed city and state ----
 
 processed_pims_home_ports <- 
   readr::read_csv(processed_pims_home_ports_path)
@@ -185,14 +187,14 @@ dim(processed_pims_home_ports)
 # [1] 23303     3
 
 # Load from Oracle db ----
-## get owners addresses ----
+## Get owners addresses ----
 #' Create parameters for `read_rds_or_run` function to read or download "participants address"
 db_participants_address_query <-
   "select * from
 SRH.MV_SERO_VESSEL_ENTITY@secapxdv_dblk
 "
 
-#' It uses the predefined path to the input directory and a file name to read or write to.
+# It uses the predefined path to the input directory and a file name to read or write to.
 db_participants_address_file_path <-
   file.path(current_project_input_path,
             "db_participants_address.rds")
@@ -235,17 +237,14 @@ db_participants_address <-
 #' The same as above with new parameters. 
 #' 
 #' Prepare the parameters.
-
+#' 
 #' The SQL query.
 #'
-#' Select only vessels with SA permits,
-#'
-#' not expired by today,
-#'
-#' with different owners or 
-#'
-#' permit status indicating something other than usual
-#' 
+# Select only vessels with SA permits,
+# not expired by today,
+# with different owners or 
+# permit status indicating something other than usual
+# 
 permit_vessel_w_changed_owner_query <- 
 "SELECT
   *
@@ -263,7 +262,7 @@ ORDER BY
   vessel_id
 "
 
-#' It uses the predefined path to the input directory and a file name to read or write to.
+# It uses the predefined path to the input directory and a file name to read or write to.
 permit_vessel_w_changed_owner_file_path <-
   file.path(current_project_input_path,
             "permit_vessel_w_changed_owner.rds")
@@ -315,7 +314,7 @@ permit_vessel_w_changed_owner |>
 #' 
 #' get_previous_result_from_google_drive() gets data directly from Google drive
 #' 
-#' Run only one of them and save the dataframe in prev_result variable. 
+#' Run only one of them and save the dataframe in `prev_result` variable. 
 #' 
 
 #' From a local file
@@ -347,17 +346,16 @@ get_previous_result_from_local_file <- function() {
 #' To get previous data directly from Google drive
 get_previous_result_from_google_drive <- function() {
   
-  
   previous_result_google_ss_name <-
     basename(prev_result_path) |>
     tools::file_path_sans_ext()
   
-  # When asked for the authentication the first time choose the appropriate option and follow the instructions. If you writing again in the same R session you can choose the option 2 and it will confirm your access automatically.
-  # Assuming that there is only one file with that name.
+  # When asked for the authentication the first time choose the appropriate option and follow the instructions. If you are writing again in the same R session you can choose the option 2 and it will confirm your access automatically.
+  # We assuming that there is only one file with that name in your Google drive.
   
   my_previous_ss <- googlesheets4::gs4_find(previous_result_google_ss_name, n_max = 1)
   
-  # load it to R
+  # Load it to R.
   # And clean it as usual, changing headers to lower case with underscores and removing empty columns
   previous_result <-
     googlesheets4::read_sheet(my_previous_ss) |>
@@ -367,7 +365,7 @@ get_previous_result_from_google_drive <- function() {
   return(previous_result)
 }
 
-#' Un-comment and run one of the functions
+#' Un-comment and run one of the functions.
 #' 
 # prev_result <- get_previous_result_from_local_file()
 # or
