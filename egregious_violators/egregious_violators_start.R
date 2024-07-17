@@ -418,8 +418,6 @@ source(get_data_path)
 #'
 #' db_participants_address
 #'
-#' permit_vessel_w_changed_owner
-#'
 #' prev_result
 #'
 
