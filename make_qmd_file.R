@@ -488,7 +488,22 @@ nested_functions <-
 my_used_function_names_from_nested <-
   setdiff(nested_functions, my_used_function_names)
 
-grep("conn", my_used_function_names, value = T)
+my_used_function_texts_from_nested <-
+  get_my_used_function_texts(my_used_function_names_from_nested)
+
+my_used_function_helps_from_nested <- 
+  get_my_used_function_helps(my_used_function_names_from_nested)
+
+# TODO: do the part from
+# nested_functions <-
+#   my_used_function_texts |>
+#   get_my_func_names_wo_prefix()
+# recursively, until 
+# length(nested_functions_last_check) == 0
+
+nested_functions_last_check <-
+  my_used_function_texts_from_nested |>
+  get_my_func_names_wo_prefix()
 
 ## Paste function code and description before it is used ----
 
