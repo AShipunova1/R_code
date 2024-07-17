@@ -690,7 +690,7 @@ registerS3method(
 
 # End of Quarto setup
 
-# In the following code '<<<<' and '>>>>' denote the start and the end of definitions and help documents for functions from the `auxfunctions` package.
+#' In the following code '<<<<' and '>>>>' denote the start and the end of definitions and help documents for functions from the `auxfunctions` package.
 
 ```
 
