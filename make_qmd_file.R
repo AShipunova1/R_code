@@ -379,10 +379,10 @@ get_my_func_names_wo_prefix <-
   to_search <- str_glue("{search_str}(\\w+)\\(")
   
   my_used_function_names <-
-    str_extract(in_text, to_search) |>
+    stringr::str_extract(in_text, to_search) |>
     unique() |>
     na.omit() |>
-    str_replace_all(to_search, "\\1")
+    stringr::str_replace_all(to_search, "\\1")
   
   return(my_used_function_names)
 }
@@ -431,7 +431,7 @@ get_help_text <- function(function_name) {
         purrr::flatten_chr() %>%
         paste0(., collapse = "")
     }) |>
-    setNames(used_tags)
+    stats::setNames(used_tags)
   
   used_tags_help <- 
     paste(used_tags_help_list[[1]],
@@ -440,7 +440,7 @@ get_help_text <- function(function_name) {
   
   used_tags_help_commented <- 
     used_tags_help |> 
-    str_replace_all("\n", "\n# ")
+    stringr::str_replace_all("\n", "\n# ")
   
   return(used_tags_help_commented)
 }
@@ -448,8 +448,8 @@ get_help_text <- function(function_name) {
 ## a function to get function obj as a text ----
 function_obj_as_text <- function(function_name) {
   # remove environment descriptions
-  fun_body <- paste(capture.output(function_name), collapse = "\n") |>
-    str_replace_all("\\n<.+", "")
+  fun_body <- paste(utils::capture.output(function_name), collapse = "\n") |>
+    stringr::str_replace_all("\\n<.+", "")
   
   return(fun_body)
 }
@@ -464,19 +464,19 @@ get_my_used_function_texts <-
       my_used_function_names |>
       map(\(one_f_name) {
         # browser()
-        function_list <- getAnywhere(one_f_name)
+        function_list <- utils::getAnywhere(one_f_name)
         
         function_as_text <-
           function_list$objs[[1]] |>
           function_obj_as_text() |>
-          str_replace_all("\\\\", my_slash_replacement)
+          stringr::str_replace_all("\\\\", my_slash_replacement)
         
         with_first_line <-
           paste(one_f_name, " <- ", function_as_text)
         
         return(with_first_line)
       }) |>
-      set_names(my_used_function_names)
+      rlang::set_names(my_used_function_names)
     
     return(my_used_function_texts)
   }
@@ -490,10 +490,10 @@ get_my_used_function_helps <-
   function(my_used_function_names) {
     my_used_function_helps <-
       my_used_function_names |>
-      map(\(one_f_name) {
+      purrr::map(\(one_f_name) {
         get_help_text(one_f_name)
       }) |>
-      set_names(my_used_function_names)
+      rlang::set_names(my_used_function_names)
     return(my_used_function_helps)
   }
 
