@@ -472,7 +472,8 @@ compl_clean_w_permit_exp_last_half_year__sa <-
 dim(compl_clean_w_permit_exp_last_half_year__sa)
 # [1] 38761    22
 
-### Keep fewer columns ----
+### Keep fewer columns in compliance df ----
+
 remove_columns_from_compliance <- c(
   "name",
   "gom_permitteddeclarations__",
