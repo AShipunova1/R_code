@@ -532,7 +532,7 @@ db_participants_address__needed_short__erv_erb_combined_short__u_no_c <-
 
 #' Explanation:
 #'
-#' This code renames the columns in the dataframe `db_participants_address__needed_short__erv_erb_combined_short__u_no_c` by removing the suffix "_u" from their names.
+#'Remove the "_u" suffix from column names in the dataframe
 #'
 #' 1. **Renaming Columns:**
 #'
@@ -551,6 +551,8 @@ db_participants_address__needed_short__erv_erb_combined_short__u_ok <-
                                             replacement = ""))
 
 # Join FHIER and Oracle db addresses ----
+#' Combine FHIER and Oracle database address information using vessel official number
+#' 
 compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr <-
   compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>
   dplyr::left_join(
@@ -558,7 +560,7 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr <-
     dplyr::join_by(vessel_official_number == official_number)
   )
 
-#' check
+# check
 # compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr |>
 #   filter(vessel_official_number == "1235397") |>
 #   glimpse()
