@@ -717,7 +717,8 @@ compl_clean_w_permit_exp_last_half_year__sa |>
 # Preparing Correspondence ----
 
 ## Remove 999999 ----
-#' Use 'filter' to select rows where 'vessel_official_number' does not start with "99999".
+#' 
+#' Remove vessels with official numbers starting with "99999" as they are placeholder or test entries
 #' 
 corresp_contact_cnts_clean <-
   corresp_contact_cnts_clean0 |>
@@ -734,24 +735,18 @@ corresp_contact_cnts_clean |>
   dplyr::distinct() |> head(10)
 
 ## Correspondence Filters ----
-#' The functions below are creating filter conditions using quosures. Quosures are a part of tidy evaluation in R, allowing expressions to be captured without evaluation, which is useful for creating functions with flexible inputs.
 #' 
-#'
-#' Explanations:
+#' This section defines various filters for correspondence data using quosures.
 #' 
-#' **Expression inside quo()**:
+#' Quosures are a part of tidy evaluation in R, allowing expressions to be captured without evaluation, which is useful for creating functions with flexible inputs.
 #'
-#' Check if any entry was an "outgoing call"
+#' Define a filter to check if any entry was an outgoing call
 #'
 we_called_filter <-
   dplyr::quo(any(tolower(contacttype) == "call" &
         tolower(calltype) == "outgoing"))
 #'
-#' Explanations:
-#' 
-#' **Expression inside quo()**:
-#'
-#' Check if any entry was an "outgoing email or other"
+#' Define a filter to check if any entry was an outgoing email or other contact type
 #'
 we_emailed_once_filter <-
   dplyr::quo(any(
@@ -769,7 +764,7 @@ we_emailed_once_filter <-
 #'
 #'    - The `!` operator negates the result, so the filter condition will be `TRUE` for rows where "No contact made" is not found in the `contactcomments` column.
 #' 
-#' The `exclude_no_contact_made_filter` function effectively creates a filter condition that can be used to exclude rows where "No contact made" is found in the `contactcomments` column when applied to a dataset.
+#' The `exclude_no_contact_made_filter` function creates a filter condition to exclude rows where "No contact made" is found in the `contactcomments` column.
 #' 
 exclude_no_contact_made_filter <-
   dplyr::quo(!grepl("No contact made", 
@@ -778,11 +773,7 @@ exclude_no_contact_made_filter <-
 #'
 #' don't need a second contact
 #' 
-#' Explanations:
-#' 
-#' **Expression inside quo()**:
-#'
-#' Check if any contact was "incoming"
+#' Define a filter to check if any contact was incoming
 #'
 they_contacted_direct_filter <-
   dplyr::quo(
@@ -792,7 +783,9 @@ they_contacted_direct_filter <-
   )
 
 ### Use the filters ----
-#'
+#' Apply filters to create a subset of correspondence data meeting specific criteria
+#' 
+
 #' Explanations:
 #'
 #' - `corresp_contact_cnts_clean |> ...` starts the pipeline with the data frame `corresp_contact_cnts_clean`.
@@ -822,7 +815,7 @@ they_contacted_direct_filter <-
 #'   - `!!exclude_no_contact_made_filter` evaluates the `exclude_no_contact_made_filter` variable as a logical expression.
 #' 
 #' This code filters the `corresp_contact_cnts_clean` data frame to include rows where either the `calltype` is "incoming" or the `contact_freq` is greater than 1 and both `we_called_filter` and `we_emailed_once_filter` are true. Additionally, it filters rows based on the `exclude_no_contact_made_filter` condition.
-#' 
+#'
 
 corresp_contact_cnts_clean_direct_cnt_2atmps <-
   corresp_contact_cnts_clean |>
@@ -834,7 +827,8 @@ corresp_contact_cnts_clean_direct_cnt_2atmps <-
            )) |> 
   dplyr::filter(!!exclude_no_contact_made_filter)
 #'
-#' check amount of rows before and after filtering
+#' Check the dimensions of the original and filtered datasets
+#' 
 dim(corresp_contact_cnts_clean)
 # E.g. [1] 33001    22
 dim(corresp_contact_cnts_clean_direct_cnt_2atmps)
@@ -846,6 +840,8 @@ dplyr::n_distinct(corresp_contact_cnts_clean_direct_cnt_2atmps$vesselofficial_nu
 # [1] 3865
 
 ## Fix dates ----
+#' Prepare to clean and standardize date formats
+#' 
 #' check how the dates look
 head(corresp_contact_cnts_clean_direct_cnt_2atmps$contact_date, 1) |> str()
 # chr "02/15/2024 03:15PM"
@@ -889,6 +885,8 @@ head(corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates$contact_date_dttm,
 
 # Join correspondence with compliance ----
 #'
+#' Combine correspondence and compliance data for further analysis.
+#' 
 #' An inner join is used to combine correspondence and compliance data.
 #'
 #' This ensures we only keep vessels that appear in both datasets, effectively filtering for vessels with both compliance and correspondence records
@@ -918,7 +916,8 @@ compl_corr_to_investigation <-
     relationship = "many-to-many"
   )
 #'
-#' check
+#' Verify the dimensions and content of the joined dataset
+#' 
 dim(compl_corr_to_investigation)
 # E.g.
 # [1] 30844    32
@@ -930,7 +929,8 @@ dplyr::n_distinct(compl_corr_to_investigation$vesselofficial_number)
 head(compl_corr_to_investigation) |> 
   glimpse()
 
-## Save number of vessels to investigate for further checks ----
+## Store the count of unique vessels ----
+#' For later verification and reporting
 num_of_vsl_to_investigate <- 
   dplyr::n_distinct(compl_corr_to_investigation$vesselofficial_number)
 #'
@@ -955,7 +955,8 @@ num_of_vsl_to_investigate <-
 #' 
 
 ## 1. Remove extra columns ----
-
+#' List of columns to be excluded from the final output for simplification and focus on relevant data. Commented are column names to retain.
+#' 
 unused_fields <- c(
   "vesselofficial_number",
   "primary",
@@ -986,6 +987,8 @@ unused_fields <- c(
   "compliant_after_override")
 #'
 #'
+#' Create a simplified version of the investigation data, removing unused fields and concatenating unique values for each vessel
+#' 
 #' Explanations:
 #'
 #' 1. Exclude columns specified in 'unused_fields' from the data frame.
