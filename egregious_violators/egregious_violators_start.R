@@ -1018,7 +1018,10 @@ nrow(compl_corr_to_investigation_short) == num_of_vsl_to_investigate
 ## 2. Create additional columns ----
 ### Add list of contact dates and contact type in parentheses  ----
 #'
-#' put column names into variables (needed, bc spaces and underscores placements vary from source to source)
+#' Define column name variables for flexibility across different data sources.
+#' 
+#' Spaces and underscores placements vary from source to source.
+#' 
 contactdate_field_name <-
   auxfunctions::find_col_name(compl_corr_to_investigation_short, "contact", "date")[1]
 
@@ -1028,6 +1031,8 @@ contacttype_field_name <-
 contactphonenumber_field_name <-
   auxfunctions::find_col_name(compl_corr_to_investigation_short, ".*contact", "number.*")[1]
 #'
+#'  Function to create a summary of contact dates and types for each vessel
+#'  
 #' Explanations:
 #' 
 #' Define a function 'get_date_contacttype' that takes a dataframe 'compl_corr_to_investigation' as input.
@@ -1051,7 +1056,8 @@ get_date_contacttype <-
   
     res <-
       my_df |>
-      # add a new column date__contacttype with contactdate and contacttype
+      # Combine contact date and type into a single column
+
       dplyr::mutate(date__contacttype =
                       paste(
                         !!rlang::sym(contactdate_field_name),
@@ -1072,19 +1078,20 @@ get_date_contacttype <-
     return(res)
   }
 #'
-#' use the function
+#' Apply the get_date_contacttype function
 date__contacttype_per_id <-
   get_date_contacttype(compl_corr_to_investigation_short)
 #'
-#' Check if number of vessels didn't change
+#' Verify that the number of vessels remains consistent
 nrow(date__contacttype_per_id) == num_of_vsl_to_investigate
 #'
-#' Check how the result looks like 
+#' Display a sample of the resulting data for verification
 date__contacttype_per_id |>
   head() |>
   dplyr::glimpse()
 
 #### Add the new column back ----
+# Join the short compliance/correspondence data with date and contact type information
 compl_corr_to_investigation__corr_date <-
   dplyr::left_join(compl_corr_to_investigation_short,
             date__contacttype_per_id) |>
@@ -1104,13 +1111,15 @@ compl_corr_to_investigation__corr_date |>
 
 ### Add pims home port info ----
 #'
-#' change PIMS home port info column names 
+#' Rename columns in the processed PIMS home ports data for consistency
+#' 
 processed_pims_home_ports_renamed <- 
   processed_pims_home_ports |> 
   dplyr::rename("hailing_port_city" = city_fixed,
          "hailing_port_state" = state_fixed)
 #'
-#' join home ports and compliance/correspondence by vessel id
+#' Combine compliance/correspondence data with hailing port information
+#' 
 compl_corr_to_investigation__corr_date__hailing_port <- 
   dplyr::left_join(
     compl_corr_to_investigation__corr_date,
@@ -1120,6 +1129,7 @@ compl_corr_to_investigation__corr_date__hailing_port <-
 
 ### Add prepared addresses ----
 
+# Define the path to the address preparation script
 # This is used only with source()
 prep_addresses_path <-
   file.path(current_project_path,
