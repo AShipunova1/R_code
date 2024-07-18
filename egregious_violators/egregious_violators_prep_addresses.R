@@ -1,11 +1,7 @@
-#' Manually check missing addresses
-#'
-#' This part of the code aims to gather and clean up address information for vessels from two main sources: FHIER and an Oracle database. It then combines this information to create a more complete set of address data for each vessel.
-#' The main output is a dataset called `compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr`, which combines vessel information with address data from both FHIER and the Oracle database.
-#' The code starts by cleaning and simplifying the FHIER address data, keeping only the most relevant information. It identifies vessels that are missing address information in the FHIER data, and then retrieves additional address information for these vessels from the Oracle database. The code cleans and processes this Oracle database information, combining multiple entries for the same vessel when necessary. Finally, it joins all this information together, creating a more complete dataset with address information from both sources.
-#' Manually check missing addresses
+#' Check and add missing addresses
 #'
 #' This part aims to gather and clean up address information for vessels from two main sources: FHIER and an Oracle database. It then combines this information to create a more complete set of address data for each vessel.
+#' 
 #' The main output is a dataset called `compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr`, which combines vessel information with address data from both FHIER and the Oracle database.
 #'
 #' The code starts by cleaning and simplifying the FHIER address data, keeping only the most relevant information.
@@ -18,7 +14,6 @@
 #'
 #' Finally, it joins all this information together, creating a more complete dataset with address information from both sources.
 #'
-
 
 # Addresses from FHIER ----
 
@@ -547,4 +542,3 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr <-
 cat("Result: ",
     "compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr",
     sep = "\n")
-
