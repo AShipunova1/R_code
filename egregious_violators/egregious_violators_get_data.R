@@ -89,7 +89,8 @@
 
 #' Read correspondence and compliance csvs
 #' 
-#' Read all columns as characters
+#' Load CSV files into a list, treating all columns as character type
+#' 
 csv_contents <- 
   lapply(all_csv_full_paths_list, 
          readr::read_csv, 
@@ -97,7 +98,10 @@ csv_contents <-
 
 #' Clean all CSVs: Trim vessel IDs and clean column names
 #' 
-#' Replace all non-alphanumeric characters with underscores ('_')
+#' Apply cleaning functions to standardize data across all CSV files
+#' 
+#' Replace all non-alphanumeric characters with underscores ('_'), unify the case
+#' 
 csvs_clean1 <- 
   auxfunctions::clean_all_csvs(csv_contents)
 
@@ -112,9 +116,10 @@ csvs_clean1 <-
 #' - The `add_count` function is then used to count the number of contacts per vessel, distinguishing between vessels that were contacted and those that were not. The result is stored in a new column named "contact_freq".
 #'
 #' Change to date format `created_on` and `contact_date` fields
-
 #'
-#' Process and clean the correspondence data
+#' Clean and process correspondence data, adding contact information and frequency
+#' 
+
 corresp_contact_cnts_clean0 <- 
   csvs_clean1[[1]] |> 
   auxfunctions::corresp_cleaning()
@@ -125,15 +130,18 @@ head(corresp_contact_cnts_clean0) |>
 
 #' For compliance:
 #' 
-#' Clean compliance data
+#' Clean and process compliance data for all years
+#' 
+#' Use all dataframes from the csvs_clean1 list except the first (correspondence)
+#' 
 compl_clean_list <-
   csvs_clean1[2:length(csvs_clean1)] |>
   auxfunctions::compliance_cleaning()
 
-#' Use the analysis years as data frame names for compliance
+#' Assign analysis years as names to the compliance data frames for easy reference
 names(compl_clean_list) <- c(my_year1, my_year2)
 
-#' Check dimensions of each cleaned compliance data frame
+#' Check the size of each cleaned compliance data frame to ensure proper data loading and processing
 purrr::map(compl_clean_list, dim)
 
 #' Example result for dimensions check
@@ -143,11 +151,13 @@ purrr::map(compl_clean_list, dim)
 # $`2024`
 # [1] 71350    20
 
-#' Combine compliance data for all years into one data frame
+#' This step merges the cleaned compliance data from multiple years into a single dataset for easier analysis
+
 compl_clean <-
   rbind(compl_clean_list[[my_year1]], compl_clean_list[[my_year2]])
 
 #' Check dimensions of the combined compliance data frame
+#' This helps verify the size of the merged dataset and ensure all data was combined correctly
 dim(compl_clean)
 # [1] 221081     20
 
@@ -157,7 +167,9 @@ dim(corresp_contact_cnts_clean0)
 
 ## Get Metric Tracking (permits from FHIER) ----
 
-#' The file is processed with processing_metrics_tracking.R from Google drive.
+#' The metrics tracking data contains permit information from FHIER (For-Hire Integrated Electronic Reporting Program)
+#' 
+#' It is processed using a separate script (processing_metrics_tracking.R) stored on Google Drive
 #'  
 #' Read the processed metrics tracking files for all years
 processed_metrics_tracking_permits <-
@@ -165,6 +177,9 @@ processed_metrics_tracking_permits <-
          readr::read_rds)
 
 #' Convert column names to lowercase for consistency
+#' 
+#' This ensures uniform naming conventions across different datasets
+#' 
 names(processed_metrics_tracking_permits) <-
   names(processed_metrics_tracking_permits) |>
   tolower()
@@ -178,13 +193,16 @@ dim(processed_metrics_tracking_permits)
 # [1] 9977    9
 
 ## Physical Address List from FHIER ----
-#' Download first from REPORTS / For-hire Primary Physical Address List
+#' 
+#' Download first from REPORTS / For-hire Primary Physical Address List.
 #' 
 #' Load FHIER addresses from the provided path
 #' 
-#' Read all columns as characters
+#' This dataset contains physical address information for for-hire vessels.
 #' 
-#' Use the same column names convention
+#' Read all columns as characters.
+#' 
+#' Use the same column names convention.
 #' 
 
 fhier_addresses <-
@@ -197,7 +215,15 @@ dim(fhier_addresses)
 # Example result: [1] 3386    7
 
 # PIMS ----
+
+#' 
+#' Load processed PIMS (Permit Information Management System) home port data
+#' 
+
 ## Home port processed city and state ----
+
+#' This dataset contains information about vessel home ports, including city and state
+#' 
 
 processed_pims_home_ports <- 
   readr::read_csv(processed_pims_home_ports_path)
