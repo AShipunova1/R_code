@@ -84,7 +84,7 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
   # .rs.restartR()
 }
 
-# Auxiliary functions for SEFHIER data analysis.
+# Helper functions for SEFHIER data analysis.
 library(auxfunctions)
 # Helps with time series.
 library(zoo)
