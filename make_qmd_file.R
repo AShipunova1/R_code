@@ -635,9 +635,20 @@ title: {curent_project_name}
 setup_text <- "
 ```{r no cache setup, results='hide', message=FALSE, warning=FALSE, cache=FALSE, include=FALSE}
 
+#' Quarto
+#'
+#' Quarto enables you to weave together content and executable code into a finished document.
+#'
+#' Running Code
+#'
+#' The **Run** button allows you to run individual or bunch of chunks as a regular R script.
+#'
+#' When you click the **Render** button a document will be generated that includes both content and the output of embedded code. 
+#'
+
 # Setup for Quarto
 
-# Load libraries
+# Load required libraries
 # A general-purpose tool for dynamic report generation in R
 library(knitr)
 
