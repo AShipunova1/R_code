@@ -234,25 +234,31 @@ dim(processed_pims_home_ports)
 
 # Load from Oracle db ----
 ## Get owners addresses ----
+
 #' Create parameters for `read_rds_or_run` function to read or download "participants address"
+#' 
+# Define the SQL query to fetch participant address data
 db_participants_address_query <-
   "select * from
 SRH.MV_SERO_VESSEL_ENTITY@secapxdv_dblk
 "
+
+# Set the file path for storing or reading the participant address data
 
 # It uses the predefined path to the input directory and a file name to read or write to.
 db_participants_address_file_path <-
   file.path(current_project_input_path,
             "db_participants_address.rds")
  
-#' Try to connect to Oracle if it is not done already.
+#' 
+#' Attempt to establish a connection to Oracle database
 #' 
 #' Print an error message if no connection, but keep running the code.
 if (!exists("con")) {
   try(con <- auxfunctions::connect_to_secpr())
 }
 
-#' The function parameter for read_rds_or_run
+#' Define a parameter for a function to fetch participant address data from the database
 db_participants_address_fun <-
   function(db_participants_address) {
     # browser() # Commented out browser function for debugging
@@ -260,6 +266,9 @@ db_participants_address_fun <-
                       db_participants_address))
   }
 
+#' 
+#' Fetch or load participant address data, clean it, and prepare for analysis, using the parameters.
+#' 
 #' Read the file with db_participants_address if exists, 
 #'
 #' load from the Oracle database if not,
@@ -281,7 +290,11 @@ db_participants_address <-
 
 # Data from the previous results of "egregious violators for investigation" ----
 
-#' There are 2 functions, 
+#' The following section deals with data from previous "egregious violators for investigation" results
+#' 
+#' Instructions for retrieving previous results
+#' 
+#' There are 2 functions,
 #' 
 #' get_previous_result_from_local_file() assumes you have downloaded the previous results and 
 #' 
@@ -290,7 +303,7 @@ db_participants_address <-
 #' Run only one of them and save the dataframe in `prev_result` variable. 
 #' 
 
-#' From a local file
+#' Function to retrieve and process previous results from a downloaded file
 get_previous_result_from_local_file <- function() {
   
   # Download first as .xlsx from Google drive
@@ -316,11 +329,13 @@ get_previous_result_from_local_file <- function() {
   return(prev_result)
 }
 
-#' To get previous data directly from Google drive
+#' Function to retrieve and process previous results directly from Google Drive
 get_previous_result_from_google_drive <- function() {
   
   previous_result_google_ss_name <-
+    # Takes the base name of the file from `prev_result_path` (removes directory path)
     basename(prev_result_path) |>
+    # Removes the file extension from the base name
     tools::file_path_sans_ext()
   
   # When asked for the authentication the first time choose the appropriate option and follow the instructions. If you are writing again in the same R session you can choose the option 2 and it will confirm your access automatically.
@@ -345,6 +360,8 @@ get_previous_result_from_google_drive <- function() {
 prev_result <- get_previous_result_from_google_drive()
 
 # Results ----
+#' Create a vector of data frame names containing the results
+#' 
 results <-
   c(
     "compl_clean",
