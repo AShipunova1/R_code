@@ -19,19 +19,27 @@ fix_names(x)
 }
 }
 \details{
+
 The `fix_names` function is designed to clean and standardize column names within a dataframe.
 
 1. **Function Definition:**
+
    - `fix_names <- function (x) \{ .. \}`: Defines a function named `fix_names` that takes one argument, `x`, which represents the input dataframe.
 
 2. **Cleaning Column Names:**
+
    - `x %>% str_replace_all("\\.", "")`: Removes all occurrences of periods (`.`) from the column names using `str_replace_all` from the `stringr` package.
+
    - `str_replace_all("[^A-z0-9]", "_")`: Replaces all non-alphanumeric characters (excluding underscores) with underscores (`_`). This step ensures that the column names only contain letters, numbers, and underscores.
+
    - `str_replace_all("^(_*)(.+)", "\\2\\1")`: Ensures that column names do not start with multiple underscores. It captures the leading underscores (if any) and the rest of the column name using regular expressions, then rearranges them to place the underscores at the end of the column name.
+
    - `my_headers_case_function()`: Applies a custom function `my_headers_case_function` to further standardize the case of the column names. This function is defined in auxfunctions and is responsible for ensuring consistent capitalization of column names.
 
 3. **Return Statement:**
+
    - The function returns the modified dataframe with cleaned and standardized column names.
+
 }
 \value{
 %%  ~Describe the value returned
