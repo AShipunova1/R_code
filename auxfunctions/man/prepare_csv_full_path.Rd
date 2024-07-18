@@ -17,6 +17,8 @@ For example:
 all_csv_names_list[2:3]
 }
   \item{add_path}{
+add_path represents the subdirectory within the input directory
+  
 For example:
   add_path <- "from_Fhier/Correspondence"
 or
@@ -29,8 +31,6 @@ A full path to the directory above the `add_path` (optional)
 
 }
 \details{
-Explanations:
-
 `prepare_csv_full_path <- function(filenames_list, add_path, input_dir_part = NA) { ... }` defines a function `prepare_csv_full_path` that takes a list of filenames (`filenames_list`), a subdirectory path (`add_path`), and an optional input directory part (`input_dir_part`).
 
 \itemize{\item  `if (is.na(input_dir_part)) { ... }` checks if `input_dir_part` is `NA`:
