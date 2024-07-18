@@ -196,6 +196,8 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
 } else {
   # For Anna Shipunova
   # Manually: Change file names to the last download
+  # Using raw string literals (r"()") to handle backslashes in file paths
+
   all_csv_names_list = c(
     "Correspondence_2024_06_17.csv",
     r"(2024_06_17\FHIER_Compliance_2023__06_17_2024.csv)",
@@ -203,6 +205,8 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
   )
   
   # Add a full path in front of each file name for correspondence CSV
+  # prepare_csv_full_path function constructs full file paths by combining base path, additional path, and file names
+
   corresp_full_path <-
     auxfunctions::prepare_csv_full_path(all_csv_names_list[[1]],
                           add_path = "from_Fhier/Correspondence",
@@ -218,6 +222,8 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
   all_csv_full_paths_list <-
     c(corresp_full_path,
       compliance_full_paths)
+
+  # all_csv_full_paths_list contains full paths to all required CSV files for correspondence and compliance
 
   # Check if all the specified files exist
   purrr::map(all_csv_full_paths_list, file.exists)
@@ -266,7 +272,7 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
 
 }
 #'
-#' Check if provided paths are correct
+#' Check if all processed metrics tracking files exist
 purrr::map(processed_metrics_tracking_file_names, file.exists)
 #'
 #' if not TRUE: Check your provided path and/or create manually.
@@ -275,9 +281,7 @@ purrr::map(processed_metrics_tracking_file_names, file.exists)
 #### Physical Address List from FHIER path ----
 #' Download first from REPORTS / For-hire Primary Physical Address List
 #' 
-#' fhier_addresses_path points to a CSV file containing the primary physical addresses of for-hire vessels
-#' 
-#' Depending on a user name who runs the code, the file paths are constructed here.
+#' Set the path for FHIER addresses based on the user
 #' 
 #' Manually: Add your full path instead of "Your full path here".
 #' 
@@ -293,15 +297,16 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
     )
 }
 #'
-#' Check, correct the path if it is doesn't exist
+#' fhier_addresses_path points to a CSV file containing the primary physical addresses of for-hire vessels
+#' 
+#' Verify that the FHIER addresses file exists at the specified path, correct the path if it is doesn't exist
+#' 
 file.exists(fhier_addresses_path)
 
 #### Home port processed city and state path ----
 #' Download first from Google drive.
 #' 
-#' processed_pims_home_ports_path points to a CSV file containing processed data about vessel home ports, including city and state information
-#' 
-#' Depending on a user name who runs the code, the file paths are constructed here.
+#' Set the path for processed PIMS home ports based on the user.
 #' 
 #' Manually: Add your full path instead of "Your full path here".
 #' 
@@ -316,7 +321,9 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
               "vessels_from_pims_ports_2024-06-18.csv")
 }
 
-# Check, correct the path if it is doesn't exist
+#' processed_pims_home_ports_path points to a CSV file containing processed data about vessel home ports, including city and state information
+#' 
+#' Verify that the processed PIMS home ports file exists at the specified path, correct the path if it is doesn't exist.
 file.exists(processed_pims_home_ports_path)
 
 #### Data from the previous results of "egregious violators for investigation" path ----
