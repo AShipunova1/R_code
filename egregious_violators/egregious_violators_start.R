@@ -397,7 +397,9 @@ output_egr_violators_googledrive_folder_path <-
 
 ## Define dates ----
 #'
-#' Manually: my_year1 and my_year2 values might be changed.
+#' Define start and end years for the analysis period
+#' 
+#' Manually: These values may be adjusted as needed
 #' 
 # start year for the analysis
 my_year1 <- "2023"
@@ -410,6 +412,8 @@ my_beginning2 <- stringr::str_glue("{my_year2}-01-01")
 my_end2 <- stringr::str_glue("{my_year2}-12-31")
 #'
 #' Following are the definitions of dates used throughout the code.
+#' 
+#' Set the current date as the data file date
 data_file_date <- 
   lubridate::today()
   
@@ -417,34 +421,37 @@ data_file_date <-
 #' The 26-week period is used to define long-term non-compliance
 number_of_weeks_for_non_compliancy = 26
 
-#' The 7-day grace period allows for recent reports that may not yet be processed
+#' Calculate number of days in non compl weeks
 days_in_non_compl_weeks <- 
   number_of_weeks_for_non_compliancy * 7
 
 # test, should be TRUE
 days_in_non_compl_weeks == 182
 #'
-#' Other useful dates
+#' The 7-day grace period allows for recent reports that may not yet be processed
 grace_period = 7 # days
 
+# Calculate the date 26 weeks (plus grace period) before the current date
 half_year_ago <-
   data_file_date - days_in_non_compl_weeks - grace_period
 #'
-#' check week and day of the period's start, can compare with a calendar
+#' Check the week number and day of the week for the period's start
+#' 
+#' This can be used to verify the calculation against a calendar
+#' 
 lubridate::week(half_year_ago)
 
 lubridate::wday(half_year_ago, label = T)
 #'
-#' Permit expiration minimum is 30 days from today
+# Set the minimum date for permit expiration (30 days from today)
 permit_expired_check_date <- data_file_date + 30
 #'
-#' We will not use the last week data
+#' Define the start of the last week, excluding it from analysis
 last_week_start <- data_file_date - grace_period
 
 # Get data ----
 #' %%%%% Prepare data
 #' 
-
 # This is used only with source()
 get_data_path <- 
   file.path(current_project_path, "egregious_violators_get_data.R")
