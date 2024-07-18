@@ -225,11 +225,14 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
 
 #### Processed Metric Tracking (permits from FHIER) ----
 #' 
+#' processed_metrics_tracking_file_names contains paths to RDS files with SEFHIER permitted vessels data for different years
+
 #' Manually: Add your full path to processed Metrics tracking for each year instead of "Your full path here".
 #' 
 #' Define paths for processed Metrics tracking CSVs.
 #' 
 #' Depending on a user name who runs the code, the file paths are constructed here.
+#' 
 #' 
 # Check if the username is not "anna.shipunova"
 if (!auxfunctions::get_username() == "anna.shipunova") {
@@ -252,7 +255,7 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
              recursive = TRUE,
              full.names = TRUE)
 
-  # Exclude links
+  # Exclude links (shortcuts) to ensure we're only working with actual data files
   processed_metrics_tracking_file_names <-
   grep(
     processed_metrics_tracking_file_names_all,
@@ -271,6 +274,8 @@ purrr::map(processed_metrics_tracking_file_names, file.exists)
 
 #### Physical Address List from FHIER path ----
 #' Download first from REPORTS / For-hire Primary Physical Address List
+#' 
+#' fhier_addresses_path points to a CSV file containing the primary physical addresses of for-hire vessels
 #' 
 #' Depending on a user name who runs the code, the file paths are constructed here.
 #' 
@@ -293,6 +298,8 @@ file.exists(fhier_addresses_path)
 
 #### Home port processed city and state path ----
 #' Download first from Google drive.
+#' 
+#' processed_pims_home_ports_path points to a CSV file containing processed data about vessel home ports, including city and state information
 #' 
 #' Depending on a user name who runs the code, the file paths are constructed here.
 #' 
