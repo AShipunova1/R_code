@@ -115,6 +115,7 @@ Sys.setenv(ORA_SDTZ = Sys.timezone())
 #' In the code in this section all user provided values have the word "manually" in the description. Everything else is created automatically.
 #'
 #'
+#'
 #' Installation logic for auxfunctions package
 #' 
 #' Different methods are used based on the user to accommodate different directory structure.
@@ -152,7 +153,10 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
 }
 #'
 #' The following section uses provided directory names lists to automatically create separate variables for future use and create current input/output directories if they do not exists.
-
+#' 
+#' 
+#' Create variables to store shortcuts to project directories
+#' 
 # This is usually the current directory name.
 current_project_name <- current_in_out_paths$project_name
 
@@ -160,13 +164,17 @@ current_project_path <- current_in_out_paths$code
             
 current_project_input_path <- current_in_out_paths$input
 
-auxfunctions::create_dir_if_not(current_project_input_path)
-
 current_project_output_path <- current_in_out_paths$output
+
+#' Create input and output directories if they don't exist
+auxfunctions::create_dir_if_not(current_project_input_path)
 
 auxfunctions::create_dir_if_not(current_project_output_path)
 
+
 ### Additional individual paths to data files ----
+#' This section sets up paths for specific data files used in the project
+
 #### Compliance and Correspondence ----
 #' 
 #' Download from FHIER first.
@@ -211,7 +219,7 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
     c(corresp_full_path,
       compliance_full_paths)
 
-  # Check if files exist
+  # Check if all the specified files exist
   purrr::map(all_csv_full_paths_list, file.exists)
 }
 
