@@ -24,6 +24,8 @@ read_rds_or_run(my_file_path,
 \item{force_from_db}{A flag that, when set, will force the function to run the specified function instead of reading from the file, even if the file exists.}
 }
 \details{
+RDS (R Data Serialization) files are a common format for saving R objects in RStudio, and they allow you to preserve the state of an object between R sessions. Saving your R object as an RDS file in R can be useful for sharing your work with others, replicating your analysis, or simply storing your work for later use.
+
 1. **Check File Existence**: The function first checks if the file specified by `my_file_path` exists and, if so, retrieves its modification time.
 
 2. **Read or Run**: Depending on the existence of the file and the `force_from_db` flag:
