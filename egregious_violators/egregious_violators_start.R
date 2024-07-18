@@ -10,7 +10,6 @@
 #' and prepares a report of vessels requiring further investigation.
 #' 
 
-
 ## The "egregious violator" definition ----
 #' 
 #' 1. NO reports for all 26 weeks back from week ago today;
@@ -86,9 +85,9 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
 
 # Helper functions for SEFHIER data analysis.
 library(auxfunctions)
-# Helps with time series.
+# Handling time series data.
 library(zoo)
-# Compares 2 dataframes and outputs any differences.
+# Compares dataframes and identifies differences.
 library(diffdf)
 
 # Install and attach R packages for Google Sheets and Google Drive
@@ -103,7 +102,7 @@ library(googledrive) # Interact with Google Drive
 
 options(scipen = 999)
 
-# Keep the same timezone across R and Oracle subsystems
+# Synchronize timezone settings between R and Oracle to ensure consistent date-time handling
 Sys.setenv(TZ = Sys.timezone())
 Sys.setenv(ORA_SDTZ = Sys.timezone())
 
@@ -114,6 +113,14 @@ Sys.setenv(ORA_SDTZ = Sys.timezone())
 #' This allows the script to run correctly on multiple systems without manual path changes.
 #' 
 #' In the code in this section all user provided values have the word "manually" in the description. Everything else is created automatically.
+#'
+#'
+#' Installation logic for auxfunctions package
+#' 
+#' Different methods are used based on the user to accommodate different directory structure.
+#' For most users, install from the main branch if not already installed
+#' For the package developer, install from the development branch to test new features
+#' 
 #' 
 #' Manually: Change the following 2 lists (*my_paths* and *current_in_out_paths*) to your environment if needed. The variable _names_ are used throughout the code, so please change only the quoted _values_ inside the lists.
 #' 
