@@ -2,7 +2,7 @@
 title: Egregious Violators
 ---
 
-# Setup 
+# Setup
 
 ```{r Setup}
 # Setup ----
@@ -78,7 +78,7 @@ registerS3method(
 ```{r setup current project, results='hide', message=FALSE, warning=FALSE}
 ```
 
-### The "egregious violator" definition 
+### The "egregious violator" definition
 
 ```{r The egregious violator definition}
 ## The "egregious violator" definition ----
@@ -97,7 +97,7 @@ registerS3method(
 
 NB. Update (download) all input files every time before run.
 
-### New requirement 2023-08-09 
+### New requirement 2023-08-09
 
 ```{r New requirement 20230809}
 ## New requirement 2023-08-09 ----
@@ -107,7 +107,7 @@ It should be at least 2 contact "attempts". i.e., if they are ignoring our calls
 
 at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough
 
-### New requirement 2024-02-26 
+### New requirement 2024-02-26
 
 ```{r New requirement 20240226}
 ## New requirement 2024-02-26 ----
@@ -115,7 +115,7 @@ at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicem
 
 It needs to be that we called at least 1 time and emailed at least 1 time. Or they contacted us at least once.
 
-### New requirement 2024-05-06 
+### New requirement 2024-05-06
 
 ```{r New requirement 20240506}
 ## New requirement 2024-05-06 ----
@@ -123,15 +123,15 @@ It needs to be that we called at least 1 time and emailed at least 1 time. Or th
 
 Exclude any correspondence (regardless of the type - email/call, voicemail or not) that includes "No contact made" in the text of the entry as a actual "direct" contact for any egregious vessel.
 
-### Set up packages and options 
+### Set up packages and options
 
 ```{r Set up packages and options}
 ## Set up packages and options ----
 
 # Install if needed and load all the packages.
-# 
+#
 # *NB*. It is better to install/load each package separately, if any one suggest updates it is safe to choose option 1 (update all).
-# 
+#
 # Load the ROracle package for database interactions with Oracle databases
 library(ROracle)
 # Collection of package development tools.
@@ -182,11 +182,11 @@ library(zoo)
 library(diffdf)
 
 # Install and attach R packages for Google Sheets and Google Drive
-# 
+#
 # Refer to this guide: https://felixanalytix.medium.com/how-to-read-write-append-google-sheet-data-using-r-programming-ecf278108691#:~:text=There%20are%203%20ways%20to%20read%20this%20Google%20sheet%20into%20R.&text=Just%20to%20take%20the%20URL,URL%20but%20just%20the%20ID).
-# 
-library(googlesheets4) # Google Sheets via the Sheets API v4 
-library(googledrive) # Interact with Google Drive 
+#
+library(googlesheets4) # Google Sheets via the Sheets API v4
+library(googledrive) # Interact with Google Drive
 
 # Set options to prevent converting long numbers to scientific notation for input/output in spreadsheets and csv files
 options(scipen = 999)
@@ -196,7 +196,7 @@ Sys.setenv(TZ = Sys.timezone())
 Sys.setenv(ORA_SDTZ = Sys.timezone())
 ```
 
-### Set up paths 
+### Set up paths
 
 ```{r Set up paths}
 ## Set up paths ----
@@ -205,33 +205,33 @@ Sys.setenv(ORA_SDTZ = Sys.timezone())
 # Explanations:
 
 # The add_count_contacts function is defined to add two new columns ('was_contacted' and 'contact_freq') to the input data frame ('all_data_df_clean') based on the presence of contact dates.
-# 
+#
 # It returns the 'result_df', which is the input data frame with the added columns indicating whether a vessel was contacted ('was_contacted') and the frequency of contacts ('contact_freq').
-# 
+#
 # Use for contacts in the setup function before combining with compliant dataframes.
-#  
-#  
-# 
+#
+#
+#
 # - The `add_count_contacts` function takes a dataframe `all_data_df_clean` as input.
-# 
+#
 # - It first finds the column names for "contact date" and "vessel number" using the `find_col_name` function.
-# 
+#
 # - Then, it adds a new column named "was_contacted", which indicates whether a contact was made with each vessel based on the presence of a contact date. If the contact date is missing (`NA`), it assigns "no"; otherwise, it assigns "yes".
-# 
+#
 # - The `add_count` function is then used to count the number of contacts per vessel, distinguishing between vessels that were contacted and those that were not. The result is stored in a new column named "contact_freq".
-# 
+#
 # - Finally, the function returns the dataframe with the added columns.
-# 
-# 
+#
+#
 
-#  add_count_contacts  <-  function (all_data_df_clean) 
+#  add_count_contacts  <-  function (all_data_df_clean)
 # {
-#     contactdate_field_name <- find_col_name(all_data_df_clean, 
+#     contactdate_field_name <- find_col_name(all_data_df_clean,
 #         "contact", "date")[1]
-#     vessel_id_field_name <- find_col_name(all_data_df_clean, 
+#     vessel_id_field_name <- find_col_name(all_data_df_clean,
 #         "vessel", "number")[1]
-#     result_df <- all_data_df_clean %>% dplyr::mutate(was_contacted = dplyr::if_else(is.na(!!sym(contactdate_field_name)), 
-#         "no", "yes")) %>% dplyr::add_count(!!sym(vessel_id_field_name), 
+#     result_df <- all_data_df_clean %>% dplyr::mutate(was_contacted = dplyr::if_else(is.na(!!sym(contactdate_field_name)),
+#         "no", "yes")) %>% dplyr::add_count(!!sym(vessel_id_field_name),
 #         was_contacted, name = "contact_freq")
 #     return(result_df)
 # }
@@ -241,25 +241,25 @@ Sys.setenv(ORA_SDTZ = Sys.timezone())
 
 # Explanations:
 
-# This function provides a simple way to obtain the username of the user executing the R code, which can be useful for personalization, authentication, or logging purposes. 
-#  
+# This function provides a simple way to obtain the username of the user executing the R code, which can be useful for personalization, authentication, or logging purposes.
+#
 # The `get_username` function is designed to retrieve the username of the current user.
-# 
+#
 # 1. **Function Definition:**
 #    - `get_username <- function() { .. }`: Defines a function named `get_username` with no arguments.
-# 
+#
 # 2. **Using System Information:**
 #    - `Sys.info()`: Calls the `Sys.info` function, which provides various system information about the current R session.
 #    - `Sys.info()["user"]`: Retrieves the username of the current user from the system information.
-# 
+#
 # 3. **Converting to Character:**
 #    - `as.character()`: Converts the username to a character vector. This step ensures consistency in the data type of the returned value.
-# 
+#
 # 4. **Return Result:**
 #    - The function returns the username of the current user as a character string.
-# 
+#
 
-#  get_username  <-  function () 
+#  get_username  <-  function ()
 # {
 #     return(as.character(Sys.info()["user"]))
 # }
@@ -270,21 +270,21 @@ Sys.setenv(ORA_SDTZ = Sys.timezone())
 # Explanations:
 
 # Pretty message print in the console.
-# 
+#
 # Provides a way to print messages with enhanced visual formatting, making them stand out for better readability or emphasis.
-#  
-#  
+#
+#
 # The `function_message_print` function is a utility function for printing messages with a cyan background color.
-# 
+#
 # 1. **Function Definition:**
 #    - `function_message_print <-function (text_msg) { .. }`: Defines a function named `function_message_print` that takes one argument, `text_msg`, representing the message to be printed.
-# 
+#
 # 2. **Printing Message with Cyan Background:**
 #    - `crayon::bgCyan$bold(text_msg)`: Formats the `text_msg` with a cyan background color and bold font using the `crayon` package. This creates a visually distinct message when printed.
 #    - `cat(..., sep = "n")`: Prints the formatted message to the console. `cat` is a function used for printing, and `sep = "n"` specifies that each message should be printed on a new line.
-# 
+#
 
-#  function_message_print  <-  function (text_msg) 
+#  function_message_print  <-  function (text_msg)
 # {
 #     cat(crayon::bgCyan$bold(text_msg), sep = "\n")
 # }
@@ -295,17 +295,17 @@ Sys.setenv(ORA_SDTZ = Sys.timezone())
 # Explanations:
 
 # This function sets the working directory to the user's home directory, defines directory paths for inputs, outputs, and GitHub R code, changes the working directory to the main R directory, and returns these paths as a list.
-#  
-#  
+#
+#
 # Here's the breakdown of the `set_work_dir_local` function:
-# 
+#
 # 1. **Function Definition:**
 #    - `set_work_dir_local <- function ()`: Defines a function named `set_work_dir_local` that takes no arguments.
-# 
+#
 # 2. **Setting Working Directory:**
 #    - `setwd("~/")`: Sets the working directory to the user's home directory.
 #    - `base_dir <- getwd()`: Retrieves the current working directory and assigns it to the variable `base_dir`.
-# 
+#
 # 3. **Defining Directory Paths:**
 #    - `main_r_dir <- "R_files_local"`: Specifies the directory name for local R files.
 #    - `in_dir <- "my_inputs"`: Specifies the directory name for input files.
@@ -314,19 +314,19 @@ Sys.setenv(ORA_SDTZ = Sys.timezone())
 #    - `full_path_to_out_dir <- file.path(base_dir, main_r_dir, out_dir)`: Combines the base directory, main R directory, and output directory to create the full path to the output directory.
 #    - `git_r_dir <- "R_code_github"`: Specifies the directory name for the GitHub repository containing R code.
 #    - `full_path_to_r_git_dir <- file.path(base_dir, git_r_dir)`: Combines the base directory and GitHub R directory to create the full path to the GitHub R directory.
-# 
+#
 # 4. **Changing Working Directory:**
 #    - `setwd(file.path(base_dir, main_r_dir))`: Sets the working directory to the main R directory.
-# 
+#
 # 5. **Creating Paths List:**
 #    - `my_paths <- list(...)`: Creates a list named `my_paths` containing the paths to the input directory, output directory, and GitHub R directory.
-# 
+#
 # 6. **Returning Paths List:**
 #    - `return(my_paths)`: Returns the `my_paths` list containing the paths to the input directory, output directory, and GitHub R directory.
-# 
-# 
+#
+#
 
-#  set_work_dir  <-  function () 
+#  set_work_dir  <-  function ()
 # {
 #     setwd("~/")
 #     base_dir <- getwd()
@@ -338,7 +338,7 @@ Sys.setenv(ORA_SDTZ = Sys.timezone())
 #     git_r_dir <- "R_code_github"
 #     full_path_to_r_git_dir <- file.path(base_dir, git_r_dir)
 #     setwd(file.path(base_dir, main_r_dir))
-#     my_paths <- list(inputs = full_path_to_in_dir, outputs = full_path_to_out_dir, 
+#     my_paths <- list(inputs = full_path_to_in_dir, outputs = full_path_to_out_dir,
 #         git_r = full_path_to_r_git_dir)
 #     return(my_paths)
 # }
@@ -357,12 +357,12 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
   auxfunctions::function_message_print(
     "Please CHANGE the following 2 lists values to your environment if needed. Use full path to your directories in quotes."
   )
-  
+
   # 1) General directories (to look up additional files, e.g. processed data). It can be left as is if you don't have it. You can provide path to individual files later.
   my_paths <- list(inputs  = "~/my_inputs",
                    outputs = "~/my_outputs",
                    git_r   = "~/R_code")
-  
+
   # 2) Current project code, input and output directories
   current_in_out_paths <-
     list(
@@ -371,7 +371,7 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
       input = "~/validation_survey/input",
       output = "~/validation_survey/output"
     )
-  
+
 } else {
   # If the username is "anna.shipunova", use Anna's directory structure.
   my_paths <- auxfunctions::set_work_dir()
@@ -387,7 +387,7 @@ The following section uses provided directory names lists to automatically creat
 current_project_name <- current_in_out_paths$project_name
 
 current_project_path <- current_in_out_paths$code
-            
+
 current_project_input_path <- current_in_out_paths$input
 
 auxfunctions::create_dir_if_not(current_project_input_path)
@@ -397,13 +397,13 @@ current_project_output_path <- current_in_out_paths$output
 auxfunctions::create_dir_if_not(current_project_output_path)
 ```
 
-#### Additional individual paths to data files 
+#### Additional individual paths to data files
 
 ```{r Additional individual paths to data files}
 ### Additional individual paths to data files ----
 ```
 
-##### Compliance and Correspondence 
+##### Compliance and Correspondence
 
 ```{r Compliance and Correspondence}
 #### Compliance and Correspondence ----
@@ -412,10 +412,10 @@ auxfunctions::create_dir_if_not(current_project_output_path)
 # Explanations:
 
 # Creates a list of paths to the current project code, input, and output directories. By default uses Anna's computer setup. It also creates input and output directories if they do not exist.
-#  
-#  
+#
+#
 
-#  current_project_paths  <-  function () 
+#  current_project_paths  <-  function ()
 # {
 #     my_paths <- auxfunctions::set_work_dir()
 #     current_project_dir_name <- this.path::this.dir()
@@ -424,8 +424,8 @@ auxfunctions::create_dir_if_not(current_project_output_path)
 #     auxfunctions::create_dir_if_not(curr_proj_input_path)
 #     curr_proj_output_path <- file.path(my_paths$outputs, current_project_name)
 #     auxfunctions::create_dir_if_not(curr_proj_output_path)
-#     current_proj_paths <- list(project_name = current_project_name, 
-#         code = current_project_dir_name, input = curr_proj_input_path, 
+#     current_proj_paths <- list(project_name = current_project_name,
+#         code = current_project_dir_name, input = curr_proj_input_path,
 #         output = curr_proj_output_path)
 #     return(current_proj_paths)
 # }
@@ -440,7 +440,7 @@ Manually: Provide full paths here, changing _values_ inside the quotes:
 
 ```{r}
 correspondence_csv_path <- "Your full path to correspondence.csv"
-fhier_compliance_csv_path_list <- 
+fhier_compliance_csv_path_list <-
   list("Your full path to fhier_compliance.csv year 1",
        "Your full path to fhier_compliance.csv year 2")
 ```
@@ -463,19 +463,19 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
     r"(2024_06_17\FHIER_Compliance_2023__06_17_2024.csv)",
     r"(2024_06_17\FHIER_Compliance_2024__06_17_2024.csv)"
   )
-  
+
   # Add a full path in front of each file name for correspondence CSV
   corresp_full_path <-
     auxfunctions::prepare_csv_full_path(all_csv_names_list[[1]],
                           add_path = "from_Fhier/Correspondence",
                           input_dir_part = my_paths$inputs)
-  
+
   # Add a full path in front of each file name for compliance CSVs
   compliance_full_paths <-
     auxfunctions::prepare_csv_full_path(all_csv_names_list[2:3],
                                         add_path = "from_Fhier/FHIER Compliance",
                                         input_dir_part = my_paths$inputs)
-  
+
   # Combine correspondence full path and compliance full paths into one list
   all_csv_full_paths_list <-
     c(corresp_full_path,
@@ -486,7 +486,7 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
 }
 ```
 
-##### Processed Metric Tracking (permits from FHIER) 
+##### Processed Metric Tracking (permits from FHIER)
 
 ```{r Processed Metric Tracking permits from FHIER}
 #### Processed Metric Tracking (permits from FHIER) ----
@@ -503,7 +503,7 @@ Depending on a user name who runs the code, the file paths are constructed here.
 ```{r}
 # Check if the username is not "anna.shipunova"
 if (!auxfunctions::get_username() == "anna.shipunova") {
-  processed_metrics_tracking_file_names <- 
+  processed_metrics_tracking_file_names <-
     c("Your full path here/SEFHIER_permitted_vessels_nonSRHS_2022.rds",
       "Your full path here/SEFHIER_permitted_vessels_nonSRHS_2023.rds")
 } else {
@@ -514,7 +514,7 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
   # check
   dir.exists(processed_input_data_path)
   # if not TRUE: Check your provided path and/or create manually.
-  
+
   # Get file names for all years
   processed_metrics_tracking_file_names_all <-
   list.files(path = processed_input_data_path,
@@ -544,7 +544,7 @@ purrr::map(processed_metrics_tracking_file_names, file.exists)
 
 if not TRUE: Check your provided path and/or create manually.
 
-##### Physical Address List from FHIER path 
+##### Physical Address List from FHIER path
 
 ```{r Physical Address List from FHIER path}
 #### Physical Address List from FHIER path ----
@@ -578,7 +578,7 @@ Check, correct the path if it is doesn't exist
 file.exists(fhier_addresses_path)
 ```
 
-##### Home port processed city and state path 
+##### Home port processed city and state path
 
 ```{r Home port processed city and state path}
 #### Home port processed city and state path ----
@@ -607,7 +607,7 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
 file.exists(processed_pims_home_ports_path)
 ```
 
-##### Data from the previous results of "egregious violators for investigation" path 
+##### Data from the previous results of "egregious violators for investigation" path
 
 ```{r Data from the previous results of egregious violators for investigation path}
 #### Data from the previous results of "egregious violators for investigation" path ----
@@ -634,7 +634,7 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
 file.exists(prev_result_path)
 ```
 
-#### Set up Google Drive paths 
+#### Set up Google Drive paths
 
 ```{r Set up Google Drive paths}
 ### Set up Google Drive paths ----
@@ -652,7 +652,7 @@ Get the parent folder path.
 
 It is used to read the previous result and for saving the new result.
 
-When asked for the authentication the first time choose the appropriate option and follow the instructions. 
+When asked for the authentication the first time choose the appropriate option and follow the instructions.
 
 If there is an option with your google email account (like your.name@noaa.gov) you can choose that option (usually #2) and it will confirm your access automatically.
 
@@ -684,7 +684,7 @@ Explanations:
   - `type = "folder"` specifies that only folders should be listed.
 
   - `n_max = 1` specifies that only the first matching folder should be returned.
-  
+
 
 ```{r}
 output_egr_violators_googledrive_folder_path <-
@@ -696,7 +696,7 @@ output_egr_violators_googledrive_folder_path <-
   )
 ```
 
-### Define dates 
+### Define dates
 
 ```{r Define dates}
 ## Define dates ----
@@ -722,7 +722,7 @@ my_end2 <- stringr::str_glue("{my_year2}-12-31")
 Following are the definitions of dates used throughout the code.
 
 ```{r}
-data_file_date <- 
+data_file_date <-
   lubridate::today()
 ```
 
@@ -731,7 +731,7 @@ How many weeks and days to take in to the account?
 ```{r}
 number_of_weeks_for_non_compliancy = 26
 
-days_in_non_compl_weeks <- 
+days_in_non_compl_weeks <-
   number_of_weeks_for_non_compliancy * 7
 
 # test, should be TRUE
@@ -771,7 +771,7 @@ We will not use the last week data
 last_week_start <- data_file_date - grace_period
 ```
 
-## Get data 
+## Get data
 
 ```{r Get data}
 # Get data ----
@@ -782,7 +782,7 @@ last_week_start <- data_file_date - grace_period
 
 ```{r}
 # This is used only with source()
-get_data_path <- 
+get_data_path <-
   file.path(current_project_path, "egregious_violators_get_data.R")
 # get data for egregious violators
 # use from egregious_violators_start.R
@@ -791,7 +791,7 @@ get_data_path <-
 The following data are loaded from files or from the Oracle database
 
 1) compliance data
-Download files from FHIER / Reports / FHIER COMPLIANCE REPORT 
+Download files from FHIER / Reports / FHIER COMPLIANCE REPORT
 
 For the last 6 month
 
@@ -801,7 +801,7 @@ FHIER_Compliance_...csv
 
 Download files from FHIER / Home / Correspondence
 
-Actions / Download 
+Actions / Download
 
 For the whole period, starting 01/01/2021
 
@@ -810,7 +810,7 @@ For the whole period, starting 01/01/2021
 3) processed Metrics tracking
 
 From a separate code
- 
+
 For the last 6 month
 
 SEFHIER_permitted_vessels_nonSRHS_YEAR.csv
@@ -837,7 +837,7 @@ There are two options here, to downloaded the file as .xlsx or to get it directl
 
 "~\egregious_violators\egregious_violators_to_investigate_2024-05-17.xlsx"
 
-## FHIER 
+## FHIER
 
 ```{r FHIER}
 # FHIER ----
@@ -849,7 +849,7 @@ Correspondence
 
 Permit info from processed metrics tracking
 
-### Compliance and Correspondence data 
+### Compliance and Correspondence data
 
 ```{r Compliance and Correspondence data}
 ## Compliance and Correspondence data ----
@@ -858,25 +858,25 @@ Permit info from processed metrics tracking
 # Explanations:
 
 # The `create_dir_if_not` function ensures the existence of a directory by creating it if it does not already exist.
-# 
+#
 # This function provides a convenient way to ensure that a directory exists before performing operations such as writing files or storing data.
-#  
-#  
+#
+#
 # 1. **Function Definition:**
 #    - `create_dir_if_not <- function(curr_dir_name) { .. }`: Defines a function named `create_dir_if_not` that takes a single argument, `curr_dir_name`, representing the name of the directory to be created.
-# 
+#
 # 2. **Checking Directory Existence:**
 #    - `if (!dir.exists(curr_dir_name)) { .. }`: Checks if the directory specified by `curr_dir_name` does not exist.
 #    - `dir.exists(curr_dir_name)`: Checks whether the directory specified by `curr_dir_name` exists. The `!` negates the result, so the code block inside the `if` statement executes only if the directory does not exist.
-# 
+#
 # 3. **Creating Directory:**
 #    - `dir.create(curr_dir_name)`: If the directory does not exist, this line creates the directory specified by `curr_dir_name` using the `dir.create` function.
-# 
+#
 # 4. **Return Statement:**
 #    - The function does not have a specific return value. It either creates the directory if it does not exist or takes no action if the directory already exists.
-# 
+#
 
-#  create_dir_if_not  <-  function (curr_dir_name) 
+#  create_dir_if_not  <-  function (curr_dir_name)
 # {
 #     if (!dir.exists(curr_dir_name)) {
 #         dir.create(curr_dir_name)
@@ -889,20 +889,20 @@ Permit info from processed metrics tracking
 # Explanations:
 
 # This function constructs full file paths for a list of filenames by combining an input directory, a subdirectory, and the filenames. If `input_dir_part` is not provided, it uses a default directory set by `auxfunctions::set_work_dir()`. The resulting full paths are returned as a list.
-#  
-#  
+#
+#
 # Explanations:
-# 
+#
 # `prepare_csv_full_path <- function(filenames_list, add_path, input_dir_part = NA) list(" ... ")` defines a function `prepare_csv_full_path` that takes a list of filenames (`filenames_list`), a subdirectory path (`add_path`), and an optional input directory part (`input_dir_part`).
-# 
-# list(list(), "  `if (is.na(input_dir_part)) ", list(" ... "), "` checks if `input_dir_part` is `NA`:n", "n", "  ", list(list(), " `is.na(input_dir_part)` checks if `input_dir_part` is `NA`.n", "n", "  ", list(), " If true, it executes the code block inside the `if` statement:n", "n", "    ", list(list(), " `my_paths <- auxfunctions::set_work_dir()` sets the working directory using the `set_work_dir` function from the `auxfunctions` package and assigns the result to `my_paths`.n", "n", "    ", 
+#
+# list(list(), "  `if (is.na(input_dir_part)) ", list(" ... "), "` checks if `input_dir_part` is `NA`:n", "n", "  ", list(list(), " `is.na(input_dir_part)` checks if `input_dir_part` is `NA`.n", "n", "  ", list(), " If true, it executes the code block inside the `if` statement:n", "n", "    ", list(list(), " `my_paths <- auxfunctions::set_work_dir()` sets the working directory using the `set_work_dir` function from the `auxfunctions` package and assigns the result to `my_paths`.n", "n", "    ",
 #     list(), " `input_dir_part <- my_paths$inputs` assigns the `inputs` element of `my_paths` to `input_dir_part`."), "n", "    "))
-# 
-# list("n", list(), " `my_list <- sapply(filenames_list, function(x) ", list(" ... "), ")` uses `sapply` to apply a function to each element in `filenames_list`:n", "n", "  ", list(list(), " `sapply(filenames_list, function(x) ", list(" file.path(input_dir_part, add_path, x) "), ")` constructs full file paths by combining `input_dir_part`, `add_path`, and each filename `x` using `file.path`."), "n", "n", list(), "  `return(paste(my_list) |> as.list())` converts the resulting list of paths to a character vector and then to a list, and returns it:n", 
+#
+# list("n", list(), " `my_list <- sapply(filenames_list, function(x) ", list(" ... "), ")` uses `sapply` to apply a function to each element in `filenames_list`:n", "n", "  ", list(list(), " `sapply(filenames_list, function(x) ", list(" file.path(input_dir_part, add_path, x) "), ")` constructs full file paths by combining `input_dir_part`, `add_path`, and each filename `x` using `file.path`."), "n", "n", list(), "  `return(paste(my_list) |> as.list())` converts the resulting list of paths to a character vector and then to a list, and returns it:n",
 #     "n", "    ", list(list(), " `paste(my_list)` converts the elements of `my_list` to a single character string.n", "n", "  ", list(), " `|> as.list()` converts the character string to a list using the pipe operator (`|>`).n", "  "), "n")
-# 
+#
 
-#  prepare_csv_full_path  <-  function (filenames_list, add_path, input_dir_part = NA) 
+#  prepare_csv_full_path  <-  function (filenames_list, add_path, input_dir_part = NA)
 # {
 #     if (is.na(input_dir_part)) {
 #         my_paths <- auxfunctions::set_work_dir()
@@ -920,10 +920,10 @@ Permit info from processed metrics tracking
 # Explanations:
 
 # The clean_headers function is designed to clean and fix the column names (using fix_names()) of a given dataframe (my_df).
-#  
-#  
+#
+#
 
-#  clean_headers  <-  function (my_df) 
+#  clean_headers  <-  function (my_df)
 # {
 #     new_names <- fix_names(colnames(my_df))
 #     colnames(my_df) <- new_names
@@ -936,32 +936,32 @@ Permit info from processed metrics tracking
 # Explanations:
 
 # This auxiliary function processes vessel ID columns in each data frame by trimming leading and trailing whitespace, making the data more consistent and easier to work with. If the column name is not provided, it attempts to detect it automatically.
-#  
-#  
+#
+#
 # 1. **Function Definition:**
 #    - `trim_all_vessel_ids_simple <- function (csvs_clean_ws, col_name_to_trim = NA)`: Defines a function named `trim_all_vessel_ids_simple` that takes two arguments: `csvs_clean_ws`, a list of data frames to process, and `col_name_to_trim`, the name of the column containing vessel IDs to be trimmed. This argument is set to `NA` by default.
-# 
+#
 # 2. **Column Name Detection:**
 #    - `if (is.na(col_name_to_trim)) { ... }`: Checks if the `col_name_to_trim` argument is not provided. If it's not provided, the function attempts to detect the column name containing vessel IDs.
 #    - `col_name_to_trim <- grep("vessel.*official.*number", tolower(names(x)), value = TRUE)`: Uses `grep` to search for column names containing variations of "vessel official number" (case-insensitive) within the column names of the first data frame (`x`) in the list. This is assigned to `col_name_to_trim`.
-# 
+#
 # 3. **Column Trimming:**
 #    - `col_name_to_trim_s <- rlang::sym(col_name_to_trim)`: Converts `col_name_to_trim` to a symbol using `rlang::sym`. Symbols are used to refer to columns in a non-standard evaluation context.
 #    - `x %>% dplyr::mutate(vessel_official_number = trimws(!!col_name_to_trim_s))`: Applies the `trimws` function to the column specified by `col_name_to_trim_s` within each data frame (`x`) in the list. This removes leading and trailing whitespace from the vessel IDs.
-# 
+#
 # 4. **Returning Processed Data Frames:**
 #    - `return(csvs_clean)`: Returns the list of data frames with trimmed vessel IDs.
-# 
+#
 
-#  trim_all_vessel_ids_simple  <-  function (csvs_clean_ws, col_name_to_trim = NA) 
+#  trim_all_vessel_ids_simple  <-  function (csvs_clean_ws, col_name_to_trim = NA)
 # {
 #     csvs_clean <- lapply(csvs_clean_ws, function(x) {
 #         if (is.na(col_name_to_trim)) {
-#             col_name_to_trim <- grep("vessel.*official.*number", 
+#             col_name_to_trim <- grep("vessel.*official.*number",
 #                 tolower(names(x)), value = TRUE)
 #         }
 #         col_name_to_trim_s <- rlang::sym(col_name_to_trim)
-#         x %>% dplyr::mutate(vessel_official_number = trimws(!!col_name_to_trim_s)) %>% 
+#         x %>% dplyr::mutate(vessel_official_number = trimws(!!col_name_to_trim_s)) %>%
 #             return()
 #     })
 #     return(csvs_clean)
@@ -974,16 +974,16 @@ Permit info from processed metrics tracking
 
 # Cleaning, regularly done for csvs downloaded from FHIER,
 # usually from inside other functions.
-# 
+#
 # The clean_all_csvs function is defined to clean a list of CSVs (csvs) and has an optional parameter vessel_id_field_name, which specifies the column to trim.
-# 
+#
 # It returns the list of cleaned CSVs, where each CSV has had its headers unified and the vessel ID column (if specified) trimmed for consistency.
-# 
+#
 
-#  clean_all_csvs  <-  function (csvs, vessel_id_field_name = NA) 
+#  clean_all_csvs  <-  function (csvs, vessel_id_field_name = NA)
 # {
 #     csvs_clean0 <- lapply(csvs, clean_headers)
-#     csvs_clean1 <- auxfunctions::trim_all_vessel_ids_simple(csvs_clean0, 
+#     csvs_clean1 <- auxfunctions::trim_all_vessel_ids_simple(csvs_clean0,
 #         vessel_id_field_name)
 #     return(csvs_clean1)
 # }
@@ -997,9 +997,9 @@ Read correspondence and compliance csvs
 Read all columns as characters
 
 ```{r}
-csv_contents <- 
-  lapply(all_csv_full_paths_list, 
-         readr::read_csv, 
+csv_contents <-
+  lapply(all_csv_full_paths_list,
+         readr::read_csv,
          col_types = readr::cols(.default = 'c'))
 ```
 
@@ -1008,7 +1008,7 @@ Clean all CSVs: Trim vessel IDs and clean column names
 Replace all non-alphanumeric characters with underscores ('_')
 
 ```{r}
-csvs_clean1 <- 
+csvs_clean1 <-
   auxfunctions::clean_all_csvs(csv_contents)
 ```
 
@@ -1027,12 +1027,12 @@ Change to date format `created_on` and `contact_date` fields
 Process and clean the correspondence data
 
 ```{r}
-corresp_contact_cnts_clean0 <- 
-  csvs_clean1[[1]] |> 
+corresp_contact_cnts_clean0 <-
+  csvs_clean1[[1]] |>
   auxfunctions::corresp_cleaning()
 
 # Display the structure of the cleaned correspondence data
-head(corresp_contact_cnts_clean0) |> 
+head(corresp_contact_cnts_clean0) |>
   glimpse()
 ```
 
@@ -1063,7 +1063,7 @@ Example result for dimensions check
 ```{r}
 # $`2023`
 # [1] 149731     20
-# 
+#
 # $`2024`
 # [1] 71350    20
 ```
@@ -1089,14 +1089,14 @@ dim(corresp_contact_cnts_clean0)
 # [1] 34549    22
 ```
 
-### Get Metric Tracking (permits from FHIER) 
+### Get Metric Tracking (permits from FHIER)
 
 ```{r Get Metric Tracking permits from FHIER}
 ## Get Metric Tracking (permits from FHIER) ----
 ```
 
 The file is processed with processing_metrics_tracking.R from Google drive.
- 
+
 Read the processed metrics tracking files for all years
 
 ```{r}
@@ -1125,13 +1125,13 @@ Check dimensions of the processed metrics tracking data frame
 dim(processed_metrics_tracking_permits)
 ```
 
-An example 
+An example
 
 ```{r}
 # [1] 9977    9
 ```
 
-### Physical Address List from FHIER 
+### Physical Address List from FHIER
 
 ```{r Physical Address List from FHIER}
 ## Physical Address List from FHIER ----
@@ -1160,18 +1160,18 @@ dim(fhier_addresses)
 # Example result: [1] 3386    7
 ```
 
-## PIMS 
+## PIMS
 
 ```{r PIMS}
 # PIMS ----
 ```
 
-### Home port processed city and state 
+### Home port processed city and state
 
 ```{r Home port processed city and state}
 ## Home port processed city and state ----
 
-processed_pims_home_ports <- 
+processed_pims_home_ports <-
   readr::read_csv(processed_pims_home_ports_path)
 
 # Example
@@ -1179,13 +1179,13 @@ dim(processed_pims_home_ports)
 # [1] 23303     3
 ```
 
-## Load from Oracle db 
+## Load from Oracle db
 
 ```{r Load from Oracle db}
 # Load from Oracle db ----
 ```
 
-### Get owners addresses 
+### Get owners addresses
 
 ```{r Get owners addresses}
 ## Get owners addresses ----
@@ -1194,41 +1194,41 @@ dim(processed_pims_home_ports)
 # Explanations:
 
 # This function prepares the correspondence data by adding contact frequency information and converting relevant columns to date format.
-#  
-#  
+#
+#
 # The `corresp_cleaning` function processes a list of cleaned CSV files related to correspondence data.
-# 
+#
 # 1. **Function Definition:**
 #    - `corresp_cleaning <- function(csvs_clean1) { .. }`: Defines a function named `corresp_cleaning` that takes a single argument, `csvs_clean1`, which is assumed to be a list containing cleaned CSV files.
-# 
+#
 # 2. **Extracting Data:**
 #    - `corresp_arr <- csvs_clean1[[1]]`: Extracts the first element from the `csvs_clean1` list and assigns it to the `corresp_arr` variable.
-# 
+#
 # 3. **Adding Contact Counts:**
 #    - `corresp_arr_contact_cnts <- add_count_contacts(corresp_arr)`: Calls the `add_count_contacts` function to add a new column (`contact_freq`) to the correspondence data frame, indicating the frequency of contacts associated with each vessel.
-# 
+#
 # 4. **Finding Column Names:**
 #    - `createdon_field_name <- find_col_name(corresp_arr, "created", "on")[1]`: Searches for the column name related to the creation date ("created on") within the correspondence data frame (`corresp_arr`) using the `find_col_name` function. It retrieves the first match and assigns it to `createdon_field_name`.
 #    - `contactdate_field_name <- find_col_name(corresp_arr, "contact", "date")[1]`: Searches for the column name related to the contact date ("contact date") within the correspondence data frame (`corresp_arr`). It retrieves the first match and assigns it to `contactdate_field_name`.
-# 
+#
 # 5. **Converting Columns to Dates:**
 #    - `corresp_arr_contact_cnts <- change_to_dates(corresp_arr_contact_cnts, createdon_field_name)`: Calls the `change_to_dates` function to convert the column identified by `createdon_field_name` to date format in the `corresp_arr_contact_cnts` data frame.
 #    - `corresp_arr_contact_cnts <- change_to_dates(corresp_arr_contact_cnts, contactdate_field_name)`: Calls the `change_to_dates` function again to convert the column identified by `contactdate_field_name` to date format in the `corresp_arr_contact_cnts` data frame.
-# 
+#
 # 6. **Return Statement:**
 #    - `return(corresp_arr_contact_cnts)`: Returns the processed correspondence data frame (`corresp_arr_contact_cnts`) as the output of the function.
-# 
+#
 
-#  corresp_cleaning  <-  function (corresp_df) 
+#  corresp_cleaning  <-  function (corresp_df)
 # {
 #     corresp_df_contact_cnts <- auxfunctions::add_count_contacts(corresp_df)
-#     createdon_field_name <- auxfunctions::find_col_name(corresp_df, 
+#     createdon_field_name <- auxfunctions::find_col_name(corresp_df,
 #         "created", "on")[1]
-#     contactdate_field_name <- auxfunctions::find_col_name(corresp_df, 
+#     contactdate_field_name <- auxfunctions::find_col_name(corresp_df,
 #         "contact", "date")[1]
-#     corresp_df_contact_cnts <- auxfunctions::change_to_dates(corresp_df_contact_cnts, 
+#     corresp_df_contact_cnts <- auxfunctions::change_to_dates(corresp_df_contact_cnts,
 #         createdon_field_name)
-#     corresp_df_contact_cnts <- auxfunctions::change_to_dates(corresp_df_contact_cnts, 
+#     corresp_df_contact_cnts <- auxfunctions::change_to_dates(corresp_df_contact_cnts,
 #         contactdate_field_name)
 #     return(corresp_df_contact_cnts)
 # }
@@ -1239,21 +1239,21 @@ dim(processed_pims_home_ports)
 # Explanations:
 
 # This function takes a list of data frames, cleans each data frame by extracting specific field names, and converts the corresponding columns to POSIXct date format.
-# 
-#  
-#  
+#
+#
+#
 # 1. **Initialization of Variables:**
 #    - `compl <- compl_arr`: This line initializes a variable `compl` with the same value as `compl_arr`, which represents a list of compliance data frames.
-# 
+#
 # 2. **Data Cleaning with `map`:**
 #    - `compl_clean <- map(compl, clean_weeks)`: Here, each data frame in the list `compl` undergoes cleaning using the `clean_weeks` function. The `map` function applies `clean_weeks` to each element of `compl`, returning a list of cleaned data frames stored in `compl_clean`.
-# 
+#
 # 3. **Column Name Extraction with `map`:**
 #    - `permitgroupexpirations <- map(compl, ...`: This line iterates over each data frame in `compl` using `map`.
 #    - `(x) { .. }`: An anonymous function is defined to operate on each data frame `x`.
 #    - Within the anonymous function:
 #       - `grep("permit.*group.*expiration", tolower(names(x)), value = TRUE)`: This function call searches for column names containing the pattern "permit", "group", and "expiration" (case-insensitive) within the names of the current data frame `x`. It returns the matching column names.
-# 
+#
 # 4. **Data Transformation with `imap`:**
 #    - `compl_dates <- compl_clean |>`: The cleaned data frames in `compl_clean` are processed further using the pipe (`|>`) operator.
 #    - `imap((x, idx) { .. }`: The `imap` function iterates over each element of `compl_clean`, providing both the element (`x`, a data frame) and its index (`idx`).
@@ -1261,18 +1261,18 @@ dim(processed_pims_home_ports)
 #       - `field_name <- permitgroupexpirations[[idx]]`: The variable `field_name` is assigned the column name extracted earlier, corresponding to the current data frame `x`.
 #       - `mutate({{field_name}} := ...)`: This line adds a new column to the data frame `x`, where the column name is dynamically determined by `field_name`.
 #       - `as.POSIXct(pull(x[field_name]), format = "%m/%d/%Y")`: The values of the selected column are converted to POSIXct date-time format using the specified date format.
-# 
+#
 # 5. **Return Statement:**
 #    - `return(compl_dates)`: Finally, the function returns a list of data frames (`compl_dates`), where each data frame has undergone the necessary cleaning and transformation steps.
-# 
-# 
+#
+#
 
-#  compliance_cleaning  <-  function (compl_arr) 
+#  compliance_cleaning  <-  function (compl_arr)
 # {
 #     compl <- compl_arr
 #     compl_clean <- purrr::map(compl, clean_weeks)
 #     permitgroupexpirations <- purrr::map(compl, function(x) {
-#         grep("permit.*group.*expiration", tolower(names(x)), 
+#         grep("permit.*group.*expiration", tolower(names(x)),
 #             value = TRUE)
 #     })
 #     compl_dates <- purrr::imap(compl_clean, function(x, idx) {
@@ -1292,16 +1292,16 @@ dim(processed_pims_home_ports)
 # Explanations:
 
 # This function encapsulates the process of connecting to the "SECPR" Oracle database securely by retrieving credentials from the keyring and establishing a connection using the ROracle package. It ensures that sensitive information such as passwords is not exposed in the code, enhancing security.
-#  
-#  
+#
+#
 # This `connect_to_secpr` function establishes a connection to an Oracle database named "SECPR" using credentials stored securely.
-# 
+#
 # 1. **Function Definition:**
 #    - `connect_to_secpr <- function() { .. }`: Defines a function named `connect_to_secpr` with no input parameters.
-# 
+#
 # 2. **Retrieve Username:**
 #    - `my_username <- keyring::key_list("SECPR")[1, 2]`: Retrieves the username associated with the Oracle database "SECPR" from the keyring package. It accesses the first entry (row) and the second column, assuming the username is stored in the second column.
-# 
+#
 # 3. **Establish Database Connection:**
 #    - `con <- dbConnect(...)`:
 #      - `dbDriver("Oracle")`: Creates a database driver object specifically for Oracle databases.
@@ -1309,15 +1309,15 @@ dim(processed_pims_home_ports)
 #      - `password = keyring::key_get("SECPR", my_username)`: Retrieves the corresponding password for the username from the keyring package, ensuring secure access to the credentials.
 #      - `dbname = "SECPR"`: Specifies the name of the Oracle database to connect to, which is "SECPR" in this case.
 #      - `dbConnect(...)`: Establishes a connection to the Oracle database using the provided driver, username, password, and database name.
-# 
+#
 # 4. **Return Statement:**
 #    - `return(con)`: Returns the established database connection (`con`) as the output of the function.
-# 
+#
 
-#  connect_to_secpr  <-  function () 
+#  connect_to_secpr  <-  function ()
 # {
 #     my_username <- keyring::key_list("SECPR")[1, 2]
-#     con <- DBI::dbConnect(DBI::dbDriver("Oracle"), username = my_username, 
+#     con <- DBI::dbConnect(DBI::dbDriver("Oracle"), username = my_username,
 #         password = keyring::key_get("SECPR", my_username), dbname = "SECPR")
 #     return(con)
 # }
@@ -1328,10 +1328,10 @@ dim(processed_pims_home_ports)
 # Explanations:
 
 # This function, `read_rds_or_run`, is designed to read data from an RDS file if it exists or run a specified function to obtain the data from the Oracle database and save it as an RDS file if the file does not exist or if the `force_from_db` parameter is set.
-#  
-#  
+#
+#
 # 1. **Check File Existence**: The function first checks if the file specified by `my_file_path` exists and, if so, retrieves its modification time.
-# 
+#
 # 2. **Read or Run**: Depending on the existence of the file and the `force_from_db` flag:
 #     - **File Exists and `force_from_db` is not set**: If the file exists and `force_from_db` is not set, the function reads the data from the RDS file using `readr::read_rds(my_file_path)` and assigns it to `my_result`.
 #     - **File Does Not Exist or `force_from_db` is set**: If the file does not exist or `force_from_db` is set, the function follows these steps:
@@ -1341,15 +1341,15 @@ dim(processed_pims_home_ports)
 #         - Stops timing the function execution using `tictoc::toc()`.
 #         - Saves the result as an RDS file to the specified `my_file_path` for future use using `readr::write_rds(my_result, my_file_path)`. A `try` block is used to handle potential errors in writing the file.
 #         - Prints a message indicating that the new data is being saved into a file.
-# 
+#
 # 3. **Print File Information**: After obtaining the data, the function prints the file name and modification time to provide information on when the data was last downloaded or modified.
-# 
+#
 # 4. **Return**: The function returns the generated or read data (`my_result`).
-# 
-# 
+#
+#
 
-#  read_rds_or_run  <-  function (my_file_path, my_data = as.data.frame(""), my_function, 
-#     force_from_db = NULL) 
+#  read_rds_or_run  <-  function (my_file_path, my_data = as.data.frame(""), my_function,
+#     force_from_db = NULL)
 # {
 #     if (file.exists(my_file_path)) {
 #         modif_time <- file.info(my_file_path)$mtime
@@ -1359,13 +1359,13 @@ dim(processed_pims_home_ports)
 #         my_result <- readr::read_rds(my_file_path)
 #     }
 #     else {
-#         function_message_print(c("File", my_file_path, "doesn't exists, pulling data from database.", 
+#         function_message_print(c("File", my_file_path, "doesn't exists, pulling data from database.",
 #             "Must be on VPN."))
 #         msg_text <- paste(today(), "run for", basename(my_file_path))
 #         tictoc::tic(msg_text)
 #         my_result <- my_function(my_data)
 #         tictoc::toc()
-#         function_message_print(c("Saving new data into a file here: ", 
+#         function_message_print(c("Saving new data into a file here: ",
 #             my_file_path))
 #         try(readr::write_rds(my_result, my_file_path))
 #         modif_time <- date()
@@ -1410,7 +1410,7 @@ db_participants_address_fun <-
   }
 ```
 
-Read the file with db_participants_address if exists, 
+Read the file with db_participants_address if exists,
 
 load from the Oracle database if not,
 
@@ -1425,14 +1425,14 @@ db_participants_address <-
     db_participants_address_file_path,
     db_participants_address_query,
     db_participants_address_fun,
-    #' If you want to update the existing file, change the NULL to "yes" 
+    #' If you want to update the existing file, change the NULL to "yes"
     force_from_db = NULL
   ) |>
   auxfunctions::remove_empty_cols() |>
   auxfunctions::clean_headers()
 ```
 
-## Data from the previous results of "egregious violators for investigation" 
+## Data from the previous results of "egregious violators for investigation"
 
 ```{r Data from the previous results of egregious violators for investigation}
 # Data from the previous results of "egregious violators for investigation" ----
@@ -1441,22 +1441,22 @@ db_participants_address <-
 # Explanations:
 
 # This function effectively removes columns from the input data frame `my_df` that contain only missing values.
-#  
-#  
+#
+#
 # 1. **Function Definition:**
 #    - `remove_empty_cols <- function (my_df)`: Defines a function named `remove_empty_cols` that takes a single argument `my_df`, which is expected to be a data frame.
-# 
+#
 # 2. **Inner Function Definition:**
 #    - `not_all_na <- function(x) any(!is.na(x))`: Defines an inner function named `not_all_na`. This function takes a vector `x` as input and returns `TRUE` if there is at least one non-missing value in the vector, otherwise it returns `FALSE`. This function will be used as a predicate to check if any column contains non-missing values.
-# 
+#
 # 3. **Selecting Columns:**
 #    - `select(my_df, where(not_all_na))`: Uses the `dplyr` function `select` to filter columns of `my_df` based on a condition. The condition is specified using the `where` function, which applies the `not_all_na` function to each column of `my_df`. Columns for which `not_all_na` returns `TRUE` (i.e., columns with at least one non-missing value) are retained, while columns with all missing values are removed.
-# 
+#
 # 4. **Returning Result:**
 #    - `%>% return()`: Pipes the result of the `select` operation into the `return` function, which ensures that the modified data frame is returned as the output of the `remove_empty_cols` function.
-# 
+#
 
-#  remove_empty_cols  <-  function (my_df) 
+#  remove_empty_cols  <-  function (my_df)
 # {
 #     not_all_na <- function(x) any(!is.na(x))
 #     dplyr::select(my_df, tidyselect::where(not_all_na)) %>% return()
@@ -1464,21 +1464,21 @@ db_participants_address <-
 # >>>>
 ```
 
-There are 2 functions, 
+There are 2 functions,
 
-get_previous_result_from_local_file() assumes you have downloaded the previous results and 
+get_previous_result_from_local_file() assumes you have downloaded the previous results and
 
 get_previous_result_from_google_drive() gets data directly from Google drive
 
-Run only one of them and save the dataframe in `prev_result` variable. 
+Run only one of them and save the dataframe in `prev_result` variable.
 
 From a local file
 
 ```{r}
 get_previous_result_from_local_file <- function() {
-  
+
   # Download first as .xlsx from Google drive
-  
+
   # Read,
   # remove empty columns,
   # change column names the same way as everything else.
@@ -1486,17 +1486,17 @@ get_previous_result_from_local_file <- function() {
     auxfunctions::my_read_xlsx(prev_result_path) |>
     auxfunctions::remove_empty_cols() |>
     auxfunctions::clean_headers()
-  
+
   # An example
   dim(prev_result0)
   # [1] 151  42
-  
+
   # clean excel number conversions, remove ".0" at the end
   prev_result <-
     prev_result0 |>
     dplyr::mutate(vessel_official_number =
                     stringr::str_replace(vessel_official_number, "\\.0$", ""))
-  
+
   return(prev_result)
 }
 ```
@@ -1505,23 +1505,23 @@ To get previous data directly from Google drive
 
 ```{r}
 get_previous_result_from_google_drive <- function() {
-  
+
   previous_result_google_ss_name <-
     basename(prev_result_path) |>
     tools::file_path_sans_ext()
-  
+
   # When asked for the authentication the first time choose the appropriate option and follow the instructions. If you are writing again in the same R session you can choose the option 2 and it will confirm your access automatically.
   # We assuming that there is only one file with that name in your Google drive.
-  
+
   my_previous_ss <- googlesheets4::gs4_find(previous_result_google_ss_name, n_max = 1)
-  
+
   # Load it to R.
   # And clean it as usual, changing headers to lower case with underscores and removing empty columns
   previous_result <-
     googlesheets4::read_sheet(my_previous_ss) |>
     auxfunctions::remove_empty_cols() |>
     auxfunctions::clean_headers()
-  
+
   return(previous_result)
 }
 ```
@@ -1535,7 +1535,7 @@ Un-comment and run one of the functions.
 prev_result <- get_previous_result_from_google_drive()
 ```
 
-## Results 
+## Results
 
 ```{r Results}
 # Results ----
@@ -1572,19 +1572,19 @@ db_participants_address
 
 prev_result
 
-## Preparing compliance info 
+## Preparing compliance info
 
 ```{r Preparing compliance info}
 # Preparing compliance info ----
 ```
 
-### Permit Expiration 
+### Permit Expiration
 
 ```{r Permit Expiration}
 ## Permit Expiration ----
 ```
 
-#### Add permit_expired column 
+#### Add permit_expired column
 
 ```{r Add permit_expired column}
 ### Add permit_expired column ----
@@ -1613,7 +1613,7 @@ compl_clean_w_permit_exp <-
 # glimpse(compl_clean_w_permit_exp)
 ```
 
-#### Get only not expired last 27 weeks of data minus grace period (total 26 weeks) 
+#### Get only not expired last 27 weeks of data minus grace period (total 26 weeks)
 
 ```{r Get only not expired last 27 weeks of data minus grace period total 26 weeks}
 ### Get only not expired last 27 weeks of data minus grace period (total 26 weeks) ----
@@ -1646,7 +1646,7 @@ max(compl_clean_w_permit_exp__not_exp$week_end)
 # [1] "2024-06-23"
 ```
 
-#### Add year_month column from week_start 
+#### Add year_month column from week_start
 
 ```{r Add year_month column from week_start}
 ### Add year_month column from week_start ----
@@ -1669,7 +1669,7 @@ dim(compl_clean_w_permit_exp_last_half_year)
 # [1] 57296    22
 ```
 
-#### Have only SA and dual permits 
+#### Have only SA and dual permits
 
 ```{r Have only SA and dual permits}
 ### Have only SA and dual permits ----
@@ -1682,12 +1682,12 @@ compl_clean_w_permit_exp_last_half_year__sa <-
   compl_clean_w_permit_exp_last_half_year |>
   dplyr::filter(grepl("CDW|CHS|SC", permitgroup))
 
-# check 
+# check
 dim(compl_clean_w_permit_exp_last_half_year__sa)
 # [1] 38761    22
 ```
 
-#### Keep fewer columns in compliance df 
+#### Keep fewer columns in compliance df
 
 ```{r Keep fewer columns in compliance df}
 ### Keep fewer columns in compliance df ----
@@ -1718,7 +1718,7 @@ Explanations:
 ```{r}
 compl_clean_w_permit_exp_last_half_year__sa__short <-
   compl_clean_w_permit_exp_last_half_year__sa |>
-  dplyr::select(-tidyselect::any_of(remove_columns_from_compliance)) |> 
+  dplyr::select(-tidyselect::any_of(remove_columns_from_compliance)) |>
   dplyr::distinct()
 
 # Check
@@ -1729,7 +1729,7 @@ dim(compl_clean_w_permit_exp_last_half_year__sa__short)
 
 Work with the whole period
 
-#### Add compliant_after_overr 
+#### Add compliant_after_overr
 
 ```{r Add compliant_after_overr}
 ### Add compliant_after_overr ----
@@ -1738,11 +1738,11 @@ Work with the whole period
 # Explanations:
 
 # This function reads data from an Excel file, optionally starting from a specified row, and applies header cleaning to ensure consistent formatting of column names.
-#  
-#  
+#
+#
 # 1. **Function Definition:**
 #    - `my_read_xlsx <- function(file_path, sheet_n, start_row = 1) { ... }`: Defines a function named `my_read_xlsx` with three arguments: `file_path` (the path to the Excel file), `sheet_n` (the index of the sheet to read), and `start_row` (the starting row from which to read data, with a default value of 1).
-# 
+#
 # 2. **Reading Excel File:**
 #    - `read.xlsx(file_path, sheet_n, startRow = start_row, detectDates = TRUE, colNames = TRUE, sep.names = "_")`: Uses the `read.xlsx` function from the `openxlsx` package to read data from the specified Excel file.
 #      - `file_path`: The path to the Excel file to be read.
@@ -1751,26 +1751,26 @@ Work with the whole period
 #      - `detectDates`: A logical value indicating whether to automatically detect and convert date-like columns to date format.
 #      - `colNames`: A logical value indicating whether the first row of the Excel sheet contains column names.
 #      - `sep.names`: A character used to separate column names with multiple parts (e.g., spaces or underscores).
-# 
+#
 # 3. **Cleaning Headers:**
 #    - `clean_headers(...)`: Applies the `clean_headers` function to the data frame read from the Excel file. This function performs tasks such as removing leading/trailing spaces, converting column names to lowercase, and replacing spaces with underscores.
-# 
+#
 # 4. **Return Result:**
 #    - `return(res_df)`: Returns the cleaned data frame obtained from reading the Excel file. This data frame contains the data read from the specified Excel sheet, with any necessary header cleaning applied.
-# 
-# 
+#
+#
 
-#  my_read_xlsx  <-  function (file_path, sheet_n, start_row = 1) 
+#  my_read_xlsx  <-  function (file_path, sheet_n, start_row = 1)
 # {
-#     res_df <- clean_headers(openxlsx::read.xlsx(file_path, sheet_n, 
-#         startRow = start_row, detectDates = TRUE, colNames = TRUE, 
+#     res_df <- clean_headers(openxlsx::read.xlsx(file_path, sheet_n,
+#         startRow = start_row, detectDates = TRUE, colNames = TRUE,
 #         sep.names = "_"))
 #     return(res_df)
 # }
 # >>>>
 ```
 
-use tictoc package for benchmarking 
+use tictoc package for benchmarking
 
 ```{r}
 tictoc::tic("compl_overr")
@@ -1786,7 +1786,7 @@ tictoc::toc()
 check compliant/overridden combinations' counts
 
 ```{r}
-compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr |> 
+compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr |>
   dplyr::select(compliant_, overridden_, compliant_after_override) |>
   dplyr::count(compliant_, overridden_, compliant_after_override)
 # E.g.
@@ -1820,7 +1820,7 @@ dplyr::n_distinct(compl_clean_w_permit_exp_last_half_year__sa$vessel_official_nu
 # T
 ```
 
-#### Get only non-compliant entries for the past half year 
+#### Get only non-compliant entries for the past half year
 
 ```{r Get only noncompliant entries for the past half year}
 ### Get only non-compliant entries for the past half year ----
@@ -1835,7 +1835,7 @@ dim(compl_clean_w_permit_exp_last_half_year__sa_non_c)
 # [1] 10768    12
 ```
 
-#### Keep only vessels with info for all weeks in the period 
+#### Keep only vessels with info for all weeks in the period
 
 ```{r Keep only vessels with info for all weeks in the period}
 ### Keep only vessels with info for all weeks in the period ----
@@ -1844,7 +1844,7 @@ dim(compl_clean_w_permit_exp_last_half_year__sa_non_c)
 
 That should eliminate entries for vessels having permits only a part of the period
 
-get the current number of weeks 
+get the current number of weeks
 
 ```{r}
 all_weeks_num <-
@@ -1870,8 +1870,8 @@ Explanations:
 compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present <-
   compl_clean_w_permit_exp_last_half_year__sa_non_c |>
   dplyr::group_by(vessel_official_number) |>
-  dplyr::filter(dplyr::n_distinct(week) >= all_weeks_num) |> 
-  dplyr::ungroup() |> 
+  dplyr::filter(dplyr::n_distinct(week) >= all_weeks_num) |>
+  dplyr::ungroup() |>
   dplyr::select(-week)
 ```
 
@@ -1888,13 +1888,13 @@ dim(compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present)
 # [1] 3278   11
 ```
 
-#### Check the last report date 
+#### Check the last report date
 
 ```{r Check the last report date}
 ### Check the last report date ----
 ```
 
-##### Get ids only 
+##### Get ids only
 
 ```{r Get ids only}
 #### Get ids only ----
@@ -1910,10 +1910,10 @@ check vessel's number
 ```{r}
 dim(compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present__vesl_ids)
 # E.g.
-# 149 
+# 149
 ```
 
-##### Check these ids in the full compliance information 
+##### Check these ids in the full compliance information
 
 ```{r Check these ids in the full compliance information}
 #### Check these ids in the full compliance information ----
@@ -1939,17 +1939,17 @@ compl_clean_w_permit_exp_last_half_year__sa |>
 0 OK!
 
 
-End of Compliance preparations 
+End of Compliance preparations
 
 Results: processed Compliance is in `compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present`
 
-## Preparing Correspondence 
+## Preparing Correspondence
 
 ```{r Preparing Correspondence}
 # Preparing Correspondence ----
 ```
 
-### Remove 999999 
+### Remove 999999
 
 ```{r Remove 999999}
 ## Remove 999999 ----
@@ -1965,7 +1965,7 @@ corresp_contact_cnts_clean <-
 ```
 
 
-check number of vessels in correspondence 
+check number of vessels in correspondence
 
 ```{r}
 dplyr::n_distinct(corresp_contact_cnts_clean$vesselofficial_number)
@@ -1982,7 +1982,7 @@ corresp_contact_cnts_clean |>
   dplyr::distinct() |> head(10)
 ```
 
-### Correspondence Filters 
+### Correspondence Filters
 
 ```{r Correspondence Filters}
 ## Correspondence Filters ----
@@ -2036,8 +2036,8 @@ The `exclude_no_contact_made_filter` function effectively creates a filter condi
 
 ```{r}
 exclude_no_contact_made_filter <-
-  dplyr::quo(!grepl("No contact made", 
-            contactcomments, 
+  dplyr::quo(!grepl("No contact made",
+            contactcomments,
             ignore.case = TRUE))
 ```
 
@@ -2060,7 +2060,7 @@ they_contacted_direct_filter <-
   )
 ```
 
-#### Use the filters 
+#### Use the filters
 
 ```{r Use the filters}
 ### Use the filters ----
@@ -2106,7 +2106,7 @@ corresp_contact_cnts_clean_direct_cnt_2atmps <-
              contact_freq > 1 &
                (!!we_called_filter &
                   !!we_emailed_once_filter)
-           )) |> 
+           )) |>
   dplyr::filter(!!exclude_no_contact_made_filter)
 ```
 
@@ -2121,7 +2121,7 @@ dim(corresp_contact_cnts_clean_direct_cnt_2atmps)
 ```
 
 
-Check how many vessels left after filtering 
+Check how many vessels left after filtering
 
 ```{r}
 dplyr::n_distinct(corresp_contact_cnts_clean_direct_cnt_2atmps$vesselofficial_number)
@@ -2129,7 +2129,7 @@ dplyr::n_distinct(corresp_contact_cnts_clean_direct_cnt_2atmps$vesselofficial_nu
 # [1] 3865
 ```
 
-### Fix dates 
+### Fix dates
 
 ```{r Fix dates}
 ## Fix dates ----
@@ -2174,19 +2174,19 @@ corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates <-
 check how the dates look now
 
 ```{r}
-head(corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates$contact_date_dttm, 1) |> 
+head(corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates$contact_date_dttm, 1) |>
   str()
 # E.g.
 # POSIXct[1:1], format: "2024-06-17 15:24:00"
 ```
 
 
-End of Correspondence preparations 
+End of Correspondence preparations
 
-Processed Correspondence is in 
+Processed Correspondence is in
 `corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates`
 
-## Join correspondence with compliance 
+## Join correspondence with compliance
 
 ```{r Join correspondence with compliance}
 # Join correspondence with compliance ----
@@ -2231,15 +2231,15 @@ dplyr::n_distinct(compl_corr_to_investigation$vesselofficial_number)
 # E.g.
 # 141
 
-head(compl_corr_to_investigation) |> 
+head(compl_corr_to_investigation) |>
   glimpse()
 ```
 
-### Save number of vessels to investigate for further checks 
+### Save number of vessels to investigate for further checks
 
 ```{r Save number of vessels to investigate for further checks}
 ## Save number of vessels to investigate for further checks ----
-num_of_vsl_to_investigate <- 
+num_of_vsl_to_investigate <-
   dplyr::n_distinct(compl_corr_to_investigation$vesselofficial_number)
 ```
 
@@ -2247,7 +2247,7 @@ num_of_vsl_to_investigate <-
 Results: Compliance & Correspondence joined together are in
 `compl_corr_to_investigation`
 
-## Output needed investigation 
+## Output needed investigation
 
 ```{r Output needed investigation}
 # Output needed investigation ----
@@ -2263,7 +2263,7 @@ Results: Compliance & Correspondence joined together are in
 
 4. Duals vs. sa_only
 
-### 1. Remove extra columns 
+### 1. Remove extra columns
 
 ```{r 1 Remove extra columns}
 ## 1. Remove extra columns ----
@@ -2324,8 +2324,8 @@ compl_corr_to_investigation_short <-
 Visual check if data make sense
 
 ```{r}
-compl_corr_to_investigation_short |> 
-  head() |> 
+compl_corr_to_investigation_short |>
+  head() |>
   dplyr::glimpse() |>
   knitr::kable(caption = "")
 ```
@@ -2337,13 +2337,13 @@ Check if number of vessels didn't change
 nrow(compl_corr_to_investigation_short) == num_of_vsl_to_investigate
 ```
 
-### 2. Create additional columns 
+### 2. Create additional columns
 
 ```{r 2 Create additional columns}
 ## 2. Create additional columns ----
 ```
 
-#### Add list of contact dates and contact type in parentheses  
+#### Add list of contact dates and contact type in parentheses
 
 ```{r Add list of contact dates and contact type in parentheses}
 ### Add list of contact dates and contact type in parentheses  ----
@@ -2352,22 +2352,22 @@ nrow(compl_corr_to_investigation_short) == num_of_vsl_to_investigate
 # Explanations:
 
 # This function is designed to print text with a specified title and an optional ending marker. It first prints the title, then the main text, and finally the ending marker.
-#  
-#  
+#
+#
 # 1. **Function Definition:**
 #    - `pretty_print <- function(my_text, my_title, the_end = "---") { ... }`: Defines a function named `pretty_print` with three arguments: `my_text`, `my_title`, and `the_end`.
-# 
+#
 # 2. **Printing the Title:**
 #    - `title_message_print(my_title)`: Calls a function `title_message_print` to print the title `my_title`. This function formats and prints the title message.
-#    
+#
 # 3. **Printing the Text:**
 #    - `cat(c(my_text, the_end), sep = "n")`: Concatenates `my_text` and `the_end` into a character vector and prints them using `cat`. Each element is separated by a newline (`n`). This line prints the main text followed by the ending marker.
-# 
+#
 # 4. **Default Argument:**
 #    - `the_end = "---"`: Defines a default value for the argument `the_end`. If the argument is not provided when calling the function, it defaults to `"---"`. This is used as a marker to denote the end of the printed content.
-# 
+#
 
-#  pretty_print  <-  function (my_text, my_title, the_end = "---") 
+#  pretty_print  <-  function (my_text, my_title, the_end = "---")
 # {
 #     title_message_print(my_title)
 #     cat(c(my_text, the_end), sep = "\n")
@@ -2412,7 +2412,7 @@ Define a function 'get_date_contacttype' that takes a dataframe 'compl_corr_to_i
 ```{r}
 get_date_contacttype <-
   function(my_df) {
-  
+
     res <-
       my_df |>
       # add a new column date__contacttype with contactdate and contacttype
@@ -2430,9 +2430,9 @@ get_date_contacttype <-
       dplyr::group_by(vessel_official_number) |>
       # ...combine all date__contacttypes separated by comma in one cell
       dplyr::summarise(date__contacttypes =
-                         paste(date__contacttype, collapse = ", ")) |> 
+                         paste(date__contacttype, collapse = ", ")) |>
       dplyr::ungroup()
-    
+
     return(res)
   }
 ```
@@ -2453,7 +2453,7 @@ nrow(date__contacttype_per_id) == num_of_vsl_to_investigate
 ```
 
 
-Check how the result looks like 
+Check how the result looks like
 
 ```{r}
 date__contacttype_per_id |>
@@ -2462,7 +2462,7 @@ date__contacttype_per_id |>
   knitr::kable(caption = "")
 ```
 
-##### Add the new column back 
+##### Add the new column back
 
 ```{r Add the new column back}
 #### Add the new column back ----
@@ -2477,29 +2477,29 @@ compl_corr_to_investigation__corr_date <-
   )))
 ```
 
-check, the last column should be like 
+check, the last column should be like
 
 $ date__contacttypes     <chr> "03/13/2024 11:59AM, 09/21/2023 03:41PM, 08/18/2023 10:52AM,…
 
 ```{r}
-compl_corr_to_investigation__corr_date |> 
-  head() |> 
+compl_corr_to_investigation__corr_date |>
+  head() |>
   dplyr::glimpse() |>
   knitr::kable(caption = "")
 ```
 
-#### Add pims home port info 
+#### Add pims home port info
 
 ```{r Add pims home port info}
 ### Add pims home port info ----
 ```
 
 
-change PIMS home port info column names 
+change PIMS home port info column names
 
 ```{r}
-processed_pims_home_ports_renamed <- 
-  processed_pims_home_ports |> 
+processed_pims_home_ports_renamed <-
+  processed_pims_home_ports |>
   dplyr::rename("hailing_port_city" = city_fixed,
          "hailing_port_state" = state_fixed)
 ```
@@ -2508,7 +2508,7 @@ processed_pims_home_ports_renamed <-
 join home ports and compliance/correspondence by vessel id
 
 ```{r}
-compl_corr_to_investigation__corr_date__hailing_port <- 
+compl_corr_to_investigation__corr_date__hailing_port <-
   dplyr::left_join(
     compl_corr_to_investigation__corr_date,
     processed_pims_home_ports_renamed,
@@ -2516,7 +2516,7 @@ compl_corr_to_investigation__corr_date__hailing_port <-
   )
 ```
 
-#### Add prepared addresses 
+#### Add prepared addresses
 
 ```{r Add prepared addresses}
 ### Add prepared addresses ----
@@ -2536,13 +2536,13 @@ file.exists(prep_addresses_path)
 
 Manually check missing addresses
 
-## Addresses from FHIER 
+## Addresses from FHIER
 
 ```{r Addresses from FHIER}
 # Addresses from FHIER ----
 ```
 
-### Fewer fields 
+### Fewer fields
 
 ```{r Fewer fields}
 ## Fewer fields ----
@@ -2559,17 +2559,17 @@ Manually check missing addresses
 #    - If 'is_comp' is NA, set 'compliant_after_override' to NA.
 #    - For all other cases, set 'compliant_after_override' to the string representation of 'is_comp'.
 # 4. Use 'ungroup' to remove grouping from the data frame.
-#  
-#  
+#
+#
 
-#  add_compliant_after_override  <-  function (my_compl_df, overridden_col_name = "overridden", compliance_col_name = "is_comp") 
+#  add_compliant_after_override  <-  function (my_compl_df, overridden_col_name = "overridden", compliance_col_name = "is_comp")
 # {
-#     res <- ungroup(dplyr::mutate(dplyr::rowwise(my_compl_df), 
-#         compliant_after_override = dplyr::case_when(!!sym(compliance_col_name) %in% 
-#             c(0, "NO") & !!sym(overridden_col_name) %in% c(0, 
-#             "NO") ~ "no", !!sym(compliance_col_name) %in% c(1, 
-#             "YES") ~ "yes", !!sym(overridden_col_name) %in% c(1, 
-#             "YES") ~ "yes", is.na(!!sym(compliance_col_name)) ~ 
+#     res <- ungroup(dplyr::mutate(dplyr::rowwise(my_compl_df),
+#         compliant_after_override = dplyr::case_when(!!sym(compliance_col_name) %in%
+#             c(0, "NO") & !!sym(overridden_col_name) %in% c(0,
+#             "NO") ~ "no", !!sym(compliance_col_name) %in% c(1,
+#             "YES") ~ "yes", !!sym(overridden_col_name) %in% c(1,
+#             "YES") ~ "yes", is.na(!!sym(compliance_col_name)) ~
 #             NA, .default = toString(!!sym(compliance_col_name)))))
 #     return(res)
 # }
@@ -2596,7 +2596,7 @@ fhier_addr_short <-
 
 fhier_addr_short_clean <-
   fhier_addr_short |>
-  auxfunctions::clean_names_and_addresses() |> 
+  auxfunctions::clean_names_and_addresses() |>
   dplyr::distinct()
 
 # nrow(fhier_addr_short_clean)
@@ -2605,9 +2605,9 @@ fhier_addr_short_clean <-
 don't combine address
 
 ```{r}
-# fhier_addr_short__comb_addr <- 
-#   fhier_addr_short |> 
-#   clean_names_and_addresses() |> 
+# fhier_addr_short__comb_addr <-
+#   fhier_addr_short |>
+#   clean_names_and_addresses() |>
 #   mutate(
 #     fhier_address =
 #       str_glue(
@@ -2626,7 +2626,7 @@ don't combine address
 #       physical_zip_code
 #     )
 #   ) |>
-#   clean_names_and_addresses() |> 
+#   clean_names_and_addresses() |>
 #   distinct()
 
 # dim(fhier_addr_short__comb_addr)
@@ -2635,7 +2635,7 @@ don't combine address
 # dim(fhier_addr_short_clean)
 ```
 
-### Add addresses from FHIER 
+### Add addresses from FHIER
 
 ```{r Add addresses from FHIER}
 ## Add addresses from FHIER ----
@@ -2663,7 +2663,7 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>
 # 0
 ```
 
-### Vessels with no addresses 
+### Vessels with no addresses
 
 ```{r Vessels with no addresses}
 ## Vessels with no addresses ----
@@ -2676,27 +2676,27 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>
 # - The `str_squish` function is used to remove leading, trailing, and extra internal whitespace from each string.
 # - `replace_na` function replaces missing values with empty strings.
 # - The `str_replace_all` function is used to perform multiple replacements using regular expressions to clean up commas, semicolons, and unwanted substrings like "UN".
-# - Finally, it returns the cleaned dataframe. 
-#  
+# - Finally, it returns the cleaned dataframe.
+#
 
-#  clean_names_and_addresses  <-  function (my_df) 
+#  clean_names_and_addresses  <-  function (my_df)
 # {
-#     my_df_cleaned <- dplyr::mutate(my_df, dplyr::across(dplyr::where(is.character), 
-#         ~stringr::str_squish(.x)), dplyr::across(dplyr::where(is.character), 
-#         ~tidyr::replace_na(.x, "")), dplyr::across(dplyr::where(is.character), 
-#         ~stringr::str_replace_all(.x, ", ;", ";")), dplyr::across(dplyr::where(is.character), 
-#         ~stringr::str_replace_all(.x, "\\s+[,;]", ",")), dplyr::across(dplyr::where(is.character), 
-#         ~stringr::str_replace_all(.x, ";,+", ";")), dplyr::across(dplyr::where(is.character), 
-#         ~stringr::str_replace_all(.x, ";;+", ";")), dplyr::across(dplyr::where(is.character), 
-#         ~stringr::str_replace_all(.x, ",,+", ",")), dplyr::across(dplyr::where(is.character), 
-#         ~stringr::str_replace_all(.x, "[,;] *\\bUN\\b *", "")), 
-#         dplyr::across(dplyr::where(is.character), ~stringr::str_replace_all(.x, 
-#             "\\bUN\\b", "")), dplyr::across(dplyr::where(is.character), 
-#             ~stringr::str_replace_all(.x, "\\s*\\bUN\\b\\s*", 
-#                 "")), dplyr::across(dplyr::where(is.character), 
-#             ~stringr::str_replace_all(.x, "^[,;] ", "")), dplyr::across(dplyr::where(is.character), 
-#             ~stringr::str_replace_all(.x, "^[,;]$", "")), dplyr::across(dplyr::where(is.character), 
-#             ~stringr::str_replace_all(.x, "[,;]$", "")), dplyr::across(dplyr::where(is.character), 
+#     my_df_cleaned <- dplyr::mutate(my_df, dplyr::across(dplyr::where(is.character),
+#         ~stringr::str_squish(.x)), dplyr::across(dplyr::where(is.character),
+#         ~tidyr::replace_na(.x, "")), dplyr::across(dplyr::where(is.character),
+#         ~stringr::str_replace_all(.x, ", ;", ";")), dplyr::across(dplyr::where(is.character),
+#         ~stringr::str_replace_all(.x, "\\s+[,;]", ",")), dplyr::across(dplyr::where(is.character),
+#         ~stringr::str_replace_all(.x, ";,+", ";")), dplyr::across(dplyr::where(is.character),
+#         ~stringr::str_replace_all(.x, ";;+", ";")), dplyr::across(dplyr::where(is.character),
+#         ~stringr::str_replace_all(.x, ",,+", ",")), dplyr::across(dplyr::where(is.character),
+#         ~stringr::str_replace_all(.x, "[,;] *\\bUN\\b *", "")),
+#         dplyr::across(dplyr::where(is.character), ~stringr::str_replace_all(.x,
+#             "\\bUN\\b", "")), dplyr::across(dplyr::where(is.character),
+#             ~stringr::str_replace_all(.x, "\\s*\\bUN\\b\\s*",
+#                 "")), dplyr::across(dplyr::where(is.character),
+#             ~stringr::str_replace_all(.x, "^[,;] ", "")), dplyr::across(dplyr::where(is.character),
+#             ~stringr::str_replace_all(.x, "^[,;]$", "")), dplyr::across(dplyr::where(is.character),
+#             ~stringr::str_replace_all(.x, "[,;]$", "")), dplyr::across(dplyr::where(is.character),
 #             ~stringr::str_squish(.x)))
 #     return(my_df_cleaned)
 # }
@@ -2734,10 +2734,10 @@ The resulting `no_addr_vsl_ids` dataframe contains unique `vessel_official_numbe
 ```{r}
 is_empty <- c(NA, "NA", "", "UN", "N/A")
 
-no_addr_vsl_ids <- 
-  compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |> 
-  dplyr::filter(physical_address_1 %in% is_empty) |> 
-  dplyr::select(vessel_official_number) |> 
+no_addr_vsl_ids <-
+  compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>
+  dplyr::filter(physical_address_1 %in% is_empty) |>
+  dplyr::select(vessel_official_number) |>
   dplyr::distinct()
 
 dplyr::n_distinct(no_addr_vsl_ids$vessel_official_number)
@@ -2745,7 +2745,7 @@ dplyr::n_distinct(no_addr_vsl_ids$vessel_official_number)
 # 71
 ```
 
-## Addresses from Oracle db 
+## Addresses from Oracle db
 
 ```{r Addresses from Oracle db}
 # Addresses from Oracle db ----
@@ -2790,7 +2790,7 @@ dplyr::n_distinct(db_participants_address__needed$official_number)
 # 71
 ```
 
-### Keep fewer columns in db_participants_address__needed 
+### Keep fewer columns in db_participants_address__needed
 
 ```{r Keep fewer columns in db_participants_address__needed}
 ## Keep fewer columns in db_participants_address__needed ----
@@ -2845,8 +2845,8 @@ The result is a new dataframe `db_participants_address__needed_short1` that cont
 
 
 ```{r}
-my_cols_ends <- paste0(col_names_to_keep, 
-                  '$', 
+my_cols_ends <- paste0(col_names_to_keep,
+                  '$',
                   collapse = '|')
 
 db_participants_address__needed_short <-
@@ -2862,7 +2862,7 @@ nrow(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
 # 199
 dplyr::n_distinct(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr$vessel_official_number)
 # 199
-# 
+#
 ```
 
 one vessel per row, OK
@@ -2876,7 +2876,7 @@ dplyr::n_distinct(db_participants_address__needed_short$official_number)
 # 71
 ```
 
-### Combine area and phone numbers 
+### Combine area and phone numbers
 
 ```{r Combine area and phone numbers}
 ## Combine area and phone numbers ----
@@ -2902,13 +2902,13 @@ The result is a new dataframe `db_participants_address__needed_short__phone0` th
 
 
 ```{r}
-db_participants_address__needed_short__phone0 <- 
-  db_participants_address__needed_short |> 
+db_participants_address__needed_short__phone0 <-
+  db_participants_address__needed_short |>
   dplyr::mutate(erv_phone = paste0(erv_ph_area, erv_ph_number),
          erb_phone = paste0(erb_ph_area, erb_ph_number))
 ```
 
-### Make erv and erb combinations 
+### Make erv and erb combinations
 
 ```{r Make erv and erb combinations}
 ## Make erv and erb combinations ----
@@ -2916,24 +2916,24 @@ db_participants_address__needed_short__phone0 <-
 
 # Explanations:
 
-# This function provides a flexible way to search for column names within a dataframe based on specified starting and ending patterns. It is useful for identifying columns that match a particular naming convention or pattern. 
-#  
+# This function provides a flexible way to search for column names within a dataframe based on specified starting and ending patterns. It is useful for identifying columns that match a particular naming convention or pattern.
+#
 # The function is designed to search for column names within a dataframe that contain a specific pattern defined by `start_part` and `end_part`.
-# 
+#
 # 1. **Function Definition:**
 #    -`function (mydf, start_part, end_part) { .. }`: Defines a function with three arguments: `mydf` (the dataframe to search), `start_part` (the starting pattern of the column names to search for), and `end_part` (the ending pattern of the column names to search for).
-# 
+#
 # 2. **Constructing Regular Expression:**
 #    - `to_search <- paste0(start_part, ".*", end_part)`: Constructs a regular expression pattern by concatenating `start_part`, ".*" (which matches any characters zero or more times), and `end_part`. This pattern will be used to search for matching column names.
-# 
+#
 # 3. **Searching for Matching Column Names:**
 #    - `matching_names <- grep(to_search, tolower(names(mydf)), value = TRUE)`: Searches for column names in the dataframe `mydf` that match the regular expression pattern `to_search`. The `tolower` function is used to convert the column names to lowercase for case-insensitive matching. The `grep` function returns the matching column names as a vector.
-# 
+#
 # 4. **Return Statement:**
 #    - `return(matching_names)`: Returns the vector of matching column names found in the dataframe that satisfy the specified pattern.
-# 
+#
 
-#  find_col_name  <-  function (mydf, start_part, end_part) 
+#  find_col_name  <-  function (mydf, start_part, end_part)
 # {
 #     to_search <- paste0(start_part, ".*", end_part)
 #     matching_names <- grep(to_search, tolower(names(mydf)), value = TRUE)
@@ -2998,23 +2998,23 @@ db_participants_address__needed_short__erv_erb_combined3 <-
   purrr::map(\(curr_col_part)  {
     new_col_name <- stringr::str_glue("db_{curr_col_part}")
     # cat(new_col_name, sep = "\n")
-    
+
     db_participants_address__needed_short__phone0 |>
       dplyr::group_by(official_number) |>
-      dplyr::mutate(!!new_col_name := 
+      dplyr::mutate(!!new_col_name :=
                       purrr::pmap(dplyr::across(dplyr::ends_with(curr_col_part)),
                                     ~ auxfunctions::list_sort_uniq(.)),
              .keep = "none" ) |>
       dplyr::ungroup() |>
       dplyr::select(-official_number)
-    
+
   }) %>%
   dplyr::bind_cols(db_participants_address__needed_short__phone0, .)
 tictoc::toc()
 # map all pairs: 14.31 sec elapsed
 ```
 
-#### Shorten db_participants_address__needed_short__erv_erb_combined3 
+#### Shorten db_participants_address__needed_short__erv_erb_combined3
 
 ```{r Shorten db_participants_address__needed_short__erv_erb_combined3}
 ### Shorten db_participants_address__needed_short__erv_erb_combined3 ----
@@ -3031,7 +3031,7 @@ This code processes the `db_participants_address__needed_short__erv_erb_combined
 2. **Selecting Specific Columns:**
 
    - `dplyr::select(official_number, tidyselect::all_of(tidyselect::starts_with("db_")))`: Uses `dplyr::select` to retain only the `official_number` column and any columns whose names start with "db_".
-   
+
      - `tidyselect::all_of(tidyselect::starts_with("db_"))`: Uses the `tidyselect` package to identify all column names that start with "db_". The `all_of` function ensures that the selected columns exist within the dataframe.
 
 3. **Ensuring Unique Rows:**
@@ -3043,7 +3043,7 @@ The result is a new dataframe `db_participants_address__needed_short__erv_erb_co
 ```{r}
 db_participants_address__needed_short__erv_erb_combined_short <-
   db_participants_address__needed_short__erv_erb_combined3 |>
-  dplyr::select(official_number, 
+  dplyr::select(official_number,
                 tidyselect::all_of(tidyselect::starts_with("db_"))) |>
   dplyr::distinct()
 
@@ -3057,13 +3057,13 @@ dplyr::n_distinct(db_participants_address__needed_short__erv_erb_combined_short$
 check
 
 ```{r}
-# db_participants_address__needed_short__erv_erb_combined_short |> 
+# db_participants_address__needed_short__erv_erb_combined_short |>
 #   dplyr::filter(official_number == "1235397") |>
 #   dplyr::glimpse()
 # $ db_physical_city     <list> ["SOUTH ISLANDIA"], ["ISLANDIA"]
 ```
 
-### Combine similar fields 
+### Combine similar fields
 
 ```{r Combine similar fields}
 ## Combine similar fields ----
@@ -3074,27 +3074,27 @@ Explanations:
 1. Iterate over each participant column using 'col_part_names'.
 
    - 'map' applies the provided function to each element of the list.
-   
+
 2. Define the old and new column names based on the current participant column.
 
    - 'str_glue' is used for string interpolation to create column names.
-   
+
 3. Group the DataFrame by 'official_number' using 'group_by'.
 
 4. For each group, create a new column with unique sorted values for the current participant.
 
    - 'list_sort_uniq' ensures unique values and sorts them.
-   
+
 5. Ungroup the DataFrame and remove the 'official_number' column.
 
    - 'ungroup' removes grouping structure.
-   
+
    - 'select' is used to exclude the 'official_number' column and keep only the new column.
-   
+
 6. Bind the resulting columns to 'db_participants_address__needed_short__erv_erb_combined_short'.
 
    - 'bind_cols' combines columns horizontally.
-   
+
 7. Select only the 'official_number' and columns ending with '_u'.
 
 8. Keep only distinct rows in the final DataFrame using 'distinct'.
@@ -3111,7 +3111,7 @@ db_participants_address__needed_short__erv_erb_combined_short__u_temp <-
     old_col_name <- stringr::str_glue("db_{curr_col_part}")
     new_col_name <- stringr::str_glue("db_{curr_col_part}_u")
     cat(new_col_name, sep = "\n")
-    
+
     db_participants_address__needed_short__erv_erb_combined_short |>
       dplyr::group_by(official_number) |>
       dplyr::mutate(!!new_col_name := list(paste(sort(unique(stringr::str_trim(purrr::list_flatten(!!sym(old_col_name))))))),
@@ -3125,7 +3125,7 @@ db_participants_address__needed_short__erv_erb_combined_short__u_temp <-
 
 Explanation:
 
-This code creates a new dataframe by combining columns with suffix "_u" from two existing dataframes (`db_participants_address__needed_short__erv_erb_combined_short` and `db_participants_address__needed_short__erv_erb_combined_short__u_temp`). 
+This code creates a new dataframe by combining columns with suffix "_u" from two existing dataframes (`db_participants_address__needed_short__erv_erb_combined_short` and `db_participants_address__needed_short__erv_erb_combined_short__u_temp`).
 
 1. **Binding Columns Together:**
 
@@ -3133,8 +3133,8 @@ This code creates a new dataframe by combining columns with suffix "_u" from two
 
 2. **Selecting Columns:**
 
-   - `dplyr::select(official_number, dplyr::all_of(dplyr::ends_with("_u")))`: After binding columns, it selects the `official_number` column along with all columns that end with "_u" using `select` from dplyr. 
-   
+   - `dplyr::select(official_number, dplyr::all_of(dplyr::ends_with("_u")))`: After binding columns, it selects the `official_number` column along with all columns that end with "_u" using `select` from dplyr.
+
 3. **Removing Duplicate Rows:**
 
    - `dplyr::distinct()`: It removes duplicate rows from the dataframe to ensure each row is unique.
@@ -3148,7 +3148,7 @@ db_participants_address__needed_short__erv_erb_combined_short__u <-
     db_participants_address__needed_short__erv_erb_combined_short,
     db_participants_address__needed_short__erv_erb_combined_short__u_temp
   ) |>
-  dplyr::select(official_number, dplyr::all_of(dplyr::ends_with("_u"))) |> 
+  dplyr::select(official_number, dplyr::all_of(dplyr::ends_with("_u"))) |>
   dplyr::distinct()
 ```
 
@@ -3160,7 +3160,7 @@ check
 #   glimpse()
 ```
 
-#### Convert to characters 
+#### Convert to characters
 
 ```{r Convert to characters}
 ### Convert to characters ----
@@ -3176,7 +3176,7 @@ This code modifies the dataframe `db_participants_address__needed_short__erv_erb
 
 2. **Mutating List-type Columns:**
 
-   - `dplyr::mutate_if(is.list, ~ paste(unlist(.), collapse = '; '))`: This line applies a mutation to each column of the dataframe that is of list type. 
+   - `dplyr::mutate_if(is.list, ~ paste(unlist(.), collapse = '; '))`: This line applies a mutation to each column of the dataframe that is of list type.
 
      - `is.list`: Checks if a column is of list type.
 
@@ -3207,7 +3207,7 @@ check
 # $ db_mailing_city_u      <chr> "ISLANDIA; SOUTH ISLANDIA"
 ```
 
-### Rename fields 
+### Rename fields
 
 ```{r Rename fields}
 ## Rename fields ----
@@ -3231,11 +3231,11 @@ This code removes the "_u" suffix from the column names in the dataframe.
 ```{r}
 db_participants_address__needed_short__erv_erb_combined_short__u_ok <-
   db_participants_address__needed_short__erv_erb_combined_short__u_no_c |>
-  dplyr::rename_with(~ stringr::str_replace(.x, pattern = "_u$", 
+  dplyr::rename_with(~ stringr::str_replace(.x, pattern = "_u$",
                                             replacement = ""))
 ```
 
-## Join FHIER and Oracle db addresses 
+## Join FHIER and Oracle db addresses
 
 ```{r Join FHIER and Oracle db addresses}
 # Join FHIER and Oracle db addresses ----
@@ -3264,7 +3264,7 @@ cat("Result: ",
 
 Results are in compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr
 
-### 3. Mark vessels already in the know list 
+### 3. Mark vessels already in the know list
 
 ```{r 3 Mark vessels already in the know list}
 ## 3. Mark vessels already in the know list ----
@@ -3275,7 +3275,7 @@ From the email:
 The first column (report created) indicates the vessels that we have created a case for. My advice would be not to exclude those vessels. EOs may have provided compliance assistance and/or warnings already. If that is the case and they continue to be non-compliant after that, they will want to know and we may need to reopen those cases.
 
 
-get vessel ids from the previous result 
+get vessel ids from the previous result
 
 ```{r}
 vessels_to_mark_ids <-
@@ -3284,13 +3284,13 @@ vessels_to_mark_ids <-
 ```
 
 
-Check the amount 
+Check the amount
 
 ```{r}
 dim(vessels_to_mark_ids)
 ```
 
-##### Mark these vessels 
+##### Mark these vessels
 
 ```{r Mark these vessels}
 #### Mark these vessels ----
@@ -3319,7 +3319,7 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_m
   )
 ```
 
-#### Check 
+#### Check
 
 ```{r Check}
 ### Check ----
@@ -3336,12 +3336,12 @@ dplyr::n_distinct(compl_corr_to_investigation__corr_date__hailing_port__fhier_ad
 Check that there is one row per vessel.
 
 ```{r}
-nrow(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked) == 
-  num_of_vsl_to_investigate 
+nrow(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked) ==
+  num_of_vsl_to_investigate
 ```
 
 
-Count how many duplicates 
+Count how many duplicates
 
 ```{r}
 compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked |>
@@ -3350,7 +3350,7 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_m
 # 2 new                      48
 ```
 
-### 4. How many are duals? 
+### 4. How many are duals?
 
 ```{r 4 How many are duals}
 ## 4. How many are duals? ----
@@ -3358,7 +3358,7 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_m
 
 Explanations:
 
-Create a new dataframe 
+Create a new dataframe
 
 Use the 'mutate' function to add a new column 'permit_region' based on conditions.
 
@@ -3374,7 +3374,7 @@ along with the newly added 'permit_region' column.
 
 ```{r}
 compl_corr_to_investigation_short_dup_marked__permit_region <-
-  compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked |> 
+  compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked |>
   # compl_corr_to_investigation_short_dup_marked__permit_region__fhier_names__fhier_addr__mv_cols |>
   dplyr::mutate(permit_region =
            dplyr::case_when(
@@ -3409,7 +3409,7 @@ region_counts <-
 dplyr::n_distinct(compl_corr_to_investigation_short_dup_marked__permit_region$vessel_official_number)
 ```
 
-#### Dual permitted cnts 
+#### Dual permitted cnts
 
 ```{r Dual permitted cnts}
 ### Dual permitted cnts ----
@@ -3417,13 +3417,13 @@ dplyr::n_distinct(compl_corr_to_investigation_short_dup_marked__permit_region$ve
 region_counts$n[[1]] / (region_counts$n[[2]] + region_counts$n[[1]]) * 100
 ```
 
-## Print out results 
+## Print out results
 
 ```{r Print out results}
 # Print out results ----
 ```
 
-### Add additional columns in front 
+### Add additional columns in front
 
 ```{r Add additional columns in front}
 ## Add additional columns in front ----
@@ -3467,7 +3467,7 @@ This code effectively adds two new columns, with names from `additional_column_n
 ```{r}
 compl_corr_to_investigation_short_dup_marked__permit_region__add_columns <-
   compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked |>
-  # compl_corr_to_investigation_short_dup_marked__permit_region__status |> 
+  # compl_corr_to_investigation_short_dup_marked__permit_region__status |>
   tibble::add_column(
     !!(additional_column_name1) := NA,
     Notes = NA,
@@ -3484,13 +3484,13 @@ Check what are the column names now
 ```{r}
 auxfunctions::print_df_names(compl_corr_to_investigation_short_dup_marked__permit_region__add_columns)
 
-out_file_basename <- 
+out_file_basename <-
   stringr::str_glue("egregious_violators_to_investigate_{lubridate::today()}")
 
 out_file_name <-
   stringr::str_glue("{out_file_basename}.csv")
 
-result_path <- 
+result_path <-
   file.path(current_project_output_path,
             out_file_name)
 
@@ -3498,7 +3498,7 @@ compl_corr_to_investigation_short_dup_marked__permit_region__add_columns |>
   readr::write_csv(result_path)
 ```
 
-### Write to google sheets 
+### Write to google sheets
 
 ```{r Write to google sheets}
 ## Write to google sheets ----
@@ -3515,12 +3515,12 @@ It need to be a function, this way we can call it if needed, not every time we r
 
 
 ```{r}
-write_res_to_google_sheets <- 
+write_res_to_google_sheets <-
   function() {
-  
+
     # Define the current result Google Sheets name
     current_result_google_ss_name <- "Egregious Violators Current"
-    
+
     my_current_ss <-
       googledrive::drive_ls(
         path = googledrive::as_id(output_egr_violators_googledrive_folder_path),
@@ -3533,25 +3533,25 @@ write_res_to_google_sheets <-
     #   name                        id                                           drive_resource
     # <chr>                       <drv_id>                                     <list>
     # 1 Egregious Violators Current ...--o6BpLWpb4-... <named list [36]>
-    
+
     # 1) load it to R
     # 2) create a new spread sheet with the date of loaded workseeht and dump the content into it
     # 3) create a new worksheet in the
     # current spreadsheet with today's date
     # write the code output into it
     # check in browser
-    
+
     # 1) load it to R
     previous_current_content <- googlesheets4::read_sheet(my_current_ss)
-    
+
     # 2) create a new spread sheet with the date of loaded worksheet and dump the content into it
     # a) get the previous spreadsheet name
     ss_info <- googlesheets4::gs4_get(my_current_ss)
-    # grep for the pattern in case there are additional tabs 
-    previous_current_spread_sheet_name <- 
+    # grep for the pattern in case there are additional tabs
+    previous_current_spread_sheet_name <-
       grep("egregious_violators_to_investigate_20\\d\\d-\\d\\d-\\d\\d", ss_info$sheets$name, value = T)
     # E.g. "egregious_violators_to_investigate_2024-06-18"
-    
+
     # Rename the file from "current" to the previous_current_spread_sheet_name with the previous date.
     # NB. The nex line will rise an error if a file with this name already exists, to change that behavior remove 'overwrite = FALSE,"
     googledrive::drive_mv(
@@ -3568,15 +3568,15 @@ write_res_to_google_sheets <-
 
       # Create a new empty spreadsheet in the Google Drive output folder
     # And save its properties into current_result_google_ss_name_info
-    
-    current_result_google_ss_name_info <- 
+
+    current_result_google_ss_name_info <-
     googledrive::drive_create(
       name = current_result_google_ss_name,
       path = googledrive::as_id(output_egr_violators_googledrive_folder_path),
       type = "spreadsheet",
       overwrite = FALSE
     )
-    
+
   # Write our results into the newly created spreadsheet "Egregious Violators Current"
   # into a sheet/tab with a name defined in out_file_basename
     googlesheets4::write_sheet(
@@ -3584,29 +3584,29 @@ write_res_to_google_sheets <-
       ss = current_result_google_ss_name_info,
       sheet = out_file_basename
     )
-    
+
     # See sheets/tabs to check
     googlesheets4::sheet_properties(ss = current_result_google_ss_name_info)
-    
+
       # Remove the empty Sheet1 created automatically by googledrive::drive_create()
     googlesheets4::sheet_delete(ss = current_result_google_ss_name_info, "Sheet1")
-    
+
     # Check the existing tabs again
     googlesheets4::sheet_properties(ss = current_result_google_ss_name_info)$name
     # Should be only one name now, like
     # [1] "egregious_violators_to_investigate_2024-07-15"
-    
+
     # See in browser to check
     googledrive::drive_browse(current_result_google_ss_name_info)
-    
+
     # Print out a link to share with others
     current_output_file_link <- googledrive::drive_link(current_result_google_ss_name_info)
 
     print(current_output_file_link)
-    
+
     # The function returns the current output file link
     return(current_output_file_link)
-    
+
   }
 ```
 
@@ -3618,7 +3618,7 @@ current_output_file_link <- write_res_to_google_sheets()
 ```
 
 
-Print result names to console 
+Print result names to console
 
 ```{r}
 cat("Results:",
@@ -3626,4 +3626,3 @@ cat("Results:",
     out_file_name,
     sep = "\n")
 ```
-
