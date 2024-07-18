@@ -4,7 +4,10 @@
 \title{
 Clean headers}
 \description{
-The clean_headers function is designed to clean and fix the column names (using fix_names()) of a given dataframe (my_df).
+The clean_headers function cleans and standardizes the column names of a given dataframe (my_df)
+
+using the fix_names() function, which removes special characters and spaces, and unifies the case.
+
 }
 \usage{
 clean_headers(my_df)
