@@ -17,11 +17,14 @@ clean_weeks(my_df)
 }
 }
 \details{
-Explanation:
 - The `clean_weeks` function is designed to clean up the "week" column in a complinace dataframe.
+
 - It first separates the "week" column into two separate columns using ":" as the delimiter, resulting in columns "week_num" and "week_rest".
+
 - Then, it further separates the "week_rest" column into "week_start" and "week_end" columns using " - " as the delimiter.
+
 - The function then converts the "week_num" column to integers and the "week_start" and "week_end" columns to Date objects using `as.integer` and `as.Date` functions, respectively.
+
 - Finally, it returns the modified dataframe.}
 \value{
 %%  ~Describe the value returned
