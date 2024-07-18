@@ -124,14 +124,17 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>
 #'
 #' The resulting `no_addr_vsl_ids` dataframe contains unique `vessel_official_number` values where the corresponding `physical_address_1` column is empty in the `compl_corr_to_investigation__corr_date__hailing_port__fhier_addr` dataframe.
 #'
+#' Define a vector of values considered as empty
 is_empty <- c(NA, "NA", "", "UN", "N/A")
 
+# Create a dataframe of unique vessel official numbers with empty physical addresses
 no_addr_vsl_ids <-
   compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>
   dplyr::filter(physical_address_1 %in% is_empty) |>
   dplyr::select(vessel_official_number) |>
   dplyr::distinct()
 
+# Count the number of unique vessel official numbers with empty addresses
 dplyr::n_distinct(no_addr_vsl_ids$vessel_official_number)
 # 109
 # 71
@@ -176,6 +179,8 @@ dplyr::n_distinct(db_participants_address__needed$official_number)
 # 71
 
 ## Keep fewer columns in db_participants_address__needed ----
+
+#' Define a vector of column names to keep in the final dataframe
 col_names_to_keep <-
   c(
     "official_number",
@@ -224,19 +229,22 @@ col_names_to_keep <-
 #'
 #' The result is a new dataframe `db_participants_address__needed_short1` that contains only the columns matching the specified pattern, with duplicates removed.
 #'
-
+#' Create a regular expression pattern to match column names ending with the specified prefixes
+#' 
 my_cols_ends <- paste0(col_names_to_keep,
                   '$',
                   collapse = '|')
 
+# Create a new dataframe with selected columns and remove duplicates
 db_participants_address__needed_short <-
   db_participants_address__needed |>
   dplyr::select(tidyselect::matches(my_cols_ends)) |>
   dplyr::distinct()
 
-#' check
+#' Verify the number of rows in the final dataset
 nrow(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
 # 199
+#' Confirm unique vessel official numbers is the same
 dplyr::n_distinct(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr$vessel_official_number)
 # 199
 #
@@ -276,6 +284,8 @@ db_participants_address__needed_short__phone0 <-
          erb_phone = paste0(erb_ph_area, erb_ph_number))
 
 ## Make erv and erb combinations ----
+#' Define a vector of column name parts to be used for creating new combined columns
+#' 
 col_part_names <-
   c(
     "entity_name",
@@ -296,6 +306,8 @@ col_part_names <-
     "mailing_zip_code"
   )
 
+#' Create a new dataframe that combines ERV and ERB information for each column part
+#' 
 #' Explanation:
 #'
 #' 1. **Mapping Over Column Parts:**
@@ -305,6 +317,8 @@ col_part_names <-
 #' 2. **Generating New Column Names:**
 #'
 #'    - `new_col_name <- stringr::str_glue("db_{curr_col_part}")`: It creates a new column name by combining the prefix "db_" with the current column part (`curr_col_part`) using `str_glue` from the stringr package.
+#'    
+#'  Use !!new_col_name := to dynamically create new column names based on curr_col_part
 #'
 #' 3. **Grouping and Mutating Data:**
 #'
@@ -350,8 +364,8 @@ tictoc::toc()
 
 #' Explanation:
 #'
-#' This code processes the `db_participants_address__needed_short__erv_erb_combined3` dataframe to create a new dataframe named `db_participants_address__needed_short__erv_erb_combined_short` by selecting specific columns and ensuring the rows are distinct.
-#'
+#' Create a shortened version of the dataframe, keeping only the official_number and db_ columns
+#' 
 #' 1. **Dataframe Selection and Transformation:**
 #'
 #'    - `db_participants_address__needed_short__erv_erb_combined3 |>`: Starts with the input dataframe `db_participants_address__needed_short__erv_erb_combined3` and pipes it into the subsequent functions.
@@ -367,7 +381,6 @@ tictoc::toc()
 #'
 #' The result is a new dataframe `db_participants_address__needed_short__erv_erb_combined_short` that contains only the `official_number` column and columns starting with "db_", with all duplicate rows removed.
 #'
-
 db_participants_address__needed_short__erv_erb_combined_short <-
   db_participants_address__needed_short__erv_erb_combined3 |>
   dplyr::select(official_number,
@@ -387,11 +400,15 @@ dplyr::n_distinct(db_participants_address__needed_short__erv_erb_combined_short$
 # $ db_physical_city     <list> ["SOUTH ISLANDIA"], ["ISLANDIA"]
 
 ## Combine similar fields ----
-
+#' 
+#' Create a new dataframe with combined and unique values for each participant field
+#' 
 #' Explanations:
 #'
 #' 1. Iterate over each participant column using 'col_part_names'.
-#'
+#' 
+#' col_part_names is a list of participant column name suffixes (e.g., "physical_city", "physical_state", etc.)
+#' 
 #'    - 'map' applies the provided function to each element of the list.
 #'
 #' 2. Define the old and new column names based on the current participant column.
@@ -415,6 +432,8 @@ dplyr::n_distinct(db_participants_address__needed_short__erv_erb_combined_short$
 #'    - 'bind_cols' combines columns horizontally.
 #'
 #' 7. Select only the 'official_number' and columns ending with '_u'.
+#'
+#' The '_u' suffix in new column names indicates that these columns contain unique, combined values
 #'
 #' 8. Keep only distinct rows in the final DataFrame using 'distinct'.
 #'
