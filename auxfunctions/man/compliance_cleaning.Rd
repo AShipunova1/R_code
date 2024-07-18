@@ -18,28 +18,45 @@ compliance_cleaning(compl_arr)
 }
 }
 \details{
+
 1. **Initialization of Variables:**
+
    - `compl <- compl_arr`: This line initializes a variable `compl` with the same value as `compl_arr`, which represents a list of compliance data frames.
 
 2. **Data Cleaning with `map`:**
+
    - `compl_clean <- map(compl, clean_weeks)`: Here, each data frame in the list `compl` undergoes cleaning using the `clean_weeks` function. The `map` function applies `clean_weeks` to each element of `compl`, returning a list of cleaned data frames stored in `compl_clean`.
+   
+   The clean_weeks function splits week column ("52: 12/26/2022 - 01/01/2023") into 3 columns with proper classes, week_num (week order number), week_start and week_end.
 
 3. **Column Name Extraction with `map`:**
+
    - `permitgroupexpirations <- map(compl, ...`: This line iterates over each data frame in `compl` using `map`.
+
    - `\(x) \{ .. \}`: An anonymous function is defined to operate on each data frame `x`.
+
    - Within the anonymous function:
+
       - `grep("permit.*group.*expiration", tolower(names(x)), value = TRUE)`: This function call searches for column names containing the pattern "permit", "group", and "expiration" (case-insensitive) within the names of the current data frame `x`. It returns the matching column names.
 
 4. **Data Transformation with `imap`:**
+
    - `compl_dates <- compl_clean |>`: The cleaned data frames in `compl_clean` are processed further using the pipe (`|>`) operator.
+
    - `imap(\(x, idx) \{ .. \}`: The `imap` function iterates over each element of `compl_clean`, providing both the element (`x`, a data frame) and its index (`idx`).
+
    - Within the `imap` function:
+
       - `field_name <- permitgroupexpirations[[idx]]`: The variable `field_name` is assigned the column name extracted earlier, corresponding to the current data frame `x`.
+
       - `mutate(\{\{field_name\}\} := ...)`: This line adds a new column to the data frame `x`, where the column name is dynamically determined by `field_name`.
+
       - `as.POSIXct(pull(x[field_name]), format = "%m/%d/%Y")`: The values of the selected column are converted to POSIXct date-time format using the specified date format.
 
 5. **Return Statement:**
+
    - `return(compl_dates)`: Finally, the function returns a list of data frames (`compl_dates`), where each data frame has undergone the necessary cleaning and transformation steps.
+
 
 }
 \value{
