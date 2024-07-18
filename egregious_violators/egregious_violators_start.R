@@ -1144,6 +1144,8 @@ source(prep_addresses_path)
 #' 
 
 ## 3. Mark vessels already in the know list ----
+#' Identify and mark vessels that have been previously marked as egregious, to track repeat offenders
+#' 
 #' From the email:
 #' 
 #' The first column (report created) indicates the vessels that we have created a case for. My advice would be not to exclude those vessels. EOs may have provided compliance assistance and/or warnings already. If that is the case and they continue to be non-compliant after that, they will want to know and we may need to reopen those cases.
@@ -1159,6 +1161,8 @@ dim(vessels_to_mark_ids)
 
 #### Mark these vessels ----
 #'
+#' Create a new column to distinguish between previously processed vessels and new entries
+#' 
 #' Explanations:
 #'
 #' Create a new column 'duplicate_w_last_time' in the dataframe 'compl_corr_to_investigation_short'.
