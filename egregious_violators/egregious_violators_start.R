@@ -545,17 +545,20 @@ dim(compl_clean_w_permit_exp_last_half_year)
 # [1] 57296    22
 
 ### Have only SA and dual permits ----
-#' Use 'filter' to select rows where 'permitgroup' contains "CDW", "CHS", or "SC".
+#' This section filters the data to include only SA and dual permits.
+#'
+#' Filter rows where 'permitgroup' contains "CDW", "CHS", or "SC"
+#' 
 compl_clean_w_permit_exp_last_half_year__sa <-
   compl_clean_w_permit_exp_last_half_year |>
   dplyr::filter(grepl("CDW|CHS|SC", permitgroup))
 
-# check 
+# Check the dimensions of the resulting dataframe
 dim(compl_clean_w_permit_exp_last_half_year__sa)
 # [1] 38761    22
 
 ### Keep fewer columns in compliance df ----
-
+#' Define a vector of column names to be removed from the compliance dataframe
 remove_columns_from_compliance <- c(
   "name",
   "gom_permitteddeclarations__",
@@ -570,18 +573,14 @@ remove_columns_from_compliance <- c(
   "permit_expired"
 )
 #'
-#' Explanations:
-#' 
-#' 1. Use 'select' to remove columns specified in 'remove_columns'.
-#' 
-#' 2. Use 'distinct' to keep only unique rows in the resulting data frame.
+#' Remove specified columns and keep only unique rows
 #' 
 compl_clean_w_permit_exp_last_half_year__sa__short <-
   compl_clean_w_permit_exp_last_half_year__sa |>
   dplyr::select(-tidyselect::any_of(remove_columns_from_compliance)) |> 
   dplyr::distinct()
 
-# Check
+#' Check the dimensions of the resulting dataframe
 dim(compl_clean_w_permit_exp_last_half_year__sa__short)
 # [1] 38761    11
 #'
@@ -590,7 +589,9 @@ dim(compl_clean_w_permit_exp_last_half_year__sa__short)
 
 ### Add compliant_after_overr ----
 #' use tictoc package for benchmarking 
-
+#' 
+#' Apply the add_compliant_after_override function to add a new column indicating compliance status after overrides
+#' 
 tictoc::tic("compl_overr")
 compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr <-
   compl_clean_w_permit_exp_last_half_year__sa__short |>
@@ -610,7 +611,7 @@ compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr |>
 # 2 NO         YES         yes                        199
 # 3 YES        NO          yes                      27794
 #'
-#' check the results
+#' Verify that the compliant_after_override column contains only "yes" and "no" values
 compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr$compliant_after_override |>
   unique() == c("yes", "no")
 
@@ -618,7 +619,8 @@ dim(compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr)
 # E.g.
 # [1] 38761    12
 #'
-#' check if the amount of vessels didn't change
+#' Ensure that the number of unique vessels remains the same after data transformations
+#' 
 dplyr::n_distinct(compl_clean_w_permit_exp_last_half_year__sa$vessel_official_number) ==
   dplyr::n_distinct(
     compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr$vessel_official_number
@@ -640,7 +642,8 @@ dim(compl_clean_w_permit_exp_last_half_year__sa_non_c)
 #'
 #' That should eliminate entries for vessels having permits only a part of the period
 #' 
-#' get the current number of weeks 
+#' Calculate the total number of distinct weeks in the dataset
+#' 
 all_weeks_num <-
   compl_clean_w_permit_exp_last_half_year__sa_non_c |>
   dplyr::select(week) |>
@@ -676,6 +679,8 @@ dim(compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present)
 
 ### Check the last report date ----
 #### Get ids only ----
+
+#' Create a dataframe with unique vessel official numbers
 compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present__vesl_ids <-
   compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present |>
   dplyr::select(vessel_official_number) |>
@@ -687,7 +692,9 @@ dim(compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present__vesl_i
 # 149 
 
 #### Check these ids in the full compliance information ----
-#' Is there a new submitted report?
+
+#' Check if there are any new submitted reports for previously non-compliant vessels
+#' 
 compl_clean_w_permit_exp_last_half_year__sa |>
   dplyr::filter(
     vessel_official_number %in% compl_clean_w_permit_exp_last_half_year__sa_non_c__all_weeks_present__vesl_ids$vessel_official_number
@@ -700,8 +707,7 @@ compl_clean_w_permit_exp_last_half_year__sa |>
       year_month < as.yearmon(data_file_date)
   ) |>
   nrow()
-#' 0 OK!
-#' 
+#' A result of 0 indicates no new compliant reports have been submitted for selected vessels
 #'
 #' End of Compliance preparations 
 #' 
