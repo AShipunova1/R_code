@@ -482,7 +482,7 @@ source(get_data_path)
 #' 
 #' 1. Add a new column 'permit_expired' using 'mutate'.
 #' 
-#' 2. Use 'case_when' to determine if 'permit_groupexpiration' is greater than permit_expired_check_date.
+#' 2. Use 'case_when' to determine if 'permit_groupexpiration' is greater than permit_expired_check_date defined earlier.
 #' 
 #' 3. If true, set 'permit_expired' to "no", otherwise set it to "yes".
 #' 
@@ -500,6 +500,10 @@ compl_clean_w_permit_exp <-
 # glimpse(compl_clean_w_permit_exp)
 
 ### Get only not expired last 27 weeks of data minus grace period (total 26 weeks) ----
+
+#' 
+#' 27 weeks are used to account for a one-week grace period, resulting in 26 weeks of usable data
+#' 
 compl_clean_w_permit_exp__not_exp <-
   compl_clean_w_permit_exp |>
   # the last 27 week
@@ -526,13 +530,14 @@ max(compl_clean_w_permit_exp__not_exp$week_end)
 
 ### Add year_month column from week_start ----
 
+# as.yearmon converts dates to a year-month format (e.g., "Jan 2024")
 compl_clean_w_permit_exp_last_half_year <-
   compl_clean_w_permit_exp__not_exp |>
   dplyr::mutate(year_month = as.yearmon(week_start)) |>
-  # keep entries for the current check period
+  # keep entries for the current check period only
   dplyr::filter(year_month >= as.yearmon(half_year_ago))
 #'
-#' Check
+#' Compare dimensions to verify the filtering has reduced the dataset as expected
 dim(compl_clean_w_permit_exp)
 # [1] 221081     21
 
