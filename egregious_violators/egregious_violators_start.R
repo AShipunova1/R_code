@@ -328,7 +328,7 @@ file.exists(processed_pims_home_ports_path)
 
 #### Data from the previous results of "egregious violators for investigation" path ----
 #'
-#' Depending on a user name who runs the code, the file paths are constructed here.
+#' Depending on a user name who runs the code, define the path to the previous results file.
 #' 
 #' Manually: Add your full path instead of "Your full path here".
 #' 
@@ -342,7 +342,8 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
               "egregious_violators_to_investigate_2024-05-17.xlsx")
 }
 
-# If it is doesn't exist download it first and correct the path, or load directly from Google drive, see Get data
+#' Check if the previous results file exists.
+#' If it is doesn't exist download it first and correct the path, or load directly from Google drive, see Get data.
 file.exists(prev_result_path)
 
 ### Set up Google Drive paths ----
@@ -350,7 +351,7 @@ file.exists(prev_result_path)
 egr_violators_googledrive_folder_name <- "Egregious violators"
 output_egr_violators_googledrive_folder_name <- "output"
 #'
-#' Get the parent folder path.
+#' Get the path to the main Egregious violators folder on Google Drive
 #' 
 #' It is used to read the previous result and for saving the new result.
 #' 
@@ -359,6 +360,7 @@ output_egr_violators_googledrive_folder_name <- "output"
 #' If there is an option with your google email account (like your.name@noaa.gov) you can choose that option (usually #2) and it will confirm your access automatically.
 #'
 #' `n_max = 1` means we will use the first result, assuming we have only one folder with such name on Google dive.
+#'
 
 egr_violators_googledrive_folder_path <-
   googledrive::drive_find(pattern =
@@ -366,7 +368,7 @@ egr_violators_googledrive_folder_path <-
                           type = "folder",
                           n_max = 1)
 #'
-#' Get the output path
+#' Get the path to the output folder within the Egregious violators folder on Google Drive
 #'
 #' Explanations:
 #'
