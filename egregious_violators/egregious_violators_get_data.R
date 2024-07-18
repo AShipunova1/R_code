@@ -1,7 +1,7 @@
 # get data for egregious violators
 # use from egregious_violators_start.R
 
-#' This section retrieves data from various sources including:
+#' This section loads and prepares various datasets required for the egregious violators analysis
 #'
 #' - Compliance records
 #'
@@ -11,10 +11,11 @@
 #'
 #' - Address data
 #'
-#' The data is loaded from CSV files, databases, and previously processed results
-#' 
-
-#' The following data are loaded from files or from the Oracle database
+#' The data is loaded from CSV files, databases, and previously processed results.
+#'
+#' This section outlines the different data sources and their purposes in the analysis.
+#'  
+#' The following data are loaded from files or from the Oracle database.
 #' 
 #' 1) compliance data
 #' Download files from FHIER / Reports / FHIER COMPLIANCE REPORT 
@@ -70,7 +71,8 @@
 #' 
 
 # FHIER ----
-
+#' This section focuses on data from the Fisheries Information System for Harvest and Effort Reporting (FHIER)
+#' 
 #' Compliance
 #' 
 #' Correspondence
@@ -79,7 +81,10 @@
 #' 
 
 ## Compliance and Correspondence data ----
-#' This part reads Compliance and Correspondence CSV files, cleans them by trimming vessel IDs and cleaning column names, and processes correspondence data to add a column indicating if a contact was made. The file paths and the processing logic differ based on the username running the code.
+
+#' This section handles the processing of compliance reports and correspondence data from FHIER
+#' 
+#' It reads Compliance and Correspondence CSV files, cleans them by trimming vessel IDs and cleaning column names, and processes correspondence data to add a column indicating if a contact was made. The file paths and the processing logic differ based on the user running the code.
 #' 
 
 #' Read correspondence and compliance csvs
