@@ -19,6 +19,9 @@
 
 ## Fewer fields ----
 #' fhier_addresses are from get_data (For-hire Primary Physical Address List)
+#' 
+#' Select relevant columns from FHIER addresses data
+#' 
 fhier_addr_short <-
   fhier_addresses |>
   dplyr::select(
@@ -34,6 +37,7 @@ fhier_addr_short <-
     primary_email
   )
 
+#' Clean and standardize FHIER address data, removing duplicates
 fhier_addr_short_clean <-
   fhier_addr_short |>
   auxfunctions::clean_names_and_addresses() |>
@@ -41,7 +45,7 @@ fhier_addr_short_clean <-
 
 # nrow(fhier_addr_short_clean)
 
-#' don't combine address
+#' Address combination code is commented out to preserve individual address fields
 # fhier_addr_short__comb_addr <-
 #   fhier_addr_short |>
 #   clean_names_and_addresses() |>
@@ -72,15 +76,18 @@ fhier_addr_short_clean <-
 # dim(fhier_addr_short_clean)
 
 ## Add addresses from FHIER ----
+#' Join FHIER address data with the existing dataset
 compl_corr_to_investigation__corr_date__hailing_port__fhier_addr <-
   left_join(compl_corr_to_investigation__corr_date__hailing_port,
             fhier_addr_short_clean)
 #' Joining with `by = join_by(vessel_official_number)`
-#'
+#' Result: Dataset now includes FHIER address information for each vessel
+#' 
 
 # View(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
 
-#' check if no name, phone or email
+#' Verify completeness of contact information
+#' 
 compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>
   filter(
     is.na(contactrecipientname) |
