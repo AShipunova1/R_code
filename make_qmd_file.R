@@ -551,7 +551,7 @@ replace_function_with_def <-
   function(one_line_text, idx) {
     
     # browser()
-    idx <- 23
+    # idx <- 23
     current_function_name <- my_used_function_names_all[[idx]]
     print(current_function_name)
     
@@ -589,7 +589,10 @@ replace_function_with_def <-
       message("Here's the original error message:")
       message(conditionMessage(cond))
       # Choose a return value in case of error
-      one_line_text
+      add_text_in_front <-
+        str_glue("MOVE it: _START_ {current_function_name} {to_replace_with} _END_ {one_line_text}{my_split_newline_char}")
+      
+      return(add_text_in_front)
     }, warning = function(cond) {}, 
     finally = {
       # message("Some other message at the end")
@@ -617,10 +620,10 @@ length(text_replaced)
 # 1218
 # 2400 with auxf
 
-grep("fix_names", text_replaced, value = T)
+# grep("fix_names", text_replaced, value = T)
 
 # check
-# grep(my_used_function_names_all[[1]],
+# grep(my_used_function_names_all[[23]],
 #      text_replaced, value = T)
 
 see_res_in_outfile <- function(text_to_output) {
