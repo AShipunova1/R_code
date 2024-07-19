@@ -24,21 +24,22 @@
 #'
 #' 5. Not counting any correspondence (regardless of the type - email/call, voicemail or not) that includes "No contact made" in the text of the entry as an actual "direct" contact for any egregious vessel (May 6 2024)
 #'
-#' NB. Update (download) all input files every time before run.
-#' 
 
 ## New requirement 2023-08-09 ----
-#' It should be at least 2 contact "attempts". i.e., if they are ignoring our calls and emails then they cannot continue to go on in perpetuity without reporting and never be seen as egregious. So, at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough at this point and they need to be passed to OLE.
+#' 6. It should be at least 2 contact "attempts". i.e., if they are ignoring our calls and emails then they cannot continue to go on in perpetuity without reporting and never be seen as egregious. So, at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough at this point and they need to be passed to OLE.
 #' 
 #' at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough
 #' 
 
 ## New requirement 2024-02-26 ----
-#' It needs to be that we called at least 1 time and emailed at least 1 time. Or they contacted us at least once.
+#' 7. It needs to be that we called at least 1 time and emailed at least 1 time. Or they contacted us at least once.
 #' 
 
 ## New requirement 2024-05-06 ----
-#' Exclude any correspondence (regardless of the type - email/call, voicemail or not) that includes "No contact made" in the text of the entry as a actual "direct" contact for any egregious vessel.
+#' 8. Exclude any correspondence (regardless of the type - email/call, voicemail or not) that includes "No contact made" in the text of the entry as a actual "direct" contact for any egregious vessel.
+#' 
+
+#' Note. Update (download) all input files every time before run.
 #' 
 
 ## Set up packages and options ----
@@ -1393,7 +1394,7 @@ write_res_to_google_sheets <-
     # E.g. "egregious_violators_to_investigate_2024-06-18"
     
     # Rename the file from "current" to the previous_current_spread_sheet_name with the previous date.
-    # NB. The next line will rise an error if a file with this name already exists, to change that behavior remove 'overwrite = FALSE,"
+    # Note. The next line will rise an error if a file with this name already exists, to change that behavior remove 'overwrite = FALSE,"
     googledrive::drive_mv(
       my_current_ss,
       path = googledrive::as_id(output_egr_violators_googledrive_folder_path),
