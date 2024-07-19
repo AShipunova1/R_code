@@ -3,13 +3,15 @@
 # Setup ----
 #' %%%%% Setup
 #' 
-
 #' This script identifies and processes "egregious violators" in the SEFHIER program.
+#' 
+#' SEFHIER stands for Southeast For-Hire Integrated Electronic Reporting.
 #' 
 #' It combines compliance and correspondence data, applies specific filters,
 #' and prepares a report of vessels requiring further investigation.
 #' 
-
+#' The Setup section includes necessary libraries, functions, and data loading.
+#' 
 ## The "egregious violator" definition ----
 #' 
 #' 1. NO reports for all 26 weeks back from week ago today;
@@ -1184,6 +1186,8 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_m
   )
 
 ### Check ----
+#' Perform validation checks on the processed data
+
 #' Check that number of vessels didn't change.
 dplyr::n_distinct(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked$vessel_official_number) ==
   num_of_vsl_to_investigate
@@ -1199,6 +1203,8 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_m
 # 2 new                      48
 
 ## 4. How many are duals? ----
+#' Identify and count vessels with dual permits (both SA and GOM)
+
 #' Explanations:
 #' 
 #' Create a new dataframe 
@@ -1247,13 +1253,16 @@ region_counts <-
 dplyr::n_distinct(compl_corr_to_investigation_short_dup_marked__permit_region$vessel_official_number)
 
 ### Dual permitted cnts ----
+#' Calculate the percentage of dual-permitted vessels
 
 region_counts$n[[1]] / (region_counts$n[[2]] + region_counts$n[[1]]) * 100
 
 # Print out results ----
 ## Add additional columns in front ----
 #'
-#' Create a variable with the long column name
+#' Create a variable with a long column name for confirmation status
+#' 
+
 additional_column_name1 <-
   stringr::str_glue(
     "Confirmed Egregious? (permits must still be active till {permit_expired_check_date}, missing past 6 months, and (1) they called/emailed us (incoming), or (2) at least 2 contacts (outgoing) with at least 1 call/other (voicemail counts) and at least 1 email)"
@@ -1295,9 +1304,16 @@ compl_corr_to_investigation_short_dup_marked__permit_region__add_columns <-
 #' Don't remove the "year" column, in case there are 2 years in the current period.
 #' 
 #'
-#' Check what are the column names now
+#' Check and display the updated column names
+#' 
 auxfunctions::print_df_names(compl_corr_to_investigation_short_dup_marked__permit_region__add_columns)
 
+#' Generate output file name with current date
+#' 
+#' The file name is split into a basename and a full name with extension.
+#' 
+#' The basename will be used for the spreadsheet saved on Google Drive.
+#'  
 out_file_basename <- 
   stringr::str_glue("egregious_violators_to_investigate_{lubridate::today()}")
 
@@ -1308,12 +1324,16 @@ result_path <-
   file.path(current_project_output_path,
             out_file_name)
 
+#' Write the results to a CSV file
 compl_corr_to_investigation_short_dup_marked__permit_region__add_columns |>
   readr::write_csv(result_path)
 
 ## Write to google sheets ----
 
-#' Define the function to write results to Google Sheets.
+#' 
+#' Explanations:
+#' 
+#' Define a function to write results to Google Sheets
 #' 
 #' This function performs the following steps:
 #'
@@ -1338,6 +1358,7 @@ write_res_to_google_sheets <-
     # Define the current result Google Sheets name
     current_result_google_ss_name <- "Egregious Violators Current"
     
+    # my_current_ss contains information about the existing 'Egregious Violators Current' file
     my_current_ss <-
       googledrive::drive_ls(
         path = googledrive::as_id(output_egr_violators_googledrive_folder_path),
@@ -1351,26 +1372,29 @@ write_res_to_google_sheets <-
     # <chr>                       <drv_id>                                     <list>
     # 1 Egregious Violators Current ...--o6BpLWpb4-... <named list [36]>
     
-    # 1) load it to R
-    # 2) create a new spread sheet with the date of loaded workseeht and dump the content into it
-    # 3) create a new worksheet in the
-    # current spreadsheet with today's date
-    # write the code output into it
-    # check in browser
+    # Next:
+    # 1) load it to R;
+    # 2) create a new spreadsheet with the date of the loaded worksheet and dump the content into it;
+    # 3) create a new worksheet in the current spreadsheet with today's date;
+    # 4) write the code output into it;
+    # 5) check in browser.
     
     # 1) load it to R
     previous_current_content <- googlesheets4::read_sheet(my_current_ss)
     
     # 2) create a new spread sheet with the date of loaded worksheet and dump the content into it
     # a) get the previous spreadsheet name
+    
+    # ss_info contains detailed information about the current spreadsheet, including sheet names
     ss_info <- googlesheets4::gs4_get(my_current_ss)
+    
     # grep for the pattern in case there are additional tabs 
     previous_current_spread_sheet_name <- 
       grep("egregious_violators_to_investigate_20\\d\\d-\\d\\d-\\d\\d", ss_info$sheets$name, value = T)
     # E.g. "egregious_violators_to_investigate_2024-06-18"
     
     # Rename the file from "current" to the previous_current_spread_sheet_name with the previous date.
-    # NB. The nex line will rise an error if a file with this name already exists, to change that behavior remove 'overwrite = FALSE,"
+    # NB. The next line will rise an error if a file with this name already exists, to change that behavior remove 'overwrite = FALSE,"
     googledrive::drive_mv(
       my_current_ss,
       path = googledrive::as_id(output_egr_violators_googledrive_folder_path),
@@ -1383,7 +1407,7 @@ write_res_to_google_sheets <-
     # Has been renamed:
     # • output/egregious_violators_to_investigate_2024-06-18
 
-      # Create a new empty spreadsheet in the Google Drive output folder
+    # Create a new empty spreadsheet in the Google Drive output folder to replace the renamed one
     # And save its properties into current_result_google_ss_name_info
     
     current_result_google_ss_name_info <- 
@@ -1416,7 +1440,7 @@ write_res_to_google_sheets <-
     # See in browser to check
     googledrive::drive_browse(current_result_google_ss_name_info)
     
-    # Print out a link to share with others
+    # Generate a shareable link for the new spreadsheet
     current_output_file_link <- googledrive::drive_link(current_result_google_ss_name_info)
 
     print(current_output_file_link)
