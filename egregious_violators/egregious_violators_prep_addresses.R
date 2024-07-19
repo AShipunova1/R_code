@@ -4,8 +4,8 @@
 #' 
 #' The main output is a dataset called `compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr`, which combines vessel information with address data from both FHIER and the Oracle database.
 #'
-#' The code starts by cleaning and simplifying the FHIER address data, keeping only the most relevant information.
-#'
+#' The code starts by cleaning and simplifying the FHIER address data, keeping only the most relevant information. It then retrieves additional address data from an Oracle database to supplement the FHIER data.
+#' 
 #' It identifies vessels that are missing address information in the FHIER data.
 #'
 #' It then retrieves additional address information for these vessels from the Oracle database.
