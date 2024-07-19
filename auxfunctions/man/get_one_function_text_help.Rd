@@ -45,7 +45,7 @@ get_one_function_text_help(function_name,
 
   - `knitr::spin(text = my_fun_name_w_txt_split, knit = FALSE, format = 'qmd')` processes the text to generate R Markdown format without knitting it.
 
-- `my_fun_name_w_txt_split_rmd_text <- my_fun_name_w_txt_split_rmd_text |> str_replace_all(my_slash_replacement, "\\\\")` changes back to `\s` and `\b` in functions:
+- `my_fun_name_w_txt_split_rmd_text <- my_fun_name_w_txt_split_rmd_text |> str_replace_all(my_slash_replacement, "\\\\")` changes back to `\\s` and `\\b` in functions:
 
   - `str_replace_all(my_slash_replacement, "\\\\")` replaces all occurrences of `my_slash_replacement` with backslashes.
 
