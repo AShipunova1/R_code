@@ -403,7 +403,7 @@ dplyr::n_distinct(db_participants_address__needed_short__erv_erb_combined_short$
 #' 
 #' Create a new dataframe with combined and unique values for each participant field
 #' 
-#' Explanations:
+#' Explanations for the following code:
 #'
 #' 1. Iterate over each participant column using 'col_part_names'.
 #' 
