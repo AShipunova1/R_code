@@ -1011,6 +1011,7 @@ Permit info from processed metrics tracking
 
 # This auxiliary function processes vessel ID columns in each data frame by trimming leading and trailing whitespace, making the data more consistent and easier to work with. If the column name is not provided, it attempts to detect it automatically.
 #  
+#  
 # 1. **Function Definition:**
 #    - `trim_all_vessel_ids_simple <- function (csvs_clean_ws, col_name_to_trim = NA)`: Defines a function named `trim_all_vessel_ids_simple` that takes two arguments: `csvs_clean_ws`, a list of data frames to process, and `col_name_to_trim`, the name of the column containing vessel IDs to be trimmed. This argument is set to `NA` by default.
 # 
@@ -1685,7 +1686,6 @@ results <-
     "fhier_addresses",
     "processed_pims_home_ports",
     "db_participants_address",
-    "permit_vessel_w_changed_owner",
     "prev_result"
   )
 
@@ -3633,7 +3633,6 @@ along with the newly added 'permit_region' column.
 ```{r}
 compl_corr_to_investigation_short_dup_marked__permit_region <-
   compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked |> 
-  # compl_corr_to_investigation_short_dup_marked__permit_region__fhier_names__fhier_addr__mv_cols |>
   dplyr::mutate(permit_region =
            dplyr::case_when(
              grepl("RCG|HRCG|CHG|HCHG", permitgroup) ~ "dual",
@@ -3729,8 +3728,8 @@ This code effectively adds two new columns, with names from `additional_column_n
 
 ```{r}
 compl_corr_to_investigation_short_dup_marked__permit_region__add_columns <-
-  compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked |>
-  # compl_corr_to_investigation_short_dup_marked__permit_region__status |> 
+  compl_corr_to_investigation_short_dup_marked__permit_region |>
+
   tibble::add_column(
     !!(additional_column_name1) := NA,
     Notes = NA,
