@@ -671,8 +671,13 @@ rmd_text <-
   # unique()
 
 # Don't use in the auxiliary file
+maked_title <- 
+  curent_project_name |> 
+  stringr::str_replace_all("_", " ") |> 
+  stringr::str_to_title()
+
 pre_text <- stringr::str_glue("---
-title: {curent_project_name}
+title: {maked_title}
 ---
 ")
 
