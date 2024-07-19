@@ -555,7 +555,7 @@ replace_function_with_def <-
     current_function_name <- my_used_function_names_all[[idx]]
     print(current_function_name)
     
-    # add parenthesis for backreference
+    # add parenthesis for back reference
     to_find <- str_glue("(",
                         my_split_newline_char,
                         ".+{my_used_function_names_all[[idx]]})")
@@ -567,8 +567,8 @@ replace_function_with_def <-
         my_used_function_helps_all[[current_function_name]],
         my_used_function_texts_all[[current_function_name]],
         "# >>>>",
-        "\\1",
         # to keep in place what's found
+        "\\1",
         sep = "\n"
       )
     
@@ -590,7 +590,7 @@ replace_function_with_def <-
       message(conditionMessage(cond))
       # Choose a return value in case of error
       add_text_in_front <-
-        str_glue("MOVE it: _START_ {current_function_name} {to_replace_with} _END_ {one_line_text}{my_split_newline_char}")
+        str_glue("MOVE it: _START_ {current_function_name} {to_replace_with} _END_ #'{my_split_newline_char} {one_line_text}{my_split_newline_char}")
       
       return(add_text_in_front)
     }, warning = function(cond) {}, 
