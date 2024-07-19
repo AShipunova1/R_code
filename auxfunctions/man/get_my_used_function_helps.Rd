@@ -37,11 +37,11 @@ get_my_used_function_helps(function_name)
 
   - `setNames(used_tags)` assigns names to the list elements based on `used_tags`.
 
-- `used_tags_help <- paste(used_tags_help_list[[1]], "\n", used_tags_help_list[[2]])` combines the extracted sections into a single string with a newline separator.
+- `used_tags_help <- paste(used_tags_help_list[[1]], "\\n", used_tags_help_list[[2]])` combines the extracted sections into a single string with a newline separator.
 
-- `used_tags_help_commented <- used_tags_help |> str_replace_all("\n", "\n# ")` adds comment symbols to each line of the help text:
+- `used_tags_help_commented <- used_tags_help |> str_replace_all("\\n", "\\n# ")` adds comment symbols to each line of the help text:
 
-  - `str_replace_all("\n", "\n# ")` replaces all newline characters with newline characters followed by a comment symbol.
+  - `str_replace_all("\\n", "\\n# ")` replaces all newline characters with newline characters followed by a comment symbol.
 
 - `return(used_tags_help_commented)` returns the commented help text.
 
