@@ -14,8 +14,8 @@ library(tools)
 # 2) Change the title
 # 3) Move the Setup title up
 # 4) For egregious violators:
-# a) mv trim_all_vessel_ids_simple close to use and remove all (2) previous <<<<>>>>
-# b) 
+# a) mv trim_all_vessel_ids_simple close to use and remove the previous one (near setup) <<<<>>>>
+# b) Do the same for clean_headers (at Results) 
 
 
 # Change the dir name
