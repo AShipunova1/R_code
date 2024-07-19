@@ -61,7 +61,7 @@ sc_unlicensed_fed_charters__logbooks__join__output <-
   sc_unlicensed_fed_charters__logbooks__join |>
   select(
     vessel_id,
-    any_of(common_outpt_fields),
+    any_of(common_output_fields),
     trip_start_date,
     trip_end_date,
     trip_de,
@@ -109,7 +109,7 @@ sc_unlicensed_fed_charters__all_logbooks__output <-
   clean_headers() |>
   select(
     vessel_official_number,
-    any_of(common_outpt_fields),
+    any_of(common_output_fields),
     trip_start_date,
     trip_end_date,
     trip_end_year,

@@ -759,7 +759,7 @@ sc__fhier_compl__join_w_month |>
 # Answering the questions
 
 # save common column names
-common_outpt_fields <-
+common_output_fields <-
   c("delinquent",
     "month_sc",
     "year_sc",
@@ -782,7 +782,7 @@ non_compliant_vessels_in_sc_and_compl_in_fhier__m_w__output <-
   non_compliant_vessels_in_sc_and_compl_in_fhier |>
   select(
     vesselreg_uscg_,
-    all_of(common_outpt_fields),
+    all_of(common_output_fields),
     compliant_after_override
   ) |>
   distinct() |>
@@ -813,7 +813,7 @@ logbooks__sc_fhier_for_output <-
   logbooks__sc_fhier |>
   select(
     vessel_official_number,
-    all_of(common_outpt_fields),
+    all_of(common_output_fields),
     trip_start_date,
     trip_end_date,
     # vendor_app_name,
@@ -847,7 +847,7 @@ dnfs__sc_fhier_for_output <-
   dnfs__sc_fhier |>
   select(
     vessel_official_number,
-    all_of(common_outpt_fields),
+    all_of(common_output_fields),
     trip_date,
     compliant_after_override__fhier
   ) |>
@@ -875,7 +875,7 @@ compliant_vessels_in_sc_and_non_compl_fhier__for_output <-
   compliant_vessels_in_sc_and_non_compl_fhier |>
   select(
     vesselreg_uscg_,
-    all_of(common_outpt_fields),
+    all_of(common_output_fields),
     compliant_after_override
   ) |>
   filter(compliant_after_override == "no") |>
