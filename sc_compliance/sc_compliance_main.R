@@ -33,6 +33,7 @@ devtools::install_github("AShipunova1/R_code/auxfunctions")
 library(auxfunctions)
 
 ## assign dates to variables ----
+# Define the year range for data retrieval
 my_year <- "2024" # the year of the analysis
 db_year_1 <- "2023" # set the range based on how many years of data you want to pull, ex. the year before the year of the analysis
 db_year_2 <- "2024" # set the range based on how many years of data you want to pull, ex. the year after the year of the analysis
@@ -47,6 +48,7 @@ common_output_fields <-
     "comp_week_end_dt")
 
 ## set up paths ----
+# Set up file paths and directories
 annas_path <- set_work_dir()
 
 # Get the current directory path using the this.path package
@@ -60,7 +62,7 @@ current_project_basename <-
 annas_processed_data_path <-
   r"(~\R_files_local\my_inputs\processing_logbook_data\Outputs)"
 
-# Set the date from the SC file name (update this with each new file)
+# Set the date from the most recent SC file name (update this with each new file),
 # this number is from the file provided by SC, e.g. "scdnrFedVessels_05312024.xlsx"
 # Change it with every new file
 sc_file_date <- "06282024"
@@ -87,7 +89,7 @@ annas_srhs_2024_file_path <-
 file.exists(annas_srhs_2024_file_path)
 
 ## Add correct paths for your environment in the next 5 lines ----
-
+# Define paths for input, output, and processed data
 input_path <- file.path(annas_path$inputs, current_project_basename)
 output_path <- file.path(annas_path$outputs, current_project_basename)
 processed_data_path <- annas_processed_data_path
@@ -100,6 +102,7 @@ get_data_path <- file.path(current_project_dir_name,
 file.exists(get_data_path)
 
 # Source the get_data script to load and process the required data
+# Load and process required data from external script
 source(get_data_path)
 # res in
 # sc__fhier_compl__join_w_month
@@ -118,6 +121,7 @@ common_output_fields <-
 ## 1. Non-compliant in SC and compliant in FHIER ----
 
 # a)
+# Identify vessels non-compliant in SC but compliant in FHIER
 non_compliant_vessels_in_sc_and_compl_in_fhier <-
   sc__fhier_compl__join_w_month |>
   dplyr::filter(delinquent_month == 1 &
@@ -158,6 +162,7 @@ intersect(names(logbooks),
           names(non_compliant_vessels_in_sc_and_compl_in_fhier__m_w__output))
 # [1] "comp_week_start_dt"       "comp_week_end_dt"         "compliant_after_override"
 
+# Join logbook data with non-compliant vessels in SC and compliant in FHIER
 logbooks__sc_fhier <-
   logbooks |>
   inner_join(
@@ -200,6 +205,7 @@ intersect(names(dnfs),
           names(non_compliant_vessels_in_sc_and_compl_in_fhier__m_w__output))
 # [1] "comp_week_start_dt"       "comp_week_end_dt"         "compliant_after_override"
 
+# Join DNF data with non-compliant vessels in SC and compliant in FHIER
 # DNF (list week date range for any for that month)
 dnfs__sc_fhier <-
   dnfs |>
@@ -213,7 +219,7 @@ dnfs__sc_fhier <-
     suffix = c("__dnf", "__fhier")
   )
 
-# check
+# Check dimensions of dnfs__sc_fhier dataframe
 dim(dnfs__sc_fhier)
 # 0
 
@@ -236,6 +242,7 @@ dim(dnfs__sc_fhier_for_output)
 
 # 2) we also need a step that just grabs the compliant vessels (herein "SC compliant vessels list"), and then checks FHIER compliance to see if any that SC has as compliant are listed as non-compliant for any of the weeks in the given month. If any vessels are found to be compliant with SC but non-compliant with us/FHIER, then we need (on a 3rd sheet) to list those vessels and include what week (with date ranges) we are missing in FHIER. Eric will use this to more proactively alert us when a vessel is reporting only to SC, since we have so many recurring issues with this.
 
+# Identify vessels compliant in SC but non-compliant in FHIER
 compliant_vessels_in_sc_and_non_compl_fhier <-
   sc__fhier_compl__join_w_month |>
   filter(delinquent_month == 0 &
@@ -247,6 +254,7 @@ dim(compliant_vessels_in_sc_and_non_compl_fhier)
 # "all_m_comp" field shows if any weeks of that month were compliant. We consider the whole month non-compliant if even one week was non-compliant. If SC considers the month compliant if at least one week was compliant that makes a big difference in the monthly compliance counts between SC and FHIER.
 
 ### 2a. Exclude non-compliant in both SC and FHIER ----
+# Filter out vessels that are non-compliant in both SC and FHIER
 compliant_vessels_in_sc_and_non_compl_fhier__not_both_nc <-
   compliant_vessels_in_sc_and_non_compl_fhier |>
   dplyr::filter(!delinquent == 1 &
@@ -280,6 +288,7 @@ dim(sc__fhier_compl__join_w_month__non_compl_in_both)
 # [1] 61 24
 
 ## 4. List of vessels compliant in both ----
+# Identify vessels non-compliant in both SC and FHIER systems
 sc__fhier_compl__join_w_month__compl_in_both <-
   sc__fhier_compl__join_w_month |>
   filter(delinquent_month == 0 &
@@ -289,6 +298,8 @@ dim(sc__fhier_compl__join_w_month__compl_in_both)
 # [1] 7759   24
 
 # Write results to xlsx ----
+# Prepare data for output to Excel file
+
 # 1. Create a wb with all output dfs ----
 
 # Explanations:
