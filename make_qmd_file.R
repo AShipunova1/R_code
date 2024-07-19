@@ -513,6 +513,12 @@ nested_functions_last_check <-
   my_used_function_texts_from_nested |>
   get_my_func_names_wo_prefix()
 
+print(nested_functions_last_check)
+
+## Combine all my_used_function_names in one list ----
+my_used_function_names_all <-
+  c(my_used_function_names, my_used_function_names_from_nested)
+
 ## Combine all help documents in one list ----
 my_used_function_helps_all <-
   c(my_used_function_helps_from_nested, my_used_function_helps)
@@ -536,20 +542,27 @@ length(my_used_function_texts_all) ==
 # grep("@@", flat_file_r_text, value = T)
 # 0
 
-# my_used_function_names[[3]]
+# my_used_function_names_all[[3]]
+
+print("HERE: my_used_function_names_all")
+print(my_used_function_names_all)
 
 replace_function_with_def <-
   function(one_line_text, idx) {
     # browser()
+    
+    current_function_name <- my_used_function_names_all[[idx]]
+    # print(current_function_name)
+    
     to_find <- str_glue("(",
                         my_split_newline_char,
-                        ".+{my_used_function_names[[idx]]})")
+                        ".+{my_used_function_names_all[[idx]]})")
     to_replace_with <-
       paste(
         "\n# <<<<",
-        "\n# Explanations:",
-        my_used_function_helps_all[[idx]],
-        my_used_function_texts_all[[idx]],
+        "\n# Explanations for the following code:",
+        my_used_function_helps_all[[current_function_name]],
+        my_used_function_texts_all[[current_function_name]],
         "# >>>>",
         "\\1", #to keep in place what's found
         sep = "\n"
@@ -568,7 +581,7 @@ one_line_text <-
 # 1
 
 one_line_text_replaced <-
-  purrr::reduce(seq_len(length(my_used_function_names)),
+  purrr::reduce(seq_len(length(my_used_function_names_all)),
                 \(acc, nxt) replace_function_with_def(acc, nxt),
                 .init = one_line_text)
 
@@ -577,15 +590,11 @@ text_replaced <-
 
 length(text_replaced)
 # 1218
+# 2400 with auxf
 
 # check
-# grep(my_used_function_names[[1]],
+# grep(my_used_function_names_all[[1]],
 #      text_replaced, value = T)
-
-# grep("\\\\s", str_escape(my_used_function_texts_all), value = T)
-# clean_names_and_addresses
-
-# grep("\\\\s", text_replaced, value = T)
 
 see_res_in_outfile <- function(text_to_output) {
   outfile <- tempfile(fileext = ".txt")
@@ -636,18 +645,19 @@ title: {curent_project_name}
 # Don't use in the auxiliary file
 # Setup
 setup_text <- "
-```{r no cache setup, results='hide', message=FALSE, warning=FALSE, cache=FALSE, include=FALSE}
+Note: In the following code '<<<<' and '>>>>' mark the start and the end of definitions and help documents for helper functions.
 
-#' Quarto
-#'
-#' Quarto enables you to weave together content and executable code into a finished document.
-#'
-#' Running Code
-#'
-#' The **Run** button allows you to run individual or bunch of chunks as a regular R script.
-#'
-#' When you click the **Render** button a document will be generated that includes both content and the output of embedded code.
-#'
+Quarto
+
+Quarto enables you to weave together content and executable code into a finished document.
+
+Running Code
+
+The **Run** button allows you to run individual or bunch of chunks as a regular R script.
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code.
+
+```{r no cache setup, results='hide', message=FALSE, warning=FALSE, cache=FALSE, include=FALSE}
 
 # Setup for Quarto
 
@@ -711,8 +721,6 @@ registerS3method(
 # options(knitr.table.format = 'HTML')
 
 # End of Quarto setup
-
-#' In the following code '<<<<' and '>>>>' mark the start and the end of definitions and help documents for functions from the `auxfunctions` package.
 
 ```
 
