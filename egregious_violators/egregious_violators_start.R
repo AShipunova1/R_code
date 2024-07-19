@@ -40,11 +40,10 @@
 #' 
 #' Note. Update (download) all input files every time before run.
 #' 
-#' Note: If there is no comment with the word "manually" before the code, it will work automatically.
-#' 
-
 ## Set up packages and options ----
 
+#' Note: If there is no comment with the word "manually" before the code, it will work automatically.
+#' 
 # Note: In the following code '<<<<' and '>>>>' mark the start and the end of definitions and help documents for helper functions.
 # 
 # Install if needed and load all the packages.
@@ -1352,7 +1351,7 @@ compl_corr_to_investigation_short_dup_marked__permit_region__add_columns |>
 
 write_res_to_google_sheets <- 
   function() {
-  
+browser()
     # Define the current result Google Sheets name
     current_result_google_ss_name <- "Egregious Violators Current"
     
@@ -1364,10 +1363,9 @@ write_res_to_google_sheets <-
         type = "spreadsheet",
         n_max = 1
       )
-
+    
     # An example of my_current_ss:
     #   name                        id                                           drive_resource
-    # <chr>                       <drv_id>                                     <list>
     # 1 Egregious Violators Current ...--o6BpLWpb4-... <named list [36]>
     
     # Next:
@@ -1386,38 +1384,83 @@ write_res_to_google_sheets <-
     # ss_info contains detailed information about the current spreadsheet, including sheet names
     ss_info <- googlesheets4::gs4_get(my_current_ss)
     
-    # grep for the pattern in case there are additional tabs 
-    previous_current_spread_sheet_name <- 
-      grep("egregious_violators_to_investigate_20\\d\\d-\\d\\d-\\d\\d", ss_info$sheets$name, value = T)
+    # grep for the pattern in case there are additional tabs
+    previous_current_spread_sheet_name <-
+      grep(
+        "egregious_violators_to_investigate_20\\d\\d-\\d\\d-\\d\\d",
+        ss_info$sheets$name,
+        value = T
+      )
     # E.g. "egregious_violators_to_investigate_2024-06-18"
     
     # Rename the file from "current" to the previous_current_spread_sheet_name with the previous date.
     # Note. The next line will rise an error if a file with this name already exists, to change that behavior remove 'overwrite = FALSE,"
-    googledrive::drive_mv(
-      my_current_ss,
-      path = googledrive::as_id(output_egr_violators_googledrive_folder_path),
-      overwrite = FALSE,
-      name = previous_current_spread_sheet_name
-    )
-    # E.g.
-    # Original file:
-    # • Egregious Violators Current
-    # Has been renamed:
-    # • output/egregious_violators_to_investigate_2024-06-18
-
+    
+    tryCatch({
+      # message("This is the 'try' part")
+      
+      googledrive::drive_mv(
+        my_current_ss,
+        path = googledrive::as_id(output_egr_violators_googledrive_folder_path),
+        overwrite = FALSE,
+        name = previous_current_spread_sheet_name
+      )
+      # E.g.
+      # Original file:
+      # • Egregious Violators Current
+      # Has been renamed:
+      # • output/egregious_violators_to_investigate_2024-06-18
+      
+    }, error = function(cond) {
+      message(
+        paste(
+          "File exists at the target filepath and `overwrite = FALSE`: ",
+          previous_current_spread_sheet_name
+        )
+      )
+      
+      message("Here's the original error message:")
+      message(conditionMessage(cond))
+      # Choose a return value in case of error
+    }, warning = function(cond) {
+      
+    }, finally = {
+      # message("Some other message at the end")
+    })
+    
     # Create a new empty spreadsheet in the Google Drive output folder to replace the renamed one
     # And save its properties into current_result_google_ss_name_info
     
-    current_result_google_ss_name_info <- 
-    googledrive::drive_create(
-      name = current_result_google_ss_name,
-      path = googledrive::as_id(output_egr_violators_googledrive_folder_path),
-      type = "spreadsheet",
-      overwrite = FALSE
-    )
+    tryCatch({
+      # message("This is the 'try' part")
+      
+      current_result_google_ss_name_info <-
+        googledrive::drive_create(
+          name = current_result_google_ss_name,
+          path = googledrive::as_id(output_egr_violators_googledrive_folder_path),
+          type = "spreadsheet",
+          overwrite = FALSE
+        )
+      
+    }, error = function(cond) {
+      message(
+        paste(
+          "File exists at the target filepath and `overwrite = FALSE`: ",
+          current_result_google_ss_name
+        )
+      )
+      
+      message("Here's the original error message:")
+      message(conditionMessage(cond))
+      # Choose a return value in case of error
+    }, warning = function(cond) {
+      
+    }, finally = {
+      # message("Some other message at the end")
+    })
     
-  # Write our results into the newly created spreadsheet "Egregious Violators Current"
-  # into a sheet/tab with a name defined in out_file_basename
+    # Write our results into the newly created spreadsheet "Egregious Violators Current"
+    # into a sheet/tab with a name defined in out_file_basename
     googlesheets4::write_sheet(
       compl_corr_to_investigation_short_dup_marked__permit_region__add_columns,
       ss = current_result_google_ss_name_info,
@@ -1427,7 +1470,7 @@ write_res_to_google_sheets <-
     # See sheets/tabs to check
     googlesheets4::sheet_properties(ss = current_result_google_ss_name_info)
     
-      # Remove the empty Sheet1 created automatically by googledrive::drive_create()
+    # Remove the empty Sheet1 created automatically by googledrive::drive_create()
     googlesheets4::sheet_delete(ss = current_result_google_ss_name_info, "Sheet1")
     
     # Check the existing tabs again
@@ -1440,7 +1483,7 @@ write_res_to_google_sheets <-
     
     # Generate a shareable link for the new spreadsheet
     current_output_file_link <- googledrive::drive_link(current_result_google_ss_name_info)
-
+    
     print(current_output_file_link)
     
     # The function returns the current output file link
