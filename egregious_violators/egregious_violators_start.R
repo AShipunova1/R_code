@@ -1223,7 +1223,6 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_m
 
 compl_corr_to_investigation_short_dup_marked__permit_region <-
   compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked |> 
-  # compl_corr_to_investigation_short_dup_marked__permit_region__fhier_names__fhier_addr__mv_cols |>
   dplyr::mutate(permit_region =
            dplyr::case_when(
              grepl("RCG|HRCG|CHG|HCHG", permitgroup) ~ "dual",
@@ -1293,8 +1292,8 @@ additional_column_name1 <-
 #' 
 
 compl_corr_to_investigation_short_dup_marked__permit_region__add_columns <-
-  compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_marked |>
-  # compl_corr_to_investigation_short_dup_marked__permit_region__status |> 
+  compl_corr_to_investigation_short_dup_marked__permit_region |>
+
   tibble::add_column(
     !!(additional_column_name1) := NA,
     Notes = NA,
