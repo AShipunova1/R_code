@@ -53,7 +53,6 @@ library(ROracle)
 # Collection of package development tools.
 library(devtools)
 #'
-#'
 #' Explanations:
 #'
 #' - `if (!require("auxfunctions"))` checks if the `auxfunctions` package is installed and loaded:
@@ -69,9 +68,14 @@ library(devtools)
 #'   - `"AShipunova1/R_code/auxfunctions"` specifies the repository and subdirectory containing the package.
 #' 
 #' This code checks if the `auxfunctions` package is available, and if not, it installs it from the GitHub repository `AShipunova1/R_code/auxfunctions`.
+#' 
 #' One doesn't have to have a GitHub account to use it.
 #' 
 #' The installation details depend on the username.
+#' 
+#' For most users, install from the main branch if not already installed
+#' 
+#' For the package developer, install from the development branch to test new features
 #' 
 # Check if the username is not "anna.shipunova"
 if (!auxfunctions::get_username() == "anna.shipunova") {
@@ -117,15 +121,6 @@ Sys.setenv(ORA_SDTZ = Sys.timezone())
 #' 
 #' In the code in this section all user provided values have the word "manually" in the description. Everything else is created automatically.
 #'
-#'
-#'
-#' Installation logic for auxfunctions package
-#' 
-#' Different methods are used based on the user to accommodate different directory structure.
-#' For most users, install from the main branch if not already installed
-#' For the package developer, install from the development branch to test new features
-#' 
-#' 
 #' Manually: Change the following 2 lists (*my_paths* and *current_in_out_paths*) to your environment if needed. The variable _names_ are used throughout the code, so please change only the quoted _values_ inside the lists.
 #' 
 
