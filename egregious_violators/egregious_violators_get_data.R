@@ -370,7 +370,6 @@ results <-
     "fhier_addresses",
     "processed_pims_home_ports",
     "db_participants_address",
-    "permit_vessel_w_changed_owner",
     "prev_result"
   )
 
