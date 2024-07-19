@@ -513,11 +513,15 @@ nested_functions_last_check <-
   my_used_function_texts_from_nested |>
   get_my_func_names_wo_prefix()
 
-print(nested_functions_last_check)
+length(nested_functions_last_check) == 0
 
 ## Combine all my_used_function_names in one list ----
 my_used_function_names_all <-
   c(my_used_function_names, my_used_function_names_from_nested)
+
+length(my_used_function_names_all) ==
+  length(my_used_function_names_from_nested) +
+  length(my_used_function_names)
 
 ## Combine all help documents in one list ----
 my_used_function_helps_all <-
@@ -558,7 +562,7 @@ replace_function_with_def <-
     # add parenthesis for back reference
     to_find_function_name <- str_glue("(",
                         my_split_newline_char,
-                        ".+{my_used_function_names_all[[idx]]})")
+                        ".+{my_used_function_names_all[[idx]]}\\b)")
     
     to_replace_with <-
       paste(
@@ -618,7 +622,7 @@ text_replaced <-
 
 length(text_replaced)
 # 1218
-# 2400 with auxf
+# 2404 with auxf
 
 # grep("fix_names", text_replaced, value = T)
 
