@@ -802,7 +802,7 @@ sc__fhier_compl__join_w_month |>
 
 # Answering the questions ----
 
-# save common column names
+# Define a vector of common output fields used across multiple data frames
 common_output_fields <-
   c("delinquent",
     "month_sc",
@@ -813,6 +813,7 @@ common_output_fields <-
 # 1. Non-compliant in SC and compliant in FHIER ----
 
 # a)
+# Create a data frame for non-compliant vessels in SC but compliant in FHIER
 non_compliant_vessels_in_sc_and_compl_in_fhier <-
   sc__fhier_compl__join_w_month |>
   filter(delinquent_month == 1 &
@@ -843,6 +844,7 @@ dim(non_compliant_vessels_in_sc_and_compl_in_fhier__m_w__output)
 
 dim(non_compliant_vessels_in_sc_and_compl_in_fhier__m_w__output)
 
+# Join logbooks data with non-compliant vessels data to get logbook information for these vessels
 logbooks__sc_fhier <-
   logbooks |>
   inner_join(
@@ -879,6 +881,8 @@ glimpse(logbooks__sc_fhier_for_output)
 
 ## add DNF info ----
 # DNF (list week date range for any for that month)
+# Join DNFs data with non-compliant vessels data to get DNF information for these vessels
+
 dnfs__sc_fhier <-
   dnfs |>
   inner_join(
@@ -891,7 +895,7 @@ dnfs__sc_fhier <-
     suffix = c("__dnf", "__fhier")
   )
 
-# check
+# Check dimensions of dnfs__sc_fhier dataframe
 # dim(dnfs__sc_fhier)
 
 # subset columns of data to output
@@ -913,6 +917,7 @@ dnfs__sc_fhier_for_output <-
 
 # 2) we also need a step that just grabs the compliant vessels (herein "SC compliant vessels list"), and then checks FHIER compliance to see if any that SC has as compliant are listed as non-compliant for any of the weeks in the given month. If any vessels are found to be compliant with SC but non-compliant with us/FHIER, then we need (on a 3rd sheet) to list those vessels and include what week (with date ranges) we are missing in FHIER. Eric will use this to more proactively alert us when a vessel is reporting only to SC, since we have so many recurring issues with this.
 
+# Identify vessels compliant in SC but non-compliant in FHIER
 compliant_vessels_in_sc_and_non_compl_fhier <-
   sc__fhier_compl__join_w_month |>
   filter(delinquent_month == 0 &
