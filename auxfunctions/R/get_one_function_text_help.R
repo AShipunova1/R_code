@@ -40,7 +40,7 @@ get_one_function_text_help <-
                   knit = FALSE,
                   format = 'qmd')
     
-    # Change back to \s and \b in functions
+    # Change back to \\s and \\b in functions
     my_function_name_w_txt_split_rmd_text <-
       my_function_name_w_txt_split_rmd_text |>
       stringr::str_replace_all(my_slash_replacement, "\\\\")
