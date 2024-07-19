@@ -590,7 +590,7 @@ replace_function_with_def <-
       message(conditionMessage(cond))
       # Choose a return value in case of error
       add_text_in_front <-
-        str_glue("MOVE it: _START_ {current_function_name} {to_replace_with} _END_ #'{my_split_newline_char} {one_line_text}{my_split_newline_char}")
+        str_glue("MOVE it: _START_ {current_function_name} {to_replace_with} _END_ #'{my_split_newline_char} {one_line_text}{my_split_newline_char}\n")
       
       return(add_text_in_front)
     }, warning = function(cond) {}, 
