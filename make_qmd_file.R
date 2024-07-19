@@ -194,7 +194,7 @@ source_files_content_one_line <-
 
 # replace sourced files with the file content
 
-to_find <-
+to_find_source <-
   str_c(str_escape(unlist(source_paths_matches)),
         collapse = "|")
 # str(to_find)
@@ -206,7 +206,7 @@ to_replace_source <-
 
 flat_file_r_text <-
   stringr::str_replace_all(flat_file_r_text,
-                           to_find,
+                           to_find_source,
                            to_replace_source)
 
 # check
@@ -556,7 +556,7 @@ replace_function_with_def <-
     print(current_function_name)
     
     # add parenthesis for back reference
-    to_find <- str_glue("(",
+    to_find_function_name <- str_glue("(",
                         my_split_newline_char,
                         ".+{my_used_function_names_all[[idx]]})")
     
@@ -576,14 +576,14 @@ replace_function_with_def <-
       message("This is the 'try' part")
       
       one_line_text_replaced <-
-        str_replace(one_line_text, to_find, to_replace_with)
+        str_replace(one_line_text, to_find_function_name, to_replace_with)
       
       return(one_line_text_replaced)
       
     }, error = function(cond) {
       message(paste("idx:", idx))
       message(paste("current_function_name:", current_function_name))
-      message(paste("to_find:", to_find))
+      message(paste("to_find:", to_find_function_name))
       message(paste("to_replace_with:", to_replace_with))
       
       message("Here's the original error message:")
