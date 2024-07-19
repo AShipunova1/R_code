@@ -3,7 +3,7 @@ function(my_df) {
     # Use the 'fix_names' function to clean and fix the column names of the dataframe.
     new_names <-
         colnames(my_df) |>
-        fix_names()
+        auxfunctions::fix_names()
 
     colnames(my_df) <- 
         new_names
