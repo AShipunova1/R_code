@@ -60,26 +60,17 @@ at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicem
 
 8. Exclude any correspondence (regardless of the type - email/call, voicemail or not) that includes "No contact made" in the text of the entry as a actual "direct" contact for any egregious vessel.
 
-Note. Update (download) all input files every time before run.
-
-Note: If there is no comment with the word "manually" before the code, it will work automatically.
-
-Note: In the following code '<<<<' and '>>>>' mark the start and the end of definitions and help documents for helper functions.
-
 ```{r no cache setup, results='hide', message=FALSE, warning=FALSE, cache=FALSE, include=FALSE}
 
-
-
-#' Quarto
-#'
-#' Quarto enables you to weave together content and executable code into a finished document.
-#'
-#' Running Code
-#'
-#' The **Run** button allows you to run individual or bunch of chunks as a regular R script.
-#'
-#' When you click the **Render** button a document will be generated that includes both content and the output of embedded code.
-#'
+# Quarto
+ 
+# Quarto enables you to weave together content and executable code into a finished document.
+ 
+# Running Code
+ 
+# The **Run** button allows you to run individual or bunch of chunks as a regular R script.
+ 
+# When you click the **Render** button a document will be generated that includes both content and the output of embedded code.
 
 # Setup for Quarto
 
@@ -149,22 +140,43 @@ registerS3method(
 
 ### Set up packages and options 
 
+Note. Update (download) all input files every time before run.
+
+Note: If there is no comment with the word "manually" before the code, it will work automatically.
+
 ```{r Set up packages and options}
 ## Set up packages and options ----
 # <<<<
 
 # Explanations for the following code:
 
- get_username  <-  function(){
-    return(as.character(Sys.info()["user"]))
-}
+# This function provides a simple way to obtain the username of the user executing the R code, which can be useful for personalization, authentication, or logging purposes. 
+#  
+# The `get_username` function is designed to retrieve the username of the current user.
+# 
+# 1. **Function Definition:**
+#    - `get_username <- function() { .. }`: Defines a function named `get_username` with no arguments.
+# 
+# 2. **Using System Information:**
+#    - `Sys.info()`: Calls the `Sys.info` function, which provides various system information about the current R session.
+#    - `Sys.info()["user"]`: Retrieves the username of the current user from the system information.
+# 
+# 3. **Converting to Character:**
+#    - `as.character()`: Converts the username to a character vector. This step ensures consistency in the data type of the returned value.
+# 
+# 4. **Return Result:**
+#    - The function returns the username of the current user as a character string.
+# 
 
- get_username  <-  function(){
+ get_username  <-  function () 
+{
     return(as.character(Sys.info()["user"]))
 }
 # >>>>
 
 
+# Note: In the following code '<<<<' and '>>>>' mark the start and the end of definitions and help documents for helper functions.
+# 
 # Install if needed and load all the packages.
 # 
 # *NB*. It is better to install/load each package separately, if any one suggest updates it is safe to choose option 1 (update all).
@@ -177,6 +189,14 @@ library(devtools)
 
 
 Explainations for the following code:
+
+The installation details depend on the username.
+
+For most users, install from the main branch if not already installed.
+
+One doesn't have to have a GitHub account to use it.
+
+For the package developer, install from the development branch.
 
 - `if (!require("auxfunctions"))` checks if the `auxfunctions` package is installed and loaded:
 
@@ -191,14 +211,6 @@ Explainations for the following code:
   - `"AShipunova1/R_code/auxfunctions"` specifies the repository and subdirectory containing the package.
 
 This code checks if the `auxfunctions` package is available, and if not, it installs it from the GitHub repository `AShipunova1/R_code/auxfunctions`.
-
-One doesn't have to have a GitHub account to use it.
-
-The installation details depend on the username.
-
-For most users, install from the main branch if not already installed
-
-For the package developer, install from the development branch to test new features
 
 
 ```{r}
@@ -247,97 +259,24 @@ Sys.setenv(ORA_SDTZ = Sys.timezone())
 
 # Explanations for the following code:
 
- function_message_print  <-  function(text_msg) {
-  cat(crayon::bgCyan$bold(text_msg),
-      sep = "\n")
-}
+# Pretty message print in the console.
+# 
+# Provides a way to print messages with enhanced visual formatting, making them stand out for better readability or emphasis.
+#  
+#  
+# The `function_message_print` function is a utility function for printing messages with a cyan background color.
+# 
+# 1. **Function Definition:**
+#    - `function_message_print <-function (text_msg) { .. }`: Defines a function named `function_message_print` that takes one argument, `text_msg`, representing the message to be printed.
+# 
+# 2. **Printing Message with Cyan Background:**
+#    - `crayon::bgCyan$bold(text_msg)`: Formats the `text_msg` with a cyan background color and bold font using the `crayon` package. This creates a visually distinct message when printed.
+#    - `cat(..., sep = "n")`: Prints the formatted message to the console. `cat` is a function used for printing, and `sep = "n"` specifies that each message should be printed on a new line.
+# 
 
- function_message_print  <-  function(text_msg) {
-  cat(crayon::bgCyan$bold(text_msg),
-      sep = "\n")
-}
-# >>>>
-
-# <<<<
-
-# Explanations for the following code:
-
- set_work_dir  <-  function() {
-
-  # Set the working directory to the user's home directory (~)
-  setwd("~/")
-  base_dir <- getwd()
-
-  # Define 'main_r_dir' as "R_files_local"
-  main_r_dir <- "R_files_local"
-
-  # Define 'in_dir' as "my_inputs"
-  in_dir <- "my_inputs"
-
-  # Construct the full path to 'my_inputs' directory
-  full_path_to_in_dir <- file.path(base_dir, main_r_dir, in_dir)
-
-  # Define 'out_dir' as "my_outputs"
-  out_dir <- "my_outputs"
-
-  # Construct the full path to 'my_outputs' directory
-  full_path_to_out_dir <- file.path(base_dir, main_r_dir, out_dir)
-
-  # Define 'git_r_dir' as "R_code_github"
-  git_r_dir <- "R_code_github"
-
-  # Construct the full path to 'R_code_github' directory
-  full_path_to_r_git_dir <- file.path(base_dir, git_r_dir)
-
-  # Change the working directory to 'R_files_local'
-  setwd(file.path(base_dir, main_r_dir))
-
-  # Create a list of directory paths for 'inputs,' 'outputs,' and 'git_r'
-  my_paths <- list("inputs" = full_path_to_in_dir,
-                   "outputs" = full_path_to_out_dir,
-                   "git_r" = full_path_to_r_git_dir)
-
-  # Return the list of directory paths
-  return(my_paths)
-}
-
- set_work_dir  <-  function() {
-
-  # Set the working directory to the user's home directory (~)
-  setwd("~/")
-  base_dir <- getwd()
-
-  # Define 'main_r_dir' as "R_files_local"
-  main_r_dir <- "R_files_local"
-
-  # Define 'in_dir' as "my_inputs"
-  in_dir <- "my_inputs"
-
-  # Construct the full path to 'my_inputs' directory
-  full_path_to_in_dir <- file.path(base_dir, main_r_dir, in_dir)
-
-  # Define 'out_dir' as "my_outputs"
-  out_dir <- "my_outputs"
-
-  # Construct the full path to 'my_outputs' directory
-  full_path_to_out_dir <- file.path(base_dir, main_r_dir, out_dir)
-
-  # Define 'git_r_dir' as "R_code_github"
-  git_r_dir <- "R_code_github"
-
-  # Construct the full path to 'R_code_github' directory
-  full_path_to_r_git_dir <- file.path(base_dir, git_r_dir)
-
-  # Change the working directory to 'R_files_local'
-  setwd(file.path(base_dir, main_r_dir))
-
-  # Create a list of directory paths for 'inputs,' 'outputs,' and 'git_r'
-  my_paths <- list("inputs" = full_path_to_in_dir,
-                   "outputs" = full_path_to_out_dir,
-                   "git_r" = full_path_to_r_git_dir)
-
-  # Return the list of directory paths
-  return(my_paths)
+ function_message_print  <-  function (text_msg) 
+{
+    cat(crayon::bgCyan$bold(text_msg), sep = "\n")
 }
 # >>>>
 
@@ -345,66 +284,63 @@ Sys.setenv(ORA_SDTZ = Sys.timezone())
 
 # Explanations for the following code:
 
- current_project_paths  <-  function() {
-  
-  my_paths <- auxfunctions::set_work_dir()
-  
-  #' get this project name
-  current_project_dir_name <- this.path::this.dir()
-  
-  #' find its base name
-  current_project_name <-
-    basename(current_project_dir_name)
-  
-  #' use current_project_name to create input and output paths
-  curr_proj_input_path <- file.path(my_paths$inputs, current_project_name)
-  
-  auxfunctions::create_dir_if_not(curr_proj_input_path)
-  
-  curr_proj_output_path <- file.path(my_paths$outputs, current_project_name)
-  
-  auxfunctions::create_dir_if_not(curr_proj_output_path)
-  
-  current_proj_paths <-
-    list(
-      "project_name" = current_project_name,
-      "code" = current_project_dir_name,
-      "input" = curr_proj_input_path,
-      "output" = curr_proj_output_path
-    )
-  
-  return(current_proj_paths)
-}
+# This function sets the working directory to the user's home directory, defines directory paths for inputs, outputs, and GitHub R code, changes the working directory to the main R directory, and returns these paths as a list.
+# 
+# It assumes a specific directory structure, where data are separated from the code, so the latter can be stored on GitHub.
+# 
+#  
+#  
+# 1. **Function Definition:**
+# 
+#    - `set_work_dir <- function ()`: Defines a function named `set_work_dir` that takes no arguments.
+# 
+# 2. **Setting Working Directory:**
+# 
+#    - `setwd("~/")`: Sets the working directory to the user's home directory.
+# 
+#    - `base_dir <- getwd()`: Retrieves the current working directory and assigns it to the variable `base_dir`.
+# 
+# 3. **Defining Directory Paths:**
+# 
+#    - `main_r_dir <- "R_files_local"`: Specifies the directory name for local R files.
+# 
+#    - `in_dir <- "my_inputs"`: Specifies the directory name for input files.
+# 
+#    - `full_path_to_in_dir <- file.path(base_dir, main_r_dir, in_dir)`: Combines the base directory, main R directory, and input directory to create the full path to the input directory.
+# 
+#    - `out_dir <- "my_outputs"`: Specifies the directory name for output files.
+# 
+#    - `full_path_to_out_dir <- file.path(base_dir, main_r_dir, out_dir)`: Combines the base directory, main R directory, and output directory to create the full path to the output directory.
+# 
+#    - `git_r_dir <- "R_code_github"`: Specifies the directory name for the GitHub repository containing R code.
+# 
+#    - `full_path_to_r_git_dir <- file.path(base_dir, git_r_dir)`: Combines the base directory and GitHub R directory to create the full path to the GitHub R directory.
+# 
+# 4. **Creating Paths List:**
+# 
+#    - `my_paths <- list(...)`: Creates a list named `my_paths` containing the paths to the input directory, output directory, and GitHub R directory.
+# 
+# 5. **Returning Paths List:**
+# 
+#    - `return(my_paths)`: Returns the `my_paths` list containing the paths to the input directory, output directory, and GitHub R directory.
+# 
+# 
 
- current_project_paths  <-  function() {
-  
-  my_paths <- auxfunctions::set_work_dir()
-  
-  #' get this project name
-  current_project_dir_name <- this.path::this.dir()
-  
-  #' find its base name
-  current_project_name <-
-    basename(current_project_dir_name)
-  
-  #' use current_project_name to create input and output paths
-  curr_proj_input_path <- file.path(my_paths$inputs, current_project_name)
-  
-  auxfunctions::create_dir_if_not(curr_proj_input_path)
-  
-  curr_proj_output_path <- file.path(my_paths$outputs, current_project_name)
-  
-  auxfunctions::create_dir_if_not(curr_proj_output_path)
-  
-  current_proj_paths <-
-    list(
-      "project_name" = current_project_name,
-      "code" = current_project_dir_name,
-      "input" = curr_proj_input_path,
-      "output" = curr_proj_output_path
-    )
-  
-  return(current_proj_paths)
+ set_work_dir  <-  function () 
+{
+    setwd("~/")
+    base_dir <- getwd()
+    main_r_dir <- "R_files_local"
+    in_dir <- "my_inputs"
+    full_path_to_in_dir <- file.path(base_dir, main_r_dir, in_dir)
+    out_dir <- "my_outputs"
+    full_path_to_out_dir <- file.path(base_dir, main_r_dir, out_dir)
+    git_r_dir <- "R_code_github"
+    full_path_to_r_git_dir <- file.path(base_dir, git_r_dir)
+    setwd(file.path(base_dir, main_r_dir))
+    my_paths <- list(inputs = full_path_to_in_dir, outputs = full_path_to_out_dir, 
+        git_r = full_path_to_r_git_dir)
+    return(my_paths)
 }
 # >>>>
 
@@ -412,18 +348,54 @@ Sys.setenv(ORA_SDTZ = Sys.timezone())
 
 # Explanations for the following code:
 
- create_dir_if_not  <-  function(curr_dir_name) {
-  # Check if the directory does not exist
-  if (!dir.exists(curr_dir_name)) {
-    dir.create(curr_dir_name)  # Create the directory if it doesn't exist
-  }
-}
+# Creates a list of paths to the current project code, input, and output directories. By default uses Anna's computer setup. It also creates input and output directories if they do not exist.
+#  
+#  
 
- create_dir_if_not  <-  function(curr_dir_name) {
-  # Check if the directory does not exist
-  if (!dir.exists(curr_dir_name)) {
-    dir.create(curr_dir_name)  # Create the directory if it doesn't exist
-  }
+ current_project_paths  <-  function () 
+{
+    my_paths <- auxfunctions::set_work_dir()
+    current_project_dir_name <- this.path::this.dir()
+    current_project_name <- basename(current_project_dir_name)
+    curr_proj_input_path <- file.path(my_paths$inputs, current_project_name)
+    auxfunctions::create_dir_if_not(curr_proj_input_path)
+    curr_proj_output_path <- file.path(my_paths$outputs, current_project_name)
+    auxfunctions::create_dir_if_not(curr_proj_output_path)
+    current_proj_paths <- list(project_name = current_project_name, 
+        code = current_project_dir_name, input = curr_proj_input_path, 
+        output = curr_proj_output_path)
+    return(current_proj_paths)
+}
+# >>>>
+
+# <<<<
+
+# Explanations for the following code:
+
+# The `create_dir_if_not` function ensures the existence of a directory by creating it if it does not already exist.
+# 
+# This function provides a convenient way to ensure that a directory exists before performing operations such as writing files or storing data.
+#  
+#  
+# 1. **Function Definition:**
+#    - `create_dir_if_not <- function(curr_dir_name) { .. }`: Defines a function named `create_dir_if_not` that takes a single argument, `curr_dir_name`, representing the name of the directory to be created.
+# 
+# 2. **Checking Directory Existence:**
+#    - `if (!dir.exists(curr_dir_name)) { .. }`: Checks if the directory specified by `curr_dir_name` does not exist.
+#    - `dir.exists(curr_dir_name)`: Checks whether the directory specified by `curr_dir_name` exists. The `!` negates the result, so the code block inside the `if` statement executes only if the directory does not exist.
+# 
+# 3. **Creating Directory:**
+#    - `dir.create(curr_dir_name)`: If the directory does not exist, this line creates the directory specified by `curr_dir_name` using the `dir.create` function.
+# 
+# 4. **Return Statement:**
+#    - The function does not have a specific return value. It either creates the directory if it does not exist or takes no action if the directory already exists.
+# 
+
+ create_dir_if_not  <-  function (curr_dir_name) 
+{
+    if (!dir.exists(curr_dir_name)) {
+        dir.create(curr_dir_name)
+    }
 }
 # >>>>
 ```
@@ -507,55 +479,29 @@ This section sets up paths for specific data files used in the project
 
 # Explanations for the following code:
 
- prepare_csv_full_path  <-  function(filenames_list,
-           add_path,
-           input_dir_part = NA) {
-    
-    #' my_paths is a default
-    if (is.na(input_dir_part)) {
-      my_paths <- auxfunctions::set_work_dir()
-      input_dir_part <- my_paths$inputs
-    }
-    
-    #' add_path
-    #' Use subdirectory names for correspondence and compliance files.
-    #' add_path <- "from_Fhier/Correspondence"
-    #' or
-    #' add_path <- "from_Fhier/FHIER Compliance"
-    
-    # Use 'sapply' to add paths in front of each filename in the 'filenames_list' vector.
-    my_list <- sapply(filenames_list, function(x) {
-      file.path(input_dir_part, add_path, x)
-    })
-    
-    # Convert the resulting list into a character vector and return it.
-    return(paste(my_list) %>% as.list())
-  }
+# This function constructs full file paths for a list of filenames by combining an input directory, a subdirectory, and the filenames. If `input_dir_part` is not provided, it uses a default directory set by `auxfunctions::set_work_dir()`. The resulting full paths are returned as a list.
+#  
+#  
+# `prepare_csv_full_path <- function(filenames_list, add_path, input_dir_part = NA) list(" ... ")` defines a function `prepare_csv_full_path` that takes a list of filenames (`filenames_list`), a subdirectory path (`add_path`), and an optional input directory part (`input_dir_part`).
+# 
+# list(list(), "  `if (is.na(input_dir_part)) ", list(" ... "), "` checks if `input_dir_part` is `NA`:n", "n", "  ", list(list(), " `is.na(input_dir_part)` checks if `input_dir_part` is `NA`.n", "n", "  ", list(), " If true, it executes the code block inside the `if` statement:n", "n", "    ", list(list(), " `my_paths <- auxfunctions::set_work_dir()` sets the working directory using the `set_work_dir` function from the `auxfunctions` package and assigns the result to `my_paths`.n", "n", "    ", 
+#     list(), " `input_dir_part <- my_paths$inputs` assigns the `inputs` element of `my_paths` to `input_dir_part`."), "n", "    "))
+# 
+# list("n", list(), " `my_list <- sapply(filenames_list, function(x) ", list(" ... "), ")` uses `sapply` to apply a function to each element in `filenames_list`:n", "n", "  ", list(list(), " `sapply(filenames_list, function(x) ", list(" file.path(input_dir_part, add_path, x) "), ")` constructs full file paths by combining `input_dir_part`, `add_path`, and each filename `x` using `file.path`."), "n", "n", list(), "  `return(paste(my_list) |> as.list())` converts the resulting list of paths to a character vector and then to a list, and returns it:n", 
+#     "n", "    ", list(list(), " `paste(my_list)` converts the elements of `my_list` to a single character string.n", "n", "  ", list(), " `|> as.list()` converts the character string to a list using the pipe operator (`|>`).n", "  "), "n")
+# 
 
- prepare_csv_full_path  <-  function(filenames_list,
-           add_path,
-           input_dir_part = NA) {
-    
-    #' my_paths is a default
+ prepare_csv_full_path  <-  function (filenames_list, add_path, input_dir_part = NA) 
+{
     if (is.na(input_dir_part)) {
-      my_paths <- auxfunctions::set_work_dir()
-      input_dir_part <- my_paths$inputs
+        my_paths <- auxfunctions::set_work_dir()
+        input_dir_part <- my_paths$inputs
     }
-    
-    #' add_path
-    #' Use subdirectory names for correspondence and compliance files.
-    #' add_path <- "from_Fhier/Correspondence"
-    #' or
-    #' add_path <- "from_Fhier/FHIER Compliance"
-    
-    # Use 'sapply' to add paths in front of each filename in the 'filenames_list' vector.
     my_list <- sapply(filenames_list, function(x) {
-      file.path(input_dir_part, add_path, x)
+        file.path(input_dir_part, add_path, x)
     })
-    
-    # Convert the resulting list into a character vector and return it.
     return(paste(my_list) %>% as.list())
-  }
+}
 # >>>>
 ```
 
@@ -1030,32 +976,20 @@ Permit info from processed metrics tracking
 
 ```{r Compliance and Correspondence data}
 ## Compliance and Correspondence data ----
+
 # <<<<
 
 # Explanations for the following code:
 
- clean_all_csvs  <-  function(csvs, vessel_id_field_name = NA) {
-  # Clean headers of all CSVs using the 'clean_headers' function
-  csvs_clean0 <- lapply(csvs, clean_headers)
-
-  # Trim 'vesselofficialnumber' column (if specified) in all cleaned CSVs
-  csvs_clean1 <-
-    auxfunctions::trim_all_vessel_ids_simple(csvs_clean0, vessel_id_field_name)
-
-  # Return the list of cleaned CSVs
-  return(csvs_clean1)
-}
-
- clean_all_csvs  <-  function(csvs, vessel_id_field_name = NA) {
-  # Clean headers of all CSVs using the 'clean_headers' function
-  csvs_clean0 <- lapply(csvs, clean_headers)
-
-  # Trim 'vesselofficialnumber' column (if specified) in all cleaned CSVs
-  csvs_clean1 <-
-    auxfunctions::trim_all_vessel_ids_simple(csvs_clean0, vessel_id_field_name)
-
-  # Return the list of cleaned CSVs
-  return(csvs_clean1)
+# The clean_headers function cleans and standardizes the column names of a given dataframe (my_df)
+# 
+# using the fix_names() function, which removes special characters and spaces, and unifies the case.
+# 
+ clean_headers  <-  function (my_df) 
+{
+    new_names <- auxfunctions::fix_names(colnames(my_df))
+    colnames(my_df) <- new_names
+    return(my_df)
 }
 # >>>>
 
@@ -1063,107 +997,147 @@ Permit info from processed metrics tracking
 
 # Explanations for the following code:
 
- corresp_cleaning  <-  function(corresp_df) {
-    corresp_df_contact_cnts <- auxfunctions::add_count_contacts(corresp_df)
-    
-    createdon_field_name <-
-      auxfunctions::find_col_name(corresp_df, "created", "on")[1]
-    contactdate_field_name <-
-      auxfunctions::find_col_name(corresp_df, "contact", "date")[1]
-    
-    corresp_df_contact_cnts <-
-      auxfunctions::change_to_dates(corresp_df_contact_cnts, createdon_field_name)
-    corresp_df_contact_cnts <-
-      auxfunctions::change_to_dates(corresp_df_contact_cnts, contactdate_field_name)
-    
-    return(corresp_df_contact_cnts)
-  }
+# Cleaning, regularly done for csvs downloaded from FHIER,
+# usually from inside other functions.
+# 
+# The clean_all_csvs function is defined to clean a list of CSVs (csvs) and has an optional parameter vessel_id_field_name, which specifies the column to trim.
+# 
+# It returns the list of cleaned CSVs, where each CSV has had its headers unified and the vessel ID column (if specified) trimmed for consistency.
+# 
+#  
+#  
 
- corresp_cleaning  <-  function(corresp_df) {
-    corresp_df_contact_cnts <- auxfunctions::add_count_contacts(corresp_df)
-    
-    createdon_field_name <-
-      auxfunctions::find_col_name(corresp_df, "created", "on")[1]
-    contactdate_field_name <-
-      auxfunctions::find_col_name(corresp_df, "contact", "date")[1]
-    
-    corresp_df_contact_cnts <-
-      auxfunctions::change_to_dates(corresp_df_contact_cnts, createdon_field_name)
-    corresp_df_contact_cnts <-
-      auxfunctions::change_to_dates(corresp_df_contact_cnts, contactdate_field_name)
-    
-    return(corresp_df_contact_cnts)
-  }
+ clean_all_csvs  <-  function (csvs, vessel_id_field_name = NA) 
+{
+    csvs_clean0 <- lapply(csvs, clean_headers)
+    csvs_clean1 <- auxfunctions::trim_all_vessel_ids_simple(csvs_clean0, 
+        vessel_id_field_name)
+    return(csvs_clean1)
+}
 # >>>>
 
 # <<<<
 
 # Explanations for the following code:
 
- compliance_cleaning  <-  function(compl_arr) {
-  # Initialize 'compl' as the input 'compl_arr'.
-  # if it is just one df already, do nothing
-  compl <- compl_arr
+# This function prepares the correspondence data by adding contact frequency information and converting relevant columns to date format.
+#  
+#  
+# 
+# The `corresp_cleaning` function processes a list of cleaned CSV files related to correspondence data.
+# 
+# 1. **Function Definition:**
+# 
+#    - `corresp_cleaning <- function(csvs_clean1) { .. }`: Defines a function named `corresp_cleaning` that takes a single argument, `csvs_clean1`, which is assumed to be a list containing cleaned CSV files.
+# 
+# 2. **Extracting Data:**
+# 
+#    - `corresp_arr <- csvs_clean1[[1]]`: Extracts the first element from the `csvs_clean1` list and assigns it to the `corresp_arr` variable.
+# 
+# 3. **Adding Contact Counts:**
+# 
+#    - `corresp_arr_contact_cnts <- add_count_contacts(corresp_arr)`: Calls the `add_count_contacts` function to add a new column (`contact_freq`) to the correspondence data frame, indicating the frequency of contacts associated with each vessel.
+# 
+# 4. **Finding Column Names:**
+# 
+#    - `createdon_field_name <- find_col_name(corresp_arr, "created", "on")[1]`: Searches for the column name related to the creation date ("created on") within the correspondence data frame (`corresp_arr`) using the `find_col_name` function. It retrieves the first match and assigns it to `createdon_field_name`.
+# 
+#    - `contactdate_field_name <- find_col_name(corresp_arr, "contact", "date")[1]`: Searches for the column name related to the contact date ("contact date") within the correspondence data frame (`corresp_arr`). It retrieves the first match and assigns it to `contactdate_field_name`.
+# 
+# 5. **Converting Columns to Dates:**
+# 
+#    - `corresp_arr_contact_cnts <- change_to_dates(corresp_arr_contact_cnts, createdon_field_name)`: Calls the `change_to_dates` function to convert the column identified by `createdon_field_name` to date format in the `corresp_arr_contact_cnts` data frame.
+# 
+#    - `corresp_arr_contact_cnts <- change_to_dates(corresp_arr_contact_cnts, contactdate_field_name)`: Calls the `change_to_dates` function again to convert the column identified by `contactdate_field_name` to date format in the `corresp_arr_contact_cnts` data frame.
+# 
+# 6. **Return Statement:**
+# 
+#    - `return(corresp_arr_contact_cnts)`: Returns the processed correspondence data frame (`corresp_arr_contact_cnts`) as the output of the function.
+# 
+# 
 
-  # Clean the 'week' column by splitting it into three columns with proper classes: 'week_num' (week order number), 'week_start', and 'week_end'.
-  compl_clean <-
-    purrr::map(compl, clean_weeks)
-
-  # Find a column name containing 'permit', 'group', and 'expiration' (permitgroupexpiration).
-  permitgroupexpirations <-
-    purrr::map(compl,
-        \(x) {
-          grep("permit.*group.*expiration",
-               tolower(names(x)),
-               value = TRUE)
-        })
-
-  # Change the classes of dates in the 'permitgroupexpiration' columns from character to POSIXct.
-  compl_dates <-
-    compl_clean |>
-    purrr::imap(\(x, idx) {
-      field_name <- permitgroupexpirations[[idx]]
-      x |>
-        dplyr::mutate({{field_name}} := as.POSIXct(dplyr::pull(x[field_name]),
-                                            format = "%m/%d/%Y"))
-      # change_to_dates(x, permitgroupexpirations[[idx]], "%m/%d/%Y")
-    })
-
-  # Return the cleaned and processed compliance data.
-  return(compl_dates)
+ corresp_cleaning  <-  function (corresp_df) 
+{
+    corresp_df_contact_cnts <- auxfunctions::add_count_contacts(corresp_df)
+    createdon_field_name <- auxfunctions::find_col_name(corresp_df, 
+        "created", "on")[1]
+    contactdate_field_name <- auxfunctions::find_col_name(corresp_df, 
+        "contact", "date")[1]
+    corresp_df_contact_cnts <- auxfunctions::change_to_dates(corresp_df_contact_cnts, 
+        createdon_field_name)
+    corresp_df_contact_cnts <- auxfunctions::change_to_dates(corresp_df_contact_cnts, 
+        contactdate_field_name)
+    return(corresp_df_contact_cnts)
 }
+# >>>>
 
- compliance_cleaning  <-  function(compl_arr) {
-  # Initialize 'compl' as the input 'compl_arr'.
-  # if it is just one df already, do nothing
-  compl <- compl_arr
+# <<<<
 
-  # Clean the 'week' column by splitting it into three columns with proper classes: 'week_num' (week order number), 'week_start', and 'week_end'.
-  compl_clean <-
-    purrr::map(compl, clean_weeks)
+# Explanations for the following code:
 
-  # Find a column name containing 'permit', 'group', and 'expiration' (permitgroupexpiration).
-  permitgroupexpirations <-
-    purrr::map(compl,
-        \(x) {
-          grep("permit.*group.*expiration",
-               tolower(names(x)),
-               value = TRUE)
-        })
+# This function takes a list of data frames, cleans each data frame by extracting specific field names, and converts the corresponding columns to POSIXct date format.
+# 
+#  
+#  
+# 
+# 1. **Initialization of Variables:**
+# 
+#    - `compl <- compl_arr`: This line initializes a variable `compl` with the same value as `compl_arr`, which represents a list of compliance data frames.
+# 
+# 2. **Data Cleaning with `map`:**
+# 
+#    - `compl_clean <- map(compl, clean_weeks)`: Here, each data frame in the list `compl` undergoes cleaning using the `clean_weeks` function. The `map` function applies `clean_weeks` to each element of `compl`, returning a list of cleaned data frames stored in `compl_clean`.
+#    
+#    The clean_weeks function splits week column ("52: 12/26/2022 - 01/01/2023") into 3 columns with proper classes, week_num (week order number), week_start and week_end.
+# 
+# 3. **Column Name Extraction with `map`:**
+# 
+#    - `permitgroupexpirations <- map(compl, ...`: This line iterates over each data frame in `compl` using `map`.
+# 
+#    - `(x) { .. }`: An anonymous function is defined to operate on each data frame `x`.
+# 
+#    - Within the anonymous function:
+# 
+#       - `grep("permit.*group.*expiration", tolower(names(x)), value = TRUE)`: This function call searches for column names containing the pattern "permit", "group", and "expiration" (case-insensitive) within the names of the current data frame `x`. It returns the matching column names.
+# 
+# 4. **Data Transformation with `imap`:**
+# 
+#    - `compl_dates <- compl_clean |>`: The cleaned data frames in `compl_clean` are processed further using the pipe (`|>`) operator.
+# 
+#    - `imap((x, idx) { .. }`: The `imap` function iterates over each element of `compl_clean`, providing both the element (`x`, a data frame) and its index (`idx`).
+# 
+#    - Within the `imap` function:
+# 
+#       - `field_name <- permitgroupexpirations[[idx]]`: The variable `field_name` is assigned the column name extracted earlier, corresponding to the current data frame `x`.
+# 
+#       - `mutate({{field_name}} := ...)`: This line adds a new column to the data frame `x`, where the column name is dynamically determined by `field_name`.
+# 
+#       - `as.POSIXct(pull(x[field_name]), format = "%m/%d/%Y")`: The values of the selected column are converted to POSIXct date-time format using the specified date format.
+# 
+# 5. **Return Statement:**
+# 
+#    - `return(compl_dates)`: Finally, the function returns a list of data frames (`compl_dates`), where each data frame has undergone the necessary cleaning and transformation steps.
+# 
+# 
+# 
 
-  # Change the classes of dates in the 'permitgroupexpiration' columns from character to POSIXct.
-  compl_dates <-
-    compl_clean |>
-    purrr::imap(\(x, idx) {
-      field_name <- permitgroupexpirations[[idx]]
-      x |>
-        dplyr::mutate({{field_name}} := as.POSIXct(dplyr::pull(x[field_name]),
-                                            format = "%m/%d/%Y"))
-      # change_to_dates(x, permitgroupexpirations[[idx]], "%m/%d/%Y")
+ compliance_cleaning  <-  function (compl_arr) 
+{
+    compl <- compl_arr
+    compl_clean <- purrr::map(compl, clean_weeks)
+    permitgroupexpirations <- purrr::map(compl, function(x) {
+        grep("permit.*group.*expiration", tolower(names(x)), 
+            value = TRUE)
     })
-
-  # Return the cleaned and processed compliance data.
-  return(compl_dates)
+    compl_dates <- purrr::imap(compl_clean, function(x, idx) {
+        field_name <- permitgroupexpirations[[idx]]
+        dplyr::mutate(x, `:=`({
+            {
+                field_name
+            }
+        }, as.POSIXct(dplyr::pull(x[field_name]), format = "%m/%d/%Y")))
+    })
+    return(compl_dates)
 }
 # >>>>
 ```
@@ -1329,46 +1303,7 @@ An example
 
 ```{r Physical Address List from FHIER}
 ## Physical Address List from FHIER ----
-# <<<<
-
-# Explanations for the following code:
-
- fix_names  <-  function(x) {
-  # Use the pipe operator %>%
-  x %>%
-
-    # Remove dots from column names
-    stringr::str_replace_all("\\.", "") %>%
-
-    # Replace all characters that are not letters or numbers with underscores
-    stringr::str_replace_all("[^A-z0-9]", "_") %>%
-
-    # Ensure that letters are only in the beginning of the column name
-    stringr::str_replace_all("^(_*)(.+)", "\\2\\1") %>%
-
-    # Convert column names to lowercase using 'my_headers_case_function'
-    my_headers_case_function()
-}
-
- fix_names  <-  function(x) {
-  # Use the pipe operator %>%
-  x %>%
-
-    # Remove dots from column names
-    stringr::str_replace_all("\\.", "") %>%
-
-    # Replace all characters that are not letters or numbers with underscores
-    stringr::str_replace_all("[^A-z0-9]", "_") %>%
-
-    # Ensure that letters are only in the beginning of the column name
-    stringr::str_replace_all("^(_*)(.+)", "\\2\\1") %>%
-
-    # Convert column names to lowercase using 'my_headers_case_function'
-    my_headers_case_function()
-}
-# >>>>
 ```
-
 
 Download first from REPORTS / For-hire Primary Physical Address List.
 
@@ -1379,6 +1314,19 @@ This dataset contains physical address information for for-hire vessels.
 Read all columns as characters.
 
 Use the same column names convention.
+
+
+```{r}
+# <<<<
+
+# Explanations for the following code:
+
+# Cleans column names of uploaded files.
+# 
+# Provides a comprehensive approach to cleaning and standardizing column names within a dataframe, making them more consistent and suitable for further analysis or processing.
+#  
+# 
+```
 
 
 ```{r}
@@ -1436,35 +1384,34 @@ dim(processed_pims_home_ports)
 
 # Explanations for the following code:
 
- connect_to_secpr  <-  function() {
-    # Retrieve the username associated with the "SECPR" database from the keyring.
+# This function encapsulates the process of connecting to the "SECPR" Oracle database securely by retrieving credentials from the keyring and establishing a connection using the ROracle package. It ensures that sensitive information such as passwords is not exposed in the code, enhancing security.
+#  
+#  
+# This `connect_to_secpr` function establishes a connection to an Oracle database named "SECPR" using credentials stored securely.
+# 
+# 1. **Function Definition:**
+#    - `connect_to_secpr <- function() { .. }`: Defines a function named `connect_to_secpr` with no input parameters.
+# 
+# 2. **Retrieve Username:**
+#    - `my_username <- keyring::key_list("SECPR")[1, 2]`: Retrieves the username associated with the Oracle database "SECPR" from the keyring package. It accesses the first entry (row) and the second column, assuming the username is stored in the second column.
+# 
+# 3. **Establish Database Connection:**
+#    - `con <- dbConnect(...)`:
+#      - `dbDriver("Oracle")`: Creates a database driver object specifically for Oracle databases.
+#      - `username = my_username`: Specifies the retrieved username for the database connection.
+#      - `password = keyring::key_get("SECPR", my_username)`: Retrieves the corresponding password for the username from the keyring package, ensuring secure access to the credentials.
+#      - `dbname = "SECPR"`: Specifies the name of the Oracle database to connect to, which is "SECPR" in this case.
+#      - `dbConnect(...)`: Establishes a connection to the Oracle database using the provided driver, username, password, and database name.
+# 
+# 4. **Return Statement:**
+#    - `return(con)`: Returns the established database connection (`con`) as the output of the function.
+# 
+
+ connect_to_secpr  <-  function () 
+{
     my_username <- keyring::key_list("SECPR")[1, 2]
-
-    # Use 'dbConnect' to establish a database connection with the specified credentials.
-    con <- DBI::dbConnect(
-        DBI::dbDriver("Oracle"),  # Use the Oracle database driver.
-        username = my_username,  # Use the retrieved username.
-        password = keyring::key_get("SECPR", my_username),  # Retrieve the password from the keyring.
-        dbname = "SECPR"  # Specify the name of the database as "SECPR."
-    )
-
-    # Return the established database connection.
-    return(con)
-}
-
- connect_to_secpr  <-  function() {
-    # Retrieve the username associated with the "SECPR" database from the keyring.
-    my_username <- keyring::key_list("SECPR")[1, 2]
-
-    # Use 'dbConnect' to establish a database connection with the specified credentials.
-    con <- DBI::dbConnect(
-        DBI::dbDriver("Oracle"),  # Use the Oracle database driver.
-        username = my_username,  # Use the retrieved username.
-        password = keyring::key_get("SECPR", my_username),  # Retrieve the password from the keyring.
-        dbname = "SECPR"  # Specify the name of the database as "SECPR."
-    )
-
-    # Return the established database connection.
+    con <- DBI::dbConnect(DBI::dbDriver("Oracle"), username = my_username, 
+        password = keyring::key_get("SECPR", my_username), dbname = "SECPR")
     return(con)
 }
 # >>>>
@@ -1473,129 +1420,53 @@ dim(processed_pims_home_ports)
 
 # Explanations for the following code:
 
- read_rds_or_run  <-  function(my_file_path,
-                            my_data = as.data.frame(""),
-                            my_function,
-                            force_from_db = NULL) {
+# This function, `read_rds_or_run`, is designed to read data from an RDS file if it exists or run a specified function to obtain the data from the Oracle database and save it as an RDS file if the file does not exist or if the `force_from_db` parameter is set.
+#  
+#  
+# RDS (R Data Serialization) files are a common format for saving R objects in RStudio, and they allow you to preserve the state of an object between R sessions. Saving your R object as an RDS file in R can be useful for sharing your work with others, replicating your analysis, or simply storing your work for later use.
+# 
+# 1. **Check File Existence**: The function first checks if the file specified by `my_file_path` exists and, if so, retrieves its modification time.
+# 
+# 2. **Read or Run**: Depending on the existence of the file and the `force_from_db` flag:
+#     - **File Exists and `force_from_db` is not set**: If the file exists and `force_from_db` is not set, the function reads the data from the RDS file using `readr::read_rds(my_file_path)` and assigns it to `my_result`.
+#     - **File Does Not Exist or `force_from_db` is set**: If the file does not exist or `force_from_db` is set, the function follows these steps:
+#         - Prints a message indicating the file doesn't exist and data will be pulled from the database.
+#         - Times the function execution using `tictoc::tic()` and starts with a message indicating the date and purpose of the run.
+#         - Runs the specified function (`my_function`) on the provided `my_data` to generate the result (`my_result`), e.g., downloading data from the Oracle database.
+#         - Stops timing the function execution using `tictoc::toc()`.
+#         - Saves the result as an RDS file to the specified `my_file_path` for future use using `readr::write_rds(my_result, my_file_path)`. A `try` block is used to handle potential errors in writing the file.
+#         - Prints a message indicating that the new data is being saved into a file.
+# 
+# 3. **Print File Information**: After obtaining the data, the function prints the file name and modification time to provide information on when the data was last downloaded or modified.
+# 
+# 4. **Return**: The function returns the generated or read data (`my_result`).
+# 
+# 
 
-  if (file.exists(my_file_path)) {
-    modif_time <- file.info(my_file_path)$mtime
-  }
-
-    # Check if the file specified by 'my_file_path' exists and 'force_from_db' is not set.
-    if (file.exists(my_file_path) &
-        is.null(force_from_db)) {
-        # If the file exists and 'force_from_db' is not set, read the data from the RDS file.
-
-        function_message_print("File already exists, reading.")
-
-        my_result <- readr::read_rds(my_file_path)
-
-    } else {
-
-      # If the file doesn't exist or 'force_from_db' is set, perform the following steps:
-
-      # 0. Print this message.
-      function_message_print(c(
-        "File",
-        my_file_path,
-        "doesn't exists, pulling data from database.",
-        "Must be on VPN."
-      ))
-
-      # 1. Generate a message indicating the date and the purpose of the run for "tic".
-      msg_text <-
-        paste(today(), "run for", basename(my_file_path))
-      tictoc::tic(msg_text)  # Start timing the operation.
-
-      # 2. Run the specified function 'my_function' on the provided 'my_data' to generate the result. I.e. download data from the Oracle database. Must be on VPN.
-
-      my_result <- my_function(my_data)
-
-      tictoc::toc()  # Stop timing the operation.
-
-      # 3. Save the result as an RDS binary file to 'my_file_path' for future use.
-      # try is a wrapper to run an expression that might fail and allow the user's code to handle error-recovery.
-
-      # 4. Print this message.
-      function_message_print(c("Saving new data into a file here: ",
-                       my_file_path))
-
-      try(readr::write_rds(my_result,
-                           my_file_path))
-
-      modif_time <- date()
+ read_rds_or_run  <-  function (my_file_path, my_data = as.data.frame(""), my_function, 
+    force_from_db = NULL) 
+{
+    if (file.exists(my_file_path)) {
+        modif_time <- file.info(my_file_path)$mtime
     }
-
-  # Print out the formatted string with the file name ('my_file_name') and the modification time ('modif_time') to keep track of when the data were downloaded.
-  my_file_name <- basename(my_file_path)
-  function_message_print(
-    stringr::str_glue("File: {my_file_name} modified {modif_time}"))
-
-    # Return the generated or read data.
-    return(my_result)
-}
-
- read_rds_or_run  <-  function(my_file_path,
-                            my_data = as.data.frame(""),
-                            my_function,
-                            force_from_db = NULL) {
-
-  if (file.exists(my_file_path)) {
-    modif_time <- file.info(my_file_path)$mtime
-  }
-
-    # Check if the file specified by 'my_file_path' exists and 'force_from_db' is not set.
-    if (file.exists(my_file_path) &
-        is.null(force_from_db)) {
-        # If the file exists and 'force_from_db' is not set, read the data from the RDS file.
-
+    if (file.exists(my_file_path) & is.null(force_from_db)) {
         function_message_print("File already exists, reading.")
-
         my_result <- readr::read_rds(my_file_path)
-
-    } else {
-
-      # If the file doesn't exist or 'force_from_db' is set, perform the following steps:
-
-      # 0. Print this message.
-      function_message_print(c(
-        "File",
-        my_file_path,
-        "doesn't exists, pulling data from database.",
-        "Must be on VPN."
-      ))
-
-      # 1. Generate a message indicating the date and the purpose of the run for "tic".
-      msg_text <-
-        paste(today(), "run for", basename(my_file_path))
-      tictoc::tic(msg_text)  # Start timing the operation.
-
-      # 2. Run the specified function 'my_function' on the provided 'my_data' to generate the result. I.e. download data from the Oracle database. Must be on VPN.
-
-      my_result <- my_function(my_data)
-
-      tictoc::toc()  # Stop timing the operation.
-
-      # 3. Save the result as an RDS binary file to 'my_file_path' for future use.
-      # try is a wrapper to run an expression that might fail and allow the user's code to handle error-recovery.
-
-      # 4. Print this message.
-      function_message_print(c("Saving new data into a file here: ",
-                       my_file_path))
-
-      try(readr::write_rds(my_result,
-                           my_file_path))
-
-      modif_time <- date()
     }
-
-  # Print out the formatted string with the file name ('my_file_name') and the modification time ('modif_time') to keep track of when the data were downloaded.
-  my_file_name <- basename(my_file_path)
-  function_message_print(
-    stringr::str_glue("File: {my_file_name} modified {modif_time}"))
-
-    # Return the generated or read data.
+    else {
+        function_message_print(c("File", my_file_path, "doesn't exists, pulling data from database.", 
+            "Must be on VPN."))
+        msg_text <- paste(today(), "run for", basename(my_file_path))
+        tictoc::tic(msg_text)
+        my_result <- my_function(my_data)
+        tictoc::toc()
+        function_message_print(c("Saving new data into a file here: ", 
+            my_file_path))
+        try(readr::write_rds(my_result, my_file_path))
+        modif_time <- date()
+    }
+    my_file_name <- basename(my_file_path)
+    function_message_print(stringr::str_glue("File: {my_file_name} modified {modif_time}"))
     return(my_result)
 }
 # >>>>
@@ -1604,61 +1475,29 @@ dim(processed_pims_home_ports)
 
 # Explanations for the following code:
 
- remove_empty_cols  <-  function(my_df) {
-  # Define an inner function "not_all_na" that checks if any value in a vector is not NA.
-  not_all_na <- function(x) any(!is.na(x))
+# This function effectively removes columns from the input data frame `my_df` that contain only missing values.
+#  
+#  
+# 1. **Function Definition:**
+#    - `remove_empty_cols <- function (my_df)`: Defines a function named `remove_empty_cols` that takes a single argument `my_df`, which is expected to be a data frame.
+# 
+# 2. **Inner Function Definition:**
+#    - `not_all_na <- function(x) any(!is.na(x))`: Defines an inner function named `not_all_na`. This function takes a vector `x` as input and returns `TRUE` if there is at least one non-missing value in the vector, otherwise it returns `FALSE`. This function will be used as a predicate to check if any column contains non-missing values.
+# 
+# 3. **Selecting Columns:**
+#    - `select(my_df, where(not_all_na))`: Uses the `dplyr` function `select` to filter columns of `my_df` based on a condition. The condition is specified using the `where` function, which applies the `not_all_na` function to each column of `my_df`. Columns for which `not_all_na` returns `TRUE` (i.e., columns with at least one non-missing value) are retained, while columns with all missing values are removed.
+# 
+# 4. **Returning Result:**
+#    - `%>% return()`: Pipes the result of the `select` operation into the `return` function, which ensures that the modified data frame is returned as the output of the `remove_empty_cols` function.
+# 
 
-  my_df |>
-    # Select columns from "my_df" where the result of the "not_all_na" function is true,
-    # i.e., select columns that have at least one non-NA value.
-    dplyr::select(tidyselect::where(not_all_na)) %>%
-    # Return the modified data frame, which contains only the selected columns.
-    return()
-}
-
- remove_empty_cols  <-  function(my_df) {
-  # Define an inner function "not_all_na" that checks if any value in a vector is not NA.
-  not_all_na <- function(x) any(!is.na(x))
-
-  my_df |>
-    # Select columns from "my_df" where the result of the "not_all_na" function is true,
-    # i.e., select columns that have at least one non-NA value.
-    dplyr::select(tidyselect::where(not_all_na)) %>%
-    # Return the modified data frame, which contains only the selected columns.
-    return()
+ remove_empty_cols  <-  function (my_df) 
+{
+    not_all_na <- function(x) any(!is.na(x))
+    dplyr::select(my_df, tidyselect::where(not_all_na)) %>% return()
 }
 # >>>>
 
-# <<<<
-
-# Explanations for the following code:
-
- clean_headers  <-  function(my_df) {
-    # Use the 'fix_names' function to clean and fix the column names of the dataframe.
-    new_names <-
-        colnames(my_df) |>
-        auxfunctions::fix_names()
-
-    colnames(my_df) <- 
-        new_names
-    
-    # Return the dataframe with cleaned and fixed column names.
-    return(my_df)
-}
-
- clean_headers  <-  function(my_df) {
-    # Use the 'fix_names' function to clean and fix the column names of the dataframe.
-    new_names <-
-        colnames(my_df) |>
-        auxfunctions::fix_names()
-
-    colnames(my_df) <- 
-        new_names
-    
-    # Return the dataframe with cleaned and fixed column names.
-    return(my_df)
-}
-# >>>>
 ```
 
 Create parameters for `read_rds_or_run` function to read or download "participants address"
@@ -1732,34 +1571,35 @@ db_participants_address <-
 
 # Explanations for the following code:
 
- my_read_xlsx  <-  function(file_path, sheet_n, start_row = 1) {
-  res_df <-
-    openxlsx::read.xlsx(
-      file_path,
-      sheet_n,
-      startRow = start_row,
-      detectDates = TRUE,
-      colNames = TRUE,
-      sep.names = "_"
-    ) |>
-    clean_headers()
+# This function reads data from an Excel file, optionally starting from a specified row, and applies header cleaning to ensure consistent formatting of column names.
+#  
+#  
+# 1. **Function Definition:**
+#    - `my_read_xlsx <- function(file_path, sheet_n, start_row = 1) { ... }`: Defines a function named `my_read_xlsx` with three arguments: `file_path` (the path to the Excel file), `sheet_n` (the index of the sheet to read), and `start_row` (the starting row from which to read data, with a default value of 1).
+# 
+# 2. **Reading Excel File:**
+#    - `read.xlsx(file_path, sheet_n, startRow = start_row, detectDates = TRUE, colNames = TRUE, sep.names = "_")`: Uses the `read.xlsx` function from the `openxlsx` package to read data from the specified Excel file.
+#      - `file_path`: The path to the Excel file to be read.
+#      - `sheet_n`: The index of the sheet to read from.
+#      - `startRow`: The row number from which to start reading data.
+#      - `detectDates`: A logical value indicating whether to automatically detect and convert date-like columns to date format.
+#      - `colNames`: A logical value indicating whether the first row of the Excel sheet contains column names.
+#      - `sep.names`: A character used to separate column names with multiple parts (e.g., spaces or underscores).
+# 
+# 3. **Cleaning Headers:**
+#    - `clean_headers(...)`: Applies the `clean_headers` function to the data frame read from the Excel file. This function performs tasks such as removing leading/trailing spaces, converting column names to lowercase, and replacing spaces with underscores.
+# 
+# 4. **Return Result:**
+#    - `return(res_df)`: Returns the cleaned data frame obtained from reading the Excel file. This data frame contains the data read from the specified Excel sheet, with any necessary header cleaning applied.
+# 
+# 
 
-  return(res_df)
-}
-
- my_read_xlsx  <-  function(file_path, sheet_n, start_row = 1) {
-  res_df <-
-    openxlsx::read.xlsx(
-      file_path,
-      sheet_n,
-      startRow = start_row,
-      detectDates = TRUE,
-      colNames = TRUE,
-      sep.names = "_"
-    ) |>
-    clean_headers()
-
-  return(res_df)
+ my_read_xlsx  <-  function (file_path, sheet_n, start_row = 1) 
+{
+    res_df <- clean_headers(openxlsx::read.xlsx(file_path, sheet_n, 
+        startRow = start_row, detectDates = TRUE, colNames = TRUE, 
+        sep.names = "_"))
+    return(res_df)
 }
 # >>>>
 ```
@@ -1849,20 +1689,26 @@ prev_result <- get_previous_result_from_google_drive()
 
 # Explanations for the following code:
 
- pretty_print  <-  function(my_text, my_title,
-                         the_end = "---") {
-  # Print out to console
-  title_message_print(my_title)
-  cat(c(my_text, the_end),
-      sep = "\n")
-}
+# This function is designed to print text with a specified title and an optional ending marker. It first prints the title, then the main text, and finally the ending marker.
+#  
+#  
+# 1. **Function Definition:**
+#    - `pretty_print <- function(my_text, my_title, the_end = "---") { ... }`: Defines a function named `pretty_print` with three arguments: `my_text`, `my_title`, and `the_end`.
+# 
+# 2. **Printing the Title:**
+#    - `title_message_print(my_title)`: Calls a function `title_message_print` to print the title `my_title`. This function formats and prints the title message.
+#    
+# 3. **Printing the Text:**
+#    - `cat(c(my_text, the_end), sep = "n")`: Concatenates `my_text` and `the_end` into a character vector and prints them using `cat`. Each element is separated by a newline (`n`). This line prints the main text followed by the ending marker.
+# 
+# 4. **Default Argument:**
+#    - `the_end = "---"`: Defines a default value for the argument `the_end`. If the argument is not provided when calling the function, it defaults to `"---"`. This is used as a marker to denote the end of the printed content.
+# 
 
- pretty_print  <-  function(my_text, my_title,
-                         the_end = "---") {
-  # Print out to console
-  title_message_print(my_title)
-  cat(c(my_text, the_end),
-      sep = "\n")
+ pretty_print  <-  function (my_text, my_title, the_end = "---") 
+{
+    title_message_print(my_title)
+    cat(c(my_text, the_end), sep = "\n")
 }
 # >>>>
 ```
@@ -2081,50 +1927,28 @@ Work with the whole period
 
 # Explanations for the following code:
 
- add_compliant_after_override  <-  function(my_compl_df,
-           overridden_col_name = "overridden",
-           compliance_col_name = "is_comp") {
-  # browser()
-  res <-
-    my_compl_df |>
-    dplyr::rowwise() |>
-    dplyr::mutate(
-      compliant_after_override =
-        dplyr::case_when(
-          !!sym(compliance_col_name) %in% c(0, "NO") &
-            !!sym(overridden_col_name) %in% c(0, "NO")  ~ "no",
-          !!sym(compliance_col_name) %in% c(1, "YES") ~ "yes",
-          !!sym(overridden_col_name) %in% c(1, "YES") ~ "yes",
-          is.na(!!sym(compliance_col_name)) ~ NA,
-          .default = toString(!!sym(compliance_col_name))
-        )
-    ) |>
-    ungroup()
+# Explanations:
+# 1. Create a new variable 'res' to store the result.
+# 2. Use 'rowwise' to perform operations row by row.
+# 3. Use 'mutate' to create a new column 'compliant_after_override' based on conditions specified in 'case_when'.
+#    - If 'is_comp' is 0 and 'overridden' is 0, set 'compliant_after_override' to "no".
+#    - If 'is_comp' is 1 or 'overridden' is 1, set 'compliant_after_override' to "yes".
+#    - If 'is_comp' is NA, set 'compliant_after_override' to NA.
+#    - For all other cases, set 'compliant_after_override' to the string representation of 'is_comp'.
+# 4. Use 'ungroup' to remove grouping from the data frame.
+#  
+#  
 
-  return(res)
-}
-
- add_compliant_after_override  <-  function(my_compl_df,
-           overridden_col_name = "overridden",
-           compliance_col_name = "is_comp") {
-  # browser()
-  res <-
-    my_compl_df |>
-    dplyr::rowwise() |>
-    dplyr::mutate(
-      compliant_after_override =
-        dplyr::case_when(
-          !!sym(compliance_col_name) %in% c(0, "NO") &
-            !!sym(overridden_col_name) %in% c(0, "NO")  ~ "no",
-          !!sym(compliance_col_name) %in% c(1, "YES") ~ "yes",
-          !!sym(overridden_col_name) %in% c(1, "YES") ~ "yes",
-          is.na(!!sym(compliance_col_name)) ~ NA,
-          .default = toString(!!sym(compliance_col_name))
-        )
-    ) |>
-    ungroup()
-
-  return(res)
+ add_compliant_after_override  <-  function (my_compl_df, overridden_col_name = "overridden", compliance_col_name = "is_comp") 
+{
+    res <- ungroup(dplyr::mutate(dplyr::rowwise(my_compl_df), 
+        compliant_after_override = dplyr::case_when(!!sym(compliance_col_name) %in% 
+            c(0, "NO") & !!sym(overridden_col_name) %in% c(0, 
+            "NO") ~ "no", !!sym(compliance_col_name) %in% c(1, 
+            "YES") ~ "yes", !!sym(overridden_col_name) %in% c(1, 
+            "YES") ~ "yes", is.na(!!sym(compliance_col_name)) ~ 
+            NA, .default = toString(!!sym(compliance_col_name)))))
+    return(res)
 }
 # >>>>
 ```
@@ -2738,30 +2562,28 @@ nrow(compl_corr_to_investigation_short) == num_of_vsl_to_investigate
 
 # Explanations for the following code:
 
- find_col_name  <-  function(mydf, start_part, end_part) {
-  # Create a regular expression pattern to search for column names that start with 'start_part'
-  # and end with 'end_part'.
-  to_search <- paste0(start_part, ".*", end_part)
+# This function provides a flexible way to search for column names within a dataframe based on specified starting and ending patterns. It is useful for identifying columns that match a particular naming convention or pattern. 
+#  
+# The function is designed to search for column names within a dataframe that contain a specific pattern defined by `start_part` and `end_part`.
+# 
+# 1. **Function Definition:**
+#    -`function (mydf, start_part, end_part) { .. }`: Defines a function with three arguments: `mydf` (the dataframe to search), `start_part` (the starting pattern of the column names to search for), and `end_part` (the ending pattern of the column names to search for).
+# 
+# 2. **Constructing Regular Expression:**
+#    - `to_search <- paste0(start_part, ".*", end_part)`: Constructs a regular expression pattern by concatenating `start_part`, ".*" (which matches any characters zero or more times), and `end_part`. This pattern will be used to search for matching column names.
+# 
+# 3. **Searching for Matching Column Names:**
+#    - `matching_names <- grep(to_search, tolower(names(mydf)), value = TRUE)`: Searches for column names in the dataframe `mydf` that match the regular expression pattern `to_search`. The `tolower` function is used to convert the column names to lowercase for case-insensitive matching. The `grep` function returns the matching column names as a vector.
+# 
+# 4. **Return Statement:**
+#    - `return(matching_names)`: Returns the vector of matching column names found in the dataframe that satisfy the specified pattern.
+# 
 
-  # Use 'grep' to search for column names in lowercase that match the pattern.
-  # 'value = TRUE' returns the matching column names as a character vector.
-  matching_names <- grep(to_search, tolower(names(mydf)), value = TRUE)
-
-  # Return the matching column name(s) as a character vector.
-  return(matching_names)
-}
-
- find_col_name  <-  function(mydf, start_part, end_part) {
-  # Create a regular expression pattern to search for column names that start with 'start_part'
-  # and end with 'end_part'.
-  to_search <- paste0(start_part, ".*", end_part)
-
-  # Use 'grep' to search for column names in lowercase that match the pattern.
-  # 'value = TRUE' returns the matching column names as a character vector.
-  matching_names <- grep(to_search, tolower(names(mydf)), value = TRUE)
-
-  # Return the matching column name(s) as a character vector.
-  return(matching_names)
+ find_col_name  <-  function (mydf, start_part, end_part) 
+{
+    to_search <- paste0(start_part, ".*", end_part)
+    matching_names <- grep(to_search, tolower(names(mydf)), value = TRUE)
+    return(matching_names)
 }
 # >>>>
 ```
@@ -2965,118 +2787,34 @@ Finally, it joins all this information together, creating a more complete datase
 
 # Explanations for the following code:
 
- clean_names_and_addresses  <-  function(my_df) {
-    my_df_cleaned <-
-      my_df |>
-      dplyr::mutate(
-        dplyr::across(dplyr::where(is.character), ~ stringr::str_squish(.x)),
-        dplyr::across(dplyr::where(is.character), ~ tidyr::replace_na(.x, "")),
-        dplyr::across(
-          dplyr::where(is.character),
-          ~ stringr::str_replace_all(.x, ", ;", ";")
-        ),
-        dplyr::across(
-          dplyr::where(is.character),
-          ~ stringr::str_replace_all(.x, "\\s+[,;]", ",")
-        ),
-        dplyr::across(
-          dplyr::where(is.character),
-          ~ stringr::str_replace_all(.x, ";,+", ";")
-        ),
-        dplyr::across(
-          dplyr::where(is.character),
-          ~ stringr::str_replace_all(.x, ";;+", ";")
-        ),
-        dplyr::across(
-          dplyr::where(is.character),
-          ~ stringr::str_replace_all(.x, ",,+", ",")
-        ),
-        dplyr::across(
-          dplyr::where(is.character),
-          ~ stringr::str_replace_all(.x, "[,;] *\\bUN\\b *", "")
-        ),
-        dplyr::across(
-          dplyr::where(is.character),
-          ~ stringr::str_replace_all(.x, "\\bUN\\b", "")
-        ),
-        dplyr::across(
-          dplyr::where(is.character),
-          ~ stringr::str_replace_all(.x, "\\s*\\bUN\\b\\s*", "")
-        ),
-        dplyr::across(
-          dplyr::where(is.character),
-          ~ stringr::str_replace_all(.x, "^[,;] ", "")
-        ),
-        dplyr::across(
-          dplyr::where(is.character),
-          ~ stringr::str_replace_all(.x, "^[,;]$", "")
-        ),
-        dplyr::across(
-          dplyr::where(is.character),
-          ~ stringr::str_replace_all(.x, "[,;]$", "")
-        ),
-        dplyr::across(dplyr::where(is.character), 
-                      ~ stringr::str_squish(.x))
-      )
+# - This function `clean_names_and_addresses` cleans the strings in character columns of a dataframe.
+# - It uses `mutate` with `across` to apply multiple string cleaning operations to all character columns.
+# - The `str_squish` function is used to remove leading, trailing, and extra internal whitespace from each string.
+# - `replace_na` function replaces missing values with empty strings.
+# - The `str_replace_all` function is used to perform multiple replacements using regular expressions to clean up commas, semicolons, and unwanted substrings like "UN".
+# - Finally, it returns the cleaned dataframe. 
+#  
 
-  return(my_df_cleaned)
-}
-
- clean_names_and_addresses  <-  function(my_df) {
-    my_df_cleaned <-
-      my_df |>
-      dplyr::mutate(
-        dplyr::across(dplyr::where(is.character), ~ stringr::str_squish(.x)),
-        dplyr::across(dplyr::where(is.character), ~ tidyr::replace_na(.x, "")),
-        dplyr::across(
-          dplyr::where(is.character),
-          ~ stringr::str_replace_all(.x, ", ;", ";")
-        ),
-        dplyr::across(
-          dplyr::where(is.character),
-          ~ stringr::str_replace_all(.x, "\\s+[,;]", ",")
-        ),
-        dplyr::across(
-          dplyr::where(is.character),
-          ~ stringr::str_replace_all(.x, ";,+", ";")
-        ),
-        dplyr::across(
-          dplyr::where(is.character),
-          ~ stringr::str_replace_all(.x, ";;+", ";")
-        ),
-        dplyr::across(
-          dplyr::where(is.character),
-          ~ stringr::str_replace_all(.x, ",,+", ",")
-        ),
-        dplyr::across(
-          dplyr::where(is.character),
-          ~ stringr::str_replace_all(.x, "[,;] *\\bUN\\b *", "")
-        ),
-        dplyr::across(
-          dplyr::where(is.character),
-          ~ stringr::str_replace_all(.x, "\\bUN\\b", "")
-        ),
-        dplyr::across(
-          dplyr::where(is.character),
-          ~ stringr::str_replace_all(.x, "\\s*\\bUN\\b\\s*", "")
-        ),
-        dplyr::across(
-          dplyr::where(is.character),
-          ~ stringr::str_replace_all(.x, "^[,;] ", "")
-        ),
-        dplyr::across(
-          dplyr::where(is.character),
-          ~ stringr::str_replace_all(.x, "^[,;]$", "")
-        ),
-        dplyr::across(
-          dplyr::where(is.character),
-          ~ stringr::str_replace_all(.x, "[,;]$", "")
-        ),
-        dplyr::across(dplyr::where(is.character), 
-                      ~ stringr::str_squish(.x))
-      )
-
-  return(my_df_cleaned)
+ clean_names_and_addresses  <-  function (my_df) 
+{
+    my_df_cleaned <- dplyr::mutate(my_df, dplyr::across(dplyr::where(is.character), 
+        ~stringr::str_squish(.x)), dplyr::across(dplyr::where(is.character), 
+        ~tidyr::replace_na(.x, "")), dplyr::across(dplyr::where(is.character), 
+        ~stringr::str_replace_all(.x, ", ;", ";")), dplyr::across(dplyr::where(is.character), 
+        ~stringr::str_replace_all(.x, "\\s+[,;]", ",")), dplyr::across(dplyr::where(is.character), 
+        ~stringr::str_replace_all(.x, ";,+", ";")), dplyr::across(dplyr::where(is.character), 
+        ~stringr::str_replace_all(.x, ";;+", ";")), dplyr::across(dplyr::where(is.character), 
+        ~stringr::str_replace_all(.x, ",,+", ",")), dplyr::across(dplyr::where(is.character), 
+        ~stringr::str_replace_all(.x, "[,;] *\\bUN\\b *", "")), 
+        dplyr::across(dplyr::where(is.character), ~stringr::str_replace_all(.x, 
+            "\\bUN\\b", "")), dplyr::across(dplyr::where(is.character), 
+            ~stringr::str_replace_all(.x, "\\s*\\bUN\\b\\s*", 
+                "")), dplyr::across(dplyr::where(is.character), 
+            ~stringr::str_replace_all(.x, "^[,;] ", "")), dplyr::across(dplyr::where(is.character), 
+            ~stringr::str_replace_all(.x, "^[,;]$", "")), dplyr::across(dplyr::where(is.character), 
+            ~stringr::str_replace_all(.x, "[,;]$", "")), dplyr::across(dplyr::where(is.character), 
+            ~stringr::str_squish(.x)))
+    return(my_df_cleaned)
 }
 # >>>>
 ```
@@ -3190,24 +2928,29 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>
 
 # Explanations for the following code:
 
- print_df_names  <-  function(my_df, names_num = 100) {
-  # Use 'names' to get column names,
-  # 'head' to limit the number of names to 'names_num',
-  # 'paste0' to concatenate them with a comma separator, and return the result.
-  names(my_df) %>%
-    head(names_num) %>%
-    paste0(collapse = ", ") %>%
-    return()
-}
+# This function prints the comma separated column names of a dataframe, with an option to limit the number of names displayed. It's useful for quickly inspecting the structure of a dataframe, especially when dealing with datasets with a large number of columns.
+#  
+#  
+# 1. **Function Definition:**
+#    - `print_df_names <- function (my_df, names_num = 100) { ... }`: Defines a function named `print_df_names` with two arguments: `my_df` (the dataframe whose column names will be printed) and `names_num` (the maximum number of names to display, defaulted to 100).
+# 
+# 2. **Extracting Column Names:**
+#    - `names(my_df)`: Retrieves the column names of the input dataframe `my_df`.
+# 
+# 3. **Selecting Subset of Names:**
+#    - `%>% head(names_num)`: Uses the pipe operator (`%>%`) to pass the column names to the `head` function, which selects the first `names_num` names. This is useful when the dataframe has a large number of columns, and we want to limit the display to a manageable number.
+# 
+# 4. **Formatting as a String:**
+#    - `%>% paste0(collapse = ", ")`: Concatenates the selected column names into a single string, separated by commas. This creates a more readable output.
+# 
+# 5. **Returning the Result:**
+#    - `%>% return()`: Returns the concatenated string of column names as the output of the function.
+# 
 
- print_df_names  <-  function(my_df, names_num = 100) {
-  # Use 'names' to get column names,
-  # 'head' to limit the number of names to 'names_num',
-  # 'paste0' to concatenate them with a comma separator, and return the result.
-  names(my_df) %>%
-    head(names_num) %>%
-    paste0(collapse = ", ") %>%
-    return()
+ print_df_names  <-  function (my_df, names_num = 100) 
+{
+    names(my_df) %>% head(names_num) %>% paste0(collapse = ", ") %>% 
+        return()
 }
 # >>>>
 
@@ -3441,28 +3184,32 @@ db_participants_address__needed_short__phone0 <-
 
 # Explanations for the following code:
 
- list_sort_uniq  <-  function(my_lists) {
-  # browser()
-  res <-
-    my_lists |>
-    stringr::str_trim() |>
-    unique() |>
-    sort() |>
-    list() |>
-    purrr::flatten()
-  return(res)
-}
+# Overall, this function ensures that the elements in the input list are cleaned, unique, and sorted, providing a tidy and organized output.
+#  
+#  
+# The `list_sort_uniq` function is designed to take a list of character vectors, clean them, remove duplicates, sort them, and return a single vector with unique, sorted elements.
+# 
+# 1. **Function Definition:**
+#    - `list_sort_uniq <- function(my_lists) { .. }`: Defines a function named `list_sort_uniq` with one argument, `my_lists`, representing the list of character vectors to process.
+# 
+# 2. **Data Transformation Pipeline:**
+#    - `my_lists |> ...`: Utilizes the pipe operator (`|>`) to pass the `my_lists` argument through a series of data transformation steps.
+#    
+# 3. **Cleaning and Transformation:**
+#    - `str_trim()`: Removes leading and trailing whitespace from each element of the list.
+#    - `unique()`: Removes duplicate elements from the list.
+#    - `sort()`: Sorts the elements of the list in ascending order.
+#    - `list()`: Converts the sorted vector into a list.
+#    - `flatten()`: Flattens the resulting list into a single vector.
+# 
+# 4. **Return Result:**
+#    - The function returns the processed vector stored in `res`.
+# 
 
- list_sort_uniq  <-  function(my_lists) {
-  # browser()
-  res <-
-    my_lists |>
-    stringr::str_trim() |>
-    unique() |>
-    sort() |>
-    list() |>
-    purrr::flatten()
-  return(res)
+ list_sort_uniq  <-  function (my_lists) 
+{
+    res <- purrr::flatten(list(sort(unique(stringr::str_trim(my_lists)))))
+    return(res)
 }
 # >>>>
 ```
@@ -4097,7 +3844,7 @@ It need to be a function, this way we can call it if needed, not every time we r
 ```{r}
 write_res_to_google_sheets <- 
   function() {
-  
+
     # Define the current result Google Sheets name
     current_result_google_ss_name <- "Egregious Violators Current"
     
@@ -4109,10 +3856,9 @@ write_res_to_google_sheets <-
         type = "spreadsheet",
         n_max = 1
       )
-
+    
     # An example of my_current_ss:
     #   name                        id                                           drive_resource
-    # <chr>                       <drv_id>                                     <list>
     # 1 Egregious Violators Current ...--o6BpLWpb4-... <named list [36]>
     
     # Next:
@@ -4131,38 +3877,83 @@ write_res_to_google_sheets <-
     # ss_info contains detailed information about the current spreadsheet, including sheet names
     ss_info <- googlesheets4::gs4_get(my_current_ss)
     
-    # grep for the pattern in case there are additional tabs 
-    previous_current_spread_sheet_name <- 
-      grep("egregious_violators_to_investigate_20\\d\\d-\\d\\d-\\d\\d", ss_info$sheets$name, value = T)
+    # grep for the pattern in case there are additional tabs
+    previous_current_spread_sheet_name <-
+      grep(
+        "egregious_violators_to_investigate_20\\d\\d-\\d\\d-\\d\\d",
+        ss_info$sheets$name,
+        value = T
+      )
     # E.g. "egregious_violators_to_investigate_2024-06-18"
     
     # Rename the file from "current" to the previous_current_spread_sheet_name with the previous date.
     # Note. The next line will rise an error if a file with this name already exists, to change that behavior remove 'overwrite = FALSE,"
-    googledrive::drive_mv(
-      my_current_ss,
-      path = googledrive::as_id(output_egr_violators_googledrive_folder_path),
-      overwrite = FALSE,
-      name = previous_current_spread_sheet_name
-    )
-    # E.g.
-    # Original file:
-    # • Egregious Violators Current
-    # Has been renamed:
-    # • output/egregious_violators_to_investigate_2024-06-18
-
+    
+    tryCatch({
+      # message("This is the 'try' part")
+      
+      googledrive::drive_mv(
+        my_current_ss,
+        path = googledrive::as_id(output_egr_violators_googledrive_folder_path),
+        overwrite = FALSE,
+        name = previous_current_spread_sheet_name
+      )
+      # E.g.
+      # Original file:
+      # • Egregious Violators Current
+      # Has been renamed:
+      # • output/egregious_violators_to_investigate_2024-06-18
+      
+    }, error = function(cond) {
+      message(
+        paste(
+          "File exists at the target filepath and `overwrite = FALSE`: ",
+          previous_current_spread_sheet_name
+        )
+      )
+      
+      message("Here's the original error message:")
+      message(conditionMessage(cond))
+      # Choose a return value in case of error
+    }, warning = function(cond) {
+      
+    }, finally = {
+      # message("Some other message at the end")
+    })
+    
     # Create a new empty spreadsheet in the Google Drive output folder to replace the renamed one
     # And save its properties into current_result_google_ss_name_info
     
-    current_result_google_ss_name_info <- 
-    googledrive::drive_create(
-      name = current_result_google_ss_name,
-      path = googledrive::as_id(output_egr_violators_googledrive_folder_path),
-      type = "spreadsheet",
-      overwrite = FALSE
-    )
+    tryCatch({
+      # message("This is the 'try' part")
+      
+      current_result_google_ss_name_info <-
+        googledrive::drive_create(
+          name = current_result_google_ss_name,
+          path = googledrive::as_id(output_egr_violators_googledrive_folder_path),
+          type = "spreadsheet",
+          overwrite = FALSE
+        )
+      
+    }, error = function(cond) {
+      message(
+        paste(
+          "File exists at the target filepath and `overwrite = FALSE`: ",
+          current_result_google_ss_name
+        )
+      )
+      
+      message("Here's the original error message:")
+      message(conditionMessage(cond))
+      # Choose a return value in case of error
+    }, warning = function(cond) {
+      
+    }, finally = {
+      # message("Some other message at the end")
+    })
     
-  # Write our results into the newly created spreadsheet "Egregious Violators Current"
-  # into a sheet/tab with a name defined in out_file_basename
+    # Write our results into the newly created spreadsheet "Egregious Violators Current"
+    # into a sheet/tab with a name defined in out_file_basename
     googlesheets4::write_sheet(
       compl_corr_to_investigation_short_dup_marked__permit_region__add_columns,
       ss = current_result_google_ss_name_info,
@@ -4172,7 +3963,7 @@ write_res_to_google_sheets <-
     # See sheets/tabs to check
     googlesheets4::sheet_properties(ss = current_result_google_ss_name_info)
     
-      # Remove the empty Sheet1 created automatically by googledrive::drive_create()
+    # Remove the empty Sheet1 created automatically by googledrive::drive_create()
     googlesheets4::sheet_delete(ss = current_result_google_ss_name_info, "Sheet1")
     
     # Check the existing tabs again
@@ -4185,13 +3976,14 @@ write_res_to_google_sheets <-
     
     # Generate a shareable link for the new spreadsheet
     current_output_file_link <- googledrive::drive_link(current_result_google_ss_name_info)
-
+    
     print(current_output_file_link)
     
     # The function returns the current output file link
     return(current_output_file_link)
     
   }
+
 ```
 
 
