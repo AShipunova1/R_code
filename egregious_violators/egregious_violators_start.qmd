@@ -1052,7 +1052,7 @@ Permit info from processed metrics tracking
 
 #  clean_headers  <-  function (my_df) 
 # {
-#     new_names <- fix_names(colnames(my_df))
+#     new_names <- auxfunctions::fix_names(colnames(my_df))
 #     colnames(my_df) <- new_names
 #     return(my_df)
 # }
