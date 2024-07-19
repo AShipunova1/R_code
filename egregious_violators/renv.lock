@@ -151,14 +151,14 @@
     },
     "Rcpp": {
       "Package": "Rcpp",
-      "Version": "1.0.12",
+      "Version": "1.0.13",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "methods",
         "utils"
       ],
-      "Hash": "5ea2700d21e038ace58269ecdbeb9ec0"
+      "Hash": "f27411eb6d9c3dada5edd444b8416675"
     },
     "askpass": {
       "Package": "askpass",
@@ -185,15 +185,14 @@
       "Version": "1.1",
       "Source": "GitHub",
       "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "R_code",
       "RemoteUsername": "AShipunova1",
-      "RemoteRef": "development",
-      "RemoteSha": "6276a97fdd5e44b85d65ad9c4fc7412695105746",
+      "RemoteRepo": "R_code",
       "RemoteSubdir": "auxfunctions",
+      "RemoteRef": "development",
+      "RemoteSha": "f82bb64dfa632bc86f85b4ff0cd2578155cfd8e3",
+      "RemoteHost": "api.github.com",
       "Requirements": [
         "DBI",
-        "R",
         "cowplot",
         "crayon",
         "data.table",
@@ -213,7 +212,7 @@
         "tidyr",
         "tidyselect"
       ],
-      "Hash": "c3615cc7825548e7b0f80c07f4a9b08a"
+      "Hash": "e5956c93210e73030d9d62a7ebce9744"
     },
     "backports": {
       "Package": "backports",
@@ -846,7 +845,7 @@
     },
     "gert": {
       "Package": "gert",
-      "Version": "2.0.1",
+      "Version": "2.1.0",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -857,7 +856,7 @@
         "sys",
         "zip"
       ],
-      "Hash": "f70d3fe2d9e7654213a946963d1591eb"
+      "Hash": "bdc909d9f16e2478d615b0e6a7330435"
     },
     "ggplot2": {
       "Package": "ggplot2",
@@ -2287,13 +2286,13 @@
     },
     "tinytex": {
       "Package": "tinytex",
-      "Version": "0.51",
+      "Version": "0.52",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "xfun"
       ],
-      "Hash": "d44e2fcd2e4e076f0aac540208559d1d"
+      "Hash": "cfbad971a71f0e27cec22e544a08bc3b"
     },
     "tzdb": {
       "Package": "tzdb",
@@ -2481,7 +2480,7 @@
     },
     "xfun": {
       "Package": "xfun",
-      "Version": "0.45",
+      "Version": "0.46",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -2489,7 +2488,7 @@
         "stats",
         "tools"
       ],
-      "Hash": "ca59c87fe305b16a9141a5874c3a7889"
+      "Hash": "00ce32f398db0415dde61abfef11300c"
     },
     "xml2": {
       "Package": "xml2",
