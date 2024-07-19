@@ -1,5 +1,6 @@
 \name{set_work_dir}
-%-\alias{set_work_dir_local}
+\alias{set_work_dir}
+%- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Set Anna's work directories
 }
@@ -7,6 +8,7 @@ Set Anna's work directories
 This function sets the working directory to the user's home directory, defines directory paths for inputs, outputs, and GitHub R code, changes the working directory to the main R directory, and returns these paths as a list.
 
 It assumes a specific directory structure, where data are separated from the code, so the latter can be stored on GitHub.
+
 }
 \usage{
 set_work_dir()
