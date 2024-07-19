@@ -1,5 +1,5 @@
 \name{set_work_dir}
-\alias{set_work_dir_local}
+%-\alias{set_work_dir_local}
 \title{
 Set Anna's work directories
 }
