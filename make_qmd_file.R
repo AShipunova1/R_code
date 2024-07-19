@@ -34,7 +34,6 @@ egregious_violators_start
 # add #+, file = prep_addresses_path, instead of a source, to be converted in a chunk
 
 # In the output .qmd:
-# *) merge "# save setup chunk options to use later" with the next chunk
 # *) add |>
 #   knitr::kable(caption = "My Caption")
 # for pretty tables
@@ -459,11 +458,12 @@ get_my_used_function_texts <-
       }) |>
       rlang::set_names(my_used_function_names)
 
+    # not used for now
     my_used_function_texts_commented <-
       my_used_function_texts |>
       stringr::str_replace_all("\n", "\n# ")
 
-    return(my_used_function_texts_commented)
+    return(my_used_function_texts)
   }
 
 my_used_function_texts <-
@@ -596,8 +596,6 @@ see_res_in_outfile <- function(text_to_output) {
 # To debug
 # see_res_in_outfile(text_replaced)
 
-# TODO: check if newlines are correct now
-
 # convert to Rmd ----
 # The 'knitr::spin' function is used to create an R Markdown (Rmd) file, but the 'knit' argument is set to 'FALSE', indicating that the document should not be fully knitted. Instead, this function generates an Rmd file from the R script without executing the code chunks.
 
@@ -679,6 +677,10 @@ library(openxlsx)
 
 ```{r df format setup}
 #| include: false
+
+# Customize the appearance of dataframes in HTML
+
+# Uncomment if using tabs
 # kable <- function(data) {
 #   knitr::kable(data, booktabs = true, digits = 2) %>%
 #     kable_styling('striped', full_width = FALSE)
