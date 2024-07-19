@@ -2,7 +2,7 @@
 \alias{fix_names}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Clean names
+Clean and standardize column names within a dataframe
 }
 \description{
 Cleans column names of uploaded files.
