@@ -549,14 +549,17 @@ print(my_used_function_names_all)
 
 replace_function_with_def <-
   function(one_line_text, idx) {
+    
     # browser()
-    
+    idx <- 23
     current_function_name <- my_used_function_names_all[[idx]]
-    # print(current_function_name)
+    print(current_function_name)
     
+    # add parenthesis for backreference
     to_find <- str_glue("(",
                         my_split_newline_char,
                         ".+{my_used_function_names_all[[idx]]})")
+    
     to_replace_with <-
       paste(
         "\n# <<<<",
@@ -564,14 +567,34 @@ replace_function_with_def <-
         my_used_function_helps_all[[current_function_name]],
         my_used_function_texts_all[[current_function_name]],
         "# >>>>",
-        "\\1", #to keep in place what's found
+        "\\1",
+        # to keep in place what's found
         sep = "\n"
       )
+    
+    tryCatch({
+      message("This is the 'try' part")
+      
+      one_line_text_replaced <-
+        str_replace(one_line_text, to_find, to_replace_with)
+      
+      return(one_line_text_replaced)
+      
+    }, error = function(cond) {
+      message(paste("idx:", idx))
+      message(paste("current_function_name:", current_function_name))
+      message(paste("to_find:", to_find))
+      message(paste("to_replace_with:", to_replace_with))
+      
+      message("Here's the original error message:")
+      message(conditionMessage(cond))
+      # Choose a return value in case of error
+      one_line_text
+    }, warning = function(cond) {}, 
+    finally = {
+      # message("Some other message at the end")
+    })
 
-    one_line_text_replaced <-
-      str_replace(one_line_text, to_find, to_replace_with)
-
-    return(one_line_text_replaced)
   }
 
 one_line_text <-
@@ -581,9 +604,11 @@ one_line_text <-
 # 1
 
 one_line_text_replaced <-
-  purrr::reduce(seq_len(length(my_used_function_names_all)),
-                \(acc, nxt) replace_function_with_def(acc, nxt),
-                .init = one_line_text)
+  purrr::reduce(seq_len(length(my_used_function_names_all)), \(acc, nxt)
+                {
+                  # browser()
+                  replace_function_with_def(acc, nxt)}, .init = one_line_text
+  )
 
 text_replaced <-
   split_one_line_text_back(one_line_text_replaced)
@@ -591,6 +616,8 @@ text_replaced <-
 length(text_replaced)
 # 1218
 # 2400 with auxf
+
+grep("fix_names", text_replaced, value = T)
 
 # check
 # grep(my_used_function_names_all[[1]],
