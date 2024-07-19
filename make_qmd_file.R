@@ -577,7 +577,7 @@ replace_function_with_def <-
       )
     
     tryCatch({
-      message("This is the 'try' part")
+      # message("This is the 'try' part")
       
       one_line_text_replaced <-
         str_replace(one_line_text, to_find_function_name, to_replace_with)
