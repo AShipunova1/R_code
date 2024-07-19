@@ -45,6 +45,8 @@
 
 ## Set up packages and options ----
 
+# Note: In the following code '<<<<' and '>>>>' mark the start and the end of definitions and help documents for helper functions.
+# 
 # Install if needed and load all the packages.
 # 
 # *NB*. It is better to install/load each package separately, if any one suggest updates it is safe to choose option 1 (update all).
@@ -55,6 +57,14 @@ library(ROracle)
 library(devtools)
 #'
 #' Explainations for the following code:
+#' 
+#' The installation details depend on the username.
+#' 
+#' For most users, install from the main branch if not already installed.
+#' 
+#' One doesn't have to have a GitHub account to use it.
+#' 
+#' For the package developer, install from the development branch.
 #'
 #' - `if (!require("auxfunctions"))` checks if the `auxfunctions` package is installed and loaded:
 #'
@@ -69,14 +79,6 @@ library(devtools)
 #'   - `"AShipunova1/R_code/auxfunctions"` specifies the repository and subdirectory containing the package.
 #' 
 #' This code checks if the `auxfunctions` package is available, and if not, it installs it from the GitHub repository `AShipunova1/R_code/auxfunctions`.
-#' 
-#' One doesn't have to have a GitHub account to use it.
-#' 
-#' The installation details depend on the username.
-#' 
-#' For most users, install from the main branch if not already installed
-#' 
-#' For the package developer, install from the development branch to test new features
 #' 
 # Check if the username is not "anna.shipunova"
 if (!auxfunctions::get_username() == "anna.shipunova") {
