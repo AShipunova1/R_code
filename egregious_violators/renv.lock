@@ -1,6 +1,6 @@
 {
   "R": {
-    "Version": "4.4.0",
+    "Version": "4.4.1",
     "Repositories": [
       {
         "Name": "CRAN",
@@ -185,15 +185,14 @@
       "Version": "1.1",
       "Source": "GitHub",
       "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "R_code",
       "RemoteUsername": "AShipunova1",
-      "RemoteRef": "development",
-      "RemoteSha": "2409c4385740f4bdf2914cd526f3689b4dc2127f",
+      "RemoteRepo": "R_code",
       "RemoteSubdir": "auxfunctions",
+      "RemoteRef": "development",
+      "RemoteSha": "fb1bd42f1bdf13af85f48db8c1ab0e9e6455561a",
+      "RemoteHost": "api.github.com",
       "Requirements": [
         "DBI",
-        "R",
         "cowplot",
         "crayon",
         "data.table",
@@ -213,7 +212,7 @@
         "tidyr",
         "tidyselect"
       ],
-      "Hash": "d47a1c0b78ed8e737ee3dbf581017d40"
+      "Hash": "087696e3d51ea60b60174238d93e9824"
     },
     "backports": {
       "Package": "backports",
