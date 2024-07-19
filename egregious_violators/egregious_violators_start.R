@@ -38,8 +38,9 @@
 ## New requirement 2024-05-06 ----
 #' 8. Exclude any correspondence (regardless of the type - email/call, voicemail or not) that includes "No contact made" in the text of the entry as a actual "direct" contact for any egregious vessel.
 #' 
-
 #' Note. Update (download) all input files every time before run.
+#' 
+#' Note: If there is no comment with the word "manually" before the code, it will work automatically.
 #' 
 
 ## Set up packages and options ----
@@ -53,7 +54,7 @@ library(ROracle)
 # Collection of package development tools.
 library(devtools)
 #'
-#' Explanations:
+#' Explainations for the following code:
 #'
 #' - `if (!require("auxfunctions"))` checks if the `auxfunctions` package is installed and loaded:
 #'
@@ -115,8 +116,8 @@ Sys.setenv(ORA_SDTZ = Sys.timezone())
 
 ## Set up paths ----
 #'
-#' Different path structures are used for different users.
-#'
+#' Different methods are used based on the user to accommodate different directory structure.
+#' 
 #' This allows the script to run correctly on multiple systems without manual path changes.
 #' 
 #' In the code in this section all user provided values have the word "manually" in the description. Everything else is created automatically.
@@ -368,7 +369,7 @@ egr_violators_googledrive_folder_path <-
 #'
 #' Get the path to the output folder within the Egregious violators folder on Google Drive
 #'
-#' Explanations:
+#' Explainations for the following code:
 #'
 #' - `output_egr_violators_googledrive_folder_path <- ...` assigns the result of the `googledrive::drive_ls` function call to the variable `output_egr_violators_googledrive_folder_path`.
 #'
@@ -476,7 +477,7 @@ source(get_data_path)
 
 ## Permit Expiration ----
 ### Add permit_expired column ----
-#' Explanations:
+#' Explainations for the following code:
 #' 
 #' 1. Add a new column 'permit_expired' using 'mutate'.
 #' 
@@ -648,7 +649,7 @@ all_weeks_num <-
   dplyr::distinct() |>
   nrow()
 #'
-#' Explanations:
+#' Explainations for the following code:
 #'
 #' 1. Group the data frame by 'vessel_official_number'.
 #'
@@ -752,7 +753,7 @@ we_emailed_once_filter <-
       tolower(calltype) == "outgoing"
   ))
 #'
-#' Explanations:
+#' Explainations for the following code:
 #' 
 #' **Expression inside quo()**:
 #'
@@ -784,7 +785,7 @@ they_contacted_direct_filter <-
 #' Apply filters to create a subset of correspondence data meeting specific criteria
 #' 
 
-#' Explanations:
+#' Explainations for the following code:
 #'
 #' - `corresp_contact_cnts_clean |> ...` starts the pipeline with the data frame `corresp_contact_cnts_clean`.
 #'
@@ -845,7 +846,7 @@ head(corresp_contact_cnts_clean_direct_cnt_2atmps$contact_date, 1) |> str()
 # chr "02/15/2024 03:15PM"
 #'
 #'
-#' Explanations:
+#' Explainations for the following code:
 #'
 #' Mutate new columns 'created_on_dttm' and 'contact_date_dttm' by parsing 'created_on' and 'contact_date' using lubridate package.
 #'
@@ -890,7 +891,7 @@ head(corresp_contact_cnts_clean_direct_cnt_2atmps_clean_dates$contact_date_dttm,
 #' This ensures we only keep vessels that appear in both datasets, effectively filtering for vessels with both compliance and correspondence records
 #' 
 
-#' Explanations:
+#' Explainations for the following code:
 #'
 #' Create a new dataframe 'compl_corr_to_investigation' by performing an inner join between
 #'
@@ -987,7 +988,7 @@ unused_fields <- c(
 #'
 #' Create a simplified version of the investigation data, removing unused fields and concatenating unique values for each vessel
 #' 
-#' Explanations:
+#' Explainations for the following code:
 #'
 #' 1. Exclude columns specified in 'unused_fields' from the data frame.
 #'
@@ -1031,7 +1032,7 @@ contactphonenumber_field_name <-
 #'
 #'  Function to create a summary of contact dates and types for each vessel
 #'  
-#' Explanations:
+#' Explainations for the following code:
 #' 
 #' Define a function 'get_date_contacttype' that takes a dataframe 'compl_corr_to_investigation' as input.
 #' 
@@ -1161,7 +1162,7 @@ dim(vessels_to_mark_ids)
 #'
 #' Create a new column to distinguish between previously processed vessels and new entries
 #' 
-#' Explanations:
+#' Explainations for the following code:
 #'
 #' Create a new column 'duplicate_w_last_time' in the dataframe 'compl_corr_to_investigation_short'.
 #'
@@ -1201,7 +1202,7 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_m
 ## 4. How many are duals? ----
 #' Identify and count vessels with dual permits (both SA and GOM)
 
-#' Explanations:
+#' Explainations for the following code:
 #' 
 #' Create a new dataframe 
 #' 
@@ -1227,7 +1228,7 @@ compl_corr_to_investigation_short_dup_marked__permit_region <-
            ))
 #'
 #'
-#' Explanations:
+#' Explainations for the following code:
 #'
 #' Use the 'select' function to extract the columns 'vessel_official_number' and 'permit_region'
 #'
@@ -1326,7 +1327,7 @@ compl_corr_to_investigation_short_dup_marked__permit_region__add_columns |>
 ## Write to google sheets ----
 
 #' 
-#' Explanations:
+#' Explainations for the following code:
 #' 
 #' Define a function to write results to Google Sheets
 #' 
