@@ -1,20 +1,25 @@
+# This script is designed to create a Quarto Markdown (.qmd) file for R projects.
 library(tidyverse)
-
 library(tools)
 
 # How to use the result qmd:
 # To see the report .html - render the .qmd
 # to run - "run all" in the .qmd tab (Ctrl-Alt-R)
 
-# manually 
-# 1) Change in the result qmd 
+# Manual steps to adjust the generated .qmd file:
+# 1) Change in the result qmd
 # ```{r setup ...
 # with provided
 # ```{r setup current project, results='hide', message=FALSE, warning=FALSE}
 # 2) Change the title
+# 3) Move the Setup title up
+# 4) For egregious violators:
+# a) mv trim_all_vessel_ids_simple close to use and remove all (2) previous <<<<>>>>
+# b) 
 
-# change dir name
-# comment out the "answers" for the next to readline()
+
+# Change the dir name
+# Comment out the "answers" for the next two readline() to use interactively
 curent_project_name <- readline(prompt = "Print your project name: ")
 egregious_violators
 # validation_survey
@@ -47,7 +52,7 @@ check_str <- function(my_string, my_pattern) {
 my_split_newline_char <- "@@@"
 
 to_one_line <-
-  function(my_text_with_newline, 
+  function(my_text_with_newline,
            glue_by = my_split_newline_char) {
     my_text_with_newline |>
       str_flatten(collapse = glue_by)
@@ -106,10 +111,10 @@ find_source_paths <- function(my_text = flat_file_r_text) {
     my_text |>
     str_extract_all("^\\s*[^#]*source\\((.+)\\)") |>
     unique()
-  
+
   source_path_list <-
     purrr::discard(source_path_all_list, ~ length(.x) == 0)
-  
+
   return(source_path_list)
 }
 
@@ -123,12 +128,12 @@ find_source_path_vars <-
       map(\(one_var) {
         stringr::str_replace(one_var, "\\w+\\((.+)_path\\)", "\\1")
       })
-    
+
     return(source_path_vars)
   }
 
-source_path_var_names <- 
-  find_source_path_vars(my_text = flat_file_r_text, 
+source_path_var_names <-
+  find_source_path_vars(my_text = flat_file_r_text,
            source_paths_matches = source_paths_matches)
 
 # assuming files are named by convention:
@@ -138,15 +143,15 @@ source_path_var_names <-
 # prepare_data_path <-
 #   file.path(current_project_dir_name,
 #             paste0(current_project_name, "_", "prepare_data.R"))
-# 
+#
 # file.exists(prepare_data_file_path)
-# 
+#
 # source(prepare_data_file_path)
 
 make_source_path <- function(dir_to_comb, source_path_var_names) {
   source_path_var_names |>
     map(\(source_path_var_name) {
-      file.path(dir_to_comb, 
+      file.path(dir_to_comb,
                 paste0(curent_project_name, "_", source_path_var_name, ".R"))
     })
 }
@@ -190,8 +195,8 @@ source_files_content_one_line <-
 
 # replace sourced files with the file content
 
-to_find <- 
-  str_c(str_escape(unlist(source_paths_matches)), 
+to_find <-
+  str_c(str_escape(unlist(source_paths_matches)),
         collapse = "|")
 # str(to_find)
 
@@ -201,8 +206,8 @@ to_replace_source <-
   }
 
 flat_file_r_text <-
-  stringr::str_replace_all(flat_file_r_text, 
-                           to_find, 
+  stringr::str_replace_all(flat_file_r_text,
+                           to_find,
                            to_replace_source)
 
 # check
@@ -210,13 +215,13 @@ flat_file_r_text <-
 # grep("source", flat_file_r_text, value = T)
 
 ### remove 'if (!exists("con"))', gives an error when rendering ----
-to_find_con <- 
-  'if *\\(\\!exists\\("con"\\)[^}]+\\}'  
+to_find_con <-
+  'if *\\(\\!exists\\("con"\\)[^}]+\\}'
 to_replace_con <- "try(con <- auxfunctions::connect_to_secpr())"
 
 flat_file_r_text <-
-  stringr::str_replace_all(flat_file_r_text, 
-                           to_find_con, 
+  stringr::str_replace_all(flat_file_r_text,
+                           to_find_con,
                            to_replace_con
                            )
 
@@ -285,18 +290,18 @@ flat_file_r_text <-
 # It captures a newline character.
 # Remove all "odd" characters from chunk titles for knitr to work with.
 # repeat twice
-# 
+#
 clean_chunk_titles <-
   function(flat_file_r_text) {
-    
-    while (any(stringr::str_detect(flat_file_r_text, 
+
+    while (any(stringr::str_detect(flat_file_r_text,
                           "#\\+[^#]*[^A-z0-9#+ ]+[^#]+"))) {
       flat_file_r_text <-
         flat_file_r_text |>
         stringr::str_replace_all("(#\\+[^#]*)[^A-z0-9#+ ]+([^#]+)", "\\1\\2")
-      
+
     }
-    
+
     return(flat_file_r_text)
   }
 
@@ -373,20 +378,20 @@ flat_file_r_text <-
 
 in_text <- flat_file_r_text
 
-get_my_func_names_wo_prefix <- 
+get_my_func_names_wo_prefix <-
   function(in_text, search_str = "auxfunctions::") {
   to_search <- str_glue("{search_str}(\\w+)\\(")
-  
+
   my_used_function_names <-
     stringr::str_extract(in_text, to_search) |>
     unique() |>
     na.omit() |>
     stringr::str_replace_all(to_search, "\\1")
-  
+
   return(my_used_function_names)
 }
 
-my_used_function_names <- 
+my_used_function_names <-
   get_my_func_names_wo_prefix(flat_file_r_text)
 
 # glimpse(my_used_function_names)
@@ -398,7 +403,7 @@ get_help_text <- function(function_name) {
   help_text <-
     help(function_name, "auxfunctions") |>
     utils:::.getHelpFile()
-  
+
   used_tags_help_list <-
     map(used_tags, \(one_tag) {
       help_text |>
@@ -408,16 +413,16 @@ get_help_text <- function(function_name) {
         paste0(., collapse = "")
     }) |>
     stats::setNames(used_tags)
-  
-  used_tags_help <- 
+
+  used_tags_help <-
     paste(used_tags_help_list[[1]],
           "\n",
           used_tags_help_list[[2]])
-  
-  used_tags_help_commented <- 
-    used_tags_help |> 
+
+  used_tags_help_commented <-
+    used_tags_help |>
     stringr::str_replace_all("\n", "\n# ")
-  
+
   return(used_tags_help_commented)
 }
 
@@ -426,7 +431,7 @@ function_obj_as_text <- function(function_name) {
   # remove environment descriptions
   fun_body <- paste(utils::capture.output(function_name), collapse = "\n") |>
     stringr::str_replace_all("\\n<.+", "")
-  
+
   return(fun_body)
 }
 
@@ -441,15 +446,15 @@ get_my_used_function_texts <-
       map(\(one_f_name) {
         # browser()
         function_list <- utils::getAnywhere(one_f_name)
-        
+
         function_as_text <-
           function_list$objs[[1]] |>
           function_obj_as_text() |>
           stringr::str_replace_all("\\\\", my_slash_replacement)
-        
+
         with_first_line <-
           paste("\n", one_f_name, " <- ", function_as_text)
-        
+
         return(with_first_line)
       }) |>
       rlang::set_names(my_used_function_names)
@@ -457,7 +462,7 @@ get_my_used_function_texts <-
     my_used_function_texts_commented <-
       my_used_function_texts |>
       stringr::str_replace_all("\n", "\n# ")
-    
+
     return(my_used_function_texts_commented)
   }
 
@@ -477,7 +482,7 @@ get_my_used_function_helps <-
     return(my_used_function_helps)
   }
 
-my_used_function_helps <- 
+my_used_function_helps <-
   get_my_used_function_helps(my_used_function_names)
 
 # glimpse(my_used_function_helps)
@@ -494,14 +499,14 @@ my_used_function_names_from_nested <-
 my_used_function_texts_from_nested <-
   get_my_used_function_texts(my_used_function_names_from_nested)
 
-my_used_function_helps_from_nested <- 
+my_used_function_helps_from_nested <-
   get_my_used_function_helps(my_used_function_names_from_nested)
 
 # TODO: do the part from
 # nested_functions <-
 #   my_used_function_texts |>
 #   get_my_func_names_wo_prefix()
-# recursively, until 
+# recursively, until
 # length(nested_functions_last_check) == 0
 
 nested_functions_last_check <-
@@ -509,7 +514,7 @@ nested_functions_last_check <-
   get_my_func_names_wo_prefix()
 
 ## Combine all help documents in one list ----
-my_used_function_helps_all <- 
+my_used_function_helps_all <-
   c(my_used_function_helps_from_nested, my_used_function_helps)
 
 length(my_used_function_helps_all) ==
@@ -518,7 +523,7 @@ length(my_used_function_helps_all) ==
 
 ## Combine all function texts in one list ----
 
-my_used_function_texts_all <- 
+my_used_function_texts_all <-
   c(my_used_function_texts_from_nested, my_used_function_texts)
 
 length(my_used_function_texts_all) ==
@@ -533,7 +538,7 @@ length(my_used_function_texts_all) ==
 
 # my_used_function_names[[3]]
 
-replace_function_with_def <- 
+replace_function_with_def <-
   function(one_line_text, idx) {
     # browser()
     to_find <- str_glue("(",
@@ -549,10 +554,10 @@ replace_function_with_def <-
         "\\1", #to keep in place what's found
         sep = "\n"
       )
-    
+
     one_line_text_replaced <-
       str_replace(one_line_text, to_find, to_replace_with)
-    
+
     return(one_line_text_replaced)
   }
 
@@ -578,7 +583,7 @@ length(text_replaced)
 #      text_replaced, value = T)
 
 # grep("\\\\s", str_escape(my_used_function_texts_all), value = T)
-# clean_names_and_addresses 
+# clean_names_and_addresses
 
 # grep("\\\\s", text_replaced, value = T)
 
@@ -612,15 +617,15 @@ tictoc::toc()
 # rmd_text |>
 #   stringr::str_extract("````") |>
 #   as.data.frame() |>
-#   setNames(nm = "found") |> 
+#   setNames(nm = "found") |>
 #   filter(!is.na(found)) |> dim()
 # # 86
 
 # Change back to \s and \b in functions
 # TODO: move it to where the text is the one line
-rmd_text <- 
+rmd_text <-
   rmd_text |>
-  # stringr::str_extract_all(".+QQQ.+") |> 
+  # stringr::str_extract_all(".+QQQ.+") |>
   str_replace_all(my_slash_replacement, "\\\\")
   # unique()
 
@@ -643,7 +648,7 @@ setup_text <- "
 #'
 #' The **Run** button allows you to run individual or bunch of chunks as a regular R script.
 #'
-#' When you click the **Render** button a document will be generated that includes both content and the output of embedded code. 
+#' When you click the **Render** button a document will be generated that includes both content and the output of embedded code.
 #'
 
 # Setup for Quarto
