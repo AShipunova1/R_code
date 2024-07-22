@@ -51,18 +51,48 @@
 #' 
 #' Note. Update (download) all input files every time before run.
 #' 
-## Set up packages and options ----
-
 #' If there is no comment with the word "manually" before the code, it will work automatically.
 #' 
-# Install if needed and load all the packages.
+## Install packages if needed ----
 # 
 # Note. It is better to install/load each package separately, if anyone suggests updates it is safe to choose option 1 (update all). Or run the whole code from "Source".
 # 
-# Load the ROracle package for database interactions with Oracle databases
+# Load the ROracle package for database interactions with Oracle databases.
+# It's required to be loaded.
 library(ROracle)
-# Collection of package development tools.
-library(devtools)
+
+#' Install packages not yet installed
+#' 
+
+needed_packages <- c(
+  "devtools", # Collection of package development tools.
+  "zoo", # Handling time series data.
+  "diffdf", # Compares dataframes and identifies differences.
+  # packages for Google Sheets and Google Drive
+  #
+  # Refer to this guide: https://felixanalytix.medium.com/how-to-read-write-append-google-sheet-data-using-r-programming-ecf278108691#:~:text=There%20are%203%20ways%20to%20read%20this%20Google%20sheet%20into%20R.&text=Just%20to%20take%20the%20URL,URL%20but%20just%20the%20ID).
+  #
+  "googlesheets4", # Google Sheets via the Sheets API v4
+  "googledrive" # Interact with Google Drive
+)
+
+#' Explanations for the following code:
+# - `needed_packages %in% rownames(installed.packages())` checks which packages from `needed_packages` are installed:
+#   - `installed.packages()` returns a matrix of information about all installed packages.
+#   - `rownames(installed.packages())` extracts the names of the installed packages.
+#   - `needed_packages %in% ...` checks if each package in `needed_packages` is in the list of installed packages, returning a logical vector indicating the presence of each package.
+# - `if (any(installed_packages == FALSE)) { ... }` checks if any package is not installed:
+#   - `any(installed_packages == FALSE)` returns `TRUE` if at least one element in `installed_packages` is `FALSE`.
+#   - `install.packages(packages[!installed_packages])` installs the packages that are not installed:
+#     - `packages[!installed_packages]` selects the packages from `packages` that are not installed.
+#     - `install.packages()` installs the selected packages.  
+installed_packages <-
+  needed_packages %in% rownames(installed.packages())
+if (any(installed_packages == FALSE)) {
+  install.packages(packages[!installed_packages])
+}
+
+#' Helper functions for SEFHIER data analysis.
 #'
 #' Explainations for the following code:
 #' 
@@ -95,34 +125,11 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
     devtools::install_github("AShipunova1/R_code/auxfunctions")
   }
 } else {
-  # For Anna Shipunova, rebuild the package from the development branch. To force the installation change to 'force = TRUE'
+  # For a developer, rebuild the package from the development branch. To force the installation change to 'force = TRUE'
   devtools::install_github("AShipunova1/R_code/auxfunctions@development", force = FALSE)
   # restart R session to pick up changes
   # .rs.restartR()
 }
-
-# Helper functions for SEFHIER data analysis.
-library(auxfunctions)
-# Handling time series data.
-library(zoo)
-# Compares dataframes and identifies differences.
-library(diffdf)
-
-# Install and attach R packages for Google Sheets and Google Drive
-# 
-# Refer to this guide: https://felixanalytix.medium.com/how-to-read-write-append-google-sheet-data-using-r-programming-ecf278108691#:~:text=There%20are%203%20ways%20to%20read%20this%20Google%20sheet%20into%20R.&text=Just%20to%20take%20the%20URL,URL%20but%20just%20the%20ID).
-# 
-library(googlesheets4) # Google Sheets via the Sheets API v4 
-library(googledrive) # Interact with Google Drive 
-
-# Set options to prevent converting long numbers to scientific notation for input/output in spreadsheets and csv files
-# This ensures vessel numbers and other large integers are displayed in full
-
-options(scipen = 999)
-
-# Synchronize timezone settings between R and Oracle to ensure consistent date-time handling
-Sys.setenv(TZ = Sys.timezone())
-Sys.setenv(ORA_SDTZ = Sys.timezone())
 
 ## Set up paths ----
 #'
@@ -457,6 +464,17 @@ permit_expired_check_date <- data_file_date + 30
 #'
 #' Define the start of the last week, excluding it from analysis
 last_week_start <- data_file_date - grace_period
+#'
+
+## Other setup ----
+# Set options to prevent converting long numbers to scientific notation for input/output in spreadsheets and csv files
+# This ensures vessel numbers and other large integers are displayed in full
+
+options(scipen = 999)
+
+# Synchronize timezone settings between R and Oracle to ensure consistent date-time handling
+Sys.setenv(TZ = Sys.timezone())
+Sys.setenv(ORA_SDTZ = Sys.timezone())
 
 # Get data ----
 #' %%%%% Prepare data
