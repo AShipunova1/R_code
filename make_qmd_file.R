@@ -699,7 +699,7 @@ setup_text <- "
 
 # Setup for Quarto
 
-# Load required libraries
+# Load libraries required for Quatro
 # A general-purpose tool for dynamic report generation in R
 library(knitr)
 
@@ -708,19 +708,6 @@ library(kableExtra)
 
 # Format R code automatically
 library(styler)
-
-# Load the tidyr package for data manipulation
-library(tidyr)
-
-# Load the magrittr package for piping operations
-library(magrittr)
-
-# Load the stringr package for string manipulation
-library(stringr)
-
-# Load the openxlsx package for reading and writing Excel files
-library(openxlsx)
-
 ```
 
 ```{r df format setup}
