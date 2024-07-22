@@ -1146,8 +1146,7 @@ corresp_contact_cnts_clean0 <-
 
 # Display the structure of the cleaned correspondence data
 head(corresp_contact_cnts_clean0) |> 
-  dplyr::glimpse() |>
-  knitr::kable(caption = "")
+  dplyr::glimpse()
 # <<<<
 
 # Explanations for the following code:
@@ -2498,8 +2497,7 @@ dplyr::n_distinct(compl_corr_to_investigation$vesselofficial_number)
 # 141
 
 head(compl_corr_to_investigation) |> 
-  dplyr::glimpse() |>
-  knitr::kable(caption = "")
+  dplyr::glimpse() 
 ```
 
 ### Store the count of unique vessels 
@@ -2609,8 +2607,7 @@ Visual check if data make sense
 ```{r}
 compl_corr_to_investigation_short |> 
   head() |> 
-  dplyr::glimpse() |>
-  knitr::kable(caption = "")
+  dplyr::glimpse()
 ```
 
 
@@ -2749,8 +2746,7 @@ Display a sample of the resulting data for verification
 ```{r}
 date__contacttype_per_id |>
   head() |>
-  dplyr::glimpse() |>
-  knitr::kable(caption = "")
+  dplyr::glimpse()
 ```
 
 ##### Add the new column back 
@@ -2776,8 +2772,7 @@ $ date__contacttypes     <chr> "03/13/2024 11:59AM, 09/21/2023 03:41PM, 08/18/20
 ```{r}
 compl_corr_to_investigation__corr_date |> 
   head() |> 
-  dplyr::glimpse() |>
-  knitr::kable(caption = "")
+  dplyr::glimpse()
 ```
 
 #### Add pims home port info 
@@ -4060,7 +4055,7 @@ write_res_to_google_sheets <-
 Un-comment to write results directly to Google drive
 
 ```{r}
-current_output_file_link <- write_res_to_google_sheets()
+# current_output_file_link <- write_res_to_google_sheets()
 ```
 
 
