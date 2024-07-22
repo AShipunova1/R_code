@@ -60,92 +60,25 @@ at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicem
 
 8. Exclude any correspondence (regardless of the type - email/call, voicemail or not) that includes "No contact made" in the text of the entry as a actual "direct" contact for any egregious vessel.
 
-```{r no cache setup, results='hide', message=FALSE, warning=FALSE, cache=FALSE, include=FALSE}
+About comments:
 
-# Quarto
- 
-# Quarto enables you to weave together content and executable code into a finished document.
- 
-# Running Code
- 
-# The **Run** button allows you to run individual or bunch of chunks as a regular R script.
- 
-# When you click the **Render** button a document will be generated that includes both content and the output of embedded code.
+There are several types of comments in the following code.
 
-# Setup for Quarto
+1) If the comment starts with "Note." it is essential for running the code.
 
-# Load required libraries
-# A general-purpose tool for dynamic report generation in R
-library(knitr)
+2) '<<<<' and '>>>>' mark the start and the end of definitions and help documents for helper functions. Another way to see an R help document is to type a question mark in the Console followed by the function name. e.g. ?mutate
 
-# Adds features to a kable output
-library(kableExtra)
+3) All other comments explain the logic and the syntax.
 
-# Format R code automatically
-library(styler)
-
-# Load the tidyr package for data manipulation
-library(tidyr)
-
-# Load the magrittr package for piping operations
-library(magrittr)
-
-# Load the stringr package for string manipulation
-library(stringr)
-
-# Load the openxlsx package for reading and writing Excel files
-library(openxlsx)
-
-```
-
-```{r df format setup}
-#| include: false
-
-# Customize the appearance of dataframes in HTML
-
-# Uncomment if using tabs
-# kable <- function(data) {
-#   knitr::kable(data, booktabs = true, digits = 2) %>%
-#     kable_styling('striped', full_width = FALSE)
-# }
-
-# Define a custom print function for data frames in knitr
-knit_print.data.frame = function(x, ...) {
-  res = paste(c(
-    '',
-    '',
-    knitr::kable(x, digits = 2) |>
-      kableExtra::kable_styling('striped', full_width = FALSE)
-  ),
-  collapse = '
-')
-  knitr::asis_output(res)
-}
-
-# Register the custom print function for data frames in the knitr namespace
-registerS3method(
-  'knit_print', 'data.frame', knit_print.data.frame,
-  envir = asNamespace('knitr')
-)
-
-# Set global chunk options in knitr if needed
-# knitr::opts_chunk$set(echo = TRUE)
-
-# Set the table format for knitr to HTML if needed
-# options(knitr.table.format = 'HTML')
-
-# End of Quarto setup
-
-```
-
-### Set up packages and options 
 
 Note. Update (download) all input files every time before run.
 
-Note: If there is no comment with the word "manually" before the code, it will work automatically.
+If there is no comment with the word "manually" before the code, it will work automatically.
 
-```{r Set up packages and options}
-## Set up packages and options ----
+### Install packages if needed 
+
+```{r Install packages if needed}
+## Install packages if needed ----
 # <<<<
 
 # Explanations for the following code:
@@ -174,19 +107,48 @@ Note: If there is no comment with the word "manually" before the code, it will w
 }
 # >>>>
 
-
-# Note: In the following code '<<<<' and '>>>>' mark the start and the end of definitions and help documents for helper functions.
 # 
-# Install if needed and load all the packages.
+# Note. It is better to install/load each package separately, if anyone suggests updates it is safe to choose option 1 (update all). Or run the whole code from "Source".
 # 
-# *NB*. It is better to install/load each package separately, if any one suggest updates it is safe to choose option 1 (update all).
-# 
-# Load the ROracle package for database interactions with Oracle databases
-library(ROracle)
-# Collection of package development tools.
-library(devtools)
 ```
 
+Install packages not yet installed
+
+
+```{r}
+needed_packages <- c(
+  "devtools", # Collection of package development tools.
+  "zoo", # Handling time series data.
+  "diffdf", # Compares dataframes and identifies differences.
+  # packages for Google Sheets and Google Drive
+  #
+  # Refer to this guide: https://felixanalytix.medium.com/how-to-read-write-append-google-sheet-data-using-r-programming-ecf278108691#:~:text=There%20are%203%20ways%20to%20read%20this%20Google%20sheet%20into%20R.&text=Just%20to%20take%20the%20URL,URL%20but%20just%20the%20ID).
+  #
+  "googlesheets4", # Google Sheets via the Sheets API v4
+  "googledrive" # Interact with Google Drive
+)
+```
+
+Explanations for the following code:
+
+```{r}
+# - `needed_packages %in% rownames(installed.packages())` checks which packages from `needed_packages` are installed:
+#   - `installed.packages()` returns a matrix of information about all installed packages.
+#   - `rownames(installed.packages())` extracts the names of the installed packages.
+#   - `needed_packages %in% ...` checks if each package in `needed_packages` is in the list of installed packages, returning a logical vector indicating the presence of each package.
+# - `if (any(installed_packages == FALSE)) { ... }` checks if any package is not installed:
+#   - `any(installed_packages == FALSE)` returns `TRUE` if at least one element in `installed_packages` is `FALSE`.
+#   - `install.packages(packages[!installed_packages])` installs the packages that are not installed:
+#     - `packages[!installed_packages]` selects the packages from `packages` that are not installed.
+#     - `install.packages()` installs the selected packages.  
+installed_packages <-
+  needed_packages %in% rownames(installed.packages())
+if (any(installed_packages == FALSE)) {
+  install.packages(packages[!installed_packages])
+}
+```
+
+Helper functions for SEFHIER data analysis.
 
 Explainations for the following code:
 
@@ -221,34 +183,98 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
     devtools::install_github("AShipunova1/R_code/auxfunctions")
   }
 } else {
-  # For Anna Shipunova, rebuild the package from the development branch. To force the installation change to 'force = TRUE'
+  # For a developer, rebuild the package from the development branch. To force the installation change to 'force = TRUE'
   devtools::install_github("AShipunova1/R_code/auxfunctions@development", force = FALSE)
   # restart R session to pick up changes
   # .rs.restartR()
 }
 
-# Helper functions for SEFHIER data analysis.
-library(auxfunctions)
-# Handling time series data.
-library(zoo)
-# Compares dataframes and identifies differences.
-library(diffdf)
+# Load the ROracle package for database interactions with Oracle databases.
+library(ROracle)
+# Load the magrittr package for piping operation %>%
+library(magrittr)
 
-# Install and attach R packages for Google Sheets and Google Drive
-# 
-# Refer to this guide: https://felixanalytix.medium.com/how-to-read-write-append-google-sheet-data-using-r-programming-ecf278108691#:~:text=There%20are%203%20ways%20to%20read%20this%20Google%20sheet%20into%20R.&text=Just%20to%20take%20the%20URL,URL%20but%20just%20the%20ID).
-# 
-library(googlesheets4) # Google Sheets via the Sheets API v4 
-library(googledrive) # Interact with Google Drive 
+# We don't load other packages to the current session namespace, instead, functions are called from their packages with "::" notation.
+```
 
-# Set options to prevent converting long numbers to scientific notation for input/output in spreadsheets and csv files
-# This ensures vessel numbers and other large integers are displayed in full
+```{r no cache setup, results='hide', message=FALSE, warning=FALSE, cache=FALSE, include=FALSE}
 
-options(scipen = 999)
+# Quarto
+ 
+# Quarto enables you to weave together content and executable code into a finished document.
+ 
+# Running Code
+ 
+# The **Run** button allows you to run individual or bunch of chunks as a regular R script.
+ 
+# When you click the **Render** button a document will be generated that includes both content and the output of embedded code.
 
-# Synchronize timezone settings between R and Oracle to ensure consistent date-time handling
-Sys.setenv(TZ = Sys.timezone())
-Sys.setenv(ORA_SDTZ = Sys.timezone())
+# Setup for Quarto
+
+# Load libraries required for Quatro
+# A general-purpose tool for dynamic report generation in R
+library(knitr)
+
+# Adds features to a kable output
+library(kableExtra)
+
+# Format R code automatically
+library(styler)
+```
+
+# Load the tidyr package for data manipulation
+# library(tidyr)
+
+# Load the magrittr package for piping operations
+# library(magrittr)
+
+# Load the stringr package for string manipulation
+# library(stringr)
+
+# Load the openxlsx package for reading and writing Excel files
+# library(openxlsx)
+
+
+```{r df format setup}
+#| include: false
+
+# Customize the appearance of dataframes in HTML
+
+# Uncomment if using tabs
+# kable <- function(data) {
+#   knitr::kable(data, booktabs = true, digits = 2) %>%
+#     kable_styling('striped', full_width = FALSE)
+# }
+
+# htmltools::htmlEscape(
+
+# Define a custom print function for data frames in knitr
+knit_print.data.frame = function(x, ...) {
+  res = paste(c(
+    '',
+    '',
+    knitr::kable(x, digits = 2, escape = FALSE) |> 
+      kableExtra::kable_styling('striped', full_width = FALSE)
+  ),
+  collapse = '
+')
+  knitr::asis_output(res)
+}
+
+# Register the custom print function for data frames in the knitr namespace
+registerS3method(
+  'knit_print', 'data.frame', knit_print.data.frame,
+  envir = asNamespace('knitr')
+)
+
+# Set global chunk options in knitr if needed
+# knitr::opts_chunk$set(echo = TRUE)
+
+# Set the table format for knitr to HTML if needed
+# options(knitr.table.format = 'HTML')
+
+# End of Quarto setup
+
 ```
 
 ### Set up paths 
@@ -878,6 +904,21 @@ Define the start of the last week, excluding it from analysis
 last_week_start <- data_file_date - grace_period
 ```
 
+
+### Other setup 
+
+```{r Other setup}
+## Other setup ----
+# Set options to prevent converting long numbers to scientific notation for input/output in spreadsheets and csv files
+# This ensures vessel numbers and other large integers are displayed in full
+
+options(scipen = 999)
+
+# Synchronize timezone settings between R and Oracle to ensure consistent date-time handling
+Sys.setenv(TZ = Sys.timezone())
+Sys.setenv(ORA_SDTZ = Sys.timezone())
+```
+
 ## Get data 
 
 ```{r Get data}
@@ -976,23 +1017,6 @@ Permit info from processed metrics tracking
 
 ```{r Compliance and Correspondence data}
 ## Compliance and Correspondence data ----
-
-# <<<<
-
-# Explanations for the following code:
-
-# The clean_headers function cleans and standardizes the column names of a given dataframe (my_df)
-# 
-# using the fix_names() function, which removes special characters and spaces, and unifies the case.
-# 
- clean_headers  <-  function (my_df) 
-{
-    new_names <- auxfunctions::fix_names(colnames(my_df))
-    colnames(my_df) <- new_names
-    return(my_df)
-}
-# >>>>
-
 # <<<<
 
 # Explanations for the following code:
@@ -1070,7 +1094,60 @@ Permit info from processed metrics tracking
     return(corresp_df_contact_cnts)
 }
 # >>>>
+```
 
+This section handles the processing of compliance reports and correspondence data from FHIER
+
+It reads Compliance and Correspondence CSV files, cleans them by trimming vessel IDs and cleaning column names, and processes correspondence data to add a column indicating if a contact was made. The file paths and the processing logic differ based on the user running the code.
+
+Read correspondence and compliance csvs
+
+Load CSV files into a list, treating all columns as character type
+
+
+```{r}
+csv_contents <- 
+  lapply(all_csv_full_paths_list, 
+         readr::read_csv, 
+         col_types = readr::cols(.default = 'c'))
+```
+
+Clean all CSVs: Trim vessel IDs and clean column names
+
+Apply cleaning functions to standardize data across all CSV files
+
+Replace all non-alphanumeric characters with underscores ('_'), unify the case
+
+
+```{r}
+csvs_clean1 <- 
+  auxfunctions::clean_all_csvs(csv_contents)
+```
+
+Every time processing for Compliance and Correspondence downloaded from FHIER
+
+For correspondence:
+
+Extract the first element (correspondence data) from the cleaned CSV list.
+
+Add a new column named "was_contacted", which indicates whether a contact was made with each vessel based on the presence of a contact date. If the contact date is missing (`NA`), it assigns "no"; otherwise, it assigns "yes".
+
+- The `add_count` function is then used to count the number of contacts per vessel, distinguishing between vessels that were contacted and those that were not. The result is stored in a new column named "contact_freq".
+
+Change to date format `created_on` and `contact_date` fields
+
+Clean and process correspondence data, adding contact information and frequency
+
+
+```{r}
+corresp_contact_cnts_clean0 <- 
+  csvs_clean1[[1]] |> 
+  auxfunctions::corresp_cleaning()
+
+# Display the structure of the cleaned correspondence data
+head(corresp_contact_cnts_clean0) |> 
+  dplyr::glimpse() |>
+  knitr::kable(caption = "")
 # <<<<
 
 # Explanations for the following code:
@@ -1140,59 +1217,6 @@ Permit info from processed metrics tracking
     return(compl_dates)
 }
 # >>>>
-```
-
-This section handles the processing of compliance reports and correspondence data from FHIER
-
-It reads Compliance and Correspondence CSV files, cleans them by trimming vessel IDs and cleaning column names, and processes correspondence data to add a column indicating if a contact was made. The file paths and the processing logic differ based on the user running the code.
-
-Read correspondence and compliance csvs
-
-Load CSV files into a list, treating all columns as character type
-
-
-```{r}
-csv_contents <- 
-  lapply(all_csv_full_paths_list, 
-         readr::read_csv, 
-         col_types = readr::cols(.default = 'c'))
-```
-
-Clean all CSVs: Trim vessel IDs and clean column names
-
-Apply cleaning functions to standardize data across all CSV files
-
-Replace all non-alphanumeric characters with underscores ('_'), unify the case
-
-
-```{r}
-csvs_clean1 <- 
-  auxfunctions::clean_all_csvs(csv_contents)
-```
-
-Every time processing for Compliance and Correspondence downloaded from FHIER
-
-For correspondence:
-
-Extract the first element (correspondence data) from the cleaned CSV list.
-
-Add a new column named "was_contacted", which indicates whether a contact was made with each vessel based on the presence of a contact date. If the contact date is missing (`NA`), it assigns "no"; otherwise, it assigns "yes".
-
-- The `add_count` function is then used to count the number of contacts per vessel, distinguishing between vessels that were contacted and those that were not. The result is stored in a new column named "contact_freq".
-
-Change to date format `created_on` and `contact_date` fields
-
-Clean and process correspondence data, adding contact information and frequency
-
-
-```{r}
-corresp_contact_cnts_clean0 <- 
-  csvs_clean1[[1]] |> 
-  auxfunctions::corresp_cleaning()
-
-# Display the structure of the cleaned correspondence data
-head(corresp_contact_cnts_clean0) |> 
-  glimpse()
 ```
 
 For compliance:
@@ -1305,6 +1329,7 @@ An example
 ## Physical Address List from FHIER ----
 ```
 
+
 Download first from REPORTS / For-hire Primary Physical Address List.
 
 Load FHIER addresses from the provided path
@@ -1315,7 +1340,6 @@ Read all columns as characters.
 
 Use the same column names convention.
 
-
 ```{r}
 # <<<<
 
@@ -1325,9 +1349,38 @@ Use the same column names convention.
 # 
 # Provides a comprehensive approach to cleaning and standardizing column names within a dataframe, making them more consistent and suitable for further analysis or processing.
 #  
+#  
 # 
-```
+# The `fix_names` function is designed to clean and standardize column names within a dataframe.
+# 
+# 1. **Function Definition:**
+# 
+#    - `fix_names <- function (x) { .. }`: Defines a function named `fix_names` that takes one argument, `x`, which represents the input dataframe.
+# 
+# 2. **Cleaning Column Names:**
+# 
+#    - `x %>% str_replace_all("\\.", "")`: Removes all occurrences of periods (`.`) from the column names using `str_replace_all` from the `stringr` package.
+# 
+#    - `str_replace_all("[^A-z0-9]", "_")`: Replaces all non-alphanumeric characters (excluding underscores) with underscores (`_`). This step ensures that the column names only contain letters, numbers, and underscores.
+# 
+#    - `str_replace_all("^(_*)(.+)", "\2\1")`: Ensures that column names do not start with multiple underscores. It captures the leading underscores (if any) and the rest of the column name using regular expressions, then rearranges them to place the underscores at the end of the column name.
+# 
+#    - `my_headers_case_function()`: Applies a custom function `my_headers_case_function` to further standardize the case of the column names. This function is defined in auxfunctions and is responsible for ensuring consistent capitalization of column names.
+# 
+# 3. **Return Statement:**
+# 
+#    - The function returns the modified dataframe with cleaned and standardized column names.
+# 
+# 
 
+ fix_names  <-  function (x) 
+{
+    my_headers_case_function(stringr::str_replace_all(stringr::str_replace_all(stringr::str_replace_all(x, 
+        "\\.", ""), "[^A-z0-9]", "_"), "^(_*)(.+)", "\\2\\1"))
+}
+# >>>>
+
+```
 
 ```{r}
 fhier_addresses <-
@@ -1498,6 +1551,24 @@ dim(processed_pims_home_ports)
 }
 # >>>>
 
+# <<<<
+
+# Explanations for the following code:
+
+# The clean_headers function cleans and standardizes the column names of a given dataframe (my_df)
+# 
+# using the fix_names() function, which removes special characters and spaces, and unifies the case.
+# 
+#  
+#  
+
+ clean_headers  <-  function (my_df) 
+{
+    new_names <- auxfunctions::fix_names(colnames(my_df))
+    colnames(my_df) <- new_names
+    return(my_df)
+}
+# >>>>
 ```
 
 Create parameters for `read_rds_or_run` function to read or download "participants address"
@@ -1786,7 +1857,7 @@ compl_clean_w_permit_exp <-
            ))
 
 # check
-# glimpse(compl_clean_w_permit_exp)
+# dplyr::glimpse(compl_clean_w_permit_exp)
 ```
 
 #### Get only not expired last 27 weeks of data minus grace period (total 26 weeks) 
@@ -1837,9 +1908,9 @@ max(compl_clean_w_permit_exp__not_exp$week_end)
 # as.yearmon converts dates to a year-month format (e.g., "Jan 2024")
 compl_clean_w_permit_exp_last_half_year <-
   compl_clean_w_permit_exp__not_exp |>
-  dplyr::mutate(year_month = as.yearmon(week_start)) |>
+  dplyr::mutate(year_month = zoo::as.yearmon(week_start)) |>
   # keep entries for the current check period only
-  dplyr::filter(year_month >= as.yearmon(half_year_ago))
+  dplyr::filter(year_month >= zoo::as.yearmon(half_year_ago))
 ```
 
 
@@ -2125,7 +2196,7 @@ compl_clean_w_permit_exp_last_half_year__sa |>
     tolower(compliant_) == "yes" &
       tolower(overridden_) == "yes" &
       # not the current month
-      year_month < as.yearmon(data_file_date)
+      year_month < zoo::as.yearmon(data_file_date)
   ) |>
   nrow()
 ```
@@ -2427,7 +2498,8 @@ dplyr::n_distinct(compl_corr_to_investigation$vesselofficial_number)
 # 141
 
 head(compl_corr_to_investigation) |> 
-  glimpse()
+  dplyr::glimpse() |>
+  knitr::kable(caption = "")
 ```
 
 ### Store the count of unique vessels 
@@ -2889,41 +2961,6 @@ Address combination code is commented out to preserve individual address fields
 
 ```{r Add addresses from FHIER}
 ## Add addresses from FHIER ----
-```
-
-Join FHIER address data with the existing dataset
-
-```{r}
-compl_corr_to_investigation__corr_date__hailing_port__fhier_addr <-
-  left_join(compl_corr_to_investigation__corr_date__hailing_port,
-            fhier_addr_short_clean)
-```
-
-Joining with `by = join_by(vessel_official_number)`
-Result: Dataset now includes FHIER address information for each vessel
-
-
-```{r}
-# View(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
-```
-
-Verify completeness of contact information
-
-
-```{r}
-compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>
-  filter(
-    is.na(contactrecipientname) |
-      is.na(contactphone_number) |
-      is.na(contactemailaddress)
-  ) |> nrow()
-# 0
-```
-
-### Vessels with no addresses 
-
-```{r Vessels with no addresses}
-## Vessels with no addresses ----
 # <<<<
 
 # Explanations for the following code:
@@ -2953,12 +2990,46 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>
         return()
 }
 # >>>>
+```
 
+Join FHIER address data with the existing dataset
+
+```{r}
+compl_corr_to_investigation__corr_date__hailing_port__fhier_addr <-
+  dplyr::left_join(compl_corr_to_investigation__corr_date__hailing_port,
+            fhier_addr_short_clean)
+```
+
+Joining with `by = join_by(vessel_official_number)`
+Result: Dataset now includes FHIER address information for each vessel
+
+
+```{r}
+# auxfunctions::print_df_names(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
+```
+
+Verify completeness of contact information
+
+
+```{r}
+compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>
+  dplyr::filter(
+    is.na(contactrecipientname) |
+      is.na(contactphone_number) |
+      is.na(contactemailaddress)
+  ) |> nrow()
+# 0
+```
+
+### Vessels with no addresses 
+
+```{r Vessels with no addresses}
+## Vessels with no addresses ----
 
 # print_df_names(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
 ```
 
-Explanation:
+Explanations for the following code:
 
 This code snippet creates a dataframe `no_addr_vsl_ids` containing unique `vessel_official_number` values based on certain conditions.
 
@@ -3006,7 +3077,7 @@ dplyr::n_distinct(no_addr_vsl_ids$vessel_official_number)
 # Addresses from Oracle db ----
 ```
 
-Explanation:
+Explanations for the following code:
 
 This code snippet processes the `db_participants_address` dataframe by filtering rows based on the `official_number` and ensuring distinct rows in the resulting dataframe.
 
@@ -3077,7 +3148,7 @@ col_names_to_keep <-
   )
 ```
 
-Explanation:
+Explanations for the following code:
 
 This code snippet processes the `db_participants_address__needed` dataframe by selecting specific columns, removing duplicate rows, and arranging the rows based on the `official_number` column.
 
@@ -3150,7 +3221,7 @@ dplyr::n_distinct(db_participants_address__needed_short$official_number)
 ## Combine area and phone numbers ----
 ```
 
-Explanation:
+Explanations for the following code:
 
 This code creates a new dataframe `db_participants_address__needed_short__phone0` by modifying the `db_participants_address__needed_short` dataframe. It adds two new columns (`erv_phone` and `erb_phone`) that concatenate existing columns.
 
@@ -3241,7 +3312,7 @@ col_part_names <-
 
 Create a new dataframe that combines ERV and ERB information for each column part
 
-Explanation:
+Explanations for the following code:
 
 1. **Mapping Over Column Parts:**
 
@@ -3301,7 +3372,7 @@ tictoc::toc()
 ### Shorten db_participants_address__needed_short__erv_erb_combined3 ----
 ```
 
-Explanation:
+Explanations for the following code:
 
 Create a shortened version of the dataframe, keeping only the official_number and db_ columns
 
@@ -3402,16 +3473,16 @@ db_participants_address__needed_short__erv_erb_combined_short__u_temp <-
 
     db_participants_address__needed_short__erv_erb_combined_short |>
       dplyr::group_by(official_number) |>
-      dplyr::mutate(!!new_col_name := list(paste(sort(unique(stringr::str_trim(purrr::list_flatten(!!sym(old_col_name))))))),
+      dplyr::mutate(!!new_col_name := list(paste(sort(unique(stringr::str_trim(purrr::list_flatten(!!rlang::sym(old_col_name))))))),
              .keep = "none" ) |>
       dplyr::ungroup() |>
       dplyr::select(-official_number)
   })
 
-# glimpse(db_participants_address__needed_short__erv_erb_combined_short)
+# dplyr::glimpse(db_participants_address__needed_short__erv_erb_combined_short)
 ```
 
-Explanation:
+Explanations for the following code:
 
 This code creates a new dataframe by combining columns with suffix "_u" from two existing dataframes (`db_participants_address__needed_short__erv_erb_combined_short` and `db_participants_address__needed_short__erv_erb_combined_short__u_temp`).
 
@@ -3444,8 +3515,8 @@ check
 
 ```{r}
 # db_participants_address__needed_short__erv_erb_combined_short__u |>
-#   filter(official_number == "1235397") |>
-#   glimpse()
+#   dplyr::filter(official_number == "1235397") |>
+#   dplyr::glimpse()
 ```
 
 #### Convert to characters 
@@ -3454,7 +3525,7 @@ check
 ### Convert to characters ----
 ```
 
-Explanation:
+Explanations for the following code:
 
 This code modifies the dataframe `db_participants_address__needed_short__erv_erb_combined_short__u` by concatenating the elements of list-type columns into a single string separated by semicolons. Here's a detailed explanation:
 
@@ -3489,8 +3560,8 @@ check
 
 ```{r}
 # db_participants_address__needed_short__erv_erb_combined_short__u_no_c |>
-#   filter(official_number == "1235397") |>
-#   glimpse()
+#   dplyr::filter(official_number == "1235397") |>
+#   dplyr::glimpse()
 # $ db_mailing_state_u     <chr> "NY"
 # $ db_mailing_city_u      <chr> "ISLANDIA; SOUTH ISLANDIA"
 ```
@@ -3501,7 +3572,7 @@ check
 ## Rename fields ----
 ```
 
-Explanation:
+Explanations for the following code:
 
 Remove the "_u" suffix from column names in the dataframe
 
@@ -3542,8 +3613,8 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr <-
 
 # check
 # compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr |>
-#   filter(vessel_official_number == "1235397") |>
-#   glimpse()
+#   dplyr::filter(vessel_official_number == "1235397") |>
+#   dplyr::glimpse()
 # $ db_mailing_state       <chr> "NY"
 # $ db_mailing_city        <chr> "ISLANDIA; SOUTH ISLANDIA"
 
@@ -3741,7 +3812,7 @@ additional_column_name1 <-
 ```
 
 
-Explanation:
+Explanations for the following code:
 
 This code adds new columns to the dataframe `compl_corr_to_investigation_short_dup_marked__permit_region`. Here's what each part does:
 
@@ -3838,13 +3909,12 @@ This function performs the following steps:
 
 6. Returns a shareable link to the new spreadsheet
 
-It need to be a function, this way we can call it if needed, not every time we run the code.
+It has to be a function, this way we can call it if needed, not every time we run the code.
 
 
 ```{r}
 write_res_to_google_sheets <- 
   function() {
-
     # Define the current result Google Sheets name
     current_result_google_ss_name <- "Egregious Violators Current"
     
@@ -3887,15 +3957,15 @@ write_res_to_google_sheets <-
     # E.g. "egregious_violators_to_investigate_2024-06-18"
     
     # Rename the file from "current" to the previous_current_spread_sheet_name with the previous date.
-    # Note. The next line will rise an error if a file with this name already exists, to change that behavior remove 'overwrite = FALSE,"
-    
+    # In case of an error print the message and keep going.
+    # If there is a file with this name this code will create another one with the same name.
+
     tryCatch({
-      # message("This is the 'try' part")
+      message("Try to rename the file")
       
       googledrive::drive_mv(
         my_current_ss,
         path = googledrive::as_id(output_egr_violators_googledrive_folder_path),
-        overwrite = FALSE,
         name = previous_current_spread_sheet_name
       )
       # E.g.
@@ -3907,7 +3977,7 @@ write_res_to_google_sheets <-
     }, error = function(cond) {
       message(
         paste(
-          "File exists at the target filepath and `overwrite = FALSE`: ",
+          "Failed to rename this file: ",
           previous_current_spread_sheet_name
         )
       )
@@ -3923,22 +3993,23 @@ write_res_to_google_sheets <-
     
     # Create a new empty spreadsheet in the Google Drive output folder to replace the renamed one
     # And save its properties into current_result_google_ss_name_info
+    # In case of an error print the message and keep going.
+    # If there is a file with this name this code will create another one with the same name.
     
     tryCatch({
-      # message("This is the 'try' part")
+      message("Try to create a new file")
       
       current_result_google_ss_name_info <-
         googledrive::drive_create(
           name = current_result_google_ss_name,
           path = googledrive::as_id(output_egr_violators_googledrive_folder_path),
-          type = "spreadsheet",
-          overwrite = FALSE
+          type = "spreadsheet"
         )
       
     }, error = function(cond) {
       message(
         paste(
-          "File exists at the target filepath and `overwrite = FALSE`: ",
+          "Failed to create a new file: ",
           current_result_google_ss_name
         )
       )
@@ -3977,13 +4048,12 @@ write_res_to_google_sheets <-
     # Generate a shareable link for the new spreadsheet
     current_output_file_link <- googledrive::drive_link(current_result_google_ss_name_info)
     
-    print(current_output_file_link)
+    auxfunctions::pretty_print(current_output_file_link, "Link to the new spreadsheet:")
     
     # The function returns the current output file link
     return(current_output_file_link)
     
   }
-
 ```
 
 
