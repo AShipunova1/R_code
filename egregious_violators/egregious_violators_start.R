@@ -1346,7 +1346,7 @@ compl_corr_to_investigation_short_dup_marked__permit_region__add_columns |>
 #'
 #' 6. Returns a shareable link to the new spreadsheet
 #' 
-#' It need to be a function, this way we can call it if needed, not every time we run the code.
+#' It has to be a function, this way we can call it if needed, not every time we run the code.
 #'
 
 write_res_to_google_sheets <- 
@@ -1402,7 +1402,7 @@ browser()
       googledrive::drive_mv(
         my_current_ss,
         path = googledrive::as_id(output_egr_violators_googledrive_folder_path),
-        overwrite = FALSE,
+        # overwrite = FALSE,
         name = previous_current_spread_sheet_name
       )
       # E.g.
@@ -1438,8 +1438,8 @@ browser()
         googledrive::drive_create(
           name = current_result_google_ss_name,
           path = googledrive::as_id(output_egr_violators_googledrive_folder_path),
-          type = "spreadsheet",
-          overwrite = FALSE
+          type = "spreadsheet"
+          # overwrite = FALSE
         )
       
     }, error = function(cond) {
