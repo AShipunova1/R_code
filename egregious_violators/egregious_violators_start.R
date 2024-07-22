@@ -38,17 +38,26 @@
 ## New requirement 2024-05-06 ----
 #' 8. Exclude any correspondence (regardless of the type - email/call, voicemail or not) that includes "No contact made" in the text of the entry as a actual "direct" contact for any egregious vessel.
 #' 
+#' About comments:
+#' 
+#' There are several types of comments in the following code.
+#' 
+#' 1) If the code starts with "Note." it is essential for running the code.
+#' 
+#' 2) '<<<<' and '>>>>' mark the start and the end of definitions and help documents for helper functions. Another way to see an R help document is to type a question mark in the Console followed by the function name. e.g. ?mutate
+#'
+#' 3) All other comments explain the logic and the syntax.
+#' 
+#' 
 #' Note. Update (download) all input files every time before run.
 #' 
 ## Set up packages and options ----
 
-#' Note: If there is no comment with the word "manually" before the code, it will work automatically.
+#' If there is no comment with the word "manually" before the code, it will work automatically.
 #' 
-# Note: In the following code '<<<<' and '>>>>' mark the start and the end of definitions and help documents for helper functions.
-# 
 # Install if needed and load all the packages.
 # 
-# *NB*. It is better to install/load each package separately, if any one suggest updates it is safe to choose option 1 (update all).
+# Note. It is better to install/load each package separately, if anyone suggests updates it is safe to choose option 1 (update all). Or run the whole code from "Source".
 # 
 # Load the ROracle package for database interactions with Oracle databases
 library(ROracle)
