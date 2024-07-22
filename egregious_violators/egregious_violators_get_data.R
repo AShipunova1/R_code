@@ -126,7 +126,7 @@ corresp_contact_cnts_clean0 <-
 
 # Display the structure of the cleaned correspondence data
 head(corresp_contact_cnts_clean0) |> 
-  glimpse()
+  dplyr::glimpse()
 
 #' For compliance:
 #' 

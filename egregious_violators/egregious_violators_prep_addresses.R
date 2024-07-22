@@ -78,18 +78,18 @@ fhier_addr_short_clean <-
 ## Add addresses from FHIER ----
 #' Join FHIER address data with the existing dataset
 compl_corr_to_investigation__corr_date__hailing_port__fhier_addr <-
-  left_join(compl_corr_to_investigation__corr_date__hailing_port,
+  dplyr::left_join(compl_corr_to_investigation__corr_date__hailing_port,
             fhier_addr_short_clean)
 #' Joining with `by = join_by(vessel_official_number)`
 #' Result: Dataset now includes FHIER address information for each vessel
 #' 
 
-# View(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
+# auxfunctions::print_df_names(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
 
 #' Verify completeness of contact information
 #' 
 compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>
-  filter(
+  dplyr::filter(
     is.na(contactrecipientname) |
       is.na(contactphone_number) |
       is.na(contactemailaddress)
@@ -338,7 +338,6 @@ col_part_names <-
 #'
 #' This code dynamically generates new columns in the dataframe based on the provided column parts, applies a custom function to each set of corresponding columns, and then binds the resulting columns back to the original dataframe.
 #'
-
 tictoc::tic("map all pairs")
 db_participants_address__needed_short__erv_erb_combined3 <-
   col_part_names |>
@@ -451,13 +450,13 @@ db_participants_address__needed_short__erv_erb_combined_short__u_temp <-
 
     db_participants_address__needed_short__erv_erb_combined_short |>
       dplyr::group_by(official_number) |>
-      dplyr::mutate(!!new_col_name := list(paste(sort(unique(stringr::str_trim(purrr::list_flatten(!!sym(old_col_name))))))),
+      dplyr::mutate(!!new_col_name := list(paste(sort(unique(stringr::str_trim(purrr::list_flatten(!!rlang::sym(old_col_name))))))),
              .keep = "none" ) |>
       dplyr::ungroup() |>
       dplyr::select(-official_number)
   })
 
-# glimpse(db_participants_address__needed_short__erv_erb_combined_short)
+# dplyr::glimpse(db_participants_address__needed_short__erv_erb_combined_short)
 
 #' Explanations for the following code:
 #'
@@ -488,8 +487,8 @@ db_participants_address__needed_short__erv_erb_combined_short__u <-
 
 #' check
 # db_participants_address__needed_short__erv_erb_combined_short__u |>
-#   filter(official_number == "1235397") |>
-#   glimpse()
+#   dplyr::filter(official_number == "1235397") |>
+#   dplyr::glimpse()
 
 ### Convert to characters ----
 #' Explanations for the following code:
@@ -523,8 +522,8 @@ db_participants_address__needed_short__erv_erb_combined_short__u_no_c <-
 
 #' check
 # db_participants_address__needed_short__erv_erb_combined_short__u_no_c |>
-#   filter(official_number == "1235397") |>
-#   glimpse()
+#   dplyr::filter(official_number == "1235397") |>
+#   dplyr::glimpse()
 # $ db_mailing_state_u     <chr> "NY"
 # $ db_mailing_city_u      <chr> "ISLANDIA; SOUTH ISLANDIA"
 
@@ -562,8 +561,8 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr <-
 
 # check
 # compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr |>
-#   filter(vessel_official_number == "1235397") |>
-#   glimpse()
+#   dplyr::filter(vessel_official_number == "1235397") |>
+#   dplyr::glimpse()
 # $ db_mailing_state       <chr> "NY"
 # $ db_mailing_city        <chr> "ISLANDIA; SOUTH ISLANDIA"
 
