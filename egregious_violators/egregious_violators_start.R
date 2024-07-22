@@ -1351,7 +1351,6 @@ compl_corr_to_investigation_short_dup_marked__permit_region__add_columns |>
 
 write_res_to_google_sheets <- 
   function() {
-browser()
     # Define the current result Google Sheets name
     current_result_google_ss_name <- "Egregious Violators Current"
     
@@ -1394,15 +1393,15 @@ browser()
     # E.g. "egregious_violators_to_investigate_2024-06-18"
     
     # Rename the file from "current" to the previous_current_spread_sheet_name with the previous date.
-    # Note. The next line will rise an error if a file with this name already exists, to change that behavior remove 'overwrite = FALSE,"
-    
+    # In case of an error print the message and keep going.
+    # If there is a file with this name this code will create another one with the same name.
+
     tryCatch({
-      # message("This is the 'try' part")
+      message("Try to rename the file")
       
       googledrive::drive_mv(
         my_current_ss,
         path = googledrive::as_id(output_egr_violators_googledrive_folder_path),
-        # overwrite = FALSE,
         name = previous_current_spread_sheet_name
       )
       # E.g.
@@ -1414,7 +1413,7 @@ browser()
     }, error = function(cond) {
       message(
         paste(
-          "File exists at the target filepath and `overwrite = FALSE`: ",
+          "Failed to rename this file: ",
           previous_current_spread_sheet_name
         )
       )
@@ -1430,22 +1429,23 @@ browser()
     
     # Create a new empty spreadsheet in the Google Drive output folder to replace the renamed one
     # And save its properties into current_result_google_ss_name_info
+    # In case of an error print the message and keep going.
+    # If there is a file with this name this code will create another one with the same name.
     
     tryCatch({
-      # message("This is the 'try' part")
+      message("Try to create a new file")
       
       current_result_google_ss_name_info <-
         googledrive::drive_create(
           name = current_result_google_ss_name,
           path = googledrive::as_id(output_egr_violators_googledrive_folder_path),
           type = "spreadsheet"
-          # overwrite = FALSE
         )
       
     }, error = function(cond) {
       message(
         paste(
-          "File exists at the target filepath and `overwrite = FALSE`: ",
+          "Failed to create a new file: ",
           current_result_google_ss_name
         )
       )
@@ -1484,7 +1484,7 @@ browser()
     # Generate a shareable link for the new spreadsheet
     current_output_file_link <- googledrive::drive_link(current_result_google_ss_name_info)
     
-    print(current_output_file_link)
+    auxfunctions::pretty_print(current_output_file_link, "Link to the new spreadsheet:")
     
     # The function returns the current output file link
     return(current_output_file_link)
