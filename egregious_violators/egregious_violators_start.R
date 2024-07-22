@@ -42,9 +42,9 @@
 #' 
 #' There are several types of comments in the following code.
 #' 
-#' 1) If the comment starts with "Note." it is essential for running the code.
+#' 1) If the comment starts with "Note." or "Manually:" it is essential for running the code.
 #' 
-#' 2) '<<<<' and '>>>>' mark the start and the end of definitions and help documents for helper functions. Another way to see an R help document is to type a question mark in the Console followed by the function name. e.g. ?mutate
+#' 2) '<<<<' and '>>>>' mark the start and the end of definitions and help documents for helper functions. Another way to see an R help document is to type a question mark in the Console followed by the function name, e.g. ?mutate
 #'
 #' 3) All other comments explain the logic and the syntax.
 #' 
@@ -213,6 +213,7 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
     c(correspondence_csv_path, fhier_compliance_csv_path_list)
 } else {
   # For Anna Shipunova
+  
   # Manually: Change file names to the last download
   # Using raw string literals (r"()") to handle backslashes in file paths
 
@@ -250,7 +251,7 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
 #### Processed Metric Tracking (permits from FHIER) ----
 #' 
 #' processed_metrics_tracking_file_names contains paths to RDS files with SEFHIER permitted vessels data for different years
-
+#' 
 #' Manually: Add your full path to processed Metrics tracking for each year instead of "Your full path here".
 #' 
 #' Define paths for processed Metrics tracking CSVs.
