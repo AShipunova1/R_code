@@ -100,7 +100,7 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>
 
 # print_df_names(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
 
-#' Explanation:
+#' Explanations for the following code:
 #'
 #' This code snippet creates a dataframe `no_addr_vsl_ids` containing unique `vessel_official_number` values based on certain conditions.
 #'
@@ -141,7 +141,7 @@ dplyr::n_distinct(no_addr_vsl_ids$vessel_official_number)
 
 # Addresses from Oracle db ----
 
-#' Explanation:
+#' Explanations for the following code:
 #'
 #' This code snippet processes the `db_participants_address` dataframe by filtering rows based on the `official_number` and ensuring distinct rows in the resulting dataframe.
 #'
@@ -203,7 +203,7 @@ col_names_to_keep <-
     "mailing_zip_code"
   )
 
-#' Explanation:
+#' Explanations for the following code:
 #'
 #' This code snippet processes the `db_participants_address__needed` dataframe by selecting specific columns, removing duplicate rows, and arranging the rows based on the `official_number` column.
 #'
@@ -259,7 +259,7 @@ dplyr::n_distinct(db_participants_address__needed_short$official_number)
 
 ## Combine area and phone numbers ----
 
-#' Explanation:
+#' Explanations for the following code:
 #'
 #' This code creates a new dataframe `db_participants_address__needed_short__phone0` by modifying the `db_participants_address__needed_short` dataframe. It adds two new columns (`erv_phone` and `erb_phone`) that concatenate existing columns.
 #'
@@ -308,7 +308,7 @@ col_part_names <-
 
 #' Create a new dataframe that combines ERV and ERB information for each column part
 #' 
-#' Explanation:
+#' Explanations for the following code:
 #'
 #' 1. **Mapping Over Column Parts:**
 #'
@@ -362,7 +362,7 @@ tictoc::toc()
 
 ### Shorten db_participants_address__needed_short__erv_erb_combined3 ----
 
-#' Explanation:
+#' Explanations for the following code:
 #'
 #' Create a shortened version of the dataframe, keeping only the official_number and db_ columns
 #' 
@@ -459,7 +459,7 @@ db_participants_address__needed_short__erv_erb_combined_short__u_temp <-
 
 # glimpse(db_participants_address__needed_short__erv_erb_combined_short)
 
-#' Explanation:
+#' Explanations for the following code:
 #'
 #' This code creates a new dataframe by combining columns with suffix "_u" from two existing dataframes (`db_participants_address__needed_short__erv_erb_combined_short` and `db_participants_address__needed_short__erv_erb_combined_short__u_temp`).
 #'
@@ -492,7 +492,7 @@ db_participants_address__needed_short__erv_erb_combined_short__u <-
 #   glimpse()
 
 ### Convert to characters ----
-#' Explanation:
+#' Explanations for the following code:
 #'
 #' This code modifies the dataframe `db_participants_address__needed_short__erv_erb_combined_short__u` by concatenating the elements of list-type columns into a single string separated by semicolons. Here's a detailed explanation:
 #'
@@ -530,7 +530,7 @@ db_participants_address__needed_short__erv_erb_combined_short__u_no_c <-
 
 ## Rename fields ----
 
-#' Explanation:
+#' Explanations for the following code:
 #'
 #'Remove the "_u" suffix from column names in the dataframe
 #'

@@ -42,7 +42,7 @@
 #' 
 #' There are several types of comments in the following code.
 #' 
-#' 1) If the code starts with "Note." it is essential for running the code.
+#' 1) If the comment starts with "Note." it is essential for running the code.
 #' 
 #' 2) '<<<<' and '>>>>' mark the start and the end of definitions and help documents for helper functions. Another way to see an R help document is to type a question mark in the Console followed by the function name. e.g. ?mutate
 #'
@@ -1274,7 +1274,7 @@ additional_column_name1 <-
     "Confirmed Egregious? (permits must still be active till {permit_expired_check_date}, missing past 6 months, and (1) they called/emailed us (incoming), or (2) at least 2 contacts (outgoing) with at least 1 call/other (voicemail counts) and at least 1 email)"
   )
 #'
-#' Explanation:
+#' Explanations for the following code:
 #' 
 #' This code adds new columns to the dataframe `compl_corr_to_investigation_short_dup_marked__permit_region`. Here's what each part does:
 #' 
