@@ -362,14 +362,17 @@ add_pretty_table <-
       "(^ *[^#] +)(dplyr::glimpse)(\\(\\S*\\))",
       # was in the original .R
       '\\1\\2\\3 |>
+      str_replace_all("\\n", "\\\\n") |> 
+      htmltools::htmlEscape() |> 
 \\1knitr::kable(caption = "")',
 flat_file_r_text
     )
     return(flat_file_r_text)
   }
 
-flat_file_r_text <-
-  add_pretty_table(flat_file_r_text)
+# knitr can't deal with "\n" in contactcomments
+# flat_file_r_text <-
+  # add_pretty_table(flat_file_r_text)
 
 # add my functions' descriptions ----
 
