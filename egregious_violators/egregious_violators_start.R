@@ -57,10 +57,6 @@
 # 
 # Note. It is better to install/load each package separately, if anyone suggests updates it is safe to choose option 1 (update all). Or run the whole code from "Source".
 # 
-# Load the ROracle package for database interactions with Oracle databases.
-# It's required to be loaded.
-library(ROracle)
-
 #' Install packages not yet installed
 #' 
 
@@ -131,6 +127,13 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
   # .rs.restartR()
 }
 
+# Load the ROracle package for database interactions with Oracle databases.
+library(ROracle)
+# Load the magrittr package for piping operation %>%
+library(magrittr)
+
+# We don't load other packages to the current session namespace, instead, functions are called from their packages with "::" notation.
+
 ## Set up paths ----
 #'
 #' Different methods are used based on the user to accommodate different directory structure.
@@ -186,7 +189,6 @@ current_project_output_path <- current_in_out_paths$output
 auxfunctions::create_dir_if_not(current_project_input_path)
 
 auxfunctions::create_dir_if_not(current_project_output_path)
-
 
 ### Additional individual paths to data files ----
 #' This section sets up paths for specific data files used in the project
@@ -524,7 +526,7 @@ compl_clean_w_permit_exp <-
            ))
 
 # check
-# glimpse(compl_clean_w_permit_exp)
+# dplyr::glimpse(compl_clean_w_permit_exp)
 
 ### Get only not expired last 27 weeks of data minus grace period (total 26 weeks) ----
 
@@ -560,9 +562,9 @@ max(compl_clean_w_permit_exp__not_exp$week_end)
 # as.yearmon converts dates to a year-month format (e.g., "Jan 2024")
 compl_clean_w_permit_exp_last_half_year <-
   compl_clean_w_permit_exp__not_exp |>
-  dplyr::mutate(year_month = as.yearmon(week_start)) |>
+  dplyr::mutate(year_month = zoo::as.yearmon(week_start)) |>
   # keep entries for the current check period only
-  dplyr::filter(year_month >= as.yearmon(half_year_ago))
+  dplyr::filter(year_month >= zoo::as.yearmon(half_year_ago))
 #'
 #' Compare dimensions to verify the filtering has reduced the dataset as expected
 dim(compl_clean_w_permit_exp)
@@ -731,7 +733,7 @@ compl_clean_w_permit_exp_last_half_year__sa |>
     tolower(compliant_) == "yes" &
       tolower(overridden_) == "yes" &
       # not the current month
-      year_month < as.yearmon(data_file_date)
+      year_month < zoo::as.yearmon(data_file_date)
   ) |>
   nrow()
 #' A result of 0 indicates no new compliant reports have been submitted for selected vessels
@@ -954,7 +956,7 @@ dplyr::n_distinct(compl_corr_to_investigation$vesselofficial_number)
 # 141
 
 head(compl_corr_to_investigation) |> 
-  glimpse()
+  dplyr::glimpse()
 
 ## Store the count of unique vessels ----
 #' For later verification and reporting
