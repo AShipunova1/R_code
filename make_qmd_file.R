@@ -385,8 +385,6 @@ flat_file_r_text
 
 ## if with auxfunctions:: prefix ----
 
-in_text <- flat_file_r_text
-
 get_my_func_names_wo_prefix <-
   function(in_text, search_str = "auxfunctions::") {
     to_search <- str_glue("{search_str}(\\w+)\\W")
@@ -562,20 +560,20 @@ length(my_used_function_texts_all) ==
 # my_used_function_names_all[[3]]
 
 print("HERE: my_used_function_names_all")
-print(my_used_function_names_all)
+print(sort(my_used_function_names_all))
 
 replace_function_with_def <-
   function(one_line_text, idx) {
     
     # browser()
-    # idx <- 23
+    # idx <- 10
     current_function_name <- my_used_function_names_all[[idx]]
     print(current_function_name)
     
     # add parenthesis for back reference
     to_find_function_name <- str_glue("(",
                         my_split_newline_char,
-                        ".+{my_used_function_names_all[[idx]]}\\b)")
+                        ".+{current_function_name}\\b)")
     
     to_replace_with <-
       paste(
@@ -614,7 +612,6 @@ replace_function_with_def <-
     finally = {
       # message("Some other message at the end")
     })
-
   }
 
 one_line_text <-
@@ -622,8 +619,8 @@ one_line_text <-
 
 # see_res_in_outfile(one_line_text)
 
-# length(one_line_text)
-# 1
+length(one_line_text) == 1
+# T
 
 one_line_text_replaced <-
   purrr::reduce(seq_len(length(my_used_function_names_all)), \(acc, nxt)
