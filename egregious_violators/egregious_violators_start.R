@@ -182,7 +182,7 @@ lubridate::week(half_year_ago)
 
 lubridate::wday(half_year_ago, label = T)
 #'
-# Set the minimum date for permit expiration (30 days from today)
+#' Set the minimum date for permit expiration (30 days from today)
 permit_expired_check_date <- data_file_date + 30
 #'
 #' Define the start of the last week, excluding it from analysis
@@ -595,7 +595,7 @@ compl_clean_w_permit_exp_last_half_year__sa <-
 dim(compl_clean_w_permit_exp_last_half_year__sa)
 # [1] 38761    22
 
-### Keep fewer columns in compliance df ----
+### Keep fewer columns in the compliance df ----
 #' Define a vector of column names to be removed from the compliance dataframe
 remove_columns_from_compliance <- c(
   "name",
@@ -622,7 +622,7 @@ compl_clean_w_permit_exp_last_half_year__sa__short <-
 dim(compl_clean_w_permit_exp_last_half_year__sa__short)
 # [1] 38761    11
 #'
-#' Work with the whole period
+#' Work with the whole period now
 #' 
 
 ### Add compliant_after_overr ----
@@ -767,7 +767,7 @@ dplyr::n_distinct(corresp_contact_cnts_clean$vesselofficial_number)
 #' E.g.
 #' 4281
 #'
-#' check
+#' check call type, voicemail and contact type combinations
 corresp_contact_cnts_clean |>
   dplyr::select(calltype, voicemail, contacttype) |>
   dplyr::distinct() |> head(10)
@@ -809,7 +809,7 @@ exclude_no_contact_made_filter <-
             contactcomments, 
             ignore.case = TRUE))
 #'
-#' don't need a second contact
+#' Don't need a second contact if any contact was incoming
 #' 
 #' Define a filter to check if any contact was incoming
 #'
@@ -974,6 +974,19 @@ num_of_vsl_to_investigate <-
 #'
 #' Results: Compliance & Correspondence joined together are in
 #' `compl_corr_to_investigation`
+#' 
+# Define the path to the address preparation script
+# This is used only with source()
+prep_addresses_path <-
+  file.path(current_project_path,
+            stringr::str_glue("{current_project_name}_prep_addresses.R"))
+#'
+#' Check if the file exists.
+file.exists(prep_addresses_path)
+
+source(prep_addresses_path)
+#'
+#' Results are in compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr
 #' 
 
 # Output needed investigation ----
@@ -1166,20 +1179,6 @@ compl_corr_to_investigation__corr_date__hailing_port <-
   )
 
 ### Add prepared addresses ----
-
-# Define the path to the address preparation script
-# This is used only with source()
-prep_addresses_path <-
-  file.path(current_project_path,
-            stringr::str_glue("{current_project_name}_prep_addresses.R"))
-#'
-#' Check if the file exists.
-file.exists(prep_addresses_path)
-
-source(prep_addresses_path)
-#'
-#' Results are in compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr
-#' 
 
 ## 3. Mark vessels already in the know list ----
 #' Identify and mark vessels that have been previously marked as egregious, to track repeat offenders
@@ -1529,7 +1528,7 @@ write_res_to_google_sheets <-
     
   }
 #'
-#' Un-comment to write results directly to Google drive
+#' Manually: Un-comment to write results directly to Google drive
 # current_output_file_link <- write_res_to_google_sheets()
 #'
 #' Print result names to console 
