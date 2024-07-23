@@ -381,7 +381,7 @@ flat_file_r_text
 # flat_file_r_text <-
   # add_pretty_table(flat_file_r_text)
 
-# add my functions' descriptions ----
+# Add my functions' descriptions ----
 
 ## if with auxfunctions:: prefix ----
 
@@ -404,7 +404,8 @@ get_my_func_names_wo_prefix <-
 my_used_function_names <-
   get_my_func_names_wo_prefix(flat_file_r_text)
 
-# glimpse(my_used_function_names)
+# grep("concat_unique", my_used_function_names)
+# see_res_in_outfile(flat_file_r_text)
 
 ## a function to get function help as a text ----
 get_help_text <- function(function_name) {
@@ -510,6 +511,7 @@ my_used_function_names_from_nested <-
 my_used_function_texts_from_nested <-
   get_my_used_function_texts(my_used_function_names_from_nested)
 
+# That could be done once, if all function text is found together, not nested and nested
 my_used_function_helps_from_nested <-
   get_my_used_function_helps(my_used_function_names_from_nested)
 
@@ -617,6 +619,8 @@ replace_function_with_def <-
 
 one_line_text <-
   to_one_line(flat_file_r_text, my_split_newline_char)
+
+# see_res_in_outfile(one_line_text)
 
 # length(one_line_text)
 # 1
