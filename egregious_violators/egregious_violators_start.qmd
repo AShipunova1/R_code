@@ -2,7 +2,7 @@
 title: Egregious Violators
 ---
 
-# Setup 
+## Setup 
 
 ```{r Setup}
 # Setup ----
@@ -64,9 +64,9 @@ About comments:
 
 There are several types of comments in the following code.
 
-1) If the comment starts with "Note." it is essential for running the code.
+1) If the comment starts with "Note." or "Manually:" it is essential for running the code.
 
-2) '<<<<' and '>>>>' mark the start and the end of definitions and help documents for helper functions. Another way to see an R help document is to type a question mark in the Console followed by the function name. e.g. ?mutate
+2) '<<<<' and '>>>>' mark the start and the end of definitions and help documents for helper functions. Another way to see an R help document is to type a question mark in the Console followed by the function name, e.g. ?mutate
 
 3) All other comments explain the logic and the syntax.
 
@@ -107,13 +107,13 @@ If there is no comment with the word "manually" before the code, it will work au
 }
 # >>>>
 
-# 
-# Note. It is better to install/load each package separately, if anyone suggests updates it is safe to choose option 1 (update all). Or run the whole code from "Source".
-# 
 ```
 
-Install packages not yet installed
+Note. It is better to install/load each package separately, if anyone suggests updates it is safe to choose option 1 (update all). Or run the whole code from "Source".
 
+We don't load most of the packages to the current session namespace with library(), instead, functions are called from their packages with "::" notation. 
+
+Install packages not yet installed
 
 ```{r}
 needed_packages <- c(
@@ -194,8 +194,8 @@ library(ROracle)
 # Load the magrittr package for piping operation %>%
 library(magrittr)
 
-# We don't load other packages to the current session namespace, instead, functions are called from their packages with "::" notation.
 ```
+
 
 ```{r no cache setup, results='hide', message=FALSE, warning=FALSE, cache=FALSE, include=FALSE}
 
@@ -222,19 +222,6 @@ library(kableExtra)
 library(styler)
 ```
 
-# Load the tidyr package for data manipulation
-# library(tidyr)
-
-# Load the magrittr package for piping operations
-# library(magrittr)
-
-# Load the stringr package for string manipulation
-# library(stringr)
-
-# Load the openxlsx package for reading and writing Excel files
-# library(openxlsx)
-
-
 ```{r df format setup}
 #| include: false
 
@@ -246,14 +233,12 @@ library(styler)
 #     kable_styling('striped', full_width = FALSE)
 # }
 
-# htmltools::htmlEscape(
-
 # Define a custom print function for data frames in knitr
 knit_print.data.frame = function(x, ...) {
   res = paste(c(
     '',
     '',
-    knitr::kable(x, digits = 2, escape = FALSE) |> 
+    knitr::kable(x, digits = 2) |>
       kableExtra::kable_styling('striped', full_width = FALSE)
   ),
   collapse = '
@@ -556,6 +541,7 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
     c(correspondence_csv_path, fhier_compliance_csv_path_list)
 } else {
   # For Anna Shipunova
+  
   # Manually: Change file names to the last download
   # Using raw string literals (r"()") to handle backslashes in file paths
 
@@ -599,6 +585,7 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
 
 
 processed_metrics_tracking_file_names contains paths to RDS files with SEFHIER permitted vessels data for different years
+
 Manually: Add your full path to processed Metrics tracking for each year instead of "Your full path here".
 
 Define paths for processed Metrics tracking CSVs.
@@ -1094,59 +1081,7 @@ Permit info from processed metrics tracking
     return(corresp_df_contact_cnts)
 }
 # >>>>
-```
 
-This section handles the processing of compliance reports and correspondence data from FHIER
-
-It reads Compliance and Correspondence CSV files, cleans them by trimming vessel IDs and cleaning column names, and processes correspondence data to add a column indicating if a contact was made. The file paths and the processing logic differ based on the user running the code.
-
-Read correspondence and compliance csvs
-
-Load CSV files into a list, treating all columns as character type
-
-
-```{r}
-csv_contents <- 
-  lapply(all_csv_full_paths_list, 
-         readr::read_csv, 
-         col_types = readr::cols(.default = 'c'))
-```
-
-Clean all CSVs: Trim vessel IDs and clean column names
-
-Apply cleaning functions to standardize data across all CSV files
-
-Replace all non-alphanumeric characters with underscores ('_'), unify the case
-
-
-```{r}
-csvs_clean1 <- 
-  auxfunctions::clean_all_csvs(csv_contents)
-```
-
-Every time processing for Compliance and Correspondence downloaded from FHIER
-
-For correspondence:
-
-Extract the first element (correspondence data) from the cleaned CSV list.
-
-Add a new column named "was_contacted", which indicates whether a contact was made with each vessel based on the presence of a contact date. If the contact date is missing (`NA`), it assigns "no"; otherwise, it assigns "yes".
-
-- The `add_count` function is then used to count the number of contacts per vessel, distinguishing between vessels that were contacted and those that were not. The result is stored in a new column named "contact_freq".
-
-Change to date format `created_on` and `contact_date` fields
-
-Clean and process correspondence data, adding contact information and frequency
-
-
-```{r}
-corresp_contact_cnts_clean0 <- 
-  csvs_clean1[[1]] |> 
-  auxfunctions::corresp_cleaning()
-
-# Display the structure of the cleaned correspondence data
-head(corresp_contact_cnts_clean0) |> 
-  dplyr::glimpse()
 # <<<<
 
 # Explanations for the following code:
@@ -1216,6 +1151,59 @@ head(corresp_contact_cnts_clean0) |>
     return(compl_dates)
 }
 # >>>>
+```
+
+This section handles the processing of compliance reports and correspondence data from FHIER
+
+It reads Compliance and Correspondence CSV files, cleans them by trimming vessel IDs and cleaning column names, and processes correspondence data to add a column indicating if a contact was made. The file paths and the processing logic differ based on the user running the code.
+
+Read correspondence and compliance csvs
+
+Load CSV files into a list, treating all columns as character type
+
+
+```{r}
+csv_contents <- 
+  lapply(all_csv_full_paths_list, 
+         readr::read_csv, 
+         col_types = readr::cols(.default = 'c'))
+```
+
+Clean all CSVs: Trim vessel IDs and clean column names
+
+Apply cleaning functions to standardize data across all CSV files
+
+Replace all non-alphanumeric characters with underscores ('_'), unify the case
+
+
+```{r}
+csvs_clean1 <- 
+  auxfunctions::clean_all_csvs(csv_contents)
+```
+
+Every time processing for Compliance and Correspondence downloaded from FHIER
+
+For correspondence:
+
+Extract the first element (correspondence data) from the cleaned CSV list.
+
+Add a new column named "was_contacted", which indicates whether a contact was made with each vessel based on the presence of a contact date. If the contact date is missing (`NA`), it assigns "no"; otherwise, it assigns "yes".
+
+- The `add_count` function is then used to count the number of contacts per vessel, distinguishing between vessels that were contacted and those that were not. The result is stored in a new column named "contact_freq".
+
+Change to date format `created_on` and `contact_date` fields
+
+Clean and process correspondence data, adding contact information and frequency
+
+
+```{r}
+corresp_contact_cnts_clean0 <- 
+  csvs_clean1[[1]] |> 
+  auxfunctions::corresp_cleaning()
+
+# Display the structure of the cleaned correspondence data
+head(corresp_contact_cnts_clean0) |> 
+  dplyr::glimpse()
 ```
 
 For compliance:
@@ -1378,8 +1366,8 @@ Use the same column names convention.
         "\\.", ""), "[^A-z0-9]", "_"), "^(_*)(.+)", "\\2\\1"))
 }
 # >>>>
-
 ```
+
 
 ```{r}
 fhier_addresses <-
@@ -2497,7 +2485,7 @@ dplyr::n_distinct(compl_corr_to_investigation$vesselofficial_number)
 # 141
 
 head(compl_corr_to_investigation) |> 
-  dplyr::glimpse() 
+  dplyr::glimpse()
 ```
 
 ### Store the count of unique vessels 
