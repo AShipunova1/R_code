@@ -17,7 +17,6 @@ library(tools)
 # a) mv trim_all_vessel_ids_simple close to use and remove the previous one (near setup) <<<<>>>>
 # b) Do the same for clean_headers (at Results) 
 
-
 # Change the dir name
 # Comment out the "answers" for the next two readline() to use interactively
 curent_project_name <- readline(prompt = "Print your project name: ")
@@ -92,6 +91,14 @@ file_paths <-
 
 # Set the names of the list elements to 'file_ext'.
 names(file_paths) <- file_ext
+
+# To debug
+# Open the text in VSC
+see_res_in_outfile <- function(text_to_output) {
+  outfile <- tempfile(fileext = ".txt")
+  cat(text_to_output, file = outfile)
+  file.show(outfile)
+}
 
 # prepare all pieces ----
 ## read the main file content ----
@@ -632,12 +639,6 @@ length(text_replaced)
 # check
 # grep(my_used_function_names_all[[23]],
 #      text_replaced, value = T)
-
-see_res_in_outfile <- function(text_to_output) {
-  outfile <- tempfile(fileext = ".txt")
-  cat(text_to_output, file = outfile)
-  file.show(outfile)
-}
 
 # To debug
 # see_res_in_outfile(text_replaced)
