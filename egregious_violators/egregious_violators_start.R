@@ -55,7 +55,7 @@
 #' 
 ## Install packages if needed ----
 # 
-#' Note. It is better to install/load each package separately, if anyone suggests updates it is safe to choose option 1 (update all). Or run the whole code from "Source".
+#' If any package suggests updates it is safe to choose option 1 (update all). Or run the whole code from "Source".
 #'
 #' We don't load most of the packages to the current session namespace with library(), instead, functions are called from their packages with "::" notation. 
 #' 
@@ -138,7 +138,7 @@ library(magrittr)
 #'
 #' Define start and end years for the analysis period
 #' 
-#' Manually: These values may be adjusted as needed
+#' Manually: Values for `my_year1` and `my_year2` may be adjusted as needed
 #' 
 # start year for the analysis
 my_year1 <- "2023"
@@ -975,19 +975,6 @@ num_of_vsl_to_investigate <-
 #' Results: Compliance & Correspondence joined together are in
 #' `compl_corr_to_investigation`
 #' 
-# Define the path to the address preparation script
-# This is used only with source()
-prep_addresses_path <-
-  file.path(current_project_path,
-            stringr::str_glue("{current_project_name}_prep_addresses.R"))
-#'
-#' Check if the file exists.
-file.exists(prep_addresses_path)
-
-source(prep_addresses_path)
-#'
-#' Results are in compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr
-#' 
 
 # Output needed investigation ----
 #' %%%%% Prepare output
@@ -1180,6 +1167,19 @@ compl_corr_to_investigation__corr_date__hailing_port <-
 
 ### Add prepared addresses ----
 
+# Define the path to the address preparation script
+# This is used only with source()
+prep_addresses_path <-
+  file.path(current_project_path,
+            stringr::str_glue("{current_project_name}_prep_addresses.R"))
+#'
+#' Check if the file exists.
+file.exists(prep_addresses_path)
+
+source(prep_addresses_path)
+#'
+#' Results are in compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr
+#' 
 ## 3. Mark vessels already in the know list ----
 #' Identify and mark vessels that have been previously marked as egregious, to track repeat offenders
 #' 
