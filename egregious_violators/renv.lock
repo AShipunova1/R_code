@@ -185,15 +185,14 @@
       "Version": "1.1",
       "Source": "GitHub",
       "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "R_code",
       "RemoteUsername": "AShipunova1",
-      "RemoteRef": "development",
-      "RemoteSha": "3d47b58be846371b91d9dceae7a7947cb238cb2f",
+      "RemoteRepo": "R_code",
       "RemoteSubdir": "auxfunctions",
+      "RemoteRef": "development",
+      "RemoteSha": "6c0a22691acf73502b599975bbe463f194261c35",
+      "RemoteHost": "api.github.com",
       "Requirements": [
         "DBI",
-        "R",
         "cowplot",
         "crayon",
         "data.table",
@@ -213,7 +212,7 @@
         "tidyr",
         "tidyselect"
       ],
-      "Hash": "825abc0eedcc3aa638a3c508dcd2ea98"
+      "Hash": "b0821270b63e388e931df576b02eba39"
     },
     "backports": {
       "Package": "backports",
@@ -1407,7 +1406,7 @@
     },
     "openxlsx": {
       "Package": "openxlsx",
-      "Version": "4.2.5.2",
+      "Version": "4.2.6",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -1420,7 +1419,7 @@
         "utils",
         "zip"
       ],
-      "Hash": "c03b4c18d42da881fb8e15a085c2b9d6"
+      "Hash": "c56736ba9246e264e7e3937ae83dcee4"
     },
     "pillar": {
       "Package": "pillar",
