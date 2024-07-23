@@ -55,7 +55,7 @@
 
 #' 5) home port cleaned city and state from PIMS
 #' 
-#' "~\R_files_local\my_outputs\home_ports\vessels_from_pims_ports.csv"
+#' "~\R_files_local\my_outputs\home_ports\vessels_from_pims_ports_DATE.csv"
 #' 
 
 #' 6) address information from Oracle db
@@ -165,11 +165,11 @@ dim(compl_clean)
 dim(corresp_contact_cnts_clean0)
 # [1] 34549    22
 
-## Get Metric Tracking (permits from FHIER) ----
+## Get Metrics Tracking (permits from FHIER) ----
 
 #' The metrics tracking data contains permit information from FHIER (For-Hire Integrated Electronic Reporting Program)
 #' 
-#' It is processed using a separate script (processing_metrics_tracking.R) stored on Google Drive
+#' It is processed using a separate script (processing_metrics_tracking.R) stored on Google Drive. Prepare a new file every time.
 #'  
 #' Read the processed metrics tracking files for all years
 processed_metrics_tracking_permits <-
