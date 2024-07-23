@@ -71,7 +71,7 @@
 #' 
 
 # FHIER ----
-#' This section focuses on data from the Fisheries Information System for Harvest and Effort Reporting (FHIER)
+#' This section focuses on data from the For-Hire Integrated Electronic Reporting Program (FHIER)
 #' 
 #' Compliance
 #' 
@@ -353,7 +353,7 @@ get_previous_result_from_google_drive <- function() {
   return(previous_result)
 }
 
-#' Un-comment and run one of the functions.
+#' Manually: Un-comment and run one of the functions.
 #' 
 # prev_result <- get_previous_result_from_local_file()
 # or
