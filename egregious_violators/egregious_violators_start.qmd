@@ -3,10 +3,10 @@ title: Egregious Violators
 ---
 
 
+## Quarto Setup
+
 ```{r no cache setup, results='hide', message=FALSE, warning=FALSE, cache=FALSE, include=FALSE}
 
-# Quarto
- 
 # Quarto enables you to weave together content and executable code into a finished document.
  
 # Running Code
@@ -14,8 +14,6 @@ title: Egregious Violators
 # The **Run** button allows you to run individual or bunch of chunks as a regular R script.
  
 # When you click the **Render** button a document will be generated that includes both content and the output of embedded code.
-
-# Setup for Quarto
 
 # Load libraries required for Quatro
 # A general-purpose tool for dynamic report generation in R
@@ -68,17 +66,61 @@ registerS3method(
 
 ```
 
-# save setup chunk options to use later
-```{r setup current project, results='hide', message=FALSE, warning=FALSE}
+
+```{r}
+MOVE it: _START_ fix_names 
+# <<<<
+
+# Explanations for the following code:
+
+# Cleans column names of uploaded files.
+# 
+# Provides a comprehensive approach to cleaning and standardizing column names within a dataframe, making them more consistent and suitable for further analysis or processing.
+#  
+#  
+# 
+# The `fix_names` function is designed to clean and standardize column names within a dataframe.
+# 
+# 1. **Function Definition:**
+# 
+#    - `fix_names <- function (x) { .. }`: Defines a function named `fix_names` that takes one argument, `x`, which represents the input dataframe.
+# 
+# 2. **Cleaning Column Names:**
+# 
+#    - `x %>% str_replace_all("\\.", "")`: Removes all occurrences of periods (`.`) from the column names using `str_replace_all` from the `stringr` package.
+# 
+#    - `str_replace_all("[^A-z0-9]", "_")`: Replaces all non-alphanumeric characters (excluding underscores) with underscores (`_`). This step ensures that the column names only contain letters, numbers, and underscores.
+# 
+#    - `str_replace_all("^(_*)(.+)", "\2\1")`: Ensures that column names do not start with multiple underscores. It captures the leading underscores (if any) and the rest of the column name using regular expressions, then rearranges them to place the underscores at the end of the column name.
+# 
+#    - `my_headers_case_function()`: Applies a custom function `my_headers_case_function` to further standardize the case of the column names. This function is defined in auxfunctions and is responsible for ensuring consistent capitalization of column names.
+# 
+# 3. **Return Statement:**
+# 
+#    - The function returns the modified dataframe with cleaned and standardized column names.
+# 
+# 
+
+ fix_names  <-  function(x) {
+    x |>
+      
+      stringr::str_replace_all("\\.", "") |>
+      
+      stringr::str_replace_all("[^A-z0-9]", "_") |>
+      
+      stringr::str_replace_all("^(_*)(.+)", "\\2\\1") |>
+      
+      # Convert column names to lowercase using 'my_headers_case_function'
+      my_headers_case_function()
+  }
+# >>>>
 ```
 
-## Setup 
+# Setup 
 
 ```{r Setup}
 # Setup ----
 ```
-
-# Setup
 
 This script identifies and processes "egregious violators" in the SEFHIER program.
 
@@ -1060,81 +1102,6 @@ Permit info from processed metrics tracking
 
 ```{r Compliance and Correspondence data}
 ## Compliance and Correspondence data ----
-
-```
-
-```{r}
-# <<<<
-
-# Explanations for the following code:
-
-# Cleans column names of uploaded files.
-# 
-# Provides a comprehensive approach to cleaning and standardizing column names within a dataframe, making them more consistent and suitable for further analysis or processing.
-#  
-#  
-# 
-# The `fix_names` function is designed to clean and standardize column names within a dataframe.
-# 
-# 1. **Function Definition:**
-# 
-#    - `fix_names <- function (x) { .. }`: Defines a function named `fix_names` that takes one argument, `x`, which represents the input dataframe.
-# 
-# 2. **Cleaning Column Names:**
-# 
-#    - `x %>% str_replace_all("\\.", "")`: Removes all occurrences of periods (`.`) from the column names using `str_replace_all` from the `stringr` package.
-# 
-#    - `str_replace_all("[^A-z0-9]", "_")`: Replaces all non-alphanumeric characters (excluding underscores) with underscores (`_`). This step ensures that the column names only contain letters, numbers, and underscores.
-# 
-#    - `str_replace_all("^(_*)(.+)", "\2\1")`: Ensures that column names do not start with multiple underscores. It captures the leading underscores (if any) and the rest of the column name using regular expressions, then rearranges them to place the underscores at the end of the column name.
-# 
-#    - `my_headers_case_function()`: Applies a custom function `my_headers_case_function` to further standardize the case of the column names. This function is defined in auxfunctions and is responsible for ensuring consistent capitalization of column names.
-# 
-# 3. **Return Statement:**
-# 
-#    - The function returns the modified dataframe with cleaned and standardized column names.
-# 
-# 
-
- fix_names  <-  function(x) {
-    x |>
-      
-      stringr::str_replace_all("\\.", "") |>
-      
-      stringr::str_replace_all("[^A-z0-9]", "_") |>
-      
-      stringr::str_replace_all("^(_*)(.+)", "\\2\\1") |>
-      
-      # Convert column names to lowercase using 'my_headers_case_function'
-      my_headers_case_function()
-  }
-# >>>>
-
-# <<<<
-
-# Explanations for the following code:
-
-# The clean_headers function cleans and standardizes the column names of a given dataframe (my_df)
-# 
-# using the fix_names() function, which removes special characters and spaces, and unifies the case.
-# 
-#  
-#  
-
- clean_headers  <-  function(my_df) {
-    # Use the 'fix_names' function to clean and fix the column names of the dataframe.
-    new_names <-
-        colnames(my_df) |>
-        auxfunctions::fix_names()
-
-    colnames(my_df) <- 
-        new_names
-    
-    # Return the dataframe with cleaned and fixed column names.
-    return(my_df)
-}
-# >>>>
-
 # <<<<
 
 # Explanations for the following code:
@@ -1477,6 +1444,7 @@ This dataset contains physical address information for for-hire vessels.
 Read all columns as characters.
 
 Use the same column names convention.
+
 
 ```{r}
 fhier_addresses <-
@@ -3548,6 +3516,19 @@ Steps:
 
 ```{r 1 Remove extra columns}
 ## 1. Remove extra columns ----
+# <<<<
+
+# Explanations for the following code:
+
+# 1. Extract unique non-NA elements from the input vector 'x' using 'unique'.
+# 2. Concatenate these unique elements into a single string with ", " as the separator using 'paste0' and 'collapse'.
+#  
+#  
+
+ concat_unique  <-  function(x) {
+  paste0(unique(x[!is.na(x)]), collapse = ", ")
+}
+# >>>>
 ```
 
 List of columns to be excluded from the final output for simplification and focus on relevant data. Commented are column names to retain.
