@@ -389,16 +389,17 @@ in_text <- flat_file_r_text
 
 get_my_func_names_wo_prefix <-
   function(in_text, search_str = "auxfunctions::") {
-  to_search <- str_glue("{search_str}(\\w+)\\(")
+    to_search <- str_glue("{search_str}(\\w+)\\W")
+    
+    my_used_function_names <-
+      stringr::str_extract(in_text, to_search) |>
+      unique() |>
+      na.omit() |>
+      stringr::str_replace_all(to_search, "\\1") |> 
+      unique()
 
-  my_used_function_names <-
-    stringr::str_extract(in_text, to_search) |>
-    unique() |>
-    na.omit() |>
-    stringr::str_replace_all(to_search, "\\1")
-
-  return(my_used_function_names)
-}
+    return(my_used_function_names)
+  }
 
 my_used_function_names <-
   get_my_func_names_wo_prefix(flat_file_r_text)
