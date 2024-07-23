@@ -14,7 +14,7 @@
 #' 
 ## The "egregious violator" definition ----
 #' 
-#' 1. NO reports for all 26 weeks back from week ago today;
+#' 1. No reports for all 26 weeks back from week ago today;
 #'
 #' 2. Permits have not expired and were active for the same period as (1);
 #'
@@ -55,8 +55,10 @@
 #' 
 ## Install packages if needed ----
 # 
-# Note. It is better to install/load each package separately, if anyone suggests updates it is safe to choose option 1 (update all). Or run the whole code from "Source".
-# 
+#' Note. It is better to install/load each package separately, if anyone suggests updates it is safe to choose option 1 (update all). Or run the whole code from "Source".
+#'
+#' We don't load most of the packages to the current session namespace with library(), instead, functions are called from their packages with "::" notation. 
+#' 
 #' Install packages not yet installed
 #' 
 
@@ -129,10 +131,63 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
 
 # Load the ROracle package for database interactions with Oracle databases.
 library(ROracle)
-# Load the magrittr package for piping operation %>%
+# Load the magrittr package for piping operation %>%. In some cases the base R "|>" works differently. See more https://www.tidyverse.org/blog/2023/04/base-vs-magrittr-pipe/
 library(magrittr)
 
-# We don't load other packages to the current session namespace, instead, functions are called from their packages with "::" notation.
+## Define dates ----
+#'
+#' Define start and end years for the analysis period
+#' 
+#' Manually: These values may be adjusted as needed
+#' 
+# start year for the analysis
+my_year1 <- "2023"
+my_beginning1 <- stringr::str_glue("{my_year1}-01-01")
+my_end1 <- stringr::str_glue("{my_year1}-12-31")
+
+# last year for the analysis
+my_year2 <- "2024"
+my_beginning2 <- stringr::str_glue("{my_year2}-01-01")
+my_end2 <- stringr::str_glue("{my_year2}-12-31")
+#'
+#' Following are the definitions of dates used throughout the code.
+#' 
+#' Set the current date as the data file date
+data_file_date <- 
+  lubridate::today()
+  
+#' How many weeks and days to take in to the account?
+#' The 26-week period is used to define long-term non-compliance
+number_of_weeks_for_non_compliancy = 26
+
+#' Calculate number of days in non compl weeks
+days_in_non_compl_weeks <- 
+  number_of_weeks_for_non_compliancy * 7
+
+# test, should be TRUE
+days_in_non_compl_weeks == 182
+#'
+#' The 7-day grace period allows for recent reports that may not yet be processed
+grace_period = 7 # days
+
+# Calculate the date 26 weeks (plus grace period) before the current date
+half_year_ago <-
+  data_file_date - days_in_non_compl_weeks - grace_period
+#'
+#' Check the week number and day of the week for the period's start
+#' 
+#' This can be used to verify the calculation against a calendar
+#' 
+lubridate::week(half_year_ago)
+
+lubridate::wday(half_year_ago, label = T)
+#'
+# Set the minimum date for permit expiration (30 days from today)
+permit_expired_check_date <- data_file_date + 30
+#'
+#' Define the start of the last week, excluding it from analysis
+last_week_start <- data_file_date - grace_period
+#'
 
 ## Set up paths ----
 #'
@@ -142,7 +197,7 @@ library(magrittr)
 #' 
 #' In the code in this section all user provided values have the word "manually" in the description. Everything else is created automatically.
 #'
-#' Manually: Change the following 2 lists (*my_paths* and *current_in_out_paths*) to your environment if needed. The variable _names_ are used throughout the code, so please change only the quoted _values_ inside the lists.
+#' Manually: Change the following 2 lists (**my_paths** and **current_in_out_paths**) to your environment if needed. The variable _names_ are used throughout the code, so please change only the quoted _values_ inside the lists.
 #' 
 
 # Check if the current username is not "anna.shipunova"
@@ -192,6 +247,7 @@ auxfunctions::create_dir_if_not(current_project_output_path)
 
 ### Additional individual paths to data files ----
 #' This section sets up paths for specific data files used in the project
+#' 
 
 #### Compliance and Correspondence ----
 #' 
@@ -248,9 +304,9 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
   purrr::map(all_csv_full_paths_list, file.exists)
 }
 
-#### Processed Metric Tracking (permits from FHIER) ----
+#### Processed Metrics Tracking (permits from FHIER) ----
 #' 
-#' processed_metrics_tracking_file_names contains paths to RDS files with SEFHIER permitted vessels data for different years
+#' processed_metrics_tracking_file_names contains paths to RDS files with SEFHIER permitted vessels data for different years. Created separately, see Get data.
 #' 
 #' Manually: Add your full path to processed Metrics tracking for each year instead of "Your full path here".
 #' 
@@ -261,9 +317,15 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
 #' 
 # Check if the username is not "anna.shipunova"
 if (!auxfunctions::get_username() == "anna.shipunova") {
-  processed_metrics_tracking_file_names <- 
-    c("Your full path here/SEFHIER_permitted_vessels_nonSRHS_2022.rds",
-      "Your full path here/SEFHIER_permitted_vessels_nonSRHS_2023.rds")
+  processed_metrics_tracking_file_names <-
+    c(
+      stringr::str_glue(
+        "Your full path here/SEFHIER_permitted_vessels_nonSRHS_{my_year1}.rds"
+      ),
+      stringr::str_glue(
+        "Your full path here/SEFHIER_permitted_vessels_nonSRHS_{my_year2}.rds"
+      )
+    )
 } else {
   # for Anna Shipunova
   processed_input_data_path <-
@@ -298,9 +360,9 @@ purrr::map(processed_metrics_tracking_file_names, file.exists)
 #' 
 
 #### Physical Address List from FHIER path ----
-#' Download first from REPORTS / For-hire Primary Physical Address List
+#' Download first from REPORTS / For-hire Primary Physical Address List.
 #' 
-#' Set the path for FHIER addresses based on the user
+#' Set the path for FHIER addresses based on the user.
 #' 
 #' Manually: Add your full path instead of "Your full path here".
 #' 
@@ -414,60 +476,6 @@ output_egr_violators_googledrive_folder_path <-
     n_max = 1
   )
 
-## Define dates ----
-#'
-#' Define start and end years for the analysis period
-#' 
-#' Manually: These values may be adjusted as needed
-#' 
-# start year for the analysis
-my_year1 <- "2023"
-my_beginning1 <- stringr::str_glue("{my_year1}-01-01")
-my_end1 <- stringr::str_glue("{my_year1}-12-31")
-
-# last year for the analysis
-my_year2 <- "2024"
-my_beginning2 <- stringr::str_glue("{my_year2}-01-01")
-my_end2 <- stringr::str_glue("{my_year2}-12-31")
-#'
-#' Following are the definitions of dates used throughout the code.
-#' 
-#' Set the current date as the data file date
-data_file_date <- 
-  lubridate::today()
-  
-#' How many weeks and days to take in to the account?
-#' The 26-week period is used to define long-term non-compliance
-number_of_weeks_for_non_compliancy = 26
-
-#' Calculate number of days in non compl weeks
-days_in_non_compl_weeks <- 
-  number_of_weeks_for_non_compliancy * 7
-
-# test, should be TRUE
-days_in_non_compl_weeks == 182
-#'
-#' The 7-day grace period allows for recent reports that may not yet be processed
-grace_period = 7 # days
-
-# Calculate the date 26 weeks (plus grace period) before the current date
-half_year_ago <-
-  data_file_date - days_in_non_compl_weeks - grace_period
-#'
-#' Check the week number and day of the week for the period's start
-#' 
-#' This can be used to verify the calculation against a calendar
-#' 
-lubridate::week(half_year_ago)
-
-lubridate::wday(half_year_ago, label = T)
-#'
-# Set the minimum date for permit expiration (30 days from today)
-permit_expired_check_date <- data_file_date + 30
-#'
-#' Define the start of the last week, excluding it from analysis
-last_week_start <- data_file_date - grace_period
-#'
 
 ## Other setup ----
 # Set options to prevent converting long numbers to scientific notation for input/output in spreadsheets and csv files
@@ -1522,7 +1530,7 @@ write_res_to_google_sheets <-
   }
 #'
 #' Un-comment to write results directly to Google drive
-current_output_file_link <- write_res_to_google_sheets()
+# current_output_file_link <- write_res_to_google_sheets()
 #'
 #' Print result names to console 
 cat("Results:",
