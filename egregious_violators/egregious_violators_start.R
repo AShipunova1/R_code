@@ -158,11 +158,11 @@ data_file_date <-
   
 #' How many weeks and days to take in to the account?
 #' The 26-week period is used to define long-term non-compliance
-number_of_weeks_for_non_compliancy = 26
+number_of_weeks_for_non_compliance = 26
 
 #' Calculate number of days in non compl weeks
 days_in_non_compl_weeks <- 
-  number_of_weeks_for_non_compliancy * 7
+  number_of_weeks_for_non_compliance * 7
 
 # test, should be TRUE
 days_in_non_compl_weeks == 182
