@@ -22,6 +22,7 @@
 #' 
 #' For the last 6 month
 #' 
+#' a File name example
 #' FHIER_Compliance_...csv
 #' 
 #' 2) correspondence data
@@ -32,6 +33,7 @@
 #' 
 #' For the whole period, starting 01/01/2021
 #' 
+#' a File name example
 #' "~\my_inputs\from_Fhier\Correspondence\Correspondence_2024_02_15.csv"
 #' 
 
@@ -41,6 +43,7 @@
 #'  
 #' For the last 6 month
 #' 
+#' a File name example
 #' SEFHIER_permitted_vessels_nonSRHS_YEAR.csv
 #' 
 
@@ -50,11 +53,13 @@
 #' 
 #' For the whole period, starting 01/01/2021
 #' 
+#' a File name example
 #' "For-hire Primary Physical Address List.csv"
 #' 
 
 #' 5) home port cleaned city and state from PIMS
 #' 
+#' a File name example
 #' "~\R_files_local\my_outputs\home_ports\vessels_from_pims_ports_DATE.csv"
 #' 
 
@@ -67,6 +72,7 @@
 #' 
 #' There are two options here, to downloaded the file as .xlsx or to get it directly from Google drive into R.
 #' 
+#' a File name example
 #' "~\egregious_violators\egregious_violators_to_investigate_2024-05-17.xlsx"
 #' 
 
