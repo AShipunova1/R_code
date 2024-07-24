@@ -44,8 +44,8 @@ Outputs <- "Outputs/"
 # Set the date ranges for the logbook and compliance data you are pulling
 # this is the year to assign to the output file name
 # my_year <- '2022'
-my_year <- '2023'
-# my_year <- '2024'
+# my_year <- '2023'
+my_year <- '2024'
 
 # ---
 # Explanations:
@@ -221,6 +221,8 @@ SEFHIER_metrics_tracking_path <-
   )
 )
 
+file.exists(SEFHIER_metrics_tracking_path)
+
 # read in metrics tracking data
 SEFHIER_metrics_tracking <- read.csv(SEFHIER_metrics_tracking_path)
 
@@ -304,8 +306,6 @@ processed_metrics_permit_info_short <-
       toupper()
   })
 
-
-
 # change the format of the date for these two columns
 processed_metrics_permit_info_short <-
   processed_metrics_permit_info_short |>
@@ -331,7 +331,7 @@ not_my_year_vessels <-
     processed_metrics_permit_info_short_this_year$VESSEL_OFFICIAL_NUMBER
   )
 
- # this is a check to make sure that all the vessels removed from the dataframe did not submit any reports in my_year, which makes sense since they were not permitted during “my_year”
+# this is a check to make sure that all the vessels removed from the dataframe did not submit any reports in my_year, which makes sense since they were not permitted during “my_year”
 processed_metrics_permit_info |>
   filter(VESSEL_OFFICIAL_NUMBER %in% not_my_year_vessels) |>
   filter(VESSEL_OFFICIAL_NUMBER %in% not_my_year_vessels) |>
