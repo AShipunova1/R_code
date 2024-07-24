@@ -654,8 +654,8 @@ compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr |>
 # 3 YES        NO          yes                      27794
 #'
 #' Verify that the compliant_after_override column contains only "yes" and "no" values
-compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr$compliant_after_override |>
-  unique() == c("yes", "no")
+setdiff(compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr$compliant_after_override |>
+  unique(), c("yes", "no")) == 0
 
 dim(compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr)
 # E.g.
