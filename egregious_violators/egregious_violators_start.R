@@ -487,8 +487,10 @@ options(scipen = 999)
 Sys.setenv(TZ = Sys.timezone())
 Sys.setenv(ORA_SDTZ = Sys.timezone())
 
-# Get data ----
 #' %%%%% Prepare data
+#' 
+
+## Get data ----
 #' 
 # This is used only with source()
 get_data_path <- 
@@ -511,6 +513,9 @@ source(get_data_path)
 #'
 #' prev_result
 #'
+
+#' %%%%% Find egregious violators
+#' 
 
 # Preparing compliance info ----
 
@@ -972,12 +977,13 @@ head(compl_corr_to_investigation) |>
 num_of_vsl_to_investigate <- 
   dplyr::n_distinct(compl_corr_to_investigation$vesselofficial_number)
 #'
-#' Results: Compliance & Correspondence joined together are in
+#' Results: Egregious violators Compliance & Correspondence joined together are in
 #' `compl_corr_to_investigation`
 #' 
 
-# Output needed investigation ----
 #' %%%%% Prepare output
+#' 
+# Output needed investigation ----
 #' 
 #' "Investigation" in this context refers to vessels that meet the criteria for egregious violations and require further action.
 #' 
