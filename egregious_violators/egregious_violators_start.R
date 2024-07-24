@@ -289,7 +289,7 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
   
   # Add a full path in front of each file name for compliance CSVs
   compliance_full_paths <-
-    auxfunctions::prepare_csv_full_path(all_csv_names_list[2:3],
+    auxfunctions::prepare_csv_full_path(all_csv_names_list[2:length(all_csv_names_list)],
                                         add_path = "from_Fhier/FHIER Compliance",
                                         input_dir_part = my_paths$inputs)
   
@@ -475,7 +475,6 @@ output_egr_violators_googledrive_folder_path <-
     type = "folder",
     n_max = 1
   )
-
 
 ## Other setup ----
 # Set options to prevent converting long numbers to scientific notation for input/output in spreadsheets and csv files
