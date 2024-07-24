@@ -14,9 +14,9 @@
 # 6) save as "{my_year}SRHSvessels.csv" to the directory that has this R script, in an “input” sub-directory
 
 # Raw data in the Detail Report includes "fringe weeks”. Fringe weeks are defined as
-# compliance week 52 of the previous year, and/or compliance week 1 of the next year. Calendar dates of my_year sometimes fall into these extra “fringe weeks” before and after my year, because 365 days do not neatly fit into 52 weeks. We want to include the entire range of compliance weeks that encompass the calendar year, which may include the weeks that are in both the previous and the next compliance year. We will filter the data set by the current year’s compliance and calendar dates in further scripts (DNF and Logbook).
+# compliance week 52 of the previous year, and/or compliance week 1 of the next year. Calendar dates of my_year sometimes fall into these extra “fringe weeks” before and after my year, because 365 days do not neatly fit into 52 weeks. We want to include the entire range of compliance weeks that encompass the calendar year, which may include the weeks that are in both the previous and the next compliance year. We will filter the data set by the current year's compliance and calendar dates in further scripts (DNF and Logbook).
 
-# Compliance weeks are defined in FHIER, and based on ISO week (Mon-Sun) determination. # 'my_date_beg' is calculated as the beginning of the compliance week containing the calendar start date. 'my_date_end' is calculated as the end of the compliance week containing the calendar end date.  E.g. The first week that is included in the Detail Report dataset is the week that includes Jan 1st. The last week that is included in the Detail Report dataset is the week that includes Dec 31st. This might include week 52 of the previous, or week 1 of the next year.
+# Compliance weeks are defined in FHIER, and based on ISO week (Mon-Sun) determination. #'my_date_beg' is calculated as the beginning of the compliance week containing the calendar start date. 'my_date_end' is calculated as the end of the compliance week containing the calendar end date.  E.g. The first week that is included in the Detail Report dataset is the week that includes Jan 1st. The last week that is included in the Detail Report dataset is the week that includes Dec 31st. This might include week 52 of the previous, or week 1 of the next year.
 
 # Use get_the_dates(my_year).
 
@@ -43,8 +43,8 @@ Outputs <- "Outputs/"
 
 # Set the date ranges for the logbook and compliance data you are pulling
 # this is the year to assign to the output file name
-my_year <- '2022'
-# my_year <- '2023'
+# my_year <- '2022'
+my_year <- '2023'
 # my_year <- '2024'
 
 # ---
@@ -97,7 +97,7 @@ curr_dates <- get_the_dates(my_year)
 my_date_beg <- curr_dates$my_date_beg
 my_date_end <- curr_dates$my_date_end
 
-# 'my_date_beg’ and 'my_date_end’ represent the maximum and minimum compliance weeks that  my_year falls into. This may include week 52 of the previous year, and/or week 1 of the next year, because 365 days do not neatly fit into 52 weeks. These values are the bookends for the entire range of compliance weeks that encompass the current year.
+# 'my_date_beg' and 'my_date_end' represent the maximum and minimum compliance weeks #that  my_year falls into. This may include week 52 of the previous year, and/or week 1 of the #next year, because 365 days do not neatly fit into 52 weeks. These values are the bookends #for the entire range of compliance weeks that encompass the current year.
 
 # — This section produces a log output file that details the variables defined here
 # Pretty message print
