@@ -275,9 +275,8 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
   # Using raw string literals (r"()") to handle backslashes in file paths
 
   all_csv_names_list = c(
-    "Correspondence_2024_06_17.csv",
-    r"(2024_06_17\FHIER_Compliance_2023__06_17_2024.csv)",
-    r"(2024_06_17\FHIER_Compliance_2024__06_17_2024.csv)"
+    "Correspondence_2024_07_24.csv",
+    r"(2024_07_24\FHIER_Compliance_2024__07_24_2024.csv)"
   )
   
   # Add a full path in front of each file name for correspondence CSV
