@@ -110,7 +110,7 @@ If there is no comment with the word "manually" before the code, it will work au
 # 
 ```
 
-Note. It is better to install/load each package separately, if anyone suggests updates it is safe to choose option 1 (update all). Or run the whole code from "Source".
+If any package suggests updates it is safe to choose option 1 (update all). Or run the whole code from "Source".
 
 We don't load most of the packages to the current session namespace with library(), instead, functions are called from their packages with "::" notation. 
 
@@ -197,9 +197,9 @@ library(ROracle)
 library(magrittr)
 ```
 
-## Quarto Setup
-
 ```{r no cache setup, results='hide', message=FALSE, warning=FALSE, cache=FALSE, include=FALSE}
+
+## Quarto Setup
 
 # Quarto enables you to weave together content and executable code into a finished document.
  
@@ -911,13 +911,14 @@ Sys.setenv(TZ = Sys.timezone())
 Sys.setenv(ORA_SDTZ = Sys.timezone())
 ```
 
-## Get data 
+# Prepare data
+
+### Get data 
 
 ```{r Get data}
-# Get data ----
+## Get data ----
 ```
 
-# Prepare data
 
 
 ```{r}
@@ -1070,6 +1071,7 @@ Permit info from processed metrics tracking
     return(my_df)
 }
 # >>>>
+
 # <<<<
 
 # Explanations for the following code:
@@ -1813,6 +1815,8 @@ db_participants_address
 
 prev_result
 
+# Find egregious violators
+
 ## Preparing compliance info 
 
 ```{r Preparing compliance info}
@@ -2509,8 +2513,10 @@ num_of_vsl_to_investigate <-
 ```
 
 
-Results: Compliance & Correspondence joined together are in
+Results: Egregious violators Compliance & Correspondence joined together are in
 `compl_corr_to_investigation`
+
+# Prepare output
 
 ## Output needed investigation 
 
@@ -2518,7 +2524,6 @@ Results: Compliance & Correspondence joined together are in
 # Output needed investigation ----
 ```
 
-# Prepare output
 
 "Investigation" in this context refers to vessels that meet the criteria for egregious violations and require further action.
 
