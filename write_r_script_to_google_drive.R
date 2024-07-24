@@ -18,7 +18,7 @@ current_google_doc_name <- "egregious_violators_start.qmd"
 ## Set up Google Drive paths ----
 
 #'
-#' Get the path to the main Egregious violators folder on Google Drive
+#' Get the path to the folder on Google Drive
 #' 
 #' It is used to read the previous result and for saving the new result.
 #' 
@@ -56,9 +56,6 @@ output_egr_violators_googledrive_folder_path <-
     n_max = 1
   )
 
-# write_res_to_google_sheets <-
-#   function() {
-
 # my_current_google_doc contains information about the existing file
 my_current_google_doc <-
   googledrive::drive_ls(
@@ -84,10 +81,7 @@ my_current_google_doc_more <-
 previous_current_google_doc_name <- 
   str_glue("{current_google_doc_name}_{my_current_google_doc_more$modified}")
 
-
-# Next:
 # Save a copy by renaming it
-# Rename the file from "current" to the previous_current_google_doc_name with the previous date.
 # In case of an error print the message and keep going.
 # If there is a file with this name this code will create another one with the same name.
 
@@ -120,7 +114,7 @@ tryCatch({
   # message("Some other message at the end")
 })
 
-# Create a new empty spreadsheet in the Google Drive output folder to replace the renamed one
+# Create a new empty in the Google Drive output folder to replace the renamed one
 # And save its properties into current_google_doc_name_info
 # In case of an error print the message and keep going.
 # If there is a file with this name this code will create another one with the same name.
@@ -131,8 +125,7 @@ tryCatch({
   current_google_doc_name_info <-
     googledrive::drive_create(
       name = current_google_doc_name,
-      path = googledrive::as_id(output_egr_violators_googledrive_folder_path),
-      type = "spreadsheet"
+      path = googledrive::as_id(output_egr_violators_googledrive_folder_path)
     )
   
 }, error = function(cond) {
