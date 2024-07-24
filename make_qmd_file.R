@@ -691,9 +691,9 @@ title: {maked_title}
 # Setup
 setup_text <- "
 
-## Quarto Setup
-
 ```{r no cache setup, results='hide', message=FALSE, warning=FALSE, cache=FALSE, include=FALSE}
+
+## Quarto Setup
 
 # Quarto enables you to weave together content and executable code into a finished document.
  
