@@ -145,7 +145,23 @@ compl_clean_list <-
   auxfunctions::compliance_cleaning()
 
 #' Assign analysis years as names to the compliance data frames for easy reference
-names(compl_clean_list) <- c(my_year1, my_year2)
+#' If there are more than one year, all defined years are used as names, 
+#' if there is only one than only the most recent one is used.
+
+# Get the new names in reverse.
+# This creates a vector of year names, using the most recent year first and as many as we have compliance files.
+my_new_years_names_rev <- rev(c(my_year1, my_year2))[1:length(compl_clean_list)]
+
+# Calculating reverse of the list.
+# Reversing the list allows us to assign names starting from the most recent year.
+compl_clean_list_rev <- rev(compl_clean_list)
+
+# Assign new names
+names(compl_clean_list_rev) <- my_new_years_names_rev
+
+# Reverse the list back.
+# This step ensures the final list is in the original order with new names.
+compl_clean_list <- rev(compl_clean_list_rev)
 
 #' Check the size of each cleaned compliance data frame to ensure proper data loading and processing
 purrr::map(compl_clean_list, dim)
@@ -157,7 +173,7 @@ purrr::map(compl_clean_list, dim)
 # $`2024`
 # [1] 71350    20
 
-#' This step merges the cleaned compliance data from multiple years into a single dataset for easier analysis
+#' This step merges the cleaned compliance data from multiple years into a single dataset for easier analysis. It works correctly even if there is only one year.
 
 compl_clean <-
   rbind(compl_clean_list[[my_year1]], compl_clean_list[[my_year2]])
@@ -289,7 +305,7 @@ db_participants_address <-
     db_participants_address_query,
     db_participants_address_fun,
     #' If you want to update the existing file, change the NULL to "yes" 
-    force_from_db = NULL
+    force_from_db = "yes"
   ) |>
   auxfunctions::remove_empty_cols() |>
   auxfunctions::clean_headers()
