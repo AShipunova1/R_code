@@ -127,6 +127,7 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
   devtools::install_github("AShipunova1/R_code/auxfunctions@development", force = FALSE)
   # restart R session to pick up changes
   # .rs.restartR()
+  library(auxfunctions)
 }
 
 # Load the ROracle package for database interactions with Oracle databases.
