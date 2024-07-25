@@ -17,7 +17,7 @@ function(my_compl_df,
           .default = toString(!!rlang::sym(compliance_col_name))
         )
     ) |>
-    ungroup()
+    dplyr::ungroup()
 
   return(res)
 }
