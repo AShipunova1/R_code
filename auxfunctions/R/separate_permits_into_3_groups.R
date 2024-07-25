@@ -5,9 +5,9 @@ function(my_df, permit_group_field_name = "permitgroup") {
       dplyr::mutate(permit_sa_gom =
                dplyr::case_when(
                  # Check if 'permit_group_field_name' doesn't contain 'RCG', 'HRCG', 'CHG', or 'HCHG'; assign "sa_only" if true
-                 !grepl("RCG|HRCG|CHG|HCHG", !!sym(permit_group_field_name)) ~ "sa_only",
+                 !grepl("RCG|HRCG|CHG|HCHG", !!rlang::sym(permit_group_field_name)) ~ "sa_only",
                  # Check if 'permit_group_field_name' doesn't contain 'CDW', 'CHS', or 'SC'; assign "gom_only" if true
-                 !grepl("CDW|CHS|SC", !!sym(permit_group_field_name)) ~ "gom_only",
+                 !grepl("CDW|CHS|SC", !!rlang::sym(permit_group_field_name)) ~ "gom_only",
                  # For all other cases, assign "dual"
                  .default = "dual"
                )) %>%

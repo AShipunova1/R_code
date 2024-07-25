@@ -9,12 +9,12 @@ function(my_compl_df,
     dplyr::mutate(
       compliant_after_override =
         dplyr::case_when(
-          !!sym(compliance_col_name) %in% c(0, "NO") &
-            !!sym(overridden_col_name) %in% c(0, "NO")  ~ "no",
-          !!sym(compliance_col_name) %in% c(1, "YES") ~ "yes",
-          !!sym(overridden_col_name) %in% c(1, "YES") ~ "yes",
-          is.na(!!sym(compliance_col_name)) ~ NA,
-          .default = toString(!!sym(compliance_col_name))
+          !!rlang::sym(compliance_col_name) %in% c(0, "NO") &
+            !!rlang::sym(overridden_col_name) %in% c(0, "NO")  ~ "no",
+          !!rlang::sym(compliance_col_name) %in% c(1, "YES") ~ "yes",
+          !!rlang::sym(overridden_col_name) %in% c(1, "YES") ~ "yes",
+          is.na(!!rlang::sym(compliance_col_name)) ~ NA,
+          .default = toString(!!rlang::sym(compliance_col_name))
         )
     ) |>
     ungroup()

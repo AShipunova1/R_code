@@ -9,10 +9,10 @@ add_count_contacts <- function(all_data_df_clean) {
   # Mutate a new column 'was_contacted' based on the presence of contact date
   # Convert the result to a factor with levels 'yes' and 'no'
   result_df <- all_data_df_clean %>%
-    dplyr::mutate(was_contacted = dplyr::if_else(is.na(!!sym(contactdate_field_name)), "no", "yes")) %>%
+    dplyr::mutate(was_contacted = dplyr::if_else(is.na(!!rlang::sym(contactdate_field_name)), "no", "yes")) %>%
   
     # Add count of contacts per vessel, considering whether the vessel was contacted or not
-    dplyr::add_count(!!sym(vessel_id_field_name), 
+    dplyr::add_count(!!rlang::sym(vessel_id_field_name), 
               was_contacted, 
               name = "contact_freq")
   
