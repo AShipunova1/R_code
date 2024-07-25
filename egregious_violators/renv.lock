@@ -189,7 +189,7 @@
       "RemoteRepo": "R_code",
       "RemoteUsername": "AShipunova1",
       "RemoteRef": "development",
-      "RemoteSha": "67da535a3f2e808173f708980ad9a4f53625c9d6",
+      "RemoteSha": "e326b8fe2b64d29558314ce3387f6cf00a42fd10",
       "RemoteSubdir": "auxfunctions",
       "Requirements": [
         "DBI",
@@ -213,7 +213,7 @@
         "tidyr",
         "tidyselect"
       ],
-      "Hash": "7e0d6f08310c7a5e7e6fdf0b67ba1712"
+      "Hash": "9ae272be2ea906751e0f783294e34021"
     },
     "backports": {
       "Package": "backports",
