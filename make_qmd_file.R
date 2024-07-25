@@ -452,7 +452,7 @@ get_my_used_function_texts <-
   function(my_used_function_names) {
     my_used_function_texts <-
       my_used_function_names |>
-      map(\(one_f_name) {
+      purrr::map(\(one_f_name) {
         # browser()
         function_list <- utils::getAnywhere(one_f_name)
 
