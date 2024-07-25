@@ -179,7 +179,7 @@ This code checks if the `auxfunctions` package is available, and if not, it inst
 
 ```{r}
 # Check if the username is not "anna.shipunova"
-if (!auxfunctions::get_username() == "anna.shipunova") {
+if (!get_username() == "anna.shipunova") {
     # If the auxfunctions package is not installed, install it from GitHub
   if (!require('auxfunctions')) {
     # devtools::install_github("AShipunova1/R_code/auxfunctions")
@@ -452,13 +452,13 @@ last_week_start <- data_file_date - grace_period
 
  current_project_paths  <-  function () 
 {
-    my_paths <- auxfunctions::set_work_dir()
+    my_paths <- set_work_dir()
     current_project_dir_name <- this.path::this.dir()
     current_project_name <- basename(current_project_dir_name)
     curr_proj_input_path <- file.path(my_paths$inputs, current_project_name)
-    auxfunctions::create_dir_if_not(curr_proj_input_path)
+    create_dir_if_not(curr_proj_input_path)
     curr_proj_output_path <- file.path(my_paths$outputs, current_project_name)
-    auxfunctions::create_dir_if_not(curr_proj_output_path)
+    create_dir_if_not(curr_proj_output_path)
     current_proj_paths <- list(project_name = current_project_name, 
         code = current_project_dir_name, input = curr_proj_input_path, 
         output = curr_proj_output_path)
@@ -510,8 +510,8 @@ Manually: Change the following 2 lists (**my_paths** and **current_in_out_paths*
 
 ```{r}
 # Check if the current username is not "anna.shipunova"
-if (!auxfunctions::get_username() == "anna.shipunova") {
-  auxfunctions::function_message_print(
+if (!get_username() == "anna.shipunova") {
+  function_message_print(
     "Please CHANGE the following 2 lists values to your environment if needed. Use full path to your directories in quotes."
   )
   
@@ -531,8 +531,8 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
   
 } else {
   # If the username is "anna.shipunova", use Anna's directory structure.
-  my_paths <- auxfunctions::set_work_dir()
-  current_in_out_paths <- auxfunctions::current_project_paths()
+  my_paths <- set_work_dir()
+  current_in_out_paths <- current_project_paths()
 }
 ```
 
@@ -557,9 +557,9 @@ current_project_output_path <- current_in_out_paths$output
 Create input and output directories if they don't exist
 
 ```{r}
-auxfunctions::create_dir_if_not(current_project_input_path)
+create_dir_if_not(current_project_input_path)
 
-auxfunctions::create_dir_if_not(current_project_output_path)
+create_dir_if_not(current_project_output_path)
 ```
 
 #### Additional individual paths to data files 
@@ -578,12 +578,12 @@ This section sets up paths for specific data files used in the project
 
 # Explanations for the following code:
 
-# This function constructs full file paths for a list of filenames by combining an input directory, a subdirectory, and the filenames. If `input_dir_part` is not provided, it uses a default directory set by `auxfunctions::set_work_dir()`. The resulting full paths are returned as a list.
+# This function constructs full file paths for a list of filenames by combining an input directory, a subdirectory, and the filenames. If `input_dir_part` is not provided, it uses a default directory set by `set_work_dir()`. The resulting full paths are returned as a list.
 #  
 #  
 # `prepare_csv_full_path <- function(filenames_list, add_path, input_dir_part = NA) list(" ... ")` defines a function `prepare_csv_full_path` that takes a list of filenames (`filenames_list`), a subdirectory path (`add_path`), and an optional input directory part (`input_dir_part`).
 # 
-# list(list(), "  `if (is.na(input_dir_part)) ", list(" ... "), "` checks if `input_dir_part` is `NA`:n", "n", "  ", list(list(), " `is.na(input_dir_part)` checks if `input_dir_part` is `NA`.n", "n", "  ", list(), " If true, it executes the code block inside the `if` statement:n", "n", "    ", list(list(), " `my_paths <- auxfunctions::set_work_dir()` sets the working directory using the `set_work_dir` function from the `auxfunctions` package and assigns the result to `my_paths`.n", "n", "    ", 
+# list(list(), "  `if (is.na(input_dir_part)) ", list(" ... "), "` checks if `input_dir_part` is `NA`:n", "n", "  ", list(list(), " `is.na(input_dir_part)` checks if `input_dir_part` is `NA`.n", "n", "  ", list(), " If true, it executes the code block inside the `if` statement:n", "n", "    ", list(list(), " `my_paths <- set_work_dir()` sets the working directory using the `set_work_dir` function from the `auxfunctions` package and assigns the result to `my_paths`.n", "n", "    ", 
 #     list(), " `input_dir_part <- my_paths$inputs` assigns the `inputs` element of `my_paths` to `input_dir_part`."), "n", "    "))
 # 
 # list("n", list(), " `my_list <- sapply(filenames_list, function(x) ", list(" ... "), ")` uses `sapply` to apply a function to each element in `filenames_list`:n", "n", "  ", list(list(), " `sapply(filenames_list, function(x) ", list(" file.path(input_dir_part, add_path, x) "), ")` constructs full file paths by combining `input_dir_part`, `add_path`, and each filename `x` using `file.path`."), "n", "n", list(), "  `return(paste(my_list) |> as.list())` converts the resulting list of paths to a character vector and then to a list, and returns it:n", 
@@ -593,7 +593,7 @@ This section sets up paths for specific data files used in the project
  prepare_csv_full_path  <-  function (filenames_list, add_path, input_dir_part = NA) 
 {
     if (is.na(input_dir_part)) {
-        my_paths <- auxfunctions::set_work_dir()
+        my_paths <- set_work_dir()
         input_dir_part <- my_paths$inputs
     }
     my_list <- sapply(filenames_list, function(x) {
@@ -623,7 +623,7 @@ Depending on a user name who runs the code, the file paths are constructed here.
 
 ```{r}
 # Check if the username is not "anna.shipunova"
-if (!auxfunctions::get_username() == "anna.shipunova") {
+if (!get_username() == "anna.shipunova") {
     # Combine correspondence CSV path and compliance CSV paths into one list
   all_csv_full_paths_list <-
     c(correspondence_csv_path, fhier_compliance_csv_path_list)
@@ -643,13 +643,13 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
   # prepare_csv_full_path function constructs full file paths by combining base path, additional path, and file names
 
   corresp_full_path <-
-    auxfunctions::prepare_csv_full_path(all_csv_names_list[[1]],
+    prepare_csv_full_path(all_csv_names_list[[1]],
                           add_path = "from_Fhier/Correspondence",
                           input_dir_part = my_paths$inputs)
   
   # Add a full path in front of each file name for compliance CSVs
   compliance_full_paths <-
-    auxfunctions::prepare_csv_full_path(all_csv_names_list[2:3],
+    prepare_csv_full_path(all_csv_names_list[2:3],
                                         add_path = "from_Fhier/FHIER Compliance",
                                         input_dir_part = my_paths$inputs)
   
@@ -684,7 +684,7 @@ Depending on a user name who runs the code, the file paths are constructed here.
 
 ```{r}
 # Check if the username is not "anna.shipunova"
-if (!auxfunctions::get_username() == "anna.shipunova") {
+if (!get_username() == "anna.shipunova") {
   processed_metrics_tracking_file_names <-
     c(
       stringr::str_glue(
@@ -747,7 +747,7 @@ Manually: Add your full path instead of "Your full path here".
 
 ```{r}
 # Check if the username is not "anna.shipunova"
-if (!auxfunctions::get_username() == "anna.shipunova") {
+if (!get_username() == "anna.shipunova") {
   fhier_addresses_path <- "Your full path here"
 } else {
   # for Anna Shipunova, update file name's date
@@ -784,7 +784,7 @@ Manually: Add your full path instead of "Your full path here".
 
 ```{r}
 # Check if the username is not "anna.shipunova"
-if (!auxfunctions::get_username() == "anna.shipunova") {
+if (!get_username() == "anna.shipunova") {
   processed_pims_home_ports_path <- "Your full path here"
 } else {
   # for Anna Shipunova, update file name's date
@@ -817,7 +817,7 @@ Manually: Add your full path instead of "Your full path here".
 
 ```{r}
 # Check if the username is not "anna.shipunova"
-if (!auxfunctions::get_username() == "anna.shipunova") {
+if (!get_username() == "anna.shipunova") {
   prev_result_path <- "Your full path here"
 } else {
   # for Anna Shipunova, update file name's date
@@ -1014,6 +1014,19 @@ Permit info from processed metrics tracking
 
 
 ```{r}
+
+# <<<<
+my_headers_case_function  <-  function (x) 
+{
+    if (!is.character(x)) 
+        x <- as.character(x)
+    .Internal(tolower(x))
+}
+# get_my_used_function_helps(add_f)
+# $my_headers_case_function
+# [1] "\n# Use this aux function in case we want to change the case in all functions.\n# \n# Used in other functions.\n#  \n#  "
+
+# >>>>
 # <<<<
 
 # Explanations for the following code:
@@ -1066,10 +1079,28 @@ Permit info from processed metrics tracking
 
  clean_headers  <-  function (my_df) 
 {
-    new_names <- auxfunctions::fix_names(colnames(my_df))
+    new_names <- fix_names(colnames(my_df))
     colnames(my_df) <- new_names
     return(my_df)
 }
+# >>>>
+ 
+# <<<<
+trim_all_vessel_ids_simple <- 
+  function (csvs_clean_ws, col_name_to_trim = NA) 
+{
+    csvs_clean <- lapply(csvs_clean_ws, function(x) {
+        if (is.na(col_name_to_trim)) {
+            col_name_to_trim <- grep("vessel.*official.*number", 
+                tolower(names(x)), value = TRUE)
+        }
+        col_name_to_trim_s <- rlang::sym(col_name_to_trim)
+        x %>% dplyr::mutate(vessel_official_number = trimws(!!col_name_to_trim_s)) %>% 
+            return()
+    })
+    return(csvs_clean)
+}
+ 
 # >>>>
 
 # <<<<
@@ -1088,13 +1119,38 @@ Permit info from processed metrics tracking
 
  clean_all_csvs  <-  function (csvs, vessel_id_field_name = NA) 
 {
-    csvs_clean0 <- lapply(csvs, auxfunctions::clean_headers)
-    csvs_clean1 <- auxfunctions::trim_all_vessel_ids_simple(csvs_clean0, 
+    csvs_clean0 <- lapply(csvs, clean_headers)
+    csvs_clean1 <- trim_all_vessel_ids_simple(csvs_clean0, 
         vessel_id_field_name)
     return(csvs_clean1)
 }
 # >>>>
 
+# <<<<
+add_count_contacts <- 
+  function (all_data_df_clean) 
+{
+    contactdate_field_name <- find_col_name(all_data_df_clean, 
+        "contact", "date")[1]
+    vessel_id_field_name <- find_col_name(all_data_df_clean, 
+        "vessel", "number")[1]
+    result_df <- all_data_df_clean %>% dplyr::mutate(was_contacted = dplyr::if_else(is.na(!!rlang::sym(contactdate_field_name)), 
+        "no", "yes")) %>% dplyr::add_count(!!rlang::sym(vessel_id_field_name), 
+        was_contacted, name = "contact_freq")
+    return(result_df)
+}
+
+# >>>>
+# <<<<
+find_col_name <- 
+  function (mydf, start_part, end_part) 
+{
+    to_search <- paste0(start_part, ".*", end_part)
+    matching_names <- grep(to_search, tolower(names(mydf)), value = TRUE)
+    return(matching_names)
+}
+
+# >>>>
 # <<<<
 
 # Explanations for the following code:
@@ -1137,14 +1193,14 @@ Permit info from processed metrics tracking
 
  corresp_cleaning  <-  function (corresp_df) 
 {
-    corresp_df_contact_cnts <- auxfunctions::add_count_contacts(corresp_df)
-    createdon_field_name <- auxfunctions::find_col_name(corresp_df, 
+    corresp_df_contact_cnts <- add_count_contacts(corresp_df)
+    createdon_field_name <- find_col_name(corresp_df, 
         "created", "on")[1]
-    contactdate_field_name <- auxfunctions::find_col_name(corresp_df, 
+    contactdate_field_name <- find_col_name(corresp_df, 
         "contact", "date")[1]
-    corresp_df_contact_cnts <- auxfunctions::change_to_dates(corresp_df_contact_cnts, 
+    corresp_df_contact_cnts <- change_to_dates(corresp_df_contact_cnts, 
         createdon_field_name)
-    corresp_df_contact_cnts <- auxfunctions::change_to_dates(corresp_df_contact_cnts, 
+    corresp_df_contact_cnts <- change_to_dates(corresp_df_contact_cnts, 
         contactdate_field_name)
     return(corresp_df_contact_cnts)
 }
@@ -1246,7 +1302,7 @@ Replace all non-alphanumeric characters with underscores ('_'), unify the case
 
 ```{r}
 csvs_clean1 <- 
-  auxfunctions::clean_all_csvs(csv_contents)
+  clean_all_csvs(csv_contents)
 ```
 
 Every time processing for Compliance and Correspondence downloaded from FHIER
@@ -1267,7 +1323,7 @@ Clean and process correspondence data, adding contact information and frequency
 ```{r}
 corresp_contact_cnts_clean0 <- 
   csvs_clean1[[1]] |> 
-  auxfunctions::corresp_cleaning()
+  corresp_cleaning()
 
 # Display the structure of the cleaned correspondence data
 head(corresp_contact_cnts_clean0) |> 
@@ -1284,7 +1340,7 @@ Use all dataframes from the csvs_clean1 list except the first (correspondence)
 ```{r}
 compl_clean_list <-
   csvs_clean1[2:length(csvs_clean1)] |>
-  auxfunctions::compliance_cleaning()
+  compliance_cleaning()
 ```
 
 Assign analysis years as names to the compliance data frames for easy reference
@@ -1400,7 +1456,7 @@ Use the same column names convention.
 fhier_addresses <-
   readr::read_csv(fhier_addresses_path,
            col_types = readr::cols(.default = 'c'),
-           name_repair = auxfunctions::fix_names)
+           name_repair = fix_names)
 ```
 
 Check dimensions of the loaded FHIER addresses data frame
@@ -1591,7 +1647,7 @@ Attempt to establish a connection to Oracle database
 Print an error message if no connection, but keep running the code.
 
 ```{r}
-try(con <- auxfunctions::connect_to_secpr())
+try(con <- connect_to_secpr())
 ```
 
 Define a parameter for a function to fetch participant address data from the database
@@ -1619,15 +1675,15 @@ change column names the same way as everything else.
 
 ```{r}
 db_participants_address <-
-  auxfunctions::read_rds_or_run(
+  read_rds_or_run(
     db_participants_address_file_path,
     db_participants_address_query,
     db_participants_address_fun,
     #' If you want to update the existing file, change the NULL to "yes" 
     force_from_db = NULL
   ) |>
-  auxfunctions::remove_empty_cols() |>
-  auxfunctions::clean_headers()
+  remove_empty_cols() |>
+  clean_headers()
 ```
 
 ## Data from the previous results of "egregious violators for investigation" 
@@ -1694,9 +1750,9 @@ get_previous_result_from_local_file <- function() {
   # remove empty columns,
   # change column names the same way as everything else.
   prev_result0 <-
-    auxfunctions::my_read_xlsx(prev_result_path) |>
-    auxfunctions::remove_empty_cols() |>
-    auxfunctions::clean_headers()
+    my_read_xlsx(prev_result_path) |>
+    remove_empty_cols() |>
+    clean_headers()
   
   # An example
   dim(prev_result0)
@@ -1732,8 +1788,8 @@ get_previous_result_from_google_drive <- function() {
   # And clean it as usual, changing headers to lower case with underscores and removing empty columns
   previous_result <-
     googlesheets4::read_sheet(my_previous_ss) |>
-    auxfunctions::remove_empty_cols() |>
-    auxfunctions::clean_headers()
+    remove_empty_cols() |>
+    clean_headers()
   
   return(previous_result)
 }
@@ -1795,7 +1851,7 @@ results <-
     "prev_result"
   )
 
-auxfunctions::pretty_print(results, "Data are in:")
+pretty_print(results, "Data are in:")
 ```
 
 
@@ -2011,12 +2067,12 @@ Work with the whole period now
  add_compliant_after_override  <-  function (my_compl_df, overridden_col_name = "overridden", compliance_col_name = "is_comp") 
 {
     res <- ungroup(dplyr::mutate(dplyr::rowwise(my_compl_df), 
-        compliant_after_override = dplyr::case_when(!!sym(compliance_col_name) %in% 
-            c(0, "NO") & !!sym(overridden_col_name) %in% c(0, 
-            "NO") ~ "no", !!sym(compliance_col_name) %in% c(1, 
-            "YES") ~ "yes", !!sym(overridden_col_name) %in% c(1, 
-            "YES") ~ "yes", is.na(!!sym(compliance_col_name)) ~ 
-            NA, .default = toString(!!sym(compliance_col_name)))))
+        compliant_after_override = dplyr::case_when(!!rlang::sym(compliance_col_name) %in% 
+            c(0, "NO") & !!rlang::sym(overridden_col_name) %in% c(0, 
+            "NO") ~ "no", !!rlang::sym(compliance_col_name) %in% c(1, 
+            "YES") ~ "yes", !!rlang::sym(overridden_col_name) %in% c(1, 
+            "YES") ~ "yes", is.na(!!rlang::sym(compliance_col_name)) ~ 
+            NA, .default = toString(!!rlang::sym(compliance_col_name)))))
     return(res)
 }
 # >>>>
@@ -2031,7 +2087,7 @@ Apply the add_compliant_after_override function to add a new column indicating c
 tictoc::tic("compl_overr")
 compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr <-
   compl_clean_w_permit_exp_last_half_year__sa__short |>
-  auxfunctions::add_compliant_after_override(overridden_col_name = "overridden_",
+  add_compliant_after_override(overridden_col_name = "overridden_",
                                              compliance_col_name = "compliant_")
 tictoc::toc()
 # compl_overr: 8.76 sec elapsed
@@ -2611,7 +2667,7 @@ compl_corr_to_investigation_short <-
   compl_corr_to_investigation |>
   dplyr::select(-any_of(unused_fields)) |>
   dplyr::group_by(vessel_official_number) |>
-  dplyr::summarise_all(auxfunctions::concat_unique) |>
+  dplyr::summarise_all(concat_unique) |>
   dplyr::ungroup()
 ```
 
@@ -2679,13 +2735,13 @@ Spaces and underscores placements vary from source to source.
 
 ```{r}
 contactdate_field_name <-
-  auxfunctions::find_col_name(compl_corr_to_investigation_short, "contact", "date")[1]
+  find_col_name(compl_corr_to_investigation_short, "contact", "date")[1]
 
 contacttype_field_name <-
-  auxfunctions::find_col_name(compl_corr_to_investigation_short, "contact", "type")[1]
+  find_col_name(compl_corr_to_investigation_short, "contact", "type")[1]
 
 contactphonenumber_field_name <-
-  auxfunctions::find_col_name(compl_corr_to_investigation_short, ".*contact", "number.*")[1]
+  find_col_name(compl_corr_to_investigation_short, ".*contact", "number.*")[1]
 ```
 
 
@@ -2927,7 +2983,7 @@ Clean and standardize FHIER address data, removing duplicates
 ```{r}
 fhier_addr_short_clean <-
   fhier_addr_short |>
-  auxfunctions::clean_names_and_addresses() |>
+  clean_names_and_addresses() |>
   dplyr::distinct()
 
 # nrow(fhier_addr_short_clean)
@@ -3014,7 +3070,7 @@ Result: Dataset now includes FHIER address information for each vessel
 
 
 ```{r}
-# auxfunctions::print_df_names(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
+# print_df_names(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
 ```
 
 Verify completeness of contact information
@@ -3339,7 +3395,7 @@ Explanations for the following code:
 
 4. **Applying Purrr::pmap Function:**
 
-   - `purrr::pmap(dplyr::across(dplyr::ends_with(curr_col_part)), ...)`: It applies the `pmap` function from the purrr package to iterate over columns that end with the current column part (`curr_col_part`). Within the `pmap` call, a custom function (`auxfunctions::list_sort_uniq`) is applied to each corresponding set of columns.
+   - `purrr::pmap(dplyr::across(dplyr::ends_with(curr_col_part)), ...)`: It applies the `pmap` function from the purrr package to iterate over columns that end with the current column part (`curr_col_part`). Within the `pmap` call, a custom function (`list_sort_uniq`) is applied to each corresponding set of columns.
 
 5. **Ungrouping and Selecting Columns:**
 
@@ -3364,7 +3420,7 @@ db_participants_address__needed_short__erv_erb_combined3 <-
       dplyr::group_by(official_number) |>
       dplyr::mutate(!!new_col_name :=
                       purrr::pmap(dplyr::across(dplyr::ends_with(curr_col_part)),
-                                    ~ auxfunctions::list_sort_uniq(.)),
+                                    ~ list_sort_uniq(.)),
              .keep = "none" ) |>
       dplyr::ungroup() |>
       dplyr::select(-official_number)
@@ -3864,7 +3920,7 @@ Check and display the updated column names
 
 
 ```{r}
-auxfunctions::print_df_names(compl_corr_to_investigation_short_dup_marked__permit_region__add_columns)
+print_df_names(compl_corr_to_investigation_short_dup_marked__permit_region__add_columns)
 ```
 
 Generate output file name with current date
@@ -4057,7 +4113,7 @@ write_res_to_google_sheets <-
     # Generate a shareable link for the new spreadsheet
     current_output_file_link <- googledrive::drive_link(current_result_google_ss_name_info)
     
-    auxfunctions::pretty_print(current_output_file_link, "Link to the new spreadsheet:")
+    pretty_print(current_output_file_link, "Link to the new spreadsheet:")
     
     # The function returns the current output file link
     return(current_output_file_link)
