@@ -493,12 +493,16 @@ all_auxfunction_helps <-
 # print("HERE: all_auxfunction_names")
 # print(sort(all_auxfunction_names))
 
+used_auxfunction_names <- all_auxfunction_names
+
 replace_function_with_def <-
-  function(one_line_text, idx) {
+  function(one_line_text,
+           idx,
+           new_used_auxfunction_names = auxfunction_names) {
     
-    # browser()
+    browser()
     # idx <- 10
-    current_function_name <- all_auxfunction_names[[idx]]
+    current_function_name <- new_used_auxfunction_names[[idx]]
     
     print(str_glue("{idx}: {current_function_name}"))
     
@@ -525,7 +529,10 @@ replace_function_with_def <-
       one_line_text_replaced <-
         str_replace(one_line_text, to_find_function_name, to_replace_with)
       
-      return(one_line_text_replaced)
+      new_used_auxfunction_names <- 
+        new_used_auxfunction_names |> str_subset(str_glue("[^{current_function_name}]"))
+
+      return(c(one_line_text_replaced, used_auxfunction_names))
       
     }, error = function(cond) {
       message(paste("idx:", idx))
@@ -539,7 +546,7 @@ replace_function_with_def <-
       add_text_in_front <-
         str_glue("MOVE it: _START_ {current_function_name} {to_replace_with} _END_ #'{my_split_newline_char} {one_line_text}{my_split_newline_char}\n")
       
-      return(add_text_in_front)
+      return(c(add_text_in_front, new_used_auxfunction_names))
     }, warning = function(cond) {}, 
     finally = {
       # message("Some other message at the end")
@@ -554,15 +561,57 @@ one_line_text <-
 length(one_line_text) == 1
 # T
 
-one_line_text_replaced <-
-  purrr::reduce(seq_len(length(all_auxfunction_names)), \(acc, nxt)
+# for (variable in vector) {
+# for (idx in seq_len(length(all_auxfunction_names))) {
+#   browser()
+#   res <- replace_function_with_def(one_line_text, idx, used_auxfunction_names)
+#   new_text <- res[[1]]
+#   used_auxfunction_names <- res[2:length(res)]
+#   
+# }
+
+test_reduce_fun <- function(variables) {
+}
+# auxfunction_names
+
+found_names = c()
+purrr::reduce(
+  .x = used_auxfunction_names,
+  .f =   function(my_text, next_f_name)
+  {
+    browser()
+    is_found <- grepl(next_f_name, my_text)
+    if(is_found) {
+      found_names <- c(found_names, next_f_name)
+    }
+    return(my_text)
+  },
+  .init = one_line_text
+)
+
+
+  purrr::reduce2(
+    .x = c("abc", "123", "klm"),
+    .y = c("za12", "poi", "uyt"),
+    .f = function(x, y, init) {
+        gsub(pattern = x,
+             replacement = y,
+             x = init)
+    },
+    .init = tst_str
+)
+
+one_line_text_replaced_1 <-
+  purrr::reduce(all_auxfunction_names, 
+                 \(acc, nxt)
                 {
                   # browser()
-                  replace_function_with_def(acc, nxt)}, .init = one_line_text
+                  replace_function_with_def(acc, nxt, all_auxfunction_names)}, .init = one_line_text
   )
 
+
 text_replaced <-
-  split_one_line_text_back(one_line_text_replaced)
+  split_one_line_text_back(one_line_text_replaced_3)
 
 length(text_replaced)
 # 1218
@@ -583,9 +632,9 @@ text_replaced_1 <-
   text_replaced |> 
   str_replace_all("auxfunctions::", "") |> 
   str_replace_all("devtools::install_github", "# devtools::install_github") |> 
-  str_replace_all("library(auxfunctions)", "# library(auxfunctions)") |> 
+  str_replace_all("library(auxfunctions)", "# library(auxfunctions)")
 
-# length(text_replaced_1)
+length(text_replaced_1)
 
 # convert to Rmd ----
 # The 'knitr::spin' function is used to create an R Markdown (Rmd) file, but the 'knit' argument is set to 'FALSE', indicating that the document should not be fully knitted. Instead, this function generates an Rmd file from the R script without executing the code chunks.
