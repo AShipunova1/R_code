@@ -189,7 +189,7 @@
       "RemoteRepo": "R_code",
       "RemoteUsername": "AShipunova1",
       "RemoteRef": "development",
-      "RemoteSha": "e326b8fe2b64d29558314ce3387f6cf00a42fd10",
+      "RemoteSha": "ccdf6b1278898ff2210401fa5f2240ae27177dfe",
       "RemoteSubdir": "auxfunctions",
       "Requirements": [
         "DBI",
@@ -213,7 +213,7 @@
         "tidyr",
         "tidyselect"
       ],
-      "Hash": "9ae272be2ea906751e0f783294e34021"
+      "Hash": "60a2ce908a74b7b6ef9976cbdf030fff"
     },
     "backports": {
       "Package": "backports",
@@ -1407,7 +1407,7 @@
     },
     "openxlsx": {
       "Package": "openxlsx",
-      "Version": "4.2.6",
+      "Version": "4.2.6.1",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -1420,7 +1420,7 @@
         "utils",
         "zip"
       ],
-      "Hash": "c56736ba9246e264e7e3937ae83dcee4"
+      "Hash": "bd8fbd2904be3ce8fdf529a4f74a0c29"
     },
     "pillar": {
       "Package": "pillar",
