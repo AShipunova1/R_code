@@ -381,29 +381,14 @@ flat_file_r_text
 # flat_file_r_text <-
   # add_pretty_table(flat_file_r_text)
 
-# Add my functions' descriptions ----
+# Add auxfunctions' descriptions ----
 
-## if with auxfunctions:: prefix ----
+## Get all function names ----
 
-get_my_func_names_wo_prefix <-
-  function(in_text, search_str = "auxfunctions::") {
-    to_search <- str_glue("{search_str}(\\w+)\\W")
-    
-    my_used_function_names <-
-      stringr::str_extract(in_text, to_search) |>
-      unique() |>
-      na.omit() |>
-      stringr::str_replace_all(to_search, "\\1") |> 
-      unique()
-
-    return(my_used_function_names)
-  }
-
-my_used_function_names <-
-  get_my_func_names_wo_prefix(flat_file_r_text)
-
-# grep("concat_unique", my_used_function_names)
 # see_res_in_outfile(flat_file_r_text)
+
+all_auxfunction_names <- 
+  lsf.str("package:auxfunctions") |> str_replace("(.+) :.+", "\\1")
 
 ## a function to get function help as a text ----
 get_help_text <- function(function_name) {
@@ -447,11 +432,11 @@ function_obj_as_text <- function(function_name) {
 # for \s and \b in the cited functions
 my_slash_replacement <- "QQQ"
 
-## get all my_used_function_texts ----
-get_my_used_function_texts <-
-  function(my_used_function_names) {
-    my_used_function_texts <-
-      my_used_function_names |>
+## get all all_auxfunction_texts ----
+get_all_auxfunction_texts <-
+  function(all_auxfunction_names) {
+    all_auxfunction_texts <-
+      all_auxfunction_names |>
       purrr::map(\(one_f_name) {
         # browser()
         function_list <- utils::getAnywhere(one_f_name)
@@ -466,90 +451,36 @@ get_my_used_function_texts <-
 
         return(with_first_line)
       }) |>
-      rlang::set_names(my_used_function_names)
+      rlang::set_names(all_auxfunction_names)
 
     # not used for now
-    my_used_function_texts_commented <-
-      my_used_function_texts |>
-      stringr::str_replace_all("\n", "\n# ")
+    # all_auxfunction_texts_commented <-
+    #   all_auxfunction_texts |>
+    #   stringr::str_replace_all("\n", "\n# ")
 
-    return(my_used_function_texts)
+    return(all_auxfunction_texts)
   }
 
-my_used_function_texts <-
-  get_my_used_function_texts(my_used_function_names)
-# View(my_used_function_texts)
+all_auxfunction_texts <-
+  get_all_auxfunction_texts(all_auxfunction_names)
+# View(all_auxfunction_texts)
 
 ## get all my used function helps ----
-get_my_used_function_helps <-
-  function(my_used_function_names) {
-    my_used_function_helps <-
-      my_used_function_names |>
+get_all_auxfunction_helps <-
+  function(all_auxfunction_names) {
+    all_auxfunction_helps <-
+      all_auxfunction_names |>
       purrr::map(\(one_f_name) {
         get_help_text(one_f_name)
       }) |>
-      rlang::set_names(my_used_function_names)
-    return(my_used_function_helps)
+      rlang::set_names(all_auxfunction_names)
+    return(all_auxfunction_helps)
   }
 
-my_used_function_helps <-
-  get_my_used_function_helps(my_used_function_names)
+all_auxfunction_helps <-
+  get_all_auxfunction_helps(all_auxfunction_names)
 
-# glimpse(my_used_function_helps)
-
-## check functions code for nested function calls which are not in `my_used_function_names` yet ----
-
-nested_functions <-
-  my_used_function_texts |>
-  get_my_func_names_wo_prefix()
-
-my_used_function_names_from_nested <-
-  setdiff(nested_functions, my_used_function_names)
-
-my_used_function_texts_from_nested <-
-  get_my_used_function_texts(my_used_function_names_from_nested)
-
-# That could be done once, if all function text is found together, not nested and nested
-my_used_function_helps_from_nested <-
-  get_my_used_function_helps(my_used_function_names_from_nested)
-
-# TODO: do the part from
-# nested_functions <-
-#   my_used_function_texts |>
-#   get_my_func_names_wo_prefix()
-# recursively, until
-# length(nested_functions_last_check) == 0
-
-nested_functions_last_check <-
-  my_used_function_texts_from_nested |>
-  get_my_func_names_wo_prefix()
-
-length(nested_functions_last_check) == 0
-
-## Combine all my_used_function_names in one list ----
-my_used_function_names_all <-
-  c(my_used_function_names, my_used_function_names_from_nested)
-
-length(my_used_function_names_all) ==
-  length(my_used_function_names_from_nested) +
-  length(my_used_function_names)
-
-## Combine all help documents in one list ----
-my_used_function_helps_all <-
-  c(my_used_function_helps_from_nested, my_used_function_helps)
-
-length(my_used_function_helps_all) ==
-  length(my_used_function_helps_from_nested) +
-  length(my_used_function_helps)
-
-## Combine all function texts in one list ----
-
-my_used_function_texts_all <-
-  c(my_used_function_texts_from_nested, my_used_function_texts)
-
-length(my_used_function_texts_all) ==
-  length(my_used_function_texts_from_nested) +
-  length(my_used_function_texts)
+# glimpse(all_auxfunction_helps)
 
 ## Paste function code and description before it is used ----
 
@@ -557,18 +488,19 @@ length(my_used_function_texts_all) ==
 # grep("@@", flat_file_r_text, value = T)
 # 0
 
-# my_used_function_names_all[[3]]
+# all_auxfunction_names[[3]]
 
-print("HERE: my_used_function_names_all")
-print(sort(my_used_function_names_all))
+# print("HERE: all_auxfunction_names")
+# print(sort(all_auxfunction_names))
 
 replace_function_with_def <-
   function(one_line_text, idx) {
     
     # browser()
     # idx <- 10
-    current_function_name <- my_used_function_names_all[[idx]]
-    print(current_function_name)
+    current_function_name <- all_auxfunction_names[[idx]]
+    
+    print(str_glue("{idx}: {current_function_name}"))
     
     # add parenthesis for back reference
     to_find_function_name <- str_glue("(",
@@ -579,8 +511,8 @@ replace_function_with_def <-
       paste(
         "\n# <<<<",
         "\n# Explanations for the following code:",
-        my_used_function_helps_all[[current_function_name]],
-        my_used_function_texts_all[[current_function_name]],
+        all_auxfunction_helps[[current_function_name]],
+        all_auxfunction_texts[[current_function_name]],
         "# >>>>",
         # to keep in place what's found
         "\\1",
@@ -623,7 +555,7 @@ length(one_line_text) == 1
 # T
 
 one_line_text_replaced <-
-  purrr::reduce(seq_len(length(my_used_function_names_all)), \(acc, nxt)
+  purrr::reduce(seq_len(length(all_auxfunction_names)), \(acc, nxt)
                 {
                   # browser()
                   replace_function_with_def(acc, nxt)}, .init = one_line_text
@@ -635,11 +567,12 @@ text_replaced <-
 length(text_replaced)
 # 1218
 # 2404 with auxf
+# 2510 from all
 
 # grep("fix_names", text_replaced, value = T)
 
 # check
-# grep(my_used_function_names_all[[23]],
+# grep(all_auxfunction_names[[23]],
 #      text_replaced, value = T)
 
 # To debug
@@ -649,9 +582,9 @@ length(text_replaced)
 # The 'knitr::spin' function is used to create an R Markdown (Rmd) file, but the 'knit' argument is set to 'FALSE', indicating that the document should not be fully knitted. Instead, this function generates an Rmd file from the R script without executing the code chunks.
 
 # check
-# identical(length(text_replaced), length(flat_file_r_text))
+# identical(length(text_replaced_1), length(flat_file_r_text))
 
-flat_file_r_text <- text_replaced
+flat_file_r_text <- text_replaced_1
 
 tictoc::tic("rmd_text")
 rmd_text <-
