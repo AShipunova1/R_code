@@ -578,6 +578,15 @@ length(text_replaced)
 # To debug
 # see_res_in_outfile(text_replaced)
 
+# Remove all "auxfunctions::" ----
+text_replaced_1 <-
+  text_replaced |> 
+  str_replace_all("auxfunctions::", "") |> 
+  str_replace_all("devtools::install_github", "# devtools::install_github") |> 
+  str_replace_all("library(auxfunctions)", "# library(auxfunctions)") |> 
+
+# length(text_replaced_1)
+
 # convert to Rmd ----
 # The 'knitr::spin' function is used to create an R Markdown (Rmd) file, but the 'knit' argument is set to 'FALSE', indicating that the document should not be fully knitted. Instead, this function generates an Rmd file from the R script without executing the code chunks.
 
