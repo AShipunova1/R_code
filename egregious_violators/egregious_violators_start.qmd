@@ -182,11 +182,11 @@ This code checks if the `auxfunctions` package is available, and if not, it inst
 if (!auxfunctions::get_username() == "anna.shipunova") {
     # If the auxfunctions package is not installed, install it from GitHub
   if (!require('auxfunctions')) {
-    devtools::install_github("AShipunova1/R_code/auxfunctions")
+    # devtools::install_github("AShipunova1/R_code/auxfunctions")
   }
 } else {
   # For a developer, rebuild the package from the development branch. To force the installation change to 'force = TRUE'
-  devtools::install_github("AShipunova1/R_code/auxfunctions@development", force = FALSE)
+  # devtools::install_github("AShipunova1/R_code/auxfunctions@development", force = FALSE)
   # restart R session to pick up changes
   # .rs.restartR()
 }
