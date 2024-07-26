@@ -63,15 +63,12 @@
 #' 
 
 needed_packages <- c(
+  "tidyverse",
+  "ROracle",
+  "DBI",
   "devtools", # Collection of package development tools.
   "zoo", # Handling time series data.
-  "diffdf", # Compares dataframes and identifies differences.
-  # packages for Google Sheets and Google Drive
-  #
-  # Refer to this guide: https://felixanalytix.medium.com/how-to-read-write-append-google-sheet-data-using-r-programming-ecf278108691#:~:text=There%20are%203%20ways%20to%20read%20this%20Google%20sheet%20into%20R.&text=Just%20to%20take%20the%20URL,URL%20but%20just%20the%20ID).
-  #
-  "googlesheets4", # Google Sheets via the Sheets API v4
-  "googledrive" # Interact with Google Drive
+  "diffdf" # Compares dataframes and identifies differences.
 )
 
 #' Explanations for the following code:
@@ -132,7 +129,9 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
 
 # Load the ROracle package for database interactions with Oracle databases.
 library(ROracle)
-# Load the magrittr package for piping operation %>%. In some cases the base R "|>" works differently. See more https://www.tidyverse.org/blog/2023/04/base-vs-magrittr-pipe/
+library(DBI)
+
+# Load the magrittr package for piping operation %>%. In some cases the base R "|>" works differently. See more at https://www.tidyverse.org/blog/2023/04/base-vs-magrittr-pipe/
 library(magrittr)
 
 ## Define dates ----
