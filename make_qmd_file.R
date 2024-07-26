@@ -666,12 +666,14 @@ length(text_replaced)
 # To debug
 # see_res_in_outfile(text_replaced)
 
-# Remove all "auxfunctions::" ----
+# Remove or comment out all "auxfunctions::" ----
 text_replaced_1 <-
   text_replaced |> 
   str_replace_all("auxfunctions::", "") |> 
-  str_replace_all("devtools::install_github", "# devtools::install_github") |> 
-  str_replace_all("library\\(auxfunctions\\)", "# library(auxfunctions)")
+  str_replace_all("devtools::install_github", "# Turn off commenting if you want to take advantage of an R package, for example, to see a function definition and help documentation the standard way (?function_name, F1, or F2).\n
+                  # devtools::install_github") |> 
+  str_replace_all("library\\(auxfunctions\\)", "# Turn off commenting if you want to take advantage of an R package, for example, to see a function definition and help documentation the standard way (?function_name, F1, or F2).\n
+                  # library(auxfunctions)")
 
 length(text_replaced_1)
 
