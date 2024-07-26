@@ -666,16 +666,24 @@ length(text_replaced)
 # To debug
 see_res_in_outfile(text_replaced)
 
+# 
+
 # Remove or comment out all "auxfunctions::" ----
 text_replaced_1 <-
-  text_replaced |> 
-  str_replace_all("devtools::install_github", "# Turn off commenting if you want to take advantage of an R package, for example, to see a function definition and help documentation the standard way (?function_name, F1, or F2).\n
-                  # devtools::install_github") |> 
-  str_replace_all("library\\(auxfunctions\\)", "# Turn off commenting if you want to take advantage of an R package, for example, to see a function definition and help documentation the standard way (?function_name, F1, or F2).\n
-                  # library(auxfunctions)")
-
+  text_replaced |>
+  str_replace_all(
+    "(install_helper_functions\\(\\))",
+    str_glue("# Turn off commenting if you want to take advantage of an R package, for example, to see a function definition and help documentation the standard way (?function_name, F1, or F2).\n# \\1"
+  ))
+# 
 length(text_replaced_1)
-# 2526
+# 2531
+
+see_res_in_outfile(text_replaced_1)
+# For now (rm when the code below works):
+text_replaced_no_aux <-
+  text_replaced_1 |>
+  str_replace_all("auxfunctions::", "")
 
 # rm auxfunctions:: in comments
 text_replaced_2 <-
@@ -703,7 +711,8 @@ see_res_in_outfile(text_replaced_2)
 # check
 # identical(length(text_replaced_1), length(flat_file_r_text))
 
-flat_file_r_text <- text_replaced_1
+# flat_file_r_text <- text_replaced_1
+flat_file_r_text <- text_replaced_no_aux
 
 tictoc::tic("rmd_text")
 rmd_text <-
