@@ -671,7 +671,7 @@ text_replaced_1 <-
   text_replaced |> 
   str_replace_all("auxfunctions::", "") |> 
   str_replace_all("devtools::install_github", "# devtools::install_github") |> 
-  str_replace_all("library(auxfunctions)", "# library(auxfunctions)")
+  str_replace_all("library\\(auxfunctions\\)", "# library(auxfunctions)")
 
 length(text_replaced_1)
 
