@@ -493,7 +493,16 @@ all_auxfunction_helps <-
 # print("HERE: all_auxfunction_names")
 # print(sort(all_auxfunction_names))
 
-used_auxfunction_names <- all_auxfunction_names
+used_auxfunction_names <- c()
+
+for (fun_name in all_auxfunction_names) {
+  browser()
+  fun_found <-
+    stringr::str_detect(flat_file_r_text, fun_name)
+  if (any(fun_found)) {
+    used_auxfunction_names <- c(used_auxfunction_names, fun_name)
+  }
+}
 
 replace_function_with_def <-
   function(one_line_text,
@@ -573,6 +582,9 @@ length(one_line_text) == 1
 test_reduce_fun <- function(variables) {
 }
 # auxfunction_names
+
+rr <-
+  grepl(paste0(used_auxfunction_names, collapse = "|"), one_line_text)
 
 found_names = c()
 purrr::reduce(
