@@ -598,7 +598,7 @@ replace_function_with_def <-
         str_replace(one_line_text, to_find_function_name, to_replace_with)
       
       if (one_line_text_replaced == one_line_text) {
-        browser()
+        # browser()
         one_line_text_replaced <- 
           add_in_front(current_function_name,
                      to_replace_with,
@@ -654,6 +654,8 @@ length(text_replaced)
 # 1218
 # 2404 with auxf
 # 2510 from all
+
+# see_res_in_outfile(text_replaced)
 
 # grep("fix_names", text_replaced, value = T)
 
