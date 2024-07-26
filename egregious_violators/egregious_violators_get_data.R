@@ -41,7 +41,7 @@
 #' 
 #' From a separate code
 #'  
-#' For the last 6 month
+#' For the last 6 month or more
 #' 
 #' a File name example
 #' SEFHIER_permitted_vessels_nonSRHS_YEAR.csv
@@ -76,7 +76,7 @@
 #' "~\egregious_violators\egregious_violators_to_investigate_2024-05-17.xlsx"
 #' 
 
-# FHIER ----
+# Load FHIER data ----
 #' This section focuses on data from the For-Hire Integrated Electronic Reporting Program (FHIER)
 #' 
 #' Compliance
@@ -236,7 +236,7 @@ fhier_addresses <-
 dim(fhier_addresses)
 # Example result: [1] 3386    7
 
-# PIMS ----
+# Load PIMS data ----
 
 #' 
 #' Load processed PIMS (Permit Information Management System) home port data
@@ -244,7 +244,7 @@ dim(fhier_addresses)
 
 ## Home port processed city and state ----
 
-#' This dataset contains information about vessel home ports, including city and state
+#' This dataset contains information about vessel home ports, including city and state. Update every 4 month.
 #' 
 
 processed_pims_home_ports <- 
@@ -254,7 +254,7 @@ processed_pims_home_ports <-
 dim(processed_pims_home_ports)
 # [1] 23303     3
 
-# Load from Oracle db ----
+# Load data from Oracle db ----
 ## Get owners addresses ----
 
 #' Create parameters for `read_rds_or_run` function to read or download "participants address"
@@ -310,7 +310,7 @@ db_participants_address <-
   auxfunctions::remove_empty_cols() |>
   auxfunctions::clean_headers()
 
-# Data from the previous results of "egregious violators for investigation" ----
+# Load data from the previous results of "egregious violators for investigation" ----
 
 #' The following section deals with data from previous "egregious violators for investigation" results
 #' 
