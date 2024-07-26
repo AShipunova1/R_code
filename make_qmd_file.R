@@ -499,6 +499,7 @@ new_short_fun_names_vector <- all_auxfunction_names
 temp_text_w_auxfun <- list(flat_file_r_text)
 old_fun_names <- c()
 
+# Have to add the found function texts and search for the list of fun names again amongst them
 repeat ({
   old_fun_names <- new_short_fun_names_vector
   
@@ -535,7 +536,7 @@ repeat ({
   temp_text_w_auxfun
 })
 
-temp_text_w_auxfun |> length()
+temp_text_w_auxfun |> length() ==
 temp_text_w_auxfun |> unique() |> length()
 
 all_auxfunction_texts <- 
@@ -543,12 +544,13 @@ all_auxfunction_texts <-
 
 names(all_auxfunction_texts) <- used_auxfunction_names
 
-View(all_auxfunction_texts)
+# View(all_auxfunction_helps)
 
 all_auxfunction_helps <- 
   get_all_auxfunction_helps(used_auxfunction_names)
 
-  temp_text_w_auxfun[2:length(temp_text_w_auxfun)]
+
+
 
 replace_function_with_def <-
   function(one_line_text,
