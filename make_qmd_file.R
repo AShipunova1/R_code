@@ -528,13 +528,28 @@ repeat ({
   used_auxfunction_texts <-
     get_all_auxfunction_texts(used_auxfunction_names)
   
-  temp_text_w_auxfun <- c(temp_text_w_auxfun, used_auxfunction_texts)
-  
+  temp_text_w_auxfun <- 
+    c(temp_text_w_auxfun, used_auxfunction_texts) |> 
+    unique()
   
   temp_text_w_auxfun
 })
 
-View(temp_text_w_auxfun)
+temp_text_w_auxfun |> length()
+temp_text_w_auxfun |> unique() |> length()
+
+all_auxfunction_texts <- 
+  temp_text_w_auxfun[2:length(temp_text_w_auxfun)]
+
+names(all_auxfunction_texts) <- used_auxfunction_names
+
+View(all_auxfunction_texts)
+
+all_auxfunction_helps <- 
+  get_all_auxfunction_helps(used_auxfunction_names)
+
+  temp_text_w_auxfun[2:length(temp_text_w_auxfun)]
+
 replace_function_with_def <-
   function(one_line_text,
            auxfunction_names) {
