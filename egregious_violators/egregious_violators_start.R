@@ -89,7 +89,7 @@ if (any(installed_packages == FALSE)) {
   install.packages(packages[!installed_packages])
 }
 
-#' Helper functions for SEFHIER data analysis.
+#' Install helper functions for SEFHIER data analysis.
 #'
 #' Explanations for the following code:
 #' 
@@ -115,19 +115,24 @@ if (any(installed_packages == FALSE)) {
 #' 
 #' This code checks if the `auxfunctions` package is available, and if not, it installs it from the GitHub repository `AShipunova1/R_code/auxfunctions`.
 #' 
-# Check if the username is not "anna.shipunova"
-if (!auxfunctions::get_username() == "anna.shipunova") {
+
+install_helper_functions <- function() {
+  # Check if the username is not "anna.shipunova"
+  if (!auxfunctions::get_username() == "anna.shipunova") {
     # If the auxfunctions package is not installed, install it from GitHub
-  if (!require('auxfunctions')) {
-    devtools::install_github("AShipunova1/R_code/auxfunctions")
+    if (!require('auxfunctions')) {
+      devtools::install_github("AShipunova1/R_code/auxfunctions")
+    }
+  } else {
+    # For a developer, rebuild the package from the development branch. To force the installation change to 'force = TRUE'
+    devtools::install_github("AShipunova1/R_code/auxfunctions@development", force = FALSE)
+    # restart R session to pick up changes
+    # .rs.restartR()
+    library(auxfunctions)
   }
-} else {
-  # For a developer, rebuild the package from the development branch. To force the installation change to 'force = TRUE'
-  devtools::install_github("AShipunova1/R_code/auxfunctions@development", force = FALSE)
-  # restart R session to pick up changes
-  # .rs.restartR()
-  library(auxfunctions)
 }
+
+install_helper_functions()
 
 # Load the ROracle package for database interactions with Oracle databases.
 library(ROracle)
@@ -388,7 +393,7 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
 file.exists(fhier_addresses_path)
 
 #### Home port processed city and state path ----
-#' Download first from Google drive.
+#' Download first from Google Drive or recreate it if it was more than 4 months.
 #' 
 #' Set the path for processed PIMS home ports based on the user.
 #' 
