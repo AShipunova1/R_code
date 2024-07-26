@@ -9,6 +9,8 @@
 #' 
 #' It combines compliance and correspondence data, applies specific filters,
 #' and prepares a report of vessels requiring further investigation.
+#'
+#' You will need to load various files, and use various R scripts in order for this analytical file to works.
 #' 
 #' The Setup section includes necessary libraries, functions, and data loading.
 #' 
@@ -182,7 +184,9 @@ lubridate::week(half_year_ago)
 
 lubridate::wday(half_year_ago, label = T)
 #'
-#' Set the minimum date for permit expiration (30 days from today)
+#' Set the minimum date for permit expiration (30 days from today).
+#' If the permit expired before we do not include the egregious violators in the results.
+
 permit_expired_check_date <- data_file_date + 30
 #'
 #' Define the start of the last week, excluding it from analysis
@@ -748,7 +752,7 @@ compl_clean_w_permit_exp_last_half_year__sa |>
       year_month < zoo::as.yearmon(data_file_date)
   ) |>
   nrow()
-#' A result of 0 indicates no new compliant reports have been submitted for selected vessels
+#' A result of 0 indicates no new compliant reports have been submitted for selected vessels. If it is not a zero, comment "nrow()" at the last line and the pipe sign before and investigate.
 #'
 #' End of Compliance preparations 
 #' 
@@ -1243,7 +1247,8 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_m
 
 ## 4. How many are duals? ----
 #' Identify and count vessels with dual permits (both SA and GOM)
-
+#' 
+#' 
 #' Explanations for the following code:
 #' 
 #' Create a new dataframe 
