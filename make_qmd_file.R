@@ -494,22 +494,42 @@ all_auxfunction_helps <-
 # print(sort(all_auxfunction_names))
 
 used_auxfunction_names <- c()
+flat_file_r_text_with_auxfun_docs <- ""
+new_short_fun_names_vector <- all_auxfunction_names
 
-for (fun_name in all_auxfunction_names) {
-  browser()
-  fun_found <-
-    stringr::str_detect(flat_file_r_text, fun_name)
-  if (any(fun_found)) {
-    used_auxfunction_names <- c(used_auxfunction_names, fun_name)
+repeat ({
+  if (length(new_short_fun_names_vector) == 0)
+    break()
+  # the end was reached...
+  
+  for (fun_name in new_short_fun_names_vector) {
+    # browser()
+    fun_found <-
+      stringr::str_detect(flat_file_r_text, fun_name)
+    if (any(fun_found)) {
+      used_auxfunction_names <- c(used_auxfunction_names, fun_name)
+    }
   }
-}
+  
+  length(used_auxfunction_names)
+  # 22
+  
+  new_short_fun_names_vector <-
+    setdiff(new_short_fun_names_vector, used_auxfunction_names)
+
+  
+  # result <- rbind(result, data)
+  # i <- i + 1
+})
+
+
+
 
 replace_function_with_def <-
   function(one_line_text,
-           idx,
-           new_used_auxfunction_names = auxfunction_names) {
+           current_function_name) {
     
-    browser()
+    # browser()
     # idx <- 10
     current_function_name <- new_used_auxfunction_names[[idx]]
     
