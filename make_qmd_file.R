@@ -492,20 +492,21 @@ all_auxfunction_helps <-
 
 # print("HERE: all_auxfunction_names")
 # print(sort(all_auxfunction_names))
-
 used_auxfunction_names <- c()
+used_auxfunction_texts <- list()
 flat_file_r_text_with_auxfun_docs <- ""
 new_short_fun_names_vector <- all_auxfunction_names
+temp_text_w_auxfun <- list(flat_file_r_text)
 
 repeat ({
   if (length(new_short_fun_names_vector) == 0)
     break()
   # the end was reached...
   
+ # get function names 
   for (fun_name in new_short_fun_names_vector) {
-    # browser()
     fun_found <-
-      stringr::str_detect(flat_file_r_text, fun_name)
+      stringr::str_detect(unlist(temp_text_w_auxfun), fun_name)
     if (any(fun_found)) {
       used_auxfunction_names <- c(used_auxfunction_names, fun_name)
     }
@@ -513,25 +514,28 @@ repeat ({
   
   length(used_auxfunction_names)
   # 22
-  
+  browser()
+
+  # new iteration
   new_short_fun_names_vector <-
     setdiff(new_short_fun_names_vector, used_auxfunction_names)
 
+   # get function texts
+  used_auxfunction_texts <-
+    get_all_auxfunction_texts(used_auxfunction_names)
   
-  # result <- rbind(result, data)
-  # i <- i + 1
+  temp_text_w_auxfun <- c(temp_text_w_auxfun, used_auxfunction_texts)
+  
+  temp_text_w_auxfun
 })
-
-
-
 
 replace_function_with_def <-
   function(one_line_text,
-           current_function_name) {
+           auxfunction_names) {
     
     # browser()
     # idx <- 10
-    current_function_name <- new_used_auxfunction_names[[idx]]
+    current_function_name <- auxfunction_names[[idx]]
     
     print(str_glue("{idx}: {current_function_name}"))
     
@@ -590,23 +594,6 @@ one_line_text <-
 length(one_line_text) == 1
 # T
 
-# for (variable in vector) {
-# for (idx in seq_len(length(all_auxfunction_names))) {
-#   browser()
-#   res <- replace_function_with_def(one_line_text, idx, used_auxfunction_names)
-#   new_text <- res[[1]]
-#   used_auxfunction_names <- res[2:length(res)]
-#   
-# }
-
-test_reduce_fun <- function(variables) {
-}
-# auxfunction_names
-
-rr <-
-  grepl(paste0(used_auxfunction_names, collapse = "|"), one_line_text)
-
-found_names = c()
 purrr::reduce(
   .x = used_auxfunction_names,
   .f =   function(my_text, next_f_name)
@@ -621,24 +608,12 @@ purrr::reduce(
   .init = one_line_text
 )
 
-
-  purrr::reduce2(
-    .x = c("abc", "123", "klm"),
-    .y = c("za12", "poi", "uyt"),
-    .f = function(x, y, init) {
-        gsub(pattern = x,
-             replacement = y,
-             x = init)
-    },
-    .init = tst_str
-)
-
 one_line_text_replaced_1 <-
   purrr::reduce(all_auxfunction_names, 
                  \(acc, nxt)
                 {
                   # browser()
-                  replace_function_with_def(acc, nxt, all_auxfunction_names)}, .init = one_line_text
+                  replace_function_with_def(acc, nxt)}, .init = one_line_text
   )
 
 
