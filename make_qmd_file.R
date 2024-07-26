@@ -664,18 +664,38 @@ length(text_replaced)
 #      text_replaced, value = T)
 
 # To debug
-# see_res_in_outfile(text_replaced)
+see_res_in_outfile(text_replaced)
 
 # Remove or comment out all "auxfunctions::" ----
 text_replaced_1 <-
   text_replaced |> 
-  str_replace_all("auxfunctions::", "") |> 
   str_replace_all("devtools::install_github", "# Turn off commenting if you want to take advantage of an R package, for example, to see a function definition and help documentation the standard way (?function_name, F1, or F2).\n
                   # devtools::install_github") |> 
   str_replace_all("library\\(auxfunctions\\)", "# Turn off commenting if you want to take advantage of an R package, for example, to see a function definition and help documentation the standard way (?function_name, F1, or F2).\n
                   # library(auxfunctions)")
 
 length(text_replaced_1)
+# 2526
+
+# rm auxfunctions:: in comments
+text_replaced_2 <-
+  text_replaced_1 |>
+  str_replace_all("(#.+)auxfunctions::", "\\1")
+
+length(text_replaced_2)
+see_res_in_outfile(text_replaced_2)
+
+# Add this text just above if not in a comment
+# text_replaced_2_one_line <- to_one_line(text_replaced_2, my_split_newline_char)
+
+text_replaced_3 <-
+  text_replaced_2 |>
+  str_replace_all("^([^#]*)auxfunctions::([^(]+)\\(",
+                  "# Use function \\2 defined above.\\n\\1\\2(")
+
+length(text_replaced_3)
+
+see_res_in_outfile(text_replaced_2)
 
 # convert to Rmd ----
 # The 'knitr::spin' function is used to create an R Markdown (Rmd) file, but the 'knit' argument is set to 'FALSE', indicating that the document should not be fully knitted. Instead, this function generates an Rmd file from the R script without executing the code chunks.
