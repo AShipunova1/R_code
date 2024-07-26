@@ -539,28 +539,40 @@ repeat ({
 temp_text_w_auxfun |> length() ==
 temp_text_w_auxfun |> unique() |> length()
 
-all_auxfunction_texts <- 
+my_used_function_texts <- 
   temp_text_w_auxfun[2:length(temp_text_w_auxfun)]
 
-names(all_auxfunction_texts) <- used_auxfunction_names
+names(my_used_function_texts) <- used_auxfunction_names
 
-# View(all_auxfunction_helps)
-
-all_auxfunction_helps <- 
+my_used_function_helps <- 
   get_all_auxfunction_helps(used_auxfunction_names)
 
+#' Put texts and helps into the code
+#' 
 
-
+# Choose a return value in case of error
+add_in_front <-
+  function(current_function_name,
+           to_replace_with,
+           my_split_newline_char,
+           one_line_text) {
+    text_added_in_front <-
+      str_glue(
+        "MOVE it: _START_ {current_function_name} {to_replace_with} _END_ #'{my_split_newline_char} {one_line_text}{my_split_newline_char}\n"
+      )
+    
+    return(text_added_in_front)
+  }
 
 replace_function_with_def <-
   function(one_line_text,
-           auxfunction_names) {
+           current_function_name) {
     
     # browser()
     # idx <- 10
-    current_function_name <- auxfunction_names[[idx]]
+    # current_function_name <- auxfunction_names[[idx]]
     
-    print(str_glue("{idx}: {current_function_name}"))
+    print(str_glue("{current_function_name}"))
     
     # add parenthesis for back reference
     to_find_function_name <- str_glue("(",
@@ -585,13 +597,20 @@ replace_function_with_def <-
       one_line_text_replaced <-
         str_replace(one_line_text, to_find_function_name, to_replace_with)
       
-      new_used_auxfunction_names <- 
-        new_used_auxfunction_names |> str_subset(str_glue("[^{current_function_name}]"))
-
-      return(c(one_line_text_replaced, used_auxfunction_names))
+      if (one_line_text_replaced == one_line_text) {
+        browser()
+        one_line_text_replaced <- 
+          add_in_front(current_function_name,
+                     to_replace_with,
+                     my_split_newline_char,
+                     one_line_text)
+        simpleError(str_glue("The function {current_function_name} as not added"))
+      }
+      
+      return(one_line_text_replaced)
       
     }, error = function(cond) {
-      message(paste("idx:", idx))
+      
       message(paste("current_function_name:", current_function_name))
       message(paste("to_find:", to_find_function_name))
       message(paste("to_replace_with:", to_replace_with))
@@ -599,10 +618,13 @@ replace_function_with_def <-
       message("Here's the original error message:")
       message(conditionMessage(cond))
       # Choose a return value in case of error
-      add_text_in_front <-
-        str_glue("MOVE it: _START_ {current_function_name} {to_replace_with} _END_ #'{my_split_newline_char} {one_line_text}{my_split_newline_char}\n")
+      text_added_in_front <-
+          add_in_front(current_function_name,
+                     to_replace_with,
+                     my_split_newline_char,
+                     one_line_text)
       
-      return(c(add_text_in_front, new_used_auxfunction_names))
+      return(text_added_in_front)
     }, warning = function(cond) {}, 
     finally = {
       # message("Some other message at the end")
@@ -617,31 +639,16 @@ one_line_text <-
 length(one_line_text) == 1
 # T
 
-purrr::reduce(
-  .x = used_auxfunction_names,
-  .f =   function(my_text, next_f_name)
-  {
-    browser()
-    is_found <- grepl(next_f_name, my_text)
-    if(is_found) {
-      found_names <- c(found_names, next_f_name)
-    }
-    return(my_text)
-  },
-  .init = one_line_text
-)
-
-one_line_text_replaced_1 <-
-  purrr::reduce(all_auxfunction_names, 
-                 \(acc, nxt)
+one_line_text_replaced <-
+  purrr::reduce(used_auxfunction_names, \(acc, nxt)
                 {
                   # browser()
-                  replace_function_with_def(acc, nxt)}, .init = one_line_text
-  )
+                  replace_function_with_def(acc, nxt)
+  }, .init = one_line_text)
 
 
 text_replaced <-
-  split_one_line_text_back(one_line_text_replaced_3)
+  split_one_line_text_back(one_line_text_replaced)
 
 length(text_replaced)
 # 1218
