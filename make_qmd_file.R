@@ -492,43 +492,49 @@ all_auxfunction_helps <-
 
 # print("HERE: all_auxfunction_names")
 # print(sort(all_auxfunction_names))
+
 used_auxfunction_names <- c()
 used_auxfunction_texts <- list()
-flat_file_r_text_with_auxfun_docs <- ""
 new_short_fun_names_vector <- all_auxfunction_names
 temp_text_w_auxfun <- list(flat_file_r_text)
+old_fun_names <- c()
 
 repeat ({
-  if (length(new_short_fun_names_vector) == 0)
-    break()
-  # the end was reached...
+  old_fun_names <- new_short_fun_names_vector
   
  # get function names 
   for (fun_name in new_short_fun_names_vector) {
     fun_found <-
       stringr::str_detect(unlist(temp_text_w_auxfun), fun_name)
     if (any(fun_found)) {
-      used_auxfunction_names <- c(used_auxfunction_names, fun_name)
+      used_auxfunction_names <- 
+        c(used_auxfunction_names, fun_name) |> 
+        unique()
     }
   }
   
-  length(used_auxfunction_names)
-  # 22
-  browser()
+  # browser()
 
   # new iteration
   new_short_fun_names_vector <-
-    setdiff(new_short_fun_names_vector, used_auxfunction_names)
+    setdiff(new_short_fun_names_vector, used_auxfunction_names) |> 
+    unique()
 
+  if (length(new_short_fun_names_vector) == length(old_fun_names))
+    break()
+  # the end was reached...
+  
    # get function texts
   used_auxfunction_texts <-
     get_all_auxfunction_texts(used_auxfunction_names)
   
   temp_text_w_auxfun <- c(temp_text_w_auxfun, used_auxfunction_texts)
   
+  
   temp_text_w_auxfun
 })
 
+View(temp_text_w_auxfun)
 replace_function_with_def <-
   function(one_line_text,
            auxfunction_names) {
