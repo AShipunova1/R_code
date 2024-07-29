@@ -710,21 +710,25 @@ str_extract(text_replaced_1, "^([^#]*)auxfunctions::(.+)(\\()") |>
   unique() |>
   head()
 
-
-str_replace(text_replaced_1, 
-            "^([^#]*)auxfunctions::([^\\(]+)(\\()",
-            "AAA") |>
-  unique() |>
-  head()
-
 str_replace_all(text_replaced_1, 
             "^([^#]*)auxfunctions::",
-            "AAAAA") |>
-  str_extract("AAAAA.+") |> 
+            "UUUUU\\r\\n\\1 AAAAA") |>
+  str_extract("^.+AAAAA.+") |> 
   unique() |>
   head()
 
+add_comment_new_line <- function(found_match) {
+  paste("UUUUU", found_match, "AAAAA", collapse = "\n")
+}
 
+str_replace_all(text_replaced_1,
+                "^([^#]*)auxfunctions::",
+                add_comment_new_line) |>
+  str_extract("^.+AAAAA.+") |>
+  unique() |>
+  head()
+
+# ----
 str_replace(text_replaced_1, 
             "^([^#]*)auxfunctions::(.+)(\\()",
             "UUUUU"
