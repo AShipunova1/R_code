@@ -697,12 +697,25 @@ text_replaced_no_aux <-
 
 text_replaced_2 <-
   gsub(
-    "^([^#]*)auxfunctions::(.+)(\\()",
-    "# Use function \\2 defined above.\n\\1\\2\\3",
+    "^([^#]*)auxfunctions::(.+?)\\b",
+    "# Use function \\2 defined above.\n\\1\\2",
     text_replaced_1
   )
 
-see_res_in_outfile(text_replaced_2)
+# see_res_in_outfile(text_replaced_2)
+
+# gsub("^", "# Use function \\2 defined above.\n", test_text)
+
+# test_text1 <-
+#   grep("prepare_csv_full_path", text_replaced_2, value = T)
+
+# text_replaced_2 <-
+  # gsub(
+  #   "(\n.*)auxfunctions::(.+)(\\()",
+  #   "# Use function \\2 defined above.\n\\1\\2\\3",
+  #   test_text1
+  # )
+
 
 # see_res_in_outfile(text_replaced_no_aux)
 
