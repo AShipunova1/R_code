@@ -134,7 +134,7 @@ install_helper_functions <- function() {
 
 install_helper_functions()
 
-# Load the ROracle package for database interactions with Oracle databases.
+# Load packages for database interactions with Oracle databases.
 library(ROracle)
 library(DBI)
 
@@ -190,7 +190,9 @@ lubridate::week(half_year_ago)
 lubridate::wday(half_year_ago, label = T)
 #'
 #' Set the minimum date for permit expiration (30 days from today).
-#' If the permit expired before we do not include the egregious violators in the results.
+#' 
+#' For now, for those permits that expire within the next 30 days, we are not evaluating them. They will be caught at permit renewal.
+#' 
 
 permit_expired_check_date <- data_file_date + 30
 #'
