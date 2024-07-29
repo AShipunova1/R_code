@@ -679,17 +679,72 @@ text_replaced_1 <-
 length(text_replaced_1)
 # 2531
 
-# see_res_in_outfile(text_replaced_1)
-
 # For now (rm when the code below works):
 text_replaced_no_aux <-
   text_replaced_1 |>
   str_replace_all("auxfunctions::", "")
 
 # rm auxfunctions:: in comments
+# Check if the username is not "anna.shipunova"   if (!auxfunctions::get_username()
+
+# test_text <- 
+  
+str_extract(text_replaced_1, "^.*auxfunctions::.*$") |>
+  unique() |>
+  head()
+
+str_extract(text_replaced_1, "^.*#.*auxfunctions::.*$") |>
+  unique() |>
+  head()
+
+str_extract(text_replaced_1, "^[^#]*auxfunctions::.*$") |>
+  unique() |>
+  head()
+
+
+str_extract(text_replaced_1, "^[^#]*auxfunctions::(.+\\()") |>
+  unique() |>
+  head()
+
+str_extract(text_replaced_1, "^([^#]*)auxfunctions::(.+)(\\()") |>
+  unique() |>
+  head()
+
+
+str_replace(text_replaced_1, 
+            "^([^#]*)auxfunctions::([^\\(]+)(\\()",
+            "AAA") |>
+  unique() |>
+  head()
+
+str_replace_all(text_replaced_1, 
+            "^([^#]*)auxfunctions::",
+            "AAAAA") |>
+  str_extract("AAAAA.+") |> 
+  unique() |>
+  head()
+
+
+str_replace(text_replaced_1, 
+            "^([^#]*)auxfunctions::(.+)(\\()",
+            "UUUUU"
+            # "# Use function \\2 defined above.\\n\\1\\2\\3"
+            ) |>
+  unique() |>
+  head()
+
+
+                  # "# Use function \\2 defined above.\\n\\1\\2(")
+
+
 text_replaced_2 <-
   text_replaced_1 |>
-  str_replace_all("(#.+)auxfunctions::", "\\1")
+  str_replace_all("^([#]*)auxfunctions::(.*)$", "\\1")
+
+
+
+# see_res_in_outfile(text_replaced_1)
+
 
 length(text_replaced_2)
 # see_res_in_outfile(text_replaced_2)
