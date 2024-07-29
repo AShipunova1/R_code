@@ -15,6 +15,8 @@ SEFHIER stands for Southeast For-Hire Integrated Electronic Reporting.
 It combines compliance and correspondence data, applies specific filters,
 and prepares a report of vessels requiring further investigation.
 
+You will need to load various files, and use various R scripts in order for this analytical file to works.
+
 The Setup section includes necessary libraries, functions, and data loading.
 
 ### The "egregious violator" definition 
@@ -147,7 +149,7 @@ if (any(installed_packages == FALSE)) {
 }
 ```
 
-Helper functions for SEFHIER data analysis.
+Install helper functions for SEFHIER data analysis.
 
 Explanations for the following code:
 
@@ -165,9 +167,9 @@ For the package developer, install from the development branch.
 
   - The `!` operator negates the result, so the condition is true if the package is not installed or cannot be loaded.
 
-- `# devtools::install_github("AShipunova1/R_code/auxfunctions")` installs the `auxfunctions` package from the specified GitHub repository:
+- `devtools::install_github("AShipunova1/R_code/auxfunctions")` installs the `auxfunctions` package from the specified GitHub repository:
 
-  - `# devtools::install_github()` is a function from the `devtools` package that installs an R package directly from a GitHub repository.
+  - `devtools::install_github()` is a function from the `devtools` package that installs an R package directly from a GitHub repository.
 
   - `"AShipunova1/R_code/auxfunctions"` specifies the repository and subdirectory containing the package.
 
@@ -175,21 +177,26 @@ This code checks if the `auxfunctions` package is available, and if not, it inst
 
 
 ```{r}
-# Check if the username is not "anna.shipunova"
-if (!get_username() == "anna.shipunova") {
+install_helper_functions <- function() {
+  # Check if the username is not "anna.shipunova"
+  if (!get_username() == "anna.shipunova") {
     # If the auxfunctions package is not installed, install it from GitHub
-  if (!require('auxfunctions')) {
-    # devtools::install_github("AShipunova1/R_code/auxfunctions")
+    if (!require('auxfunctions')) {
+      devtools::install_github("AShipunova1/R_code/auxfunctions")
+    }
+  } else {
+    # For a developer, rebuild the package from the development branch. To force the installation change to 'force = TRUE'
+    devtools::install_github("AShipunova1/R_code/auxfunctions@development", force = FALSE)
+    # restart R session to pick up changes
+    # .rs.restartR()
+    library(auxfunctions)
   }
-} else {
-  # For a developer, rebuild the package from the development branch. To force the installation change to 'force = TRUE'
-  # devtools::install_github("AShipunova1/R_code/auxfunctions@development", force = FALSE)
-  # restart R session to pick up changes
-  # .rs.restartR()
-  # library(auxfunctions)
 }
 
-# Load the ROracle package for database interactions with Oracle databases.
+# Turn off commenting if you want to take advantage of this R package, for example, to see a function definition and help documentation the standard way (?function_name, F1, or F2).
+# install_helper_functions()
+
+# Load packages for database interactions with Oracle databases.
 library(ROracle)
 library(DBI)
 
@@ -260,6 +267,7 @@ registerS3method(
 # End of Quarto setup
 
 ```
+
 
 ### Define dates 
 
@@ -337,6 +345,9 @@ lubridate::wday(half_year_ago, label = T)
 
 
 Set the minimum date for permit expiration (30 days from today)
+
+For now, for those permits that expire within the next 30 days, we are not evaluating them. They will be caught at permit renewal.
+
 
 ```{r}
 permit_expired_check_date <- data_file_date + 30
@@ -775,7 +786,7 @@ file.exists(fhier_addresses_path)
 #### Home port processed city and state path ----
 ```
 
-Download first from Google drive.
+Download first from Google Drive or recreate it if it was more than 4 months.
 
 Set the path for processed PIMS home ports based on the user.
 
@@ -968,7 +979,7 @@ a File name example
 
 From a separate code
  
-For the last 6 month
+For the last 6 month or more
 
 a File name example
 SEFHIER_permitted_vessels_nonSRHS_YEAR.csv
@@ -998,10 +1009,10 @@ There are two options here, to downloaded the file as .xlsx or to get it directl
 a File name example
 "~\egregious_violators\egregious_violators_to_investigate_2024-05-17.xlsx"
 
-## FHIER 
+## Load FHIER data 
 
-```{r FHIER}
-# FHIER ----
+```{r Load FHIER data}
+# Load FHIER data ----
 ```
 
 This section focuses on data from the For-Hire Integrated Electronic Reporting Program (FHIER)
@@ -1017,6 +1028,7 @@ Permit info from processed metrics tracking
 ```{r Compliance and Correspondence data}
 ## Compliance and Correspondence data ----
 ```
+
 
 ```{r}
 
@@ -1077,6 +1089,8 @@ Permit info from processed metrics tracking
 }
 # >>>>
 
+# <<<<
+
 # Explanations for the following code:
 
 # The clean_headers function cleans and standardizes the column names of a given dataframe (my_df)
@@ -1093,6 +1107,52 @@ Permit info from processed metrics tracking
     return(my_df)
 }
 # >>>>
+ 
+# <<<<
+
+# Explanations for the following code:
+
+# This helper function processes vessel ID columns in each data frame by trimming leading and trailing whitespace, making the data more consistent and easier to work with. If the column name is not provided, it attempts to detect it automatically.
+#  
+#  
+# 
+# 1. **Function Definition:**
+# 
+#    - `trim_all_vessel_ids_simple <- function (csvs_clean_ws, col_name_to_trim = NA)`: Defines a function named `trim_all_vessel_ids_simple` that takes two arguments: `csvs_clean_ws`, a list of data frames to process, and `col_name_to_trim`, the name of the column containing vessel IDs to be trimmed. This argument is set to `NA` by default.
+# 
+# 2. **Column Name Detection:**
+# 
+#    - `if (is.na(col_name_to_trim)) { ... }`: Checks if the `col_name_to_trim` argument is not provided. If it's not provided, the function attempts to detect the column name containing vessel IDs.
+# 
+#    - `col_name_to_trim <- grep("vessel.*official.*number", tolower(names(x)), value = TRUE)`: Uses `grep` to search for column names containing variations of "vessel official number" (case-insensitive) within the column names of the first data frame (`x`) in the list. This is assigned to `col_name_to_trim`.
+# 
+# 3. **Column Trimming:**
+# 
+#    - `col_name_to_trim_s <- rlang::sym(col_name_to_trim)`: Converts `col_name_to_trim` to a symbol using `rlang::sym`. Symbols are used to refer to columns in a non-standard evaluation context.
+# 
+#    - `x %>% dplyr::mutate(vessel_official_number = trimws(!!col_name_to_trim_s))`: Applies the `trimws` function to the column specified by `col_name_to_trim_s` within each data frame (`x`) in the list. This removes leading and trailing whitespace from the vessel IDs.
+# 
+# 4. **Returning Processed Data Frames:**
+# 
+#    - `return(csvs_clean)`: Returns the list of data frames with trimmed vessel IDs.
+# 
+# 
+
+ trim_all_vessel_ids_simple  <-  function (csvs_clean_ws, col_name_to_trim = NA) 
+{
+    csvs_clean <- lapply(csvs_clean_ws, function(x) {
+        if (is.na(col_name_to_trim)) {
+            col_name_to_trim <- grep("vessel.*official.*number", 
+                tolower(names(x)), value = TRUE)
+        }
+        col_name_to_trim_s <- rlang::sym(col_name_to_trim)
+        x %>% dplyr::mutate(vessel_official_number = trimws(!!col_name_to_trim_s)) %>% 
+            return()
+    })
+    return(csvs_clean)
+}
+# >>>>
+
 
 # <<<<
 
@@ -1116,7 +1176,7 @@ Permit info from processed metrics tracking
     return(csvs_clean1)
 }
 # >>>>
-
+ 
 # <<<<
 
 # Explanations for the following code:
@@ -1145,6 +1205,7 @@ Permit info from processed metrics tracking
     return(my_df)
 }
 # >>>>
+
 
 # <<<<
 
@@ -1215,7 +1276,7 @@ Permit info from processed metrics tracking
     return(compl_dates)
 }
 # >>>>
-
+ 
 # <<<<
 
 # Explanations for the following code:
@@ -1245,7 +1306,34 @@ Permit info from processed metrics tracking
 }
 # >>>>
 
+# <<<<
 
+# Explanations for the following code:
+
+# This function provides a flexible way to search for column names within a dataframe based on specified starting and ending patterns. It is useful for identifying columns that match a particular naming convention or pattern. 
+#  
+# The function is designed to search for column names within a dataframe that contain a specific pattern defined by `start_part` and `end_part`.
+# 
+# 1. **Function Definition:**
+#    -`function (mydf, start_part, end_part) { .. }`: Defines a function with three arguments: `mydf` (the dataframe to search), `start_part` (the starting pattern of the column names to search for), and `end_part` (the ending pattern of the column names to search for).
+# 
+# 2. **Constructing Regular Expression:**
+#    - `to_search <- paste0(start_part, ".*", end_part)`: Constructs a regular expression pattern by concatenating `start_part`, ".*" (which matches any characters zero or more times), and `end_part`. This pattern will be used to search for matching column names.
+# 
+# 3. **Searching for Matching Column Names:**
+#    - `matching_names <- grep(to_search, tolower(names(mydf)), value = TRUE)`: Searches for column names in the dataframe `mydf` that match the regular expression pattern `to_search`. The `tolower` function is used to convert the column names to lowercase for case-insensitive matching. The `grep` function returns the matching column names as a vector.
+# 
+# 4. **Return Statement:**
+#    - `return(matching_names)`: Returns the vector of matching column names found in the dataframe that satisfy the specified pattern.
+# 
+
+ find_col_name  <-  function (mydf, start_part, end_part) 
+{
+    to_search <- paste0(start_part, ".*", end_part)
+    matching_names <- grep(to_search, tolower(names(mydf)), value = TRUE)
+    return(matching_names)
+}
+# >>>> 
 # <<<<
 
 # Explanations for the following code:
@@ -1282,7 +1370,6 @@ Permit info from processed metrics tracking
     return(result_df)
 }
 # >>>>
-
 
 # <<<<
 
@@ -1362,53 +1449,6 @@ Apply cleaning functions to standardize data across all CSV files
 
 Replace all non-alphanumeric characters with underscores ('_'), unify the case
 
-
-```{r}
-# <<<<
-
-# Explanations for the following code:
-
-# This helper function processes vessel ID columns in each data frame by trimming leading and trailing whitespace, making the data more consistent and easier to work with. If the column name is not provided, it attempts to detect it automatically.
-#  
-#  
-# 
-# 1. **Function Definition:**
-# 
-#    - `trim_all_vessel_ids_simple <- function (csvs_clean_ws, col_name_to_trim = NA)`: Defines a function named `trim_all_vessel_ids_simple` that takes two arguments: `csvs_clean_ws`, a list of data frames to process, and `col_name_to_trim`, the name of the column containing vessel IDs to be trimmed. This argument is set to `NA` by default.
-# 
-# 2. **Column Name Detection:**
-# 
-#    - `if (is.na(col_name_to_trim)) { ... }`: Checks if the `col_name_to_trim` argument is not provided. If it's not provided, the function attempts to detect the column name containing vessel IDs.
-# 
-#    - `col_name_to_trim <- grep("vessel.*official.*number", tolower(names(x)), value = TRUE)`: Uses `grep` to search for column names containing variations of "vessel official number" (case-insensitive) within the column names of the first data frame (`x`) in the list. This is assigned to `col_name_to_trim`.
-# 
-# 3. **Column Trimming:**
-# 
-#    - `col_name_to_trim_s <- rlang::sym(col_name_to_trim)`: Converts `col_name_to_trim` to a symbol using `rlang::sym`. Symbols are used to refer to columns in a non-standard evaluation context.
-# 
-#    - `x %>% dplyr::mutate(vessel_official_number = trimws(!!col_name_to_trim_s))`: Applies the `trimws` function to the column specified by `col_name_to_trim_s` within each data frame (`x`) in the list. This removes leading and trailing whitespace from the vessel IDs.
-# 
-# 4. **Returning Processed Data Frames:**
-# 
-#    - `return(csvs_clean)`: Returns the list of data frames with trimmed vessel IDs.
-# 
-# 
-
- trim_all_vessel_ids_simple  <-  function (csvs_clean_ws, col_name_to_trim = NA) 
-{
-    csvs_clean <- lapply(csvs_clean_ws, function(x) {
-        if (is.na(col_name_to_trim)) {
-            col_name_to_trim <- grep("vessel.*official.*number", 
-                tolower(names(x)), value = TRUE)
-        }
-        col_name_to_trim_s <- rlang::sym(col_name_to_trim)
-        x %>% dplyr::mutate(vessel_official_number = trimws(!!col_name_to_trim_s)) %>% 
-            return()
-    })
-    return(csvs_clean)
-}
-# >>>>
-```
 
 ```{r}
 csvs_clean1 <- 
@@ -1591,10 +1631,10 @@ dim(fhier_addresses)
 # Example result: [1] 3386    7
 ```
 
-## PIMS 
+## Load PIMS data 
 
-```{r PIMS}
-# PIMS ----
+```{r Load PIMS data}
+# Load PIMS data ----
 ```
 
 
@@ -1606,7 +1646,7 @@ Load processed PIMS (Permit Information Management System) home port data
 ## Home port processed city and state ----
 ```
 
-This dataset contains information about vessel home ports, including city and state
+This dataset contains information about vessel home ports, including city and state. Update every 4 month.
 
 
 ```{r}
@@ -1618,18 +1658,16 @@ dim(processed_pims_home_ports)
 # [1] 23303     3
 ```
 
-## Load from Oracle db 
+## Load data from Oracle db 
 
-```{r Load from Oracle db}
-# Load from Oracle db ----
+```{r Load data from Oracle db}
+# Load data from Oracle db ----
 ```
 
 ### Get owners addresses 
 
 ```{r Get owners addresses}
 ## Get owners addresses ----
-# <<<<
-
 
 # <<<<
 
@@ -1813,10 +1851,10 @@ db_participants_address <-
   clean_headers()
 ```
 
-## Data from the previous results of "egregious violators for investigation" 
+## Load data from the previous results of "egregious violators for investigation" 
 
-```{r Data from the previous results of egregious violators for investigation}
-# Data from the previous results of "egregious violators for investigation" ----
+```{r Load data from the previous results of egregious violators for investigation}
+# Load data from the previous results of "egregious violators for investigation" ----
 # <<<<
 
 # Explanations for the following code:
@@ -2404,7 +2442,7 @@ compl_clean_w_permit_exp_last_half_year__sa |>
   nrow()
 ```
 
-A result of 0 indicates no new compliant reports have been submitted for selected vessels
+A result of 0 indicates no new compliant reports have been submitted for selected vessels. If it is not a zero, comment "nrow()" at the last line and the pipe sign before and investigate.
 
 End of Compliance preparations 
 
@@ -3911,6 +3949,8 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr__dup_m
 ```
 
 Identify and count vessels with dual permits (both SA and GOM)
+
+
 Explanations for the following code:
 
 Create a new dataframe 
