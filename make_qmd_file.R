@@ -679,54 +679,25 @@ text_replaced_1 <-
 length(text_replaced_1)
 # 2531
 
-# For now (rm when the code below works):
-text_replaced_no_aux <-
-  text_replaced_1 |>
-  str_replace_all("auxfunctions::", "")
-
-# rm auxfunctions:: in comments
-# Check if the username is not "anna.shipunova"   if (!auxfunctions::get_username()
-
 # Works:
-# text_replaced_2 <-
-#   gsub(
-#     "^([^#]*)auxfunctions::(.+)(\\()",
-#     "# Use function \\2 defined above.\n\\1\\2\\3",
-#     text_replaced_1
-#   )
-
 text_replaced_2 <-
   gsub(
-    "^([^#]*)auxfunctions::(.+?)\\b",
-    "# Use function \\2 defined above.\n\\1\\2",
+    "^([^#]*)auxfunctions::(.+)(\\()",
+    "# Use function \\2 defined above.\n\\1\\2\\3",
     text_replaced_1
   )
 
+# rm the rest
+text_replaced_no_aux <-
+  text_replaced_2 |>
+  str_replace_all("auxfunctions::", "")
+
 # see_res_in_outfile(text_replaced_2)
-
-# gsub("^", "# Use function \\2 defined above.\n", test_text)
-
-# test_text1 <-
-#   grep("prepare_csv_full_path", text_replaced_2, value = T)
-
-# text_replaced_2 <-
-  # gsub(
-  #   "(\n.*)auxfunctions::(.+)(\\()",
-  #   "# Use function \\2 defined above.\n\\1\\2\\3",
-  #   test_text1
-  # )
-
-
-# see_res_in_outfile(text_replaced_no_aux)
 
 # convert to Rmd ----
 # The 'knitr::spin' function is used to create an R Markdown (Rmd) file, but the 'knit' argument is set to 'FALSE', indicating that the document should not be fully knitted. Instead, this function generates an Rmd file from the R script without executing the code chunks.
 
-# check
-# identical(length(text_replaced_1), length(flat_file_r_text))
-
-flat_file_r_text <- text_replaced_2
-# flat_file_r_text <- text_replaced_no_aux
+flat_file_r_text <- text_replaced_no_aux
 
 tictoc::tic("rmd_text")
 rmd_text <-
