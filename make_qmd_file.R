@@ -687,9 +687,8 @@ text_replaced_no_aux <-
 # rm auxfunctions:: in comments
 # Check if the username is not "anna.shipunova"   if (!auxfunctions::get_username()
 
-# test_text <- 
-  
-str_extract(text_replaced_1, "^.*auxfunctions::.*$") |>
+test_text <-
+  str_extract(text_replaced_1, "^.*auxfunctions::.*$") |>
   unique() |>
   head()
 
@@ -701,67 +700,34 @@ str_extract(text_replaced_1, "^[^#]*auxfunctions::.*$") |>
   unique() |>
   head()
 
-
-str_extract(text_replaced_1, "^[^#]*auxfunctions::(.+\\()") |>
+test_text <-
+  str_extract(text_replaced_1, "^([^#]*)auxfunctions::(.+)(\\()") |>
   unique() |>
   head()
 
-str_extract(text_replaced_1, "^([^#]*)auxfunctions::(.+)(\\()") |>
-  unique() |>
-  head()
-
-str_replace_all(text_replaced_1, 
-            "^([^#]*)auxfunctions::",
-            "UUUUU\\r\\n\\1 AAAAA") |>
-  str_extract("^.+AAAAA.+") |> 
-  unique() |>
-  head()
-
-add_comment_new_line <- function(found_match) {
-  paste("UUUUU", found_match, "AAAAA", collapse = "\n")
-}
-
-str_replace_all(text_replaced_1,
-                "^([^#]*)auxfunctions::",
-                add_comment_new_line) |>
-  str_extract("^.+AAAAA.+") |>
-  unique() |>
-  head()
-
-# ----
-str_replace(text_replaced_1, 
-            "^([^#]*)auxfunctions::(.+)(\\()",
-            "UUUUU"
-            # "# Use function \\2 defined above.\\n\\1\\2\\3"
-            ) |>
-  unique() |>
-  head()
-
-
-                  # "# Use function \\2 defined above.\\n\\1\\2(")
-
+gsub("^", "# Use function \\2 defined above.\n", test_text)
 
 text_replaced_2 <-
-  text_replaced_1 |>
-  str_replace_all("^([#]*)auxfunctions::(.*)$", "\\1")
+  gsub(
+    "^([^#]*)auxfunctions::(.+)(\\()",
+    "# Use function \\2 defined above.\n\\1\\2\\3",
+    text_replaced_1
+  )
 
+see_res_in_outfile(text_replaced_2)
 
-
-# see_res_in_outfile(text_replaced_1)
-
-
-length(text_replaced_2)
+# length(text_replaced_2)
 # see_res_in_outfile(text_replaced_2)
 
-# Add this text just above if not in a comment
-# text_replaced_2_one_line <- to_one_line(text_replaced_2, my_split_newline_char)
-
-text_replaced_3 <-
-  text_replaced_2 |>
-  str_replace_all("^([^#]*)auxfunctions::([^(]+)\\(",
-                  "# Use function \\2 defined above.\\n\\1\\2(")
-
-length(text_replaced_3)
+# # Add this text just above if not in a comment
+# # text_replaced_2_one_line <- to_one_line(text_replaced_2, my_split_newline_char)
+# 
+# text_replaced_3 <-
+#   text_replaced_2 |>
+#   str_replace_all("^([^#]*)auxfunctions::([^(]+)\\(",
+#                   "# Use function \\2 defined above.\\n\\1\\2(")
+# 
+# length(text_replaced_3)
 
 # see_res_in_outfile(text_replaced_2)
 
@@ -773,8 +739,8 @@ length(text_replaced_3)
 # check
 # identical(length(text_replaced_1), length(flat_file_r_text))
 
-# flat_file_r_text <- text_replaced_1
-flat_file_r_text <- text_replaced_no_aux
+flat_file_r_text <- text_replaced_2
+# flat_file_r_text <- text_replaced_no_aux
 
 tictoc::tic("rmd_text")
 rmd_text <-
