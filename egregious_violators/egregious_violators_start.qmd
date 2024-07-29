@@ -2,311 +2,11 @@
 title: Egregious Violators
 ---
 
-
-```{r no cache setup, results='hide', message=FALSE, warning=FALSE, cache=FALSE, include=FALSE}
-
-## Quarto Setup
-
-# Quarto enables you to weave together content and executable code into a finished document.
- 
-# Running Code
- 
-# The **Run** button allows you to run individual or bunch of chunks as a regular R script.
- 
-# When you click the **Render** button a document will be generated that includes both content and the output of embedded code.
-
-# Load libraries required for Quatro
-# A general-purpose tool for dynamic report generation in R
-library(knitr)
-
-# Adds features to a kable output
-library(kableExtra)
-
-# Format R code automatically
-library(styler)
-```
-
-```{r df format setup}
-#| include: false
-
-# Customize the appearance of dataframes in HTML
-
-# Uncomment if using tabs
-# kable <- function(data) {
-#   knitr::kable(data, booktabs = true, digits = 2) %>%
-#     kable_styling('striped', full_width = FALSE)
-# }
-
-# Define a custom print function for data frames in knitr
-knit_print.data.frame = function(x, ...) {
-  res = paste(c(
-    '',
-    '',
-    knitr::kable(x, digits = 2) |>
-      kableExtra::kable_styling('striped', full_width = FALSE)
-  ),
-  collapse = '
-')
-  knitr::asis_output(res)
-}
-
-# Register the custom print function for data frames in the knitr namespace
-registerS3method(
-  'knit_print', 'data.frame', knit_print.data.frame,
-  envir = asNamespace('knitr')
-)
-
-# Set global chunk options in knitr if needed
-# knitr::opts_chunk$set(echo = TRUE)
-
-# Set the table format for knitr to HTML if needed
-# options(knitr.table.format = 'HTML')
-
-# End of Quarto setup
-
-```
-
-# save setup chunk options to use later
-```{r setup current project, results='hide', message=FALSE, warning=FALSE}
-```
-
-
-```{r}
-MOVE it: _START_ trim_all_vessel_ids_simple 
-# <<<<
-
-# Explanations for the following code:
-
-# This helper function processes vessel ID columns in each data frame by trimming leading and trailing whitespace, making the data more consistent and easier to work with. If the column name is not provided, it attempts to detect it automatically.
-#  
-#  
-# 
-# 1. **Function Definition:**
-# 
-#    - `trim_all_vessel_ids_simple <- function (csvs_clean_ws, col_name_to_trim = NA)`: Defines a function named `trim_all_vessel_ids_simple` that takes two arguments: `csvs_clean_ws`, a list of data frames to process, and `col_name_to_trim`, the name of the column containing vessel IDs to be trimmed. This argument is set to `NA` by default.
-# 
-# 2. **Column Name Detection:**
-# 
-#    - `if (is.na(col_name_to_trim)) { ... }`: Checks if the `col_name_to_trim` argument is not provided. If it's not provided, the function attempts to detect the column name containing vessel IDs.
-# 
-#    - `col_name_to_trim <- grep("vessel.*official.*number", tolower(names(x)), value = TRUE)`: Uses `grep` to search for column names containing variations of "vessel official number" (case-insensitive) within the column names of the first data frame (`x`) in the list. This is assigned to `col_name_to_trim`.
-# 
-# 3. **Column Trimming:**
-# 
-#    - `col_name_to_trim_s <- rlang::sym(col_name_to_trim)`: Converts `col_name_to_trim` to a symbol using `rlang::sym`. Symbols are used to refer to columns in a non-standard evaluation context.
-# 
-#    - `x %>% dplyr::mutate(vessel_official_number = trimws(!!col_name_to_trim_s))`: Applies the `trimws` function to the column specified by `col_name_to_trim_s` within each data frame (`x`) in the list. This removes leading and trailing whitespace from the vessel IDs.
-# 
-# 4. **Returning Processed Data Frames:**
-# 
-#    - `return(csvs_clean)`: Returns the list of data frames with trimmed vessel IDs.
-# 
-# 
-
- trim_all_vessel_ids_simple  <-  function (csvs_clean_ws, col_name_to_trim = NA) 
-{
-    csvs_clean <- lapply(csvs_clean_ws, function(x) {
-        if (is.na(col_name_to_trim)) {
-            col_name_to_trim <- grep("vessel.*official.*number", 
-                tolower(names(x)), value = TRUE)
-        }
-        col_name_to_trim_s <- rlang::sym(col_name_to_trim)
-        x %>% dplyr::mutate(vessel_official_number = trimws(!!col_name_to_trim_s)) %>% 
-            return()
-    })
-    return(csvs_clean)
-}
-# >>>>
-\1 _END_ #'
- MOVE it: _START_ title_message_print 
-# <<<<
-
-# Explanations for the following code:
-
-# This function is designed to print a title message in blue color to the console. It enhances the visual presentation of the message for better readability.
-#  
-#  
-# 1. **Function Definition:**
-#    - `title_message_print <- function (title_msg)`: Defines a function named `title_message_print` that takes one argument, `title_msg`, which represents the title message to be printed.
-# 
-# 2. **Printing Title Message:**
-#    - `crayon::blue(title_msg)`: Formats the `title_msg` with blue color using the `crayon` package. This function enhances the visual appearance of the printed message.
-#    - `cat(..., sep = "\n")`: Prints the formatted `title_msg` to the console. The `sep` argument specifies the separator between multiple messages, here set to a newline character (`"\n"`).
-# 
-
- title_message_print  <-  function (title_msg) 
-{
-    cat(crayon::blue(title_msg), sep = "\n")
-}
-# >>>>
-\1 _END_ #'
- MOVE it: _START_ my_headers_case_function 
-# <<<<
-
-# Explanations for the following code:
-
-# Use this aux function in case we want to change the case in all functions.
-# 
-# Used in other functions.
-#  
-#  
-
- my_headers_case_function  <-  function (x) 
-{
-    if (!is.character(x)) 
-        x <- as.character(x)
-    .Internal(tolower(x))
-}
-# >>>>
-\1 _END_ #'
- MOVE it: _START_ clean_weeks 
-# <<<<
-
-# Explanations for the following code:
-
-# Split week column ("52: 12/26/2022 - 01/01/2023") into 3 columns with proper classes, week_num (week order number), week_start and week_end.
-#  
-#  
-# - The `clean_weeks` function is designed to clean up the "week" column in a complinace dataframe.
-# 
-# - It first separates the "week" column into two separate columns using ":" as the delimiter, resulting in columns "week_num" and "week_rest".
-# 
-# - Then, it further separates the "week_rest" column into "week_start" and "week_end" columns using " - " as the delimiter.
-# 
-# - The function then converts the "week_num" column to integers and the "week_start" and "week_end" columns to Date objects using `as.integer` and `as.Date` functions, respectively.
-# 
-# - Finally, it returns the modified dataframe.
-
- clean_weeks  <-  function (my_df) 
-{
-    temp_df <- my_df %>% tidyr::separate_wider_delim(week, ":", 
-        names = c("week_num", "week_rest")) %>% tidyr::separate_wider_delim(week_rest, 
-        " - ", names = c("week_start", "week_end"))
-    my_df$week_num <- as.integer(trimws(temp_df$week_num))
-    my_df$week_start <- as.Date(trimws(temp_df$week_start), "%m/%d/%Y")
-    my_df$week_end <- as.Date(trimws(temp_df$week_end), "%m/%d/%Y")
-    return(my_df)
-}
-# >>>>
-\1 _END_ #'
- MOVE it: _START_ change_to_dates 
-# <<<<
-
-# Explanations for the following code:
-
-# Change a column class to POSIXct in the "my_df" for the field "field_name" using the "date_format"
-# 
-# The change_to_dates function is defined to convert a specific column ('field_name') in the input data frame ('my_df') to POSIXct date format using the specified 'date_format'.
-# 
-# Inside the function, it uses the mutate function from the dplyr package to modify 'my_df'. The {{field_name}} syntax is used to refer to the column specified by 'field_name'.
-# 
-# It returns the 'result_df', which is the input data frame with the specified column converted to dates according to the specified 'date_format'.
-#  
-#  
-
- change_to_dates  <-  function (my_df, field_name, date_format = "") 
-{
-    if (date_format == "") {
-        my_tryFormats = c("%m/%d/%Y %I:%M%p", "%m/%d/%Y %I:%M %p", 
-            "%m/%d/%Y %R%OS", "%Y-%m-%d %H:%M:%OS", "%Y/%m/%d %H:%M:%OS", 
-            "%Y-%m-%d %H:%M", "%Y/%m/%d %H:%M", "%Y-%m-%d", "%Y/%m/%d")
-    }
-    new_field_name <- stringr::str_glue("{field_name}_dttm")
-    result_df <- dplyr::mutate(my_df, `:=`(!!new_field_name, 
-        as.POSIXct(!!field_name, tryFormats = my_tryFormats, 
-            format = date_format)))
-    return(result_df)
-}
-# >>>>
-\1 _END_ #'
- MOVE it: _START_ add_count_contacts 
-# <<<<
-
-# Explanations for the following code:
-
-# The add_count_contacts function is defined to add two new columns ('was_contacted' and 'contact_freq') to the input data frame ('all_data_df_clean') based on the presence of contact dates.
-# 
-# It returns the 'result_df', which is the input data frame with the added columns indicating whether a vessel was contacted ('was_contacted') and the frequency of contacts ('contact_freq').
-# 
-# Use for contacts in the setup function before combining with compliant dataframes.
-#  
-#  
-# 
-# - The `add_count_contacts` function takes a dataframe `all_data_df_clean` as input.
-# 
-# - It first finds the column names for "contact date" and "vessel number" using the `find_col_name` function.
-# 
-# - Then, it adds a new column named "was_contacted", which indicates whether a contact was made with each vessel based on the presence of a contact date. If the contact date is missing (`NA`), it assigns "no"; otherwise, it assigns "yes".
-# 
-# - The `add_count` function is then used to count the number of contacts per vessel, distinguishing between vessels that were contacted and those that were not. The result is stored in a new column named "contact_freq".
-# 
-# - Finally, the function returns the dataframe with the added columns.
-# 
-# 
-
- add_count_contacts  <-  function (all_data_df_clean) 
-{
-    contactdate_field_name <- find_col_name(all_data_df_clean, 
-        "contact", "date")[1]
-    vessel_id_field_name <- find_col_name(all_data_df_clean, 
-        "vessel", "number")[1]
-    result_df <- all_data_df_clean %>% dplyr::mutate(was_contacted = dplyr::if_else(is.na(!!rlang::sym(contactdate_field_name)), 
-        "no", "yes")) %>% dplyr::add_count(!!rlang::sym(vessel_id_field_name), 
-        was_contacted, name = "contact_freq")
-    return(result_df)
-}
-# >>>>
-\1 _END_ #'
- MOVE it: _START_ fix_names 
-# <<<<
-
-# Explanations for the following code:
-
-# Cleans column names of uploaded files.
-# 
-# Provides a comprehensive approach to cleaning and standardizing column names within a dataframe, making them more consistent and suitable for further analysis or processing.
-#  
-#  
-# 
-# The `fix_names` function is designed to clean and standardize column names within a dataframe.
-# 
-# 1. **Function Definition:**
-# 
-#    - `fix_names <- function (x) { .. }`: Defines a function named `fix_names` that takes one argument, `x`, which represents the input dataframe.
-# 
-# 2. **Cleaning Column Names:**
-# 
-#    - `x %>% str_replace_all("\\.", "")`: Removes all occurrences of periods (`.`) from the column names using `str_replace_all` from the `stringr` package.
-# 
-#    - `str_replace_all("[^A-z0-9]", "_")`: Replaces all non-alphanumeric characters (excluding underscores) with underscores (`_`). This step ensures that the column names only contain letters, numbers, and underscores.
-# 
-#    - `str_replace_all("^(_*)(.+)", "\2\1")`: Ensures that column names do not start with multiple underscores. It captures the leading underscores (if any) and the rest of the column name using regular expressions, then rearranges them to place the underscores at the end of the column name.
-# 
-#    - `my_headers_case_function()`: Applies a custom function `my_headers_case_function` to further standardize the case of the column names. This function is defined in auxfunctions and is responsible for ensuring consistent capitalization of column names.
-# 
-# 3. **Return Statement:**
-# 
-#    - The function returns the modified dataframe with cleaned and standardized column names.
-# 
-# 
-
- fix_names  <-  function (x) 
-{
-    my_headers_case_function(stringr::str_replace_all(stringr::str_replace_all(stringr::str_replace_all(x, 
-        "\\.", ""), "[^A-z0-9]", "_"), "^(_*)(.+)", "\\2\\1"))
-}
-# >>>>
-\1 _END_ #'
- #' title: Egregious Violators
-```
-
-## Setup 
+# Setup 
 
 ```{r Setup}
 # Setup ----
 ```
-
-# Setup
 
 This script identifies and processes "egregious violators" in the SEFHIER program.
 
@@ -503,6 +203,71 @@ library(DBI)
 
 # Load the magrittr package for piping operation %>%. In some cases the base R "|>" works differently. See more at https://www.tidyverse.org/blog/2023/04/base-vs-magrittr-pipe/
 library(magrittr)
+```
+
+
+
+```{r no cache setup, results='hide', message=FALSE, warning=FALSE, cache=FALSE, include=FALSE}
+
+## Quarto Setup
+
+# Quarto enables you to weave together content and executable code into a finished document.
+ 
+# Running Code
+ 
+# The **Run** button allows you to run individual or bunch of chunks as a regular R script.
+ 
+# When you click the **Render** button a document will be generated that includes both content and the output of embedded code.
+
+# Load libraries required for Quatro
+# A general-purpose tool for dynamic report generation in R
+library(knitr)
+
+# Adds features to a kable output
+library(kableExtra)
+
+# Format R code automatically
+library(styler)
+```
+
+```{r df format setup}
+#| include: false
+
+# Customize the appearance of dataframes in HTML
+
+# Uncomment if using tabs
+# kable <- function(data) {
+#   knitr::kable(data, booktabs = true, digits = 2) %>%
+#     kable_styling('striped', full_width = FALSE)
+# }
+
+# Define a custom print function for data frames in knitr
+knit_print.data.frame = function(x, ...) {
+  res = paste(c(
+    '',
+    '',
+    knitr::kable(x, digits = 2) |>
+      kableExtra::kable_styling('striped', full_width = FALSE)
+  ),
+  collapse = '
+')
+  knitr::asis_output(res)
+}
+
+# Register the custom print function for data frames in the knitr namespace
+registerS3method(
+  'knit_print', 'data.frame', knit_print.data.frame,
+  envir = asNamespace('knitr')
+)
+
+# Set global chunk options in knitr if needed
+# knitr::opts_chunk$set(echo = TRUE)
+
+# Set the table format for knitr to HTML if needed
+# options(knitr.table.format = 'HTML')
+
+# End of Quarto setup
+
 ```
 
 ### Define dates 
@@ -1276,6 +1041,133 @@ Permit info from processed metrics tracking
 
 ```{r Compliance and Correspondence data}
 ## Compliance and Correspondence data ----
+```
+
+
+```{r}
+
+# <<<<
+
+# Explanations for the following code:
+
+# Use this aux function in case we want to change the case in all functions.
+# 
+# Used in other functions.
+#  
+#  
+
+ my_headers_case_function  <-  function (x) 
+{
+    if (!is.character(x)) 
+        x <- as.character(x)
+    .Internal(tolower(x))
+}
+# >>>>
+
+# <<<<
+
+# Explanations for the following code:
+
+# Cleans column names of uploaded files.
+# 
+# Provides a comprehensive approach to cleaning and standardizing column names within a dataframe, making them more consistent and suitable for further analysis or processing.
+#  
+#  
+# 
+# The `fix_names` function is designed to clean and standardize column names within a dataframe.
+# 
+# 1. **Function Definition:**
+# 
+#    - `fix_names <- function (x) { .. }`: Defines a function named `fix_names` that takes one argument, `x`, which represents the input dataframe.
+# 
+# 2. **Cleaning Column Names:**
+# 
+#    - `x %>% str_replace_all("\\.", "")`: Removes all occurrences of periods (`.`) from the column names using `str_replace_all` from the `stringr` package.
+# 
+#    - `str_replace_all("[^A-z0-9]", "_")`: Replaces all non-alphanumeric characters (excluding underscores) with underscores (`_`). This step ensures that the column names only contain letters, numbers, and underscores.
+# 
+#    - `str_replace_all("^(_*)(.+)", "\2\1")`: Ensures that column names do not start with multiple underscores. It captures the leading underscores (if any) and the rest of the column name using regular expressions, then rearranges them to place the underscores at the end of the column name.
+# 
+#    - `my_headers_case_function()`: Applies a custom function `my_headers_case_function` to further standardize the case of the column names. This function is defined in auxfunctions and is responsible for ensuring consistent capitalization of column names.
+# 
+# 3. **Return Statement:**
+# 
+#    - The function returns the modified dataframe with cleaned and standardized column names.
+# 
+# 
+
+ fix_names  <-  function (x) 
+{
+    my_headers_case_function(stringr::str_replace_all(stringr::str_replace_all(stringr::str_replace_all(x, 
+        "\\.", ""), "[^A-z0-9]", "_"), "^(_*)(.+)", "\\2\\1"))
+}
+# >>>>
+
+# <<<<
+
+# Explanations for the following code:
+
+# The clean_headers function cleans and standardizes the column names of a given dataframe (my_df)
+# 
+# using the fix_names() function, which removes special characters and spaces, and unifies the case.
+# 
+#  
+#  
+
+ clean_headers  <-  function (my_df) 
+{
+    new_names <- fix_names(colnames(my_df))
+    colnames(my_df) <- new_names
+    return(my_df)
+}
+# >>>>
+ 
+
+# <<<<
+
+# Explanations for the following code:
+
+# This helper function processes vessel ID columns in each data frame by trimming leading and trailing whitespace, making the data more consistent and easier to work with. If the column name is not provided, it attempts to detect it automatically.
+#  
+#  
+# 
+# 1. **Function Definition:**
+# 
+#    - `trim_all_vessel_ids_simple <- function (csvs_clean_ws, col_name_to_trim = NA)`: Defines a function named `trim_all_vessel_ids_simple` that takes two arguments: `csvs_clean_ws`, a list of data frames to process, and `col_name_to_trim`, the name of the column containing vessel IDs to be trimmed. This argument is set to `NA` by default.
+# 
+# 2. **Column Name Detection:**
+# 
+#    - `if (is.na(col_name_to_trim)) { ... }`: Checks if the `col_name_to_trim` argument is not provided. If it's not provided, the function attempts to detect the column name containing vessel IDs.
+# 
+#    - `col_name_to_trim <- grep("vessel.*official.*number", tolower(names(x)), value = TRUE)`: Uses `grep` to search for column names containing variations of "vessel official number" (case-insensitive) within the column names of the first data frame (`x`) in the list. This is assigned to `col_name_to_trim`.
+# 
+# 3. **Column Trimming:**
+# 
+#    - `col_name_to_trim_s <- rlang::sym(col_name_to_trim)`: Converts `col_name_to_trim` to a symbol using `rlang::sym`. Symbols are used to refer to columns in a non-standard evaluation context.
+# 
+#    - `x %>% dplyr::mutate(vessel_official_number = trimws(!!col_name_to_trim_s))`: Applies the `trimws` function to the column specified by `col_name_to_trim_s` within each data frame (`x`) in the list. This removes leading and trailing whitespace from the vessel IDs.
+# 
+# 4. **Returning Processed Data Frames:**
+# 
+#    - `return(csvs_clean)`: Returns the list of data frames with trimmed vessel IDs.
+# 
+# 
+
+ trim_all_vessel_ids_simple  <-  function (csvs_clean_ws, col_name_to_trim = NA) 
+{
+    csvs_clean <- lapply(csvs_clean_ws, function(x) {
+        if (is.na(col_name_to_trim)) {
+            col_name_to_trim <- grep("vessel.*official.*number", 
+                tolower(names(x)), value = TRUE)
+        }
+        col_name_to_trim_s <- rlang::sym(col_name_to_trim)
+        x %>% dplyr::mutate(vessel_official_number = trimws(!!col_name_to_trim_s)) %>% 
+            return()
+    })
+    return(csvs_clean)
+}
+# >>>>
+
 # <<<<
 
 # Explanations for the following code:
@@ -1296,6 +1188,35 @@ Permit info from processed metrics tracking
     csvs_clean1 <- trim_all_vessel_ids_simple(csvs_clean0, 
         vessel_id_field_name)
     return(csvs_clean1)
+}
+# >>>>
+
+# <<<<
+
+# Explanations for the following code:
+
+# Split week column ("52: 12/26/2022 - 01/01/2023") into 3 columns with proper classes, week_num (week order number), week_start and week_end.
+#  
+#  
+# - The `clean_weeks` function is designed to clean up the "week" column in a complinace dataframe.
+# 
+# - It first separates the "week" column into two separate columns using ":" as the delimiter, resulting in columns "week_num" and "week_rest".
+# 
+# - Then, it further separates the "week_rest" column into "week_start" and "week_end" columns using " - " as the delimiter.
+# 
+# - The function then converts the "week_num" column to integers and the "week_start" and "week_end" columns to Date objects using `as.integer` and `as.Date` functions, respectively.
+# 
+# - Finally, it returns the modified dataframe.
+
+ clean_weeks  <-  function (my_df) 
+{
+    temp_df <- my_df %>% tidyr::separate_wider_delim(week, ":", 
+        names = c("week_num", "week_rest")) %>% tidyr::separate_wider_delim(week_rest, 
+        " - ", names = c("week_start", "week_end"))
+    my_df$week_num <- as.integer(trimws(temp_df$week_num))
+    my_df$week_start <- as.Date(trimws(temp_df$week_start), "%m/%d/%Y")
+    my_df$week_end <- as.Date(trimws(temp_df$week_end), "%m/%d/%Y")
+    return(my_df)
 }
 # >>>>
 
@@ -1366,6 +1287,101 @@ Permit info from processed metrics tracking
         }, as.POSIXct(dplyr::pull(x[field_name]), format = "%m/%d/%Y")))
     })
     return(compl_dates)
+}
+# >>>>
+
+# <<<<
+
+# Explanations for the following code:
+
+# This function provides a flexible way to search for column names within a dataframe based on specified starting and ending patterns. It is useful for identifying columns that match a particular naming convention or pattern. 
+#  
+# The function is designed to search for column names within a dataframe that contain a specific pattern defined by `start_part` and `end_part`.
+# 
+# 1. **Function Definition:**
+#    -`function (mydf, start_part, end_part) { .. }`: Defines a function with three arguments: `mydf` (the dataframe to search), `start_part` (the starting pattern of the column names to search for), and `end_part` (the ending pattern of the column names to search for).
+# 
+# 2. **Constructing Regular Expression:**
+#    - `to_search <- paste0(start_part, ".*", end_part)`: Constructs a regular expression pattern by concatenating `start_part`, ".*" (which matches any characters zero or more times), and `end_part`. This pattern will be used to search for matching column names.
+# 
+# 3. **Searching for Matching Column Names:**
+#    - `matching_names <- grep(to_search, tolower(names(mydf)), value = TRUE)`: Searches for column names in the dataframe `mydf` that match the regular expression pattern `to_search`. The `tolower` function is used to convert the column names to lowercase for case-insensitive matching. The `grep` function returns the matching column names as a vector.
+# 
+# 4. **Return Statement:**
+#    - `return(matching_names)`: Returns the vector of matching column names found in the dataframe that satisfy the specified pattern.
+# 
+
+ find_col_name  <-  function (mydf, start_part, end_part) 
+{
+    to_search <- paste0(start_part, ".*", end_part)
+    matching_names <- grep(to_search, tolower(names(mydf)), value = TRUE)
+    return(matching_names)
+}
+# >>>>
+
+# <<<<
+
+# Explanations for the following code:
+
+# The add_count_contacts function is defined to add two new columns ('was_contacted' and 'contact_freq') to the input data frame ('all_data_df_clean') based on the presence of contact dates.
+# 
+# It returns the 'result_df', which is the input data frame with the added columns indicating whether a vessel was contacted ('was_contacted') and the frequency of contacts ('contact_freq').
+# 
+# Use for contacts in the setup function before combining with compliant dataframes.
+#  
+#  
+# 
+# - The `add_count_contacts` function takes a dataframe `all_data_df_clean` as input.
+# 
+# - It first finds the column names for "contact date" and "vessel number" using the `find_col_name` function.
+# 
+# - Then, it adds a new column named "was_contacted", which indicates whether a contact was made with each vessel based on the presence of a contact date. If the contact date is missing (`NA`), it assigns "no"; otherwise, it assigns "yes".
+# 
+# - The `add_count` function is then used to count the number of contacts per vessel, distinguishing between vessels that were contacted and those that were not. The result is stored in a new column named "contact_freq".
+# 
+# - Finally, the function returns the dataframe with the added columns.
+# 
+# 
+
+ add_count_contacts  <-  function (all_data_df_clean) 
+{
+    contactdate_field_name <- find_col_name(all_data_df_clean, 
+        "contact", "date")[1]
+    vessel_id_field_name <- find_col_name(all_data_df_clean, 
+        "vessel", "number")[1]
+    result_df <- all_data_df_clean %>% dplyr::mutate(was_contacted = dplyr::if_else(is.na(!!rlang::sym(contactdate_field_name)), 
+        "no", "yes")) %>% dplyr::add_count(!!rlang::sym(vessel_id_field_name), 
+        was_contacted, name = "contact_freq")
+    return(result_df)
+}
+# >>>>
+
+# <<<<
+
+# Explanations for the following code:
+
+# Change a column class to POSIXct in the "my_df" for the field "field_name" using the "date_format"
+# 
+# The change_to_dates function is defined to convert a specific column ('field_name') in the input data frame ('my_df') to POSIXct date format using the specified 'date_format'.
+# 
+# Inside the function, it uses the mutate function from the dplyr package to modify 'my_df'. The {{field_name}} syntax is used to refer to the column specified by 'field_name'.
+# 
+# It returns the 'result_df', which is the input data frame with the specified column converted to dates according to the specified 'date_format'.
+#  
+#  
+
+ change_to_dates  <-  function (my_df, field_name, date_format = "") 
+{
+    if (date_format == "") {
+        my_tryFormats = c("%m/%d/%Y %I:%M%p", "%m/%d/%Y %I:%M %p", 
+            "%m/%d/%Y %R%OS", "%Y-%m-%d %H:%M:%OS", "%Y/%m/%d %H:%M:%OS", 
+            "%Y-%m-%d %H:%M", "%Y/%m/%d %H:%M", "%Y-%m-%d", "%Y/%m/%d")
+    }
+    new_field_name <- stringr::str_glue("{field_name}_dttm")
+    result_df <- dplyr::mutate(my_df, `:=`(!!new_field_name, 
+        as.POSIXct(!!field_name, tryFormats = my_tryFormats, 
+            format = date_format)))
+    return(result_df)
 }
 # >>>>
 
@@ -1669,24 +1685,6 @@ dim(processed_pims_home_ports)
 
 ```{r Get owners addresses}
 ## Get owners addresses ----
-# <<<<
-
-# Explanations for the following code:
-
-# The clean_headers function cleans and standardizes the column names of a given dataframe (my_df)
-# 
-# using the fix_names() function, which removes special characters and spaces, and unifies the case.
-# 
-#  
-#  
-
- clean_headers  <-  function (my_df) 
-{
-    new_names <- fix_names(colnames(my_df))
-    colnames(my_df) <- new_names
-    return(my_df)
-}
-# >>>>
 
 # <<<<
 
@@ -1832,7 +1830,7 @@ Print an error message if no connection, but keep running the code.
 
 ```{r}
 # Use function connect_to_secpr defined above.
-try(con <- connect_to_secpr())
+con <- connect_to_secpr()
 ```
 
 Define a parameter for a function to fetch participant address data from the database
@@ -1841,7 +1839,7 @@ Define a parameter for a function to fetch participant address data from the dat
 db_participants_address_fun <-
   function(db_participants_address) {
     # browser() # Commented out browser function for debugging
-    return(dbGetQuery(con,
+    return(DBI::dbGetQuery(con,
                       db_participants_address))
   }
 ```
@@ -2001,6 +1999,28 @@ prev_result <- get_previous_result_from_google_drive()
 
 ```{r Results}
 # Results ----
+
+# <<<<
+
+# Explanations for the following code:
+
+# This function is designed to print a title message in blue color to the console. It enhances the visual presentation of the message for better readability.
+#  
+#  
+# 1. **Function Definition:**
+#    - `title_message_print <- function (title_msg)`: Defines a function named `title_message_print` that takes one argument, `title_msg`, which represents the title message to be printed.
+# 
+# 2. **Printing Title Message:**
+#    - `crayon::blue(title_msg)`: Formats the `title_msg` with blue color using the `crayon` package. This function enhances the visual appearance of the printed message.
+#    - `cat(..., sep = "\n")`: Prints the formatted `title_msg` to the console. The `sep` argument specifies the separator between multiple messages, here set to a newline character (`"\n"`).
+# 
+
+ title_message_print  <-  function (title_msg) 
+{
+    cat(crayon::blue(title_msg), sep = "\n")
+}
+# >>>>
+
 # <<<<
 
 # Explanations for the following code:
@@ -2892,34 +2912,6 @@ nrow(compl_corr_to_investigation_short) == num_of_vsl_to_investigate
 
 ```{r Add list of contact dates and contact type in parentheses}
 ### Add list of contact dates and contact type in parentheses  ----
-# <<<<
-
-# Explanations for the following code:
-
-# This function provides a flexible way to search for column names within a dataframe based on specified starting and ending patterns. It is useful for identifying columns that match a particular naming convention or pattern. 
-#  
-# The function is designed to search for column names within a dataframe that contain a specific pattern defined by `start_part` and `end_part`.
-# 
-# 1. **Function Definition:**
-#    -`function (mydf, start_part, end_part) { .. }`: Defines a function with three arguments: `mydf` (the dataframe to search), `start_part` (the starting pattern of the column names to search for), and `end_part` (the ending pattern of the column names to search for).
-# 
-# 2. **Constructing Regular Expression:**
-#    - `to_search <- paste0(start_part, ".*", end_part)`: Constructs a regular expression pattern by concatenating `start_part`, ".*" (which matches any characters zero or more times), and `end_part`. This pattern will be used to search for matching column names.
-# 
-# 3. **Searching for Matching Column Names:**
-#    - `matching_names <- grep(to_search, tolower(names(mydf)), value = TRUE)`: Searches for column names in the dataframe `mydf` that match the regular expression pattern `to_search`. The `tolower` function is used to convert the column names to lowercase for case-insensitive matching. The `grep` function returns the matching column names as a vector.
-# 
-# 4. **Return Statement:**
-#    - `return(matching_names)`: Returns the vector of matching column names found in the dataframe that satisfy the specified pattern.
-# 
-
- find_col_name  <-  function (mydf, start_part, end_part) 
-{
-    to_search <- paste0(start_part, ".*", end_part)
-    matching_names <- grep(to_search, tolower(names(mydf)), value = TRUE)
-    return(matching_names)
-}
-# >>>>
 ```
 
 
