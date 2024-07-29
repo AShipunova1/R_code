@@ -687,25 +687,13 @@ text_replaced_no_aux <-
 # rm auxfunctions:: in comments
 # Check if the username is not "anna.shipunova"   if (!auxfunctions::get_username()
 
-test_text <-
-  str_extract(text_replaced_1, "^.*auxfunctions::.*$") |>
-  unique() |>
-  head()
-
-str_extract(text_replaced_1, "^.*#.*auxfunctions::.*$") |>
-  unique() |>
-  head()
-
-str_extract(text_replaced_1, "^[^#]*auxfunctions::.*$") |>
-  unique() |>
-  head()
-
-test_text <-
-  str_extract(text_replaced_1, "^([^#]*)auxfunctions::(.+)(\\()") |>
-  unique() |>
-  head()
-
-gsub("^", "# Use function \\2 defined above.\n", test_text)
+# Works:
+# text_replaced_2 <-
+#   gsub(
+#     "^([^#]*)auxfunctions::(.+)(\\()",
+#     "# Use function \\2 defined above.\n\\1\\2\\3",
+#     text_replaced_1
+#   )
 
 text_replaced_2 <-
   gsub(
@@ -715,21 +703,6 @@ text_replaced_2 <-
   )
 
 see_res_in_outfile(text_replaced_2)
-
-# length(text_replaced_2)
-# see_res_in_outfile(text_replaced_2)
-
-# # Add this text just above if not in a comment
-# # text_replaced_2_one_line <- to_one_line(text_replaced_2, my_split_newline_char)
-# 
-# text_replaced_3 <-
-#   text_replaced_2 |>
-#   str_replace_all("^([^#]*)auxfunctions::([^(]+)\\(",
-#                   "# Use function \\2 defined above.\\n\\1\\2(")
-# 
-# length(text_replaced_3)
-
-# see_res_in_outfile(text_replaced_2)
 
 # see_res_in_outfile(text_replaced_no_aux)
 
