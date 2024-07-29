@@ -223,7 +223,7 @@ flat_file_r_text <-
 ### remove 'if (!exists("con"))', gives an error when rendering ----
 to_find_con <-
   'if *\\(\\!exists\\("con"\\)[^}]+\\}'
-to_replace_con <- "try(con <- auxfunctions::connect_to_secpr())"
+to_replace_con <- "con <- auxfunctions::connect_to_secpr()"
 
 flat_file_r_text <-
   stringr::str_replace_all(flat_file_r_text,
