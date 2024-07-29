@@ -479,6 +479,7 @@ This code checks if the `auxfunctions` package is available, and if not, it inst
 ```{r}
 install_helper_functions <- function() {
   # Check if the username is not "anna.shipunova"
+# Use function get_username defined above.
   if (!get_username() == "anna.shipunova") {
     # If the auxfunctions package is not installed, install it from GitHub
     if (!require('auxfunctions')) {
@@ -757,7 +758,9 @@ Manually: Change the following 2 lists (**my_paths** and **current_in_out_paths*
 
 ```{r}
 # Check if the current username is not "anna.shipunova"
+# Use function get_username defined above.
 if (!get_username() == "anna.shipunova") {
+# Use function function_message_print defined above.
   function_message_print(
     "Please CHANGE the following 2 lists values to your environment if needed. Use full path to your directories in quotes."
   )
@@ -778,7 +781,9 @@ if (!get_username() == "anna.shipunova") {
   
 } else {
   # If the username is "anna.shipunova", use Anna's directory structure.
+# Use function set_work_dir defined above.
   my_paths <- set_work_dir()
+# Use function current_project_paths defined above.
   current_in_out_paths <- current_project_paths()
 }
 ```
@@ -804,8 +809,10 @@ current_project_output_path <- current_in_out_paths$output
 Create input and output directories if they don't exist
 
 ```{r}
+# Use function create_dir_if_not defined above.
 create_dir_if_not(current_project_input_path)
 
+# Use function create_dir_if_not defined above.
 create_dir_if_not(current_project_output_path)
 ```
 
@@ -870,6 +877,7 @@ Depending on a user name who runs the code, the file paths are constructed here.
 
 ```{r}
 # Check if the username is not "anna.shipunova"
+# Use function get_username defined above.
 if (!get_username() == "anna.shipunova") {
     # Combine correspondence CSV path and compliance CSV paths into one list
   all_csv_full_paths_list <-
@@ -889,12 +897,14 @@ if (!get_username() == "anna.shipunova") {
   # prepare_csv_full_path function constructs full file paths by combining base path, additional path, and file names
 
   corresp_full_path <-
+# Use function prepare_csv_full_path defined above.
     prepare_csv_full_path(all_csv_names_list[[1]],
                           add_path = "from_Fhier/Correspondence",
                           input_dir_part = my_paths$inputs)
   
   # Add a full path in front of each file name for compliance CSVs
   compliance_full_paths <-
+# Use function prepare_csv_full_path(all_csv_names_list[2:length defined above.
     prepare_csv_full_path(all_csv_names_list[2:length(all_csv_names_list)],
                                         add_path = "from_Fhier/FHIER Compliance",
                                         input_dir_part = my_paths$inputs)
@@ -930,6 +940,7 @@ Depending on a user name who runs the code, the file paths are constructed here.
 
 ```{r}
 # Check if the username is not "anna.shipunova"
+# Use function get_username defined above.
 if (!get_username() == "anna.shipunova") {
   processed_metrics_tracking_file_names <-
     c(
@@ -993,6 +1004,7 @@ Manually: Add your full path instead of "Your full path here".
 
 ```{r}
 # Check if the username is not "anna.shipunova"
+# Use function get_username defined above.
 if (!get_username() == "anna.shipunova") {
   fhier_addresses_path <- "Your full path here"
 } else {
@@ -1030,6 +1042,7 @@ Manually: Add your full path instead of "Your full path here".
 
 ```{r}
 # Check if the username is not "anna.shipunova"
+# Use function get_username defined above.
 if (!get_username() == "anna.shipunova") {
   processed_pims_home_ports_path <- "Your full path here"
 } else {
@@ -1063,6 +1076,7 @@ Manually: Add your full path instead of "Your full path here".
 
 ```{r}
 # Check if the username is not "anna.shipunova"
+# Use function get_username defined above.
 if (!get_username() == "anna.shipunova") {
   prev_result_path <- "Your full path here"
 } else {
@@ -1436,6 +1450,7 @@ Replace all non-alphanumeric characters with underscores ('_'), unify the case
 
 ```{r}
 csvs_clean1 <- 
+# Use function clean_all_csvs defined above.
   clean_all_csvs(csv_contents)
 ```
 
@@ -1457,6 +1472,7 @@ Clean and process correspondence data, adding contact information and frequency
 ```{r}
 corresp_contact_cnts_clean0 <- 
   csvs_clean1[[1]] |> 
+# Use function corresp_cleaning defined above.
   corresp_cleaning()
 
 # Display the structure of the cleaned correspondence data
@@ -1474,6 +1490,7 @@ Use all dataframes from the csvs_clean1 list except the first (correspondence)
 ```{r}
 compl_clean_list <-
   csvs_clean1[2:length(csvs_clean1)] |>
+# Use function compliance_cleaning defined above.
   compliance_cleaning()
 ```
 
@@ -1814,6 +1831,7 @@ Attempt to establish a connection to Oracle database
 Print an error message if no connection, but keep running the code.
 
 ```{r}
+# Use function connect_to_secpr defined above.
 try(con <- connect_to_secpr())
 ```
 
@@ -1842,6 +1860,7 @@ change column names the same way as everything else.
 
 ```{r}
 db_participants_address <-
+# Use function read_rds_or_run defined above.
   read_rds_or_run(
     db_participants_address_file_path,
     db_participants_address_query,
@@ -1849,7 +1868,9 @@ db_participants_address <-
     #' If you want to update the existing file, change the NULL to "yes" 
     force_from_db = "yes"
   ) |>
+# Use function remove_empty_cols defined above.
   remove_empty_cols() |>
+# Use function clean_headers defined above.
   clean_headers()
 ```
 
@@ -1917,8 +1938,11 @@ get_previous_result_from_local_file <- function() {
   # remove empty columns,
   # change column names the same way as everything else.
   prev_result0 <-
+# Use function my_read_xlsx defined above.
     my_read_xlsx(prev_result_path) |>
+# Use function remove_empty_cols defined above.
     remove_empty_cols() |>
+# Use function clean_headers defined above.
     clean_headers()
   
   # An example
@@ -1955,7 +1979,9 @@ get_previous_result_from_google_drive <- function() {
   # And clean it as usual, changing headers to lower case with underscores and removing empty columns
   previous_result <-
     googlesheets4::read_sheet(my_previous_ss) |>
+# Use function remove_empty_cols defined above.
     remove_empty_cols() |>
+# Use function clean_headers defined above.
     clean_headers()
   
   return(previous_result)
@@ -2018,6 +2044,7 @@ results <-
     "prev_result"
   )
 
+# Use function pretty_print defined above.
 pretty_print(results, "Data are in:")
 ```
 
@@ -2254,6 +2281,7 @@ Apply the add_compliant_after_override function to add a new column indicating c
 tictoc::tic("compl_overr")
 compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr <-
   compl_clean_w_permit_exp_last_half_year__sa__short |>
+# Use function add_compliant_after_override defined above.
   add_compliant_after_override(overridden_col_name = "overridden_",
                                              compliance_col_name = "compliant_")
 tictoc::toc()
@@ -2902,12 +2930,15 @@ Spaces and underscores placements vary from source to source.
 
 ```{r}
 contactdate_field_name <-
+# Use function find_col_name defined above.
   find_col_name(compl_corr_to_investigation_short, "contact", "date")[1]
 
 contacttype_field_name <-
+# Use function find_col_name defined above.
   find_col_name(compl_corr_to_investigation_short, "contact", "type")[1]
 
 contactphonenumber_field_name <-
+# Use function find_col_name defined above.
   find_col_name(compl_corr_to_investigation_short, ".*contact", "number.*")[1]
 ```
 
@@ -3150,6 +3181,7 @@ Clean and standardize FHIER address data, removing duplicates
 ```{r}
 fhier_addr_short_clean <-
   fhier_addr_short |>
+# Use function clean_names_and_addresses defined above.
   clean_names_and_addresses() |>
   dplyr::distinct()
 
@@ -3587,6 +3619,7 @@ db_participants_address__needed_short__erv_erb_combined3 <-
       dplyr::group_by(official_number) |>
       dplyr::mutate(!!new_col_name :=
                       purrr::pmap(dplyr::across(dplyr::ends_with(curr_col_part)),
+# Use function list_sort_uniq defined above.
                                     ~ list_sort_uniq(.)),
              .keep = "none" ) |>
       dplyr::ungroup() |>
@@ -4089,6 +4122,7 @@ Check and display the updated column names
 
 
 ```{r}
+# Use function print_df_names defined above.
 print_df_names(compl_corr_to_investigation_short_dup_marked__permit_region__add_columns)
 ```
 
@@ -4282,6 +4316,7 @@ write_res_to_google_sheets <-
     # Generate a shareable link for the new spreadsheet
     current_output_file_link <- googledrive::drive_link(current_result_google_ss_name_info)
     
+# Use function pretty_print defined above.
     pretty_print(current_output_file_link, "Link to the new spreadsheet:")
     
     # The function returns the current output file link
