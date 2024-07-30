@@ -47,12 +47,13 @@ source(get_data_file_path)
 #' 
 #' vessels_from_pims_ok
 
+# TODO: where is the code?
 #' run once to get lat lon and check names with no coords
 #' 1) add lat/lon
 #' 2) check names without coordinates
 #' 3) fix names
 
-# separate hailing_port into city and state ----
+# Separate hailing_port into city and state ----
 
 #'
 #' Explanations:
