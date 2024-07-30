@@ -123,7 +123,7 @@
       "RemoteRepo": "R_code",
       "RemoteSubdir": "auxfunctions",
       "RemoteRef": "development",
-      "RemoteSha": "ff94cc36d051ec7ff22e0b447e128070fbfc1a0f",
+      "RemoteSha": "839cbc2369d792839c0760b9f64a06a92a2a4271",
       "RemoteHost": "api.github.com",
       "Requirements": [
         "DBI",
@@ -146,7 +146,7 @@
         "tidyr",
         "tidyselect"
       ],
-      "Hash": "bffa8aac014d65d2593a96e43eca3560"
+      "Hash": "653e7b23c0c23c25937ef5b9371a47f9"
     },
     "base64enc": {
       "Package": "base64enc",
@@ -201,7 +201,7 @@
     },
     "bslib": {
       "Package": "bslib",
-      "Version": "0.7.0",
+      "Version": "0.8.0",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -219,7 +219,7 @@
         "rlang",
         "sass"
       ],
-      "Hash": "8644cc53f43828f19133548195d7e59e"
+      "Hash": "b299c6741ca9746fb227debcb0f9fb6c"
     },
     "cachem": {
       "Package": "cachem",
@@ -1375,12 +1375,9 @@
     "renv": {
       "Package": "renv",
       "Version": "1.0.7",
-      "Source": "Repository",
+      "OS_type": null,
       "Repository": "CRAN",
-      "Requirements": [
-        "utils"
-      ],
-      "Hash": "397b7b2a265bc5a7a06852524dabae20"
+      "Source": "Repository"
     },
     "rlang": {
       "Package": "rlang",
@@ -1555,7 +1552,7 @@
     },
     "shiny": {
       "Package": "shiny",
-      "Version": "1.8.1.1",
+      "Version": "1.9.0",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -1584,7 +1581,7 @@
         "withr",
         "xtable"
       ],
-      "Hash": "54b26646816af9960a4c64d8ceec75d6"
+      "Hash": "01666113b04d504390d60736f39bd0d0"
     },
     "sodium": {
       "Package": "sodium",
@@ -1848,7 +1845,7 @@
     },
     "usethis": {
       "Package": "usethis",
-      "Version": "2.2.3",
+      "Version": "3.0.0",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -1875,7 +1872,7 @@
         "withr",
         "yaml"
       ],
-      "Hash": "d524fd42c517035027f866064417d7e6"
+      "Hash": "b2fbf93c2127bedd2cbe9b799530d5d2"
     },
     "utf8": {
       "Package": "utf8",
