@@ -137,6 +137,8 @@ to_fix_list <-
          "FIGURE EIGHT ISLAND#NC"),
        c("FORT MORGAN MARINA#AL",
          "FORT MORGAN#AL"),
+       c("JACKSONVILLE#FL, UNITED STATES, FL",
+         "JACKSONVILLE#FL"),
        c("GALLINANO#LA",
          "GALLIANO#LA"),
        c("GEORGRTOWN#SC",
