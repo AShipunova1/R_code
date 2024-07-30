@@ -156,4 +156,30 @@ auxfunctions::create_dir_if_not(current_project_output_path)
 
 ### Additional individual paths to data files ----
 # This section sets up paths for specific data files used in the project
-# 
+
+#### Vessels from PIMS ----
+vessel_names_file_path <-
+  file.path(my_paths$inputs,
+            r"(from_PIMS\Vessels - 2024-07-30_1139.xlsx)")
+
+file.exists(vessel_names_file_path)
+
+#### Permits from PIMS ----
+permits_names_file_path <-
+  file.path(my_paths$inputs,
+            r"(from_PIMS\Permits - 2024-07-30_1139.xlsx)")
+
+file.exists(permits_names_file_path)
+
+#' %%%%% Prepare data
+#' 
+
+## Get data ----
+#' 
+# This is used only with source()
+get_data_path <- 
+  file.path(current_project_path, paste0(current_project_name, "_get_data.R"))
+
+file.exists(get_data_path)
+
+source(get_data_path)
