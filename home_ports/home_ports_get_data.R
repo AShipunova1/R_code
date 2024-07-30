@@ -1,9 +1,7 @@
-lubridate::today()
-# [1] "2024-02-28"
+# lubridate::today()
 
+#' Files needed. How to download from PIMS.
 #' 1) "Permits - 2024-02-28_0930.xlsx"
-#'
-#' get it from PIMS
 #'
 #' Menu: permits
 #'
@@ -13,64 +11,14 @@ lubridate::today()
 #'
 #' download
 #'
-#' skip first 5 lines in R)
+#' skip first 5 lines in R
 #'
 #' 2) same for vessels, skip first 3 lines
 #'
 #' "Vessels - 2024-02-28_0930.xlsx"
 #' 
 
-# library(openxlsx)
-
-#' Colored terminal output
-# library(crayon)
-
-# auxiliary functions ----
-
-#' Explanations:
-#' 
-#' - `convert_to_dates <- function(my_df, ymd_format = c("Ymd", "mdY"))` defines the function `convert_to_dates` with two parameters:
-#' 
-#'   - `my_df`: the input data frame.
-#' 
-#'   - `ymd_format = c("Ymd", "mdY")`: a vector specifying the date formats to be used for parsing.
-#' 
-#' - `browser()` is a debugging line that can be uncommented to debug the function interactively. It pauses execution and allows inspection of the environment.
-#' 
-#' - `my_df_w_dates <-` assigns the result of the following pipeline to the variable `my_df_w_dates`.
-#' 
-#'   - `my_df |>` starts a pipeline with the data frame `my_df`.
-#' 
-#'   - `dplyr::mutate(dplyr::across(...))` applies transformations across multiple columns.
-#' 
-#'     - `tidyselect::where(is.character) & (tidyselect::ends_with("date"))` selects columns that are of character type and whose names end with "date".
-#' 
-#'     - `~ lubridate::parse_date_time(.x, orders = ymd_format)` is a lambda function that parses the selected columns into Date format using the specified `ymd_format` orders. The `parse_date_time` function from the `lubridate` package is used to handle multiple date formats.
-#' 
-#' - `return(my_df_w_dates)` returns the modified data frame `my_df_w_dates` with the specified columns converted to Date format.
-#' 
-#' This function processes the input data frame `my_df`, converting all character columns that end with "date" to Date format using the specified date formats. The resulting data frame is returned.
-#'
-
-convert_to_dates <-
-  function(my_df, ymd_format = c("Ymd", "mdY")) {
-    # browser()
-    my_df_w_dates <-
-      my_df |>
-      dplyr::mutate(dplyr::across(
-        tidyselect::where(is.character) &
-          (tidyselect::ends_with("date")),
-        ~ lubridate::parse_date_time(.x, orders = ymd_format)
-      ))
-    return(my_df_w_dates)
-  }
-
-# upload vessels from PIMS ----
-vessel_names_file_path <-
-  file.path(my_paths$inputs,
-            r"(from_PIMS\Vessels - 2024-07-30_1139.xlsx)")
-
-file.exists(vessel_names_file_path)
+# Upload vessels from PIMS ----
 
 #' Explanations:
 #' 
@@ -112,11 +60,6 @@ dim(vessels_from_pims)
 # names(vessels_from_pims_double)
 # [1] "vessel_official_number1" "vessel_official_number2" "hailing_port"         
 # upload permits from pims ----
-permits_names_file_path <-
-  file.path(my_paths$inputs,
-            r"(from_PIMS\Permits - 2024-07-30_1139.xlsx)")
-
-file.exists(permits_names_file_path)
 
 #' This line of code reads data from the specified Excel file starting at the 5th row, using a custom function `my_read_xlsx` from the `auxfunctions` package, and stores the resulting data frame in the variable `permits_from_pims`.
 permits_from_pims <-
@@ -190,6 +133,45 @@ Sys.setenv(TZ = Sys.timezone())
 Sys.setenv(ORA_SDTZ = Sys.timezone())
 
 program_start_date <- lubridate::dmy("01/01/2021")
+
+# An auxiliary function ----
+
+#' Explanations:
+#' 
+#' - `convert_to_dates <- function(my_df, ymd_format = c("Ymd", "mdY"))` defines the function `convert_to_dates` with two parameters:
+#' 
+#'   - `my_df`: the input data frame.
+#' 
+#'   - `ymd_format = c("Ymd", "mdY")`: a vector specifying the date formats to be used for parsing.
+#' 
+#' - `browser()` is a debugging line that can be uncommented to debug the function interactively. It pauses execution and allows inspection of the environment.
+#' 
+#' - `my_df_w_dates <-` assigns the result of the following pipeline to the variable `my_df_w_dates`.
+#' 
+#'   - `my_df |>` starts a pipeline with the data frame `my_df`.
+#' 
+#'   - `dplyr::mutate(dplyr::across(...))` applies transformations across multiple columns.
+#' 
+#'     - `tidyselect::where(is.character) & (tidyselect::ends_with("date"))` selects columns that are of character type and whose names end with "date".
+#' 
+#'     - `~ lubridate::parse_date_time(.x, orders = ymd_format)` is a lambda function that parses the selected columns into Date format using the specified `ymd_format` orders. The `parse_date_time` function from the `lubridate` package is used to handle multiple date formats.
+#' 
+#' - `return(my_df_w_dates)` returns the modified data frame `my_df_w_dates` with the specified columns converted to Date format.
+#' 
+#' This function processes the input data frame `my_df`, converting all character columns that end with "date" to Date format using the specified date formats. The resulting data frame is returned.
+#'
+convert_to_dates <-
+  function(my_df, ymd_format = c("Ymd", "mdY")) {
+    # browser()
+    my_df_w_dates <-
+      my_df |>
+      dplyr::mutate(dplyr::across(
+        tidyselect::where(is.character) &
+          (tidyselect::ends_with("date")),
+        ~ lubridate::parse_date_time(.x, orders = ymd_format)
+      ))
+    return(my_df_w_dates)
+  }
 
 #' Explanations:
 #'
