@@ -132,19 +132,9 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
 } else {
   # If the username is "anna.shipunova", use Anna's directory structure.
   my_paths <- auxfunctions::set_work_dir()
-  project_name = "home_port"
   current_in_out_paths <- auxfunctions::current_project_paths()
 }
 
-current_project_dir_path <- this.path::this.dir()
-
-current_project_basename <- basename(current_project_dir_path)
-
-current_output_dir <-
-  file.path(my_paths$outputs,
-            current_project_basename)
-
-#
 # The following section uses provided directory names lists to automatically create separate variables for future use and create current input/output directories if they do not exists.
 # 
 # 
