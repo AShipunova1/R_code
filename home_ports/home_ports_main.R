@@ -103,11 +103,11 @@ addresses_w_digit <-
 vessels_from_pims_ok |>
   filter(grepl(",.+,", hailing_port)) |> 
   distinct()
-# 1 945114                 REDINGTON SHORES, FL, FL
-# 2 919225                 CHAUVIN, LA, LA         
-# 3 AL6468LL               ALEXANDER CITY, AL, AL  
-# 4 FL0702JJ               MATLACHA, BOKKELIA, FL
-# 5 8811432134             PEMBROKE, PINES, FL     
+# 1                 945114            REDINGTON SHORES, FL, FL
+# 2                 919225                     CHAUVIN, LA, LA
+# 3               FL0702JJ              MATLACHA, BOKKELIA, FL
+# 4             8811432134                 PEMBROKE, PINES, FL
+# 5               FL7047TR JACKSONVILLE, FL, UNITED STATES, FL
    
 # fix known home port typos ----
 
