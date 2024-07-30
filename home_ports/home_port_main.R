@@ -86,19 +86,17 @@ install_helper_functions()
 my_years <- c("2022", "2023", "2024")
 
 my_year_dates <-
-  purrr::imap(my_years, \(one_year, idx) {
-    browser()
-    
+  purrr::map(my_years, \(one_year) {
     my_beginning <- stringr::str_glue("{one_year}-01-01")
     my_end <- stringr::str_glue("{one_year}-12-31")
     
-    res <- c(my_beginning, my_end)
-    
+    res <- list(beg = my_beginning, end = my_end)
+    return(res)
   })
 
 names(my_year_dates) <- my_years
 
-# str(my_year_dates)
+str(my_year_dates)
 
 ## Set up paths ----
 #
