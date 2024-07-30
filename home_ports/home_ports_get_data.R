@@ -1,4 +1,4 @@
-# today()
+lubridate::today()
 # [1] "2024-02-28"
 
 #' 1) "Permits - 2024-02-28_0930.xlsx"
@@ -20,10 +20,10 @@
 #' "Vessels - 2024-02-28_0930.xlsx"
 #' 
 
-library(openxlsx)
+# library(openxlsx)
 
 #' Colored terminal output
-library(crayon)
+# library(crayon)
 
 # auxiliary functions ----
 
@@ -92,7 +92,7 @@ vessels_from_pims <-
 # print_df_names(vessels_from_pims)
 
 # glimpse(vessels_from_pims)
-# dim(vessels_from_pims)
+dim(vessels_from_pims)
 # [1] 23107     8
 
 # TODO: get vessel (home port) info from PIMS with 2 names
@@ -111,7 +111,6 @@ vessels_from_pims <-
 
 # names(vessels_from_pims_double)
 # [1] "vessel_official_number1" "vessel_official_number2" "hailing_port"         
-
 # upload permits from pims ----
 permits_names_file_path <-
   file.path(my_paths$inputs,
@@ -190,7 +189,7 @@ permits_from_pims__split1 <-
 Sys.setenv(TZ = Sys.timezone())
 Sys.setenv(ORA_SDTZ = Sys.timezone())
 
-program_start_date <- lubridate::dmy("04/01/2021")
+program_start_date <- lubridate::dmy("01/01/2021")
 
 #' Explanations:
 #'
@@ -258,7 +257,7 @@ permits_from_pims__split1_short__split2 <-
            sep = "-") |>
   dplyr::mutate(dplyr::across(tidyselect::starts_with('permit'),
                 stringr::str_squish))
-# View(permits_from_pims__split1_short__split2)
+View(permits_from_pims__split1_short__split2)
 
 ## vessels clean and shorten  ----
 #'
@@ -367,7 +366,7 @@ vessels_from_pims_short_ok__split1 <-
 
 # View(vessels_from_pims_short_ok__split1)
 
-## vessel make one column of double names ----
+## Vessels, make one column of double names ----
 ### split into 2 dataframes and rename the id column ----
 
 # [1] "vessel_official_number, vessel_official_number2, hailing_port"
@@ -458,4 +457,3 @@ grep("  +",
      vessels_from_pims_ok$hailing_port,
      value = T)
 # 0
-
