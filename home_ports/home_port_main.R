@@ -33,8 +33,9 @@ needed_packages <- c(
 
 installed_packages <-
   needed_packages %in% rownames(installed.packages())
+
 if (any(installed_packages == FALSE)) {
-  install.packages(packages[!installed_packages])
+  install.packages(needed_packages[!installed_packages])
 }
 
 # Install helper functions for SEFHIER data analysis.
