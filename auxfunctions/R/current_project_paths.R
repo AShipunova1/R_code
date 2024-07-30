@@ -1,16 +1,22 @@
-current_project_paths <- function() {
+current_project_paths <- function(current_project_name = NULL) {
   
   my_paths <- auxfunctions::set_work_dir()
   
-  #' get this project name
-  current_project_dir_name <- this.path::this.dir()
-  
-  #' find its base name
-  current_project_name <-
-    basename(current_project_dir_name)
+  # get this project name
+  if (is.null(current_project_name)) {
+    current_project_dir_name <- this.path::this.dir()
+    
+    # find its base name
+    current_project_name <-
+      basename(current_project_dir_name)
+  } else {
+    current_project_dir_name <- 
+      file.path(my_paths$git_r, current_project_name)
+  }
   
   #' use current_project_name to create input and output paths
-  curr_proj_input_path <- file.path(my_paths$inputs, current_project_name)
+  curr_proj_input_path <- 
+    file.path(my_paths$inputs, current_project_name)
   
   auxfunctions::create_dir_if_not(curr_proj_input_path)
   
