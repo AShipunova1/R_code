@@ -82,6 +82,9 @@ install_helper_functions <- function() {
 install_helper_functions()
 
 ## Define dates ----
+
+program_start_date <- lubridate::dmy("01/01/2021")
+
 # Variables for the current year(s)
 my_years <- c("2022", "2023", "2024")
 
@@ -174,8 +177,6 @@ file.exists(permits_names_file_path)
 #' %%%%% Prepare data
 #' 
 
-## Get data ----
-#' 
 # This is used only with source()
 get_data_path <- 
   file.path(current_project_path, paste0(current_project_name, "_get_data.R"))
