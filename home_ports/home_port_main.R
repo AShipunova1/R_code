@@ -17,7 +17,7 @@
 ## Install packages if needed ----
 needed_packages <- c(
   "tidyverse",
-  "devtools", # Collection of package development tools
+  "devtools" # Collection of package development tools
 )
 
 # Explanations for the following code:
