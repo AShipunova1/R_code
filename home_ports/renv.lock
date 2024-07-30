@@ -119,14 +119,15 @@
       "Version": "1.1",
       "Source": "GitHub",
       "RemoteType": "github",
-      "RemoteUsername": "AShipunova1",
-      "RemoteRepo": "R_code",
-      "RemoteSubdir": "auxfunctions",
-      "RemoteRef": "development",
-      "RemoteSha": "839cbc2369d792839c0760b9f64a06a92a2a4271",
       "RemoteHost": "api.github.com",
+      "RemoteRepo": "R_code",
+      "RemoteUsername": "AShipunova1",
+      "RemoteRef": "development",
+      "RemoteSha": "9b9cdd76226fc557a896e014007fb5100b9a72f3",
+      "RemoteSubdir": "auxfunctions",
       "Requirements": [
         "DBI",
+        "R",
         "cowplot",
         "crayon",
         "data.table",
@@ -146,7 +147,7 @@
         "tidyr",
         "tidyselect"
       ],
-      "Hash": "653e7b23c0c23c25937ef5b9371a47f9"
+      "Hash": "47a39eb743bdab99f12fd78b4f359001"
     },
     "base64enc": {
       "Package": "base64enc",
@@ -1375,9 +1376,12 @@
     "renv": {
       "Package": "renv",
       "Version": "1.0.7",
-      "OS_type": null,
+      "Source": "Repository",
       "Repository": "CRAN",
-      "Source": "Repository"
+      "Requirements": [
+        "utils"
+      ],
+      "Hash": "397b7b2a265bc5a7a06852524dabae20"
     },
     "rlang": {
       "Package": "rlang",
