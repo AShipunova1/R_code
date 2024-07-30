@@ -3,7 +3,6 @@
 # [1] "2024-02-28"
 
 # setup ----
-# source("~/R_code_github/useful_functions_module.r")
 # devtools::install_github("AShipunova1/R_code/auxfunctions@development",
 #                          force = TRUE)
 devtools::install_github("AShipunova1/R_code/auxfunctions@development")
@@ -20,7 +19,7 @@ current_output_dir <-
   file.path(my_paths$outputs,
             current_project_basename)
 
-# dir.exists(current_output_dir)
+dir.exists(current_output_dir)
 
 #' Variables for the current year(s)
 my_year1 <- "2022"
