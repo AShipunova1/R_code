@@ -133,49 +133,7 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
   # If the username is "anna.shipunova", use Anna's directory structure.
   my_paths <- auxfunctions::set_work_dir()
   project_name = "home_port"
-  
-  current_project_paths <- function(current_project_name = NULL) {
-  
-  my_paths <- auxfunctions::set_work_dir()
-  
-  # check
-  'this.path' %in% rownames(installed.packages())
-
-  # get this project name
-  if (is.null(current_project_name)) {
-    current_project_dir_name <- this.path::this.dir()
-    
-    # find its base name
-    current_project_name <-
-      basename(current_project_dir_name)
-  } else {
-    current_project_dir_name <- 
-      file.path(my_paths$git_r, current_project_name)
-  }
-  
-  #' use current_project_name to create input and output paths
-  curr_proj_input_path <- 
-    file.path(my_paths$inputs, current_project_name)
-  
-  auxfunctions::create_dir_if_not(curr_proj_input_path)
-  
-  curr_proj_output_path <- file.path(my_paths$outputs, current_project_name)
-  
-  auxfunctions::create_dir_if_not(curr_proj_output_path)
-  
-  current_proj_paths <-
-    list(
-      "project_name" = current_project_name,
-      "code" = current_project_dir_name,
-      "input" = curr_proj_input_path,
-      "output" = curr_proj_output_path
-    )
-  
-  return(current_proj_paths)
-}
-
-  
-  # current_in_out_paths <- auxfunctions::current_project_paths(project_name)
+  current_in_out_paths <- auxfunctions::current_project_paths()
 }
 
 current_project_dir_path <- this.path::this.dir()
