@@ -300,7 +300,10 @@ vessels_from_pims_short <-
 dim(vessels_from_pims_short)
 # [1] 22887     2
 
-## vessels remove "NOVESID" ----
+## Vessels, remove "NOVESID" ----
+# From Kevin McIntosh:
+# 'All NOVESID vessels will not have any home port information since they are "virtual" vessels used as a placeholder for HMS permits and not actual physical vessels'
+
 vessels_from_pims_short_ok <-
   vessels_from_pims_short |>
   dplyr::filter(!grepl("^NOVESID", vessel_official_number))
@@ -310,7 +313,7 @@ dim(vessels_from_pims_short_ok)
 
 # View(vessels_from_pims_short_ok)
 
-## vessel split double names ----
+## Vessels, split double names ----
 #'
 #' Explanations:
 #'
@@ -371,10 +374,11 @@ vessels_from_pims_double_bind <-
   dplyr::distinct() |> 
   dplyr::filter(!is.na(vessel_official_number))
 
-dim(vessels_from_pims_double_bind)
-# [1] 23086     2
+# added vessel ids from doubles
+nrow(vessels_from_pims_double_bind) - nrow(vessels_from_pims_short_ok__split1)
+# 570
 
-## Clean vessel home port punctuation ----
+## Vessels, clean home port punctuation ----
 #'
 #' Explanations:
 #'
@@ -429,11 +433,15 @@ dim(vessels_from_pims_ok)
 grep(",[a-zA-Z]",
      vessels_from_pims_ok$hailing_port,
      value = T)
-# 0
+# 0 OK
 # [1] "PEMBROKE,PINES, FL"
 
 # check if there are more than one space
 grep("  +",
      vessels_from_pims_ok$hailing_port,
      value = T)
-# 0
+# 0 OK
+
+#' Result:
+#' 
+#' vessels_from_pims_ok
