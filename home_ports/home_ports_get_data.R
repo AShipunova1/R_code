@@ -1,6 +1,9 @@
 # lubridate::today()
 
-#' Files needed. How to download from PIMS.
+# Get data ----
+#' 
+#' Load the needed files. First download them from PIMS into paths defined in the Set Up Paths section above.
+#' 
 #' 1) "Permits - 2024-02-28_0930.xlsx"
 #'
 #' Menu: permits
@@ -11,14 +14,12 @@
 #'
 #' download
 #'
-#' skip first 5 lines in R
+#' 2) same for vessels
 #'
-#' 2) same for vessels, skip first 3 lines
-#'
-#' "Vessels - 2024-02-28_0930.xlsx"
+#' Example: "Vessels - 2024-02-28_0930.xlsx"
 #' 
 
-# Upload vessels from PIMS ----
+## Load vessels from PIMS ----
 
 #' Explanations:
 #' 
@@ -37,9 +38,11 @@ vessels_from_pims <-
   auxfunctions::my_read_xlsx(vessel_names_file_path, 
                              start_row = 4)
 
+# check
 # print_df_names(vessels_from_pims)
 
 # glimpse(vessels_from_pims)
+
 dim(vessels_from_pims)
 # [1] 23107     8
 
@@ -59,7 +62,7 @@ dim(vessels_from_pims)
 
 # names(vessels_from_pims_double)
 # [1] "vessel_official_number1" "vessel_official_number2" "hailing_port"         
-# upload permits from pims ----
+## Load permits from PIMS ----
 
 #' This line of code reads data from the specified Excel file starting at the 5th row, using a custom function `my_read_xlsx` from the `auxfunctions` package, and stores the resulting data frame in the variable `permits_from_pims`.
 permits_from_pims <-
