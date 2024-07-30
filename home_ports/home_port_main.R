@@ -184,3 +184,35 @@ get_data_path <-
 file.exists(get_data_path)
 
 source(get_data_path)
+
+#' Result:
+#' 
+#' vessels_from_pims_ok
+
+# Fix city and state ----
+## Separate hailing_port into city and state ----
+
+#'
+#' Explanations:
+#'
+#' The variable 'vessels_from_pims_split_addr' is created by:
+#'
+#' 1. Separating the 'hailing_port' column into two columns ('city' and 'state') using a comma as the delimiter with 'tidyr::separate_wider_delim'.
+#'
+#' 2. Dropping any additional columns created during the separation.
+#'
+#' 3. Trimming leading and trailing whitespaces from all character columns using 'mutate(across(where(is.character), str_trim))'.
+#' 
+vessels_from_pims_split_addr <-
+  vessels_from_pims_ok |>
+  tidyr::separate_wider_delim(
+    hailing_port,
+    delim = ",",
+    names = c("city", "state"),
+    too_many = "merge",
+    too_few = "align_start"
+  ) |>
+  dplyr::mutate(dplyr::across(tidyselect::where(is.character), 
+                              stringr::str_squish))
+
+# View(vessels_from_pims_split_addr)
