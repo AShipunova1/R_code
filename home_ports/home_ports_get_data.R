@@ -130,10 +130,6 @@ permits_from_pims__split1 <-
 # Expected 2 pieces. Missing pieces filled with `NA` in 3038 rows [229, 244, 294,
 
 ## permits clean and shorten ----
-#' Make time zones the same
-#' These lines of code configure the environment to use the system's current timezone for both the TZ and ORA_SDTZ variables, which is necessary for ensuring that date and time operations are consistent with the local timezone settings.
-Sys.setenv(TZ = Sys.timezone())
-Sys.setenv(ORA_SDTZ = Sys.timezone())
 
 program_start_date <- lubridate::dmy("01/01/2021")
 
