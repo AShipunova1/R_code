@@ -233,7 +233,7 @@ vessels_from_pims_split_addr__city_state <-
              sep = "#"
            ))
 
-## check numbers in an address again ----
+## check numbers in an address again with the "#" ----
 vessels_from_pims_split_addr__city_state |>
   filter(grepl("\\d", city_state)) |> 
   select(city_state) |> 
@@ -252,11 +252,12 @@ vessels_from_pims_split_addr__city_state |>
 vessels_from_pims_split_addr__city_state |>
   filter(grepl(",", city_state)) |> 
   select(city_state)
-# 1 REDINGTON SHORES#FL, FL
-# 2 CHAUVIN#LA, LA         
-# 3 ALEXANDER CITY#AL, AL  
-# 4 MATLACHA#BOKKELIA, FL  
-# 5 PEMBROKE#PINES, FL     
+# REDINGTON SHORES#FL, FL
+# CHAUVIN#LA, LA         
+# ALEXANDER CITY#AL, AL  (fixed)
+# MATLACHA#BOKKELIA, FL  
+# PEMBROKE#PINES, FL   
+# JACKSONVILLE#FL, UNITED STATES, FL
 
 # ---
 
@@ -342,8 +343,15 @@ dplyr::n_distinct(vessels_from_pims_split_addr__city_state__fix1$vessel_official
 dim(vessels_from_pims_split_addr__city_state__fix1)
 # [1] 23086     6
 
+# check
+vessels_from_pims_split_addr__city_state__fix1 |> 
+  filter(grepl("JACKSONVILLE", city_fixed)) |> 
+  select(-vessel_official_number) |> 
+  distinct() |> 
+  glimpse()
+
 # add more fixes manually ----
-## list of double ports ----
+## list of double ports, keep the latest from Jeannette ----
 manual_fixes <-
   list(
     list("1112053", "NEW BERN", "NC"),
@@ -403,6 +411,7 @@ manual_fixes <-
 #'
 #' This code processes each element in `manual_fixes` to fix `city_fixed1` and `state_fixed1` columns in `vessels_from_pims_split_addr__city_state__fix1`, based on conditions specified in each element of `manual_fixes`. The final result, with unique rows, is stored in `vessels_from_pims_split_addr__city_state__fix2`.
 #' 
+
 vessels_from_pims_split_addr__city_state__fix2 <-
   purrr::map_df(manual_fixes,
          \(x) {
@@ -460,7 +469,7 @@ both <-
   )
 
 length(both)
-# 15
+# 25
 
 #' check 
 vessels_from_pims_split_addr__city_state__fix2 |>
@@ -471,7 +480,7 @@ vessels_from_pims_split_addr__city_state__fix2 |>
   dplyr::filter(!is.na(city_fixed1) & !is.na(city_fixed1)) |>
   dplyr::distinct() |>
   dplyr::glimpse()
-# 16 ok
+# 25 ok
 
 vessels_from_pims_split_addr__city_state__fix2 |>
   dplyr::filter(vessel_official_number %in% both) |>
@@ -526,7 +535,7 @@ vessels_from_pims_split_addr__city_state__fix2_ok |>
          state_fixed) |> 
   dplyr::distinct() |>
   dplyr::glimpse()
-# 15
+# 25
 
 ## remove empty and bad vessel ids ----
 # introduced by splitting doubles?
@@ -542,6 +551,10 @@ vessels_from_pims_split_addr__city_state__fix2_ok__good_ids <-
   dplyr::filter(!vessel_official_number %in% is_empty) |>
   dplyr::filter(!vessel_official_number %in% wrong_vessel_ids) |>
   dplyr::filter(!stringr::str_length(vessel_official_number) < normal_length)
+
+nrow(vessels_from_pims_split_addr__city_state__fix2_ok) -
+  nrow(vessels_from_pims_split_addr__city_state__fix2_ok__good_ids)
+# 13
 
 # TODO:
 # check ids with spaces
@@ -602,16 +615,28 @@ vessels_from_pims_split_addr__city_state__fix2_ok__good_ids |>
   nrow()
 # 47
 # 50
+# 55
 
 ## check for double ids/ports ----
-vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short |> 
+double_ids_ports <-
+  vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short |>
   dplyr::distinct() |>
   dplyr::select(vessel_official_number) |>
   dplyr::count(vessel_official_number) |>
-  dplyr::filter(n > 1) |>
-  nrow()
+  dplyr::filter(n > 1)
+
+nrow(double_ids_ports)
 # 0, ok
 # 3
+# 1
+
+# check
+
+vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short |>
+  filter(vessel_official_number %in% double_ids_ports) |>
+  select(city_fixed)
+# 1 PT. CANAVERAL 
+# 2 PORT CANAVERAL
 
 # print out ----
 out_dir <- file.path(my_paths$outputs,
@@ -627,3 +652,5 @@ readr::write_csv(
   out_path
 )
 
+# TODO:
+# Write to google drive
