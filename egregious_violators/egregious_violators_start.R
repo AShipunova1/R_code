@@ -81,12 +81,12 @@ needed_packages <- c(
 # - `if (any(installed_packages == FALSE)) { ... }` checks if any package is not installed:
 #   - `any(installed_packages == FALSE)` returns `TRUE` if at least one element in `installed_packages` is `FALSE`.
 #   - `install.packages(packages[!installed_packages])` installs the packages that are not installed:
-#     - `packages[!installed_packages]` selects the packages from `packages` that are not installed.
+#     - `needed_packages[!installed_packages]` selects the packages from `needed_packages` that are not installed.
 #     - `install.packages()` installs the selected packages.  
 installed_packages <-
   needed_packages %in% rownames(installed.packages())
 if (any(installed_packages == FALSE)) {
-  install.packages(packages[!installed_packages])
+  install.packages(needed_packages[!installed_packages])
 }
 
 #' Install helper functions for SEFHIER data analysis.
