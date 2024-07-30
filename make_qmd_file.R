@@ -499,7 +499,7 @@ new_short_fun_names_vector <- all_auxfunction_names
 temp_text_w_auxfun <- list(flat_file_r_text)
 old_fun_names <- c()
 
-# Have to add the found function texts and search for the list of fun names again amongst them
+# Have to add the found function texts and search for the list of fun names again among them
 repeat ({
   old_fun_names <- new_short_fun_names_vector
   
