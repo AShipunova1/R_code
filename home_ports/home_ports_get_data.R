@@ -94,7 +94,7 @@ vessel_or_dealer_col_name <-
 
 # print_df_names(permits_from_pims)
 
-## permits split vessel_or_dealer ----
+## Permits, split vessel_or_dealer ----
 #'
 #' Explanations:
 #'
@@ -126,14 +126,12 @@ permits_from_pims__split1 <-
   dplyr::mutate(dplyr::across(c('vessel_official_number', 'dealer'),
                 stringr::str_squish))
 
-# View(permits_from_pims__split1)
+glimpse(permits_from_pims__split1)
 # Expected 2 pieces. Missing pieces filled with `NA` in 3038 rows [229, 244, 294,
 
-## permits clean and shorten ----
+## Permits, clean and shorten ----
 
-program_start_date <- lubridate::dmy("01/01/2021")
-
-# An auxiliary function ----
+### An auxiliary function ----
 
 #' Explanations:
 #' 
@@ -207,7 +205,7 @@ dim(permits_from_pims)
 dim(permits_from_pims__split1_short)
 # [1] 31180    12
 
-## permits split permit number ----
+## Permits, split permit number ----
 #'
 #' Explanations:
 #'
@@ -238,9 +236,10 @@ permits_from_pims__split1_short__split2 <-
            sep = "-") |>
   dplyr::mutate(dplyr::across(tidyselect::starts_with('permit'),
                 stringr::str_squish))
-View(permits_from_pims__split1_short__split2)
 
-## vessels clean and shorten  ----
+glimpse(permits_from_pims__split1_short__split2)
+
+## Vessels, clean and shorten  ----
 #'
 #' Explanations:
 #'
