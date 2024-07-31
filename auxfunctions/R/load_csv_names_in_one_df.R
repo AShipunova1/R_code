@@ -17,7 +17,7 @@ function(path_to_files, csv_names_list) {
         # Use 'read_csv' from the 'readr' package to read each CSV file
         readr::read_csv(
             file_name,
-            col_types = cols(.default = 'c'),  # Set default column type to 'character'
+            col_types = readr::cols(.default = 'c'),  # Set default column type to 'character'
             trim_ws = TRUE,  # Trim whitespace from values
             na = c("", "NA", "NaN"),  # Treat empty strings, "NA," and "NaN" as NA values
             name_repair = "universal"  # Repair column names

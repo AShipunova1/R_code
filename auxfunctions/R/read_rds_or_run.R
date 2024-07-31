@@ -13,7 +13,7 @@ function(my_file_path,
         is.null(force_from_db)) {
         # If the file exists and 'force_from_db' is not set, read the data from the RDS file.
 
-        function_message_print("File already exists, reading.")
+        auxfunctions::function_message_print("File already exists, reading.")
 
         my_result <- readr::read_rds(my_file_path)
 
@@ -22,7 +22,7 @@ function(my_file_path,
       # If the file doesn't exist or 'force_from_db' is set, perform the following steps:
 
       # 0. Print this message.
-      function_message_print(c(
+      auxfunctions::function_message_print(c(
         "File",
         my_file_path,
         "doesn't exists, pulling data from database.",
@@ -44,7 +44,7 @@ function(my_file_path,
       # try is a wrapper to run an expression that might fail and allow the user's code to handle error-recovery.
 
       # 4. Print this message.
-      function_message_print(c("Saving new data into a file here: ",
+      auxfunctions::function_message_print(c("Saving new data into a file here: ",
                        my_file_path))
 
       try(readr::write_rds(my_result,
@@ -55,7 +55,7 @@ function(my_file_path,
 
   # Print out the formatted string with the file name ('my_file_name') and the modification time ('modif_time') to keep track of when the data were downloaded.
   my_file_name <- basename(my_file_path)
-  function_message_print(
+  auxfunctions::function_message_print(
     stringr::str_glue("File: {my_file_name} modified {modif_time}"))
 
     # Return the generated or read data.

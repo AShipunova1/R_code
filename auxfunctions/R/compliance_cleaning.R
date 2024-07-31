@@ -25,7 +25,7 @@ function(compl_arr) {
       x |>
         dplyr::mutate({{field_name}} := as.POSIXct(dplyr::pull(x[field_name]),
                                             format = "%m/%d/%Y"))
-      # change_to_dates(x, permitgroupexpirations[[idx]], "%m/%d/%Y")
+      # auxfunctions::change_to_dates(x, permitgroupexpirations[[idx]], "%m/%d/%Y")
     })
 
   # Return the cleaned and processed compliance data.

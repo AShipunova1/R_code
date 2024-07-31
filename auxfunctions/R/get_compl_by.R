@@ -1,7 +1,7 @@
 get_compl_by <-
 function(my_df,
            group_by_for_compl =
-             vars(-c("vessel_official_number", "compliant_", "overridden_")),
+             dplyr::vars(-c("vessel_official_number", "compliant_", "overridden_")),
            names_from_list = c("vessel_official_number")) {
     # browser()
     my_df %>%

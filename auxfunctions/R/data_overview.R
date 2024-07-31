@@ -7,5 +7,5 @@ function(my_df) {
   cat("\nCount unique values in each column:\n")
 
   # Call the 'count_uniq_by_column' function to count unique values in each column of the data frame.
-  count_uniq_by_column(my_df)
+  auxfunctions::count_uniq_by_column(my_df)
 }

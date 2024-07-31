@@ -6,6 +6,6 @@
 write_csv_with_list_col <- function(my_df, csv_out_file_path) {
   my_df |>
     rowwise() |>
-    mutate_if(is.list, ~ paste(unlist(.), collapse = ', ')) |>
+    dplyr::mutate_if(is.list, ~ paste(unlist(.), collapse = ', ')) |>
     readr::write_csv(csv_out_file_path)
 }

@@ -9,5 +9,5 @@ fix_names <-
       stringr::str_replace_all("^(_*)(.+)", "\\2\\1") |>
       
       # Convert column names to lowercase using 'my_headers_case_function'
-      my_headers_case_function()
+      auxfunctions::my_headers_case_function()
   }

@@ -9,7 +9,7 @@ function(my_text,
   if (is.na(date_range)) date_range = 2022
 
   # Print out to console
-  title_message_print(my_title)
+  auxfunctions::title_message_print(my_title)
   cat(c(my_text, the_end),
       sep = "\n")
 

@@ -9,7 +9,7 @@ function(csv_files_paths, csv_names_list) {
 
   # Use 'lapply' again to read all CSV files listed in 'myfiles'
   # The 'read_csv' function from the 'readr' package is used, specifying default column types as 'c' ('character')
-  contents <- lapply(myfiles, read_csv, col_types = cols(.default = 'c'))
+  contents <- lapply(myfiles, read_csv, col_types = readr::cols(.default = 'c'))
 
   # Return the contents of the CSV files as a list
   return(contents)

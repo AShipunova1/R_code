@@ -9,7 +9,7 @@ function(file_path, sheet_n, start_row = 1) {
       colNames = TRUE,
       sep.names = "_"
     ) |>
-    clean_headers()
+    auxfunctions::clean_headers()
 
   return(res_df)
 }

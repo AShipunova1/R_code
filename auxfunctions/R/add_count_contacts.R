@@ -2,9 +2,9 @@
 add_count_contacts <- function(all_data_df_clean) {
   # Find the column names for contact date and vessel number
   contactdate_field_name <- 
-    find_col_name(all_data_df_clean, "contact", "date")[1]
+    auxfunctions::find_col_name(all_data_df_clean, "contact", "date")[1]
   vessel_id_field_name <- 
-    find_col_name(all_data_df_clean, "vessel", "number")[1]
+    auxfunctions::find_col_name(all_data_df_clean, "vessel", "number")[1]
   
   # Mutate a new column 'was_contacted' based on the presence of contact date
   # Convert the result to a factor with levels 'yes' and 'no'
