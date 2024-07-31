@@ -65,8 +65,8 @@ annas_processed_data_path <-
 # Set the date from the most recent SC file name (update this with each new file),
 # this number is from the file provided by SC, e.g. "scdnrFedVessels_05312024.xlsx"
 # Change it with every new file
-sc_file_date <- "06282024"
-sc_file_dir <- "2024_07"
+sc_file_date <- "07312024"
+sc_file_dir <- "2024_07_for_Jun"
 
 annas_sc_mismatch_file_path <-
   file.path(annas_path$inputs,
@@ -134,6 +134,7 @@ non_compliant_vessels_in_sc_and_compl_in_fhier_last_2 <-
 
 dim(non_compliant_vessels_in_sc_and_compl_in_fhier)
 # [1] 0 24
+# [1]  5 24
 
 # Get month and weeks when the vessels are marked as non-compliant in SC, but are compliant in FHIER
 non_compliant_vessels_in_sc_and_compl_in_fhier__m_w__output <-
@@ -195,7 +196,7 @@ logbooks__sc_fhier_for_output <-
   distinct() |>
   arrange(vessel_official_number, trip_start_date)
 
-glimpse(logbooks__sc_fhier_for_output)
+nrow(logbooks__sc_fhier_for_output)
 # 0
 
 ## add DNF info ----
@@ -222,6 +223,7 @@ dnfs__sc_fhier <-
 # Check dimensions of dnfs__sc_fhier dataframe
 dim(dnfs__sc_fhier)
 # 0
+# [1] 35 41
 
 # subset columns of data to output
 dnfs__sc_fhier_for_output <-
@@ -237,6 +239,7 @@ dnfs__sc_fhier_for_output <-
 
 dim(dnfs__sc_fhier_for_output)
 # 0
+# [1] 35  8
 
 ## 2. SC compliant and not compliant in FHIER ----
 
@@ -250,6 +253,7 @@ compliant_vessels_in_sc_and_non_compl_fhier <-
 
 dim(compliant_vessels_in_sc_and_non_compl_fhier)
 # [1] 1202   24
+# [1] 703  24
 
 # "all_m_comp" field shows if any weeks of that month were compliant. We consider the whole month non-compliant if even one week was non-compliant. If SC considers the month compliant if at least one week was compliant that makes a big difference in the monthly compliance counts between SC and FHIER.
 
@@ -262,6 +266,7 @@ compliant_vessels_in_sc_and_non_compl_fhier__not_both_nc <-
 
 dim(compliant_vessels_in_sc_and_non_compl_fhier__not_both_nc)
 # [1] 458   24
+# [1] 292  24
 
 ### subset columns of data to output ----
 compliant_vessels_in_sc_and_non_compl_fhier__for_output <-
@@ -277,6 +282,7 @@ compliant_vessels_in_sc_and_non_compl_fhier__for_output <-
 
 dim(compliant_vessels_in_sc_and_non_compl_fhier__for_output)
 # [1] 559   7
+# [1] 302   7
 
 ## 3. List of vessels non compliant in both ----
 sc__fhier_compl__join_w_month__non_compl_in_both <-
@@ -286,6 +292,7 @@ sc__fhier_compl__join_w_month__non_compl_in_both <-
 
 dim(sc__fhier_compl__join_w_month__non_compl_in_both)
 # [1] 61 24
+# [1] 39 24
 
 ## 4. List of vessels compliant in both ----
 # Identify vessels non-compliant in both SC and FHIER systems
