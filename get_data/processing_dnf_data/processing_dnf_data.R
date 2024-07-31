@@ -1,16 +1,15 @@
 # processing_DNF_data
 
 # Files to create prior to running this script:
-# 1) SEFHIER_permitted_vessels_nonSRHS_{my_year}.rds
+# 1) Permitted_vessels_nonSRHS_{my_year}_plusfringedates.rds
        # use processing_metrics_tracking.R to create this file before running this script
 
 # Files this script will create:
-# 1) Raw_Oracle_Downloaded_compliance_2021_plus.rds
-# 2) Raw_Oracle_Downloaded_dnf_{my_compliance_date_beg}__{my_compliance_date_end}.rds
+# 1) Raw_Oracle_Downloaded_compliance_{db_year_1}_to_{db_year_2}.rds
+# 2) Raw_Oracle_Downloaded_dnf_{my_date_beg}__{my_date_end}.rds
 # 3) SEFHIER_processed_dnfs__compliance_weeks_{my_year}.rds
 # 4) SEFHIER_processed_dnfs_calendar_{my_year}.rds
-# this is the final processed data set for the calendar year that you can then use in further analyses
-# 5) SEFHIER_processed_dnfs_{my_year}.rds
+# 3 and 4 are the final processed data sets that you can then use in further analyses
 
 # This code processes DNF data from SEFSC’s Oracle database,
 # then cleans it up, so that we can use it in any DNF data analysis:
@@ -35,8 +34,13 @@
        # bias.
 
 # Notes:
+
+#Compliance weeks are defined in FHIER, and based on ISO week (Mon-Sun) determination. #‘my_date_beg` is calculated as the beginning of the compliance week containing the calendar start date. `my_date_end` is calculated as the end of the compliance week containing the calendar end date.  E.g. The first week that is included in the dataset is the week that includes Jan 1st. The last week that is included in the dataset is the week that includes Dec 31st. This might include week 52 of the previous, or week 1 of the next year, a.k.a. fringe weeks.
+
+#Fringe weeks are defined as compliance week 52 of the previous year, and/or compliance week 1 of the next year. Calendar dates of my_year sometimes fall into these extra “fringe weeks” before and after my year, because 365 days do not neatly fit into 52 weeks. We want to include the entire range of compliance weeks that encompass the calendar year, which may include the weeks that are in both the previous and the next compliance year. We will filter the data set by the current year’s compliance and calendar dates later in the script.
+
 # For this analysis, a fishing week starts on Monday and ends on Sunday (following the regs).
-# For 2022 we don't keep DNFs starting in 2021 and ending in 2022. We only keep DNFs starting in 2022.
+# As a programmatic decision, we don't include DNFs reported for 2021 in any analysis. We only include DNFs starting in 2022.
 
 # Caveats:
 # 1) The way COMP_WEEK is calculated could get messed up depending on a given year's time frame.
@@ -83,33 +87,33 @@ output_file_path <-
 # Set the date ranges for the DNF and compliance data you are pulling
 # this is the year to assign to the output file name
 # my_year <- "2022"
-# my_year <- "2023"
-my_year <- "2024"
+my_year <- "2023"
+# my_year <- "2024"
 
 # years range for srfh_vessel_comp db download, see below
-db_year_1 <- "2023"
-db_year_2 <- "2024"
+db_year_1 <- as.numeric(my_year)-1
+db_year_2 <- as.numeric(my_year)+1
 
 # ---
 # Explanations:
 # - This function, `get_the_dates`, generates a list of date strings and date objects based on a specified year and a start day for weeks.
 # - It takes two parameters: `my_year`, which defaults to "2023", and `week_start_day`, which defaults to "Monday".
-# - The function returns a list (`lst`) of the start and end dates for the calendar year, as well as the start and end dates for compliance based on week boundaries. lst is used to keep entries names.
-# The compliance dates include the "fringe" weeks if needed.
+# - The function returns a list (`lst`) of the start and end dates for the calendar year, as well as the beg and end dates for compliance weeks to be included, based on week boundaries. lst is used to keep entries names.
+# The beg and end dates include the "fringe" weeks if needed.
 #
 # 1. **Generating Calendar Dates**:
 #     - The function first creates two strings representing the start and end dates of the calendar year based on the provided `my_year` parameter.
 #     - `my_calendar_date_beg` is set to "01-JAN-{my_year}" and `my_calendar_date_end` is set to "31-DEC-{my_year}" using string interpolation (`str_glue`).
 #
-# 2. **Calculating Compliance Date Boundaries**:
-#     - The function calculates the compliance start and end dates based on the provided `week_start_day` option.
+# 2. **Calculating Beg and End Date Boundaries**:
+#     - The function calculates the compliance week start and end dates based on the provided `week_start_day` option.
 #     - It uses `lubridate` functions to convert the calendar date strings to date objects (`dmy`) and then adjust them to the nearest week boundaries.
-#     - `my_compliance_date_beg` is calculated as the beginning of the week containing the calendar start date.
-#     - `my_compliance_date_end` is calculated as the end of the week containing the calendar end date, minus one day.
+#     - `my_date_beg` is calculated as the beginning of the week containing the calendar start date.
+#     - `my_date_end` is calculated as the end of the week containing the calendar end date, minus one day.
 #     - The `getOption` function is used to ensure the start of the week is set according to `week_start_day`.
 #
 # 3. **Creating the List of Dates**:
-#     - The function combines the four calculated dates (`my_calendar_date_beg`, `my_calendar_date_end`, `my_compliance_date_beg`, and `my_compliance_date_end`) into a list using the `lst` function.
+#     - The function combines the four calculated dates (`my_calendar_date_beg`, `my_calendar_date_end`, `my_date_beg`, and `my_date_end`) into a list using the `lst` function.
 #
 week_start_day = "Monday"
 
@@ -118,10 +122,10 @@ get_the_dates <-
            week_start_day = "Monday") {
     my_calendar_date_beg <- str_glue("01-JAN-{my_year}")
     my_calendar_date_end <- str_glue("31-DEC-{my_year}")
-    my_compliance_date_beg <-
+    my_date_beg <-
       dmy(my_calendar_date_beg) |>
       floor_date('weeks', week_start = getOption("lubridate.week.start", week_start_day))
-    my_compliance_date_end <-
+    my_date_end <-
       dmy(my_calendar_date_end) |>
       ceiling_date('weeks',
                    week_start = getOption("lubridate.week.start", week_start_day)) - 1
@@ -129,18 +133,18 @@ get_the_dates <-
     my_dates <- lst(
       my_calendar_date_beg,
       my_calendar_date_end,
-      my_compliance_date_beg,
-      my_compliance_date_end
+      my_date_beg,
+      my_date_end
     )
 
     return(my_dates)
   }
 
 curr_dates <- get_the_dates(my_year)
-my_compliance_date_beg <- curr_dates$my_compliance_date_beg
-my_compliance_date_end <- curr_dates$my_compliance_date_end
+my_date_beg <- curr_dates$my_date_beg
+my_date_end <- curr_dates$my_date_end
 
-# ---
+# — This section produces a log output file that details the variables defined here
 # Pretty message print
 function_message_print <- function(text_msg) {
   cat(crayon::bgCyan$bold(text_msg),
@@ -305,7 +309,7 @@ toc()
 compl_override_data_file_path <-
   file.path(Path,
             Outputs,
-            str_glue("Raw_Oracle_Downloaded_compliance_2021_plus.rds"))
+            str_glue("Raw_Oracle_Downloaded_compliance_{db_year_1}_to_{db_year_2}.rds"))
 # File: Raw_Oracle_Downloaded_compliance_2021_plus.rds modified 2024-02-05 09:52:06.996529
 
 # Check if the file path is correct, optional
@@ -329,7 +333,7 @@ WHERE
 # See usage below at the `Grab compliance file from Oracle` section
 read_rds_or_run_query <- function(my_file_path,
                                   my_query,
-                                  force_from_db = TRUE) {
+                                  force_from_db = NULL) {
 
   if (file.exists(my_file_path)) {
     modif_time <- file.info(my_file_path)$mtime
@@ -398,7 +402,7 @@ read_rds_or_run_query <- function(my_file_path,
 compl_override_data <-
   read_rds_or_run_query(compl_override_data_file_path,
                         compl_err_query,
-                        force_from_db = TRUE)
+                        force_from_db = NULL)
 
 # check a week start day, should be Monday
 compl_override_data |>
@@ -431,20 +435,20 @@ my_stats(compl_override_data__renamed)
 min(compl_override_data__renamed$COMP_WEEK_START_DT)
 # [1] "2021-01-04 EST"
 
-# keep only my_year of analysis, including week 52 of the previous year if needed
+# keep only my_year of analysis, including fringe weeks if needed
 compl_override_data__renamed__this_year <-
   compl_override_data__renamed |>
-  filter(COMP_WEEK_END_DT >= as.Date(my_compliance_date_beg, "%d-%b-%Y",
+  filter(COMP_WEEK_END_DT >= as.Date(my_date_beg, "%d-%b-%Y",
                                      tz = Sys.timezone()) &
-           COMP_WEEK_START_DT <= as.Date(my_compliance_date_end, "%d-%b-%Y",
+           COMP_WEEK_START_DT <= as.Date(my_date_end, "%d-%b-%Y",
                                          tz = Sys.timezone()))
 
 # check
-# That's the week 52 of the previous year (my_year - 1):
+
 min(compl_override_data__renamed__this_year$COMP_WEEK_START_DT)
-# [1] "2021-12-27 EST" # this might contain the last week in the year before my_year, to account for a compliance week that overlaps last week of the previous year and first week of my_year
+# [1] "2021-12-27 EST" # this might contain the last week in the year before my_year to account for dates in my_year that fall in a compliance week of a different year
 min(compl_override_data__renamed__this_year$COMP_WEEK_END_DT)
-# [1] "2022-01-02 EST" # this might contain the last week in the year before my_year, to account for a compliance week that overlaps last week of the previous year and first week of my_year
+# [1] "2022-01-02 EST" # this might contain the last week in the year before my_year to account for dates in my_year that fall in a compliance week of a different year
 
 
 # change data type of this column if needed
@@ -458,10 +462,10 @@ if (!class(compl_override_data__renamed__this_year$VESSEL_OFFICIAL_NUMBER) == "c
 processed_metrics_tracking_path <-
   file.path(Path,
             Outputs,
-            str_glue("SEFHIER_permitted_vessels_nonSRHS_{my_year}.rds"))
+            str_glue("Permitted_vessels_nonSRHS_{my_year}_plusfringedates.rds"))
 
 # optional
-file.exists(processed_metrics_tracking_path)
+# file.exists(processed_metrics_tracking_path)
 
 # reads the file in the path into a data frame
 processed_metrics_tracking <-
@@ -476,8 +480,7 @@ processed_metrics_tracking <-
 dnfs_file_path <-
   file.path(Path,
             Outputs,
-            str_glue("Raw_Oracle_Downloaded_dnf_{my_compliance_date_beg}__{my_compliance_date_end}.rds"))
-# Was "SAFIS_TripsDownload_"
+            str_glue("Raw_Oracle_Downloaded_dnf_{my_date_beg}__{my_date_end}.rds"))
 
 # 2) create a variable with an SQL query to call data from the database
 
@@ -502,8 +505,8 @@ FROM
   JOIN safis.vessels@secapxdv_dblk.sfsc.noaa.gov v
   ON ( tn.vessel_id = v.vessel_id )
 WHERE
-    trip_date BETWEEN TO_DATE('{my_compliance_date_beg}', 'yyyy-mm-dd') AND
-TO_DATE('{my_compliance_date_end}', 'yyyy-mm-dd')
+    trip_date BETWEEN TO_DATE('{my_date_beg}', 'yyyy-mm-dd') AND
+TO_DATE('{my_date_end}', 'yyyy-mm-dd')
 "
   )
 
@@ -512,9 +515,7 @@ TO_DATE('{my_compliance_date_end}', 'yyyy-mm-dd')
 dnfs <-
   read_rds_or_run_query(dnfs_file_path,
                         dnfs_download_query,
-                        force_from_db = TRUE)
-
-# from scratch (with the parameter "force_from_db = TRUE")
+                        force_from_db = NULL) # from scratch (with the parameter "force_from_db = TRUE")
 # 2024-03-25 run for Raw_Oracle_Downloaded_dnf_01-JAN-2022__31-DEC-2022.rds: 120.43 sec elapsed
 # 2024-03-25 run for Raw_Oracle_Downloaded_dnf_01-JAN-2023__31-DEC-2023.rds: 125.17 sec elapsed
 
@@ -616,6 +617,7 @@ SEFHIER_dnfs_short_date__iso <-
 my_stats(SEFHIER_dnfs_short_date__iso)
 # compare numbers with DF prior to filtering out non-SEFHIER permitted vessels
 my_stats(dnfs_short_date__iso)
+
 
 # Create DF of vessels not in Metrics Tracking
 vessels_not_in_metrics <-
@@ -736,6 +738,7 @@ in_dnfs_not_in_compl <-
 
 nrow(in_dnfs_not_in_compl)
 
+# TODO: validate in_compl_not_in_dnfs and in_dnfs_not_in_compl
 # my_year
 # View(in_dnfs_not_in_compl)
 
@@ -938,21 +941,15 @@ my_stats(SEFHIER_processed_dnfs__late_subm__metrics)
 # c) the whole year including "straddling" weeks
 
 ## a) compliance weeks ----
-
+#here we want to ensure that only DNFs that end in my_year are included
 SEFHIER_processed_dnfs__compliance_weeks <-
   SEFHIER_processed_dnfs__late_subm__metrics |>
   dplyr::mutate(
-    COMP_START_YEAR = lubridate::isoyear(COMP_WEEK_START_DT),
-    COMP_END_YEAR = lubridate::isoyear(COMP_WEEK_END_DT)
+        COMP_END_YEAR = lubridate::isoyear(COMP_WEEK_END_DT)
   ) |>
-  filter(COMP_START_YEAR == my_year &
-           COMP_END_YEAR == my_year)
+  filter(COMP_END_YEAR == my_year)
 
 # check
-# was:
-min(SEFHIER_processed_dnfs__late_subm__metrics$TRIP_DATE)
-# [1] "2022-12-26 EST"
-# now:
 min(SEFHIER_processed_dnfs__compliance_weeks$TRIP_DATE)
 # [1] "2023-01-02 EST"
 max(SEFHIER_processed_dnfs__compliance_weeks$TRIP_DATE)
@@ -976,7 +973,7 @@ my_calendar_date_end <- curr_dates$my_calendar_date_end
 SEFHIER_processed_dnfs__calendar_year <-
   SEFHIER_processed_dnfs__late_subm__metrics |>
   filter(between(
-    TRIP_DATE,
+    TRIP_DATE, #TRIP_DATE here is date of the DNF, where DNFs don’t have start and end dates like logbooks
     as.Date(my_calendar_date_beg, "%d-%b-%Y",
             tz = Sys.timezone()),
     as.Date(my_calendar_date_end, "%d-%b-%Y",
@@ -1002,13 +999,12 @@ write_rds(
 
 ## c) the whole year including "straddling" weeks ----
 # define file name
-SEFHIER_processed_dnfs_file_name <-
-  str_glue("SEFHIER_processed_dnfs_{my_year}.rds")
+#SEFHIER_processed_dnfs_file_name <-
+# str_glue("SEFHIER_processed_dnfs_{my_year}.rds")
 
 # write dataframe to file path location, using defined file name
-write_rds(
-  SEFHIER_processed_dnfs__late_subm__metrics,
-  file = file.path(output_file_path,
-                   SEFHIER_processed_dnfs_file_name)
-)
+#write_rds(
+#  SEFHIER_processed_dnfs__late_subm__metrics,
+#  file = file.path(output_file_path, SEFHIER_processed_dnfs_file_name)
+#)
 
