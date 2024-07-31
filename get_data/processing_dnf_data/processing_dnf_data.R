@@ -87,12 +87,12 @@ output_file_path <-
 # Set the date ranges for the DNF and compliance data you are pulling
 # this is the year to assign to the output file name
 # my_year <- "2022"
-my_year <- "2023"
-# my_year <- "2024"
+# my_year <- "2023"
+my_year <- "2024"
 
 # years range for srfh_vessel_comp db download, see below
-db_year_1 <- as.numeric(my_year)-1
-db_year_2 <- as.numeric(my_year)+1
+db_year_1 <- as.numeric(my_year) - 1
+db_year_2 <- as.numeric(my_year) + 1
 
 # ---
 # Explanations:
@@ -313,7 +313,7 @@ compl_override_data_file_path <-
 # File: Raw_Oracle_Downloaded_compliance_2021_plus.rds modified 2024-02-05 09:52:06.996529
 
 # Check if the file path is correct, optional
-# file.exists(compl_override_data_file_path)
+file.exists(compl_override_data_file_path)
 
 # 2) Create a variable with a table name to call data from, define year.
 # >= 2021 because of when the program started or between 2 years defined above
@@ -333,7 +333,7 @@ WHERE
 # See usage below at the `Grab compliance file from Oracle` section
 read_rds_or_run_query <- function(my_file_path,
                                   my_query,
-                                  force_from_db = NULL) {
+                                  force_from_db = TRUE) {
 
   if (file.exists(my_file_path)) {
     modif_time <- file.info(my_file_path)$mtime
@@ -402,7 +402,7 @@ read_rds_or_run_query <- function(my_file_path,
 compl_override_data <-
   read_rds_or_run_query(compl_override_data_file_path,
                         compl_err_query,
-                        force_from_db = NULL)
+                        force_from_db = TRUE)
 
 # check a week start day, should be Monday
 compl_override_data |>
@@ -465,7 +465,7 @@ processed_metrics_tracking_path <-
             str_glue("Permitted_vessels_nonSRHS_{my_year}_plusfringedates.rds"))
 
 # optional
-# file.exists(processed_metrics_tracking_path)
+file.exists(processed_metrics_tracking_path)
 
 # reads the file in the path into a data frame
 processed_metrics_tracking <-
@@ -515,7 +515,7 @@ TO_DATE('{my_date_end}', 'yyyy-mm-dd')
 dnfs <-
   read_rds_or_run_query(dnfs_file_path,
                         dnfs_download_query,
-                        force_from_db = NULL) # from scratch (with the parameter "force_from_db = TRUE")
+                        force_from_db = TRUE) # from scratch (with the parameter "force_from_db = TRUE")
 # 2024-03-25 run for Raw_Oracle_Downloaded_dnf_01-JAN-2022__31-DEC-2022.rds: 120.43 sec elapsed
 # 2024-03-25 run for Raw_Oracle_Downloaded_dnf_01-JAN-2023__31-DEC-2023.rds: 125.17 sec elapsed
 
