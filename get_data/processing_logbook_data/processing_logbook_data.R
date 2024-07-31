@@ -88,9 +88,9 @@ dir.exists(output_file_path)
 
 # Set the date ranges for the logbook and compliance data you are pulling
 # this is the year to assign to the output file name
-my_year <- "2022"
+# my_year <- "2022"
 # my_year <- "2023"
-# my_year <- "2024"
+my_year <- "2024"
 
 # years range for srfh_vessel_comp db download, see below
 # this should at least run the year before my_year to the year after my_year
@@ -515,7 +515,7 @@ Logbooks_raw_renamed <-
 # stats
 my_stats(Logbooks_raw_renamed, "Logbooks from the db")
 # 2022
-# rows: 327847
+# rows: 332720
 # columns: 149
 # Unique vessels: 1900
 # Unique trips: 96014
@@ -524,8 +524,6 @@ my_stats(Logbooks_raw_renamed, "Logbooks from the db")
 # after changing the query to the last 3 years
 # rows: 181127
 # columns: 149
-# Unique vessels: 1885
-# Unique trips (logbooks): 94737
 # Unique vessels: 1719
 # Unique trips: 57038
 
@@ -636,7 +634,6 @@ logbooks_stat_correct_dates_before_filtering <-
     n_distinct(Logbooks_raw_renamed__to_date_time4__my_year$VESSEL_OFFICIAL_NUMBER),
     n_distinct(Logbooks_raw_renamed__to_date_time4__my_year$TRIP_ID)
   )
-# [1] 327823    149   1885  94733
 # [1] 332720    149   1900  96014 (2022)
 # [1] 181127    149   1719  57038 (2023)
 
@@ -644,12 +641,9 @@ logbooks_stat_correct_dates_before_filtering <-
 my_stats(Logbooks_raw_renamed__to_date_time4__my_year,
          "Logbooks after filtering by dates")
 # Logbooks after filtering by dates
-# rows: 327823
 # 2023
 # rows: 181127
 # columns: 149
-# Unique vessels: 1885
-# Unique trips: 94733
 # Unique vessels: 1719
 # Unique trips: 57038
 
@@ -756,7 +750,6 @@ vessels_not_in_metrics
 # Total number of vessels in Oracle raw data but not in Metrics Tracking
 my_tee(vessels_not_in_metrics,
        "Vessels removed if a vessel is not in Metrics tracking")
-# 244 (2022)
 # 119 (2022)
 # 287 (2023)
 
