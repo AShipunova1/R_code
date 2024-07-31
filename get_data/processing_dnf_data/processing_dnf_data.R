@@ -87,12 +87,12 @@ output_file_path <-
 # Set the date ranges for the DNF and compliance data you are pulling
 # this is the year to assign to the output file name
 # my_year <- "2022"
-# my_year <- "2023"
-my_year <- "2024"
+my_year <- "2023"
+# my_year <- "2024"
 
 # years range for srfh_vessel_comp db download, see below
-db_year_1 <- as.numeric(my_year) - 1
-db_year_2 <- as.numeric(my_year) + 1
+db_year_1 <- as.numeric(my_year)-1
+db_year_2 <- as.numeric(my_year)+1
 
 # ---
 # Explanations:
@@ -313,7 +313,7 @@ compl_override_data_file_path <-
 # File: Raw_Oracle_Downloaded_compliance_2021_plus.rds modified 2024-02-05 09:52:06.996529
 
 # Check if the file path is correct, optional
-file.exists(compl_override_data_file_path)
+# file.exists(compl_override_data_file_path)
 
 # 2) Create a variable with a table name to call data from, define year.
 # >= 2021 because of when the program started or between 2 years defined above
@@ -333,7 +333,7 @@ WHERE
 # See usage below at the `Grab compliance file from Oracle` section
 read_rds_or_run_query <- function(my_file_path,
                                   my_query,
-                                  force_from_db = TRUE) {
+                                  force_from_db = NULL) {
 
   if (file.exists(my_file_path)) {
     modif_time <- file.info(my_file_path)$mtime
@@ -738,7 +738,6 @@ in_dnfs_not_in_compl <-
 
 nrow(in_dnfs_not_in_compl)
 
-# TODO: validate in_compl_not_in_dnfs and in_dnfs_not_in_compl
 # my_year
 # View(in_dnfs_not_in_compl)
 
