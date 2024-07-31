@@ -13,7 +13,8 @@ library(ROracle)
 # file.path will add the correct slashes between path parts.
 compl_override_data_file_path <-
   file.path(processed_data_path,
-            "Raw_Oracle_Downloaded_compliance_2022_to_2024.rds")
+            stringr::str_glue("Raw_Oracle_Downloaded_compliance_{db_year_1}_to_{db_year_2}.rds"))
+
 
 # Check if the file path is correct, optional
 file.exists(compl_override_data_file_path)
@@ -49,7 +50,6 @@ get_compl_override_data <-
   }
 
 compl_override_data <- get_compl_override_data()
-# File: Raw_Oracle_Downloaded_compliance_2021_plus.rds modified 2024-06-03 11:38:05.936556
 
 compl_override_data$COMP_WEEK_START_DT |> min()
 # [1] "2023-01-01 23:00:00 EST"
@@ -245,8 +245,15 @@ logbooks <-
 dim(logbooks)
 # [1] 42605   179
 
+# Look at the last month data
+max_month <-
+  lubridate::month(logbooks$comp_week_end_dt) |>
+  unique() |>
+  sort(decreasing = T) |>
+  head(1)
+
 logbooks |>
-  dplyr::filter(lubridate::month(comp_week_end_dt) == 4) |>
+  dplyr::filter(lubridate::month(comp_week_end_dt) == max_month) |>
   glimpse()
 
 # get dnfs ----
@@ -282,7 +289,7 @@ SC_permittedVessels <-
   auxfunctions::my_read_xlsx(sc_file_path) |>
   auxfunctions::clean_headers()
 
-# glimpse(SC_permittedVessels)
+glimpse(SC_permittedVessels)
 
 # Data preparations ----
 ## fix dates in headers ----
