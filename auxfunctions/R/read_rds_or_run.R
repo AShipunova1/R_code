@@ -31,7 +31,7 @@ function(my_file_path,
 
       # 1. Generate a message indicating the date and the purpose of the run for "tic".
       msg_text <-
-        paste(today(), "run for", basename(my_file_path))
+        paste(lubridate::today(), "run for", basename(my_file_path))
       tictoc::tic(msg_text)  # Start timing the operation.
 
       # 2. Run the specified function 'my_function' on the provided 'my_data' to generate the result. I.e. download data from the Oracle database. Must be on VPN.

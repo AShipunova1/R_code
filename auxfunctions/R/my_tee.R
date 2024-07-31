@@ -18,7 +18,7 @@ function(my_text,
     stat_log_file_path <-
       file.path(Path,
                 Outputs,
-                stringr::str_glue("{my_title}_{date_range}_run_{today()}.log"))
+                stringr::str_glue("{my_title}_{date_range}_run_{lubridate::today()}.log"))
   }
 
   # Write to a log file
