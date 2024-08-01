@@ -523,12 +523,14 @@ bad_vessel_ids <-
       dplyr::distinct()
   })
 
+# View(bad_vessel_ids)
+
 ### Write weird ids to Google Drive ----
-out_dir <-
+out_dir_ss <-
   auxfunctions::get_google_drive_folder_by_name(google_drive_project_name = "Anna's tidbits")
 
 new_google_ss_path <-
-  auxfunctions::create_google_sheet(out_dir, 
+  auxfunctions::create_google_sheet(out_dir_ss, 
                       "weird_vessel_ids")
 
 # write.csv(long_ids, "weird_ids.csv")
