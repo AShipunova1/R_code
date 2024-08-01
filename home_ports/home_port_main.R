@@ -392,7 +392,7 @@ vessels_from_pims_split_addr__city_state |>
 # PEMBROKE#PINES, FL   
 # JACKSONVILLE#FL, UNITED STATES, FL
 
-### Get wrong addresses ----
+### Get wrong addresses only ----
 #' Explanations:
 #' 
 #' 1. **Column Extraction Using sapply:**
@@ -473,7 +473,9 @@ dplyr::n_distinct(vessels_from_pims_split_addr__city_state__fix1$vessel_official
 # [1] 23045
 
 ## add more fixes manually ----
-### List of double ports, keep the latest from Jeannette ----
+### List of vessels with double ports ----
+# Keep the correct addresses only (from Jeannette)
+
 manual_fixes_double_ports <-
   list(
     list("1112053", "NEW BERN", "NC"),
@@ -504,35 +506,7 @@ manual_fixes_double_ports <-
   )
     # list("139403", "MIAMI", "FL"), # no!
 
-#'
-#' Explanations:
-#'
-#' - `vessels_from_pims_split_addr__city_state__fix2 <-` assigns the result of the pipeline to the variable `vessels_from_pims_split_addr__city_state__fix2`.
-#'
-#' - `purrr::map_df(manual_fixes_double_ports, \(x) { ... })` iterates over each element `x` in the `manual_fixes_double_ports` list and returns a data frame:
-#'
-#'   - `purrr::map_df()` applies a function to each element of `manual_fixes_double_ports` and combines the results into a single data frame.
-#'
-#'   - `\(x) { ... }` is a shorthand notation for defining an anonymous function in R.
-#'
-#' - Inside the function:
-#'
-#'   - `vessels_from_pims_split_addr__city_state__fix1` is piped into `dplyr::mutate()` to create new columns `city_fixed1` and `state_fixed1` based on conditions:
-#'
-#'     - `dplyr::case_when(vessel_official_number == x[[1]] ~ x[[2]])` assigns `x[[2]]` (presumably the fixed city value) to `city_fixed1` where `vessel_official_number` matches `x[[1]]`.
-#'
-#'     - `dplyr::case_when(vessel_official_number == x[[1]] ~ x[[3]])` assigns `x[[3]]` (presumably the fixed state value) to `state_fixed1` where `vessel_official_number` matches `x[[1]]`.
-#'
-#'   - `res` holds the resulting data frame after mutation.
-#'
-#'   - `return(res)` returns the mutated data frame.
-#'
-#' - `|>` is the pipe operator, passing the result of `map_df` to `dplyr::distinct()`:
-#'
-#'   - `dplyr::distinct()` removes duplicate rows from the resulting data frame.
-#'
-#' This code processes each element in `manual_fixes_double_ports` to fix `city_fixed1` and `state_fixed1` columns in `vessels_from_pims_split_addr__city_state__fix1`, based on conditions specified in each element of `manual_fixes_double_ports`. The final result, with unique rows, is stored in `vessels_from_pims_split_addr__city_state__fix2`.
-#' 
+### Fix double ports ----
 
 vessels_from_pims_split_addr__city_state__fix2 <-
   purrr::map_df(manual_fixes_double_ports,
@@ -551,71 +525,9 @@ vessels_from_pims_split_addr__city_state__fix2 <-
   dplyr::distinct()
 
 dim(vessels_from_pims_split_addr__city_state__fix2)
-# [1] 23110     8
 # [1] 23109     8
 
-# check
-vessels_from_pims_split_addr__city_state__fix2 |>
-  dplyr::filter(vessel_official_number == "FL1431JU") |>
-  dplyr::glimpse()
-# $ city_fixed             <chr> "KEY WEST", "MARATHON", "KEY WEST", "MARATHON"
-# $ state_fixed            <chr> "FL", "FL", "FL", "FL"
-# $ city_fixed1            <chr> NA, NA, "MARATHON", "MARATHON"
-# $ state_fixed1           <chr> NA, NA, "FL", "FL"
-
-# check
-#' get all vessel ids from manual_fixes_double_ports
-#'
-#' Explanations:
-#'
-#' - The `sapply` function is applied to `manual_fixes_double_ports`. This function applies a specified function to each element of a list (or vector) and simplifies the result.
-#'
-#' - The function `"[", 1` is used within `sapply` to extract the first element of each element in `manual_fixes_double_ports`. Here, `"[", 1` is a shorthand for extracting the first item from a list or vector.
-#'
-#' - The result of `sapply` is a list where each element is the first item of the corresponding element in `manual_fixes_double_ports`.
-#'
-#' - The `unlist` function is then used to flatten the resulting list into a single vector. This removes the list structure and creates a simple atomic vector containing all the first elements from `manual_fixes_double_ports`.
-#'
-#' - The resulting vector is assigned to the variable `new_f_vsl`.
-#' 
-new_f_vsl <-
-  sapply(manual_fixes_double_ports, "[", 1) |> 
-  unlist()
-
-#' vessels both in vessels_from_pims_split_addr__city_state__fix1 and in the manual fixes new_f_vsl
-#' 
-both <-
-  dplyr::intersect(
-    vessels_from_pims_split_addr__city_state__fix1$vessel_official_number,
-    new_f_vsl
-  )
-
-length(both)
-# 25
-
-#' check 
-vessels_from_pims_split_addr__city_state__fix2 |>
-  dplyr::filter(vessel_official_number %in% both) |>
-  dplyr::select(vessel_official_number,
-         city_fixed1,
-         state_fixed1) |>
-  dplyr::filter(!is.na(city_fixed1) & !is.na(city_fixed1)) |>
-  dplyr::distinct() |>
-  dplyr::glimpse()
-# 25 ok
-
-vessels_from_pims_split_addr__city_state__fix2 |>
-  dplyr::filter(vessel_official_number %in% both) |>
-  dplyr::select(vessel_official_number,
-         city_fixed,
-         state_fixed,
-         city_fixed1,
-         state_fixed1) |>
-  dplyr::filter(!is.na(city_fixed1) & !is.na(city_fixed1)) |>
-  dplyr::distinct() |>
-  dplyr::glimpse()
-
-## replace duplicated values ----
+## Replace duplicated values ----
 #'
 #' Explanations:
 #'
@@ -649,18 +561,8 @@ vessels_from_pims_split_addr__city_state__fix2_ok <-
 dim(vessels_from_pims_split_addr__city_state__fix2_ok)
 # [1] 23086     6
 
-#' check
-vessels_from_pims_split_addr__city_state__fix2_ok |>
-  dplyr::filter(vessel_official_number %in% both) |>
-  dplyr::select(vessel_official_number,
-         city_fixed,
-         state_fixed) |> 
-  dplyr::distinct() |>
-  dplyr::glimpse()
-# 25
+## Remove empty and bad vessel ids ----
 
-## remove empty and bad vessel ids ----
-# introduced by splitting doubles?
 is_empty <- c(NA, "NA", "", "UN", "N/A")
 
 wrong_vessel_ids <- c("FL", "FLORIDA", "MD", "NO", "NONE")
@@ -676,10 +578,7 @@ vessels_from_pims_split_addr__city_state__fix2_ok__good_ids <-
 
 nrow(vessels_from_pims_split_addr__city_state__fix2_ok) -
   nrow(vessels_from_pims_split_addr__city_state__fix2_ok__good_ids)
-# 13
-
-# TODO:
-# check ids with spaces
+# 13 bad ids
 
 ## check id_len != 6 ----
 vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__len <-
@@ -688,17 +587,66 @@ vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__len <-
   dplyr::mutate(id_len = stringr::str_length(vessel_official_number)) |>
   dplyr::ungroup()
 
-#' check
+#' check id length
 vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__len |> 
   dplyr::filter(!id_len == 6) |> 
   dplyr::arrange(id_len) |> 
   dplyr::glimpse()
+
+#' check id length > 7
+vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__len |> 
+  dplyr::filter(id_len > 7) |> 
+  dplyr::arrange(dplyr::desc(id_len)) |> 
+  select(id_len) |> 
+  distinct()
+ # 1    211
+ # 2     34
+ # 3     19
+
+vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__len |> 
+  dplyr::filter(id_len > 7) |> 
+  dplyr::arrange(dplyr::desc(id_len)) |> 
+  select(id_len, vessel_official_number) |> 
+  distinct()
 
 dim(vessels_from_pims_split_addr__city_state__fix2_ok)
 # [1] 23086     6
 
 dim(vessels_from_pims_split_addr__city_state__fix2_ok__good_ids)
 # [1] 23050     6
+
+long_ids <- 
+  vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__len |> 
+  dplyr::filter(id_len > 8) |> 
+  dplyr::arrange(dplyr::desc(id_len)) |> 
+  select(id_len, vessel_official_number) |> 
+  distinct()
+
+non_alphanumeric_ids <- 
+  vessels_from_pims_split_addr__city_state__fix2_ok |> 
+  dplyr::filter(grepl("[^A-Za-z0-9]", vessel_official_number)) |> 
+  select(vessel_official_number) |> 
+  distinct()
+
+empty_ids <-
+  vessels_from_pims_split_addr__city_state__fix2_ok |>
+  dplyr::filter(vessel_official_number %in% is_empty) |> 
+  select(vessel_official_number) |> 
+  distinct()
+
+wrong_vessel_ids <- 
+  vessels_from_pims_split_addr__city_state__fix2_ok |>
+  dplyr::filter(vessel_official_number %in% wrong_vessel_ids) |>
+  select(vessel_official_number) |> 
+  distinct()
+
+short_vessel_ids <-
+  vessels_from_pims_split_addr__city_state__fix2_ok |>
+  dplyr::filter(stringr::str_length(vessel_official_number) < normal_length) |>
+  select(vessel_official_number) |>
+  distinct()
+
+write.csv(long_ids, "weird_ids.csv")
 
 ## Check no address ----
 #' No city
