@@ -617,6 +617,12 @@ short_vessel_ids <-
   select(vessel_official_number) |>
   distinct()
 
+out_dir <-
+  get_google_drive_subdir_path(google_drive_project_name = "Anna's tidbits")
+
+weird_ids_ss_info <- 
+create_google_sheet(output_path = ,
+           new_google_ss_name = "weird_vessel_ids")
 
 write.csv(long_ids, "weird_ids.csv")
 
