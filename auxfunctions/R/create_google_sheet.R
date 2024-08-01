@@ -33,7 +33,7 @@ create_google_sheet <-
   })
     
     # Generate a shareable link for the new spreadsheet
-    current_output_file_link <- googledrive::drive_link(ss_info)
+    current_output_file_link <- googledrive::drive_link(new_google_ss_info)
     
     auxfunctions::pretty_print(current_output_file_link, "Link to the new spreadsheet:")
     
