@@ -9,7 +9,7 @@ if (!require(tool_packages[[1]], character.only = T, quietly = T)) {
 }
 
 if (!require(tool_packages[[2]], character.only = T, quietly = T)) {
-  devtools::install_github("AShipunova1/R_code/auxfunctions")
+  devtools::install_github("AShipunova1/R_code/auxfunctions@development")
 }
 
 purrr::map(tool_packages, \(package) {
@@ -22,9 +22,29 @@ my_paths <- set_work_dir()
 # from FHIER
 # https://grunt.sefsc.noaa.gov/apex/f?p=162...
 
-csv_names_list = list(r"(sc_mismatches\2024_07\fhier_report_06_28_2024.csv)")
+# Set the date from the most recent SC file name (update this with each new file),
+# this number is from the file provided by SC, e.g. "scdnrFedVessels_05312024.xlsx"
+# Change it with every new file
+sc_file_date <- "07_31_2024"
+sc_file_dir <- "2024_07_for_Jun"
 
-xsl_names_list = list(r"(sc_mismatches\2024_07\scdnrFedVessels_06282024.xlsx)")
+annas_sc_mismatch_file_path <-
+  file.path("sc_mismatches",
+            sc_file_dir,
+            stringr::str_glue("scdnrFedVessels_",
+            stringr::str_replace_all(sc_file_date, "\\D", ""),
+            ".xlsx"))
+
+annas_sc_fhier_report_file_path <-
+  file.path("sc_mismatches",
+            sc_file_dir,
+            stringr::str_glue("fhier_report_",
+            sc_file_date,
+            ".csv"))
+
+csv_names_list = list(annas_sc_fhier_report_file_path)
+
+xsl_names_list = list(annas_sc_mismatch_file_path)
 
 SC_vessels_FHIERData_0 <- load_csv_names(my_paths$inputs, csv_names_list)[[1]]
 
@@ -51,7 +71,10 @@ dim(FHIER_vessel_officialnumber)
 # 218
 
 #---
-SC_permittedVessels  <- load_xls_names(my_paths, xsl_names_list, 1)
+# my_read_xlsx()
+  # "FY2025"
+SC_permittedVessels  <-
+  load_xls_names(my_paths, xsl_names_list, 2)
 
 dim(SC_permittedVessels)
 # 219
@@ -136,3 +159,8 @@ vessel_ids_l[[2]][[1]] |>
   toupper() |>
   cat(sep = ", ")
 
+# see the vessels to remove from FHIER ----
+# View(vessel_ids_l)
+vessel_ids_l[[1]][[1]] |>
+  toupper() |>
+  cat(sep = ", ")
