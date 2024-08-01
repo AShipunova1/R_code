@@ -4,7 +4,9 @@ current_project_paths <- function(current_project_name = NULL) {
   
   # get this project name
   if (is.null(current_project_name)) {
-    current_project_dir_name <- this.path::this.dir()
+    current_project_dir_name <- 
+      tryCatch(this.path::this.dir(),
+               finally = "")
     
     # find its base name
     current_project_name <-
