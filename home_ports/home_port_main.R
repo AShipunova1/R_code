@@ -562,7 +562,7 @@ vessels_from_pims_split_addr__city_state__fix2_ok <-
 dim(vessels_from_pims_split_addr__city_state__fix2_ok)
 # [1] 23086     6
 
-## Find and remove empty and bad vessel ids ----
+## Find empty and bad vessel ids ----
 
 #' 
 #' Add vessel id length 
@@ -636,18 +636,6 @@ weird_ids_list <-
 purrr::imap(weird_ids_list, \(my_df, my_df_name) {
   googlesheets4::write_sheet(my_df, new_google_ss_path, sheet = my_df_name)
 })
-
-#' check if a vessel id is empty, wrong or too short
-vessels_from_pims_split_addr__city_state__fix2_ok__good_ids <-
-  vessels_from_pims_split_addr__city_state__fix2_ok |>
-  dplyr::filter(!vessel_official_number %in% is_empty) |>
-  dplyr::filter(!vessel_official_number %in% wrong_vessel_ids) |>
-  dplyr::filter(!stringr::str_length(vessel_official_number) < normal_length)
-
-nrow(vessels_from_pims_split_addr__city_state__fix2_ok) -
-  nrow(vessels_from_pims_split_addr__city_state__fix2_ok__good_ids)
-# 13 bad ids
-
 
 ## Check no address ----
 #' No city
