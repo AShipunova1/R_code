@@ -496,7 +496,7 @@ is_empty_filter <-
   rlang::quo(vessel_official_number %in% is_empty)
 
 wrong_vessel_ids <- c("FL", "FLORIDA", "MD", "NO", "NONE")
-weird_vessel_ids <-
+weird_vessel_ids_filter <-
   rlang::quo(vessel_official_number %in% wrong_vessel_ids)
 
 ## Find empty and bad vessel ids ----
@@ -533,24 +533,23 @@ non_alphanumeric_ids <-
 
 empty_ids <-
   vessels_from_pims_split_addr__city_state__fix1_ids_len |>
-  dplyr::filter(vessel_official_number %in% is_empty) |> 
-  select(vessel_official_number) |> 
-  distinct()
-
-empty_ids1 <-
-  vessels_from_pims_split_addr__city_state__fix1_ids_len |>
   dplyr::filter(!!is_empty_filter) |> 
   select(vessel_official_number) |> 
   distinct()
 
-diffdf::diffdf(empty_ids, empty_ids1)
-
-
 weird_vessel_ids <- 
-  vessels_from_pims_split_addr__city_state__fix2_ok_ids_len |>
+  vessels_from_pims_split_addr__city_state__fix1_ids_len |>
   dplyr::filter(vessel_official_number %in% wrong_vessel_ids) |>
   select(vessel_official_number) |> 
   distinct()
+
+weird_vessel_ids1 <- 
+  vessels_from_pims_split_addr__city_state__fix1_ids_len |>
+  dplyr::filter(!!weird_vessel_ids_filter) |>
+  select(vessel_official_number) |> 
+  distinct()
+
+diffdf::diffdf(weird_vessel_ids, weird_vessel_ids1)
 
 # write weird ids to Google Drive
 out_dir <-
