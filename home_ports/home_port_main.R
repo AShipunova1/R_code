@@ -510,35 +510,29 @@ vessels_from_pims_split_addr__city_state__fix1_ids_len <-
   dplyr::ungroup()
 
 #' get "bad" vessel ids
-#' some definitions to check with
-is_empty <- c(NA, "NA", "", "UN", "N/A")
-
-wrong_vessel_ids <- c("FL", "FLORIDA", "MD", "NO", "NONE")
-
-normal_length = 4
 
 lt_6_vessel_ids <- 
-  vessels_from_pims_split_addr__city_state__fix1_ids_len |> 
-  dplyr::filter(id_len < 6) |> 
-  dplyr::arrange(dplyr::desc(id_len)) |> 
-  select(id_len, vessel_official_number) |> 
-  distinct()
-
-lt_6_vessel_ids1 <- 
   vessels_from_pims_split_addr__city_state__fix1_ids_len |> 
   dplyr::filter(!!lt_6_id_len_filter) |> 
   dplyr::arrange(dplyr::desc(id_len)) |> 
   select(id_len, vessel_official_number) |> 
   distinct()
 
-diffdf::diffdf(lt_6_vessel_ids, lt_6_vessel_ids1)
-
 gt_8_vessel_ids <- 
-  vessels_from_pims_split_addr__city_state__fix2_ok_ids_len |> 
+  vessels_from_pims_split_addr__city_state__fix1_ids_len |> 
   dplyr::filter(id_len > 8) |> 
   dplyr::arrange(dplyr::desc(id_len)) |> 
   select(id_len, vessel_official_number) |> 
   distinct()
+
+gt_8_vessel_ids1 <- 
+  vessels_from_pims_split_addr__city_state__fix1_ids_len |> 
+  dplyr::filter(!!gt_8_id_len_filter) |> 
+  dplyr::arrange(dplyr::desc(id_len)) |> 
+  select(id_len, vessel_official_number) |> 
+  distinct()
+
+diffdf::diffdf(gt_8_vessel_ids, gt_8_vessel_ids1)
 
 non_alphanumeric_ids <- 
   vessels_from_pims_split_addr__city_state__fix2_ok_ids_len |> 
