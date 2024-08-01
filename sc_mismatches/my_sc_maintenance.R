@@ -1,4 +1,3 @@
-source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 
 # Download Maintenance / SC Vessels Reporting via VESL
