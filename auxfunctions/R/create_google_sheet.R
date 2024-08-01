@@ -31,7 +31,7 @@ create_google_sheet <-
   }, finally = {
     # message("Some other message at the end")
   })
-  
+    
   # The function returns the created spreadsheet info
   return(new_google_ss_info)
   }
