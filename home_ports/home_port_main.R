@@ -554,11 +554,17 @@ vessels_from_pims_split_addr__city_state__fix2_ok <-
       dplyr::case_when(!is.na(state_fixed1) ~ state_fixed1,
                 .default = state_fixed)
   ) |> 
-  dplyr::filter((!vessel_official_number %in% both) |
-           !is.na(state_fixed1)) |> 
-  dplyr::select(-c("city_fixed1", "state_fixed1")) |> 
+  # dplyr::select(-c("city_fixed1", "state_fixed1")) |> 
   dplyr::distinct()
 
+vessels_from_pims_split_addr__city_state__fix2_ok |>
+  dplyr::filter((
+    vessel_official_number %in% vessels_from_pims_split_addr__city_state__fix1$vessel_official_number
+  ) |
+    is.na(state_fixed1)
+  )
+# 
+# vessels_from_pims_split_addr__city_state__fix1$vessel_official_number
 dim(vessels_from_pims_split_addr__city_state__fix2_ok)
 # [1] 23086     6
 
