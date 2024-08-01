@@ -639,15 +639,13 @@ weird_ids_list <-
 
 # View(weird_ids_list)
 
-purrr::imap(weird_ids_list,
-            \(x, idx) paste0(idx, ": ", x))
-
-
-            
-            \(df_name, )
-add_tab_to_google_sheet(my_df, 
-                        ss_info = new_google_ss_path, 
-                        tab_name)
+purrr::imap(weird_ids_list, 
+            \(my_df, my_df_name) {
+              browser()
+  add_tab_to_google_sheet(my_df, 
+                          ss_info = new_google_ss_path, 
+                          tab_name = my_df_name)
+})
 
 
 #' check if a vessel id is empty, wrong or too short
