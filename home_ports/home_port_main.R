@@ -241,7 +241,6 @@ vessels_from_pims_split_addr <-
   dplyr::mutate(dplyr::across(tidyselect::where(is.character), 
                               stringr::str_squish))
 
-
 ## fix known home port typos ----
 
 #' This list is created manually
@@ -473,7 +472,118 @@ vessels_from_pims_split_addr__city_state__fix1 <-
 dplyr::n_distinct(vessels_from_pims_split_addr__city_state__fix1$vessel_official_number)
 # [1] 23045
 
-## add more fixes manually ----
+## Add more fixes manually ----
+
+### Define filters ----
+we_called_filter <-
+  rlang::quo(any(tolower(contacttype) == "call" &
+        tolower(calltype) == "outgoing"))
+
+#' some definitions to check with
+normal_length = 4
+
+lt_6_id_len_filter <- 
+  rlang::quo(id_len < 6)
+
+gt_8_id_len_filter <- 
+  rlang::quo(id_len > 8)
+
+non_alphanumeric_filter <- 
+  rlang::quo(grepl("[^A-Za-z0-9]", vessel_official_number))
+
+is_empty <- c(NA, "NA", "", "UN", "N/A")
+empty_filter <-
+  rlang::quo(vessel_official_number %in% is_empty)
+
+wrong_vessel_ids <- c("FL", "FLORIDA", "MD", "NO", "NONE")
+weird_vessel_ids <-
+  rlang::quo(vessel_official_number %in% wrong_vessel_ids)
+
+## Find empty and bad vessel ids ----
+
+#' 
+#' Add vessel id length 
+vessels_from_pims_split_addr__city_state__fix1_ids_len <-
+  vessels_from_pims_split_addr__city_state__fix1 |>
+  dplyr::group_by(vessel_official_number) |>
+  dplyr::mutate(id_len = stringr::str_length(vessel_official_number)) |>
+  dplyr::ungroup()
+
+#' get "bad" vessel ids
+#' some definitions to check with
+is_empty <- c(NA, "NA", "", "UN", "N/A")
+
+wrong_vessel_ids <- c("FL", "FLORIDA", "MD", "NO", "NONE")
+
+normal_length = 4
+
+lt_6_vessel_ids <- 
+  vessels_from_pims_split_addr__city_state__fix1_ids_len |> 
+  dplyr::filter(id_len < 6) |> 
+  dplyr::arrange(dplyr::desc(id_len)) |> 
+  select(id_len, vessel_official_number) |> 
+  distinct()
+
+lt_6_vessel_ids1 <- 
+  vessels_from_pims_split_addr__city_state__fix1_ids_len |> 
+  dplyr::filter(!!lt_6_id_len_filter) |> 
+  dplyr::arrange(dplyr::desc(id_len)) |> 
+  select(id_len, vessel_official_number) |> 
+  distinct()
+
+diffdf::diffdf(lt_6_vessel_ids, lt_6_vessel_ids1)
+
+gt_8_vessel_ids <- 
+  vessels_from_pims_split_addr__city_state__fix2_ok_ids_len |> 
+  dplyr::filter(id_len > 8) |> 
+  dplyr::arrange(dplyr::desc(id_len)) |> 
+  select(id_len, vessel_official_number) |> 
+  distinct()
+
+non_alphanumeric_ids <- 
+  vessels_from_pims_split_addr__city_state__fix2_ok_ids_len |> 
+  dplyr::filter(grepl("[^A-Za-z0-9]", vessel_official_number)) |> 
+  select(vessel_official_number) |> 
+  distinct()
+
+empty_ids <-
+  vessels_from_pims_split_addr__city_state__fix2_ok_ids_len |>
+  dplyr::filter(vessel_official_number %in% is_empty) |> 
+  select(vessel_official_number) |> 
+  distinct()
+
+weird_vessel_ids <- 
+  vessels_from_pims_split_addr__city_state__fix2_ok_ids_len |>
+  dplyr::filter(vessel_official_number %in% wrong_vessel_ids) |>
+  select(vessel_official_number) |> 
+  distinct()
+
+# write weird ids to Google Drive
+out_dir <-
+  get_google_drive_folder_by_name(google_drive_project_name = "Anna's tidbits")
+
+new_google_ss_path <-
+  create_google_sheet(out_dir, 
+                      "weird_vessel_ids")
+
+# write.csv(long_ids, "weird_ids.csv")
+
+weird_ids_list <-
+  Hmisc::llist(
+    empty_ids,
+    gt_8_vessel_ids,
+    lt_6_vessel_ids,
+    non_alphanumeric_ids,
+    weird_vessel_ids
+  )
+
+# View(weird_ids_list)
+
+purrr::imap(weird_ids_list, \(my_df, my_df_name) {
+  googlesheets4::write_sheet(my_df, new_google_ss_path, sheet = my_df_name)
+})
+
+
 ### List of vessels with double ports ----
 # Keep the correct addresses only (from Jeannette)
 
@@ -554,126 +664,45 @@ vessels_from_pims_split_addr__city_state__fix2_ok <-
       dplyr::case_when(!is.na(state_fixed1) ~ state_fixed1,
                 .default = state_fixed)
   ) |> 
-  # dplyr::select(-c("city_fixed1", "state_fixed1")) |> 
+  dplyr::select(-c("city_fixed1", "state_fixed1")) |>
   dplyr::distinct()
 
-vessels_from_pims_split_addr__city_state__fix2_ok |>
-  dplyr::filter((
-    vessel_official_number %in% vessels_from_pims_split_addr__city_state__fix1$vessel_official_number
-  ) |
-    is.na(state_fixed1)
-  )
-# 
-# vessels_from_pims_split_addr__city_state__fix1$vessel_official_number
+# View(vessels_from_pims_split_addr__city_state__fix2_ok)
+
 dim(vessels_from_pims_split_addr__city_state__fix2_ok)
 # [1] 23086     6
 
-## Find empty and bad vessel ids ----
-
-#' 
-#' Add vessel id length 
-vessels_from_pims_split_addr__city_state__fix2_ok_ids_len <-
-  vessels_from_pims_split_addr__city_state__fix2_ok |>
-  dplyr::group_by(vessel_official_number) |>
-  dplyr::mutate(id_len = stringr::str_length(vessel_official_number)) |>
-  dplyr::ungroup()
-
-#' get "bad" vessel ids
-#' some definitions to check with
-is_empty <- c(NA, "NA", "", "UN", "N/A")
-
-wrong_vessel_ids <- c("FL", "FLORIDA", "MD", "NO", "NONE")
-
-normal_length = 4
-
-lt_6_vessel_ids <- 
-  vessels_from_pims_split_addr__city_state__fix2_ok_ids_len |> 
-  dplyr::filter(id_len < 6) |> 
-  dplyr::arrange(dplyr::desc(id_len)) |> 
-  select(id_len, vessel_official_number) |> 
-  distinct()
-
-gt_8_vessel_ids <- 
-  vessels_from_pims_split_addr__city_state__fix2_ok_ids_len |> 
-  dplyr::filter(id_len > 8) |> 
-  dplyr::arrange(dplyr::desc(id_len)) |> 
-  select(id_len, vessel_official_number) |> 
-  distinct()
-
-non_alphanumeric_ids <- 
-  vessels_from_pims_split_addr__city_state__fix2_ok_ids_len |> 
-  dplyr::filter(grepl("[^A-Za-z0-9]", vessel_official_number)) |> 
-  select(vessel_official_number) |> 
-  distinct()
-
-empty_ids <-
-  vessels_from_pims_split_addr__city_state__fix2_ok_ids_len |>
-  dplyr::filter(vessel_official_number %in% is_empty) |> 
-  select(vessel_official_number) |> 
-  distinct()
-
-weird_vessel_ids <- 
-  vessels_from_pims_split_addr__city_state__fix2_ok_ids_len |>
-  dplyr::filter(vessel_official_number %in% wrong_vessel_ids) |>
-  select(vessel_official_number) |> 
-  distinct()
-
-# write weird ids to Google Drive
-out_dir <-
-  get_google_drive_folder_by_name(google_drive_project_name = "Anna's tidbits")
-
-new_google_ss_path <-
-  create_google_sheet(out_dir, 
-                      "weird_vessel_ids")
-
-# write.csv(long_ids, "weird_ids.csv")
-
-weird_ids_list <-
-  Hmisc::llist(
-    empty_ids,
-    gt_8_vessel_ids,
-    lt_6_vessel_ids,
-    non_alphanumeric_ids,
-    weird_vessel_ids
-  )
-
-# View(weird_ids_list)
-
-purrr::imap(weird_ids_list, \(my_df, my_df_name) {
-  googlesheets4::write_sheet(my_df, new_google_ss_path, sheet = my_df_name)
-})
-
 ## Check no address ----
 #' No city
-vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__no_addr <-
-  vessels_from_pims_split_addr__city_state__fix2_ok__good_ids |>
+vessels_from_pims_split_addr__city_state__fix2_ok__no_addr <-
+  vessels_from_pims_split_addr__city_state__fix2_ok |>
   dplyr::filter(is.na(city))
 
-nrow(vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__no_addr)
+nrow(vessels_from_pims_split_addr__city_state__fix2_ok__no_addr)
 # 6
 # 0
 
 #' No state
-vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__no_state <-
-  vessels_from_pims_split_addr__city_state__fix2_ok__good_ids |>
+vessels_from_pims_split_addr__city_state__fix2_ok__no_state <-
+  vessels_from_pims_split_addr__city_state__fix2_ok |>
   dplyr::filter(is.na(state_fixed))
 
-nrow(vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__no_state)
+nrow(vessels_from_pims_split_addr__city_state__fix2_ok__no_state)
 # 0
 
 # remove extra cols ----
-vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short <-
-  vessels_from_pims_split_addr__city_state__fix2_ok__good_ids |>
+vessels_from_pims_split_addr__city_state__fix2_ok_short <-
+  vessels_from_pims_split_addr__city_state__fix2_ok |>
   dplyr::select(vessel_official_number, 
                 tidyselect::ends_with("_fixed")) |> 
   dplyr::distinct()
 
 #' check
-# vessels_from_pims_split_addr__city_state__fix2_ok__good_ids |> 
+# vessels_from_pims_split_addr__city_state__fix2_ok |> 
 #   filter(!state == state_fixed) |> 
 #   View()
 
-vessels_from_pims_split_addr__city_state__fix2_ok__good_ids |>
+vessels_from_pims_split_addr__city_state__fix2_ok |>
   filter(!city == city_fixed) |>
   select(-vessel_official_number) |> 
   distinct() |> 
@@ -684,7 +713,7 @@ vessels_from_pims_split_addr__city_state__fix2_ok__good_ids |>
 
 ## check for double ids/ports ----
 double_ids_ports <-
-  vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short |>
+  vessels_from_pims_split_addr__city_state__fix2_ok_short |>
   dplyr::distinct() |>
   dplyr::select(vessel_official_number) |>
   dplyr::count(vessel_official_number) |>
@@ -697,7 +726,7 @@ nrow(double_ids_ports)
 
 # check
 
-vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short |>
+vessels_from_pims_split_addr__city_state__fix2_ok_short |>
   filter(vessel_official_number %in% double_ids_ports) |>
   select(city_fixed)
 # 1 PT. CANAVERAL 
@@ -713,7 +742,7 @@ out_path <- file.path(out_dir,
             stringr::str_glue("vessels_from_pims_ports_{lubridate::today()}.csv"))
 
 readr::write_csv(
-  vessels_from_pims_split_addr__city_state__fix2_ok__good_ids_short,
+  vessels_from_pims_split_addr__city_state__fix2_ok_short,
   out_path
 )
 
