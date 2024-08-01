@@ -190,19 +190,44 @@ source(get_data_path)
 #' vessels_from_pims_ok
 
 # Fix city and state ----
-## Separate hailing_port into city and state ----
 
+## See errors ----
+# View(vessels_from_pims_split_addr)
+
+#' Numbers in hailing_port
+addresses_w_digit <- 
+  vessels_from_pims_ok |>
+  filter(grepl("\\d", hailing_port)) |> 
+  distinct()
+   # vessel_official_number hailing_port            
+#    <chr>                  <chr>                   
+#  1 574500                 HO0MASASSA, FL          
+#  2 1040384                2, AL                   
+#  3 NC6421AU               FIGURE 8 ISLAND, NC     
+#  4 FL3407ML               0,                      
+#  5 FL8939JR               00,                     
+#  6 925240                 0,                      
+#  7 FL5011MX               NAPLE4S, FL             
+#  8 SC8023DE               LITTLE RIVERNHV1N4WH, SC
+#  9 139403                 0,                      
+# 10 DO552832               0,                      
+# 11 1301930                22411 GENO LANE, AL     
+# 12 GA1769JL               117 HAWK LANDING LN, GA 
+
+#' Extra commas in hailing_port
+vessels_from_pims_ok |>
+  filter(grepl(",.+,", hailing_port)) |> 
+  distinct()
+# 1                 945114            REDINGTON SHORES, FL, FL
+# 2                 919225                     CHAUVIN, LA, LA
+# 3               FL0702JJ              MATLACHA, BOKKELIA, FL
+# 4             8811432134                 PEMBROKE, PINES, FL
+# 5               FL7047TR JACKSONVILLE, FL, UNITED STATES, FL
+
+
+## Separate hailing_port into city and state ----
 #'
-#' Explanations:
-#'
-#' The variable 'vessels_from_pims_split_addr' is created by:
-#'
-#' 1. Separating the 'hailing_port' column into two columns ('city' and 'state') using a comma as the delimiter with 'tidyr::separate_wider_delim'.
-#'
-#' 2. Dropping any additional columns created during the separation.
-#'
-#' 3. Trimming leading and trailing whitespaces from all character columns using 'mutate(across(where(is.character), str_trim))'.
-#' 
+
 vessels_from_pims_split_addr <-
   vessels_from_pims_ok |>
   tidyr::separate_wider_delim(
@@ -215,4 +240,190 @@ vessels_from_pims_split_addr <-
   dplyr::mutate(dplyr::across(tidyselect::where(is.character), 
                               stringr::str_squish))
 
-# View(vessels_from_pims_split_addr)
+
+# fix known home port typos ----
+
+#' This list is created manually
+
+to_fix_list <- 
+  list(c("117 HAWK LANDING LN#GA",
+         "BRUNSWICK#GA"),
+       c("22411 GENO LANE#AL",
+         "GULF SHORES#AL"),
+       c("ALEXANDER CITY, AL#AL",
+         "ALEXANDER CITY#AL"),
+       c("BAYOU LABATRE#AL",
+         "BAYOU LA BATRE#AL"),
+       c("CAROLINA BEACH#UN",
+         "CAROLINA BEACH#NC"),
+       c("CHALESTON#SC",
+         "CHARLESTON#SC"),
+       c("CHAUVIN, LA#LA",
+         "CHAUVIN#LA"),
+       c("CHAUVIN#LA, LA",
+         "CHAUVIN#LA"),
+       c("FERNADINA BCH#FL",
+         "FERNANDINA BEACH#FL"),
+       c("FIGURE 8 ISLAND#NC",
+         "FIGURE EIGHT ISLAND#NC"),
+       c("FORT MORGAN MARINA#AL",
+         "FORT MORGAN#AL"),
+       c("JACKSONVILLE#FL, UNITED STATES, FL",
+         "JACKSONVILLE#FL"),
+       c("GALLINANO#LA",
+         "GALLIANO#LA"),
+       c("GEORGRTOWN#SC",
+         "GEORGETOWN#SC"),
+       c("GULFSHORES#AL",
+         "GULF SHORES#AL"),
+       c("HILISBORO INLET#FL",
+         "HILLSBORO INLET#FL"),
+       c("HO0MASASSA#FL",
+         "HOMOSASSA#FL"),
+       c("HOMOASSA#FL",
+         "HOMOSASSA#FL"),
+       c("HOUMA LA#LA",
+         "HOUMA#LA"),
+       c("INTERCOASTAL CITY#LA",
+         "INTRACOASTAL CITY#LA"),
+       c("ISLAMORADA#UN",
+         "ISLAMORADA#FL"),
+       c("KEYWEST#FL",
+         "KEY WEST#FL"),
+       c("LITTLE RIVERNHV1N4WH#SC",
+         "LITTLE RIVER#SC"),
+       c("LOXLEY AL#AL",
+         "LOXLEY#AL"),
+       c("MADIERA BEACH#FL",
+         "MADEIRA BEACH#FL"),
+       c("MATLACHA#BOKKELIA, FL",
+         "MATLACHA#FL"),
+       c("MAYPPORT#FL",
+         "MAYPORT#FL"),
+       c("MCLELLANVILLE#SC",
+         "MCCLELLANVILLE#SC"),
+       c("MURELLS INLET#SC",
+         "MURRELLS INLET#SC"),
+       c("MURRELS INLET#SC",
+         "MURRELLS INLET#SC"),
+       c("NAPLE4S#FL",
+         "NAPLES#FL"),
+       c("NEW SMYMA BEACH#FL",
+         "NEW SMYRNA BEACH#FL"),
+       c("NEW SYMRNA BEACH#FL",
+         "NEW SMYRNA BEACH#FL"),
+       c("OCEEAN CITY#MD",
+         "OCEAN CITY#MD"),
+       c("PEMBROKE#PINES, FL",
+         "PEMBROKE PINES#FL"),
+       c("POINT PLEASANT NJ#NJ",
+         "POINT PLEASANT#NJ"),
+       c("PORT AERANSAS#TX",
+         "PORT ARANSAS#TX"),
+       c("PORT CANVERAL#FL",
+         "PORT CANAVERAL#FL"),
+       c("PORT O CANNOR#TX",
+         "PORT O CONNOR#TX"),
+       c("PORT OCONNOR#TX",
+         "PORT O'CONNOR#TX"),
+       c("PORT ST.LUICE#FL",
+         "PORT ST LUCIE#FL"),
+       c("PUNTA GORGA#FL",
+         "PUNTA GORDA#FL"),
+       c("REDINGTON SHORES#FL, FL",
+         "REDINGTON SHORES#FL"),
+       c("RIVERIA BEACH#FL",
+         "RIVIERA BEACH#FL"),
+       c("S PADRE ISLE#TX",
+         "S. PADRE ISLAND#TX"),
+       c("SEBASTAIN#FL",
+         "SEBASTIAN#FL"),
+       c("ST AUGUSTIN#FL",
+         "ST AUGUSTINE#FL"),
+       c("ST PETERSBURG BEACH#FL",
+         "ST PETERSBURG#FL"),
+       c("STEINAHTCHEE#FL",
+         "STEINHATCHEE#FL"),
+       c("SUMMRLND KEY#FL",
+         "SUMMERLAND KEY#FL"),
+       c("SWANQUARTER#FL",
+         "SWAN QUARTER#NC"),
+       c("TAVENIER#FL",
+         "TAVERNIER#FL"),
+       c("WANCHEESE#NC",
+         "WANCHESE#NC"))
+
+# ---
+#' Explanations:
+#' Creating a new column 'city_state' by concatenating trimmed 'city' and 'state' columns, separated by '#'.
+vessels_from_pims_split_addr__city_state <-
+  vessels_from_pims_split_addr |>
+  mutate(city_state =
+           paste(
+             trimws(city),
+             trimws(state),
+             sep = "#"
+           ))
+
+
+## check numbers in an address again with the "#" ----
+vessels_from_pims_split_addr__city_state |>
+  filter(grepl("\\d", city_state)) |> 
+  select(city_state) |> 
+  distinct()
+# 1 HO0MASASSA#FL          
+# 2 2#AL                   
+# 3 FIGURE 8 ISLAND#NC     
+# 4 0#                     
+# 5 00#                    
+# 6 NAPLE4S#FL             
+  # 7 LITTLE RIVERNHV1N4WH#SC (fixed)
+# 8 22411 GENO LANE#AL     
+# 9 117 HAWK LANDING LN#GA 
+
+#' extra commas in city, state 
+vessels_from_pims_split_addr__city_state |>
+  filter(grepl(",", city_state)) |> 
+  select(city_state)
+# REDINGTON SHORES#FL, FL
+# CHAUVIN#LA, LA         
+# ALEXANDER CITY#AL, AL  (fixed)
+# MATLACHA#BOKKELIA, FL  
+# PEMBROKE#PINES, FL   
+# JACKSONVILLE#FL, UNITED STATES, FL
+
+# ---
+
+#' Explanations:
+#' 
+#' 1. **Column Extraction Using sapply:**
+#'
+#'    - The variable 'wrong_port_addr' is created by applying the 'sapply' function to 'to_fix_list'.
+#'
+#'    - The `sapply` function applies the '[' function to each element of 'to_fix_list' using the index 1.
+#'
+#' 2. **Column Extraction Using '[':**
+#'
+#'    - The '[' function is used to extract the first element (index 1) from each element of 'to_fix_list'.
+#'
+#'    - This operation is used to extract a specific column or element from each list or data frame within 'to_fix_list'.
+#'
+#' 3. **Final Result:**
+#'
+#'    - 'wrong_port_addr' holds the result of extracting the first element from each element within 'to_fix_list'.
+
+wrong_port_addr <-
+  sapply(to_fix_list, "[", 1)
+
+
+typos_still <-
+  vessels_from_pims_split_addr__city_state |>
+  select(city_state) |>
+  distinct() |>
+  filter(city_state %in% wrong_port_addr)
+
+dim(typos_still)
+# 43
+
+setdiff(wrong_port_addr, typos_still$city_state)
+typos_still$city_state |> sort() |> View()
