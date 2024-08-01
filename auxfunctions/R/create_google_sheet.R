@@ -32,6 +32,11 @@ create_google_sheet <-
     # message("Some other message at the end")
   })
     
+    # Generate a shareable link for the new spreadsheet
+    current_output_file_link <- googledrive::drive_link(ss_info)
+    
+    auxfunctions::pretty_print(current_output_file_link, "Link to the new spreadsheet:")
+    
   # The function returns the created spreadsheet info
   return(new_google_ss_info)
   }
