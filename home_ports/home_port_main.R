@@ -17,7 +17,8 @@
 ## Install packages if needed ----
 needed_packages <- c(
   "tidyverse",
-  "devtools" # Collection of package development tools
+  "devtools", # Collection of package development tools
+  "Hmisc" #to help with Label Attribute of an Object
 )
 
 # Explanations for the following code:
@@ -625,6 +626,28 @@ new_google_ss_path <-
                       "weird_vessel_ids")
 
 # write.csv(long_ids, "weird_ids.csv")
+
+weird_ids_list <-
+  Hmisc::llist(
+    empty_ids,
+    gt_8_vessel_ids,
+    lt_6_vessel_ids,
+    non_alphanumeric_ids,
+    short_vessel_ids,
+    weird_vessel_ids
+  )
+
+# View(weird_ids_list)
+
+purrr::imap(weird_ids_list,
+            \(x, idx) paste0(idx, ": ", x))
+
+
+            
+            \(df_name, )
+add_tab_to_google_sheet(my_df, 
+                        ss_info = new_google_ss_path, 
+                        tab_name)
 
 
 #' check if a vessel id is empty, wrong or too short
