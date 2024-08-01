@@ -123,7 +123,7 @@
       "RemoteRepo": "R_code",
       "RemoteUsername": "AShipunova1",
       "RemoteRef": "development",
-      "RemoteSha": "43b488749769eebb85eaa6249017a255c894c221",
+      "RemoteSha": "aec35edfa0aff45659c3377cf1eff0b35b77a702",
       "RemoteSubdir": "auxfunctions",
       "Requirements": [
         "DBI",
@@ -147,7 +147,7 @@
         "tidyr",
         "tidyselect"
       ],
-      "Hash": "6708afd06939fe6ae53745c7227c45e9"
+      "Hash": "4b0d4a481a741fea90ce837a05afbd5e"
     },
     "base64enc": {
       "Package": "base64enc",
@@ -1965,7 +1965,7 @@
     },
     "withr": {
       "Package": "withr",
-      "Version": "3.0.0",
+      "Version": "3.0.1",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -1973,7 +1973,7 @@
         "grDevices",
         "graphics"
       ],
-      "Hash": "d31b6c62c10dcf11ec530ca6b0dd5d35"
+      "Hash": "07909200e8bbe90426fbfeb73e1e27aa"
     },
     "wk": {
       "Package": "wk",
