@@ -561,13 +561,65 @@ vessels_from_pims_split_addr__city_state__fix2_ok <-
 dim(vessels_from_pims_split_addr__city_state__fix2_ok)
 # [1] 23086     6
 
-## Remove empty and bad vessel ids ----
+## Find and remove empty and bad vessel ids ----
 
+#' 
+#' Add vessel id length 
+vessels_from_pims_split_addr__city_state__fix2_ok_ids_len <-
+  vessels_from_pims_split_addr__city_state__fix2_ok |>
+  dplyr::group_by(vessel_official_number) |>
+  dplyr::mutate(id_len = stringr::str_length(vessel_official_number)) |>
+  dplyr::ungroup()
+
+#' get "bad" vessel ids
+#' some definitions to check with
 is_empty <- c(NA, "NA", "", "UN", "N/A")
 
 wrong_vessel_ids <- c("FL", "FLORIDA", "MD", "NO", "NONE")
 
 normal_length = 4
+
+lt_6_vessel_ids <- 
+  vessels_from_pims_split_addr__city_state__fix2_ok_ids_len |> 
+  dplyr::filter(id_len < 6) |> 
+  dplyr::arrange(dplyr::desc(id_len)) |> 
+  select(id_len, vessel_official_number) |> 
+  distinct()
+
+gt_8_vessel_ids <- 
+  vessels_from_pims_split_addr__city_state__fix2_ok_ids_len |> 
+  dplyr::filter(id_len > 8) |> 
+  dplyr::arrange(dplyr::desc(id_len)) |> 
+  select(id_len, vessel_official_number) |> 
+  distinct()
+
+non_alphanumeric_ids <- 
+  vessels_from_pims_split_addr__city_state__fix2_ok_ids_len |> 
+  dplyr::filter(grepl("[^A-Za-z0-9]", vessel_official_number)) |> 
+  select(vessel_official_number) |> 
+  distinct()
+
+empty_ids <-
+  vessels_from_pims_split_addr__city_state__fix2_ok_ids_len |>
+  dplyr::filter(vessel_official_number %in% is_empty) |> 
+  select(vessel_official_number) |> 
+  distinct()
+
+weird_vessel_ids <- 
+  vessels_from_pims_split_addr__city_state__fix2_ok_ids_len |>
+  dplyr::filter(vessel_official_number %in% wrong_vessel_ids) |>
+  select(vessel_official_number) |> 
+  distinct()
+
+short_vessel_ids <-
+    vessels_from_pims_split_addr__city_state__fix2_ok_ids_len |>
+  dplyr::filter(stringr::str_length(vessel_official_number) < normal_length) |>
+  select(vessel_official_number) |>
+  distinct()
+
+
+write.csv(long_ids, "weird_ids.csv")
+
 
 #' check if a vessel id is empty, wrong or too short
 vessels_from_pims_split_addr__city_state__fix2_ok__good_ids <-
@@ -580,73 +632,6 @@ nrow(vessels_from_pims_split_addr__city_state__fix2_ok) -
   nrow(vessels_from_pims_split_addr__city_state__fix2_ok__good_ids)
 # 13 bad ids
 
-## check id_len != 6 ----
-vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__len <-
-  vessels_from_pims_split_addr__city_state__fix2_ok__good_ids |>
-  dplyr::group_by(vessel_official_number) |>
-  dplyr::mutate(id_len = stringr::str_length(vessel_official_number)) |>
-  dplyr::ungroup()
-
-#' check id length
-vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__len |> 
-  dplyr::filter(!id_len == 6) |> 
-  dplyr::arrange(id_len) |> 
-  dplyr::glimpse()
-
-#' check id length > 7
-vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__len |> 
-  dplyr::filter(id_len > 7) |> 
-  dplyr::arrange(dplyr::desc(id_len)) |> 
-  select(id_len) |> 
-  distinct()
- # 1    211
- # 2     34
- # 3     19
-
-vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__len |> 
-  dplyr::filter(id_len > 7) |> 
-  dplyr::arrange(dplyr::desc(id_len)) |> 
-  select(id_len, vessel_official_number) |> 
-  distinct()
-
-dim(vessels_from_pims_split_addr__city_state__fix2_ok)
-# [1] 23086     6
-
-dim(vessels_from_pims_split_addr__city_state__fix2_ok__good_ids)
-# [1] 23050     6
-
-long_ids <- 
-  vessels_from_pims_split_addr__city_state__fix2_ok__good_ids__len |> 
-  dplyr::filter(id_len > 8) |> 
-  dplyr::arrange(dplyr::desc(id_len)) |> 
-  select(id_len, vessel_official_number) |> 
-  distinct()
-
-non_alphanumeric_ids <- 
-  vessels_from_pims_split_addr__city_state__fix2_ok |> 
-  dplyr::filter(grepl("[^A-Za-z0-9]", vessel_official_number)) |> 
-  select(vessel_official_number) |> 
-  distinct()
-
-empty_ids <-
-  vessels_from_pims_split_addr__city_state__fix2_ok |>
-  dplyr::filter(vessel_official_number %in% is_empty) |> 
-  select(vessel_official_number) |> 
-  distinct()
-
-wrong_vessel_ids <- 
-  vessels_from_pims_split_addr__city_state__fix2_ok |>
-  dplyr::filter(vessel_official_number %in% wrong_vessel_ids) |>
-  select(vessel_official_number) |> 
-  distinct()
-
-short_vessel_ids <-
-  vessels_from_pims_split_addr__city_state__fix2_ok |>
-  dplyr::filter(stringr::str_length(vessel_official_number) < normal_length) |>
-  select(vessel_official_number) |>
-  distinct()
-
-write.csv(long_ids, "weird_ids.csv")
 
 ## Check no address ----
 #' No city
