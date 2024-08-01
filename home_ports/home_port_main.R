@@ -475,13 +475,6 @@ dplyr::n_distinct(vessels_from_pims_split_addr__city_state__fix1$vessel_official
 ## Add more fixes manually ----
 
 ### Define filters ----
-we_called_filter <-
-  rlang::quo(any(tolower(contacttype) == "call" &
-        tolower(calltype) == "outgoing"))
-
-#' some definitions to check with
-normal_length = 4
-
 lt_6_id_len_filter <- 
   rlang::quo(id_len < 6)
 
@@ -499,7 +492,17 @@ wrong_vessel_ids <- c("FL", "FLORIDA", "MD", "NO", "NONE")
 weird_vessel_ids_filter <-
   rlang::quo(vessel_official_number %in% wrong_vessel_ids)
 
-## Find empty and bad vessel ids ----
+filter_list <- Hmisc::llist(
+  lt_6_id_len_filter, 
+  gt_8_id_len_filter, 
+  non_alphanumeric_filter, 
+  is_empty_filter, 
+  weird_vessel_ids_filter
+)
+
+### Filter addresses ----
+
+### Find empty and bad vessel ids ----
 
 #' 
 #' Add vessel id length 
@@ -509,60 +512,26 @@ vessels_from_pims_split_addr__city_state__fix1_ids_len <-
   dplyr::mutate(id_len = stringr::str_length(vessel_official_number)) |>
   dplyr::ungroup()
 
-#' get "bad" vessel ids
+### Get "bad" vessel ids ----
 
-lt_6_vessel_ids <- 
-  vessels_from_pims_split_addr__city_state__fix1_ids_len |> 
-  dplyr::filter(!!lt_6_id_len_filter) |> 
-  dplyr::arrange(dplyr::desc(id_len)) |> 
-  select(id_len, vessel_official_number) |> 
-  distinct()
+bad_vessel_ids <-
+  purrr::map(filter_list, \(curr_filter) {
+    vessels_from_pims_split_addr__city_state__fix1_ids_len |>
+      dplyr::filter(!!curr_filter) |>
+      dplyr::select(id_len, vessel_official_number) |>
+      dplyr::arrange(dplyr::desc(id_len)) |>
+      dplyr::distinct()
+  })
 
-gt_8_vessel_ids <- 
-  vessels_from_pims_split_addr__city_state__fix1_ids_len |> 
-  dplyr::filter(!!gt_8_id_len_filter) |> 
-  dplyr::arrange(dplyr::desc(id_len)) |> 
-  select(id_len, vessel_official_number) |> 
-  distinct()
-
-non_alphanumeric_ids <-
-  vessels_from_pims_split_addr__city_state__fix1_ids_len |>
-  dplyr::filter(!!non_alphanumeric_filter) |>
-  select(vessel_official_number) |>
-  distinct()
-
-empty_ids <-
-  vessels_from_pims_split_addr__city_state__fix1_ids_len |>
-  dplyr::filter(!!is_empty_filter) |> 
-  select(vessel_official_number) |> 
-  distinct()
-
-weird_vessel_ids <- 
-  vessels_from_pims_split_addr__city_state__fix1_ids_len |>
-  dplyr::filter(!!weird_vessel_ids_filter) |>
-  select(vessel_official_number) |> 
-  distinct()
-
-# Write weird ids to Google Drive
+### Write weird ids to Google Drive ----
 out_dir <-
-  get_google_drive_folder_by_name(google_drive_project_name = "Anna's tidbits")
+  auxfunctions::get_google_drive_folder_by_name(google_drive_project_name = "Anna's tidbits")
 
 new_google_ss_path <-
-  create_google_sheet(out_dir, 
+  auxfunctions::create_google_sheet(out_dir, 
                       "weird_vessel_ids")
 
 # write.csv(long_ids, "weird_ids.csv")
-
-weird_ids_list <-
-  Hmisc::llist(
-    empty_ids,
-    gt_8_vessel_ids,
-    lt_6_vessel_ids,
-    non_alphanumeric_ids,
-    weird_vessel_ids
-  )
-
-# View(weird_ids_list)
 
 purrr::imap(weird_ids_list, \(my_df, my_df_name) {
   googlesheets4::write_sheet(my_df, new_google_ss_path, sheet = my_df_name)
