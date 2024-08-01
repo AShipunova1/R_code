@@ -1,6 +1,6 @@
 write_to_google_sheets <- function(variables) {
   
-}
+
     # Define the current result Google Sheets name
     current_result_google_ss_name <- "Egregious Violators Current"
     
@@ -129,7 +129,7 @@ write_to_google_sheets <- function(variables) {
     # [1] "egregious_violators_to_investigate_2024-07-15"
     
     # See in browser to check
-    googledrive::drive_browse(current_result_google_ss_name_info)
+    # googledrive::drive_browse(current_result_google_ss_name_info)
     
     # Generate a shareable link for the new spreadsheet
     current_output_file_link <- googledrive::drive_link(current_result_google_ss_name_info)
@@ -139,4 +139,4 @@ write_to_google_sheets <- function(variables) {
     # The function returns the current output file link
     return(current_output_file_link)
     
-  
+}
