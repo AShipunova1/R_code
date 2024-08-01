@@ -612,12 +612,7 @@ weird_vessel_ids <-
   select(vessel_official_number) |> 
   distinct()
 
-short_vessel_ids <-
-    vessels_from_pims_split_addr__city_state__fix2_ok_ids_len |>
-  dplyr::filter(stringr::str_length(vessel_official_number) < normal_length) |>
-  select(vessel_official_number) |>
-  distinct()
-
+# write weird ids to Google Drive
 out_dir <-
   get_google_drive_folder_by_name(google_drive_project_name = "Anna's tidbits")
 
@@ -633,20 +628,14 @@ weird_ids_list <-
     gt_8_vessel_ids,
     lt_6_vessel_ids,
     non_alphanumeric_ids,
-    short_vessel_ids,
     weird_vessel_ids
   )
 
 # View(weird_ids_list)
 
-purrr::imap(weird_ids_list, 
-            \(my_df, my_df_name) {
-              browser()
-  add_tab_to_google_sheet(my_df, 
-                          ss_info = new_google_ss_path, 
-                          tab_name = my_df_name)
+purrr::imap(weird_ids_list, \(my_df, my_df_name) {
+  googlesheets4::write_sheet(my_df, new_google_ss_path, sheet = my_df_name)
 })
-
 
 #' check if a vessel id is empty, wrong or too short
 vessels_from_pims_split_addr__city_state__fix2_ok__good_ids <-
