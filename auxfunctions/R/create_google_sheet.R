@@ -1,26 +1,26 @@
 create_google_sheet <-
-  function(output_path,
+  function(google_drive_folder_path,
            new_google_ss_name) {
     
   # Create a new empty spreadsheet in the Google Drive output folder
-  # And save its properties into current_result_google_ss_name_info
+  # And save its properties into new_google_ss_name_info
   # In case of an error print the message and keep going.
   # If there is a file with this name this code will create another one with the same name.
   
   tryCatch({
     message("Try to create a new file")
     
-    current_result_google_ss_name_info <-
+    new_google_ss_info <-
       googledrive::drive_create(
-        name = current_result_google_ss_name,
-        path = googledrive::as_id(output_path),
+        name = new_google_ss_name,
+        path = googledrive::as_id(google_drive_folder_path),
         type = "spreadsheet"
       )
     
   }, error = function(cond) {
     message(paste(
       "Failed to create a new file: ",
-      current_result_google_ss_name
+      new_google_ss_name
     ))
     
     message("Here's the original error message:")
@@ -33,5 +33,5 @@ create_google_sheet <-
   })
   
   # The function returns the created spreadsheet info
-  return(current_result_google_ss_name_info)
+  return(new_google_ss_info)
   }
