@@ -393,7 +393,7 @@ vessels_from_pims_split_addr__city_state |>
 # JACKSONVILLE#FL, UNITED STATES, FL
 
 # ---
-
+## Get wrong addresses ----
 #' Explanations:
 #' 
 #' 1. **Column Extraction Using sapply:**
@@ -415,15 +415,60 @@ vessels_from_pims_split_addr__city_state |>
 wrong_port_addr <-
   sapply(to_fix_list, "[", 1)
 
+## Fix addresses from the list ----
+#'
+#' Explanations:
+#'
+#' The function 'get_correct_addr_by_wrong' takes a 'wrong_addr' as input and performs the following steps:
+#'
+#' 1. Finds the index of 'wrong_addr' in the 'to_fix_list'.
+#'
+#' 2. Uses 'tryCatch' to handle errors, printing information about the error and the index if one occurs.
+#'
+#' 3. Extracts the correct address from the pair.
+#'
+#' 4. Returns the correct address.
+#' 
+get_correct_addr_by_wrong <-
+  function(wrong_addr) {
+    idx <- grep(wrong_addr, to_fix_list)
+    
+    names_pair <-
+      tryCatch(
+        to_fix_list[[idx]],
+        error = function(e) {
+          print(e)
+          print(str_glue("Index: {idx}"))
+        }
+      )
+    good_addr <- names_pair[[2]]
+    
+    return(good_addr)
+  }
 
-typos_still <-
+#'
+#' Explanations:
+#'
+#' The variable 'compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed' is created by:
+#'
+#' 1. Creating a new column 'city_state_fixed' by replacing wrong addresses using 'get_correct_addr_by_wrong' for rows where 'city_state' is in 'wrong_port_addr'.
+#'
+#' 2. Separating the 'city_state_fixed' column into two columns ('city_fixed' and 'state_fixed') using '#' as the delimiter.
+#' 
+vessels_from_pims_split_addr__city_state__fix1 <-
   vessels_from_pims_split_addr__city_state |>
-  select(city_state) |>
-  distinct() |>
-  filter(city_state %in% wrong_port_addr)
+  dplyr::rowwise() |>
+  dplyr::mutate(city_state_fixed =
+           if (city_state %in% wrong_port_addr)
+             get_correct_addr_by_wrong(city_state)
+         else
+           city_state) |>
+  dplyr::ungroup() |>
+  tidyr::separate_wider_delim(city_state_fixed,
+                              delim = "#",
+                              names = c("city_fixed",
+                                        "state_fixed")) |> 
+  dplyr::distinct()
 
-dim(typos_still)
-# 43
-
-setdiff(wrong_port_addr, typos_still$city_state)
-typos_still$city_state |> sort() |> View()
+dplyr::n_distinct(vessels_from_pims_split_addr__city_state__fix1$vessel_official_number)
+# [1] 23045
