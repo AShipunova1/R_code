@@ -492,7 +492,7 @@ non_alphanumeric_filter <-
   rlang::quo(grepl("[^A-Za-z0-9]", vessel_official_number))
 
 is_empty <- c(NA, "NA", "", "UN", "N/A")
-empty_filter <-
+is_empty_filter <-
   rlang::quo(vessel_official_number %in% is_empty)
 
 wrong_vessel_ids <- c("FL", "FLORIDA", "MD", "NO", "NONE")
@@ -525,25 +525,26 @@ gt_8_vessel_ids <-
   select(id_len, vessel_official_number) |> 
   distinct()
 
-non_alphanumeric_ids <- 
-  vessels_from_pims_split_addr__city_state__fix1_ids_len |> 
-  dplyr::filter(grepl("[^A-Za-z0-9]", vessel_official_number)) |> 
-  select(vessel_official_number) |> 
+non_alphanumeric_ids <-
+  vessels_from_pims_split_addr__city_state__fix1_ids_len |>
+  dplyr::filter(!!non_alphanumeric_filter) |>
+  select(vessel_official_number) |>
   distinct()
-
-non_alphanumeric_ids1 <- 
-    vessels_from_pims_split_addr__city_state__fix1_ids_len |> 
-  dplyr::filter(!!non_alphanumeric_filter) |> 
-  select(vessel_official_number) |> 
-  distinct()
-
-diffdf::diffdf(non_alphanumeric_ids, non_alphanumeric_ids1)
 
 empty_ids <-
-  vessels_from_pims_split_addr__city_state__fix2_ok_ids_len |>
+  vessels_from_pims_split_addr__city_state__fix1_ids_len |>
   dplyr::filter(vessel_official_number %in% is_empty) |> 
   select(vessel_official_number) |> 
   distinct()
+
+empty_ids1 <-
+  vessels_from_pims_split_addr__city_state__fix1_ids_len |>
+  dplyr::filter(!!is_empty_filter) |> 
+  select(vessel_official_number) |> 
+  distinct()
+
+diffdf::diffdf(empty_ids, empty_ids1)
+
 
 weird_vessel_ids <- 
   vessels_from_pims_split_addr__city_state__fix2_ok_ids_len |>
