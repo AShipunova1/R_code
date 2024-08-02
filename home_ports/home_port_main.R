@@ -554,9 +554,8 @@ new_file_ss_info <-
     name = stringr::str_glue("weird_vessel_ids_{lubridate::today()}")
   )
 
-
-# to see the result
-# googledrive::drive_browse(ss4)
+# to see the result in the browser
+# googledrive::drive_browse(new_file_ss_info)
 
 ### List of vessels with double ports ----
 # Keep the correct addresses only (from Jeannette)
