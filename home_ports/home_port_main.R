@@ -699,11 +699,19 @@ nrow(double_ids_ports)
 # 22
 
 double_ports_1 <-
-  tibble::as_tibble(manual_fixes_double_ports,
-                    .name_repair = "universal",
-                    rownames = NULL) |> t()
+  purrr::map(manual_fixes_double_ports, \(curr_list) {
+    # browser()
+    as.data.frame(t(unlist(curr_list)))
+  }) |>
+  list_rbind()
 
-rownames(double_ports_1) <- NULL
+
+mtcars |>
+  split(mtcars$cyl) |> 
+  map(\(df) lm(mpg ~ wt, data = df)) |> 
+  map(\(mod) as.data.frame(t(as.matrix(coef(mod))))) |>
+  list_rbind() |> View()
+
 
 View(double_ports_1)
 # check
