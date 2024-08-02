@@ -608,6 +608,20 @@ vessels_from_pims_split_addr__city_state__fix2 <-
          }) |>
   dplyr::distinct()
 
+set_2_vals <- function(my_list) {
+  city_fixed1 = my_list[[2]]
+  state_fixed1 = my_list[[3]]
+}
+
+purrr::map(manual_fixes_double_ports, \(x) {
+  browser()
+  res <-
+    vessels_from_pims_split_addr__city_state__fix1 |>
+    mutate(case_when(vessel_official_number == x[[1]] ~
+                       set_2_vals(x)))
+})
+
+
 dim(vessels_from_pims_split_addr__city_state__fix2)
 # [1] 23109     8
 
@@ -700,25 +714,22 @@ nrow(double_ids_ports)
 
 double_ports_1 <-
   purrr::map(manual_fixes_double_ports, \(curr_list) {
-    # browser()
     as.data.frame(t(unlist(curr_list)))
   }) |>
   list_rbind()
 
+names(double_ports_1) <- 
+  c("vessel_official_number", "city", "state")
 
-mtcars |>
-  split(mtcars$cyl) |> 
-  map(\(df) lm(mpg ~ wt, data = df)) |> 
-  map(\(mod) as.data.frame(t(as.matrix(coef(mod))))) |>
-  list_rbind() |> View()
+double_ports_1 |>
+  arrange(vessel_official_number) |>
+  glimpse()
 
-
-View(double_ports_1)
 # check
-
 vessels_from_pims_split_addr__city_state__fix2_ok_short |>
   filter(vessel_official_number %in% double_ids_ports$vessel_official_number) |>
   arrange(vessel_official_number) |> 
+  filter(vessel_official_number %in% double_ports_1$vessel_official_number) |> 
   glimpse()
 # 1 PT. CANAVERAL 
 # 2 PORT CANAVERAL
