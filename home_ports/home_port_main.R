@@ -538,53 +538,25 @@ bad_vessel_ids <-
 str(bad_vessel_ids)
 
 ### Write weird ids to Google Drive ----
+new_ss_info <-
+  googlesheets4::gs4_create(
+    name = stringr::str_glue("weird_vessel_ids_{lubridate::now()}"),
+    sheets = bad_vessel_ids
+  )
+
 out_dir_ss <-
   auxfunctions::get_google_drive_folder_by_name(google_drive_project_name = "Anna's tidbits")
 
-ss4 <- googlesheets4::gs4_create(
-  stringr::str_glue("weird_vessel_ids_{lubridate::now()}"),
-  sheets = bad_vessel_ids
-)
-lubridate::now()
-
-googledrive::drive_browse(ss4)
-
-googledrive::drive_mv(
-  file,
-  path = NULL,
-  name = NULL,
-  overwrite = NA,
-  verbose = deprecated()
-)
-
-file_ss <-
+new_file_ss_info <-
   googledrive::drive_mv(
-    ss4,
+    new_ss_info,
     path = out_dir_ss,
     name = stringr::str_glue("weird_vessel_ids_{lubridate::today()}")
   )
 
 
-# ---
-googledrive::drive_find(pattern =
-                                google_drive_project_name,
-                              type = "folder",
-                              n_max = 1)
-new_google_ss_path <-
-  auxfunctions::create_google_sheet(out_dir_ss, 
-                      "weird_vessel_ids")
-
-# write.csv(long_ids, "weird_ids.csv")
-# ss %>% sheet_add(c("coconut", "dragonfruit"))
-
-googlesheets4::sheet_add(new_google_ss_path, names(bad_vessel_ids))
-
-
-purrr::imap(bad_vessel_ids, \(my_df, my_df_name) {
-  browser()
-  googlesheets4::write_sheet(my_df, new_google_ss_path, sheet = my_df_name)
-})
-
+# to see the result
+# googledrive::drive_browse(ss4)
 
 ### List of vessels with double ports ----
 # Keep the correct addresses only (from Jeannette)
