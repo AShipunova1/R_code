@@ -588,7 +588,7 @@ manual_fixes_double_ports <-
     list("NC6164CW", "MOREHEAD CITY", "NC"),
     list("TX9606KA", "HOUSTON", "TX")
   )
-    # list("139403", "MIAMI", "FL"), # no!
+    # list("139403", "MIAMI", "FL"), # no! Keep it here as a reminder
 
 ### Fix double ports ----
 
@@ -661,7 +661,7 @@ vessels_from_pims_split_addr__city_state__fix2_ok__no_state <-
   dplyr::filter(is.na(state_fixed))
 
 nrow(vessels_from_pims_split_addr__city_state__fix2_ok__no_state)
-# 0
+# 0 OK
 
 # remove extra cols ----
 vessels_from_pims_split_addr__city_state__fix2_ok_short <-
@@ -696,12 +696,22 @@ nrow(double_ids_ports)
 # 0, ok
 # 3
 # 1
+# 22
 
+double_ports_1 <-
+  tibble::as_tibble(manual_fixes_double_ports,
+                    .name_repair = "universal",
+                    rownames = NULL) |> t()
+
+rownames(double_ports_1) <- NULL
+
+View(double_ports_1)
 # check
 
 vessels_from_pims_split_addr__city_state__fix2_ok_short |>
-  filter(vessel_official_number %in% double_ids_ports) |>
-  select(city_fixed)
+  filter(vessel_official_number %in% double_ids_ports$vessel_official_number) |>
+  arrange(vessel_official_number) |> 
+  glimpse()
 # 1 PT. CANAVERAL 
 # 2 PORT CANAVERAL
 
