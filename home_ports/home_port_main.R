@@ -225,12 +225,25 @@ vessels_from_pims_ok |>
 # 4             8811432134                 PEMBROKE, PINES, FL
 # 5               FL7047TR JACKSONVILLE, FL, UNITED STATES, FL
 
+## Find not acceptable characters in addresses ----
+
+wrong_chars <- "[^A-Za-z0-9 .=',]"
+vessels_from_pims_ok |> 
+  filter(grepl(wrong_chars, hailing_port)) |> 
+  select(hailing_port) |> 
+  distinct()
+
+## Remove html ----
+vessels_from_pims_ok_no_html <-
+  vessels_from_pims_ok |>
+  mutate(hailing_port =
+           stringr::str_replace(hailing_port, 'xml:space=\"preserve\">', ""))
 
 ## Separate hailing_port into city and state ----
 #'
 
 vessels_from_pims_split_addr <-
-  vessels_from_pims_ok |>
+  vessels_from_pims_ok_no_html |>
   tidyr::separate_wider_delim(
     hailing_port,
     delim = ",",
@@ -240,6 +253,7 @@ vessels_from_pims_split_addr <-
   ) |>
   dplyr::mutate(dplyr::across(tidyselect::where(is.character), 
                               stringr::str_squish))
+
 
 ## fix known home port typos ----
 
@@ -499,8 +513,6 @@ filter_list <- Hmisc::llist(
   is_empty_filter, 
   weird_vessel_ids_filter
 )
-
-### Filter addresses ----
 
 ### Find empty and bad vessel ids ----
 
