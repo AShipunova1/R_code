@@ -742,8 +742,8 @@ weird_vessel_ids_only <-
   dplyr::distinct()
 
 permits_from_pims__split1 |> 
-  dplyr::filter(vessel_official_number %in% weird_vessel_ids |
-           dealer %in% weird_vessel_ids) |> 
+  dplyr::filter(vessel_official_number %in% weird_vessel_ids_only |
+           dealer %in% weird_vessel_ids_only) |> 
   nrow()
 # No permits for those vessel ids
 
