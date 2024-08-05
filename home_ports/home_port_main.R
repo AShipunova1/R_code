@@ -616,20 +616,6 @@ vessels_from_pims_split_addr__city_state__fix2 <-
          }) |>
   dplyr::distinct()
 
-set_2_vals <- function(my_list) {
-  city_fixed1 = my_list[[2]]
-  state_fixed1 = my_list[[3]]
-}
-
-purrr::map(manual_fixes_double_ports, \(x) {
-  browser()
-  res <-
-    vessels_from_pims_split_addr__city_state__fix1 |>
-    mutate(case_when(vessel_official_number == x[[1]] ~
-                       set_2_vals(x)))
-})
-
-
 dim(vessels_from_pims_split_addr__city_state__fix2)
 # [1] 23109     8
 
