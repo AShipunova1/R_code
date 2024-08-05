@@ -20,11 +20,13 @@ library(tools)
 # Change the dir name
 # Comment out the "answers" for the next two readline() to use interactively
 curent_project_name <- readline(prompt = "Print your project name: ")
-egregious_violators
+home_ports
+# egregious_violators
 # validation_survey
 
 curent_file_name_no_ext <- readline(prompt = "Print your file name: ")
-egregious_violators_start
+home_port_main
+# egregious_violators_start
 # validation_survey_main
 
 # In the input .R script:
@@ -63,8 +65,6 @@ split_one_line_text_back <-
       str_split(split_by) |>
       unlist()
   }
-
-# source("~/R_code_github/useful_functions_module.r")
 
 # install.packages("devtools")
 # library(devtools)
@@ -394,9 +394,18 @@ all_auxfunction_names <-
 get_help_text <- function(function_name) {
   # browser()
   used_tags <- c("description", "details")
-  help_text <-
-    help(function_name, "auxfunctions") |>
-    utils:::.getHelpFile()
+  
+  tryCatch({
+    help_text <-
+      help(function_name, "auxfunctions") |>
+      utils:::.getHelpFile()
+  }, error = function(cond) {
+    message(paste("There is no R documentation for", function_name))
+    
+    message("Here's the original error message:")
+    message(conditionMessage(cond))
+    return()
+  })
 
   used_tags_help_list <-
     map(used_tags, \(one_tag) {
@@ -471,6 +480,8 @@ get_all_auxfunction_helps <-
     all_auxfunction_helps <-
       all_auxfunction_names |>
       purrr::map(\(one_f_name) {
+        print(one_f_name)
+        # browser()
         get_help_text(one_f_name)
       }) |>
       rlang::set_names(all_auxfunction_names)
