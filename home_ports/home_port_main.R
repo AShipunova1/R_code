@@ -746,13 +746,6 @@ View(vessels_from_pims_split_addr__city_state__fix2_ok_short)
 # ===
 # Do weird vessels have permits
 
-purrr::map(bad_vessel_ids, \(curr_l) {
-  browser()
-  curr_l |> 
-    pull(vessel_official_number)
-}) |> 
-  dplyr::bind_rows()
-
 weird_vessel_ids_only <-
   purrr::map(bad_vessel_ids, bind_rows) |>
   bind_rows(.id = "list_name") |>
@@ -778,6 +771,7 @@ permits_from_pims__split1_short__split2__id_len <-
   dplyr::mutate(id_len = stringr::str_length(vessel_official_number)) |>
   dplyr::ungroup()
 
+# filter weird vessel ids from permits
 bad_vessel_ids_from_permits <-
   purrr::map(filter_list, \(curr_filter) {
     permits_from_pims__split1_short__split2__id_len |>
@@ -787,12 +781,13 @@ bad_vessel_ids_from_permits <-
       dplyr::distinct()
   })
 
-View(bad_vessel_ids_from_permits)
+glimpse(bad_vessel_ids_from_permits)
 
+# get ids only
 weird_vessel_ids_permits_ids_only <-
   purrr::map(bad_vessel_ids_from_permits, bind_rows) |>
   bind_rows(.id = "list_name") |>
   select(vessel_official_number) |>
   distinct()
 
-View(weird_vessel_ids_permits_ids_only)
+# View(weird_vessel_ids_permits_ids_only)
