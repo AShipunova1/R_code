@@ -791,3 +791,13 @@ weird_vessel_ids_permits_ids_only <-
   distinct()
 
 # View(weird_vessel_ids_permits_ids_only)
+
+# write to google drive ids only
+
+googlesheets4::write_sheet(weird_vessel_ids_permits_ids_only,
+                           ss = new_file_ss_info, 
+                           sheet = "ids from Permits")
+
+googlesheets4::write_sheet(weird_vessel_ids_only,
+                           ss = new_file_ss_info, 
+                           sheet = "ids from Vessels")
