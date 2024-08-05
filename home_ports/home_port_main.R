@@ -75,6 +75,7 @@ install_helper_functions()
 program_start_date <- lubridate::dmy("01/01/2021")
 
 # Variables for the current year(s)
+# Manually change if needed
 my_years <- c("2022", "2023", "2024")
 
 my_year_dates <-
@@ -548,7 +549,7 @@ write_to_google <-
     return(new_file_ss_info)
   }
 
-new_file_ss_info <- write_to_google()
+# new_file_ss_info <- write_to_google()
 
 # to see the result in the browser
 # googledrive::drive_browse(new_file_ss_info)
@@ -782,10 +783,10 @@ weird_vessel_ids_permits_ids_only <-
 
 # write to google drive ids only
 
-googlesheets4::write_sheet(weird_vessel_ids_permits_ids_only,
-                           ss = new_file_ss_info, 
-                           sheet = "ids from Permits")
-
-googlesheets4::write_sheet(weird_vessel_ids_only,
-                           ss = new_file_ss_info, 
-                           sheet = "ids from Vessels")
+# googlesheets4::write_sheet(weird_vessel_ids_permits_ids_only,
+#                            ss = new_file_ss_info, 
+#                            sheet = "ids from Permits")
+# 
+# googlesheets4::write_sheet(weird_vessel_ids_only,
+#                            ss = new_file_ss_info, 
+#                            sheet = "ids from Vessels")
