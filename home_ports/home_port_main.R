@@ -1,4 +1,4 @@
-# This code cleans homeport city and state from PIMS
+#' This code cleans homeport city and state from PIMS
 
 # Setup ----
 
@@ -187,8 +187,8 @@ source(get_data_path)
 #' Numbers in hailing_port
 addresses_w_digit <- 
   vessels_from_pims_ok |>
-  filter(grepl("\\d", hailing_port)) |> 
-  distinct()
+  dplyr::filter(grepl("\\d", hailing_port)) |> 
+  dplyr::distinct()
    # vessel_official_number hailing_port            
 #    <chr>                  <chr>                   
 #  1 574500                 HO0MASASSA, FL          
@@ -206,8 +206,8 @@ addresses_w_digit <-
 
 #' Extra commas in hailing_port
 vessels_from_pims_ok |>
-  filter(grepl(",.+,", hailing_port)) |> 
-  distinct()
+  dplyr::filter(grepl(",.+,", hailing_port)) |> 
+  dplyr::distinct()
 # 1                 945114            REDINGTON SHORES, FL, FL
 # 2                 919225                     CHAUVIN, LA, LA
 # 3               FL0702JJ              MATLACHA, BOKKELIA, FL
@@ -218,14 +218,14 @@ vessels_from_pims_ok |>
 
 wrong_chars <- "[^A-Za-z0-9 .=',]"
 vessels_from_pims_ok |> 
-  filter(grepl(wrong_chars, hailing_port)) |> 
-  select(hailing_port) |> 
-  distinct()
+  dplyr::filter(grepl(wrong_chars, hailing_port)) |> 
+  dplyr::select(hailing_port) |> 
+  dplyr::distinct()
 
 ## Remove html ----
 vessels_from_pims_ok_no_html <-
   vessels_from_pims_ok |>
-  mutate(hailing_port =
+  dplyr::mutate(hailing_port =
            stringr::str_replace(hailing_port, 'xml:space=\"preserve\">', ""))
 
 ## Separate hailing_port into city and state ----
@@ -361,7 +361,7 @@ to_fix_list <-
 #' Creating a new column 'city_state' by concatenating trimmed 'city' and 'state' columns, separated by '#'.
 vessels_from_pims_split_addr__city_state <-
   vessels_from_pims_split_addr |>
-  mutate(city_state =
+  dplyr::mutate(city_state =
            paste(
              trimws(city),
              trimws(state),
@@ -369,11 +369,11 @@ vessels_from_pims_split_addr__city_state <-
            ))
 
 
-### check numbers in an address again with the "#" ----
+### check numbers in an address again with the pound ----
 vessels_from_pims_split_addr__city_state |>
-  filter(grepl("\\d", city_state)) |> 
-  select(city_state) |> 
-  distinct()
+  dplyr::filter(grepl("\\d", city_state)) |> 
+  dplyr::select(city_state) |> 
+  dplyr::distinct()
 # 1 HO0MASASSA#FL          
 # 2 2#AL                   
 # 3 FIGURE 8 ISLAND#NC     
@@ -386,8 +386,8 @@ vessels_from_pims_split_addr__city_state |>
 
 #' extra commas in city, state 
 vessels_from_pims_split_addr__city_state |>
-  filter(grepl(",", city_state)) |> 
-  select(city_state)
+  dplyr::filter(grepl(",", city_state)) |> 
+  dplyr::select(city_state)
 # REDINGTON SHORES#FL, FL
 # CHAUVIN#LA, LA         
 # ALEXANDER CITY#AL, AL  (fixed)
@@ -440,7 +440,7 @@ get_correct_addr_by_wrong <-
         to_fix_list[[idx]],
         error = function(e) {
           print(e)
-          print(str_glue("Index: {idx}"))
+          print(stringr::str_glue("Index: {idx}"))
         }
       )
     good_addr <- names_pair[[2]]
@@ -673,9 +673,9 @@ vessels_from_pims_split_addr__city_state__fix2_ok_short <-
 #   View()
 
 vessels_from_pims_split_addr__city_state__fix2_ok |>
-  filter(!city == city_fixed) |>
-  select(-vessel_official_number) |> 
-  distinct() |> 
+  dplyr::filter(!city == city_fixed) |>
+  dplyr::select(-vessel_official_number) |> 
+  dplyr::distinct() |> 
   nrow()
 # 47
 # 50
@@ -705,15 +705,15 @@ names(double_ports_1) <-
   c("vessel_official_number", "city", "state")
 
 double_ports_1 |>
-  arrange(vessel_official_number) |>
-  glimpse()
+  dplyr::arrange(vessel_official_number) |>
+  dplyr::glimpse()
 
 # check
 vessels_from_pims_split_addr__city_state__fix2_ok_short |>
-  filter(vessel_official_number %in% double_ids_ports$vessel_official_number) |>
-  arrange(vessel_official_number) |> 
-  filter(vessel_official_number %in% double_ports_1$vessel_official_number) |> 
-  glimpse()
+  dplyr::filter(vessel_official_number %in% double_ids_ports$vessel_official_number) |>
+  dplyr::arrange(vessel_official_number) |> 
+  dplyr::filter(vessel_official_number %in% double_ports_1$vessel_official_number) |> 
+  dplyr::glimpse()
 # 1 PT. CANAVERAL 
 # 2 PORT CANAVERAL
 
@@ -736,23 +736,23 @@ View(vessels_from_pims_split_addr__city_state__fix2_ok_short)
 # Do weird vessels have permits
 
 weird_vessel_ids_only <-
-  purrr::map(bad_vessel_ids, bind_rows) |>
-  bind_rows(.id = "list_name") |>
-  select(vessel_official_number) |>
-  distinct()
+  purrr::map(bad_vessel_ids, dplyr::bind_rows) |>
+  dplyr::bind_rows(.id = "list_name") |>
+  dplyr::select(vessel_official_number) |>
+  dplyr::distinct()
 
 permits_from_pims__split1 |> 
-  filter(vessel_official_number %in% weird_vessel_ids |
+  dplyr::filter(vessel_official_number %in% weird_vessel_ids |
            dealer %in% weird_vessel_ids) |> 
   nrow()
 # No permits for those vessel ids
 
 # Permits' vessel ids ----
 permits_from_pims__split1 |> 
-  select(vessel_official_number) |> 
-  distinct() |> 
-  arrange(vessel_official_number) |> 
-  glimpse()
+  dplyr::select(vessel_official_number) |> 
+  dplyr::distinct() |> 
+  dplyr::arrange(vessel_official_number) |> 
+  dplyr::glimpse()
 
 permits_from_pims__split1_short__split2__id_len <-
   permits_from_pims__split1_short__split2 |>
@@ -770,14 +770,15 @@ bad_vessel_ids_from_permits <-
       dplyr::distinct()
   })
 
-glimpse(bad_vessel_ids_from_permits)
+dplyr::glimpse(bad_vessel_ids_from_permits)
 
 # get ids only
 weird_vessel_ids_permits_ids_only <-
-  purrr::map(bad_vessel_ids_from_permits, bind_rows) |>
-  bind_rows(.id = "list_name") |>
-  select(vessel_official_number) |>
-  distinct()
+  purrr::map(bad_vessel_ids_from_permits, 
+             dplyr::bind_rows) |>
+  dplyr::bind_rows(.id = "list_name") |>
+  dplyr::select(vessel_official_number) |>
+  dplyr::distinct()
 
 # View(weird_vessel_ids_permits_ids_only)
 

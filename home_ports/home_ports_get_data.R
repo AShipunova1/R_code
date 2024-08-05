@@ -41,7 +41,7 @@ vessels_from_pims <-
 # check
 # print_df_names(vessels_from_pims)
 
-# glimpse(vessels_from_pims)
+# dplyr::glimpse(vessels_from_pims)
 
 dim(vessels_from_pims)
 # [1] 23107     8
@@ -126,7 +126,7 @@ permits_from_pims__split1 <-
   dplyr::mutate(dplyr::across(c('vessel_official_number', 'dealer'),
                 stringr::str_squish))
 
-glimpse(permits_from_pims__split1)
+dplyr::glimpse(permits_from_pims__split1)
 # Expected 2 pieces. Missing pieces filled with `NA` in 3038 rows [229, 244, 294,
 
 ## Permits, clean and shorten ----
@@ -237,7 +237,7 @@ permits_from_pims__split1_short__split2 <-
   dplyr::mutate(dplyr::across(tidyselect::starts_with('permit'),
                 stringr::str_squish))
 
-glimpse(permits_from_pims__split1_short__split2)
+dplyr::glimpse(permits_from_pims__split1_short__split2)
 
 ## Vessels, clean and shorten  ----
 #'
@@ -291,9 +291,9 @@ hailing_port_col_name <-
 vessels_from_pims_short <-
   vessels_from_pims |>
   dplyr::rename("vessel_official_number" = official__) |>
-  select(vessel_official_number,
+  dplyr::select(vessel_official_number,
          !!hailing_port_col_name) |>
-  distinct()
+  dplyr::distinct()
 
 # print_df_names(vessels_from_pims)
 
@@ -424,7 +424,7 @@ vessels_from_pims_ok <-
                        ",")) |>
   dplyr::mutate(hailing_port =
            stringr::str_squish(!!hailing_port_col_name)) |> 
-  distinct()
+  dplyr::distinct()
 
 dim(vessels_from_pims_ok)
 # [1] 23086     2
