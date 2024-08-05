@@ -1,0 +1,1946 @@
+---
+title: Home Ports
+---
+
+```{r no cache setup, results='hide', message=FALSE, warning=FALSE, cache=FALSE, include=FALSE}
+
+## Quarto Setup
+
+# Quarto enables you to weave together content and executable code into a finished document.
+ 
+# Running Code
+ 
+# The **Run** button allows you to run individual or bunch of chunks as a regular R script.
+ 
+# When you click the **Render** button a document will be generated that includes both content and the output of embedded code.
+
+# Load libraries required for Quatro
+# A general-purpose tool for dynamic report generation in R
+library(knitr)
+
+# Adds features to a kable output
+library(kableExtra)
+
+# Format R code automatically
+library(styler)
+```
+
+```{r df format setup}
+#| include: false
+
+# Customize the appearance of dataframes in HTML
+
+# Uncomment if using tabs
+# kable <- function(data) {
+#   knitr::kable(data, booktabs = true, digits = 2) %>%
+#     kable_styling('striped', full_width = FALSE)
+# }
+
+# Define a custom print function for data frames in knitr
+knit_print.data.frame = function(x, ...) {
+  res = paste(c(
+    '',
+    '',
+    knitr::kable(x, digits = 2) |>
+      kableExtra::kable_styling('striped', full_width = FALSE)
+  ),
+  collapse = '
+')
+  knitr::asis_output(res)
+}
+
+# Register the custom print function for data frames in the knitr namespace
+registerS3method(
+  'knit_print', 'data.frame', knit_print.data.frame,
+  envir = asNamespace('knitr')
+)
+
+# Set global chunk options in knitr if needed
+# knitr::opts_chunk$set(echo = TRUE)
+
+# Set the table format for knitr to HTML if needed
+# options(knitr.table.format = 'HTML')
+
+# End of Quarto setup
+
+```
+
+## Setup 
+
+```{r Setup}
+# Setup ----
+# This code cleans homeport city and state from PIMS
+
+```
+
+### Install packages if needed 
+
+```{r Install packages if needed}
+## Install packages if needed ----
+# <<<<
+
+# Explanations for the following code:
+
+# This function provides a simple way to obtain the username of the user executing the R code, which can be useful for personalization, authentication, or logging purposes. 
+#  
+# The `get_username` function is designed to retrieve the username of the current user.
+# 
+# 1. **Function Definition:**
+#    - `get_username <- function() { .. }`: Defines a function named `get_username` with no arguments.
+# 
+# 2. **Using System Information:**
+#    - `Sys.info()`: Calls the `Sys.info` function, which provides various system information about the current R session.
+#    - `Sys.info()["user"]`: Retrieves the username of the current user from the system information.
+# 
+# 3. **Converting to Character:**
+#    - `as.character()`: Converts the username to a character vector. This step ensures consistency in the data type of the returned value.
+# 
+# 4. **Return Result:**
+#    - The function returns the username of the current user as a character string.
+# 
+
+ get_username  <-  function () 
+{
+    return(as.character(Sys.info()["user"]))
+}
+# >>>>
+
+needed_packages <- c(
+  "tidyverse",
+  "devtools", # Collection of package development tools
+  "Hmisc" #to help with Label Attribute of an Object
+)
+
+# Explanations for the following code:
+# - `needed_packages %in% rownames(installed.packages())` checks which packages from `needed_packages` are installed:
+#   - `installed.packages()` returns a matrix of information about all installed packages.
+#   - `rownames(installed.packages())` extracts the names of the installed packages.
+#   - `needed_packages %in% ...` checks if each package in `needed_packages` is in the list of installed packages, returning a logical vector indicating the presence of each package.
+# - `if (any(installed_packages == FALSE)) { ... }` checks if any package is not installed:
+#   - `any(installed_packages == FALSE)` returns `TRUE` if at least one element in `installed_packages` is `FALSE`.
+#   - `install.packages(packages[!installed_packages])` installs the packages that are not installed:
+#     - `packages[!installed_packages]` selects the packages from `packages` that are not installed.
+#     - `install.packages()` installs the selected packages.  
+
+installed_packages <-
+  needed_packages %in% rownames(installed.packages())
+
+if (any(installed_packages == FALSE)) {
+  install.packages(needed_packages[!installed_packages])
+}
+
+# Install helper functions for SEFHIER data analysis.
+#
+# Explanations for the following code:
+# 
+# The installation details depend on the username.
+# 
+# For most users, install from the main branch if not already installed.
+# 
+# One doesn't have to have a GitHub account to use it.
+# 
+# For the package developer, install from the development branch.
+#
+# - `if (!require("auxfunctions"))` checks if the `auxfunctions` package is installed and loaded:
+#
+#   - `require("auxfunctions")` attempts to load the `auxfunctions` package.
+#
+#   - The `!` operator negates the result, so the condition is true if the package is not installed or cannot be loaded.
+#
+# - `devtools::install_github("AShipunova1/R_code/auxfunctions")` installs the `auxfunctions` package from the specified GitHub repository:
+#
+#   - `devtools::install_github()` is a function from the `devtools` package that installs an R package directly from a GitHub repository.
+#
+#   - `"AShipunova1/R_code/auxfunctions"` specifies the repository and subdirectory containing the package.
+# 
+# This code checks if the `auxfunctions` package is available, and if not, it installs it from the GitHub repository `AShipunova1/R_code/auxfunctions`.
+# 
+
+install_helper_functions <- function() {
+# Use function get_username defined above.
+  if (!get_username() == "anna.shipunova") {
+    if (!require('auxfunctions')) {
+      devtools::install_github("AShipunova1/R_code/auxfunctions")
+    }
+  } else {
+    # For a developer, rebuild the package from the development branch. To force the installation change to 'force = TRUE'
+    devtools::install_github("AShipunova1/R_code/auxfunctions@development", force = FALSE)
+    # restart R session to pick up changes
+    # .rs.restartR()
+    library(auxfunctions)
+  }
+}
+
+# Turn off commenting if you want to take advantage of this R package, for example, to see a function definition and help documentation the standard way (?function_name, F1, or F2).
+# install_helper_functions()
+```
+
+### Define dates 
+
+```{r Define dates}
+## Define dates ----
+
+program_start_date <- lubridate::dmy("01/01/2021")
+
+# Variables for the current year(s)
+# Manually change if needed
+my_years <- c("2022", "2023", "2024")
+
+my_year_dates <-
+  purrr::map(my_years, \(one_year) {
+    my_beginning <- stringr::str_glue("{one_year}-01-01")
+    my_end <- stringr::str_glue("{one_year}-12-31")
+    
+    res <- list(beg = my_beginning, end = my_end)
+    return(res)
+  })
+
+names(my_year_dates) <- my_years
+
+str(my_year_dates)
+```
+
+### Set up paths 
+
+```{r Set up paths}
+## Set up paths ----
+# <<<<
+
+# Explanations for the following code:
+
+# The `create_dir_if_not` function ensures the existence of a directory by creating it if it does not already exist.
+# 
+# This function provides a convenient way to ensure that a directory exists before performing operations such as writing files or storing data.
+#  
+#  
+# 1. **Function Definition:**
+#    - `create_dir_if_not <- function(curr_dir_name) { .. }`: Defines a function named `create_dir_if_not` that takes a single argument, `curr_dir_name`, representing the name of the directory to be created.
+# 
+# 2. **Checking Directory Existence:**
+#    - `if (!dir.exists(curr_dir_name)) { .. }`: Checks if the directory specified by `curr_dir_name` does not exist.
+#    - `dir.exists(curr_dir_name)`: Checks whether the directory specified by `curr_dir_name` exists. The `!` negates the result, so the code block inside the `if` statement executes only if the directory does not exist.
+# 
+# 3. **Creating Directory:**
+#    - `dir.create(curr_dir_name)`: If the directory does not exist, this line creates the directory specified by `curr_dir_name` using the `dir.create` function.
+# 
+# 4. **Return Statement:**
+#    - The function does not have a specific return value. It either creates the directory if it does not exist or takes no action if the directory already exists.
+# 
+
+ create_dir_if_not  <-  function (curr_dir_name) 
+{
+    if (!dir.exists(curr_dir_name)) {
+        dir.create(curr_dir_name)
+    }
+}
+# >>>>
+
+# <<<<
+
+# Explanations for the following code:
+
+# Creates a list of paths to the current project code, input, and output directories. By default uses Anna's computer setup. It also creates input and output directories if they do not exist.
+#  
+#  
+
+ current_project_paths  <-  function (current_project_name = NULL) 
+{
+    my_paths <- set_work_dir()
+    if (is.null(current_project_name)) {
+        current_project_dir_name <- tryCatch(this.path::this.dir(), 
+            finally = "")
+        current_project_name <- basename(current_project_dir_name)
+    }
+    else {
+        current_project_dir_name <- file.path(my_paths$git_r, 
+            current_project_name)
+    }
+    curr_proj_input_path <- file.path(my_paths$inputs, current_project_name)
+    create_dir_if_not(curr_proj_input_path)
+    curr_proj_output_path <- file.path(my_paths$outputs, current_project_name)
+    create_dir_if_not(curr_proj_output_path)
+    current_proj_paths <- list(project_name = current_project_name, 
+        code = current_project_dir_name, input = curr_proj_input_path, 
+        output = curr_proj_output_path)
+    return(current_proj_paths)
+}
+# >>>>
+
+# <<<<
+
+# Explanations for the following code:
+
+# Pretty message print in the console.
+# 
+# Provides a way to print messages with enhanced visual formatting, making them stand out for better readability or emphasis.
+#  
+#  
+# The `function_message_print` function is a utility function for printing messages with a cyan background color.
+# 
+# 1. **Function Definition:**
+#    - `function_message_print <-function (text_msg) { .. }`: Defines a function named `function_message_print` that takes one argument, `text_msg`, representing the message to be printed.
+# 
+# 2. **Printing Message with Cyan Background:**
+#    - `crayon::bgCyan$bold(text_msg)`: Formats the `text_msg` with a cyan background color and bold font using the `crayon` package. This creates a visually distinct message when printed.
+#    - `cat(..., sep = "n")`: Prints the formatted message to the console. `cat` is a function used for printing, and `sep = "n"` specifies that each message should be printed on a new line.
+# 
+
+ function_message_print  <-  function (text_msg) 
+{
+    cat(crayon::bgCyan$bold(text_msg), sep = "\n")
+}
+# >>>>
+
+# <<<<
+
+# Explanations for the following code:
+
+# This function sets the working directory to the user's home directory, defines directory paths for inputs, outputs, and GitHub R code, changes the working directory to the main R directory, and returns these paths as a list.
+# 
+# It assumes a specific directory structure, where data are separated from the code, so the latter can be stored on GitHub.
+# 
+#  
+#  
+# 1. **Function Definition:**
+# 
+#    - `set_work_dir <- function ()`: Defines a function named `set_work_dir` that takes no arguments.
+# 
+# 2. **Setting Working Directory:**
+# 
+#    - `setwd("~/")`: Sets the working directory to the user's home directory.
+# 
+#    - `base_dir <- getwd()`: Retrieves the current working directory and assigns it to the variable `base_dir`.
+# 
+# 3. **Defining Directory Paths:**
+# 
+#    - `main_r_dir <- "R_files_local"`: Specifies the directory name for local R files.
+# 
+#    - `in_dir <- "my_inputs"`: Specifies the directory name for input files.
+# 
+#    - `full_path_to_in_dir <- file.path(base_dir, main_r_dir, in_dir)`: Combines the base directory, main R directory, and input directory to create the full path to the input directory.
+# 
+#    - `out_dir <- "my_outputs"`: Specifies the directory name for output files.
+# 
+#    - `full_path_to_out_dir <- file.path(base_dir, main_r_dir, out_dir)`: Combines the base directory, main R directory, and output directory to create the full path to the output directory.
+# 
+#    - `git_r_dir <- "R_code_github"`: Specifies the directory name for the GitHub repository containing R code.
+# 
+#    - `full_path_to_r_git_dir <- file.path(base_dir, git_r_dir)`: Combines the base directory and GitHub R directory to create the full path to the GitHub R directory.
+# 
+# 4. **Creating Paths List:**
+# 
+#    - `my_paths <- list(...)`: Creates a list named `my_paths` containing the paths to the input directory, output directory, and GitHub R directory.
+# 
+# 5. **Returning Paths List:**
+# 
+#    - `return(my_paths)`: Returns the `my_paths` list containing the paths to the input directory, output directory, and GitHub R directory.
+# 
+# 
+
+ set_work_dir  <-  function () 
+{
+    setwd("~/")
+    base_dir <- getwd()
+    main_r_dir <- "R_files_local"
+    in_dir <- "my_inputs"
+    full_path_to_in_dir <- file.path(base_dir, main_r_dir, in_dir)
+    out_dir <- "my_outputs"
+    full_path_to_out_dir <- file.path(base_dir, main_r_dir, out_dir)
+    git_r_dir <- "R_code_github"
+    full_path_to_r_git_dir <- file.path(base_dir, git_r_dir)
+    setwd(file.path(base_dir, main_r_dir))
+    my_paths <- list(inputs = full_path_to_in_dir, outputs = full_path_to_out_dir, 
+        git_r = full_path_to_r_git_dir)
+    return(my_paths)
+}
+# >>>>
+
+#
+# Different methods are used based on the user to accommodate different directory structure.
+# 
+# This allows the script to run correctly on multiple systems without manual path changes.
+# 
+# In the code in this section all user provided values have the word "manually" in the description. Everything else is created automatically.
+#
+# Manually: Change the following 2 lists (**my_paths** and **current_in_out_paths**) to your environment if needed. The variable _names_ are used throughout the code, so please change only the quoted _values_ inside the lists.
+# 
+
+# Check if the current username is not "anna.shipunova"
+# Use function get_username defined above.
+if (!get_username() == "anna.shipunova") {
+# Use function function_message_print defined above.
+  function_message_print(
+    "Please CHANGE the following 2 lists values to your environment if needed. Use full path to your directories in quotes."
+  )
+  
+  # 1) General directories (to look up additional files, e.g. processed data). It can be left as is if you don't have it. You can provide path to individual files later.
+  my_paths <- list(inputs  = "~/my_inputs",
+                   outputs = "~/my_outputs",
+                   git_r   = "~/R_code")
+  
+  # 2) Current project code, input and output directories
+  current_in_out_paths <-
+    list(
+      project_name = "home_port",
+      code = "~/home_port/code",
+      input = "~/home_port/input",
+      output = "~/home_port/output"
+    )
+  
+} else {
+  # If the username is "anna.shipunova", use Anna's directory structure.
+# Use function set_work_dir defined above.
+  my_paths <- set_work_dir()
+# Use function current_project_paths defined above.
+  current_in_out_paths <- current_project_paths()
+}
+
+# The following section uses provided directory names lists to automatically create separate variables for future use and create current input/output directories if they do not exists.
+# 
+# 
+# Create variables to store shortcuts to project directories
+# 
+# This is usually the current directory name.
+current_project_name <- current_in_out_paths$project_name
+
+current_project_path <- current_in_out_paths$code
+            
+current_project_input_path <- current_in_out_paths$input
+
+current_project_output_path <- current_in_out_paths$output
+
+# Create input and output directories if they don't exist
+# Use function create_dir_if_not defined above.
+create_dir_if_not(current_project_input_path)
+
+# Use function create_dir_if_not defined above.
+create_dir_if_not(current_project_output_path)
+```
+
+#### Additional individual paths to data files 
+
+```{r Additional individual paths to data files}
+### Additional individual paths to data files ----
+# This section sets up paths for specific data files used in the project
+```
+
+##### Vessels from PIMS 
+
+```{r Vessels from PIMS}
+#### Vessels from PIMS ----
+vessel_names_file_path <-
+  file.path(my_paths$inputs,
+            r"(from_PIMS\Vessels - 2024-07-30_1139.xlsx)")
+
+file.exists(vessel_names_file_path)
+```
+
+##### Permits from PIMS 
+
+```{r Permits from PIMS}
+#### Permits from PIMS ----
+permits_names_file_path <-
+  file.path(my_paths$inputs,
+            r"(from_PIMS\Permits - 2024-07-30_1139.xlsx)")
+
+file.exists(permits_names_file_path)
+```
+
+# Prepare data
+
+
+```{r}
+# This is used only with source()
+get_data_path <- 
+  file.path(current_project_path, paste0(current_project_name, "_get_data.R"))
+
+file.exists(get_data_path)
+
+# lubridate::today()
+```
+
+## Get data 
+
+```{r Get data}
+# Get data ----
+```
+
+
+Load the needed files. First download them from PIMS into paths defined in the Set Up Paths section above.
+
+1) "Permits - 2024-02-28_0930.xlsx"
+
+Menu: permits
+
+Filter:
+
+Fishery = RCG - Gulf Charter/headboat For Reef Fish, CHG - Gulf Charter/headboat For Coastal Migratory Pelagic Fish, SC - South Atlantic Charter/headboat For Snapper-grouper, CHS - Atlantic Charter/headboat For Coastal Migratory Pelagics, HCHG - Historical Captain Gulf Charter/headboat For Coastal Migratory Pelagic Fish, HRCG - Historical Captain Gulf Charter/headboat For Reef Fish, CDW - Atlantic Charter/headboat For Dolphin/wahoo
+
+download
+
+2) same for vessels
+
+Example: "Vessels - 2024-02-28_0930.xlsx"
+
+### Load vessels from PIMS 
+
+```{r Load vessels from PIMS}
+## Load vessels from PIMS ----
+```
+
+```{r}
+# <<<<
+
+# Explanations for the following code:
+
+# Use this aux function in case we want to change the case in all functions.
+# 
+# Used in other functions.
+#  
+#  
+
+ my_headers_case_function  <-  function (x) 
+{
+    if (!is.character(x)) 
+        x <- as.character(x)
+    tolower(x)
+}
+# >>>>
+
+# <<<<
+
+# Explanations for the following code:
+
+# Cleans column names of uploaded files.
+# 
+# Provides a comprehensive approach to cleaning and standardizing column names within a dataframe, making them more consistent and suitable for further analysis or processing.
+#  
+#  
+# 
+# The `fix_names` function is designed to clean and standardize column names within a dataframe.
+# 
+# 1. **Function Definition:**
+# 
+#    - `fix_names <- function (x) { .. }`: Defines a function named `fix_names` that takes one argument, `x`, which represents the input dataframe.
+# 
+# 2. **Cleaning Column Names:**
+# 
+#    - `x %>% str_replace_all("\\.", "")`: Removes all occurrences of periods (`.`) from the column names using `str_replace_all` from the `stringr` package.
+# 
+#    - `str_replace_all("[^A-z0-9]", "_")`: Replaces all non-alphanumeric characters (excluding underscores) with underscores (`_`). This step ensures that the column names only contain letters, numbers, and underscores.
+# 
+#    - `str_replace_all("^(_*)(.+)", "\2\1")`: Ensures that column names do not start with multiple underscores. It captures the leading underscores (if any) and the rest of the column name using regular expressions, then rearranges them to place the underscores at the end of the column name.
+# 
+#    - `my_headers_case_function()`: Applies a custom function `my_headers_case_function` to further standardize the case of the column names. This function is defined in auxfunctions and is responsible for ensuring consistent capitalization of column names.
+# 
+# 3. **Return Statement:**
+# 
+#    - The function returns the modified dataframe with cleaned and standardized column names.
+# 
+# 
+
+ fix_names  <-  function (x) 
+{
+    my_headers_case_function(stringr::str_replace_all(stringr::str_replace_all(stringr::str_replace_all(x, 
+        "\\.", ""), "[^A-z0-9]", "_"), "^(_*)(.+)", "\\2\\1"))
+}
+# >>>>
+
+# <<<<
+
+# Explanations for the following code:
+
+# The clean_headers function cleans and standardizes the column names of a given dataframe (my_df)
+# 
+# using the fix_names() function, which removes special characters and spaces, and unifies the case.
+# 
+#  
+#  
+
+ clean_headers  <-  function (my_df) 
+{
+    new_names <- fix_names(colnames(my_df))
+    colnames(my_df) <- new_names
+    return(my_df)
+}
+# >>>>
+```
+
+```{r Load vessels from PIMS}
+# <<<<
+
+# Explanations for the following code:
+
+# This function reads data from an Excel file, optionally starting from a specified row, and applies header cleaning to ensure consistent formatting of column names.
+#  
+#  
+# 1. **Function Definition:**
+#    - `my_read_xlsx <- function(file_path, sheet_n, start_row = 1) { ... }`: Defines a function named `my_read_xlsx` with three arguments: `file_path` (the path to the Excel file), `sheet_n` (the index of the sheet to read), and `start_row` (the starting row from which to read data, with a default value of 1).
+# 
+# 2. **Reading Excel File:**
+#    - `read.xlsx(file_path, sheet_n, startRow = start_row, detectDates = TRUE, colNames = TRUE, sep.names = "_")`: Uses the `read.xlsx` function from the `openxlsx` package to read data from the specified Excel file.
+#      - `file_path`: The path to the Excel file to be read.
+#      - `sheet_n`: The index of the sheet to read from.
+#      - `startRow`: The row number from which to start reading data.
+#      - `detectDates`: A logical value indicating whether to automatically detect and convert date-like columns to date format.
+#      - `colNames`: A logical value indicating whether the first row of the Excel sheet contains column names.
+#      - `sep.names`: A character used to separate column names with multiple parts (e.g., spaces or underscores).
+# 
+# 3. **Cleaning Headers:**
+#    - `clean_headers(...)`: Applies the `clean_headers` function to the data frame read from the Excel file. This function performs tasks such as removing leading/trailing spaces, converting column names to lowercase, and replacing spaces with underscores.
+# 
+# 4. **Return Result:**
+#    - `return(res_df)`: Returns the cleaned data frame obtained from reading the Excel file. This data frame contains the data read from the specified Excel sheet, with any necessary header cleaning applied.
+# 
+# 
+
+ my_read_xlsx  <-  function (file_path, sheet_n, start_row = 1) 
+{
+    res_df <- clean_headers(openxlsx::read.xlsx(file_path, 
+        sheet_n, startRow = start_row, detectDates = TRUE, colNames = TRUE, 
+        sep.names = "_"))
+    return(res_df)
+}
+# >>>>
+
+# <<<<
+
+# Explanations for the following code:
+
+# This function prints the comma separated column names of a dataframe, with an option to limit the number of names displayed. It's useful for quickly inspecting the structure of a dataframe, especially when dealing with datasets with a large number of columns.
+#  
+#  
+# 1. **Function Definition:**
+#    - `print_df_names <- function (my_df, names_num = 100) { ... }`: Defines a function named `print_df_names` with two arguments: `my_df` (the dataframe whose column names will be printed) and `names_num` (the maximum number of names to display, defaulted to 100).
+# 
+# 2. **Extracting Column Names:**
+#    - `names(my_df)`: Retrieves the column names of the input dataframe `my_df`.
+# 
+# 3. **Selecting Subset of Names:**
+#    - `%>% head(names_num)`: Uses the pipe operator (`%>%`) to pass the column names to the `head` function, which selects the first `names_num` names. This is useful when the dataframe has a large number of columns, and we want to limit the display to a manageable number.
+# 
+# 4. **Formatting as a String:**
+#    - `%>% paste0(collapse = ", ")`: Concatenates the selected column names into a single string, separated by commas. This creates a more readable output.
+# 
+# 5. **Returning the Result:**
+#    - `%>% return()`: Returns the concatenated string of column names as the output of the function.
+# 
+
+ print_df_names  <-  function (my_df, names_num = 100) 
+{
+    names(my_df) %>% head(names_num) %>% paste0(collapse = ", ") %>% 
+        return()
+}
+# >>>>
+```
+
+Explanations:
+
+- `vessels_from_pims <-` assigns the result of the function call to the variable `vessels_from_pims`.
+
+- `my_read_xlsx(vessel_names_file_path, start_row = 4)` calls the `my_read_xlsx` function from the `auxfunctions` package:
+
+  - `vessel_names_file_path` is the file path to the Excel file containing vessel names.
+
+  - `start_row = 4` specifies that the function should start reading the data from the 4th row of the Excel file.
+
+This line of code reads data from the specified Excel file starting at the 4th row, using a custom function `my_read_xlsx` from the `auxfunctions` package, and stores the resulting data frame in the variable `vessels_from_pims`.
+
+
+```{r}
+vessels_from_pims <-
+# Use function my_read_xlsx defined above.
+  my_read_xlsx(vessel_names_file_path, 
+                             start_row = 4)
+
+# check
+# print_df_names(vessels_from_pims)
+
+# glimpse(vessels_from_pims)
+
+dim(vessels_from_pims)
+# [1] 23107     8
+
+# TODO: get vessel (home port) info from PIMS with 2 names
+# "~\R_files_local\my_inputs\non_compliant_areas\vessels_permit_hailng_port_double_name.xlsx"
+
+# vessel_data_pims_double_address <-
+#     file.path(my_paths$inputs,
+#               r"(non_compliant_areas\vessels_permit_hailng_port_double_name.xlsx)")
+
+# vessels_from_pims_double <- 
+#   get_vessel_data_pims(vessel_data_pims_double_address,
+#                        to_skip = 0)
+
+# dim(vessels_from_pims_double)
+# [1] 652   3
+
+# names(vessels_from_pims_double)
+# [1] "vessel_official_number1" "vessel_official_number2" "hailing_port"         
+```
+
+### Load permits from PIMS 
+
+```{r Load permits from PIMS}
+## Load permits from PIMS ----
+```
+
+This line of code reads data from the specified Excel file starting at the 5th row, using a custom function `my_read_xlsx` from the `auxfunctions` package, and stores the resulting data frame in the variable `permits_from_pims`.
+
+```{r}
+permits_from_pims <-
+# Use function my_read_xlsx defined above.
+  my_read_xlsx(permits_names_file_path, 
+                             start_row = 5)
+```
+
+## Clean data 
+
+```{r Clean data}
+# Clean data ----
+# <<<<
+
+# Explanations for the following code:
+
+# This function provides a flexible way to search for column names within a dataframe based on specified starting and ending patterns. It is useful for identifying columns that match a particular naming convention or pattern. 
+#  
+# The function is designed to search for column names within a dataframe that contain a specific pattern defined by `start_part` and `end_part`.
+# 
+# 1. **Function Definition:**
+#    -`function (mydf, start_part, end_part) { .. }`: Defines a function with three arguments: `mydf` (the dataframe to search), `start_part` (the starting pattern of the column names to search for), and `end_part` (the ending pattern of the column names to search for).
+# 
+# 2. **Constructing Regular Expression:**
+#    - `to_search <- paste0(start_part, ".*", end_part)`: Constructs a regular expression pattern by concatenating `start_part`, ".*" (which matches any characters zero or more times), and `end_part`. This pattern will be used to search for matching column names.
+# 
+# 3. **Searching for Matching Column Names:**
+#    - `matching_names <- grep(to_search, tolower(names(mydf)), value = TRUE)`: Searches for column names in the dataframe `mydf` that match the regular expression pattern `to_search`. The `tolower` function is used to convert the column names to lowercase for case-insensitive matching. The `grep` function returns the matching column names as a vector.
+# 
+# 4. **Return Statement:**
+#    - `return(matching_names)`: Returns the vector of matching column names found in the dataframe that satisfy the specified pattern.
+# 
+
+ find_col_name  <-  function (mydf, start_part, end_part) 
+{
+    to_search <- paste0(start_part, ".*", end_part)
+    matching_names <- grep(to_search, tolower(names(mydf)), value = TRUE)
+    return(matching_names)
+}
+# >>>>
+```
+
+
+Explanations:
+
+- `vessel_or_dealer_col_name <-` assigns the result of the pipeline to the variable `vessel_or_dealer_col_name`.
+
+- `find_col_name(permits_from_pims, "vessel", "dealer")` calls the `find_col_name` function from the `auxfunctions` package:
+
+  - `permits_from_pims` is the data frame being passed as an argument.
+
+  - `"vessel"` and `"dealer"` are the strings passed as arguments to the function, likely used to search for column names containing these substrings.
+
+- `|>` is the pipe operator, used to pass the result of the function call on the left to the function on the right.
+
+- `rlang::sym()` converts the string result from `find_col_name` into a symbol. The `sym` function from the `rlang` package is used to treat the resulting column name as a symbol, which can be used programmatically in tidyverse functions.
+
+This line of code searches for a column name in the `permits_from_pims` data frame that contains either "vessel" or "dealer", converts this column name into a symbol, and assigns it to the variable `vessel_or_dealer_col_name`.
+
+
+```{r}
+vessel_or_dealer_col_name <- 
+# Use function find_col_name defined above.
+  find_col_name(permits_from_pims, "vessel", "dealer") |> 
+  rlang::sym()
+
+# print_df_names(permits_from_pims)
+```
+
+### Permits, split vessel_or_dealer 
+
+```{r Permits split vessel_or_dealer}
+## Permits, split vessel_or_dealer ----
+```
+
+
+Explanations:
+
+- `permits_from_pims__split1 <-` assigns the result of the pipeline to the variable `permits_from_pims__split1`.
+
+- `permits_from_pims |>` starts the pipeline with the data frame `permits_from_pims`.
+
+- `tidyr::separate(!!vessel_or_dealer_col_name, c('vessel_official_number', 'dealer'), sep = " / ")` separates the `vessel_or_dealer_col_name` column into two new columns:
+
+  - `!!vessel_or_dealer_col_name` uses the `rlang` bang-bang operator to evaluate the symbol stored in `vessel_or_dealer_col_name`.
+
+  - `c('vessel_official_number', 'dealer')` specifies the names of the new columns created by splitting the original column.
+
+  - `sep = " / "` specifies that the column should be split at occurrences of " / ".
+
+- `dplyr::mutate(dplyr::across(c('vessel_official_number', 'dealer'), stringr::str_squish))` applies the `str_squish` function to the new columns:
+
+  - `dplyr::mutate()` creates new columns or modifies existing ones.
+
+  - `dplyr::across(c('vessel_official_number', 'dealer'), stringr::str_squish)` applies the `str_squish` function from the `stringr` package across the specified columns. `str_squish` trims leading and trailing whitespace and reduces internal multiple spaces to a single space.
+
+This code processes the `permits_from_pims` data frame by splitting a column (determined by `vessel_or_dealer_col_name`) into two new columns (`vessel_official_number` and `dealer`), then squishes the whitespace in these new columns. The resulting data frame is stored in `permits_from_pims__split1`.
+
+
+```{r}
+permits_from_pims__split1 <-
+  permits_from_pims |>
+  tidyr::separate(!!vessel_or_dealer_col_name,
+           c('vessel_official_number', 'dealer'),
+           sep = " / ") |>
+  dplyr::mutate(dplyr::across(c('vessel_official_number', 'dealer'),
+                stringr::str_squish))
+
+glimpse(permits_from_pims__split1)
+# Expected 2 pieces. Missing pieces filled with `NA` in 3038 rows [229, 244, 294,
+```
+
+### Permits, clean and shorten 
+
+```{r Permits clean and shorten}
+## Permits, clean and shorten ----
+```
+
+#### An auxiliary function 
+
+```{r An auxiliary function}
+### An auxiliary function ----
+```
+
+Explanations:
+
+- `convert_to_dates <- function(my_df, ymd_format = c("Ymd", "mdY"))` defines the function `convert_to_dates` with two parameters:
+
+  - `my_df`: the input data frame.
+
+  - `ymd_format = c("Ymd", "mdY")`: a vector specifying the date formats to be used for parsing.
+
+- `browser()` is a debugging line that can be uncommented to debug the function interactively. It pauses execution and allows inspection of the environment.
+
+- `my_df_w_dates <-` assigns the result of the following pipeline to the variable `my_df_w_dates`.
+
+  - `my_df |>` starts a pipeline with the data frame `my_df`.
+
+  - `dplyr::mutate(dplyr::across(...))` applies transformations across multiple columns.
+
+    - `tidyselect::where(is.character) & (tidyselect::ends_with("date"))` selects columns that are of character type and whose names end with "date".
+
+    - `~ lubridate::parse_date_time(.x, orders = ymd_format)` is a lambda function that parses the selected columns into Date format using the specified `ymd_format` orders. The `parse_date_time` function from the `lubridate` package is used to handle multiple date formats.
+
+- `return(my_df_w_dates)` returns the modified data frame `my_df_w_dates` with the specified columns converted to Date format.
+
+This function processes the input data frame `my_df`, converting all character columns that end with "date" to Date format using the specified date formats. The resulting data frame is returned.
+
+
+```{r}
+convert_to_dates <-
+  function(my_df, ymd_format = c("Ymd", "mdY")) {
+    # browser()
+    my_df_w_dates <-
+      my_df |>
+      dplyr::mutate(dplyr::across(
+        tidyselect::where(is.character) &
+          (tidyselect::ends_with("date")),
+        ~ lubridate::parse_date_time(.x, orders = ymd_format)
+      ))
+    return(my_df_w_dates)
+  }
+```
+
+Explanations:
+
+- `permits_from_pims__split1_short <-` assigns the final result of the pipeline to the variable `permits_from_pims__split1_short`.
+
+- `permits_from_pims__split1 |>` starts the pipeline with the data frame `permits_from_pims__split1`, allowing subsequent transformations.
+
+- `convert_to_dates()` is a user-defined function (or could be from a package) that converts certain columns in the data frame to Date format. This function is applied to the data frame to ensure that date columns are correctly formatted.
+
+- `dplyr::filter(dplyr::if_any(tidyselect::ends_with("date"), ~ . > program_start_date))` filters rows based on a condition:
+
+  - `dplyr::filter()` is a function from the `dplyr` package used to filter rows of the data frame based on a given condition.
+
+  - `dplyr::if_any(tidyselect::ends_with("date"), ~ . > program_start_date)` checks if any columns that end with "date" have values greater than `program_start_date`.
+
+    - `dplyr::if_any()` is used to apply the filtering condition across multiple columns.
+
+    - `tidyselect::ends_with("date")` selects all columns whose names end with "date".
+
+    - `~ . > program_start_date` is a lambda function where `.` represents each element in the selected columns, and the condition checks if these elements are greater than `program_start_date`.
+
+This code processes the `permits_from_pims__split1` data frame by converting relevant columns to Date format and then filtering the rows to include only those where any date column has a value greater than `program_start_date`. The resulting data frame is stored in `permits_from_pims__split1_short`.
+
+
+```{r}
+permits_from_pims__split1_short <-
+  permits_from_pims__split1 |>
+  convert_to_dates() |> 
+  dplyr::filter(dplyr::if_any(tidyselect::ends_with("date"), 
+                ~ . > program_start_date))
+
+dim(permits_from_pims)
+# [1] 53365    11
+
+dim(permits_from_pims__split1_short)
+# [1] 31180    12
+```
+
+### Permits, split permit number 
+
+```{r Permits split permit number}
+## Permits, split permit number ----
+```
+
+
+Explanations:
+
+- `permits_from_pims__split1_short__split2 <-` assigns the result of the pipeline to the variable `permits_from_pims__split1_short__split2`.
+
+- `permits_from_pims__split1_short |>` starts the pipeline with the data frame `permits_from_pims__split1_short`.
+
+- `tidyr::separate(permit__, c('permit', 'permit_number'), sep = "-")` separates the `permit__` column into two new columns:
+
+  - `permit__` specifies the column to be split.
+
+  - `c('permit', 'permit_number')` specifies the names of the new columns created by splitting the original column.
+
+  - `sep = "-"` specifies that the column should be split at occurrences of the hyphen character ("-").
+
+- `dplyr::mutate(dplyr::across(tidyselect::starts_with('permit'), stringr::str_squish))` applies the `str_squish` function to columns starting with 'permit':
+
+  - `dplyr::mutate()` creates new columns or modifies existing ones.
+
+  - `dplyr::across(tidyselect::starts_with('permit'), stringr::str_squish)` applies the `str_squish` function from the `stringr` package across the columns whose names start with 'permit'. `str_squish` trims leading and trailing whitespace and reduces internal multiple spaces to a single space.
+
+This code processes the `permits_from_pims__split1_short` data frame by splitting the `permit__` column into two new columns (`permit` and `permit_number`), then squishing the whitespace in these new columns. The resulting data frame is stored in `permits_from_pims__split1_short__split2`.
+
+
+```{r}
+permits_from_pims__split1_short__split2 <- 
+  permits_from_pims__split1_short |> 
+  tidyr::separate(permit__,
+           c('permit', 'permit_number'),
+           sep = "-") |>
+  dplyr::mutate(dplyr::across(tidyselect::starts_with('permit'),
+                stringr::str_squish))
+
+glimpse(permits_from_pims__split1_short__split2)
+```
+
+### Vessels, clean and shorten  
+
+```{r Vessels clean and shorten}
+## Vessels, clean and shorten  ----
+```
+
+
+Explanations:
+
+- `hailing_port_col_name <-` assigns the result of the pipeline to the variable `hailing_port_col_name`.
+
+- `find_col_name(vessels_from_pims, "hailing", "port")` calls the `find_col_name` function from the `auxfunctions` package:
+
+  - `vessels_from_pims` is the data frame being passed as an argument.
+
+  - `"hailing"` and `"port"` are the strings passed as arguments to the function, used to search for column names containing these substrings.
+
+- `|>` is the pipe operator, used to pass the result of the function call on the left to the function on the right.
+
+- `rlang::sym()` converts the string result from `find_col_name` into a symbol. The `sym` function from the `rlang` package is used to treat the resulting column name as a symbol, which can be used programmatically in tidyverse functions.
+
+This line of code searches for a column name in the `vessels_from_pims` data frame that contains either "hailing" or "port", converts this column name into a symbol, and assigns it to the variable `hailing_port_col_name`.
+
+
+```{r}
+hailing_port_col_name <- 
+# Use function find_col_name defined above.
+  find_col_name(vessels_from_pims, "hailing", "port") |>
+  rlang::sym()
+```
+
+
+Explanations:
+
+- `vessels_from_pims_short <-` assigns the result of the pipeline to the variable `vessels_from_pims_short`.
+
+- `vessels_from_pims |>` starts the pipeline with the data frame `vessels_from_pims`.
+
+- `dplyr::rename("vessel_official_number" = official__)` renames the column `official__` to `vessel_official_number`:
+
+  - `dplyr::rename()` is used to change column names in a data frame.
+
+  - `"vessel_official_number" = official__` specifies the new name for the column `official__`.
+
+- `select(vessel_official_number, !!hailing_port_col_name)` selects the `vessel_official_number` and the column referenced by `hailing_port_col_name`:
+
+  - `select()` is used to choose specific columns from a data frame.
+
+  - `vessel_official_number` specifies the first column to select.
+
+  - `!!hailing_port_col_name` uses the `rlang` bang-bang operator to evaluate the symbol stored in `hailing_port_col_name` to select the corresponding column.
+
+- `distinct()` removes duplicate rows from the resulting data frame:
+
+  - `distinct()` is used to retain only unique rows in a data frame.
+
+This code processes the `vessels_from_pims` data frame by renaming the `official__` column to `vessel_official_number`, selecting the `vessel_official_number` and the column identified by `hailing_port_col_name`, and removing duplicate rows. The resulting data frame is stored in `vessels_from_pims_short`.
+
+
+```{r}
+vessels_from_pims_short <-
+  vessels_from_pims |>
+  dplyr::rename("vessel_official_number" = official__) |>
+  select(vessel_official_number,
+         !!hailing_port_col_name) |>
+  distinct()
+
+# print_df_names(vessels_from_pims)
+
+dim(vessels_from_pims_short)
+# [1] 22887     2
+```
+
+### Vessels, remove "NOVESID" 
+
+```{r Vessels remove NOVESID}
+## Vessels, remove "NOVESID" ----
+# From Kevin McIntosh:
+# 'All NOVESID vessels will not have any home port information since they are "virtual" vessels used as a placeholder for HMS permits and not actual physical vessels'
+
+vessels_from_pims_short_ok <-
+  vessels_from_pims_short |>
+  dplyr::filter(!grepl("^NOVESID", vessel_official_number))
+
+dim(vessels_from_pims_short_ok)
+# [1] 22510     2
+
+# View(vessels_from_pims_short_ok)
+```
+
+### Vessels, split double names 
+
+```{r Vessels split double names}
+## Vessels, split double names ----
+```
+
+
+Explanations:
+
+- `vessels_from_pims_short_ok__split1 <-` assigns the result of the pipeline to the variable `vessels_from_pims_short_ok__split1`.
+
+- `vessels_from_pims_short_ok |>` starts the pipeline with the data frame `vessels_from_pims_short_ok`.
+
+- `tidyr::separate(vessel_official_number, c('vessel_official_number', 'vessel_official_number2'), sep = " / ")` separates the `vessel_official_number` column into two new columns:
+
+  - `vessel_official_number` specifies the column to be split.
+
+  - `c('vessel_official_number', 'vessel_official_number2')` specifies the names of the new columns created by splitting the original column.
+
+  - `sep = " / "` specifies that the column should be split at occurrences of " / ".
+
+- `dplyr::mutate(dplyr::across(tidyselect::starts_with('vessel_official_number'), stringr::str_squish))` applies the `str_squish` function to columns starting with 'vessel_official_number':
+
+  - `dplyr::mutate()` creates new columns or modifies existing ones.
+
+  - `dplyr::across(tidyselect::starts_with('vessel_official_number'), stringr::str_squish)` applies the `str_squish` function from the `stringr` package across the columns whose names start with 'vessel_official_number'. `str_squish` trims leading and trailing whitespace and reduces internal multiple spaces to a single space.
+
+This code processes the `vessels_from_pims_short_ok` data frame by splitting the `vessel_official_number` column into two new columns (`vessel_official_number` and `vessel_official_number2`), then squishing the whitespace in these columns. The resulting data frame is stored in `vessels_from_pims_short_ok__split1`.
+
+
+```{r}
+vessels_from_pims_short_ok__split1 <-
+  vessels_from_pims_short_ok |>
+  tidyr::separate(vessel_official_number,
+           c('vessel_official_number', 'vessel_official_number2'),
+           sep = " / ") |>
+  dplyr::mutate(dplyr::across(tidyselect::starts_with('vessel_official_number'),
+                stringr::str_squish))
+
+# Expected 2 pieces. Missing pieces filled with `NA` in 21895 rows [1, 2, 3, 4, 5,
+
+# View(vessels_from_pims_short_ok__split1)
+```
+
+### Vessels, make one column of double names 
+
+```{r Vessels make one column of double names}
+## Vessels, make one column of double names ----
+```
+
+#### split into 2 dataframes and rename the id column 
+
+```{r split into 2 dataframes and rename the id column}
+### split into 2 dataframes and rename the id column ----
+
+# [1] "vessel_official_number, vessel_official_number2, hailing_port"
+
+# remove vessel_official_number2
+vessels_from_pims_double_1 <-
+  vessels_from_pims_short_ok__split1 |> 
+  dplyr::select(-vessel_official_number2)
+
+# keep only one vessel_official_number column, from vessel_official_number2
+vessels_from_pims_double_2 <-
+  vessels_from_pims_short_ok__split1 |> 
+  dplyr::select(-vessel_official_number) |>
+  dplyr::rename("vessel_official_number" = vessel_official_number2)
+```
+
+#### combine in one df 
+
+```{r combine in one df}
+### combine in one df ----
+vessels_from_pims_double_bind <-
+  rbind(
+    vessels_from_pims_double_1,
+    vessels_from_pims_double_2
+  ) |> 
+  dplyr::distinct() |> 
+  dplyr::filter(!is.na(vessel_official_number))
+
+# added vessel ids from doubles
+nrow(vessels_from_pims_double_bind) - nrow(vessels_from_pims_short_ok__split1)
+# 570
+```
+
+### Vessels, clean home port punctuation 
+
+```{r Vessels clean home port punctuation}
+## Vessels, clean home port punctuation ----
+```
+
+
+Explanations:
+
+- `vessels_from_pims_ok <-` assigns the result of the pipeline to the variable `vessels_from_pims_ok`.
+
+- `vessels_from_pims_double_bind |>` starts the pipeline with the data frame `vessels_from_pims_double_bind`.
+
+- `dplyr::mutate(hailing_port = stringr::str_replace(!!hailing_port_col_name, ",", ", "))` replaces commas (",") with commas followed by a space (", ") in the `hailing_port` column:
+
+  - `dplyr::mutate()` creates new columns or modifies existing ones.
+
+  - `stringr::str_replace(!!hailing_port_col_name, ",", ", ")` replaces commas in the column referenced by `hailing_port_col_name`.
+
+- `dplyr::mutate(hailing_port = stringr::str_replace(!!hailing_port_col_name, " ,", ","))` removes spaces before commas in the `hailing_port` column:
+
+  - `stringr::str_replace(!!hailing_port_col_name, " ,", ",")` removes spaces that appear before commas in the column referenced by `hailing_port_col_name`.
+
+- `dplyr::mutate(hailing_port = stringr::str_squish(!!hailing_port_col_name))` removes extra spaces in the `hailing_port` column:
+
+  - `stringr::str_squish(!!hailing_port_col_name)` removes leading and trailing whitespace and collapses internal multiple spaces into a single space.
+
+- `distinct()` removes duplicate rows from the resulting data frame.
+
+This code processes the `vessels_from_pims_double_bind` data frame by cleaning the `hailing_port` column:
+
+- It adds a space after commas.
+
+- It removes spaces that appear before commas.
+
+- It squishes (removes extra spaces) from the `hailing_port` column.
+
+- Finally, it ensures that only unique rows remain in the data frame (`distinct()`). The resulting cleaned data frame is stored in `vessels_from_pims_ok`.
+
+
+```{r}
+vessels_from_pims_ok <-
+  vessels_from_pims_double_bind |>
+  dplyr::mutate(hailing_port =
+           stringr::str_replace(!!hailing_port_col_name,
+                       ",",
+                       ", ")) |>
+  dplyr::mutate(hailing_port =
+           stringr::str_replace(!!hailing_port_col_name,
+                       " ,",
+                       ",")) |>
+  dplyr::mutate(hailing_port =
+           stringr::str_squish(!!hailing_port_col_name)) |> 
+  distinct()
+
+dim(vessels_from_pims_ok)
+# [1] 23086     2
+```
+
+check if there is a letter after comma
+
+```{r}
+grep(",[a-zA-Z]",
+     vessels_from_pims_ok$hailing_port,
+     value = T)
+# 0 OK
+# [1] "PEMBROKE,PINES, FL"
+
+# check if there are more than one space
+grep("  +",
+     vessels_from_pims_ok$hailing_port,
+     value = T)
+# 0 OK
+```
+
+Result:
+
+vessels_from_pims_ok
+Result:
+
+vessels_from_pims_ok
+## Fix city and state 
+
+```{r Fix city and state}
+# Fix city and state ----
+```
+
+### See errors 
+
+```{r See errors}
+## See errors ----
+# View(vessels_from_pims_split_addr)
+```
+
+Numbers in hailing_port
+
+```{r}
+addresses_w_digit <- 
+  vessels_from_pims_ok |>
+  filter(grepl("\\d", hailing_port)) |> 
+  distinct()
+   # vessel_official_number hailing_port            
+#    <chr>                  <chr>                   
+#  1 574500                 HO0MASASSA, FL          
+#  2 1040384                2, AL                   
+#  3 NC6421AU               FIGURE 8 ISLAND, NC     
+#  4 FL3407ML               0,                      
+#  5 FL8939JR               00,                     
+#  6 925240                 0,                      
+#  7 FL5011MX               NAPLE4S, FL             
+#  8 SC8023DE               LITTLE RIVERNHV1N4WH, SC
+#  9 139403                 0,                      
+# 10 DO552832               0,                      
+# 11 1301930                22411 GENO LANE, AL     
+# 12 GA1769JL               117 HAWK LANDING LN, GA 
+```
+
+Extra commas in hailing_port
+
+```{r}
+vessels_from_pims_ok |>
+  filter(grepl(",.+,", hailing_port)) |> 
+  distinct()
+# 1                 945114            REDINGTON SHORES, FL, FL
+# 2                 919225                     CHAUVIN, LA, LA
+# 3               FL0702JJ              MATLACHA, BOKKELIA, FL
+# 4             8811432134                 PEMBROKE, PINES, FL
+# 5               FL7047TR JACKSONVILLE, FL, UNITED STATES, FL
+```
+
+### Find not acceptable characters in addresses 
+
+```{r Find not acceptable characters in addresses}
+## Find not acceptable characters in addresses ----
+
+wrong_chars <- "[^A-Za-z0-9 .=',]"
+vessels_from_pims_ok |> 
+  filter(grepl(wrong_chars, hailing_port)) |> 
+  select(hailing_port) |> 
+  distinct()
+```
+
+### Remove html 
+
+```{r Remove html}
+## Remove html ----
+vessels_from_pims_ok_no_html <-
+  vessels_from_pims_ok |>
+  mutate(hailing_port =
+           stringr::str_replace(hailing_port, 'xml:space=\"preserve\">', ""))
+```
+
+### Separate hailing_port into city and state 
+
+```{r Separate hailing_port into city and state}
+## Separate hailing_port into city and state ----
+```
+
+
+
+```{r}
+vessels_from_pims_split_addr <-
+  vessels_from_pims_ok_no_html |>
+  tidyr::separate_wider_delim(
+    hailing_port,
+    delim = ",",
+    names = c("city", "state"),
+    too_many = "merge",
+    too_few = "align_start"
+  ) |>
+  dplyr::mutate(dplyr::across(tidyselect::where(is.character), 
+                              stringr::str_squish))
+```
+
+### fix known home port typos 
+
+```{r fix known home port typos}
+## fix known home port typos ----
+```
+
+This list is created manually
+
+```{r}
+to_fix_list <- 
+  list(c("117 HAWK LANDING LN#GA",
+         "BRUNSWICK#GA"),
+       c("22411 GENO LANE#AL",
+         "GULF SHORES#AL"),
+       c("ALEXANDER CITY, AL#AL",
+         "ALEXANDER CITY#AL"),
+       c("BAYOU LABATRE#AL",
+         "BAYOU LA BATRE#AL"),
+       c("CAROLINA BEACH#UN",
+         "CAROLINA BEACH#NC"),
+       c("CHALESTON#SC",
+         "CHARLESTON#SC"),
+       c("CHAUVIN, LA#LA",
+         "CHAUVIN#LA"),
+       c("CHAUVIN#LA, LA",
+         "CHAUVIN#LA"),
+       c("FERNADINA BCH#FL",
+         "FERNANDINA BEACH#FL"),
+       c("FIGURE 8 ISLAND#NC",
+         "FIGURE EIGHT ISLAND#NC"),
+       c("FORT MORGAN MARINA#AL",
+         "FORT MORGAN#AL"),
+       c("JACKSONVILLE#FL, UNITED STATES, FL",
+         "JACKSONVILLE#FL"),
+       c("GALLINANO#LA",
+         "GALLIANO#LA"),
+       c("GEORGRTOWN#SC",
+         "GEORGETOWN#SC"),
+       c("GULFSHORES#AL",
+         "GULF SHORES#AL"),
+       c("HILISBORO INLET#FL",
+         "HILLSBORO INLET#FL"),
+       c("HO0MASASSA#FL",
+         "HOMOSASSA#FL"),
+       c("HOMOASSA#FL",
+         "HOMOSASSA#FL"),
+       c("HOUMA LA#LA",
+         "HOUMA#LA"),
+       c("INTERCOASTAL CITY#LA",
+         "INTRACOASTAL CITY#LA"),
+       c("ISLAMORADA#UN",
+         "ISLAMORADA#FL"),
+       c("KEYWEST#FL",
+         "KEY WEST#FL"),
+       c("LITTLE RIVERNHV1N4WH#SC",
+         "LITTLE RIVER#SC"),
+       c("LOXLEY AL#AL",
+         "LOXLEY#AL"),
+       c("MADIERA BEACH#FL",
+         "MADEIRA BEACH#FL"),
+       c("MATLACHA#BOKKELIA, FL",
+         "MATLACHA#FL"),
+       c("MAYPPORT#FL",
+         "MAYPORT#FL"),
+       c("MCLELLANVILLE#SC",
+         "MCCLELLANVILLE#SC"),
+       c("MURELLS INLET#SC",
+         "MURRELLS INLET#SC"),
+       c("MURRELS INLET#SC",
+         "MURRELLS INLET#SC"),
+       c("NAPLE4S#FL",
+         "NAPLES#FL"),
+       c("NEW SMYMA BEACH#FL",
+         "NEW SMYRNA BEACH#FL"),
+       c("NEW SYMRNA BEACH#FL",
+         "NEW SMYRNA BEACH#FL"),
+       c("OCEEAN CITY#MD",
+         "OCEAN CITY#MD"),
+       c("PEMBROKE#PINES, FL",
+         "PEMBROKE PINES#FL"),
+       c("POINT PLEASANT NJ#NJ",
+         "POINT PLEASANT#NJ"),
+       c("PORT AERANSAS#TX",
+         "PORT ARANSAS#TX"),
+       c("PORT CANVERAL#FL",
+         "PORT CANAVERAL#FL"),
+       c("PORT O CANNOR#TX",
+         "PORT O CONNOR#TX"),
+       c("PORT OCONNOR#TX",
+         "PORT O'CONNOR#TX"),
+       c("PORT ST.LUICE#FL",
+         "PORT ST LUCIE#FL"),
+       c("PUNTA GORGA#FL",
+         "PUNTA GORDA#FL"),
+       c("REDINGTON SHORES#FL, FL",
+         "REDINGTON SHORES#FL"),
+       c("RIVERIA BEACH#FL",
+         "RIVIERA BEACH#FL"),
+       c("S PADRE ISLE#TX",
+         "S. PADRE ISLAND#TX"),
+       c("SEBASTAIN#FL",
+         "SEBASTIAN#FL"),
+       c("ST AUGUSTIN#FL",
+         "ST AUGUSTINE#FL"),
+       c("ST PETERSBURG BEACH#FL",
+         "ST PETERSBURG#FL"),
+       c("STEINAHTCHEE#FL",
+         "STEINHATCHEE#FL"),
+       c("SUMMRLND KEY#FL",
+         "SUMMERLAND KEY#FL"),
+       c("SWANQUARTER#FL",
+         "SWAN QUARTER#NC"),
+       c("TAVENIER#FL",
+         "TAVERNIER#FL"),
+       c("WANCHEESE#NC",
+         "WANCHESE#NC"))
+
+# ---
+```
+
+Explanations:
+Creating a new column 'city_state' by concatenating trimmed 'city' and 'state' columns, separated by '#'.
+
+```{r}
+vessels_from_pims_split_addr__city_state <-
+  vessels_from_pims_split_addr |>
+  mutate(city_state =
+           paste(
+             trimws(city),
+             trimws(state),
+             sep = "#"
+           ))
+```
+
+#### check numbers in an address again with the "#" 
+
+```{r check numbers in an address again with the "#"}
+### check numbers in an address again with the "#" ----
+vessels_from_pims_split_addr__city_state |>
+  filter(grepl("\\d", city_state)) |> 
+  select(city_state) |> 
+  distinct()
+# 1 HO0MASASSA#FL          
+# 2 2#AL                   
+# 3 FIGURE 8 ISLAND#NC     
+# 4 0#                     
+# 5 00#                    
+# 6 NAPLE4S#FL             
+  # 7 LITTLE RIVERNHV1N4WH#SC (fixed)
+# 8 22411 GENO LANE#AL     
+# 9 117 HAWK LANDING LN#GA 
+```
+
+extra commas in city, state 
+
+```{r}
+vessels_from_pims_split_addr__city_state |>
+  filter(grepl(",", city_state)) |> 
+  select(city_state)
+# REDINGTON SHORES#FL, FL
+# CHAUVIN#LA, LA         
+# ALEXANDER CITY#AL, AL  (fixed)
+# MATLACHA#BOKKELIA, FL  
+# PEMBROKE#PINES, FL   
+# JACKSONVILLE#FL, UNITED STATES, FL
+```
+
+#### Get wrong addresses only 
+
+```{r Get wrong addresses only}
+### Get wrong addresses only ----
+```
+
+Explanations:
+
+1. **Column Extraction Using sapply:**
+
+   - The variable 'wrong_port_addr' is created by applying the 'sapply' function to 'to_fix_list'.
+
+   - The `sapply` function applies the '[' function to each element of 'to_fix_list' using the index 1.
+
+2. **Column Extraction Using '[':**
+
+   - The '[' function is used to extract the first element (index 1) from each element of 'to_fix_list'.
+
+   - This operation is used to extract a specific column or element from each list or data frame within 'to_fix_list'.
+
+3. **Final Result:**
+
+   - 'wrong_port_addr' holds the result of extracting the first element from each element within 'to_fix_list'.
+
+```{r}
+wrong_port_addr <-
+  sapply(to_fix_list, "[", 1)
+```
+
+#### Fix addresses from the list 
+
+```{r Fix addresses from the list}
+### Fix addresses from the list ----
+```
+
+
+Explanations:
+
+The function 'get_correct_addr_by_wrong' takes a 'wrong_addr' as input and performs the following steps:
+
+1. Finds the index of 'wrong_addr' in the 'to_fix_list'.
+
+2. Uses 'tryCatch' to handle errors, printing information about the error and the index if one occurs.
+
+3. Extracts the correct address from the pair.
+
+4. Returns the correct address.
+
+
+```{r}
+get_correct_addr_by_wrong <-
+  function(wrong_addr) {
+    idx <- grep(wrong_addr, to_fix_list)
+    
+    names_pair <-
+      tryCatch(
+        to_fix_list[[idx]],
+        error = function(e) {
+          print(e)
+          print(str_glue("Index: {idx}"))
+        }
+      )
+    good_addr <- names_pair[[2]]
+    
+    return(good_addr)
+  }
+```
+
+
+Explanations:
+
+The variable 'compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed' is created by:
+
+1. Creating a new column 'city_state_fixed' by replacing wrong addresses using 'get_correct_addr_by_wrong' for rows where 'city_state' is in 'wrong_port_addr'.
+
+2. Separating the 'city_state_fixed' column into two columns ('city_fixed' and 'state_fixed') using '#' as the delimiter.
+
+
+```{r}
+vessels_from_pims_split_addr__city_state__fix1 <-
+  vessels_from_pims_split_addr__city_state |>
+  dplyr::rowwise() |>
+  dplyr::mutate(city_state_fixed =
+           if (city_state %in% wrong_port_addr)
+             get_correct_addr_by_wrong(city_state)
+         else
+           city_state) |>
+  dplyr::ungroup() |>
+  tidyr::separate_wider_delim(city_state_fixed,
+                              delim = "#",
+                              names = c("city_fixed",
+                                        "state_fixed")) |> 
+  dplyr::distinct()
+
+dplyr::n_distinct(vessels_from_pims_split_addr__city_state__fix1$vessel_official_number)
+# [1] 23045
+```
+
+### Add more fixes manually 
+
+```{r Add more fixes manually}
+## Add more fixes manually ----
+```
+
+#### Define filters 
+
+```{r Define filters}
+### Define filters ----
+lt_6_id_len_filter <- 
+  rlang::quo(id_len < 6)
+
+gt_8_id_len_filter <- 
+  rlang::quo(id_len > 8)
+
+non_alphanumeric_filter <- 
+  rlang::quo(grepl("[^A-Za-z0-9]", vessel_official_number))
+
+is_empty <- c(NA, "NA", "", "UN", "N/A")
+is_empty_filter <-
+  rlang::quo(vessel_official_number %in% is_empty)
+
+wrong_vessel_ids <- c("FL", "FLORIDA", "MD", "NO", "NONE")
+weird_vessel_ids_filter <-
+  rlang::quo(vessel_official_number %in% wrong_vessel_ids)
+
+filter_list <- Hmisc::llist(
+  lt_6_id_len_filter, 
+  gt_8_id_len_filter, 
+  non_alphanumeric_filter, 
+  is_empty_filter, 
+  weird_vessel_ids_filter
+)
+```
+
+#### Find empty and bad vessel ids 
+
+```{r Find empty and bad vessel ids}
+### Find empty and bad vessel ids ----
+```
+
+
+Add vessel id length 
+
+```{r}
+vessels_from_pims_split_addr__city_state__fix1_ids_len <-
+  vessels_from_pims_split_addr__city_state__fix1 |>
+  dplyr::group_by(vessel_official_number) |>
+  dplyr::mutate(id_len = stringr::str_length(vessel_official_number)) |>
+  dplyr::ungroup()
+```
+
+#### Get "bad" vessel ids 
+
+```{r Get bad vessel ids}
+### Get "bad" vessel ids ----
+
+bad_vessel_ids <-
+  purrr::map(filter_list, \(curr_filter) {
+    vessels_from_pims_split_addr__city_state__fix1_ids_len |>
+      dplyr::filter(!!curr_filter) |>
+      dplyr::select(id_len, vessel_official_number) |>
+      dplyr::arrange(dplyr::desc(id_len)) |>
+      dplyr::distinct()
+  })
+
+str(bad_vessel_ids)
+```
+
+#### Write weird ids to Google Drive 
+
+```{r Write weird ids to Google Drive}
+### Write weird ids to Google Drive ----
+# <<<<
+
+# Explanations for the following code:
+ 
+#  
+
+ get_google_drive_folder_by_name  <-  function (google_drive_project_name = "Egregious violators") 
+{
+    google_drive_project_path_info <- googledrive::drive_find(pattern = google_drive_project_name, 
+        type = "folder", n_max = 1)
+    return(google_drive_project_path_info)
+}
+# >>>>
+
+write_to_google <- 
+  function() {
+    
+    new_ss_info <-
+      googlesheets4::gs4_create(
+        name = stringr::str_glue("weird_vessel_ids_{lubridate::now()}"),
+        sheets = bad_vessel_ids
+      )
+    
+    out_dir_ss <-
+# Use function get_google_drive_folder_by_name defined above.
+      get_google_drive_folder_by_name(google_drive_project_name = "Anna's tidbits")
+    
+    new_file_ss_info <-
+      googledrive::drive_mv(
+        new_ss_info,
+        path = out_dir_ss,
+        name = stringr::str_glue("weird_vessel_ids_{lubridate::today()}")
+      )
+    
+    return(new_file_ss_info)
+  }
+
+# new_file_ss_info <- write_to_google()
+
+# to see the result in the browser
+# googledrive::drive_browse(new_file_ss_info)
+```
+
+#### List of vessels with double ports 
+
+```{r List of vessels with double ports}
+### List of vessels with double ports ----
+# Keep the correct addresses only (from Jeannette)
+
+manual_fixes_double_ports <-
+  list(
+    list("1112053", "NEW BERN", "NC"),
+    list("1166732", "MIAMI", "FL"),
+    list("1185107", "KEY WEST", "FL"),
+    list("531549", "TOWNSEND", "GA"),
+    list("581260", "PONCE INLET", "FL"),
+    list("596153", "NEW BERN", "NC"),
+    list("646818", "HOUSTON", "TX"),
+    list("671353", "SWANSBORO", "NC"),
+    list("FL0146BH", "MIAMI", "FL"),
+    list("FL1431JU", "MARATHON", "FL"),
+    list("FL1553TM", "BILOXI", "MS"),
+    list("FL1862SU", "MIAMI", "FL"),
+    list("FL2615MT", "STUART", "FL"),
+    list("FL3119EE", "BOCA GRANDE", "FL"),
+    list("FL3976FH", "PONCE INLET", "FL"),
+    list("FL5011MX", "NAPLES", "FL"),
+    list("FL5029RM", "KEY WEST", "FL"),
+    list("FL5262LD", "LAUDERDALE BY THE SEA", "FL"),
+    list("FL7549PJ", "KEY LARGO", "FL"),
+    list("FL8000NR", "ST PETERSBURG BEACH", "FL"),
+    list("FL8252JK", "MIAMI", "FL"),
+    list("LA4017BH", "HACKBERRY", "LA"),
+    list("LA6968EP", "LAROSE", "LA"),
+    list("NC6164CW", "MOREHEAD CITY", "NC"),
+    list("TX9606KA", "HOUSTON", "TX")
+  )
+    # list("139403", "MIAMI", "FL"), # no! Keep it here as a reminder
+```
+
+#### Fix double ports 
+
+```{r Fix double ports}
+### Fix double ports ----
+
+vessels_from_pims_split_addr__city_state__fix2 <-
+  purrr::map_df(manual_fixes_double_ports,
+         \(x) {
+           # browser()
+           res <-
+             vessels_from_pims_split_addr__city_state__fix1 |>
+             dplyr::mutate(
+               city_fixed1 =
+                 dplyr::case_when(vessel_official_number == x[[1]] ~ x[[2]]),
+               state_fixed1 =
+                 dplyr::case_when(vessel_official_number == x[[1]] ~ x[[3]])
+             )
+           return(res)
+         }) |>
+  dplyr::distinct()
+
+dim(vessels_from_pims_split_addr__city_state__fix2)
+# [1] 23109     8
+```
+
+### Replace duplicated values 
+
+```{r Replace duplicated values}
+## Replace duplicated values ----
+```
+
+
+Explanations:
+
+1. Updating 'city_fixed' and 'state_fixed' columns based on conditions using 'case_when':
+
+    - If 'city_fixed1' is not NA, update 'city_fixed' with 'city_fixed1'; otherwise, keep the existing value in 'city_fixed'.
+
+    - If 'state_fixed1' is not NA, update 'state_fixed' with 'state_fixed1'; otherwise, keep the existing value in 'state_fixed'.
+
+2. Filtering rows where 'vessel_official_number' is not in 'both' or 'state_fixed1' is not missing.
+
+3. Selecting all columns except "city_fixed1" and "state_fixed1".
+
+4. Keeping only distinct rows in the final result to avoid duplications.
+
+
+```{r}
+vessels_from_pims_split_addr__city_state__fix2_ok <-
+  vessels_from_pims_split_addr__city_state__fix2 |>
+  dplyr::mutate(
+    city_fixed =
+      dplyr::case_when(!is.na(city_fixed1) ~ city_fixed1,
+                .default = city_fixed),
+    state_fixed =
+      dplyr::case_when(!is.na(state_fixed1) ~ state_fixed1,
+                .default = state_fixed)
+  ) |> 
+  dplyr::select(-c("city_fixed1", "state_fixed1")) |>
+  dplyr::distinct()
+
+# View(vessels_from_pims_split_addr__city_state__fix2_ok)
+
+dim(vessels_from_pims_split_addr__city_state__fix2_ok)
+# [1] 23086     6
+```
+
+### Check no address 
+
+```{r Check no address}
+## Check no address ----
+```
+
+No city
+
+```{r}
+vessels_from_pims_split_addr__city_state__fix2_ok__no_addr <-
+  vessels_from_pims_split_addr__city_state__fix2_ok |>
+  dplyr::filter(is.na(city))
+
+nrow(vessels_from_pims_split_addr__city_state__fix2_ok__no_addr)
+# 6
+# 0
+```
+
+No state
+
+```{r}
+vessels_from_pims_split_addr__city_state__fix2_ok__no_state <-
+  vessels_from_pims_split_addr__city_state__fix2_ok |>
+  dplyr::filter(is.na(state_fixed))
+
+nrow(vessels_from_pims_split_addr__city_state__fix2_ok__no_state)
+# 0 OK
+```
+
+## remove extra cols 
+
+```{r remove extra cols}
+# remove extra cols ----
+vessels_from_pims_split_addr__city_state__fix2_ok_short <-
+  vessels_from_pims_split_addr__city_state__fix2_ok |>
+  dplyr::select(vessel_official_number, 
+                tidyselect::ends_with("_fixed")) |> 
+  dplyr::distinct()
+```
+
+check
+
+```{r}
+# vessels_from_pims_split_addr__city_state__fix2_ok |> 
+#   filter(!state == state_fixed) |> 
+#   View()
+
+vessels_from_pims_split_addr__city_state__fix2_ok |>
+  filter(!city == city_fixed) |>
+  select(-vessel_official_number) |> 
+  distinct() |> 
+  nrow()
+# 47
+# 50
+# 55
+```
+
+### check for double ids/ports 
+
+```{r check for double idsports}
+## check for double ids/ports ----
+double_ids_ports <-
+  vessels_from_pims_split_addr__city_state__fix2_ok_short |>
+  dplyr::distinct() |>
+  dplyr::select(vessel_official_number) |>
+  dplyr::count(vessel_official_number) |>
+  dplyr::filter(n > 1)
+
+nrow(double_ids_ports)
+# 0, ok
+# 3
+# 1
+# 22
+
+double_ports_1 <-
+  purrr::map(manual_fixes_double_ports, \(curr_list) {
+    as.data.frame(t(unlist(curr_list)))
+  }) |>
+  purrr::list_rbind()
+
+names(double_ports_1) <- 
+  c("vessel_official_number", "city", "state")
+
+double_ports_1 |>
+  arrange(vessel_official_number) |>
+  glimpse()
+
+# check
+vessels_from_pims_split_addr__city_state__fix2_ok_short |>
+  filter(vessel_official_number %in% double_ids_ports$vessel_official_number) |>
+  arrange(vessel_official_number) |> 
+  filter(vessel_official_number %in% double_ports_1$vessel_official_number) |> 
+  glimpse()
+# 1 PT. CANAVERAL 
+# 2 PORT CANAVERAL
+```
+
+## print out 
+
+```{r print out}
+# print out ----
+
+out_path <- file.path(current_project_output_path,
+            stringr::str_glue("vessels_from_pims_ports_{lubridate::today()}.csv"))
+
+readr::write_csv(
+  vessels_from_pims_split_addr__city_state__fix2_ok_short,
+  out_path
+)
+
+# TODO:
+# Write to google drive
+
+View(vessels_from_pims_split_addr__city_state__fix2_ok_short)
+
+# ===
+# Do weird vessels have permits
+
+weird_vessel_ids_only <-
+  purrr::map(bad_vessel_ids, bind_rows) |>
+  bind_rows(.id = "list_name") |>
+  select(vessel_official_number) |>
+  distinct()
+
+permits_from_pims__split1 |> 
+  filter(vessel_official_number %in% weird_vessel_ids |
+           dealer %in% weird_vessel_ids) |> 
+  nrow()
+# No permits for those vessel ids
+```
+
+## Permits' vessel ids 
+
+```{r Permits vessel ids}
+# Permits' vessel ids ----
+permits_from_pims__split1 |> 
+  select(vessel_official_number) |> 
+  distinct() |> 
+  arrange(vessel_official_number) |> 
+  glimpse()
+
+permits_from_pims__split1_short__split2__id_len <-
+  permits_from_pims__split1_short__split2 |>
+  dplyr::group_by(vessel_official_number) |>
+  dplyr::mutate(id_len = stringr::str_length(vessel_official_number)) |>
+  dplyr::ungroup()
+
+# filter weird vessel ids from permits
+bad_vessel_ids_from_permits <-
+  purrr::map(filter_list, \(curr_filter) {
+    permits_from_pims__split1_short__split2__id_len |>
+      dplyr::filter(!!curr_filter) |>
+      dplyr::select(id_len, vessel_official_number) |>
+      dplyr::arrange(dplyr::desc(id_len)) |>
+      dplyr::distinct()
+  })
+
+glimpse(bad_vessel_ids_from_permits)
+
+# get ids only
+weird_vessel_ids_permits_ids_only <-
+  purrr::map(bad_vessel_ids_from_permits, bind_rows) |>
+  bind_rows(.id = "list_name") |>
+  select(vessel_official_number) |>
+  distinct()
+
+# View(weird_vessel_ids_permits_ids_only)
+
+# write to google drive ids only
+
+# googlesheets4::write_sheet(weird_vessel_ids_permits_ids_only,
+#                            ss = new_file_ss_info, 
+#                            sheet = "ids from Permits")
+
+# googlesheets4::write_sheet(weird_vessel_ids_only,
+#                            ss = new_file_ss_info, 
+#                            sheet = "ids from Vessels")
+```
+
