@@ -753,8 +753,7 @@ purrr::map(bad_vessel_ids, \(curr_l) {
 }) |> 
   dplyr::bind_rows()
 
-
-weird_vessel_ids <-
+weird_vessel_ids_only <-
   purrr::map(bad_vessel_ids, bind_rows) |>
   bind_rows(.id = "list_name") |>
   select(vessel_official_number) |>
@@ -762,13 +761,16 @@ weird_vessel_ids <-
 
 permits_from_pims__split1 |> 
   filter(vessel_official_number %in% weird_vessel_ids |
-           dealer %in% weird_vessel_ids)
+           dealer %in% weird_vessel_ids) |> 
+  nrow()
+# No permits for those vessel ids
 
+# Permits' vessel ids ----
 permits_from_pims__split1 |> 
   select(vessel_official_number) |> 
   distinct() |> 
   arrange(vessel_official_number) |> 
-  View()
+  glimpse()
 
 permits_from_pims__split1_short__split2__id_len <-
   permits_from_pims__split1_short__split2 |>
