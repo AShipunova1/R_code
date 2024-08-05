@@ -538,21 +538,29 @@ bad_vessel_ids <-
 str(bad_vessel_ids)
 
 ### Write weird ids to Google Drive ----
-new_ss_info <-
-  googlesheets4::gs4_create(
-    name = stringr::str_glue("weird_vessel_ids_{lubridate::now()}"),
-    sheets = bad_vessel_ids
-  )
+write_to_google <- 
+  function() {
+    
+    new_ss_info <-
+      googlesheets4::gs4_create(
+        name = stringr::str_glue("weird_vessel_ids_{lubridate::now()}"),
+        sheets = bad_vessel_ids
+      )
+    
+    out_dir_ss <-
+      auxfunctions::get_google_drive_folder_by_name(google_drive_project_name = "Anna's tidbits")
+    
+    new_file_ss_info <-
+      googledrive::drive_mv(
+        new_ss_info,
+        path = out_dir_ss,
+        name = stringr::str_glue("weird_vessel_ids_{lubridate::today()}")
+      )
+    
+    return(new_file_ss_info)
+  }
 
-out_dir_ss <-
-  auxfunctions::get_google_drive_folder_by_name(google_drive_project_name = "Anna's tidbits")
-
-new_file_ss_info <-
-  googledrive::drive_mv(
-    new_ss_info,
-    path = out_dir_ss,
-    name = stringr::str_glue("weird_vessel_ids_{lubridate::today()}")
-  )
+new_file_ss_info <- write_to_google()
 
 # to see the result in the browser
 # googledrive::drive_browse(new_file_ss_info)
