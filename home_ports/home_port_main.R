@@ -710,7 +710,7 @@ double_ports_1 <-
   purrr::map(manual_fixes_double_ports, \(curr_list) {
     as.data.frame(t(unlist(curr_list)))
   }) |>
-  list_rbind()
+  purrr::list_rbind()
 
 names(double_ports_1) <- 
   c("vessel_official_number", "city", "state")
@@ -729,12 +729,8 @@ vessels_from_pims_split_addr__city_state__fix2_ok_short |>
 # 2 PORT CANAVERAL
 
 # print out ----
-out_dir <- file.path(my_paths$outputs,
-            current_project_basename)
 
-dir.create(out_dir)
-
-out_path <- file.path(out_dir,
+out_path <- file.path(current_project_output_path,
             stringr::str_glue("vessels_from_pims_ports_{lubridate::today()}.csv"))
 
 readr::write_csv(
@@ -744,3 +740,57 @@ readr::write_csv(
 
 # TODO:
 # Write to google drive
+
+View(vessels_from_pims_split_addr__city_state__fix2_ok_short)
+
+# ===
+# Do weird vessels have permits
+
+purrr::map(bad_vessel_ids, \(curr_l) {
+  browser()
+  curr_l |> 
+    pull(vessel_official_number)
+}) |> 
+  dplyr::bind_rows()
+
+
+weird_vessel_ids <-
+  purrr::map(bad_vessel_ids, bind_rows) |>
+  bind_rows(.id = "list_name") |>
+  select(vessel_official_number) |>
+  distinct()
+
+permits_from_pims__split1 |> 
+  filter(vessel_official_number %in% weird_vessel_ids |
+           dealer %in% weird_vessel_ids)
+
+permits_from_pims__split1 |> 
+  select(vessel_official_number) |> 
+  distinct() |> 
+  arrange(vessel_official_number) |> 
+  View()
+
+permits_from_pims__split1_short__split2__id_len <-
+  permits_from_pims__split1_short__split2 |>
+  dplyr::group_by(vessel_official_number) |>
+  dplyr::mutate(id_len = stringr::str_length(vessel_official_number)) |>
+  dplyr::ungroup()
+
+bad_vessel_ids_from_permits <-
+  purrr::map(filter_list, \(curr_filter) {
+    permits_from_pims__split1_short__split2__id_len |>
+      dplyr::filter(!!curr_filter) |>
+      dplyr::select(id_len, vessel_official_number) |>
+      dplyr::arrange(dplyr::desc(id_len)) |>
+      dplyr::distinct()
+  })
+
+View(bad_vessel_ids_from_permits)
+
+weird_vessel_ids_permits_ids_only <-
+  purrr::map(bad_vessel_ids_from_permits, bind_rows) |>
+  bind_rows(.id = "list_name") |>
+  select(vessel_official_number) |>
+  distinct()
+
+View(weird_vessel_ids_permits_ids_only)
