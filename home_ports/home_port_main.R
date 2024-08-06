@@ -1,12 +1,16 @@
 #' This code cleans homeport city and state from PIMS
 
 # Setup ----
+#' This section sets up the environment for data analysis, including package installation,
+#' helper function setup, and date definitions.
 
 ## Install packages if needed ----
+
+# List of required packages for this analysis
 needed_packages <- c(
   "tidyverse",
   "devtools", # Collection of package development tools
-  "Hmisc" #to help with Label Attribute of an Object
+  "Hmisc" # To help with Label Attribute of an Object
 )
 
 #'
@@ -63,7 +67,7 @@ if (any(installed_packages == FALSE)) {
 # 
 # This code checks if the `auxfunctions` package is available, and if not, it installs it from the GitHub repository `AShipunova1/R_code/auxfunctions`.
 # 
-
+# Function to install or update the auxfunctions package, with different behavior for the developer
 install_helper_functions <- function() {
   if (!auxfunctions::get_username() == "anna.shipunova") {
     if (!require('auxfunctions')) {
@@ -84,10 +88,11 @@ install_helper_functions()
 
 program_start_date <- lubridate::dmy("01/01/2021")
 
-# Variables for the current year(s)
+# Define the years for which data will be analyzed
 # Manually change if needed
 my_years <- c("2022", "2023", "2024")
 
+# Create a list of date ranges for each year in my_years
 my_year_dates <-
   purrr::map(my_years, \(one_year) {
     my_beginning <- stringr::str_glue("{one_year}-01-01")
@@ -112,7 +117,7 @@ str(my_year_dates)
 # Manually: Change the following 2 lists (**my_paths** and **current_in_out_paths**) to your environment if needed. The variable _names_ are used throughout the code, so please change only the quoted _values_ inside the lists.
 # 
 
-# Check if the current username is not "anna.shipunova"
+# Check if the current username is not "anna.shipunova" to determine which path setup to use
 if (!auxfunctions::get_username() == "anna.shipunova") {
   auxfunctions::function_message_print(
     "Please CHANGE the following 2 lists values to your environment if needed. Use full path to your directories in quotes."
@@ -138,11 +143,10 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
   current_in_out_paths <- auxfunctions::current_project_paths()
 }
 
-# The following section uses provided directory names lists to automatically create separate variables for future use and create current input/output directories if they do not exists.
-# 
-# 
-# Create variables to store shortcuts to project directories
-# 
+#' The following section uses provided directory names lists to automatically create separate variables for future use and create current input/output directories if they do not exists.
+#' 
+#' Create variables to store shortcuts to project directories for easier access throughout the script
+#' 
 # This is usually the current directory name.
 current_project_name <- current_in_out_paths$project_name
 
@@ -165,6 +169,7 @@ vessel_names_file_path <-
   file.path(my_paths$inputs,
             r"(from_PIMS\Vessels - 2024-08-06_0819.xlsx)")
 
+# Check if the vessel names file exists to ensure data availability
 file.exists(vessel_names_file_path)
 
 #### Permits from PIMS ----
@@ -172,6 +177,7 @@ permits_names_file_path <-
   file.path(my_paths$inputs,
             r"(from_PIMS\Permits - 2024-08-06_0819.xlsx)")
 
+# Check if the permits names file exists to ensure data availability
 file.exists(permits_names_file_path)
 
 #' %%%%% Prepare data
@@ -183,6 +189,7 @@ get_data_path <-
 
 file.exists(get_data_path)
 
+# Source the get_data script to load and prepare necessary data for the project
 source(get_data_path)
 
 #' Result:
@@ -190,12 +197,15 @@ source(get_data_path)
 #' vessels_from_pims_ok
 
 # Fix city and state ----
+# This code section focuses on cleaning and standardizing the hailing_port data from the vessels_from_pims_ok dataframe.
 
 ## See errors ----
 # View(vessels_from_pims_split_addr)
 
 #' Numbers in hailing_port
 #'
+#' Create a dataframe containing only the rows where hailing_port contains digits, which may indicate data entry errors or non-standard formats.
+#' 
 #' Explanations for the following code:
 #'
 #' - `dplyr::filter(grepl("\\d", hailing_port))` filters rows where `hailing_port` contains a digit:
@@ -205,6 +215,7 @@ source(get_data_path)
 #'   - `dplyr::filter(...)` keeps only the rows where the condition inside the `filter` function is `TRUE`.
 #'
 #' - `dplyr::distinct()` removes duplicate rows from the resulting data frame.
+#' 
 addresses_w_digit <- 
   vessels_from_pims_ok |>
   dplyr::filter(grepl("\\d", hailing_port)) |> 
@@ -218,6 +229,8 @@ addresses_w_digit <-
 # 6               SC4334DB  xml:space="preserve">0,
 
 #' Extra commas in hailing_port
+#'
+#' Identify rows where hailing_port contains multiple commas, which may indicate incorrect formatting or additional, unnecessary information.
 #'
 #' Explanations for the following code:
 #'
@@ -235,7 +248,7 @@ vessels_from_pims_ok |>
 
 ## Find not acceptable characters in addresses ----
 
-#'
+#' 
 #' Explanations for the following code:
 #'
 #' - `wrong_chars <- "[^A-Za-z0-9 .=',]"` assigns the regular expression pattern to the variable `wrong_chars`. This pattern matches any character that is not an uppercase letter (A-Z), lowercase letter (a-z), digit (0-9), space, period, equal sign, apostrophe, or comma.
@@ -259,6 +272,8 @@ vessels_from_pims_ok |>
 
 ## Remove html ----
 #'
+#' Create a new dataframe with HTML tags removed from the hailing_port field to clean up the data.
+#' 
 #' Explanations for the following code:
 #'
 #' - `dplyr::mutate(hailing_port = ...)` modifies an existing column `hailing_port` with the specified transformation:
@@ -277,6 +292,8 @@ vessels_from_pims_ok_no_html <-
 
 ## Separate hailing_port into city and state ----
 #'
+#' This code block separates the hailing_port column into city and state, and cleans up the resulting data.
+#' 
 #' Explanations for the following code:
 #'
 #' - `vessels_from_pims_split_addr <- ...` assigns the result of the operations to the variable `vessels_from_pims_split_addr`.
@@ -293,8 +310,12 @@ vessels_from_pims_ok_no_html <-
 #'
 #'   - `too_many = "merge"` specifies that if there are more pieces than column names, the extra pieces will be merged into the last column.
 #'
+#' This ensures that if there are multiple commas, all parts after the first comma are kept in the "state" column.
+#' 
 #'   - `too_few = "align_start"` specifies that if there are fewer pieces than column names, the missing pieces will be aligned with the start of the column names.
-#'
+#'   
+#' This means that if there's no comma in the hailing_port, the entire value will be placed in the "city" column.
+#' 
 #' - `dplyr::mutate(dplyr::across(tidyselect::where(is.character), stringr::str_squish))` trims leading and trailing whitespace from character columns:
 #'
 #'   - `dplyr::mutate` is used to create or modify columns.
@@ -450,6 +471,9 @@ vessels_from_pims_split_addr__city_state <-
 
 
 ### check numbers in an address again with the pound ----
+#' 
+#' This section filters and displays city_state entries containing digits, which may indicate incorrect or unusual address formats.
+#' 
 vessels_from_pims_split_addr__city_state |>
   dplyr::filter(grepl("\\d", city_state)) |> 
   dplyr::select(city_state) |> 
@@ -458,7 +482,11 @@ vessels_from_pims_split_addr__city_state |>
 # 2 0#        
 # 3 00#       
 
-#' extra commas in city, state 
+### extra commas in city, state ----
+#' 
+#' This section identifies and displays city_state entries containing commas, which may indicate formatting issues or inconsistencies.
+#' 
+
 vessels_from_pims_split_addr__city_state |>
   dplyr::filter(grepl(",", city_state)) |> 
   dplyr::select(city_state)
@@ -541,6 +569,7 @@ vessels_from_pims_split_addr__city_state__fix1 <-
                                         "state_fixed")) |> 
   dplyr::distinct()
 
+# Count the number of unique vessel official numbers after address corrections
 dplyr::n_distinct(vessels_from_pims_split_addr__city_state__fix1$vessel_official_number)
 # [1] 23045
 
@@ -564,6 +593,7 @@ wrong_vessel_ids <- c("FL", "FLORIDA", "MD", "NO", "NONE")
 weird_vessel_ids_filter <-
   rlang::quo(vessel_official_number %in% wrong_vessel_ids)
 
+# Create a list of filter conditions to identify various types of problematic vessel IDs
 filter_list <- Hmisc::llist(
   lt_6_id_len_filter, 
   gt_8_id_len_filter, 
@@ -573,9 +603,9 @@ filter_list <- Hmisc::llist(
 )
 
 ### Find empty and bad vessel ids ----
-
 #' 
-#' Add vessel id length 
+#' Create a new data frame with vessel ID lengths added for further analysis
+#' 
 vessels_from_pims_split_addr__city_state__fix1_ids_len <-
   vessels_from_pims_split_addr__city_state__fix1 |>
   dplyr::group_by(vessel_official_number) |>
@@ -625,6 +655,7 @@ bad_vessel_ids <-
 str(bad_vessel_ids)
 
 ### Write weird ids to Google Drive ----
+# Define a function to create a Google Sheets document with the identified problematic vessel IDs
 write_to_google <- 
   function() {
     
@@ -657,6 +688,7 @@ write_to_google <-
 ### List of vessels with double ports ----
 # Keep the correct addresses only (from Jeannette)
 
+# manual_fixes_double_ports is a list containing manual fix rules for double ports
 manual_fixes_double_ports <-
   list(
     list("1112053", "NEW BERN", "NC"),
@@ -688,8 +720,9 @@ manual_fixes_double_ports <-
     # list("139403", "MIAMI", "FL"), # no! Keep it here as a reminder
 
 ### Fix double ports ----
-# 
 #'
+#' Apply manual fixes to correct double ports in the dataset
+#' 
 #' Explanations for the following code:
 #'
 #' - `vessels_from_pims_split_addr__city_state__fix2 <- ...` assigns the result of the operations to the variable `vessels_from_pims_split_addr__city_state__fix2`.
@@ -741,6 +774,8 @@ dim(vessels_from_pims_split_addr__city_state__fix2)
 
 ## Replace duplicated values ----
 #'
+#' Create a new dataset with updated city and state information, removing temporary columns
+#' 
 #' Explanations for the following code:
 #'
 #' 1. Updating 'city_fixed' and 'state_fixed' columns based on conditions using 'case_when':
@@ -774,7 +809,9 @@ dim(vessels_from_pims_split_addr__city_state__fix2_ok)
 # [1] 23086     6
 
 ## Check no address ----
-#' No city
+#' 
+#' Filter rows with no city information
+#' 
 vessels_from_pims_split_addr__city_state__fix2_ok__no_addr <-
   vessels_from_pims_split_addr__city_state__fix2_ok |>
   dplyr::filter(is.na(city))
@@ -783,7 +820,9 @@ nrow(vessels_from_pims_split_addr__city_state__fix2_ok__no_addr)
 # 6
 # 0 OK
 
-#' No state
+#' 
+#' Filter rows with no state information
+#' 
 vessels_from_pims_split_addr__city_state__fix2_ok__no_state <-
   vessels_from_pims_split_addr__city_state__fix2_ok |>
   dplyr::filter(is.na(state_fixed))
@@ -791,18 +830,15 @@ vessels_from_pims_split_addr__city_state__fix2_ok__no_state <-
 nrow(vessels_from_pims_split_addr__city_state__fix2_ok__no_state)
 # 0 OK
 
-# remove extra cols ----
+# Remove extra cols ----
+#' Remove extra columns and keep only vessel_official_number and columns ending with "_fixed"
 vessels_from_pims_split_addr__city_state__fix2_ok_short <-
   vessels_from_pims_split_addr__city_state__fix2_ok |>
   dplyr::select(vessel_official_number, 
                 tidyselect::ends_with("_fixed")) |> 
   dplyr::distinct()
 
-# check
-# vessels_from_pims_split_addr__city_state__fix2_ok |> 
-#   filter(!state == state_fixed) |> 
-#   View()
-
+#' Count the number of rows where city and city_fixed are different
 vessels_from_pims_split_addr__city_state__fix2_ok |>
   dplyr::filter(!city == city_fixed) |>
   dplyr::select(-vessel_official_number) |> 
@@ -812,7 +848,8 @@ vessels_from_pims_split_addr__city_state__fix2_ok |>
 # 50
 # 55
 
-## check for double ids/ports ----
+## Check for double ids/ports ----
+#' Identify vessels with multiple port entries
 double_ids_ports <-
   vessels_from_pims_split_addr__city_state__fix2_ok_short |>
   dplyr::distinct() |>
@@ -826,12 +863,14 @@ nrow(double_ids_ports)
 # 1
 # 22
 
+#' Convert manual fixes for double ports into a data frame
 double_ports_1 <-
   purrr::map(manual_fixes_double_ports, \(curr_list) {
     as.data.frame(t(unlist(curr_list)))
   }) |>
   purrr::list_rbind()
 
+#' Rename columns of double_ports_1
 names(double_ports_1) <- 
   c("vessel_official_number", "city", "state")
 
@@ -849,7 +888,7 @@ vessels_from_pims_split_addr__city_state__fix2_ok_short |>
 # 2 PORT CANAVERAL
 
 # print out ----
-
+#' Write the processed data to a CSV file
 out_path <- file.path(current_project_output_path,
             stringr::str_glue("vessels_from_pims_ports_{lubridate::today()}.csv"))
 
@@ -863,9 +902,9 @@ readr::write_csv(
 
 # View(vessels_from_pims_split_addr__city_state__fix2_ok_short)
 
-# ===
-#' Do weird vessels have permits?
 #'
+#' Check if weird vessels have permits
+#' 
 #' Explanations for the following code:
 #'
 #' - `weird_vessel_ids_only <- ...` assigns the result of the operations to the variable `weird_vessel_ids_only`.
@@ -897,12 +936,32 @@ permits_from_pims__split1 |>
 # No permits for those vessel ids
 
 # Permits' vessel ids ----
+#' 
+#' Extract unique vessel official numbers from permits data
+#' 
 permits_from_pims__split1 |> 
   dplyr::select(vessel_official_number) |> 
   dplyr::distinct() |> 
   dplyr::arrange(vessel_official_number) |> 
   dplyr::glimpse()
 
+#' Calculate the length of vessel official numbers
+#' 
+#' Explanations:
+#'
+#' - `permits_from_pims__split1_short__split2__id_len <- ...` assigns the result of the operations to the variable `permits_from_pims__split1_short__split2__id_len`.
+#'
+#' - `permits_from_pims__split1_short__split2 |>` pipes the `permits_from_pims__split1_short__split2` data frame to the next function.
+#'
+#' - `dplyr::group_by(vessel_official_number)` groups the data frame by `vessel_official_number`:
+#'
+#'   - This ensures that operations performed afterward (like `mutate`) are done within each group of `vessel_official_number`.
+#'
+#' - `dplyr::mutate(id_len = stringr::str_length(vessel_official_number))` adds a new column `id_len`:
+#'
+#'   - `stringr::str_length(vessel_official_number)` calculates the length of the string in the `vessel_official_number` column.
+#'
+#' - `dplyr::ungroup()` removes the grouping from the data frame, returning it to its ungrouped state.
 permits_from_pims__split1_short__split2__id_len <-
   permits_from_pims__split1_short__split2 |>
   dplyr::group_by(vessel_official_number) |>
@@ -947,6 +1006,7 @@ bad_vessel_ids_from_permits <-
       dplyr::distinct()
   })
 
+# Display the structure of bad_vessel_ids_from_permits
 dplyr::glimpse(bad_vessel_ids_from_permits)
 
 #'
@@ -979,8 +1039,28 @@ weird_vessel_ids_permits_ids_only <-
 
 # View(weird_vessel_ids_permits_ids_only)
 
-# write to google drive ids only
-
+#' Write to google drive ids only
+#'
+#' Function to write data to Google Sheets
+#'
+#' Explanations:
+#'
+#' - `add_to_google_ss_ids_only <- function() { ... }` defines a function named `add_to_google_ss_ids_only` that performs operations related to Google Sheets.
+#'
+#' - `googlesheets4::write_sheet(weird_vessel_ids_permits_ids_only, ss = new_file_ss_info, sheet = "ids from Permits")` writes the `weird_vessel_ids_permits_ids_only` data frame to a Google Sheets file (`new_file_ss_info`) in a sheet named "ids from Permits":
+#'
+#'   - `ss = new_file_ss_info` specifies the Google Sheets file.
+#'
+#'   - `sheet = "ids from Permits"` specifies the name of the sheet to write to.
+#'
+#' - `googlesheets4::sheet_relocate(ss = new_file_ss_info, sheet = "ids from Permits", .before = 1)` moves the "ids from Permits" sheet to the first position in the Google Sheets file:
+#'
+#'   - `.before = 1` indicates that the sheet should be placed before the first sheet (i.e., make it the first sheet).
+#'
+#' - `googlesheets4::write_sheet(weird_vessel_ids_only, ss = new_file_ss_info, sheet = "ids from Vessels")` writes the `weird_vessel_ids_only` data frame to the "ids from Vessels" sheet in the same Google Sheets file.
+#'
+#' - `googlesheets4::sheet_relocate(ss = new_file_ss_info, sheet = "ids from Vessels", .before = 1)` moves the "ids from Vessels" sheet to the first position in the Google Sheets file.
+#' 
 add_to_google_ss_ids_only <-
   function() {
     
