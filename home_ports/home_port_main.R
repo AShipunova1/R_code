@@ -1,8 +1,12 @@
+# 
+#'
 #' This code cleans homeport city and state from PIMS
+#' 
 
 # Setup ----
 #' This section sets up the environment for data analysis, including package installation,
 #' helper function setup, and date definitions.
+#' 
 
 ## Install packages if needed ----
 
@@ -195,6 +199,7 @@ source(get_data_path)
 #' Result:
 #' 
 #' vessels_from_pims_ok
+#' 
 
 # Fix city and state ----
 # This code section focuses on cleaning and standardizing the hailing_port data from the vessels_from_pims_ok dataframe.
@@ -878,7 +883,7 @@ double_ports_1 |>
   dplyr::arrange(vessel_official_number) |>
   dplyr::glimpse()
 
-# check
+#' Check left over double addresses
 vessels_from_pims_split_addr__city_state__fix2_ok_short |>
   dplyr::filter(vessel_official_number %in% double_ids_ports$vessel_official_number) |>
   dplyr::arrange(vessel_official_number) |> 
@@ -896,11 +901,6 @@ readr::write_csv(
   vessels_from_pims_split_addr__city_state__fix2_ok_short,
   out_path
 )
-
-# TODO:
-# Write to google drive
-
-# View(vessels_from_pims_split_addr__city_state__fix2_ok_short)
 
 #'
 #' Check if weird vessels have permits
