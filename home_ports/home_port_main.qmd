@@ -74,10 +74,55 @@ This code cleans homeport city and state from PIMS
 # Setup ----
 ```
 
+This section sets up the environment for data analysis, including package installation,
+helper function setup, and date definitions.
 ### Install packages if needed 
 
 ```{r Install packages if needed}
 ## Install packages if needed ----
+
+# List of required packages for this analysis
+needed_packages <- c(
+  "tidyverse",
+  "devtools", # Collection of package development tools
+  "Hmisc" # To help with Label Attribute of an Object
+)
+```
+
+
+Explanations for the following code:
+
+- `needed_packages %in% rownames(installed.packages())` checks which packages from `needed_packages` are installed:
+
+  - `installed.packages()` returns a matrix of information about all installed packages.
+
+  - `rownames(installed.packages())` extracts the names of the installed packages.
+
+  - `needed_packages %in% ...` checks if each package in `needed_packages` is in the list of installed packages, returning a logical vector indicating the presence of each package.
+
+- `if (any(installed_packages == FALSE)) { ... }` checks if any package is not installed:
+
+  - `any(installed_packages == FALSE)` returns `TRUE` if at least one element in `installed_packages` is `FALSE`.
+
+  - `install.packages(packages[!installed_packages])` installs the packages that are not installed:
+
+    - `packages[!installed_packages]` selects the packages from `packages` that are not installed.
+
+    - `install.packages()` installs the selected packages.  
+
+```{r}
+installed_packages <-
+  needed_packages %in% rownames(installed.packages())
+
+if (any(installed_packages == FALSE)) {
+  install.packages(needed_packages[!installed_packages])
+}
+```
+
+#### Install helper functions for SEFHIER data analysis 
+
+```{r Install helper functions for SEFHIER data analysis}
+### Install helper functions for SEFHIER data analysis ----
 # <<<<
 
 # Explanations for the following code:
@@ -106,31 +151,6 @@ This code cleans homeport city and state from PIMS
 }
 # >>>>
 
-needed_packages <- c(
-  "tidyverse",
-  "devtools", # Collection of package development tools
-  "Hmisc" #to help with Label Attribute of an Object
-)
-
-# Explanations for the following code:
-# - `needed_packages %in% rownames(installed.packages())` checks which packages from `needed_packages` are installed:
-#   - `installed.packages()` returns a matrix of information about all installed packages.
-#   - `rownames(installed.packages())` extracts the names of the installed packages.
-#   - `needed_packages %in% ...` checks if each package in `needed_packages` is in the list of installed packages, returning a logical vector indicating the presence of each package.
-# - `if (any(installed_packages == FALSE)) { ... }` checks if any package is not installed:
-#   - `any(installed_packages == FALSE)` returns `TRUE` if at least one element in `installed_packages` is `FALSE`.
-#   - `install.packages(packages[!installed_packages])` installs the packages that are not installed:
-#     - `packages[!installed_packages]` selects the packages from `packages` that are not installed.
-#     - `install.packages()` installs the selected packages.  
-
-installed_packages <-
-  needed_packages %in% rownames(installed.packages())
-
-if (any(installed_packages == FALSE)) {
-  install.packages(needed_packages[!installed_packages])
-}
-
-# Install helper functions for SEFHIER data analysis.
 #
 # Explanations for the following code:
 # 
@@ -156,7 +176,7 @@ if (any(installed_packages == FALSE)) {
 # 
 # This code checks if the `auxfunctions` package is available, and if not, it installs it from the GitHub repository `AShipunova1/R_code/auxfunctions`.
 # 
-
+# Function to install or update the auxfunctions package, with different behavior for the developer
 install_helper_functions <- function() {
 # Use function get_username defined above.
   if (!get_username() == "anna.shipunova") {
@@ -183,10 +203,11 @@ install_helper_functions <- function() {
 
 program_start_date <- lubridate::dmy("01/01/2021")
 
-# Variables for the current year(s)
+# Define the years for which data will be analyzed
 # Manually change if needed
 my_years <- c("2022", "2023", "2024")
 
+# Create a list of date ranges for each year in my_years
 my_year_dates <-
   purrr::map(my_years, \(one_year) {
     my_beginning <- stringr::str_glue("{one_year}-01-01")
@@ -366,7 +387,7 @@ str(my_year_dates)
 # Manually: Change the following 2 lists (**my_paths** and **current_in_out_paths**) to your environment if needed. The variable _names_ are used throughout the code, so please change only the quoted _values_ inside the lists.
 # 
 
-# Check if the current username is not "anna.shipunova"
+# Check if the current username is not "anna.shipunova" to determine which path setup to use
 # Use function get_username defined above.
 if (!get_username() == "anna.shipunova") {
 # Use function function_message_print defined above.
@@ -395,12 +416,14 @@ if (!get_username() == "anna.shipunova") {
 # Use function current_project_paths defined above.
   current_in_out_paths <- current_project_paths()
 }
+```
 
-# The following section uses provided directory names lists to automatically create separate variables for future use and create current input/output directories if they do not exists.
-# 
-# 
-# Create variables to store shortcuts to project directories
-# 
+The following section uses provided directory names lists to automatically create separate variables for future use and create current input/output directories if they do not exists.
+
+Create variables to store shortcuts to project directories for easier access throughout the script
+
+
+```{r}
 # This is usually the current directory name.
 current_project_name <- current_in_out_paths$project_name
 
@@ -431,8 +454,9 @@ create_dir_if_not(current_project_output_path)
 #### Vessels from PIMS ----
 vessel_names_file_path <-
   file.path(my_paths$inputs,
-            r"(from_PIMS\Vessels - 2024-07-30_1139.xlsx)")
+            r"(from_PIMS\Vessels - 2024-08-06_0819.xlsx)")
 
+# Check if the vessel names file exists to ensure data availability
 file.exists(vessel_names_file_path)
 ```
 
@@ -442,8 +466,9 @@ file.exists(vessel_names_file_path)
 #### Permits from PIMS ----
 permits_names_file_path <-
   file.path(my_paths$inputs,
-            r"(from_PIMS\Permits - 2024-07-30_1139.xlsx)")
+            r"(from_PIMS\Permits - 2024-08-06_0819.xlsx)")
 
+# Check if the permits names file exists to ensure data availability
 file.exists(permits_names_file_path)
 ```
 
@@ -457,6 +482,7 @@ get_data_path <-
 
 file.exists(get_data_path)
 
+# Source the get_data script to load and prepare necessary data for the project
 # lubridate::today()
 ```
 
@@ -466,6 +492,8 @@ file.exists(get_data_path)
 # Get data ----
 ```
 
+
+This section loads and processes vessel and permit data from PIMS for further analysis.
 
 Load the needed files. First download them from PIMS into paths defined in the Set Up Paths section above.
 
@@ -488,6 +516,7 @@ Example: "Vessels - 2024-02-28_0930.xlsx"
 ```{r Load vessels from PIMS}
 ## Load vessels from PIMS ----
 ```
+
 
 ```{r}
 # <<<<
@@ -633,7 +662,9 @@ Example: "Vessels - 2024-02-28_0930.xlsx"
 # >>>>
 ```
 
-Explanations:
+File paths for vessel and permit data files vessel_names_file_path and permits_names_file_path were defined in the Setup section.
+
+Explanations for the following code:
 
 - `vessels_from_pims <-` assigns the result of the function call to the variable `vessels_from_pims`.
 
@@ -652,30 +683,10 @@ vessels_from_pims <-
   my_read_xlsx(vessel_names_file_path, 
                              start_row = 4)
 
-# check
-# print_df_names(vessels_from_pims)
-
-# dplyr::glimpse(vessels_from_pims)
-
+# Check the dimensions of the loaded vessel data
 dim(vessels_from_pims)
 # [1] 23107     8
 
-# TODO: get vessel (home port) info from PIMS with 2 names
-# "~\R_files_local\my_inputs\non_compliant_areas\vessels_permit_hailng_port_double_name.xlsx"
-
-# vessel_data_pims_double_address <-
-#     file.path(my_paths$inputs,
-#               r"(non_compliant_areas\vessels_permit_hailng_port_double_name.xlsx)")
-
-# vessels_from_pims_double <- 
-#   get_vessel_data_pims(vessel_data_pims_double_address,
-#                        to_skip = 0)
-
-# dim(vessels_from_pims_double)
-# [1] 652   3
-
-# names(vessels_from_pims_double)
-# [1] "vessel_official_number1" "vessel_official_number2" "hailing_port"         
 ```
 
 ### Load permits from PIMS 
@@ -728,7 +739,7 @@ permits_from_pims <-
 ```
 
 
-Explanations:
+Explanations for the following code:
 
 - `vessel_or_dealer_col_name <-` assigns the result of the pipeline to the variable `vessel_or_dealer_col_name`.
 
@@ -761,7 +772,9 @@ vessel_or_dealer_col_name <-
 ```
 
 
-Explanations:
+Split the vessel_or_dealer column into separate columns for vessel and dealer information
+
+Explanations for the following code:
 
 - `permits_from_pims__split1 <-` assigns the result of the pipeline to the variable `permits_from_pims__split1`.
 
@@ -793,8 +806,12 @@ permits_from_pims__split1 <-
   dplyr::mutate(dplyr::across(c('vessel_official_number', 'dealer'),
                 stringr::str_squish))
 
+# A possible warning, can disregard, because not all entries have the 'vessel_official_number / dealer' format.
+# "Expected 2 pieces. Missing pieces filled with `NA` in 3038 rows [229, 244, 294,"
+
+
+# Display a concise summary of the resulting data frame
 dplyr::glimpse(permits_from_pims__split1)
-# Expected 2 pieces. Missing pieces filled with `NA` in 3038 rows [229, 244, 294,
 ```
 
 ### Permits, clean and shorten 
@@ -809,7 +826,7 @@ dplyr::glimpse(permits_from_pims__split1)
 ### An auxiliary function ----
 ```
 
-Explanations:
+Explanations for the following code:
 
 - `convert_to_dates <- function(my_df, ymd_format = c("Ymd", "mdY"))` defines the function `convert_to_dates` with two parameters:
 
@@ -849,7 +866,9 @@ convert_to_dates <-
   }
 ```
 
-Explanations:
+Process the split data frame by converting dates and filtering rows based on program start date
+
+Explanations for the following code:
 
 - `permits_from_pims__split1_short <-` assigns the final result of the pipeline to the variable `permits_from_pims__split1_short`.
 
@@ -878,7 +897,11 @@ permits_from_pims__split1_short <-
   convert_to_dates() |> 
   dplyr::filter(dplyr::if_any(tidyselect::ends_with("date"), 
                 ~ . > program_start_date))
+```
 
+Display the dimensions of the original and processed data frames for comparison
+
+```{r}
 dim(permits_from_pims)
 # [1] 53365    11
 
@@ -893,7 +916,9 @@ dim(permits_from_pims__split1_short)
 ```
 
 
-Explanations:
+Process the permits data by splitting the permit number and cleaning whitespace
+
+Explanations for the following code:
 
 - `permits_from_pims__split1_short__split2 <-` assigns the result of the pipeline to the variable `permits_from_pims__split1_short__split2`.
 
@@ -925,6 +950,7 @@ permits_from_pims__split1_short__split2 <-
   dplyr::mutate(dplyr::across(tidyselect::starts_with('permit'),
                 stringr::str_squish))
 
+# Display a concise summary of the processed permits data
 dplyr::glimpse(permits_from_pims__split1_short__split2)
 ```
 
@@ -935,7 +961,9 @@ dplyr::glimpse(permits_from_pims__split1_short__split2)
 ```
 
 
-Explanations:
+Process the vessels data by renaming, selecting specific columns, and removing duplicates
+
+Explanations for the following code:
 
 - `hailing_port_col_name <-` assigns the result of the pipeline to the variable `hailing_port_col_name`.
 
@@ -960,7 +988,7 @@ hailing_port_col_name <-
 ```
 
 
-Explanations:
+Explanations for the following code:
 
 - `vessels_from_pims_short <-` assigns the result of the pipeline to the variable `vessels_from_pims_short`.
 
@@ -996,7 +1024,11 @@ vessels_from_pims_short <-
   dplyr::distinct()
 
 # print_df_names(vessels_from_pims)
+```
 
+Display the dimensions of the processed vessels data
+
+```{r}
 dim(vessels_from_pims_short)
 # [1] 22887     2
 ```
@@ -1005,8 +1037,27 @@ dim(vessels_from_pims_short)
 
 ```{r Vessels remove NOVESID}
 ## Vessels, remove "NOVESID" ----
-# From Kevin McIntosh:
-# 'All NOVESID vessels will not have any home port information since they are "virtual" vessels used as a placeholder for HMS permits and not actual physical vessels'
+```
+
+
+Remove virtual vessels used as placeholders for HMS permits
+
+From Kevin McIntosh:
+
+'All NOVESID vessels will not have any home port information since they are "virtual" vessels used as a placeholder for HMS permits and not actual physical vessels.'
+
+Explanations for the following code:
+
+- `dplyr::filter(!grepl("^NOVESID", vessel_official_number))` filters the rows of the data frame:
+
+  - `grepl("^NOVESID", vessel_official_number)` uses a regular expression to identify rows where the `vessel_official_number` starts with `"NOVESID"`:
+
+    - `^` denotes the start of the string.
+
+    - `"NOVESID"` is the pattern being searched for at the beginning of the string.
+
+```{r}
+#   - `!` negates the result of `grepl`, so only rows where `vessel_official_number` does not start with `"NOVESID"` are kept.
 
 vessels_from_pims_short_ok <-
   vessels_from_pims_short |>
@@ -1025,11 +1076,9 @@ dim(vessels_from_pims_short_ok)
 ```
 
 
-Explanations:
+Separate vessel official numbers that contain multiple identifiers
 
-- `vessels_from_pims_short_ok__split1 <-` assigns the result of the pipeline to the variable `vessels_from_pims_short_ok__split1`.
-
-- `vessels_from_pims_short_ok |>` starts the pipeline with the data frame `vessels_from_pims_short_ok`.
+Explanations for the following code:
 
 - `tidyr::separate(vessel_official_number, c('vessel_official_number', 'vessel_official_number2'), sep = " / ")` separates the `vessel_official_number` column into two new columns:
 
@@ -1068,14 +1117,27 @@ vessels_from_pims_short_ok__split1 <-
 ## Vessels, make one column of double names ----
 ```
 
+
+Process and combine split vessel identifiers into a single column
+
 #### split into 2 dataframes and rename the id column 
 
 ```{r split into 2 dataframes and rename the id column}
 ### split into 2 dataframes and rename the id column ----
+```
 
+
+Create separate dataframes for primary and secondary vessel identifiers
+
+
+```{r}
 # [1] "vessel_official_number, vessel_official_number2, hailing_port"
+```
 
-# remove vessel_official_number2
+
+remove vessel_official_number2
+
+```{r}
 vessels_from_pims_double_1 <-
   vessels_from_pims_short_ok__split1 |> 
   dplyr::select(-vessel_official_number2)
@@ -1091,6 +1153,25 @@ vessels_from_pims_double_2 <-
 
 ```{r combine in one df}
 ### combine in one df ----
+```
+
+
+Merge primary and secondary vessel identifier dataframes
+
+Explanations for the following code:
+
+- `rbind(vessels_from_pims_double_1, vessels_from_pims_double_2)` combines the rows from `vessels_from_pims_double_1` and `vessels_from_pims_double_2` into a single data frame:
+
+  - `rbind` stands for row-bind and stacks the rows of the two data frames on top of each other.
+
+- `dplyr::distinct()` removes duplicate rows from the combined data frame.
+
+- `dplyr::filter(!is.na(vessel_official_number))` filters out rows where `vessel_official_number` is `NA`:
+
+  - `!is.na(vessel_official_number)` returns `TRUE` for rows where `vessel_official_number` is not `NA`, keeping only those rows.
+  
+
+```{r}
 vessels_from_pims_double_bind <-
   rbind(
     vessels_from_pims_double_1,
@@ -1099,7 +1180,7 @@ vessels_from_pims_double_bind <-
   dplyr::distinct() |> 
   dplyr::filter(!is.na(vessel_official_number))
 
-# added vessel ids from doubles
+# count added vessel ids from doubles
 nrow(vessels_from_pims_double_bind) - nrow(vessels_from_pims_short_ok__split1)
 # 570
 ```
@@ -1111,7 +1192,7 @@ nrow(vessels_from_pims_double_bind) - nrow(vessels_from_pims_short_ok__split1)
 ```
 
 
-Explanations:
+Explanations for the following code:
 
 - `vessels_from_pims_ok <-` assigns the result of the pipeline to the variable `vessels_from_pims_ok`.
 
@@ -1158,18 +1239,31 @@ vessels_from_pims_ok <-
   dplyr::mutate(hailing_port =
            stringr::str_squish(!!hailing_port_col_name)) |> 
   dplyr::distinct()
+```
 
+Check the dimensions of the cleaned data frame
+
+```{r}
 dim(vessels_from_pims_ok)
 # [1] 23086     2
 ```
 
+Check for specific patterns in the hailing_port column
+
 check if there is a letter after comma
+
 
 ```{r}
 grep(",[a-zA-Z]",
      vessels_from_pims_ok$hailing_port,
      value = T)
+# If no results are returned, it indicates successful cleaning
 # 0 OK
+```
+
+If no results are returned, it indicates successful cleaning
+
+```{r}
 # [1] "PEMBROKE,PINES, FL"
 
 # check if there are more than one space
@@ -1189,6 +1283,7 @@ vessels_from_pims_ok
 
 ```{r Fix city and state}
 # Fix city and state ----
+# This code section focuses on cleaning and standardizing the hailing_port data from the vessels_from_pims_ok dataframe.
 ```
 
 ### See errors 
@@ -1200,56 +1295,107 @@ vessels_from_pims_ok
 
 Numbers in hailing_port
 
+Create a dataframe containing only the rows where hailing_port contains digits, which may indicate data entry errors or non-standard formats.
+
+Explanations for the following code:
+
+- `dplyr::filter(grepl("\\d", hailing_port))` filters rows where `hailing_port` contains a digit:
+
+  - `grepl("\\d", hailing_port)` uses a regular expression to check for the presence of a digit (`\\d`) in the `hailing_port` column. `grepl` returns `TRUE` for rows where a digit is found and `FALSE` otherwise.
+
+  - `dplyr::filter(...)` keeps only the rows where the condition inside the `filter` function is `TRUE`.
+
+- `dplyr::distinct()` removes duplicate rows from the resulting data frame.
+
+
 ```{r}
 addresses_w_digit <- 
   vessels_from_pims_ok |>
   dplyr::filter(grepl("\\d", hailing_port)) |> 
   dplyr::distinct()
    # vessel_official_number hailing_port            
-#    <chr>                  <chr>                   
-#  1 574500                 HO0MASASSA, FL          
-#  2 1040384                2, AL                   
-#  3 NC6421AU               FIGURE 8 ISLAND, NC     
-#  4 FL3407ML               0,                      
-#  5 FL8939JR               00,                     
-#  6 925240                 0,                      
-#  7 FL5011MX               NAPLE4S, FL             
-#  8 SC8023DE               LITTLE RIVERNHV1N4WH, SC
-#  9 139403                 0,                      
-# 10 DO552832               0,                      
-# 11 1301930                22411 GENO LANE, AL     
-# 12 GA1769JL               117 HAWK LANDING LN, GA 
+# 1                1040384                    2, AL
+# 2               FL3407ML  xml:space="preserve">0,
+# 3               FL8939JR xml:space="preserve">00,
+# 4                 925240  xml:space="preserve">0,
+# 5                 139403  xml:space="preserve">0,
+# 6               SC4334DB  xml:space="preserve">0,
 ```
 
 Extra commas in hailing_port
+
+Identify rows where hailing_port contains multiple commas, which may indicate incorrect formatting or additional, unnecessary information.
+
+Explanations for the following code:
+
+- `dplyr::filter(grepl(",.+,", hailing_port))` filters rows where `hailing_port` contains a pattern matching `,.+,`:
+
+  - `grepl(",.+,", hailing_port)` uses a regular expression to check for the presence of a comma followed by one or more characters and then another comma (`,.+,`) in the `hailing_port` column. `grepl` returns `TRUE` for rows where the pattern is found and `FALSE` otherwise.
+
+  - `dplyr::filter(...)` keeps only the rows where the condition inside the `filter` function is `TRUE`.
+
+- `dplyr::distinct()` removes duplicate rows from the resulting data frame. 
 
 ```{r}
 vessels_from_pims_ok |>
   dplyr::filter(grepl(",.+,", hailing_port)) |> 
   dplyr::distinct()
-# 1                 945114            REDINGTON SHORES, FL, FL
-# 2                 919225                     CHAUVIN, LA, LA
-# 3               FL0702JJ              MATLACHA, BOKKELIA, FL
-# 4             8811432134                 PEMBROKE, PINES, FL
-# 5               FL7047TR JACKSONVILLE, FL, UNITED STATES, FL
+# 8811432134                 PEMBROKE, PINES, FL
 ```
 
 ### Find not acceptable characters in addresses 
 
 ```{r Find not acceptable characters in addresses}
 ## Find not acceptable characters in addresses ----
+```
 
+
+Explanations for the following code:
+
+- `wrong_chars <- "[^A-Za-z0-9 .=',]"` assigns the regular expression pattern to the variable `wrong_chars`. This pattern matches any character that is not an uppercase letter (A-Z), lowercase letter (a-z), digit (0-9), space, period, equal sign, apostrophe, or comma.
+
+- `dplyr::filter(grepl(wrong_chars, hailing_port))` filters rows where `hailing_port` contains characters matching the `wrong_chars` pattern:
+
+  - `grepl(wrong_chars, hailing_port)` uses the regular expression pattern stored in `wrong_chars` to check for the presence of any character not included in the pattern in the `hailing_port` column. `grepl` returns `TRUE` for rows where such characters are found and `FALSE` otherwise.
+
+  - `dplyr::filter(...)` keeps only the rows where the condition inside the `filter` function is `TRUE`.
+
+- `dplyr::select(hailing_port)` selects only the `hailing_port` column from the filtered rows.
+
+- `dplyr::distinct()` removes duplicate rows from the resulting data frame, ensuring that each `hailing_port` value appears only once.
+
+
+```{r}
 wrong_chars <- "[^A-Za-z0-9 .=',]"
 vessels_from_pims_ok |> 
   dplyr::filter(grepl(wrong_chars, hailing_port)) |> 
   dplyr::select(hailing_port) |> 
   dplyr::distinct()
+# 28
 ```
 
 ### Remove html 
 
 ```{r Remove html}
 ## Remove html ----
+```
+
+
+Create a new dataframe with HTML tags removed from the hailing_port field to clean up the data.
+
+Explanations for the following code:
+
+- `dplyr::mutate(hailing_port = ...)` modifies an existing column `hailing_port` with the specified transformation:
+
+  - `stringr::str_replace(hailing_port, 'xml:space=\"preserve\">', "")` replaces occurrences of the substring `'xml:space=\"preserve\">'` in the `hailing_port` column with an empty string:
+
+    - `stringr::str_replace` is a function from the `stringr` package that replaces the first instance of a pattern in a string.
+
+    - The pattern `'xml:space=\"preserve\">'` matches the exact sequence `xml:space="preserve">` in the `hailing_port` values.
+
+    - `""` is the replacement string, effectively removing the matched pattern from the `hailing_port` values.
+
+```{r}
 vessels_from_pims_ok_no_html <-
   vessels_from_pims_ok |>
   dplyr::mutate(hailing_port =
@@ -1263,6 +1409,36 @@ vessels_from_pims_ok_no_html <-
 ```
 
 
+This code block separates the hailing_port column into city and state, and cleans up the resulting data.
+
+Explanations for the following code:
+
+- `vessels_from_pims_split_addr <- ...` assigns the result of the operations to the variable `vessels_from_pims_split_addr`.
+
+- `vessels_from_pims_ok_no_html |>` pipes the `vessels_from_pims_ok_no_html` data frame to the subsequent functions.
+
+- `tidyr::separate_wider_delim(...)` splits the `hailing_port` column into multiple columns based on the specified delimiter:
+
+  - `hailing_port` specifies the column to be split.
+
+  - `delim = ","` specifies the delimiter used to split the column, which is a comma in this case.
+
+  - `names = c("city", "state")` specifies the names of the resulting columns after the split.
+
+  - `too_many = "merge"` specifies that if there are more pieces than column names, the extra pieces will be merged into the last column.
+
+This ensures that if there are multiple commas, all parts after the first comma are kept in the "state" column.
+
+  - `too_few = "align_start"` specifies that if there are fewer pieces than column names, the missing pieces will be aligned with the start of the column names.
+  
+This means that if there's no comma in the hailing_port, the entire value will be placed in the "city" column.
+
+- `dplyr::mutate(dplyr::across(tidyselect::where(is.character), stringr::str_squish))` trims leading and trailing whitespace from character columns:
+
+  - `dplyr::mutate` is used to create or modify columns.
+
+  - `dplyr::across(tidyselect::where(is.character), stringr::str_squish)` applies the `stringr::str_squish` function to all character columns, removing any leading or trailing whitespace and reducing multiple spaces to a single space.
+  
 
 ```{r}
 vessels_from_pims_split_addr <-
@@ -1398,8 +1574,19 @@ to_fix_list <-
 # ---
 ```
 
-Explanations:
-Creating a new column 'city_state' by concatenating trimmed 'city' and 'state' columns, separated by '#'.
+
+Explanations for the following code:
+
+- `dplyr::mutate(city_state = ...)` creates a new column `city_state` with the specified transformation:
+
+  - `paste(trimws(city), trimws(state), sep = "#")` concatenates the `city` and `state` columns with a `#` separator:
+
+    - `trimws(city)` removes any leading or trailing whitespace from the `city` column values.
+
+    - `trimws(state)` removes any leading or trailing whitespace from the `state` column values.
+
+    - `paste(..., sep = "#")` concatenates the `city` and `state` values, separating them with a `#` character.
+    
 
 ```{r}
 vessels_from_pims_split_addr__city_state <-
@@ -1416,33 +1603,37 @@ vessels_from_pims_split_addr__city_state <-
 
 ```{r check numbers in an address again with the pound}
 ### check numbers in an address again with the pound ----
+```
+
+
+This section filters and displays city_state entries containing digits, which may indicate incorrect or unusual address formats.
+
+
+```{r}
 vessels_from_pims_split_addr__city_state |>
   dplyr::filter(grepl("\\d", city_state)) |> 
   dplyr::select(city_state) |> 
   dplyr::distinct()
-# 1 HO0MASASSA#FL          
-# 2 2#AL                   
-# 3 FIGURE 8 ISLAND#NC     
-# 4 0#                     
-# 5 00#                    
-# 6 NAPLE4S#FL             
-  # 7 LITTLE RIVERNHV1N4WH#SC (fixed)
-# 8 22411 GENO LANE#AL     
-# 9 117 HAWK LANDING LN#GA 
+# 1 2#AL      
+# 2 0#        
+# 3 00#       
 ```
 
-extra commas in city, state 
+#### extra commas in city, state 
+
+```{r extra commas in city state}
+### extra commas in city, state ----
+```
+
+
+This section identifies and displays city_state entries containing commas, which may indicate formatting issues or inconsistencies.
+
 
 ```{r}
 vessels_from_pims_split_addr__city_state |>
   dplyr::filter(grepl(",", city_state)) |> 
   dplyr::select(city_state)
-# REDINGTON SHORES#FL, FL
-# CHAUVIN#LA, LA         
-# ALEXANDER CITY#AL, AL  (fixed)
-# MATLACHA#BOKKELIA, FL  
 # PEMBROKE#PINES, FL   
-# JACKSONVILLE#FL, UNITED STATES, FL
 ```
 
 #### Get wrong addresses only 
@@ -1451,7 +1642,7 @@ vessels_from_pims_split_addr__city_state |>
 ### Get wrong addresses only ----
 ```
 
-Explanations:
+Explanations for the following code:
 
 1. **Column Extraction Using sapply:**
 
@@ -1481,7 +1672,7 @@ wrong_port_addr <-
 ```
 
 
-Explanations:
+Explanations for the following code:
 
 The function 'get_correct_addr_by_wrong' takes a 'wrong_addr' as input and performs the following steps:
 
@@ -1514,7 +1705,7 @@ get_correct_addr_by_wrong <-
 ```
 
 
-Explanations:
+Explanations for the following code:
 
 The variable 'compl_err_db_data_metrics_2022_23_clean__ports_short__comb_col_addr__fixed' is created by:
 
@@ -1539,6 +1730,7 @@ vessels_from_pims_split_addr__city_state__fix1 <-
                                         "state_fixed")) |> 
   dplyr::distinct()
 
+# Count the number of unique vessel official numbers after address corrections
 dplyr::n_distinct(vessels_from_pims_split_addr__city_state__fix1$vessel_official_number)
 # [1] 23045
 ```
@@ -1570,6 +1762,7 @@ wrong_vessel_ids <- c("FL", "FLORIDA", "MD", "NO", "NONE")
 weird_vessel_ids_filter <-
   rlang::quo(vessel_official_number %in% wrong_vessel_ids)
 
+# Create a list of filter conditions to identify various types of problematic vessel IDs
 filter_list <- Hmisc::llist(
   lt_6_id_len_filter, 
   gt_8_id_len_filter, 
@@ -1586,7 +1779,8 @@ filter_list <- Hmisc::llist(
 ```
 
 
-Add vessel id length 
+Create a new data frame with vessel ID lengths added for further analysis
+
 
 ```{r}
 vessels_from_pims_split_addr__city_state__fix1_ids_len <-
@@ -1600,7 +1794,39 @@ vessels_from_pims_split_addr__city_state__fix1_ids_len <-
 
 ```{r Get bad vessel ids}
 ### Get "bad" vessel ids ----
+```
 
+
+Explanations for the following code:
+
+- `bad_vessel_ids <- ...` assigns the result of the operations to the variable `bad_vessel_ids`.
+
+- `purrr::map(filter_list, \(curr_filter) { ... })` applies the anonymous function to each element in `filter_list`:
+
+  - `filter_list` is a list of filter conditions.
+
+  - `\(curr_filter)` defines an anonymous function with `curr_filter` as its argument.
+
+- Inside the anonymous function:
+
+  - `vessels_from_pims_split_addr__city_state__fix1_ids_len |>` pipes the `vessels_from_pims_split_addr__city_state__fix1_ids_len` data frame to the subsequent functions.
+
+  - `dplyr::filter(!!curr_filter)` filters rows based on the current filter condition:
+
+    - `!!curr_filter` evaluates the `curr_filter` expression.
+
+  - `dplyr::select(id_len, vessel_official_number)` selects the `id_len` and `vessel_official_number` columns.
+
+  - `dplyr::arrange(dplyr::desc(id_len))` sorts the rows in descending order by the `id_len` column:
+
+    - `dplyr::desc(id_len)` specifies descending order for `id_len`.
+
+  - `dplyr::distinct()` removes duplicate rows from the result.
+
+- The `purrr::map` function returns a list of data frames, each containing filtered and processed rows based on the respective filter condition from `filter_list`.
+
+
+```{r}
 bad_vessel_ids <-
   purrr::map(filter_list, \(curr_filter) {
     vessels_from_pims_split_addr__city_state__fix1_ids_len |>
@@ -1620,8 +1846,25 @@ str(bad_vessel_ids)
 # <<<<
 
 # Explanations for the following code:
- 
+
+# Returns the information about the found Google Drive folder.
 #  
+#  
+# Explanations:
+# 
+# - `googledrive::drive_find(pattern = google_drive_project_name, type = "folder", n_max = 1)` uses the `googledrive` package to find a folder in Google Drive that matches the given name pattern:
+# 
+#   - `pattern = google_drive_project_name` specifies the name pattern to search for.
+# 
+#   - `type = "folder"` limits the search to folders only.
+# 
+#   - `n_max = 1` restricts the search to return only one result.
+# 
+# - The result of `drive_find` is stored in the variable `google_drive_project_path_info`.
+# 
+# - `return(google_drive_project_path_info)` returns the information about the found folder.
+# 
+# 
 
  get_google_drive_folder_by_name  <-  function (google_drive_project_name = "Egregious violators") 
 {
@@ -1631,6 +1874,7 @@ str(bad_vessel_ids)
 }
 # >>>>
 
+# Define a function to create a Google Sheets document with the identified problematic vessel IDs
 write_to_google <- 
   function() {
     
@@ -1654,9 +1898,11 @@ write_to_google <-
     return(new_file_ss_info)
   }
 
+# Uncomment to run
 # new_file_ss_info <- write_to_google()
 
 # to see the result in the browser
+# Uncomment to run
 # googledrive::drive_browse(new_file_ss_info)
 ```
 
@@ -1666,6 +1912,7 @@ write_to_google <-
 ### List of vessels with double ports ----
 # Keep the correct addresses only (from Jeannette)
 
+# manual_fixes_double_ports is a list containing manual fix rules for double ports
 manual_fixes_double_ports <-
   list(
     list("1112053", "NEW BERN", "NC"),
@@ -1701,7 +1948,43 @@ manual_fixes_double_ports <-
 
 ```{r Fix double ports}
 ### Fix double ports ----
+```
 
+
+Apply manual fixes to correct double ports in the dataset
+
+Explanations for the following code:
+
+- `vessels_from_pims_split_addr__city_state__fix2 <- ...` assigns the result of the operations to the variable `vessels_from_pims_split_addr__city_state__fix2`.
+
+- `purrr::map_df(manual_fixes_double_ports, \(x) { ... })` applies the anonymous function to each element in `manual_fixes_double_ports` and returns a combined data frame:
+
+  - `manual_fixes_double_ports` is a list of manual fix rules.
+
+  - `\(x)` defines an anonymous function with `x` as its argument.
+
+- Inside the anonymous function:
+
+  - `vessels_from_pims_split_addr__city_state__fix1 |>` pipes the `vessels_from_pims_split_addr__city_state__fix1` data frame to the subsequent functions.
+
+  - `dplyr::mutate(...)` creates new columns based on conditions:
+
+    - `city_fixed1 = dplyr::case_when(vessel_official_number == x[[1]] ~ x[[2]])` creates the `city_fixed1` column:
+
+      - `dplyr::case_when(vessel_official_number == x[[1]] ~ x[[2]])` assigns `x[[2]]` to `city_fixed1` where `vessel_official_number` matches `x[[1]]`.
+
+    - `state_fixed1 = dplyr::case_when(vessel_official_number == x[[1]] ~ x[[3]])` creates the `state_fixed1` column:
+
+      - `dplyr::case_when(vessel_official_number == x[[1]] ~ x[[3]])` assigns `x[[3]]` to `state_fixed1` where `vessel_official_number` matches `x[[1]]`.
+
+  - `return(res)` returns the modified data frame.
+
+- The `purrr::map_df` function combines the results into a single data frame.
+
+- `dplyr::distinct()` removes duplicate rows from the combined data frame.
+
+
+```{r}
 vessels_from_pims_split_addr__city_state__fix2 <-
   purrr::map_df(manual_fixes_double_ports,
          \(x) {
@@ -1729,7 +2012,9 @@ dim(vessels_from_pims_split_addr__city_state__fix2)
 ```
 
 
-Explanations:
+Create a new dataset with updated city and state information, removing temporary columns
+
+Explanations for the following code:
 
 1. Updating 'city_fixed' and 'state_fixed' columns based on conditions using 'case_when':
 
@@ -1770,7 +2055,9 @@ dim(vessels_from_pims_split_addr__city_state__fix2_ok)
 ## Check no address ----
 ```
 
-No city
+
+Filter rows with no city information
+
 
 ```{r}
 vessels_from_pims_split_addr__city_state__fix2_ok__no_addr <-
@@ -1779,10 +2066,12 @@ vessels_from_pims_split_addr__city_state__fix2_ok__no_addr <-
 
 nrow(vessels_from_pims_split_addr__city_state__fix2_ok__no_addr)
 # 6
-# 0
+# 0 OK
 ```
 
-No state
+
+Filter rows with no state information
+
 
 ```{r}
 vessels_from_pims_split_addr__city_state__fix2_ok__no_state <-
@@ -1793,10 +2082,15 @@ nrow(vessels_from_pims_split_addr__city_state__fix2_ok__no_state)
 # 0 OK
 ```
 
-## remove extra cols 
+## Remove extra cols 
 
-```{r remove extra cols}
-# remove extra cols ----
+```{r Remove extra cols}
+# Remove extra cols ----
+```
+
+Remove extra columns and keep only vessel_official_number and columns ending with "_fixed"
+
+```{r}
 vessels_from_pims_split_addr__city_state__fix2_ok_short <-
   vessels_from_pims_split_addr__city_state__fix2_ok |>
   dplyr::select(vessel_official_number, 
@@ -1804,13 +2098,9 @@ vessels_from_pims_split_addr__city_state__fix2_ok_short <-
   dplyr::distinct()
 ```
 
-check
+Count the number of rows where city and city_fixed are different
 
 ```{r}
-# vessels_from_pims_split_addr__city_state__fix2_ok |> 
-#   filter(!state == state_fixed) |> 
-#   View()
-
 vessels_from_pims_split_addr__city_state__fix2_ok |>
   dplyr::filter(!city == city_fixed) |>
   dplyr::select(-vessel_official_number) |> 
@@ -1821,10 +2111,15 @@ vessels_from_pims_split_addr__city_state__fix2_ok |>
 # 55
 ```
 
-### check for double ids/ports 
+### Check for double ids/ports 
 
-```{r check for double idsports}
-## check for double ids/ports ----
+```{r Check for double idsports}
+## Check for double ids/ports ----
+```
+
+Identify vessels with multiple port entries
+
+```{r}
 double_ids_ports <-
   vessels_from_pims_split_addr__city_state__fix2_ok_short |>
   dplyr::distinct() |>
@@ -1837,13 +2132,21 @@ nrow(double_ids_ports)
 # 3
 # 1
 # 22
+```
 
+Convert manual fixes for double ports into a data frame
+
+```{r}
 double_ports_1 <-
   purrr::map(manual_fixes_double_ports, \(curr_list) {
     as.data.frame(t(unlist(curr_list)))
   }) |>
   purrr::list_rbind()
+```
 
+Rename columns of double_ports_1
+
+```{r}
 names(double_ports_1) <- 
   c("vessel_official_number", "city", "state")
 
@@ -1851,7 +2154,7 @@ double_ports_1 |>
   dplyr::arrange(vessel_official_number) |>
   dplyr::glimpse()
 
-# check
+# Check left over double addresses
 vessels_from_pims_split_addr__city_state__fix2_ok_short |>
   dplyr::filter(vessel_official_number %in% double_ids_ports$vessel_official_number) |>
   dplyr::arrange(vessel_official_number) |> 
@@ -1865,7 +2168,11 @@ vessels_from_pims_split_addr__city_state__fix2_ok_short |>
 
 ```{r print out}
 # print out ----
+```
 
+Write the processed data to a CSV file
+
+```{r}
 out_path <- file.path(current_project_output_path,
             stringr::str_glue("vessels_from_pims_ports_{lubridate::today()}.csv"))
 
@@ -1874,14 +2181,32 @@ readr::write_csv(
   out_path
 )
 
-# TODO:
-# Write to google drive
+# View(vessels_from_pims_split_addr__city_state__fix2_ok_short)
+```
 
-View(vessels_from_pims_split_addr__city_state__fix2_ok_short)
 
-# ===
-# Do weird vessels have permits
+Check if weird vessels have permits
 
+Explanations for the following code:
+
+- `weird_vessel_ids_only <- ...` assigns the result of the operations to the variable `weird_vessel_ids_only`.
+
+- `purrr::map(bad_vessel_ids, dplyr::bind_rows)` applies the `dplyr::bind_rows` function to each element in `bad_vessel_ids`:
+
+  - `bad_vessel_ids` is a list of data frames.
+
+  - `dplyr::bind_rows` combines the rows of each data frame in the list.
+
+- `dplyr::bind_rows(.id = "list_name")` combines all the data frames into a single data frame:
+
+  - `.id = "list_name"` adds a column named `list_name` to indicate the source list for each row.
+
+- `dplyr::select(vessel_official_number)` selects the `vessel_official_number` column.
+
+- `dplyr::distinct()` removes duplicate rows based on the `vessel_official_number` column.
+
+
+```{r}
 weird_vessel_ids_only <-
   purrr::map(bad_vessel_ids, dplyr::bind_rows) |>
   dplyr::bind_rows(.id = "list_name") |>
@@ -1899,19 +2224,77 @@ permits_from_pims__split1 |>
 
 ```{r Permits vessel ids}
 # Permits' vessel ids ----
+```
+
+
+Extract unique vessel official numbers from permits data
+
+
+```{r}
 permits_from_pims__split1 |> 
   dplyr::select(vessel_official_number) |> 
   dplyr::distinct() |> 
   dplyr::arrange(vessel_official_number) |> 
   dplyr::glimpse()
+```
 
+Calculate the length of vessel official numbers
+
+Explanations for the following code:
+
+- `permits_from_pims__split1_short__split2__id_len <- ...` assigns the result of the operations to the variable `permits_from_pims__split1_short__split2__id_len`.
+
+- `permits_from_pims__split1_short__split2 |>` pipes the `permits_from_pims__split1_short__split2` data frame to the next function.
+
+- `dplyr::group_by(vessel_official_number)` groups the data frame by `vessel_official_number`:
+
+  - This ensures that operations performed afterward (like `mutate`) are done within each group of `vessel_official_number`.
+
+- `dplyr::mutate(id_len = stringr::str_length(vessel_official_number))` adds a new column `id_len`:
+
+  - `stringr::str_length(vessel_official_number)` calculates the length of the string in the `vessel_official_number` column.
+
+- `dplyr::ungroup()` removes the grouping from the data frame, returning it to its ungrouped state.
+
+```{r}
 permits_from_pims__split1_short__split2__id_len <-
   permits_from_pims__split1_short__split2 |>
   dplyr::group_by(vessel_official_number) |>
   dplyr::mutate(id_len = stringr::str_length(vessel_official_number)) |>
   dplyr::ungroup()
+```
 
-# filter weird vessel ids from permits
+
+Filter weird vessel ids from permits
+
+Explanations for the following code:
+
+- `bad_vessel_ids_from_permits <- ...` assigns the result of the operations to the variable `bad_vessel_ids_from_permits`.
+
+- `purrr::map(filter_list, \(curr_filter) { ... })` applies the anonymous function to each element in `filter_list` and returns a list of data frames:
+
+  - `filter_list` is a list of filter conditions.
+
+  - `\(curr_filter)` defines an anonymous function with `curr_filter` as its argument.
+
+- Inside the anonymous function:
+
+  - `permits_from_pims__split1_short__split2__id_len |>` pipes the `permits_from_pims__split1_short__split2__id_len` data frame to the subsequent functions.
+
+  - `dplyr::filter(!!curr_filter)` filters the rows based on the current filter condition (`curr_filter`):
+
+    - `!!curr_filter` evaluates the current filter condition using non-standard evaluation.
+
+  - `dplyr::select(id_len, vessel_official_number)` selects the `id_len` and `vessel_official_number` columns.
+
+  - `dplyr::arrange(dplyr::desc(id_len))` sorts the rows in descending order based on the `id_len` column.
+
+  - `dplyr::distinct()` removes duplicate rows from the data frame.
+
+- The `purrr::map` function returns a list of data frames, each containing filtered and processed data based on the respective filter condition from `filter_list`.
+
+
+```{r}
 bad_vessel_ids_from_permits <-
   purrr::map(filter_list, \(curr_filter) {
     permits_from_pims__split1_short__split2__id_len |>
@@ -1921,9 +2304,33 @@ bad_vessel_ids_from_permits <-
       dplyr::distinct()
   })
 
+# Display the structure of bad_vessel_ids_from_permits
 dplyr::glimpse(bad_vessel_ids_from_permits)
+```
 
-# get ids only
+
+Get ids only
+
+Explanations for the following code:
+
+- `weird_vessel_ids_permits_ids_only <- ...` assigns the result of the operations to the variable `weird_vessel_ids_permits_ids_only`.
+
+- `purrr::map(bad_vessel_ids_from_permits, dplyr::bind_rows)` applies the `dplyr::bind_rows` function to each element in `bad_vessel_ids_from_permits`:
+
+  - `bad_vessel_ids_from_permits` is a list of data frames.
+
+  - `dplyr::bind_rows` combines the rows of each data frame in the list.
+
+- `dplyr::bind_rows(.id = "list_name")` combines all the data frames into a single data frame:
+
+  - `.id = "list_name"` adds a column named `list_name` to indicate the source list for each row.
+
+- `dplyr::select(vessel_official_number)` selects the `vessel_official_number` column.
+
+- `dplyr::distinct()` removes duplicate rows based on the `vessel_official_number` column.
+
+
+```{r}
 weird_vessel_ids_permits_ids_only <-
   purrr::map(bad_vessel_ids_from_permits, 
              dplyr::bind_rows) |>
@@ -1932,15 +2339,49 @@ weird_vessel_ids_permits_ids_only <-
   dplyr::distinct()
 
 # View(weird_vessel_ids_permits_ids_only)
+```
 
-# write to google drive ids only
+Write to google drive ids only
 
-# googlesheets4::write_sheet(weird_vessel_ids_permits_ids_only,
-#                            ss = new_file_ss_info, 
-#                            sheet = "ids from Permits")
-# 
-# googlesheets4::write_sheet(weird_vessel_ids_only,
-#                            ss = new_file_ss_info, 
-#                            sheet = "ids from Vessels")
+Function to write data to Google Sheets
+
+Explanations for the following code:
+
+- `add_to_google_ss_ids_only <- function() { ... }` defines a function named `add_to_google_ss_ids_only` that performs operations related to Google Sheets.
+
+- `googlesheets4::write_sheet(weird_vessel_ids_permits_ids_only, ss = new_file_ss_info, sheet = "ids from Permits")` writes the `weird_vessel_ids_permits_ids_only` data frame to a Google Sheets file (`new_file_ss_info`) in a sheet named "ids from Permits":
+
+  - `ss = new_file_ss_info` specifies the Google Sheets file.
+
+  - `sheet = "ids from Permits"` specifies the name of the sheet to write to.
+
+- `googlesheets4::sheet_relocate(ss = new_file_ss_info, sheet = "ids from Permits", .before = 1)` moves the "ids from Permits" sheet to the first position in the Google Sheets file:
+
+  - `.before = 1` indicates that the sheet should be placed before the first sheet (i.e., make it the first sheet).
+
+- `googlesheets4::write_sheet(weird_vessel_ids_only, ss = new_file_ss_info, sheet = "ids from Vessels")` writes the `weird_vessel_ids_only` data frame to the "ids from Vessels" sheet in the same Google Sheets file.
+
+- `googlesheets4::sheet_relocate(ss = new_file_ss_info, sheet = "ids from Vessels", .before = 1)` moves the "ids from Vessels" sheet to the first position in the Google Sheets file.
+
+
+```{r}
+add_to_google_ss_ids_only <-
+  function() {
+    
+    googlesheets4::write_sheet(weird_vessel_ids_permits_ids_only,
+                               ss = new_file_ss_info,
+                               sheet = "ids from Permits")
+    googlesheets4::sheet_relocate(ss = new_file_ss_info,
+                                  sheet = "ids from Permits",
+                                  .before = 1)
+    googlesheets4::write_sheet(weird_vessel_ids_only, ss = new_file_ss_info, sheet = "ids from Vessels")
+    
+    googlesheets4::sheet_relocate(ss = new_file_ss_info,
+                                  sheet = "ids from Vessels",
+                                  .before = 1)
+  }
+
+# uncomment to run
+# add_to_google_ss_ids_only()
 ```
 
