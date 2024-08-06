@@ -390,45 +390,6 @@ flat_file_r_text
 all_auxfunction_names <- 
   lsf.str("package:auxfunctions") |> str_replace("(.+) :.+", "\\1")
 
-## a function to get function help as a text ----
-get_help_text <- function(function_name) {
-  # browser()
-  used_tags <- c("description", "details")
-  
-  tryCatch({
-    help_text <-
-      help(function_name, "auxfunctions") |>
-      utils:::.getHelpFile()
-  }, error = function(cond) {
-    message(paste("There is no R documentation for", function_name))
-    
-    message("Here's the original error message:")
-    message(conditionMessage(cond))
-    return()
-  })
-
-  used_tags_help_list <-
-    map(used_tags, \(one_tag) {
-      help_text |>
-        purrr::keep( ~ attr(.x, "Rd_tag") == paste0("\\", one_tag)) |>
-        purrr::map(as.character) %>%
-        purrr::flatten_chr() %>%
-        paste0(., collapse = "")
-    }) |>
-    stats::setNames(used_tags)
-
-  used_tags_help <-
-    paste(used_tags_help_list[[1]],
-          "\n",
-          used_tags_help_list[[2]])
-
-  used_tags_help_commented <-
-    used_tags_help |>
-    stringr::str_replace_all("\n", "\n# ")
-
-  return(used_tags_help_commented)
-}
-
 ## a function to get function obj as a text ----
 function_obj_as_text <- function(function_name) {
   # remove environment descriptions
@@ -473,6 +434,48 @@ get_all_auxfunction_texts <-
 all_auxfunction_texts <-
   get_all_auxfunction_texts(all_auxfunction_names)
 # View(all_auxfunction_texts)
+
+## a function to get function help as a text ----
+get_help_text <- function(function_name) {
+  # browser()
+  used_tags <- c("description", "details")
+  used_tags_help_commented <- ""
+  
+  tryCatch({
+    help_text <-
+      help(function_name, "auxfunctions") |>
+      utils:::.getHelpFile()
+  }, error = function(cond) {
+    message(paste("There is no R documentation for", function_name))
+    
+    message("Here's the original error message:")
+    message(conditionMessage(cond))
+    return()
+  })
+
+  if (exists("help_text")) {
+  used_tags_help_list <-
+    map(used_tags, \(one_tag) {
+      help_text |>
+        purrr::keep( ~ attr(.x, "Rd_tag") == paste0("\\", one_tag)) |>
+        purrr::map(as.character) %>%
+        purrr::flatten_chr() %>%
+        paste0(., collapse = "")
+    }) |>
+    stats::setNames(used_tags)
+
+  used_tags_help <-
+    paste(used_tags_help_list[[1]],
+          "\n",
+          used_tags_help_list[[2]])
+
+  used_tags_help_commented <-
+    used_tags_help |>
+    stringr::str_replace_all("\n", "\n# ")
+
+  }
+  return(used_tags_help_commented)
+}
 
 ## get all my used function helps ----
 get_all_auxfunction_helps <-
