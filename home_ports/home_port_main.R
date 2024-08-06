@@ -153,14 +153,14 @@ auxfunctions::create_dir_if_not(current_project_output_path)
 #### Vessels from PIMS ----
 vessel_names_file_path <-
   file.path(my_paths$inputs,
-            r"(from_PIMS\Vessels - 2024-07-30_1139.xlsx)")
+            r"(from_PIMS\Vessels - 2024-08-06_0819.xlsx)")
 
 file.exists(vessel_names_file_path)
 
 #### Permits from PIMS ----
 permits_names_file_path <-
   file.path(my_paths$inputs,
-            r"(from_PIMS\Permits - 2024-07-30_1139.xlsx)")
+            r"(from_PIMS\Permits - 2024-08-06_0819.xlsx)")
 
 file.exists(permits_names_file_path)
 
@@ -185,44 +185,60 @@ source(get_data_path)
 # View(vessels_from_pims_split_addr)
 
 #' Numbers in hailing_port
+#
+# Explanations:
+# - `dplyr::filter(grepl("\\d", hailing_port))` filters rows where `hailing_port` contains a digit:
+#   - `grepl("\\d", hailing_port)` uses a regular expression to check for the presence of a digit (`\\d`) in the `hailing_port` column. `grepl` returns `TRUE` for rows where a digit is found and `FALSE` otherwise.
+#   - `dplyr::filter(...)` keeps only the rows where the condition inside the `filter` function is `TRUE`.
+# - `dplyr::distinct()` removes duplicate rows from the resulting data frame.
 addresses_w_digit <- 
   vessels_from_pims_ok |>
   dplyr::filter(grepl("\\d", hailing_port)) |> 
   dplyr::distinct()
    # vessel_official_number hailing_port            
-#    <chr>                  <chr>                   
-#  1 574500                 HO0MASASSA, FL          
-#  2 1040384                2, AL                   
-#  3 NC6421AU               FIGURE 8 ISLAND, NC     
-#  4 FL3407ML               0,                      
-#  5 FL8939JR               00,                     
-#  6 925240                 0,                      
-#  7 FL5011MX               NAPLE4S, FL             
-#  8 SC8023DE               LITTLE RIVERNHV1N4WH, SC
-#  9 139403                 0,                      
-# 10 DO552832               0,                      
-# 11 1301930                22411 GENO LANE, AL     
-# 12 GA1769JL               117 HAWK LANDING LN, GA 
+# 1                1040384                    2, AL
+# 2               FL3407ML  xml:space="preserve">0,
+# 3               FL8939JR xml:space="preserve">00,
+# 4                 925240  xml:space="preserve">0,
+# 5                 139403  xml:space="preserve">0,
+# 6               SC4334DB  xml:space="preserve">0,
 
 #' Extra commas in hailing_port
+# 
+# Explanations:
+# - `dplyr::filter(grepl(",.+,", hailing_port))` filters rows where `hailing_port` contains a pattern matching `,.+,`:
+#   - `grepl(",.+,", hailing_port)` uses a regular expression to check for the presence of a comma followed by one or more characters and then another comma (`,.+,`) in the `hailing_port` column. `grepl` returns `TRUE` for rows where the pattern is found and `FALSE` otherwise.
+#   - `dplyr::filter(...)` keeps only the rows where the condition inside the `filter` function is `TRUE`.
+# - `dplyr::distinct()` removes duplicate rows from the resulting data frame. 
 vessels_from_pims_ok |>
   dplyr::filter(grepl(",.+,", hailing_port)) |> 
   dplyr::distinct()
-# 1                 945114            REDINGTON SHORES, FL, FL
-# 2                 919225                     CHAUVIN, LA, LA
-# 3               FL0702JJ              MATLACHA, BOKKELIA, FL
-# 4             8811432134                 PEMBROKE, PINES, FL
-# 5               FL7047TR JACKSONVILLE, FL, UNITED STATES, FL
+# 8811432134                 PEMBROKE, PINES, FL
 
 ## Find not acceptable characters in addresses ----
 
+# 
+# Explanations:
+# - `wrong_chars <- "[^A-Za-z0-9 .=',]"` assigns the regular expression pattern to the variable `wrong_chars`. This pattern matches any character that is not an uppercase letter (A-Z), lowercase letter (a-z), digit (0-9), space, period, equal sign, apostrophe, or comma.
+# - `dplyr::filter(grepl(wrong_chars, hailing_port))` filters rows where `hailing_port` contains characters matching the `wrong_chars` pattern:
+#   - `grepl(wrong_chars, hailing_port)` uses the regular expression pattern stored in `wrong_chars` to check for the presence of any character not included in the pattern in the `hailing_port` column. `grepl` returns `TRUE` for rows where such characters are found and `FALSE` otherwise.
+#   - `dplyr::filter(...)` keeps only the rows where the condition inside the `filter` function is `TRUE`.
+# - `dplyr::select(hailing_port)` selects only the `hailing_port` column from the filtered rows.
+# - `dplyr::distinct()` removes duplicate rows from the resulting data frame, ensuring that each `hailing_port` value appears only once.
 wrong_chars <- "[^A-Za-z0-9 .=',]"
 vessels_from_pims_ok |> 
   dplyr::filter(grepl(wrong_chars, hailing_port)) |> 
   dplyr::select(hailing_port) |> 
   dplyr::distinct()
+# 28
 
 ## Remove html ----
+# Explanations:
+# - `dplyr::mutate(hailing_port = ...)` modifies an existing column `hailing_port` with the specified transformation:
+#   - `stringr::str_replace(hailing_port, 'xml:space=\"preserve\">', "")` replaces occurrences of the substring `'xml:space=\"preserve\">'` in the `hailing_port` column with an empty string:
+#     - `stringr::str_replace` is a function from the `stringr` package that replaces the first instance of a pattern in a string.
+#     - The pattern `'xml:space=\"preserve\">'` matches the exact sequence `xml:space="preserve">` in the `hailing_port` values.
+#     - `""` is the replacement string, effectively removing the matched pattern from the `hailing_port` values.
 vessels_from_pims_ok_no_html <-
   vessels_from_pims_ok |>
   dplyr::mutate(hailing_port =
@@ -374,26 +390,15 @@ vessels_from_pims_split_addr__city_state |>
   dplyr::filter(grepl("\\d", city_state)) |> 
   dplyr::select(city_state) |> 
   dplyr::distinct()
-# 1 HO0MASASSA#FL          
-# 2 2#AL                   
-# 3 FIGURE 8 ISLAND#NC     
-# 4 0#                     
-# 5 00#                    
-# 6 NAPLE4S#FL             
-  # 7 LITTLE RIVERNHV1N4WH#SC (fixed)
-# 8 22411 GENO LANE#AL     
-# 9 117 HAWK LANDING LN#GA 
+# 1 2#AL      
+# 2 0#        
+# 3 00#       
 
 #' extra commas in city, state 
 vessels_from_pims_split_addr__city_state |>
   dplyr::filter(grepl(",", city_state)) |> 
   dplyr::select(city_state)
-# REDINGTON SHORES#FL, FL
-# CHAUVIN#LA, LA         
-# ALEXANDER CITY#AL, AL  (fixed)
-# MATLACHA#BOKKELIA, FL  
 # PEMBROKE#PINES, FL   
-# JACKSONVILLE#FL, UNITED STATES, FL
 
 ### Get wrong addresses only ----
 #' Explanations:
@@ -549,9 +554,11 @@ write_to_google <-
     return(new_file_ss_info)
   }
 
-# new_file_ss_info <- write_to_google()
+# Uncomment to run
+new_file_ss_info <- write_to_google()
 
 # to see the result in the browser
+# Uncomment to run
 # googledrive::drive_browse(new_file_ss_info)
 
 ### List of vessels with double ports ----
@@ -650,7 +657,7 @@ vessels_from_pims_split_addr__city_state__fix2_ok__no_addr <-
 
 nrow(vessels_from_pims_split_addr__city_state__fix2_ok__no_addr)
 # 6
-# 0
+# 0 OK
 
 #' No state
 vessels_from_pims_split_addr__city_state__fix2_ok__no_state <-
@@ -667,7 +674,7 @@ vessels_from_pims_split_addr__city_state__fix2_ok_short <-
                 tidyselect::ends_with("_fixed")) |> 
   dplyr::distinct()
 
-#' check
+# check
 # vessels_from_pims_split_addr__city_state__fix2_ok |> 
 #   filter(!state == state_fixed) |> 
 #   View()
@@ -730,7 +737,7 @@ readr::write_csv(
 # TODO:
 # Write to google drive
 
-View(vessels_from_pims_split_addr__city_state__fix2_ok_short)
+# View(vessels_from_pims_split_addr__city_state__fix2_ok_short)
 
 # ===
 # Do weird vessels have permits
@@ -784,10 +791,21 @@ weird_vessel_ids_permits_ids_only <-
 
 # write to google drive ids only
 
-# googlesheets4::write_sheet(weird_vessel_ids_permits_ids_only,
-#                            ss = new_file_ss_info, 
-#                            sheet = "ids from Permits")
-# 
-# googlesheets4::write_sheet(weird_vessel_ids_only,
-#                            ss = new_file_ss_info, 
-#                            sheet = "ids from Vessels")
+add_to_google_ss_ids_only <-
+  function() {
+    
+    googlesheets4::write_sheet(weird_vessel_ids_permits_ids_only,
+                               ss = new_file_ss_info,
+                               sheet = "ids from Permits")
+    googlesheets4::sheet_relocate(ss = new_file_ss_info,
+                                  sheet = "ids from Permits",
+                                  .before = 1)
+    googlesheets4::write_sheet(weird_vessel_ids_only, ss = new_file_ss_info, sheet = "ids from Vessels")
+    
+    googlesheets4::sheet_relocate(ss = new_file_ss_info,
+                                  sheet = "ids from Vessels",
+                                  .before = 1)
+  }
+
+# uncomment to run
+add_to_google_ss_ids_only()
