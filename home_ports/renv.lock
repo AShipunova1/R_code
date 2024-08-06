@@ -212,15 +212,14 @@
       "Version": "1.1",
       "Source": "GitHub",
       "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "R_code",
       "RemoteUsername": "AShipunova1",
-      "RemoteRef": "development",
-      "RemoteSha": "2348e70ff92de64b2c4461c9880641d11e2c0a62",
+      "RemoteRepo": "R_code",
       "RemoteSubdir": "auxfunctions",
+      "RemoteRef": "development",
+      "RemoteSha": "c0ad8189efcf949617dc1042b08aec5141a10f2c",
+      "RemoteHost": "api.github.com",
       "Requirements": [
         "DBI",
-        "R",
         "cowplot",
         "crayon",
         "data.table",
@@ -240,7 +239,7 @@
         "tidyr",
         "tidyselect"
       ],
-      "Hash": "af035be85ff5e3abddac5a2c5cfff2f9"
+      "Hash": "2c9b0315af2bbaadfc4cffdae196f664"
     },
     "backports": {
       "Package": "backports",
@@ -1885,7 +1884,7 @@
     },
     "shiny": {
       "Package": "shiny",
-      "Version": "1.9.0",
+      "Version": "1.9.1",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -1914,7 +1913,7 @@
         "withr",
         "xtable"
       ],
-      "Hash": "01666113b04d504390d60736f39bd0d0"
+      "Hash": "6a293995a66e12c48d13aa1f957d09c7"
     },
     "sodium": {
       "Package": "sodium",
