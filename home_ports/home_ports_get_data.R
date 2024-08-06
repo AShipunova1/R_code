@@ -41,33 +41,10 @@ vessels_from_pims <-
   auxfunctions::my_read_xlsx(vessel_names_file_path, 
                              start_row = 4)
 
-# check
-# print_df_names(vessels_from_pims)
-
-# dplyr::glimpse(vessels_from_pims)
-
 # Check the dimensions of the loaded vessel data
 dim(vessels_from_pims)
 # [1] 23107     8
 
-# The following commented-out code block is for handling vessels with double names.
-# This functionality is not currently implemented but may be needed in the future.
-# TODO: get vessel (home port) info from PIMS with 2 names
-# "~\R_files_local\my_inputs\non_compliant_areas\vessels_permit_hailng_port_double_name.xlsx"
-
-# vessel_data_pims_double_address <-
-#     file.path(my_paths$inputs,
-#               r"(non_compliant_areas\vessels_permit_hailng_port_double_name.xlsx)")
-
-# vessels_from_pims_double <- 
-#   get_vessel_data_pims(vessel_data_pims_double_address,
-#                        to_skip = 0)
-
-# dim(vessels_from_pims_double)
-# [1] 652   3
-
-# names(vessels_from_pims_double)
-# [1] "vessel_official_number1" "vessel_official_number2" "hailing_port"         
 ## Load permits from PIMS ----
 
 #' This line of code reads data from the specified Excel file starting at the 5th row, using a custom function `my_read_xlsx` from the `auxfunctions` package, and stores the resulting data frame in the variable `permits_from_pims`.
@@ -496,7 +473,7 @@ grep(",[a-zA-Z]",
 #' If no results are returned, it indicates successful cleaning
 # [1] "PEMBROKE,PINES, FL"
 
-# check if there are more than one space
+#' check if there are more than one space
 grep("  +",
      vessels_from_pims_ok$hailing_port,
      value = T)
