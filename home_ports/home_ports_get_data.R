@@ -21,7 +21,7 @@
 
 ## Load vessels from PIMS ----
 
-#' Explanations:
+#' Explanations for the following code:
 #' 
 #' - `vessels_from_pims <-` assigns the result of the function call to the variable `vessels_from_pims`.
 #' 
@@ -71,7 +71,7 @@ permits_from_pims <-
 
 # Clean data ----
 #'
-#' Explanations:
+#' Explanations for the following code:
 #'
 #' - `vessel_or_dealer_col_name <-` assigns the result of the pipeline to the variable `vessel_or_dealer_col_name`.
 #'
@@ -96,7 +96,7 @@ vessel_or_dealer_col_name <-
 
 ## Permits, split vessel_or_dealer ----
 #'
-#' Explanations:
+#' Explanations for the following code:
 #'
 #' - `permits_from_pims__split1 <-` assigns the result of the pipeline to the variable `permits_from_pims__split1`.
 #'
@@ -133,7 +133,7 @@ dplyr::glimpse(permits_from_pims__split1)
 
 ### An auxiliary function ----
 
-#' Explanations:
+#' Explanations for the following code:
 #' 
 #' - `convert_to_dates <- function(my_df, ymd_format = c("Ymd", "mdY"))` defines the function `convert_to_dates` with two parameters:
 #' 
@@ -170,7 +170,7 @@ convert_to_dates <-
     return(my_df_w_dates)
   }
 
-#' Explanations:
+#' Explanations for the following code:
 #'
 #' - `permits_from_pims__split1_short <-` assigns the final result of the pipeline to the variable `permits_from_pims__split1_short`.
 #'
@@ -207,7 +207,7 @@ dim(permits_from_pims__split1_short)
 
 ## Permits, split permit number ----
 #'
-#' Explanations:
+#' Explanations for the following code:
 #'
 #' - `permits_from_pims__split1_short__split2 <-` assigns the result of the pipeline to the variable `permits_from_pims__split1_short__split2`.
 #'
@@ -241,7 +241,7 @@ dplyr::glimpse(permits_from_pims__split1_short__split2)
 
 ## Vessels, clean and shorten  ----
 #'
-#' Explanations:
+#' Explanations for the following code:
 #'
 #' - `hailing_port_col_name <-` assigns the result of the pipeline to the variable `hailing_port_col_name`.
 #'
@@ -262,7 +262,7 @@ hailing_port_col_name <-
   rlang::sym()
 
 #'
-#' Explanations:
+#' Explanations for the following code:
 #'
 #' - `vessels_from_pims_short <-` assigns the result of the pipeline to the variable `vessels_from_pims_short`.
 #'
@@ -301,8 +301,21 @@ dim(vessels_from_pims_short)
 # [1] 22887     2
 
 ## Vessels, remove "NOVESID" ----
-# From Kevin McIntosh:
-# 'All NOVESID vessels will not have any home port information since they are "virtual" vessels used as a placeholder for HMS permits and not actual physical vessels'
+#' 
+#' From Kevin McIntosh:
+#' 
+#' 'All NOVESID vessels will not have any home port information since they are "virtual" vessels used as a placeholder for HMS permits and not actual physical vessels.'
+#'
+#' Explanations for the following code:
+#'
+#' - `dplyr::filter(!grepl("^NOVESID", vessel_official_number))` filters the rows of the data frame:
+#'
+#'   - `grepl("^NOVESID", vessel_official_number)` uses a regular expression to identify rows where the `vessel_official_number` starts with `"NOVESID"`:
+#'
+#'     - `^` denotes the start of the string.
+#'
+#'     - `"NOVESID"` is the pattern being searched for at the beginning of the string.
+#   - `!` negates the result of `grepl`, so only rows where `vessel_official_number` does not start with `"NOVESID"` are kept.
 
 vessels_from_pims_short_ok <-
   vessels_from_pims_short |>
@@ -315,11 +328,7 @@ dim(vessels_from_pims_short_ok)
 
 ## Vessels, split double names ----
 #'
-#' Explanations:
-#'
-#' - `vessels_from_pims_short_ok__split1 <-` assigns the result of the pipeline to the variable `vessels_from_pims_short_ok__split1`.
-#'
-#' - `vessels_from_pims_short_ok |>` starts the pipeline with the data frame `vessels_from_pims_short_ok`.
+#' Explanations for the following code:
 #'
 #' - `tidyr::separate(vessel_official_number, c('vessel_official_number', 'vessel_official_number2'), sep = " / ")` separates the `vessel_official_number` column into two new columns:
 #'
@@ -366,6 +375,19 @@ vessels_from_pims_double_2 <-
   dplyr::rename("vessel_official_number" = vessel_official_number2)
 
 ### combine in one df ----
+#'
+#' Explanations for the following code:
+#'
+#' - `rbind(vessels_from_pims_double_1, vessels_from_pims_double_2)` combines the rows from `vessels_from_pims_double_1` and `vessels_from_pims_double_2` into a single data frame:
+#'
+#'   - `rbind` stands for row-bind and stacks the rows of the two data frames on top of each other.
+#'
+#' - `dplyr::distinct()` removes duplicate rows from the combined data frame.
+#'
+#' - `dplyr::filter(!is.na(vessel_official_number))` filters out rows where `vessel_official_number` is `NA`:
+#'
+#'   - `!is.na(vessel_official_number)` returns `TRUE` for rows where `vessel_official_number` is not `NA`, keeping only those rows.
+#'   
 vessels_from_pims_double_bind <-
   rbind(
     vessels_from_pims_double_1,
@@ -374,13 +396,13 @@ vessels_from_pims_double_bind <-
   dplyr::distinct() |> 
   dplyr::filter(!is.na(vessel_official_number))
 
-# added vessel ids from doubles
+# count added vessel ids from doubles
 nrow(vessels_from_pims_double_bind) - nrow(vessels_from_pims_short_ok__split1)
 # 570
 
 ## Vessels, clean home port punctuation ----
 #'
-#' Explanations:
+#' Explanations for the following code:
 #'
 #' - `vessels_from_pims_ok <-` assigns the result of the pipeline to the variable `vessels_from_pims_ok`.
 #'
