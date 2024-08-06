@@ -2,6 +2,8 @@
 
 # Get data ----
 #' 
+#' This section loads and processes vessel and permit data from PIMS for further analysis.
+#' 
 #' Load the needed files. First download them from PIMS into paths defined in the Set Up Paths section above.
 #' 
 #' 1) "Permits - 2024-02-28_0930.xlsx"
@@ -18,9 +20,10 @@
 #'
 #' Example: "Vessels - 2024-02-28_0930.xlsx"
 #' 
-
 ## Load vessels from PIMS ----
 
+#' File paths for vessel and permit data files vessel_names_file_path and permits_names_file_path were defined in the Setup section.
+#' 
 #' Explanations for the following code:
 #' 
 #' - `vessels_from_pims <-` assigns the result of the function call to the variable `vessels_from_pims`.
@@ -43,9 +46,12 @@ vessels_from_pims <-
 
 # dplyr::glimpse(vessels_from_pims)
 
+# Check the dimensions of the loaded vessel data
 dim(vessels_from_pims)
 # [1] 23107     8
 
+# The following commented-out code block is for handling vessels with double names.
+# This functionality is not currently implemented but may be needed in the future.
 # TODO: get vessel (home port) info from PIMS with 2 names
 # "~\R_files_local\my_inputs\non_compliant_areas\vessels_permit_hailng_port_double_name.xlsx"
 
