@@ -947,8 +947,8 @@ permits_from_pims__split1 |>
 
 #' Calculate the length of vessel official numbers
 #' 
-#' Explanations:
-#'
+#' Explanations for the following code:
+#' 
 #' - `permits_from_pims__split1_short__split2__id_len <- ...` assigns the result of the operations to the variable `permits_from_pims__split1_short__split2__id_len`.
 #'
 #' - `permits_from_pims__split1_short__split2 |>` pipes the `permits_from_pims__split1_short__split2` data frame to the next function.
@@ -1043,7 +1043,7 @@ weird_vessel_ids_permits_ids_only <-
 #'
 #' Function to write data to Google Sheets
 #'
-#' Explanations:
+#' Explanations for the following code:
 #'
 #' - `add_to_google_ss_ids_only <- function() { ... }` defines a function named `add_to_google_ss_ids_only` that performs operations related to Google Sheets.
 #'
