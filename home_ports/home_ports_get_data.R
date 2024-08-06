@@ -102,6 +102,8 @@ vessel_or_dealer_col_name <-
 
 ## Permits, split vessel_or_dealer ----
 #'
+#' Split the vessel_or_dealer column into separate columns for vessel and dealer information
+#' 
 #' Explanations for the following code:
 #'
 #' - `permits_from_pims__split1 <-` assigns the result of the pipeline to the variable `permits_from_pims__split1`.
@@ -132,8 +134,12 @@ permits_from_pims__split1 <-
   dplyr::mutate(dplyr::across(c('vessel_official_number', 'dealer'),
                 stringr::str_squish))
 
+# A possible warning, can disregard, because not all entries have the 'vessel_official_number / dealer' format.
+# "Expected 2 pieces. Missing pieces filled with `NA` in 3038 rows [229, 244, 294,"
+
+
+# Display a concise summary of the resulting data frame
 dplyr::glimpse(permits_from_pims__split1)
-# Expected 2 pieces. Missing pieces filled with `NA` in 3038 rows [229, 244, 294,
 
 ## Permits, clean and shorten ----
 
@@ -176,6 +182,8 @@ convert_to_dates <-
     return(my_df_w_dates)
   }
 
+#' Process the split data frame by converting dates and filtering rows based on program start date
+#' 
 #' Explanations for the following code:
 #'
 #' - `permits_from_pims__split1_short <-` assigns the final result of the pipeline to the variable `permits_from_pims__split1_short`.
@@ -205,6 +213,7 @@ permits_from_pims__split1_short <-
   dplyr::filter(dplyr::if_any(tidyselect::ends_with("date"), 
                 ~ . > program_start_date))
 
+#' Display the dimensions of the original and processed data frames for comparison
 dim(permits_from_pims)
 # [1] 53365    11
 
@@ -213,6 +222,8 @@ dim(permits_from_pims__split1_short)
 
 ## Permits, split permit number ----
 #'
+#' Process the permits data by splitting the permit number and cleaning whitespace
+#' 
 #' Explanations for the following code:
 #'
 #' - `permits_from_pims__split1_short__split2 <-` assigns the result of the pipeline to the variable `permits_from_pims__split1_short__split2`.
@@ -243,10 +254,13 @@ permits_from_pims__split1_short__split2 <-
   dplyr::mutate(dplyr::across(tidyselect::starts_with('permit'),
                 stringr::str_squish))
 
+# Display a concise summary of the processed permits data
 dplyr::glimpse(permits_from_pims__split1_short__split2)
 
 ## Vessels, clean and shorten  ----
 #'
+#' Process the vessels data by renaming, selecting specific columns, and removing duplicates
+#' 
 #' Explanations for the following code:
 #'
 #' - `hailing_port_col_name <-` assigns the result of the pipeline to the variable `hailing_port_col_name`.
@@ -303,10 +317,13 @@ vessels_from_pims_short <-
 
 # print_df_names(vessels_from_pims)
 
+#' Display the dimensions of the processed vessels data
 dim(vessels_from_pims_short)
 # [1] 22887     2
 
 ## Vessels, remove "NOVESID" ----
+#' 
+#' Remove virtual vessels used as placeholders for HMS permits
 #' 
 #' From Kevin McIntosh:
 #' 
@@ -334,6 +351,8 @@ dim(vessels_from_pims_short_ok)
 
 ## Vessels, split double names ----
 #'
+#' Separate vessel official numbers that contain multiple identifiers
+#' 
 #' Explanations for the following code:
 #'
 #' - `tidyr::separate(vessel_official_number, c('vessel_official_number', 'vessel_official_number2'), sep = " / ")` separates the `vessel_official_number` column into two new columns:
@@ -365,11 +384,16 @@ vessels_from_pims_short_ok__split1 <-
 # View(vessels_from_pims_short_ok__split1)
 
 ## Vessels, make one column of double names ----
+#' 
+#' Process and combine split vessel identifiers into a single column
+#' 
 ### split into 2 dataframes and rename the id column ----
-
+#' 
+#' Create separate dataframes for primary and secondary vessel identifiers
+#' 
 # [1] "vessel_official_number, vessel_official_number2, hailing_port"
-
-# remove vessel_official_number2
+#' 
+#' remove vessel_official_number2
 vessels_from_pims_double_1 <-
   vessels_from_pims_short_ok__split1 |> 
   dplyr::select(-vessel_official_number2)
@@ -382,6 +406,8 @@ vessels_from_pims_double_2 <-
 
 ### combine in one df ----
 #'
+#' Merge primary and secondary vessel identifier dataframes
+#' 
 #' Explanations for the following code:
 #'
 #' - `rbind(vessels_from_pims_double_1, vessels_from_pims_double_2)` combines the rows from `vessels_from_pims_double_1` and `vessels_from_pims_double_2` into a single data frame:
@@ -454,14 +480,20 @@ vessels_from_pims_ok <-
            stringr::str_squish(!!hailing_port_col_name)) |> 
   dplyr::distinct()
 
+#' Check the dimensions of the cleaned data frame
 dim(vessels_from_pims_ok)
 # [1] 23086     2
 
+#' Check for specific patterns in the hailing_port column
+#' 
 #' check if there is a letter after comma
+#' 
 grep(",[a-zA-Z]",
      vessels_from_pims_ok$hailing_port,
      value = T)
+# If no results are returned, it indicates successful cleaning
 # 0 OK
+#' If no results are returned, it indicates successful cleaning
 # [1] "PEMBROKE,PINES, FL"
 
 # check if there are more than one space
