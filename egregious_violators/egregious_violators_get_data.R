@@ -39,7 +39,7 @@
 
 #' 3) processed Metrics tracking
 #' 
-#' From a separate code
+#' From a separate script: processing_metrics_tracking.R
 #'  
 #' For the last 6 month or more
 #' 
@@ -59,16 +59,20 @@
 
 #' 5) home port cleaned city and state from PIMS
 #' 
+#' Downloaded from Google Drive input folder, or recreated if the file is more than 4 months old
+#' 
+#' Recreated from a separate script: home_ports.qmd
+#' 
 #' a File name example
 #' "~\R_files_local\my_outputs\home_ports\vessels_from_pims_ports_DATE.csv"
 #' 
 
-#' 6) address information from Oracle db
+#' 6) address information pulled from Oracle db
 #' 
 #' "db_participants_address.rds"
 #' 
 
-#' 7) Previous results (from google drive)
+#' 7) Previous results from this script (from google drive)
 #' 
 #' There are two options here, to downloaded the file as .xlsx or to get it directly from Google drive into R.
 #' 
