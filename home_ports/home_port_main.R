@@ -428,6 +428,8 @@ to_fix_list <-
          "PORT O'CONNOR#TX"),
        c("PORT ST.LUICE#FL",
          "PORT ST LUCIE#FL"),
+       c("PT. CANAVERAL#FL",
+         "PORT CANAVERAL#FL"),
        c("PUNTA GORGA#FL",
          "PUNTA GORDA#FL"),
        c("REDINGTON SHORES#FL, FL",
