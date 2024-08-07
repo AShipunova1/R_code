@@ -444,8 +444,10 @@ output_egr_violators_googledrive_folder_name <- "output"
 #' 
 #' It is used to read the previous result and for saving the new result.
 #' 
+#' Google drive authentication:
+#' 
 #' The code below will create two entries in the console that you will have to respond to.
-#'
+#' 
 #' The first is this: (example path is for Jenny’s computer) 
 #'
 #' Is it OK to cache OAuth access credentials in the folder
@@ -468,7 +470,15 @@ output_egr_violators_googledrive_folder_name <- "output"
 #'
 #' Type 1 or 2 in the Selection line and hit Enter. 
 #'
-#' `n_max = 1` means we will use the first result, assuming we have only one folder with such name on Google dive.
+#' Option #2 will use your google email account (your.name@noaa.gov) and it will confirm your access automatically.
+#'
+#' When asked for the authentication the first time, a link will pop up in your internet browser, choose the appropriate option (usually your work email) and follow the instructions. 
+#'
+#' You will get a message in the R console when the authentication is complete. 
+#'
+#' End of Google drive authentication.
+#' 
+#' `n_max = 1` means we will use the first result, assuming we have only one folder with such name on Google drive.
 #'
 
 egr_violators_googledrive_folder_path <-
