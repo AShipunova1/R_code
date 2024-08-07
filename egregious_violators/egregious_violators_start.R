@@ -444,9 +444,29 @@ output_egr_violators_googledrive_folder_name <- "output"
 #' 
 #' It is used to read the previous result and for saving the new result.
 #' 
-#' When asked for the authentication the first time choose the appropriate option and follow the instructions. 
-#' 
-#' If there is an option with your google email account (like your.name@noaa.gov) you can choose that option (usually #2) and it will confirm your access automatically.
+#' The code below will create two entries in the console that you will have to respond to.
+#'
+#' The first is this: (example path is for Jenny’s computer) 
+#'
+#' Is it OK to cache OAuth access credentials in the folder
+#'
+#' C:/Users/JENNY~1.OST/AppData/Local/gargle/gargle/Cache between R sessions?
+#'
+#' 1: Yes
+#'
+#' 2: No
+#'
+#' Selection: 
+#'
+#' The purpose of this prompt is to allow the cache to contain a token that will be used to access the Google drive account. This is necessary to ensure that you are securing the gateway between R and the Google drive account. The token is only valid for the current R session. Type Yes or No in the Selection line and hit Enter
+#'
+#' The second is this: 
+#'
+#' Enter a number between 1 and 2, or enter 0 to exit.
+#'
+#' Selection: 
+#'
+#' Type 1 or 2 in the Selection line and hit Enter. 
 #'
 #' `n_max = 1` means we will use the first result, assuming we have only one folder with such name on Google dive.
 #'
