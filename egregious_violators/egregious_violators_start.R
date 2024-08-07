@@ -569,7 +569,7 @@ source(get_data_path)
 
 compl_clean_w_permit_exp <-
   compl_clean |>
-  # if permit group expiration is after permit_expired_check_date than "not expired"
+  # if permit group expiration is after permit_expired_check_date then the permit is "not expired"
   dplyr::mutate(permit_expired =
            dplyr::case_when(
              permit_groupexpiration > permit_expired_check_date ~ "no",
@@ -692,6 +692,10 @@ compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr |>
 # 3 YES        NO          yes                      27794
 #'
 #' Verify that the compliant_after_override column contains only "yes" and "no" values
+#' 
+#' This should return a result of logical(0), if you get something else, stop and investigate.
+#' 
+
 setdiff(compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr$compliant_after_override |>
   unique(), c("yes", "no")) == 0
 
@@ -720,9 +724,9 @@ dim(compl_clean_w_permit_exp_last_half_year__sa_non_c)
 
 ### Keep only vessels with info for all weeks in the period ----
 #'
-#' That should eliminate entries for vessels having permits only a part of the period
+#' That should eliminate entries for vessels having permits for only a part of the 26 week period.
 #' 
-#' Calculate the total number of distinct weeks in the dataset
+#' Calculate the total number of distinct weeks in the dataset with non-compliant vessels.
 #' 
 all_weeks_num <-
   compl_clean_w_permit_exp_last_half_year__sa_non_c |>
@@ -734,7 +738,7 @@ all_weeks_num <-
 #'
 #' 1. Group the data frame by 'vessel_official_number'.
 #'
-#' 2. Filter the groups based on the condition that the number of distinct weeks is greater than or equal to 'all_weeks_num'.
+#' 2. Filter the groups based on the condition that the number of distinct weeks for a given vessel is greater than or equal to the 'all_weeks_num'.
 #'
 #' 3. Remove the grouping from the data frame.
 #'
@@ -787,7 +791,8 @@ compl_clean_w_permit_exp_last_half_year__sa |>
       year_month < zoo::as.yearmon(data_file_date)
   ) |>
   nrow()
-#' A result of 0 indicates no new compliant reports have been submitted for selected vessels. If it is not a zero, comment "nrow()" at the last line and the pipe sign before and investigate.
+
+#' A result of 0 indicates no new compliant reports have been submitted for selected vessels. If it is not a zero, comment out "nrow()" at the last line and the pipe sign (|>) at the end of the previous line, and investigate.
 #'
 #' End of Compliance preparations 
 #' 
@@ -1030,7 +1035,7 @@ num_of_vsl_to_investigate <-
 #' 
 #' 2. Create additional columns.
 #' 
-#' 3. Mark vessels already in the know list (prev_result).
+#' 3. Mark vessels already known (listed in prev_result).
 #' 
 #' 4. Duals vs. sa_only
 #' 
