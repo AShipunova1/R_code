@@ -763,7 +763,7 @@ setup_text <- "
  
 # When you click the **Render** button a document will be generated that includes both content and the output of embedded code.
 
-# Load libraries required for Quatro
+# Load libraries required for Quarto
 # A general-purpose tool for dynamic report generation in R
 library(knitr)
 
