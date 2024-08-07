@@ -92,7 +92,9 @@ install_helper_functions()
 
 program_start_date <- lubridate::dmy("01/01/2021")
 
-# Define the years for which data will be analyzed
+# Define the years for which data will be analyzed.
+# We don't use 2021 data as program compliance was low, and so we consider the 1st year a throw away year.
+
 # Manually change if needed
 my_years <- c("2022", "2023", "2024")
 
