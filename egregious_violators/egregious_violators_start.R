@@ -16,29 +16,19 @@
 #' 
 ## The "egregious violator" definition ----
 #' 
-#' 1. No reports for all 26 weeks back from week ago today;
+#' 1. No reports for 26 weeks, starting from a week ago today, and going back 26 weeks.
 #'
-#' 2. Permits have not expired and were active for the same period as (1);
+#' 2. Permits have not expired and were active for the same period as (1).
 #'
-#' 3. The grace period is 7 days back from today.
+#' 3. The grace period is the 7 days prior to today, and is not included in the 26 weeks.
 #'
-#' 4. It needs to be that we called at least 1 time and emailed at least 1 time. Or they contacted us at least once.
+#' 4. We need to have called at least 1 time and emailed at least 1 time. Or they contacted us at least once.
 #'
-#' 5. Not counting any correspondence (regardless of the type - email/call, voicemail or not) that includes "No contact made" in the text of the entry as an actual "direct" contact for any egregious vessel (May 6 2024)
+#' 5. Do not count any correspondence (regardless of the type - email/call, voicemail or not) that includes "No contact made" in the text of the entry as an actual "direct" contact for any egregious vessel (May 6 2024).
 #'
 
 ## New requirement 2023-08-09 ----
-#' 6. It should be at least 2 contact "attempts". i.e., if they are ignoring our calls and emails then they cannot continue to go on in perpetuity without reporting and never be seen as egregious. So, at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough at this point and they need to be passed to OLE.
-#' 
-#' at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough
-#' 
-
-## New requirement 2024-02-26 ----
-#' 7. It needs to be that we called at least 1 time and emailed at least 1 time. Or they contacted us at least once.
-#' 
-
-## New requirement 2024-05-06 ----
-#' 8. Exclude any correspondence (regardless of the type - email/call, voicemail or not) that includes "No contact made" in the text of the entry as a actual "direct" contact for any egregious vessel.
+#' 6. We should have made at least 2 contact "attempts". i.e., if they are ignoring our calls and emails then they cannot continue to go on in perpetuity without reporting and never be seen as egregious. So, at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough at this point and they need to be passed to OLE.
 #' 
 #' About comments:
 #' 
