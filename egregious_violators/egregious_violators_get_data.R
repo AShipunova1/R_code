@@ -115,7 +115,7 @@ csv_contents <-
 csvs_clean1 <- 
   auxfunctions::clean_all_csvs(csv_contents)
 
-#' Every time processing for Compliance and Correspondence downloaded from FHIER
+#' Processing for Compliance and Correspondence downloaded from FHIER
 #' 
 #' For correspondence:
 #'
@@ -150,7 +150,7 @@ compl_clean_list <-
 
 #' Assign analysis years as names to the compliance data frames for easy reference
 #' If there are more than one year, all defined years are used as names, 
-#' if there is only one than only the most recent one is used.
+#' if there is only one then only the most recent one is used.
 
 # Get the new names in reverse.
 # This creates a vector of year names, using the most recent year first and as many as we have compliance files.
@@ -167,7 +167,8 @@ names(compl_clean_list_rev) <- my_new_years_names_rev
 # This step ensures the final list is in the original order with new names.
 compl_clean_list <- rev(compl_clean_list_rev)
 
-#' Check the size of each cleaned compliance data frame to ensure proper data loading and processing
+#' Check the size of each cleaned compliance data frame to ensure proper data loading and processing. If the actual results are very different (like an order of magnitude) then stop and investigate.
+#' 
 purrr::map(compl_clean_list, dim)
 
 #' Example result for dimensions check
@@ -187,7 +188,7 @@ compl_clean <-
 dim(compl_clean)
 # [1] 221081     20
 
-#' Check dimensions of the cleaned correspondence data frame
+#' Check dimensions of the cleaned correspondence data frame. If the actual results are very different from the example (like an order of magnitude) then stop and investigate.
 dim(corresp_contact_cnts_clean0)
 # [1] 34549    22
 
@@ -197,7 +198,8 @@ dim(corresp_contact_cnts_clean0)
 #' 
 #' It is processed using a separate script (processing_metrics_tracking.R) stored on Google Drive. Prepare a new file every time.
 #'  
-#' Read the processed metrics tracking files for all years
+#' Read in the processed metrics tracking files for years 1 and 2
+#' 
 processed_metrics_tracking_permits <-
   purrr::map_df(processed_metrics_tracking_file_names,
          readr::read_rds)
@@ -213,7 +215,7 @@ names(processed_metrics_tracking_permits) <-
 #' Example of column names
 # [1] "vessel_official_number, vessel_name, effective_date, end_date, permits, sa_permits_, gom_permits_, permit_region, permit_sa_gom_dual"
 
-#' Check dimensions of the processed metrics tracking data frame
+#' Check dimensions of the processed metrics tracking data frame. If the actual results are very different from the example (like an order of magnitude) then stop and investigate.
 dim(processed_metrics_tracking_permits)
 #' An example 
 # [1] 9977    9
@@ -236,7 +238,7 @@ fhier_addresses <-
            col_types = readr::cols(.default = 'c'),
            name_repair = auxfunctions::fix_names)
 
-#' Check dimensions of the loaded FHIER addresses data frame
+#' Check dimensions of the loaded FHIER addresses data frame. If the actual results are very different from the example (like an order of magnitude) then stop and investigate.
 dim(fhier_addresses)
 # Example result: [1] 3386    7
 
