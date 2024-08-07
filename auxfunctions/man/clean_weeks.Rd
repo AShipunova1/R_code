@@ -17,7 +17,7 @@ clean_weeks(my_df)
 }
 }
 \details{
-- The `clean_weeks` function is designed to clean up the "week" column in a complinace dataframe.
+- The `clean_weeks` function is designed to clean up the "week" column in a compliance dataframe.
 
 - It first separates the "week" column into two separate columns using ":" as the delimiter, resulting in columns "week_num" and "week_rest".
 
