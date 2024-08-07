@@ -41,8 +41,9 @@
 #' 3) All other comments explain the logic and the syntax.
 #' 
 #' 
-#' Note. Update (download) all input files every time before run.
+#' Note. Update (download) all input files every time, the same day, before running this code.
 #' 
+#' This is important because we use the function “today” to establish the 26 week time period, so all files need to be generated on the same “today”. #' 
 #' If there is no comment with the word "manually" before the code, it will work automatically.
 #' 
 ## Install packages if needed ----
@@ -54,6 +55,7 @@
 #' Install packages not yet installed
 #' 
 
+# Create list of needed packages
 needed_packages <- c(
   "tidyverse",
   "ROracle",
@@ -79,7 +81,7 @@ if (any(installed_packages == FALSE)) {
   install.packages(needed_packages[!installed_packages])
 }
 
-#' Install helper functions for SEFHIER data analysis.
+#' Optional: Install helper functions from GitHub for SEFHIER data analysis.
 #'
 #' Explanations for the following code:
 #' 
@@ -124,6 +126,8 @@ install_helper_functions <- function() {
 
 install_helper_functions()
 
+## Load packages ----
+
 # Load packages for database interactions with Oracle databases.
 library(ROracle)
 library(DBI)
@@ -137,6 +141,9 @@ library(magrittr)
 #' 
 #' Manually: Values for `my_year1` and `my_year2` may be adjusted as needed
 #' 
+#' Ex. my_year1 is the previous calendar year, and my_year2 is the current calendar year
+#' 
+
 # start year for the analysis
 my_year1 <- "2023"
 my_beginning1 <- stringr::str_glue("{my_year1}-01-01")
@@ -153,21 +160,22 @@ my_end2 <- stringr::str_glue("{my_year2}-12-31")
 data_file_date <- 
   lubridate::today()
   
-#' How many weeks and days to take in to the account?
-#' The 26-week period is used to define long-term non-compliance
+#' How many weeks and days to take into account?
+#' 
+# The 26-week period is used to define long-term non-compliance
 number_of_weeks_for_non_compliance = 26
 
-#' Calculate number of days in non compl weeks
+# Calculate number of days in non compl weeks
 days_in_non_compl_weeks <- 
   number_of_weeks_for_non_compliance * 7
 
 # test, should be TRUE
 days_in_non_compl_weeks == 182
-#'
-#' The 7-day grace period allows for recent reports that may not yet be processed
+#
+# The 7-day grace period allows for recent reports that may not yet be processed
 grace_period = 7 # days
 
-# Calculate the date 26 weeks (plus grace period) before the current date
+# Calculate the date that is 26 weeks plus the grace period before the current date
 half_year_ago <-
   data_file_date - days_in_non_compl_weeks - grace_period
 #'
@@ -252,7 +260,7 @@ auxfunctions::create_dir_if_not(current_project_output_path)
 
 #### Compliance and Correspondence ----
 #' 
-#' Download from FHIER first.
+#' Download files from FHIER first, see Get Data section of this code.
 #' 
 #' Manually: Provide full paths here, changing _values_ inside the quotes:
 #' 
@@ -385,7 +393,7 @@ if (!auxfunctions::get_username() == "anna.shipunova") {
 file.exists(fhier_addresses_path)
 
 #### Home port processed city and state path ----
-#' Download first from Google Drive or recreate it if it was more than 4 months.
+#' Download first from Google Drive or recreate it if the date is more than 4 months old.
 #' 
 #' Set the path for processed PIMS home ports based on the user.
 #' 
