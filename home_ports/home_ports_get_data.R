@@ -369,8 +369,8 @@ vessels_from_pims_short_ok__split1 <-
 #' Create separate dataframes for primary and secondary vessel identifiers
 #' 
 # [1] "vessel_official_number, vessel_official_number2, hailing_port"
-#' 
-#' remove vessel_official_number2
+# 
+# remove vessel_official_number2
 vessels_from_pims_double_1 <-
   vessels_from_pims_short_ok__split1 |> 
   dplyr::select(-vessel_official_number2)
@@ -479,6 +479,7 @@ grep("  +",
      value = T)
 # 0 OK
 
-#' Result:
-#' 
-#' vessels_from_pims_ok
+# Result:
+# 
+# vessels_from_pims_ok
+# 
