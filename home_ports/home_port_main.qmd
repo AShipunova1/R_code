@@ -76,6 +76,7 @@ This code cleans homeport city and state from PIMS
 
 This section sets up the environment for data analysis, including package installation,
 helper function setup, and date definitions.
+
 ### Install packages if needed 
 
 ```{r Install packages if needed}
@@ -203,7 +204,9 @@ install_helper_functions <- function() {
 
 program_start_date <- lubridate::dmy("01/01/2021")
 
-# Define the years for which data will be analyzed
+# Define the years for which data will be analyzed.
+# We don't use 2021 data as program compliance was low, and so we consider the 1st year a throw away year.
+
 # Manually change if needed
 my_years <- c("2022", "2023", "2024")
 
@@ -630,36 +633,6 @@ Example: "Vessels - 2024-02-28_0930.xlsx"
     return(res_df)
 }
 # >>>>
-
-# <<<<
-
-# Explanations for the following code:
-
-# This function prints the comma separated column names of a dataframe, with an option to limit the number of names displayed. It's useful for quickly inspecting the structure of a dataframe, especially when dealing with datasets with a large number of columns.
-#  
-#  
-# 1. **Function Definition:**
-#    - `print_df_names <- function (my_df, names_num = 100) { ... }`: Defines a function named `print_df_names` with two arguments: `my_df` (the dataframe whose column names will be printed) and `names_num` (the maximum number of names to display, defaulted to 100).
-# 
-# 2. **Extracting Column Names:**
-#    - `names(my_df)`: Retrieves the column names of the input dataframe `my_df`.
-# 
-# 3. **Selecting Subset of Names:**
-#    - `%>% head(names_num)`: Uses the pipe operator (`%>%`) to pass the column names to the `head` function, which selects the first `names_num` names. This is useful when the dataframe has a large number of columns, and we want to limit the display to a manageable number.
-# 
-# 4. **Formatting as a String:**
-#    - `%>% paste0(collapse = ", ")`: Concatenates the selected column names into a single string, separated by commas. This creates a more readable output.
-# 
-# 5. **Returning the Result:**
-#    - `%>% return()`: Returns the concatenated string of column names as the output of the function.
-# 
-
- print_df_names  <-  function (my_df, names_num = 100) 
-{
-    names(my_df) %>% head(names_num) %>% paste0(collapse = ", ") %>% 
-        return()
-}
-# >>>>
 ```
 
 File paths for vessel and permit data files vessel_names_file_path and permits_names_file_path were defined in the Setup section.
@@ -686,7 +659,6 @@ vessels_from_pims <-
 # Check the dimensions of the loaded vessel data
 dim(vessels_from_pims)
 # [1] 23107     8
-
 ```
 
 ### Load permits from PIMS 
@@ -734,6 +706,36 @@ permits_from_pims <-
     to_search <- paste0(start_part, ".*", end_part)
     matching_names <- grep(to_search, tolower(names(mydf)), value = TRUE)
     return(matching_names)
+}
+# >>>>
+
+# <<<<
+
+# Explanations for the following code:
+
+# This function prints the comma separated column names of a dataframe, with an option to limit the number of names displayed. It's useful for quickly inspecting the structure of a dataframe, especially when dealing with datasets with a large number of columns.
+#  
+#  
+# 1. **Function Definition:**
+#    - `print_df_names <- function (my_df, names_num = 100) { ... }`: Defines a function named `print_df_names` with two arguments: `my_df` (the dataframe whose column names will be printed) and `names_num` (the maximum number of names to display, defaulted to 100).
+# 
+# 2. **Extracting Column Names:**
+#    - `names(my_df)`: Retrieves the column names of the input dataframe `my_df`.
+# 
+# 3. **Selecting Subset of Names:**
+#    - `%>% head(names_num)`: Uses the pipe operator (`%>%`) to pass the column names to the `head` function, which selects the first `names_num` names. This is useful when the dataframe has a large number of columns, and we want to limit the display to a manageable number.
+# 
+# 4. **Formatting as a String:**
+#    - `%>% paste0(collapse = ", ")`: Concatenates the selected column names into a single string, separated by commas. This creates a more readable output.
+# 
+# 5. **Returning the Result:**
+#    - `%>% return()`: Returns the concatenated string of column names as the output of the function.
+# 
+
+ print_df_names  <-  function (my_df, names_num = 100) 
+{
+    names(my_df) %>% head(names_num) %>% paste0(collapse = ", ") %>% 
+        return()
 }
 # >>>>
 ```
@@ -1132,12 +1134,8 @@ Create separate dataframes for primary and secondary vessel identifiers
 
 ```{r}
 # [1] "vessel_official_number, vessel_official_number2, hailing_port"
-```
 
-
-remove vessel_official_number2
-
-```{r}
+# remove vessel_official_number2
 vessels_from_pims_double_1 <-
   vessels_from_pims_short_ok__split1 |> 
   dplyr::select(-vessel_official_number2)
@@ -1265,8 +1263,11 @@ If no results are returned, it indicates successful cleaning
 
 ```{r}
 # [1] "PEMBROKE,PINES, FL"
+```
 
-# check if there are more than one space
+check if there are more than one space
+
+```{r}
 grep("  +",
      vessels_from_pims_ok$hailing_port,
      value = T)
@@ -1276,9 +1277,7 @@ grep("  +",
 Result:
 
 vessels_from_pims_ok
-Result:
 
-vessels_from_pims_ok
 ## Fix city and state 
 
 ```{r Fix city and state}
@@ -1546,6 +1545,8 @@ to_fix_list <-
          "PORT O'CONNOR#TX"),
        c("PORT ST.LUICE#FL",
          "PORT ST LUCIE#FL"),
+       c("PT. CANAVERAL#FL",
+         "PORT CANAVERAL#FL"),
        c("PUNTA GORGA#FL",
          "PUNTA GORDA#FL"),
        c("REDINGTON SHORES#FL, FL",
@@ -2153,8 +2154,11 @@ names(double_ports_1) <-
 double_ports_1 |>
   dplyr::arrange(vessel_official_number) |>
   dplyr::glimpse()
+```
 
-# Check left over double addresses
+Check left over double addresses
+
+```{r}
 vessels_from_pims_split_addr__city_state__fix2_ok_short |>
   dplyr::filter(vessel_official_number %in% double_ids_ports$vessel_official_number) |>
   dplyr::arrange(vessel_official_number) |> 
@@ -2180,8 +2184,6 @@ readr::write_csv(
   vessels_from_pims_split_addr__city_state__fix2_ok_short,
   out_path
 )
-
-# View(vessels_from_pims_split_addr__city_state__fix2_ok_short)
 ```
 
 
