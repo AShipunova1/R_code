@@ -163,7 +163,7 @@ file.exists(permits_query_file_path)
 # T
 
 permits_query_fun <- function(permits_query) {
-  result <- dbGetQuery(con, permits_query)
+  result <- try(dbGetQuery(con, permits_query))
   return(result)
 }
 
