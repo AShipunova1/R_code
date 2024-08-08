@@ -264,8 +264,15 @@ vessel_permit_owner_query_file_path <-
             "get_db_data",
             stringr::str_glue("vessel_permit_owner_{current_year_month}.rds"))
 
+
+if (!file.exists(vessel_permit_owner_query_file_path)) {
+  vessel_permit_owner_query_file_path <-
+    file.path(my_paths$inputs,
+              "get_db_data",
+              "vessel_permit_owner_2024_07.rds")
+}
+
 file.exists(vessel_permit_owner_query_file_path)
-# T
 
 vessel_permit_owner_query_fun <- function(vessel_permit_owner_query) {
   result <- dbGetQuery(con, vessel_permit_owner_query)
