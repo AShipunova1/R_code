@@ -26,15 +26,15 @@ The Setup section includes necessary libraries, functions, and data loading.
 ```
 
 
-1. No reports for all 26 weeks back from week ago today;
+1. No reports for 26 weeks, starting from a week ago today, and going back 26 weeks;
 
 2. Permits have not expired and were active for the same period as (1);
 
-3. The grace period is 7 days back from today.
+3. The grace period is the 7 days prior to today, and is not included in the 26 weeks.
 
-4. It needs to be that we called at least 1 time and emailed at least 1 time. Or they contacted us at least once.
+4. We need to have called at least 1 time and emailed at least 1 time. Or they contacted us at least once.
 
-5. Not counting any correspondence (regardless of the type - email/call, voicemail or not) that includes "No contact made" in the text of the entry as an actual "direct" contact for any egregious vessel (May 6 2024)
+5. Do not count any correspondence (regardless of the type - email/call, voicemail or not) that includes "No contact made" in the text of the entry as an actual "direct" contact for any egregious vessel (May 6 2024)
 
 ### New requirement 2023-08-09 
 
@@ -42,25 +42,8 @@ The Setup section includes necessary libraries, functions, and data loading.
 ## New requirement 2023-08-09 ----
 ```
 
-6. It should be at least 2 contact "attempts". i.e., if they are ignoring our calls and emails then they cannot continue to go on in perpetuity without reporting and never be seen as egregious. So, at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough at this point and they need to be passed to OLE.
+6. We should have made at least 2 contact "attempts". i.e., if they are ignoring our calls and emails then they cannot continue to go on in perpetuity without reporting and never be seen as egregious. So, at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough at this point and they need to be passed to OLE.
 
-at least 1 call (could be a voicemail) and also at a 2nd call (could be a voicemail) or an email. So, if we called 1x and left a voicemail and then attempted an email, then we have tried enough
-
-### New requirement 2024-02-26 
-
-```{r New requirement 20240226}
-## New requirement 2024-02-26 ----
-```
-
-7. It needs to be that we called at least 1 time and emailed at least 1 time. Or they contacted us at least once.
-
-### New requirement 2024-05-06 
-
-```{r New requirement 20240506}
-## New requirement 2024-05-06 ----
-```
-
-8. Exclude any correspondence (regardless of the type - email/call, voicemail or not) that includes "No contact made" in the text of the entry as a actual "direct" contact for any egregious vessel.
 
 About comments:
 
@@ -73,7 +56,8 @@ There are several types of comments in the following code.
 3) All other comments explain the logic and the syntax.
 
 
-Note. Update (download) all input files every time before run.
+Note. Update (download) all input files every time, the same day, before running this code.
+This is important because we use the function “today” to establish the 26 week time period, so all files need to be generated on the same “today”. 
 
 If there is no comment with the word "manually" before the code, it will work automatically.
 
@@ -118,6 +102,7 @@ We don't load most of the packages to the current session namespace with library
 
 Install packages not yet installed
 
+Create list of needed packages
 
 ```{r}
 needed_packages <- c(
@@ -149,7 +134,7 @@ if (any(installed_packages == FALSE)) {
 }
 ```
 
-Install helper functions for SEFHIER data analysis.
+Optional: Install helper functions from GitHub for SEFHIER data analysis.
 
 Explanations for the following code:
 
@@ -196,7 +181,9 @@ install_helper_functions <- function() {
 
 # Turn off commenting if you want to take advantage of this R package, for example, to see a function definition and help documentation the standard way (?function_name, F1, or F2).
 # install_helper_functions()
+```
 
+```{r}
 # Load packages for database interactions with Oracle databases.
 library(ROracle)
 library(DBI)
@@ -204,8 +191,6 @@ library(DBI)
 # Load the magrittr package for piping operation %>%. In some cases the base R "|>" works differently. See more at https://www.tidyverse.org/blog/2023/04/base-vs-magrittr-pipe/
 library(magrittr)
 ```
-
-
 
 ```{r no cache setup, results='hide', message=FALSE, warning=FALSE, cache=FALSE, include=FALSE}
 
@@ -219,7 +204,7 @@ library(magrittr)
  
 # When you click the **Render** button a document will be generated that includes both content and the output of embedded code.
 
-# Load libraries required for Quatro
+# Load libraries required for Quarto
 # A general-purpose tool for dynamic report generation in R
 library(knitr)
 
@@ -280,7 +265,7 @@ registerS3method(
 Define start and end years for the analysis period
 
 Manually: Values for `my_year1` and `my_year2` may be adjusted as needed
-
+Ex. my_year1 is the previous calendar year, and my_year2 is the current calendar year
 
 ```{r}
 # start year for the analysis
@@ -304,7 +289,7 @@ data_file_date <-
   lubridate::today()
 ```
 
-How many weeks and days to take in to the account?
+How many weeks and days to take into account?
 The 26-week period is used to define long-term non-compliance
 
 ```{r}
@@ -327,7 +312,7 @@ The 7-day grace period allows for recent reports that may not yet be processed
 ```{r}
 grace_period = 7 # days
 
-# Calculate the date 26 weeks (plus grace period) before the current date
+# Calculate the date that is 26 weeks plus the grace period before the current date
 half_year_ago <-
   data_file_date - days_in_non_compl_weeks - grace_period
 ```
@@ -624,7 +609,7 @@ This section sets up paths for specific data files used in the project
 ```
 
 
-Download from FHIER first.
+Download files from FHIER first, see Get Data section of this code.
 
 Manually: Provide full paths here, changing _values_ inside the quotes:
 
@@ -798,7 +783,7 @@ file.exists(fhier_addresses_path)
 #### Home port processed city and state path ----
 ```
 
-Download first from Google Drive or recreate it if it was more than 4 months.
+Download first from Google Drive or recreate it if the date is more than 4 months old.
 
 Set the path for processed PIMS home ports based on the user.
 
@@ -877,11 +862,27 @@ Get the path to the main Egregious violators folder on Google Drive
 
 It is used to read the previous result and for saving the new result.
 
-When asked for the authentication the first time choose the appropriate option and follow the instructions. 
+The code below will create two entries in the console that you will have to respond to.
 
-If there is an option with your google email account (like your.name@noaa.gov) you can choose that option (usually #2) and it will confirm your access automatically.
+The first is this: (example path is for Jenny’s computer) 
+Is it OK to cache OAuth access credentials in the folder
+C:/Users/JENNY~1.OST/AppData/Local/gargle/gargle/Cache between R sessions?
+1: Yes
+2: No
+Selection: 
+The purpose of this prompt is to allow the cache to contain a token that will be used to access the Google drive account. This is necessary to ensure that you are securing the gateway between R and the Google drive account. The token is only valid for the current R session. Type Yes or No in the Selection line and hit Enter
 
-`n_max = 1` means we will use the first result, assuming we have only one folder with such name on Google dive.
+The second is this: 
+Enter a number between 1 and 2, or enter 0 to exit.
+Selection: 
+Type 1 or 2 in the Selection line and hit Enter. 
+
+Option #2 will use your google email account (your.name@noaa.gov) and it will confirm your access automatically.
+
+When asked for the authentication the first time, a link will pop up in your internet browser, choose the appropriate option (usually your work email) and follow the instructions. 
+You will get a message in the R console when the authentication is complete. 
+
+`n_max = 1` means we will use the first result, assuming we have only one folder with such name on Google drive.
 
 
 ```{r}
@@ -991,7 +992,7 @@ a File name example
 
 3) processed Metrics tracking
 
-From a separate code
+From a separate script: processing_metrics_tracking.R
  
 For the last 6 month or more
 
@@ -1009,14 +1010,17 @@ a File name example
 
 5) home port cleaned city and state from PIMS
 
+Downloaded from Google Drive input folder, or recreated if the file is more than 4 months old
+Recreated from a separate script: home_ports.qmd
+
 a File name example
 "~\R_files_local\my_outputs\home_ports\vessels_from_pims_ports_DATE.csv"
 
-6) address information from Oracle db
+6) address information pulled from Oracle db
 
 "db_participants_address.rds"
 
-7) Previous results (from google drive)
+7) Previous results from this script (from google drive)
 
 There are two options here, to downloaded the file as .xlsx or to get it directly from Google drive into R.
 
@@ -1198,7 +1202,7 @@ Permit info from processed metrics tracking
 # Split week column ("52: 12/26/2022 - 01/01/2023") into 3 columns with proper classes, week_num (week order number), week_start and week_end.
 #  
 #  
-# - The `clean_weeks` function is designed to clean up the "week" column in a complinace dataframe.
+# - The `clean_weeks` function is designed to clean up the "week" column in a compliance dataframe.
 # 
 # - It first separates the "week" column into two separate columns using ":" as the delimiter, resulting in columns "week_num" and "week_rest".
 # 
@@ -1470,7 +1474,7 @@ csvs_clean1 <-
   clean_all_csvs(csv_contents)
 ```
 
-Every time processing for Compliance and Correspondence downloaded from FHIER
+Processing for Compliance and Correspondence downloaded from FHIER
 
 For correspondence:
 
@@ -1512,7 +1516,7 @@ compl_clean_list <-
 
 Assign analysis years as names to the compliance data frames for easy reference
 If there are more than one year, all defined years are used as names, 
-if there is only one than only the most recent one is used.
+if there is only one then only the most recent one is used.
 
 ```{r}
 # Get the new names in reverse.
@@ -1531,7 +1535,7 @@ names(compl_clean_list_rev) <- my_new_years_names_rev
 compl_clean_list <- rev(compl_clean_list_rev)
 ```
 
-Check the size of each cleaned compliance data frame to ensure proper data loading and processing
+Check the size of each cleaned compliance data frame to ensure proper data loading and processing. If the actual results are very different (like an order of magnitude) then stop and investigate.
 
 ```{r}
 purrr::map(compl_clean_list, dim)
@@ -1562,7 +1566,7 @@ dim(compl_clean)
 # [1] 221081     20
 ```
 
-Check dimensions of the cleaned correspondence data frame
+Check dimensions of the cleaned correspondence data frame. If the actual results are very different from the example (like an order of magnitude) then stop and investigate.
 
 ```{r}
 dim(corresp_contact_cnts_clean0)
@@ -1579,7 +1583,7 @@ The metrics tracking data contains permit information from FHIER (For-Hire Integ
 
 It is processed using a separate script (processing_metrics_tracking.R) stored on Google Drive. Prepare a new file every time.
  
-Read the processed metrics tracking files for all years
+Read in the processed metrics tracking files for years 1 and 2
 
 ```{r}
 processed_metrics_tracking_permits <-
@@ -1604,7 +1608,7 @@ Example of column names
 # [1] "vessel_official_number, vessel_name, effective_date, end_date, permits, sa_permits_, gom_permits_, permit_region, permit_sa_gom_dual"
 ```
 
-Check dimensions of the processed metrics tracking data frame
+Check dimensions of the processed metrics tracking data frame. If the actual results are very different from the example (like an order of magnitude) then stop and investigate.
 
 ```{r}
 dim(processed_metrics_tracking_permits)
@@ -1641,7 +1645,7 @@ fhier_addresses <-
            name_repair = fix_names)
 ```
 
-Check dimensions of the loaded FHIER addresses data frame
+Check dimensions of the loaded FHIER addresses data frame. If the actual results are very different from the example (like an order of magnitude) then stop and investigate.
 
 ```{r}
 dim(fhier_addresses)
@@ -1762,7 +1766,7 @@ dim(processed_pims_home_ports)
     else {
         function_message_print(c("File", my_file_path, "doesn't exists, pulling data from database.", 
             "Must be on VPN."))
-        msg_text <- paste(today(), "run for", basename(my_file_path))
+        msg_text <- paste(lubridate::today(), "run for", basename(my_file_path))
         tictoc::tic(msg_text)
         my_result <- my_function(my_data)
         tictoc::toc()
@@ -2117,7 +2121,7 @@ Explanations for the following code:
 ```{r}
 compl_clean_w_permit_exp <-
   compl_clean |>
-  # if permit group expiration is after permit_expired_check_date than "not expired"
+  # if permit group expiration is after permit_expired_check_date then the permit is "not expired"
   dplyr::mutate(permit_expired =
            dplyr::case_when(
              permit_groupexpiration > permit_expired_check_date ~ "no",
@@ -2325,6 +2329,7 @@ compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr |>
 
 
 Verify that the compliant_after_override column contains only "yes" and "no" values
+This should return a result of logical(0), if you get something else, stop and investigate.
 
 ```{r}
 setdiff(compl_clean_w_permit_exp_last_half_year__sa__short__comp_after_overr$compliant_after_override |>
@@ -2369,10 +2374,9 @@ dim(compl_clean_w_permit_exp_last_half_year__sa_non_c)
 ```
 
 
-That should eliminate entries for vessels having permits only a part of the period
+That should eliminate entries for vessels having permits for only a part of the 26 week period
 
-Calculate the total number of distinct weeks in the dataset
-
+Calculate the total number of distinct weeks in the dataset with non-compliant vessels.
 
 ```{r}
 all_weeks_num <-
@@ -2387,7 +2391,7 @@ Explanations for the following code:
 
 1. Group the data frame by 'vessel_official_number'.
 
-2. Filter the groups based on the condition that the number of distinct weeks is greater than or equal to 'all_weeks_num'.
+2. Filter the groups based on the condition that the number of distinct weeks for a given vessel is greater than or equal to the 'all_weeks_num'.
 
 3. Remove the grouping from the data frame.
 
@@ -2467,10 +2471,10 @@ compl_clean_w_permit_exp_last_half_year__sa |>
       # not the current month
       year_month < zoo::as.yearmon(data_file_date)
   ) |>
-  nrow()
+ nrow()
 ```
 
-A result of 0 indicates no new compliant reports have been submitted for selected vessels. If it is not a zero, comment "nrow()" at the last line and the pipe sign before and investigate.
+A result of 0 indicates no new compliant reports have been submitted for selected vessels. If it is not a zero, comment out "nrow()" at the last line and the pipe sign (|>) at the end of the previous line, and investigate.
 
 End of Compliance preparations 
 
@@ -2804,7 +2808,7 @@ Steps:
 
 2. Create additional columns.
 
-3. Mark vessels already in the know list (prev_result).
+3. Mark vessels already known (listed in prev_result).
 
 4. Duals vs. sa_only
 
@@ -2828,7 +2832,7 @@ Steps:
 # >>>>
 ```
 
-List of columns to be excluded from the final output for simplification and focus on relevant data. Commented are column names to retain.
+List of columns to be excluded from the final output for simplification and focus on relevant data. Commented are column names to retain. Using the # while keeping all fields in the list creates flexibility if we ever want to change this list.
 
 
 ```{r}
@@ -3071,7 +3075,7 @@ compl_corr_to_investigation__corr_date__hailing_port <-
 ### Add prepared addresses ----
 
 # Define the path to the address preparation script
-# This is used only with source()
+# This is used only with source(), if you aren’t using source(), you don’t need to run these two steps
 prep_addresses_path <-
   file.path(current_project_path,
             stringr::str_glue("{current_project_name}_prep_addresses.R"))
@@ -3180,39 +3184,6 @@ fhier_addr_short_clean <-
 # nrow(fhier_addr_short_clean)
 ```
 
-Address combination code is commented out to preserve individual address fields
-
-```{r}
-# fhier_addr_short__comb_addr <-
-#   fhier_addr_short |>
-#   clean_names_and_addresses() |>
-#   mutate(
-#     fhier_address =
-#       str_glue(
-#         "
-#         {physical_address_1}, {physical_address_2}, {physical_city}, {physical_county}, {physical_state}, {physical_zip_code}
-#       "
-#       )
-#   ) |>
-#   select(
-#     -c(
-#       physical_address_1,
-#       physical_address_2,
-#       physical_city,
-#       physical_county,
-#       physical_state,
-#       physical_zip_code
-#     )
-#   ) |>
-#   clean_names_and_addresses() |>
-#   distinct()
-
-# dim(fhier_addr_short__comb_addr)
-# [1] 2390    5
-
-# dim(fhier_addr_short_clean)
-```
-
 ### Add addresses from FHIER 
 
 ```{r Add addresses from FHIER}
@@ -3276,7 +3247,7 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>
   ) |> nrow()
 # 0
 ```
-
+We want a result of 0, if the value is non-zero, investigate using the line of code below.
 ### Vessels with no addresses 
 
 ```{r Vessels with no addresses}
@@ -3379,6 +3350,7 @@ dplyr::n_distinct(db_participants_address__needed$official_number)
 ```
 
 Define a vector of column names to keep in the final dataframe
+Using the # while keeping all fields in the list creates flexibility if we ever want to change this list.
 
 ```{r}
 col_names_to_keep <-
@@ -3542,6 +3514,7 @@ db_participants_address__needed_short__phone0 <-
 ```
 
 Define a vector of column name parts to be used for creating new combined columns
+Using the # while keeping all fields in the list creates flexibility if we ever want to change this list.
 
 
 ```{r}
@@ -3883,7 +3856,7 @@ cat("Result: ",
 
 Results are in compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr
 
-### 3. Mark vessels already in the know list 
+### 3. Mark vessels already known (listed in prev_result) 
 
 ```{r 3 Mark vessels already in the know list}
 ## 3. Mark vessels already in the know list ----
@@ -3891,7 +3864,7 @@ Results are in compl_corr_to_investigation__corr_date__hailing_port__fhier_addr_
 
 Identify and mark vessels that have been previously marked as egregious, to track repeat offenders
 
-From the email:
+From Carolyn’semail and spreadsheet:
 
 The first column (report created) indicates the vessels that we have created a case for. My advice would be not to exclude those vessels. EOs may have provided compliance assistance and/or warnings already. If that is the case and they continue to be non-compliant after that, they will want to know and we may need to reopen those cases.
 
@@ -4157,7 +4130,7 @@ Define a function to write results to Google Sheets
 
 This function performs the following steps:
 
-1. Renames the existing 'Egregious Violators Current' spreadsheet to a spreadsheet with the name with a date from its tab (e.g. "egregious_violators_to_investigate_2024-06-18"
+1. Renames the existing 'Egregious Violators Current' spreadsheet to a spreadsheet with the name with a date from its tab (e.g. "egregious_violators_to_investigate_2024-06-18")
 
 2. Creates a new 'current' spreadsheet
 
@@ -4333,4 +4306,5 @@ cat("Results:",
     out_file_name,
     sep = "\n")
 ```
+
 
