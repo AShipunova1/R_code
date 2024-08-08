@@ -1,0 +1,16 @@
+Matching validation surveys to logbooks:
+
+- for un-transmitted VESL logbooks, sent from BFD; read data file they sent into your code, at the start, joining with the other data, where all missing fields would be null from this file. Such that, the first step of matching by vessel ID and date/time of the trip would matching to any of these blocked VESL logbooks. Then the next steps would essentially ignore these trips - since they have nulls for captain last name, end port, and catch. Then when we get the full file from BFD, those things would get considered in subsequent steps
+
+- quantify when surveyors are intercepting vessels at the dock, in relation to when the trip is transmitted. The specific question is, did they interview before or after logbook submission?  Using the matched surveys to logbooks and transmission date/time vs survey data/time fields, could you please quantify how many surveys occur before the logbook is transmitted vs how many surveys occur after the logbook is transmitted? You can do this as a % of the total (matched) surveys (e.g. 40% of surveys occurred before logbook was submitted; 60% after)
+
+- vessels without a survey show "mostly compliant", but that's caveated by if they didn't report then FHIER considers them compliant. Further exploration ideas:
+
+-- how many logbooks did each vessel submit per month compared to other vessels in that state? to get a sense of whether the seem on par with what other vessels do on average
+
+-- were they VMS compliant at the time of the survey? If they had positional data then they had a vms and were therefore vms complaint. Assumes that if they had VMS they were probably reporting logbooks
+
+-- overlay map of where surveys occurred without logbooks (in Gulf) with where non-compliant Gulf + dual Gulf/S. Atl. vessels (for all 2022) are located
+
+===
+Caveat "compliant" with - in the Gulf they had to declare for us to know they were fishing, so not declaring or submitting a logbook means they're compliant (even if they're not reporting). I think we can dig into this a bit more (e.g. see if VMS data suggests trips were taken for the vessels without corresponding logbooks, and more simple just comparing the # of logbooks these vessels had - maybe by month in 2022, to the avg number of logbooks vessels reported by month - less precise but gives an indication of non-reporting), but let's wait to discuss next steps after we review this code and the egregious violators code. 
