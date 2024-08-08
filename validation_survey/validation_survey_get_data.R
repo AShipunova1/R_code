@@ -176,26 +176,23 @@ grep("permit", names(db_logbooks_2022), ignore.case = T, value = T)
 # [1] "ACCSP_PERMIT_LICENSE_NBR" "SERO_VESSEL_PERMIT"      
 # [3] "GARFO_VESSEL_PERMIT"      "NOTIF_ACCSP_PERMIT_ID"   
 n_distinct(db_logbooks_2022$TRIP_ID)
-# 94857
+# 94870
 n_distinct(processed_logbooks_2022$TRIP_ID)
-# 95342
+# 94040
 n_distinct(processed_logbooks_2022_calendar$TRIP_ID)
-# 94104
-
-trips_in_db_not_in_processed <-
-  setdiff(db_logbooks_2022$TRIP_ID, processed_logbooks_2022$TRIP_ID)
-# 753
+# 94040
 
 trips_in_db_not_in_processed_cal <-
   setdiff(db_logbooks_2022$TRIP_ID,
           processed_logbooks_2022_calendar$TRIP_ID)
 length(trips_in_db_not_in_processed_cal)
 # 753
+# 830
 
 trips_in_processed_not_in_db <-
   setdiff(processed_logbooks_2022$TRIP_ID, db_logbooks_2022$TRIP_ID)
 length(trips_in_processed_not_in_db)
-# 1238
+# 0
 
 trips_in_processed_cal_not_in_db <-
   setdiff(processed_logbooks_2022_calendar$TRIP_ID,
@@ -208,6 +205,8 @@ processed_logbooks_2022 |>
   # filter(!permit_sa_gom == "sa_only") |> 
   dplyr::select(COMP_WEEK_START_DT, COMP_WEEK_END_DT) |> 
     dplyr::distinct()
+# 0
+
 #   COMP_WEEK_START_DT  COMP_WEEK_END_DT   
 #   <dttm>              <dttm>             
 # 1 2022-12-26 00:00:00 2023-01-01 00:00:00
@@ -219,9 +218,12 @@ db_logbooks_2022 |>
   dplyr::distinct() |> 
   dim()
 # [1] 352   2
+# [1] 375   2
+
 # all diff
 min(db_logbooks_2022$TRIP_START_DATE)
 # [1] "2021-12-31 23:00:00 EST"
+# [1] "2011-12-04 EST"
 
 min(processed_logbooks_2022_calendar$TRIP_START_DATE)
 # [1] "2022-01-01"
