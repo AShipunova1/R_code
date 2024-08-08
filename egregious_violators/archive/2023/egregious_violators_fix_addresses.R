@@ -42,7 +42,9 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>
       is.na(contactphone_number) |
       is.na(contactemailaddress)
   ) |> nrow()
-0
+# 0
+# We want a result of 0, if the value is non-zero, investigate.
+
 
 ## vessels with no addresses ----
 
