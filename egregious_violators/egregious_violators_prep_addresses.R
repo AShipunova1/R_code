@@ -86,7 +86,7 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr <-
 
 # auxfunctions::print_df_names(compl_corr_to_investigation__corr_date__hailing_port__fhier_addr)
 
-#' Verify completeness of contact information
+#' Verify completeness of contact information (check entries with no name, phone or email)
 #' 
 compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>
   dplyr::filter(
@@ -95,6 +95,7 @@ compl_corr_to_investigation__corr_date__hailing_port__fhier_addr |>
       is.na(contactemailaddress)
   ) |> nrow()
 # 0
+# We want a result of 0, if the value is non-zero, investigate.
 
 ## Vessels with no addresses ----
 
