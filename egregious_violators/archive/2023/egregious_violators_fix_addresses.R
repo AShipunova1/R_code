@@ -27,36 +27,6 @@ fhier_addr_short_clean <-
 
 # nrow(fhier_addr_short_clean)
 
-# don't combine address
-# fhier_addr_short__comb_addr <- 
-#   fhier_addr_short |> 
-#   clean_names_and_addresses() |> 
-#   mutate(
-#     fhier_address =
-#       str_glue(
-#         "
-#         {physical_address_1}, {physical_address_2}, {physical_city}, {physical_county}, {physical_state}, {physical_zip_code}
-#       "
-#       )
-#   ) |>
-#   dplyr::select(
-#     -c(
-#       physical_address_1,
-#       physical_address_2,
-#       physical_city,
-#       physical_county,
-#       physical_state,
-#       physical_zip_code
-#     )
-#   ) |>
-#   clean_names_and_addresses() |> 
-#   distinct()
-
-# dim(fhier_addr_short__comb_addr)
-# [1] 2390    5
-
-# dim(fhier_addr_short_clean)
-
 ## 1. add addresses from FHIER ----
 compl_corr_to_investigation__corr_date__hailing_port__fhier_addr <-
   left_join(compl_corr_to_investigation__corr_date__hailing_port,
