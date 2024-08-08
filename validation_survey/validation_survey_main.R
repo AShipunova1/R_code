@@ -44,7 +44,6 @@ source(get_data_path)
 
 # Data are in:
 # survey_data_l_2022
-# processed_logbooks_2022
 # processed_logbooks_2022_calendar
 # db_logbooks_2022
 # db_dnfs_2022
