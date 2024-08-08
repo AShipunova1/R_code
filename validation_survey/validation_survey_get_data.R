@@ -49,7 +49,7 @@ short_names <-
 
 names(survey_data_l) <- short_names
 
-# dplyr::glimpse(survey_data_l)
+dplyr::glimpse(survey_data_l)
 
 ## remove fields with all NAs ----
 survey_data_l_not_na <-
@@ -115,24 +115,15 @@ processed_logbooks_2022 <-
   readr::read_rds(
     file.path(
       my_paths$inputs,
-      r"(processing_logbook_data\Outputs\SEFHIER_processed_Logbooks_compliance_weeks_2022.rds)"
+      r"(processing_logbook_data\Outputs\SEFHIER_logbooks_processed__calendar_2022.rds)"
     )
   )
 
 dim(processed_logbooks_2022)
 # [1] 330441    179
+# [1] 325628    179 (calendar)
 
 grep("permit", names(processed_logbooks_2022), ignore.case = T, value = T)
-# permit_sa_gom
-
-processed_logbooks_2022_calendar <-
-  processed_logbooks_2022 |>
-  dplyr::filter(TRIP_END_DATE >= my_date_beg &
-           TRIP_START_DATE <= my_date_end)
-
-nrow(processed_logbooks_2022_calendar) -
-  nrow(processed_logbooks_2022)
-# [1] -4712
 
 # get logbooks from the Oracle db ----
 
@@ -174,6 +165,7 @@ db_logbooks_2022 <-
 dim(db_logbooks_2022)
 # [1] 328086    149
 # [1] 328086    128
+# [1] 328091    128
 
 db_logbooks_2022 |> 
   head() |> 
@@ -181,8 +173,8 @@ db_logbooks_2022 |>
 
 # check db logbooks vs. processed logbooks ----
 grep("permit", names(db_logbooks_2022), ignore.case = T, value = T)
-# [1] "ACCSP_PERMIT_LICENSE_NBR" "SERO_VESSEL_PERMIT"       "GARFO_VESSEL_PERMIT"     
-
+# [1] "ACCSP_PERMIT_LICENSE_NBR" "SERO_VESSEL_PERMIT"      
+# [3] "GARFO_VESSEL_PERMIT"      "NOTIF_ACCSP_PERMIT_ID"   
 n_distinct(db_logbooks_2022$TRIP_ID)
 # 94857
 n_distinct(processed_logbooks_2022$TRIP_ID)
