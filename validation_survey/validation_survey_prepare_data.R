@@ -868,7 +868,7 @@ db_logbooks_2022_short_date_time <-
     )
   )
 
-# str(db_logbooks_2022_short_date_time)
+str(db_logbooks_2022_short_date_time)
 
 #' compare trips/vessels
 #' tidyverse combine year, month and day into a date lubridate
@@ -915,7 +915,7 @@ db_logbooks_2022_short_date_time |>
     trip_end_date_only == survey_74$interview_date
   ) |> 
   glimpse()
-#' 2 trips/logbooks on the day, ok
+#' 2 trips/logbooks per day, ok
 
 ## check lgb_join_i1 ----
 lgb_join_i1 |> 
@@ -1469,7 +1469,6 @@ survey_i1_i3_harvested_dates <-
 survey_i1_i3_harvested_dates |> 
   head() |> 
   glimpse()
-
 
 # count interview by state and county ----
 
