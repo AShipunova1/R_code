@@ -180,7 +180,11 @@ dplyr::n_distinct(db_participants_address__needed$official_number)
 
 ## Keep fewer columns in db_participants_address__needed ----
 
-#' Define a vector of column names to keep in the final dataframe
+#' Define a vector of column names to keep in the final dataframe.
+#' 
+#' Using the "#" while keeping all fields in the list creates flexibility if we ever want to change this list.
+#' 
+
 col_names_to_keep <-
   c(
     "official_number",
@@ -284,8 +288,10 @@ db_participants_address__needed_short__phone0 <-
          erb_phone = paste0(erb_ph_area, erb_ph_number))
 
 ## Make erv and erb combinations ----
-#' Define a vector of column name parts to be used for creating new combined columns
+#' Define a vector of column name parts to be used for creating new combined columns.
 #' 
+#' Using the "#" while keeping all fields in the list creates flexibility if we ever want to change this list.
+
 col_part_names <-
   c(
     "entity_name",
