@@ -111,7 +111,7 @@ survey_data_l_2022 |>
 # not enough fields 
 
 ## processed logbooks ----
-processed_logbooks_2022 <-
+processed_logbooks_2022_calendar <-
   readr::read_rds(
     file.path(
       my_paths$inputs,
@@ -119,11 +119,12 @@ processed_logbooks_2022 <-
     )
   )
 
-dim(processed_logbooks_2022)
+dim(processed_logbooks_2022_calendar)
 # [1] 330441    179
 # [1] 325628    179 (calendar)
 
-grep("permit", names(processed_logbooks_2022), ignore.case = T, value = T)
+grep("permit", names(processed_logbooks_2022_calendar), ignore.case = T, value = T)
+# 7
 
 # get logbooks from the Oracle db ----
 
@@ -177,8 +178,6 @@ grep("permit", names(db_logbooks_2022), ignore.case = T, value = T)
 # [3] "GARFO_VESSEL_PERMIT"      "NOTIF_ACCSP_PERMIT_ID"   
 n_distinct(db_logbooks_2022$TRIP_ID)
 # 94870
-n_distinct(processed_logbooks_2022$TRIP_ID)
-# 94040
 n_distinct(processed_logbooks_2022_calendar$TRIP_ID)
 # 94040
 
@@ -190,17 +189,19 @@ length(trips_in_db_not_in_processed_cal)
 # 830
 
 trips_in_processed_not_in_db <-
-  setdiff(processed_logbooks_2022$TRIP_ID, db_logbooks_2022$TRIP_ID)
+  setdiff(processed_logbooks_2022_calendar$TRIP_ID, db_logbooks_2022$TRIP_ID)
+
 length(trips_in_processed_not_in_db)
-# 0
+# 0 ok
 
 trips_in_processed_cal_not_in_db <-
   setdiff(processed_logbooks_2022_calendar$TRIP_ID,
           db_logbooks_2022$TRIP_ID)
+
 length(trips_in_processed_cal_not_in_db)
 #' 0 ok
 
-processed_logbooks_2022 |> 
+processed_logbooks_2022_calendar |> 
   dplyr::filter(TRIP_ID %in% trips_in_processed_not_in_db) |> 
   # filter(!permit_sa_gom == "sa_only") |> 
   dplyr::select(COMP_WEEK_START_DT, COMP_WEEK_END_DT) |> 
@@ -211,14 +212,6 @@ processed_logbooks_2022 |>
 #   <dttm>              <dttm>             
 # 1 2022-12-26 00:00:00 2023-01-01 00:00:00
 # 2 2021-12-27 00:00:00 2022-01-02 00:00:00
-
-db_logbooks_2022 |>
-  dplyr::filter(TRIP_ID %in% trips_in_db_not_in_processed) |>
-  dplyr::select(TRIP_START_DATE, TRIP_END_DATE) |>
-  dplyr::distinct() |> 
-  dim()
-# [1] 352   2
-# [1] 375   2
 
 # all diff
 min(db_logbooks_2022$TRIP_START_DATE)
@@ -390,7 +383,6 @@ fhier_compliance_2022 <-
 data_names <-
   c(
     "survey_data_l_2022",
-    "processed_logbooks_2022",
     "processed_logbooks_2022_calendar",
     "db_logbooks_2022",
     "db_dnfs_2022",
