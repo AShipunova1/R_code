@@ -529,7 +529,7 @@ Sys.setenv(ORA_SDTZ = Sys.timezone())
 
 ## Get data ----
 #' 
-# This is used only with source()
+# This is used only with source(), if you aren’t using source(), you don’t need to run these two steps
 get_data_path <- 
   file.path(current_project_path, "egregious_violators_get_data.R")
 source(get_data_path)
@@ -1041,7 +1041,7 @@ num_of_vsl_to_investigate <-
 #' 
 
 ## 1. Remove extra columns ----
-#' List of columns to be excluded from the final output for simplification and focus on relevant data. Commented are column names to retain.
+#' List of columns to be excluded from the final output for simplification and focus on relevant data. Commented are column names to retain. Using the "#" while keeping all fields in the list creates flexibility if we ever want to change this list.
 #' 
 unused_fields <- c(
   "vesselofficial_number",
@@ -1216,7 +1216,7 @@ compl_corr_to_investigation__corr_date__hailing_port <-
 ### Add prepared addresses ----
 
 # Define the path to the address preparation script
-# This is used only with source()
+# This is used only with source(), if you aren’t using source(), you don’t need to run these two steps.
 prep_addresses_path <-
   file.path(current_project_path,
             stringr::str_glue("{current_project_name}_prep_addresses.R"))
@@ -1228,10 +1228,10 @@ source(prep_addresses_path)
 #'
 #' Results are in compl_corr_to_investigation__corr_date__hailing_port__fhier_addr__db_addr
 #' 
-## 3. Mark vessels already in the know list ----
+## 3. Mark vessels already known (listed in prev_result)  ----
 #' Identify and mark vessels that have been previously marked as egregious, to track repeat offenders
 #' 
-#' From the email:
+#' From Carolyn’s email and spreadsheet:
 #' 
 #' The first column (report created) indicates the vessels that we have created a case for. My advice would be not to exclude those vessels. EOs may have provided compliance assistance and/or warnings already. If that is the case and they continue to be non-compliant after that, they will want to know and we may need to reopen those cases.
 #' 
@@ -1420,7 +1420,7 @@ compl_corr_to_investigation_short_dup_marked__permit_region__add_columns |>
 #' 
 #' This function performs the following steps:
 #'
-#' 1. Renames the existing 'Egregious Violators Current' spreadsheet to a spreadsheet with the name with a date from its tab (e.g. "egregious_violators_to_investigate_2024-06-18"
+#' 1. Renames the existing 'Egregious Violators Current' spreadsheet to a spreadsheet with the name with a date from its tab (e.g. "egregious_violators_to_investigate_2024-06-18")
 #'
 #' 2. Creates a new 'current' spreadsheet
 #'
