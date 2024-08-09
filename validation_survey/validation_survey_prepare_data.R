@@ -276,7 +276,6 @@ survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num__short |>
   glimpse()
 #' same vsl has many id_codes, correct
 
-    
 # Prepare FIPS codes ----
 ## unify_county_names in fips code ----
 fips_code_to_use <-
