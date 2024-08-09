@@ -191,7 +191,7 @@ logbooks_transmission_time_short |>
 # 0
 
 ### combine data for transmission date ----
-transmission_data <- 
+lgb_int__join_lgb_de <- 
   lgb_join_i1__int_lgb__has_lgb_short |> 
   left_join(logbooks_transmission_time_short,
             join_by(TRIP_ID, VESSEL_OFFICIAL_NBR))
@@ -199,9 +199,14 @@ transmission_data <-
 dim(lgb_join_i1__int_lgb__has_lgb_short)
 # [1] 1353    5
 
-dim(transmission_data)
+dim(lgb_int__join_lgb_de)
 # [1] 1353    8
 
-# survey_data_time
+# Add survey time
+lgb_int__join_lgb_de__surv_time <- 
+  lgb_int__join_lgb_de |> 
+  left_join(survey_data_time,
+            join_by(id_code, survey_vessel_id))
 
-# View(transmission_data)
+dim(lgb_int__join_lgb_de__surv_time)
+# [1] 1353   10
