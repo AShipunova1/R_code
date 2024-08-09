@@ -151,7 +151,8 @@ survey_data_time <-
   select(id_code,
          interview_date,
          interview_date_time,
-         survey_vessel_id)
+         survey_vessel_id) |> 
+  mutate(id_code = as.character(id_code))
 
 # Note. TRANSMISSION_DATE is missing in most entries and often is before the trip date, and TRIP_DE seems more accurate, will use it instead.
 
