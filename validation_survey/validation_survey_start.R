@@ -145,3 +145,56 @@ survey_data_time <-
          interview_date_time,
          survey_vessel_id)
 
+
+logbooks_transmission_time_short <-
+  db_logbooks_2022_clean_vesl_clean |>
+  select(TRIP_ID,
+         VESSEL_OFFICIAL_NBR,
+         TRIP_START_DATE,
+         TRIP_END_DATE,
+         TRANSMISSION_DATE,
+         TRIP_DE
+         # ,
+         # TRIP_UE,
+         # TRIP_DC,
+         # TRIP_UC
+         ) |>
+  distinct() |> 
+  remove_empty_cols()
+
+dim(logbooks_transmission_time_short)
+
+# View(logbooks_transmission_time_short)
+
+# check the trip year
+logbooks_transmission_time_short |> 
+filter(!lubridate::year(TRIP_START_DATE) == "2022") |> 
+  filter(!lubridate::year(TRIP_END_DATE) == "2022")
+# 0
+# OK, at least one date in 2022
+
+# check tranmission and de 
+logbooks_transmission_time_short |> 
+    filter(lubridate::date(TRIP_DE) == lubridate::date(TRANSMISSION_DATE)) |> 
+  nrow()
+# 13782
+
+logbooks_transmission_time_short |> 
+    filter(lubridate::date(TRIP_DE) < lubridate::date(TRIP_START_DATE)) |> 
+  nrow()
+# 7
+
+logbooks_transmission_time_short |> 
+    filter(TRANSMISSION_DATE < TRIP_START_DATE) |> 
+  nrow()
+# 79
+
+logbooks_transmission_time_short |> 
+    filter(is.na(TRANSMISSION_DATE)) |> 
+  nrow()
+# 80825
+
+logbooks_transmission_time_short |> 
+    filter(is.na(TRIP_DE)) |> 
+  nrow()
+# 0
