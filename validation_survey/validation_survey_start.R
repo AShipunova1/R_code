@@ -141,29 +141,28 @@ lgb_join_i1__int_lgb__short <-
          VESSEL_OFFICIAL_NBR,
          id_code,
          survey_vessel_id,
-         trip_end_date_only) |>
+         trip_end_date_only,
+         int_lgb) |>
   distinct()
 
-
-lgb_join_i1__int_lgb |>
+lgb_join_i1__int_lgb__short |> 
   count(int_lgb)
-# 1 has_lgb  2761
-# 2 no_lgb   1961
-dim(lgb_join_i1__int_lgb)
-# 4722
-# 1961 + 2761
+# 1 has_lgb  1353
+# 2 no_lgb   1096
 
-lgb_join_i1__int_lgb |>
+1353 + 1096 == 2449
+
+# 1353*100/2449
+# 55.2% has_lgb
+
+lgb_join_i1__int_lgb__short |>
   data_overview()
 
-n_distinct(lgb_join_i1__int_lgb$TRIP_ID)
+n_distinct(lgb_join_i1__int_lgb__short$TRIP_ID)
 # 1161 logbooks
 
-n_distinct(lgb_join_i1__int_lgb$id_code)
+n_distinct(lgb_join_i1__int_lgb__short$id_code)
 # 1835 interviews
-
-TRIP_ID, VESSEL_OFFICIAL_NBR, id_code, int_lgb, survey_vessel_id
-View(lgb_join_i1__int_lgb)
 
 ## did they interview before or after logbook submission ----
 
@@ -171,7 +170,8 @@ View(lgb_join_i1__int_lgb)
 
 lgb_join_i1__int_lgb__has_lgb_short <-
   lgb_join_i1__int_lgb__short |>
-  filter(int_lgb == "has_lgb")
+  filter(int_lgb == "has_lgb") |> 
+  select(-int_lgb)
 
 survey_data_time <-
   survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num |>
