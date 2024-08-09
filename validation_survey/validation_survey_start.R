@@ -130,12 +130,20 @@ source(prepare_data_path)
 # [1] "TRIP_ID, VESSEL_OFFICIAL_NBR, TRIP_START_DATE, TRIP_START_TIME, TRIP_END_DATE, TRIP_END_TIME, trip_end_date_only, trip_start_hour, trip_start_sec, trip_end_hour, trip_end_sec, trip_start_date_time, trip_end_date_time, id_code, vessel_name, interviewee_f_name, interviewee_l_name, survey_vessel_id, st_2, cnty_3, SERO_HOME_PORT_COUNTY, SERO_HOME_PORT_STATE, VESSEL_NAME, FIRST_NAME, LAST_NAME, county_short, state_code, state_name, county_code, vessel_id_dist, vsl_names_dissim, st_pass, cnty_pass, name_pass, vsl_name_pass, int_lgb"
 
 # Answer questions ----
-# - quantify when surveyors are intercepting vessels at the dock, in relation to when the trip is transmitted. The specific question is, did they interview before or after logbook submission?  Using the matched surveys to logbooks and transmission date/time vs survey data/time fields, could you please quantify how many surveys occur before the logbook is transmitted vs how many surveys occur after the logbook is transmitted? You can do this as a % of the total (matched) surveys (e.g. 40% of surveys occurred before logbook was submitted; 60% after)
+## did they interview before or after logbook submission ----
+
+# Quantify when surveyors are intercepting vessels at the dock, in relation to when the trip is transmitted. The specific question is, did they interview before or after logbook submission?  Using the matched surveys to logbooks and transmission date/time vs survey data/time fields, could you please quantify how many surveys occur before the logbook is transmitted vs how many surveys occur after the logbook is transmitted? You can do this as a % of the total (matched) surveys (e.g. 40% of surveys occurred before logbook was submitted; 60% after)
+
+# Note. trip_end_date_only == interview_date
 
 lgb_join_i1__int_lgb__has_lgb_short <-
   lgb_join_i1__int_lgb |>
   filter(int_lgb == "has_lgb") |>
-  select(TRIP_ID, VESSEL_OFFICIAL_NBR, id_code, survey_vessel_id) |>
+  select(TRIP_ID,
+         VESSEL_OFFICIAL_NBR,
+         id_code,
+         survey_vessel_id,
+         trip_end_date_only) |>
   distinct()
 
 survey_data_time <-
@@ -180,3 +188,19 @@ logbooks_transmission_time_short |>
     filter(is.na(TRIP_DE)) |> 
   nrow()
 # 0
+
+### combine data for transmission date ----
+transmission_data <- 
+  lgb_join_i1__int_lgb__has_lgb_short |> 
+  left_join(logbooks_transmission_time_short,
+            join_by(TRIP_ID, VESSEL_OFFICIAL_NBR))
+
+dim(lgb_join_i1__int_lgb__has_lgb_short)
+# [1] 1353    5
+
+dim(transmission_data)
+# [1] 1353    8
+
+# survey_data_time
+
+# View(transmission_data)
