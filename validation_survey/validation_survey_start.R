@@ -210,3 +210,22 @@ lgb_int__join_lgb_de__surv_time <-
 
 dim(lgb_int__join_lgb_de__surv_time)
 # [1] 1353   10
+
+# Michelle:
+# Yes, I’d like to see the difference in mins in both directions. If the logbook was submitted before the survey you could list those in negative mins, and if it was after then in positive mins. If it was seconds after then just round even 1 sec up to the min. 
+# 
+# Then we can do some summary stats on that: min, max, mean, median
+
+# Find the time difference
+lgb_int__join_lgb_de__surv_time__diff <-
+  lgb_int__join_lgb_de__surv_time |>
+  mutate(trip_de__interview_diff =
+           difftime(TRIP_DE, interview_date_time, units = "mins")) |> 
+    mutate(trip_de__interview_diff_num = 
+             as.numeric(trip_de__interview_diff, units = "mins"))
+
+
+str(lgb_int__join_lgb_de__surv_time__diff)
+
+# stats
+summary(lgb_int__join_lgb_de__surv_time__diff)
