@@ -811,8 +811,13 @@ db_logbooks_2022_clean_vesl <-
 
 ## shorten
 #' as.character(TRIP_ID) to avoid sci notation in csv
-db_logbooks_2022_short0 <-
+db_logbooks_2022_clean_vesl_clean <-
   db_logbooks_2022_clean_vesl |>
+  dplyr::mutate(trip_end_date_only = lubridate::date(TRIP_END_DATE),
+                TRIP_ID = as.character(TRIP_ID))
+
+db_logbooks_2022_short0 <-
+  db_logbooks_2022_clean_vesl_clean |>
   dplyr::select(
     TRIP_ID,
     VESSEL_OFFICIAL_NBR,
@@ -821,9 +826,7 @@ db_logbooks_2022_short0 <-
     TRIP_END_DATE,
     TRIP_END_TIME
   ) |>
-  dplyr::distinct() |> 
-  dplyr::mutate(trip_end_date_only = lubridate::date(TRIP_END_DATE),
-                TRIP_ID = as.character(TRIP_ID))
+  dplyr::distinct()
   
 db_logbooks_2022_short_date_time <-
   db_logbooks_2022_short0 |>
