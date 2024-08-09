@@ -220,12 +220,33 @@ dim(lgb_int__join_lgb_de__surv_time)
 lgb_int__join_lgb_de__surv_time__diff <-
   lgb_int__join_lgb_de__surv_time |>
   mutate(trip_de__interview_diff =
-           difftime(TRIP_DE, interview_date_time, units = "mins")) |> 
-    mutate(trip_de__interview_diff_num = 
-             as.numeric(trip_de__interview_diff, units = "mins"))
+           difftime(TRIP_DE, interview_date_time, units = "mins")) |>
+  mutate(trip_de__interview_diff_num =
+           as.numeric(trip_de__interview_diff, units = "mins")) |>
+  mutate(trip_de__interview_diff_dur =
+           duration(trip_de__interview_diff_num, "minutes"))
 
-
-str(lgb_int__join_lgb_de__surv_time__diff)
+View(lgb_int__join_lgb_de__surv_time__diff)
 
 # stats
-summary(lgb_int__join_lgb_de__surv_time__diff)
+summary(lgb_int__join_lgb_de__surv_time__diff$trip_de__interview_diff_num)
+# Min.:-447.5
+# 1st Qu.:49.5
+# Median:167.4
+# Mean:9156.8
+# 3rd Qu.:446.3
+# Max.:396382.8
+# NA's   :159
+
+lgb_int__join_lgb_de__surv_time__diff |> 
+  filter(trip_de__interview_diff_num > 9156) |> glimpse()
+
+summary(lgb_int__join_lgb_de__surv_time__diff$trip_de__interview_diff_dur)
+# Min.                          1st Qu. 
+# "-26852s (~-7.46 hours)"      "2972.25s (~49.54 minutes)" 
+# Median                             Mean 
+# "10043.5s (~2.79 hours)" "549406.476549414s (~6.36 days)" 
+# 3rd Qu.                             Max. 
+# "26780.5s (~7.44 hours)"       "23782965s (~39.32 weeks)" 
+# NA's 
+# "159" 
