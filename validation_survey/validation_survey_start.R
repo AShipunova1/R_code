@@ -321,21 +321,16 @@ rr |>
 
 library(ggplot2)
 
-plot1 <- ggplot(lgb_int__join_lgb_de__surv_time__diff, 
-                aes(x = trip_de__interview_diff_dur))
-
-plot1 + 
-  geom_histogram(bins = 30, color = "black", fill = "blue") 
-
-title <- stringr::str_glue('The difference between the interview time and logbook submission time.\nThe green rectangle is the area between 25 and 75 percentiles,\ni.e. most frequent differences (between {round(q_limits[["25%"]])} and {round(q_limits[["75%"]])} mins).\nThe purple line is the median ({round(q_limits[["50%"]])} min).\nTo fit data in one plot only the difference < 3 days is shown.')
+threshhold_dur <- lubridate::duration(2, "days")
 
 plot_lt_3_d_diff <-
   lgb_int__join_lgb_de__surv_time__diff |>
   filter(trip_de__interview_diff_dur <
-           lubridate::duration(3, "days")) |>
+           threshhold_dur) |>
   ggplot(aes(x = trip_de__interview_diff_num))
 
-plot_lt_3_d_diff +
+plot_lt_3_d_diff__hist <-
+  plot_lt_3_d_diff +
   geom_histogram(bins = 40,
                  color = "black",
                  fill = "blue") +
@@ -355,17 +350,27 @@ plot_lt_3_d_diff +
              ) +
   geom_vline(aes(xintercept = q_limits[["25%"]]), linetype = "dashed") +
   geom_vline(aes(xintercept = q_limits[["75%"]]), linetype = "dashed") +
-  ggtitle(title)
+  scale_x_continuous(breaks = scales::breaks_pretty(n = 12)) +
+  scale_y_continuous(breaks = scales::breaks_pretty(n = 7)) +
+  xlab("Difference in minutes")
+
+title <- stringr::str_glue('The difference between the interview time and logbook submission time.\nThe green rectangle is the area between 25 and 75 percentiles,\ni.e. most frequent differences (between {round(q_limits[["25%"]])} and {round(q_limits[["75%"]])} mins).\nThe purple line is the median ({round(q_limits[["50%"]])} min).\nTo fit data in one plot only the difference < {threshhold_dur} is shown.')
+
+plot_lt_3_d_diff__hist + ggtitle(title)
           
-          
-  annotate("text", 
-           x = q_limits[["50%"]] + 100, 
-           y = -5, 
-           label = paste(round(q_limits[["50%"]]), "min"),
-           color = "purple")
-
-
-
 # days = 86400 seconds
 # 86400/60 * 3
 # 4320 min == 3 days
+  
+# plot all diffs
+
+plot_all_diffs <- ggplot(lgb_int__join_lgb_de__surv_time__diff, 
+                aes(x = trip_de__interview_diff_num))
+
+plot_all_diffs + 
+  geom_histogram(bins = 20, color = "black", fill = "green") +
+  labs(title = "TRIP_DE minus interview_date_time") + 
+  # ylab("SOC (g C/m2/yr)") + 
+  xlab("Difference in minutes")
+
+  
