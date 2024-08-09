@@ -138,3 +138,10 @@ lgb_join_i1__int_lgb__has_lgb_short <-
   select(TRIP_ID, VESSEL_OFFICIAL_NBR, id_code, survey_vessel_id) |>
   distinct()
 
+survey_data_time <-
+  survey_data_l_2022_i1_w_dates_clean_vsl_no_na_vsl_num |>
+  select(id_code,
+         interview_date,
+         interview_date_time,
+         survey_vessel_id)
+
