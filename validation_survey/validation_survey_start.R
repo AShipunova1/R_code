@@ -250,3 +250,32 @@ summary(lgb_int__join_lgb_de__surv_time__diff$trip_de__interview_diff_dur)
 # "26780.5s (~7.44 hours)"       "23782965s (~39.32 weeks)" 
 # NA's 
 # "159" 
+
+summary(lgb_int__join_lgb_de__surv_time__diff$trip_de__interview_diff_num)
+
+# cut(ages, breaks = c(20, 30, 40, 50), right = FALSE)
+
+q_limits <-
+  quantile(lgb_int__join_lgb_de__surv_time__diff$trip_de__interview_diff_num,
+           na.rm = TRUE)
+
+
+rr <-
+  lgb_int__join_lgb_de__surv_time__diff |>
+  select(VESSEL_OFFICIAL_NBR, trip_de__interview_diff_num) |>
+  mutate(diff_groups =
+           cut(trip_de__interview_diff_num, q_limits))
+  
+# , include.lowest = TRUE
+# View(rr)    
+
+rr |> 
+    group_by(diff_groups) |> 
+    count(VESSEL_OFFICIAL_NBR) |> glimpse()
+
+lgb_int__join_lgb_de__surv_time__diff |> 
+  mutate(diff_groups = 
+           cut(trip_de__interview_diff_num,
+                           ))
+  select(VESSEL_OFFICIAL_NBR, trip_de__interview_diff_num) |>
+  count(trip_de__interview_diff_num)
