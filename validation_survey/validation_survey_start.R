@@ -253,8 +253,6 @@ summary(lgb_int__join_lgb_de__surv_time__diff$trip_de__interview_diff_dur)
 
 summary(lgb_int__join_lgb_de__surv_time__diff$trip_de__interview_diff_num)
 
-# cut(ages, breaks = c(20, 30, 40, 50), right = FALSE)
-
 q_limits <-
   quantile(lgb_int__join_lgb_de__surv_time__diff$trip_de__interview_diff_num,
            na.rm = TRUE)
@@ -292,12 +290,82 @@ lgb_int__join_lgb_de__surv_time__diff_groups |>
   glimpse()
 
 lgb_int__join_lgb_de__surv_time__diff_groups |>
-  count(diff_groups)
+  count(diff_groups) |> 
+  arrange(diff_groups)
+
+# View(lgb_int__join_lgb_de__surv_time__diff_groups)
+
+lgb_int__join_lgb_de__surv_time__diff_groups$diff_groups |> 
+  unique()
+
+# split another way
+
+rr <-
+  lgb_int__join_lgb_de__surv_time__diff |>
+  mutate(diff_groups =
+           cut(
+             trip_de__interview_diff_num,
+             breaks = c(q_limits[["0%"]], 
+                        -60, 
+                        60, 
+                        q_limits[["50%"]],
+                        q_limits[["75%"]],
+                        q_limits[["100%"]])
+               ,
+           include.lowest = TRUE
+           ))
+
+# View(rr)
+rr |> 
+    count(diff_groups)
+
+library(ggplot2)
+
+plot1 <- ggplot(lgb_int__join_lgb_de__surv_time__diff, 
+                aes(x = trip_de__interview_diff_dur))
+
+plot1 + 
+  geom_histogram(bins = 30, color = "black", fill = "blue") 
+
+title <- stringr::str_glue('The difference between the interview time and logbook submission time.\nThe green rectangle is the area between 25 and 75 percentiles,\ni.e. most frequent differences (between {round(q_limits[["25%"]])} and {round(q_limits[["75%"]])} mins).\nThe purple line is the median ({round(q_limits[["50%"]])} min).\nTo fit data in one plot only the difference < 3 days is shown.')
+
+plot_lt_3_d_diff <-
+  lgb_int__join_lgb_de__surv_time__diff |>
+  filter(trip_de__interview_diff_dur <
+           lubridate::duration(3, "days")) |>
+  ggplot(aes(x = trip_de__interview_diff_num))
+
+plot_lt_3_d_diff +
+  geom_histogram(bins = 40,
+                 color = "black",
+                 fill = "blue") +
+  annotate(
+    geom = "rect",
+    xmin = q_limits[["25%"]],
+    xmax = q_limits[["75%"]],
+    ymin = 0,
+    ymax = Inf,
+    fill = "palegreen",
+    colour = "black",
+    alpha = 0.5
+  ) +
+  geom_vline(aes(xintercept = median(trip_de__interview_diff_num)), 
+             color = "purple",
+             linewidth = 1.5
+             ) +
+  geom_vline(aes(xintercept = q_limits[["25%"]]), linetype = "dashed") +
+  geom_vline(aes(xintercept = q_limits[["75%"]]), linetype = "dashed") +
+  ggtitle(title)
+          
+          
+  annotate("text", 
+           x = q_limits[["50%"]] + 100, 
+           y = -5, 
+           label = paste(round(q_limits[["50%"]]), "min"),
+           color = "purple")
 
 
-lgb_int__join_lgb_de__surv_time__diff |> 
-  mutate(diff_groups = 
-           cut(trip_de__interview_diff_num,
-                           ))
-  select(VESSEL_OFFICIAL_NBR, trip_de__interview_diff_num) |>
-  count(trip_de__interview_diff_num)
+
+# days = 86400 seconds
+# 86400/60 * 3
+# 4320 min == 3 days
