@@ -260,18 +260,40 @@ q_limits <-
            na.rm = TRUE)
 
 
-rr <-
+lgb_int__join_lgb_de__surv_time__diff_groups <-
   lgb_int__join_lgb_de__surv_time__diff |>
-  select(VESSEL_OFFICIAL_NBR, trip_de__interview_diff_num) |>
+  select(TRIP_ID, VESSEL_OFFICIAL_NBR,
+         trip_de__interview_diff_num) |>
   mutate(diff_groups =
            cut(trip_de__interview_diff_num, q_limits))
   
-# , include.lowest = TRUE
-# View(rr)    
+lgb_int__join_lgb_de__surv_time__diff_groups |>
+  select(diff_groups, TRIP_ID) |> 
+  # group_by(diff_groups) |>
+  count(diff_groups) |>
+  # ungroup() |>
+  glimpse()
 
-rr |> 
-    group_by(diff_groups) |> 
-    count(VESSEL_OFFICIAL_NBR) |> glimpse()
+lgb_int__join_lgb_de__surv_time__diff_groups |>
+  select(VESSEL_OFFICIAL_NBR, diff_groups) |> 
+  # group_by(diff_groups) |>
+  count(diff_groups) |>
+  # ungroup() |>
+  glimpse()
+
+lgb_int__join_lgb_de__surv_time__diff_groups |>
+  count(VESSEL_OFFICIAL_NBR, diff_groups) |> 
+  arrange(desc(n)) |> 
+  glimpse()
+
+lgb_int__join_lgb_de__surv_time__diff_groups |>
+  count(TRIP_ID, diff_groups) |> 
+  arrange(desc(n)) |> 
+  glimpse()
+
+lgb_int__join_lgb_de__surv_time__diff_groups |>
+  count(diff_groups)
+
 
 lgb_int__join_lgb_de__surv_time__diff |> 
   mutate(diff_groups = 
