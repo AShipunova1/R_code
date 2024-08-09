@@ -131,3 +131,10 @@ source(prepare_data_path)
 
 # Answer questions ----
 # - quantify when surveyors are intercepting vessels at the dock, in relation to when the trip is transmitted. The specific question is, did they interview before or after logbook submission?  Using the matched surveys to logbooks and transmission date/time vs survey data/time fields, could you please quantify how many surveys occur before the logbook is transmitted vs how many surveys occur after the logbook is transmitted? You can do this as a % of the total (matched) surveys (e.g. 40% of surveys occurred before logbook was submitted; 60% after)
+
+lgb_join_i1__int_lgb__has_lgb_short <-
+  lgb_join_i1__int_lgb |>
+  filter(int_lgb == "has_lgb") |>
+  select(TRIP_ID, VESSEL_OFFICIAL_NBR, id_code, survey_vessel_id) |>
+  distinct()
+
