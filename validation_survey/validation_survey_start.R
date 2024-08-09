@@ -145,6 +145,7 @@ survey_data_time <-
          interview_date_time,
          survey_vessel_id)
 
+# Note. TRANSMISSION_DATE is missing in most entries and often is before the trip date, and TRIP_DE seems more accurate, will use it instead.
 
 logbooks_transmission_time_short <-
   db_logbooks_2022_clean_vesl_clean |>
@@ -152,17 +153,13 @@ logbooks_transmission_time_short <-
          VESSEL_OFFICIAL_NBR,
          TRIP_START_DATE,
          TRIP_END_DATE,
-         TRANSMISSION_DATE,
          TRIP_DE
-         # ,
-         # TRIP_UE,
-         # TRIP_DC,
-         # TRIP_UC
          ) |>
   distinct() |> 
   remove_empty_cols()
 
 dim(logbooks_transmission_time_short)
+# [1] 94870     5
 
 # View(logbooks_transmission_time_short)
 
@@ -173,26 +170,11 @@ filter(!lubridate::year(TRIP_START_DATE) == "2022") |>
 # 0
 # OK, at least one date in 2022
 
-# check tranmission and de 
-logbooks_transmission_time_short |> 
-    filter(lubridate::date(TRIP_DE) == lubridate::date(TRANSMISSION_DATE)) |> 
-  nrow()
-# 13782
-
+# check dates
 logbooks_transmission_time_short |> 
     filter(lubridate::date(TRIP_DE) < lubridate::date(TRIP_START_DATE)) |> 
   nrow()
 # 7
-
-logbooks_transmission_time_short |> 
-    filter(TRANSMISSION_DATE < TRIP_START_DATE) |> 
-  nrow()
-# 79
-
-logbooks_transmission_time_short |> 
-    filter(is.na(TRANSMISSION_DATE)) |> 
-  nrow()
-# 80825
 
 logbooks_transmission_time_short |> 
     filter(is.na(TRIP_DE)) |> 
