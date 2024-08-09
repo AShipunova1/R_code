@@ -1071,6 +1071,8 @@ lgb_join_i1__int_lgb__short <-
   distinct()
 
 
-View(lgb_join_i1__int_lgb__short)
+dim(lgb_join_i1__int_lgb__to_check_join)
 # [1] 2294   9
 
+# result is in lgb_join_i1__int_lgb
+auxfunctions::pretty_print("lgb_join_i1__int_lgb", "Prepared data are in: ")
