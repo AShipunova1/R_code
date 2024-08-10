@@ -878,13 +878,15 @@ db_logbooks_2022_short_date_time <-
 #' db_logbooks_2022_short_date_time 
 
 # JOIN interview (fuzyy joined to PIMS) and logbooks by day and vessel ----
+glimpse(db_logbooks_2022_short_date_time)
+
 lgb_join_i1 <-
   dplyr::right_join(
     db_logbooks_2022_short_date_time,
     fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs__to_csv,
     dplyr::join_by(
       VESSEL_OFFICIAL_NBR == SERO_OFFICIAL_NUMBER,
-      trip_end_date_only == interview_date
+      TRIP_END_DATE       == interview_date
     ),
     relationship = "many-to-many"
   )
@@ -899,7 +901,7 @@ lgb_193 <-
 fuzzyjoin_vessel_ids__closest__clean_vsl_name__filtrs__to_csv |>
   filter(
     lgb_193$VESSEL_OFFICIAL_NBR == SERO_OFFICIAL_NUMBER,
-    lgb_193$trip_end_date_only == interview_date
+    lgb_193$TRIP_END_DATE       == interview_date
   ) |> 
   glimpse()
 #' many names for the same entry
@@ -912,7 +914,7 @@ survey_2662 <-
 db_logbooks_2022_short_date_time |> 
   filter(
     VESSEL_OFFICIAL_NBR == survey_2662$SERO_OFFICIAL_NUMBER,
-    trip_end_date_only == survey_2662$interview_date
+    TRIP_END_DATE       == survey_2662$interview_date
   ) |> 
   glimpse()
 
@@ -930,7 +932,7 @@ lgb_join_i1 |>
 #' count days 
 lgb_join_i1__short <-
   lgb_join_i1 |>
-  select(TRIP_ID, id_code, trip_end_date_only) |>
+  select(TRIP_ID, id_code, TRIP_END_DATE) |>
   distinct()
 
 dim(lgb_join_i1__short)
@@ -938,7 +940,7 @@ dim(lgb_join_i1__short)
 
 lgb_join_i1__short |> 
   filter(!is.na(TRIP_ID)) |> 
-    summarise(n_distinct(trip_end_date_only))
+    summarise(n_distinct(TRIP_END_DATE))
 #' 187 days with at least one trip
 
 #' count interviews/lgbks
@@ -972,7 +974,7 @@ summarise(int_has_lgb, n_distinct(id_code)) * 100 /
 
 lgb_join_i1_lgb_int_cnt <-
   lgb_join_i1 |>
-  select(TRIP_ID, VESSEL_OFFICIAL_NBR, trip_end_date_only, id_code) |>
+  select(TRIP_ID, VESSEL_OFFICIAL_NBR, TRIP_END_DATE, id_code) |>
   distinct() |>
   add_count(TRIP_ID, id_code, name = "trip_int_pair") |>
   arrange(desc(trip_int_pair))
@@ -989,7 +991,7 @@ lgb_join_i1_lgb_int_cnt |>
 
 lgb_join_i1__vsl_lgb_int_cnt <-
   lgb_join_i1 |>
-  select(TRIP_ID, VESSEL_OFFICIAL_NBR, trip_end_date_only, id_code) |>
+  select(TRIP_ID, VESSEL_OFFICIAL_NBR, TRIP_END_DATE, id_code) |>
   distinct() |>
   add_count(VESSEL_OFFICIAL_NBR, 
             TRIP_ID, id_code, name = "vsl_trip_int_pair") |>
@@ -1009,6 +1011,7 @@ lgb_join_i1__vsl_lgb_int_cnt__id_codes <-
   distinct()
 
 nrow(lgb_join_i1__vsl_lgb_int_cnt__id_codes)
+# 1006
 
 #' same id_code can have more than 1 lgb
 
@@ -1019,6 +1022,7 @@ lgb_join_i1__id_codes_w_lgb <-
   filter(!is.na(TRIP_ID)) |>
   select(id_code) |> 
   distinct()
+
 dim(lgb_join_i1__id_codes_w_lgb)
 # 1006
 
@@ -1061,7 +1065,7 @@ lgb_join_i1__int_lgb__short <-
   lgb_join_i1__int_lgb |>
   select(
     VESSEL_OFFICIAL_NBR,
-    trip_end_date_only,
+    TRIP_END_DATE,
     id_code,
     survey_vessel_id,
     st_pass,
@@ -1072,8 +1076,12 @@ lgb_join_i1__int_lgb__short <-
   ) |> 
   distinct()
 
-dim(lgb_join_i1__int_lgb__to_check_join)
+# dim(lgb_join_i1__int_lgb)
 # [1] 2294   9
+
+# lgb_join_i1__int_lgb |> 
+#   dim()
+# # [1] 4722   35
 
 # result is in lgb_join_i1__int_lgb
 auxfunctions::pretty_print("lgb_join_i1__int_lgb", "Prepared data are in: ")
