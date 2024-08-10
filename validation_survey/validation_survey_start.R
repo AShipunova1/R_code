@@ -187,6 +187,13 @@ survey_data_time <-
          survey_vessel_id) |> 
   mutate(id_code = as.character(id_code))
 
+## shorten
+#' as.character(TRIP_ID) to avoid sci notation in csv
+db_logbooks_2022_clean_vesl_clean <-
+  db_logbooks_2022_clean_vesl |>
+  dplyr::mutate(trip_end_date_only = lubridate::date(TRIP_END_DATE),
+                TRIP_ID = as.character(TRIP_ID))
+
 # Note. TRANSMISSION_DATE is missing in most entries and often is before the trip date, and TRIP_DE seems more accurate, will use it instead.
 
 logbooks_transmission_time_short <-
@@ -259,7 +266,7 @@ lgb_int__join_lgb_de__surv_time__diff <-
   mutate(trip_de__interview_diff_dur =
            duration(trip_de__interview_diff_num, "minutes"))
 
-View(lgb_int__join_lgb_de__surv_time__diff)
+# View(lgb_int__join_lgb_de__surv_time__diff)
 
 # stats
 summary(lgb_int__join_lgb_de__surv_time__diff$trip_de__interview_diff_num)
