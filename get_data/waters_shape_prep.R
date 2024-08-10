@@ -1,7 +1,24 @@
 # R_code_github/get_data/waters_shape_prep.R
 
 # setup ----
-# maps:
+
+needed_packages <- c("mapview", "sf", "tigris", "devtools", "tictoc", "ggplot2")
+
+installed_packages <-
+  needed_packages %in% rownames(installed.packages())
+
+if (any(installed_packages == FALSE)) {
+  install.packages(needed_packages[!installed_packages])
+}
+
+if (!require('auxfunctions')) {
+  devtools::install_github("AShipunova1/R_code/auxfunctions@development", force = FALSE)
+  # restart R session to pick up changes
+  # .rs.restartR()
+}
+library(auxfunctions)
+  
+# For maps:
 library(mapview)
 library(sf)
 ## Load the 'tigris' package to access geographic data.
@@ -12,7 +29,6 @@ library(tigris)
 ## improve data retrieval performance for future sessions.
 tigris_use_cache = TRUE
 
-source("~/R_code_github/useful_functions_module.r")
 my_paths <- set_work_dir()
 
 # Get the current project directory name using the 'this.path' package.
@@ -25,6 +41,7 @@ waters_output_path <- file.path(my_paths$outputs,
                          waters_project_basename)
 
 my_crs = 4326
+
 ## state and county lists ----
 misc_info_path <-
   file.path(my_paths$git_r,
@@ -38,7 +55,7 @@ GOM_400fm_path <-
   file.path(my_paths$inputs,
                       r"(shapefiles\GOM_400fm\GOM_400fm.shp)")
 
-# file.exists(GOM_400fm_path)
+file.exists(GOM_400fm_path)
 # T
 
 GOMsf <-
@@ -90,7 +107,7 @@ fl_state_w_counties_path <-
   file.path(my_paths$inputs,
                       r"(shapefiles\GOVTUNIT_Florida_State_Shape\Shape\GU_CountyOrEquivalent.shp)")
 
-# file.exists(fl_state_w_counties_path)
+file.exists(fl_state_w_counties_path)
 
 fl_state_w_counties_shp <-
   sf::read_sf(fl_state_w_counties_path)
@@ -177,11 +194,11 @@ my_dfs_to_transform <-
        sa_states_shp
        )
 
-tic("shp_4326_list")
+tictoc::tic("shp_4326_list")
 shp_4326_list <-
   lapply(my_dfs_to_transform,
          function(x) st_transform(x, my_crs))
-toc()
+tictoc::toc()
 # shp_4326_list: 14.56 sec elapsed
 
 # tic("shp_4326_list map")
@@ -212,8 +229,8 @@ big_bounding_box <- c(
  )
 
 red_bounding_box <-
-  geom_rect(
-    aes(
+  ggplot2::geom_rect(
+    ggplot2::aes(
       xmin = big_bounding_box[["xmin"]],
       xmax = big_bounding_box[["xmax"]],
       ymin = big_bounding_box[["ymin"]],
@@ -231,5 +248,6 @@ result_names <- c("GOMsf",
              "big_bounding_box",
              "shp_4326_list: ",
              my_dfs_to_transform_names)
+
 title_message_print(result_names)
 
