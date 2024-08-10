@@ -152,8 +152,11 @@ lgb_join_i1__int_lgb__short |>
 
 1353 + 1096 == 2449
 
-# 1353*100/2449
+# 1353*100/(1353 + 1096)
 # 55.2% has_lgb
+
+# 1096*100/(1353 + 1096)
+# 44.7 no lgb
 
 lgb_join_i1__int_lgb__short |>
   data_overview()
