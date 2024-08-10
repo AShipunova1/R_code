@@ -404,3 +404,42 @@ plot_all_diffs +
   xlab("Difference in minutes")
 
   
+## Maps ---- 
+# - overlay map of where surveys occurred without logbooks (in Gulf) with where non-compliant Gulf + dual Gulf/S. Atl. vessels (for all 2022) are located
+
+## make adf with needed fields
+lgb_join_i1__int_lgb__short_for_map <-
+  lgb_join_i1__int_lgb |>
+  select(
+    TRIP_ID,
+    VESSEL_OFFICIAL_NBR,
+    id_code,
+    survey_vessel_id,
+    trip_end_date_only,
+    int_lgb,
+    st_2,
+    cnty_3,
+    SERO_HOME_PORT_COUNTY,
+    SERO_HOME_PORT_STATE,
+    county_short,
+    state_code,
+    state_name,
+    county_code,
+    int_lgb
+  ) |>
+  distinct()
+
+lgb_join_i1__int_lgb__short_for_map |> dim()
+# 2455
+
+lgb_join_i1__int_lgb__short_for_map_no_lgb <-
+  lgb_join_i1__int_lgb__short_for_map |>
+  filter(int_lgb == "no_lgb" &
+           !is.na(VESSEL_OFFICIAL_NBR)) |>
+  select(-int_lgb, TRIP_ID) |>
+  distinct()
+
+dim(lgb_join_i1__int_lgb__short_for_map_no_lgb)
+# 966
+
+    View()
