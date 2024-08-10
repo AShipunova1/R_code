@@ -30,6 +30,9 @@ if (!require(googledrive)) install.packages("googledrive")
 library(googlesheets4) # Google Sheets via the Sheets API v4 
 library(googledrive) # interact with Google Drive 
 
+# ggplot2: Create Elegant Data Visualisations Using the Grammar of Graphics
+library(ggplot2)
+
 #' don't convert long numbers to scientific notation
 options(scipen = 999)
 
@@ -349,8 +352,6 @@ rr <-
 rr |> 
     count(diff_groups)
 
-library(ggplot2)
-
 threshhold_dur <- lubridate::duration(2, "days")
 
 plot_lt_3_d_diff <-
@@ -442,4 +443,12 @@ lgb_join_i1__int_lgb__short_for_map_no_lgb <-
 dim(lgb_join_i1__int_lgb__short_for_map_no_lgb)
 # 966
 
-    View()
+glimpse(lgb_join_i1__int_lgb__short_for_map_no_lgb)
+
+maps_path <-
+  file.path(current_project_dir_name,
+            paste0(current_project_name, "_", "maps.R"))
+
+file.exists(maps_path)
+
+source(maps_path)
