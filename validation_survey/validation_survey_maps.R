@@ -1,3 +1,15 @@
+# setup maps ----
+needed_packages <- c("tidygeocoder", "ggmap")
+
+installed_packages <-
+  needed_packages %in% rownames(installed.packages())
+
+if (any(installed_packages == FALSE)) {
+  install.packages(needed_packages[!installed_packages])
+}
+
+lapply(needed_packages, library, character.only = TRUE)
+
 water_shape_prep_path <-
   file.path(my_paths$git_r,
             "get_data",
@@ -7,15 +19,5 @@ file.exists(water_shape_prep_path)
 
 source(water_shape_prep_path)
 
-# ===
-tidygeocoder
-if(!require(tidygeocoder)){
-  install.packages("tidygeocoder")
-  library(tidygeocoder)
-}
+# get city coords ----
 
-# Needed for mapping
-if(!require(ggmap)){
-  install.packages("ggmap")
-  library(ggmap)
-}
