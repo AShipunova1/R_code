@@ -1072,7 +1072,6 @@ lgb_join_i1__int_lgb__short <-
   ) |> 
   distinct()
 
-
 dim(lgb_join_i1__int_lgb__to_check_join)
 # [1] 2294   9
 
