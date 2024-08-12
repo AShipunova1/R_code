@@ -379,6 +379,39 @@ fhier_compliance_2022 <-
   ) |>
   readr::type_convert(guess_integer = TRUE)
 
+# Get VMS data ----
+# "C:\Users\anna.shipunova\Documents\R_files_local\my_inputs\validation_survey\vms_data\VMS raw data-20240812T121721Z-001.zip"
+
+vms_zip_filenames <-
+  list.files(file.path(curr_proj_input_path, "vms_data"),
+             pattern = "*.zip",
+             full.names = TRUE)
+
+
+master <- as.character(unzip("master.zip", list = TRUE)$Name)
+# load the first file "file1.csv"
+data <- read.csv(unz("master.zip", "file1.csv"), header = TRUE,
+                 sep = ",") 
+
+temp<-tempdir(check = TRUE) #Create temporary directory to extract into
+
+unzip("folder1.zip",exdir = temp) #Unzip outer archive to temp directory
+
+unzip(file.path(temp,"folder2.zip"), #Use file.path to generate the path to the inner archive
+      exdir = file.path(temp,"temp2")) #Extract to a subfolder inside temp
+                                       #This covers the case when the outer archive might also have a file named wanttoread.csv
+
+list.files(file.path(temp,"temp2")) #We can see the .csv file is now there
+#[1] "wanttoread.csv"
+
+read.csv(file.path(temp,"temp2","wanttoread.csv")) #Read it in
+#   Var1         Var2
+
+vms_raw_data <-
+  purrr::map(vms_zip_filenames, readr::read_csv)
+
+(vms_raw_data)
+
 # result df names ----
 data_names <-
   c(
