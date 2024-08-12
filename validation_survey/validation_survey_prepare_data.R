@@ -1133,5 +1133,22 @@ vms_raw_data_all_clean <-
       distinct()
   }) 
 
+## combine into one df ----
+vms_raw_data_all_clean_df <-
+  vms_raw_data_all_clean |>
+  purrr::list_rbind()
+
+# check
+dim(vms_raw_data_all_clean_df)
+# [1] 5069452       5 (with UTC time)
+# [1] 5069260       4
+
+min(vms_raw_data_all_clean_df$LOCAL_TIME_dttm)
+# [1] "2021-12-31 16:00:00 EST"
+max(vms_raw_data_all_clean$LOCAL_TIME_dttm)
+# [1] "2022-12-31 15:58:00 EST"
+
 # result is in lgb_join_i1__int_lgb
-auxfunctions::pretty_print("lgb_join_i1__int_lgb", "Prepared data are in: ")
+auxfunctions::pretty_print(c("lgb_join_i1__int_lgb",
+                             "vms_raw_data_all_clean"),
+                           "Prepared data are in: ")
