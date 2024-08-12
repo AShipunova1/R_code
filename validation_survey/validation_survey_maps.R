@@ -41,6 +41,7 @@ source(water_shape_prep_path)
 # gom_states_shp
 # sa_states_shp
 
+# Map interviews ----
 ## map interviews using survey data ----
 
 lgb_join_i1__int_lgb__short_for_map_no_lgb_fips <-
@@ -119,3 +120,24 @@ usmap::plot_usmap(
   ) +
   labs(title = "Count interviews using restored data") +
   theme(legend.position = "right")
+
+# map non compliant GOM and dual vessels for 2022 ----
+
+processed_logbooks_2022_calendar$IS_COMP |> unique()
+processed_logbooks_2022_calendar$compliant_after_override |> unique()
+
+# processed_logbooks_2022_calendar_short <-
+  processed_logbooks_2022_calendar |>
+  filter(!permit_sa_gom == "sa_only") |>
+    select(compliant_after_override) |> 
+    distinct()
+  # all "yes"!
+    # filter(IS_COMP)
+  # filter(compliant_after_override == "no") |>  dim()
+  select(TRIP_ID,
+         VESSEL_OFFICIAL_NUMBER,
+         END_PORT_COUNTY,
+         END_PORT_STATE) |> 
+  distinct()
+    
+dim(processed_logbooks_2022_calendar_short)
