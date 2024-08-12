@@ -401,7 +401,7 @@ vms_raw_data_all <-
     readr::read_csv)
 
 names(vms_raw_data_all) <- 
-  list.files(file.path(temp, "VMS raw data"))
+  list.files(file.path(my_temp_dir, "VMS raw data"))
   
 # str(vms_raw_data_all)
 
@@ -421,7 +421,8 @@ data_names <-
     "vessel_permit_owner_from_db",
     "vesl_suppressed_logbooks_clean_2022",
     "db_compliance_2022",
-    "fhier_compliance_2022"
+    "fhier_compliance_2022",
+    "vms_raw_data_all"
   )
 
 auxfunctions::pretty_print(my_title = "Data are in:", 
