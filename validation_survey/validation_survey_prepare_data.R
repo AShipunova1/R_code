@@ -1097,23 +1097,25 @@ vms_raw_data_all <-
 vms_column_names <- 
   vms_raw_data_all[[1]] |> names()
 
-# vms_raw_data_all[[1]] |>
-#   filter(if_any(.cols = all_of(vms_column_names), 
-#                 .fns = \(one_col_name) {
-#     browser()!!one_col_name == one_col_name
-#   })) |>
-#   glimpse()
-
-  # summarise(across(all_of(cols), mean, .names = "mean_{.col}"))
-
-# iris %>% filter_at(vars(Sepal.Length, Sepal.Width, Petal.Length, Petal.Width),all_vars(.>2))
-# 
 vms_raw_data_all[[1]] |> 
   filter(UTC_TIME == "UTC_TIME") |> 
   glimpse()
-  
-  filter(if_any(everything(),
-                ~ .x == !!.x)) |>
+
+# LATITUDE               NA
+
+
+    # .data[[vars[[1]]]] > cond[[1]],
+
+vms_raw_data_all[[1]] |> 
+  filter(if_any(everything(), function(x) {
+    # browser()
+    x == vms_column_names[[1]]})) |> 
+  glimpse()
+
+  # filter(
+  #   .data[[vms_column_names]] == vms_column_names
+  # )
+    
   glimpse()
 
 vms_raw_data_all_dttm <-
