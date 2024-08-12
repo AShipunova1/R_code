@@ -1083,5 +1083,25 @@ lgb_join_i1__int_lgb__short <-
 #   dim()
 # # [1] 4722   35
 
+# Prepare vms data ----
+# glimpse(vms_raw_data_all[[1]])
+
+vms_raw_data_all[[1]] |> 
+  head() |> 
+  mutate(UTC_TIME_dttm = lubridate::ymd_hm(UTC_TIME,
+                                           tz = "UTC")) |> 
+  mutate(LOCAL_TIME_dttm = lubridate::ymd_hm(LOCAL_TIME,
+                                           tz = Sys.timezone())) |> 
+  glimpse()
+
+
+vms_raw_data_all_dttm <-
+  purrr::map(vms_raw_data_all, \(one_df) {
+    one_df |>
+      mutate(UTC_TIME_dttm = lubridate::ymd_hm(UTC_TIME, tz = "UTC")) |>
+      mutate(LOCAL_TIME_dttm = lubridate::ymd_hm(LOCAL_TIME, tz = Sys.timezone()))
+  })
+
+
 # result is in lgb_join_i1__int_lgb
 auxfunctions::pretty_print("lgb_join_i1__int_lgb", "Prepared data are in: ")
