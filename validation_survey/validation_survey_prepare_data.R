@@ -1145,7 +1145,7 @@ dim(vms_raw_data_all_clean_df)
 
 min(vms_raw_data_all_clean_df$LOCAL_TIME_dttm)
 # [1] "2021-12-31 16:00:00 EST"
-max(vms_raw_data_all_clean$LOCAL_TIME_dttm)
+max(vms_raw_data_all_clean_df$LOCAL_TIME_dttm)
 # [1] "2022-12-31 15:58:00 EST"
 
 # result is in lgb_join_i1__int_lgb
