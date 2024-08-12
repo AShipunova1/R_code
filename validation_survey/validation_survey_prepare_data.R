@@ -1092,19 +1092,28 @@ vms_column_names <-
 # LATITUDE               NA
 
 ## remove rows with column names coming from the csvs ----
-vms_raw_data_all_data <-
+vms_raw_data_all_has_geo <-
   vms_raw_data_all |>
   purrr::map(\(one_df) {
     one_df |>
-      filter(!if_any(everything(), function(x) {
-        x == deparse(substitute(x))
-      }))
+      filter(!is.na(LATITUDE) &
+      !is.na(LONGITUDE))
   })
 
-# vms_raw_data_all |>
-#   purrr::map(\(one_df) {one_df |> 
-#       filter(is.na("LATITUDE"))}) |> 
-#   glimpse()
+# all.equal(
+# purrr::map(vms_raw_data_all_data, dim),
+# purrr::map(vms_raw_data_all_has_geo, dim)
+# )
+#  F
+
+vms_raw_data_all_has_geo[["NMFS23-008B-2022_01.csv"]] |> filter(is.na(LATITUDE)) |>
+  glimpse()
+
+
+vms_raw_data_all |>
+  purrr::map(\(one_df) {one_df |>
+      filter(is.na("LATITUDE"))})
+  
 
 vms_raw_data_all_data_renamed <- 
   vms_raw_data_all_data |> 
