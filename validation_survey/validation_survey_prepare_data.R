@@ -1086,6 +1086,17 @@ lgb_join_i1__int_lgb__short <-
 # Prepare vms data ----
 # glimpse(vms_raw_data_all[[1]])
 
+vms_raw_data_all <- 
+  vms_raw_data_all |> 
+  purrr::map(\(x) {
+    rename(x, vessel_official_number = "DOC#")
+  })
+
+# View(vms_raw_data_all)
+
+vms_column_names <- 
+  vms_raw_data_all[[1]] |> names()
+
 vms_raw_data_all[[1]] |> 
   head() |> 
   mutate(UTC_TIME_dttm = lubridate::ymd_hm(UTC_TIME,
