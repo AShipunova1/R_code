@@ -83,7 +83,7 @@ curr_proj_output_path <- current_in_out_paths$output
 
 auxfunctions::create_dir_if_not(curr_proj_output_path)
 
-# get data ----
+# Get data ----
 #' %%%%% Get data
 
 get_data_path <-
@@ -132,7 +132,6 @@ source(prepare_data_path)
 # print_df_names(lgb_join_i1__int_lgb)
 # [1] "TRIP_ID, VESSEL_OFFICIAL_NBR, TRIP_START_DATE, TRIP_START_TIME, TRIP_END_DATE, TRIP_END_TIME, trip_end_date_only, trip_start_hour, trip_start_sec, trip_end_hour, trip_end_sec, trip_start_date_time, trip_end_date_time, id_code, vessel_name, interviewee_f_name, interviewee_l_name, survey_vessel_id, st_2, cnty_3, SERO_HOME_PORT_COUNTY, SERO_HOME_PORT_STATE, VESSEL_NAME, FIRST_NAME, LAST_NAME, county_short, state_code, state_name, county_code, vessel_id_dist, vsl_names_dissim, st_pass, cnty_pass, name_pass, vsl_name_pass, int_lgb"
 
-
 # Answer questions ----
 
 ## How many interview have logbooks ----
@@ -170,11 +169,20 @@ n_distinct(lgb_join_i1__int_lgb__short$TRIP_ID)
 n_distinct(lgb_join_i1__int_lgb__short$id_code)
 # 1835 interviews
 
-  
+## Time difference between interview and logbook submission ----
+int_before_lgb_path <-
+  file.path(current_project_dir_name,
+            paste0(current_project_name, "_", "int_before_lgb.R"))
+
+file.exists(int_before_lgb_path)
+
+# uncomment to run
+# source(int_before_lgb_path)
+
 ## Maps ---- 
 # - overlay map of where surveys occurred without logbooks (in Gulf) with where non-compliant Gulf + dual Gulf/S. Atl. vessels (for all 2022) are located
 
-## make adf with needed fields
+## make a df with needed fields
 lgb_join_i1__int_lgb__short_for_map <-
   lgb_join_i1__int_lgb |>
   select(
@@ -203,7 +211,8 @@ lgb_join_i1__int_lgb__short_for_map_no_lgb <-
   lgb_join_i1__int_lgb__short_for_map |>
   filter(int_lgb == "no_lgb" &
            !is.na(VESSEL_OFFICIAL_NBR)) |>
-  select(-int_lgb, TRIP_ID) |>
+  select(-int_lgb, -TRIP_ID,
+         -starts_with("SERO_HOME_PORT")) |>
   distinct()
 
 dim(lgb_join_i1__int_lgb__short_for_map_no_lgb)
