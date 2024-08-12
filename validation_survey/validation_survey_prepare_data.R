@@ -1097,14 +1097,24 @@ vms_raw_data_all <-
 vms_column_names <- 
   vms_raw_data_all[[1]] |> names()
 
-vms_raw_data_all[[1]] |> 
-  head() |> 
-  mutate(UTC_TIME_dttm = lubridate::ymd_hm(UTC_TIME,
-                                           tz = "UTC")) |> 
-  mutate(LOCAL_TIME_dttm = lubridate::ymd_hm(LOCAL_TIME,
-                                           tz = Sys.timezone())) |> 
-  glimpse()
+# vms_raw_data_all[[1]] |>
+#   filter(if_any(.cols = all_of(vms_column_names), 
+#                 .fns = \(one_col_name) {
+#     browser()!!one_col_name == one_col_name
+#   })) |>
+#   glimpse()
 
+  # summarise(across(all_of(cols), mean, .names = "mean_{.col}"))
+
+# iris %>% filter_at(vars(Sepal.Length, Sepal.Width, Petal.Length, Petal.Width),all_vars(.>2))
+# 
+vms_raw_data_all[[1]] |> 
+  filter(UTC_TIME == "UTC_TIME") |> 
+  glimpse()
+  
+  filter(if_any(everything(),
+                ~ .x == !!.x)) |>
+  glimpse()
 
 vms_raw_data_all_dttm <-
   purrr::map(vms_raw_data_all, \(one_df) {
@@ -1112,7 +1122,6 @@ vms_raw_data_all_dttm <-
       mutate(UTC_TIME_dttm = lubridate::ymd_hm(UTC_TIME, tz = "UTC")) |>
       mutate(LOCAL_TIME_dttm = lubridate::ymd_hm(LOCAL_TIME, tz = Sys.timezone()))
   })
-
 
 # result is in lgb_join_i1__int_lgb
 auxfunctions::pretty_print("lgb_join_i1__int_lgb", "Prepared data are in: ")
