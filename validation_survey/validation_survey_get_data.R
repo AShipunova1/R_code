@@ -405,6 +405,7 @@ names(vms_raw_data_all) <-
   
 # str(vms_raw_data_all)
 
+# unlink deletes the file(s) or directories specified by x.
 unlink(my_temp_dir)
 
 # result df names ----
