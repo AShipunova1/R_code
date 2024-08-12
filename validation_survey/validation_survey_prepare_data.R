@@ -1106,11 +1106,11 @@ vms_raw_data_all_data <-
 #       filter(is.na("LATITUDE"))}) |> 
 #   glimpse()
 
-  # filter(
-  #   .data[[vms_column_names]] == vms_column_names
-  # )
-    
-  glimpse()
+vms_raw_data_all_data_renamed <- 
+  vms_raw_data_all_data |> 
+  purrr::map(\(x) {
+    rename(x, vessel_official_number = "DOC#")
+  })
 
 vms_raw_data_all_dttm <-
   purrr::map(vms_raw_data_all, \(one_df) {
