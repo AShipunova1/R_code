@@ -1102,26 +1102,36 @@ vms_raw_data_all_has_geo <-
 
 # check
 vms_raw_data_all_has_geo[["NMFS23-008B-2022_01.csv"]] |> filter(is.na(LATITUDE)) |>
-  glimpse()
+  nrow() == 0
+# T 
 
-
-vms_raw_data_all |>
-  purrr::map(\(one_df) {one_df |>
-      filter(is.na("LONGITUDE"))})
-  
 ## rename a column ----
 vms_raw_data_all_data_renamed <- 
-  vms_raw_data_all_data |> 
+  vms_raw_data_all_has_geo |> 
   purrr::map(\(x) {
     rename(x, vessel_official_number = "DOC#")
   })
 
 vms_raw_data_all_dttm <-
-  purrr::map(vms_raw_data_all, \(one_df) {
+  purrr::map(vms_raw_data_all_data_renamed, \(one_df) {
     one_df |>
       mutate(UTC_TIME_dttm = lubridate::ymd_hm(UTC_TIME, tz = "UTC")) |>
       mutate(LOCAL_TIME_dttm = lubridate::ymd_hm(LOCAL_TIME, tz = Sys.timezone()))
   })
+
+## remove unnecessary columns from vms data ----
+# was:
+#   [1] "UTC_TIME, LOCAL_TIME, VESSEL_TYPE, NAME, vessel_official_number, SPEED, AVG_SP, COURSE, AVG_COURSE, LATITUDE, LONGITUDE, UTC_TIME_dttm, LOCAL_TIME_dttm"
+vms_raw_data_all_clean <-
+  vms_raw_data_all_dttm |>
+  purrr::map(\(one_df) {
+    one_df |>
+      select(vessel_official_number,
+             LATITUDE,
+             LONGITUDE,
+             LOCAL_TIME_dttm) |>
+      distinct()
+  }) 
 
 # result is in lgb_join_i1__int_lgb
 auxfunctions::pretty_print("lgb_join_i1__int_lgb", "Prepared data are in: ")
