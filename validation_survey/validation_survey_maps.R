@@ -1,3 +1,5 @@
+# overlay map of where surveys occurred without logbooks (in Gulf) with where non-compliant Gulf + dual Gulf/S. Atl. vessels (for all 2022) are located
+
 # setup maps ----
 needed_packages <- c("tidygeocoder", "ggmap", "usmap")
 
@@ -19,7 +21,27 @@ file.exists(water_shape_prep_path)
 
 source(water_shape_prep_path)
 
-# get coords ----
+# south_east_coast_states
+# east_coast_states
+# sa_council_states
+# south_atlantic_states
+# fl_counties
+# my_state_abb
+# my_state_name
+# GOMsf
+# world_state_and_fed_waters_path
+# fl_state_w_counties_shp
+# GOM_s_fl_state_waters_only
+# big_bounding_box
+# shp_4326_list: 
+# east_coast_sa_state_waters_shp
+# gom_fl_state_w_counties_shp
+# sa_fl_state_w_counties_shp
+# sa_shp
+# gom_states_shp
+# sa_states_shp
+
+## map interviews using survey data ----
 
 lgb_join_i1__int_lgb__short_for_map_no_lgb_fips <-
   lgb_join_i1__int_lgb__short_for_map_no_lgb |>
@@ -50,14 +72,9 @@ lgb_join_i1__int_lgb__short_for_map_no_lgb_fips_surv_cnt <-
   # select(id_code, fips) |>
   add_count(fips, name = "cnt_surv")
 
-
-lgb_join_i1__int_lgb__short_for_map_no_lgb_fips_surv_cnt |> 
-# View(lgb_join_i1__int_lgb__short_for_map_no_lgb_fips_surv)
-
-# usmap::plot_usmap(regions = "counties")
 usmap::plot_usmap(
-  data = lgb_join_i1__int_lgb__short_for_map_no_lgb_fips_surv,
-  values = "cnt_trips",
+  data = lgb_join_i1__int_lgb__short_for_map_no_lgb_fips_surv_cnt,
+  values = "cnt_surv",
   include = lgb_join_i1__int_lgb__short_for_map_no_lgb_fips_surv$abbr,
   color = "green"
 ) +
@@ -65,9 +82,40 @@ usmap::plot_usmap(
     # low = "white",
     high = "green",
     name = "Trips",
-    na.value = "white"
-   # label = scales::comma
-
+    na.value = "white",
+    label = scales::comma
   ) +
-  labs(title = "Count interview dates") +
+  labs(title = "Count interviews") +
+  theme(legend.position = "right")
+
+## count interview using restored data ----
+lgb_join_i1__int_lgb__short_for_map_no_lgb_fips_restored <-
+  lgb_join_i1__int_lgb__short_for_map_no_lgb_fips |>
+  select(-c(
+    survey_vessel_id,
+    st_2,
+    cnty_3,
+    county_fips_surv
+  )) |>
+  distinct() |>
+  rename(fips = county_fips_pims, abbr = state_code)
+
+lgb_join_i1__int_lgb__short_for_map_no_lgb_fips_restored_cnt <-
+  lgb_join_i1__int_lgb__short_for_map_no_lgb_fips_restored |>
+  add_count(fips, name = "cnt_surv")
+
+usmap::plot_usmap(
+  data = lgb_join_i1__int_lgb__short_for_map_no_lgb_fips_restored_cnt,
+  values = "cnt_surv",
+  include = unique(gom_states_shp$STUSPS),
+  color = "green"
+) +
+  scale_fill_continuous(
+    # low = "white",
+    high = "green",
+    name = "Trips",
+    na.value = "white",
+    label = scales::comma
+  ) +
+  labs(title = "Count interviews using restored data") +
   theme(legend.position = "right")
