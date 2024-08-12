@@ -24,32 +24,38 @@ source(water_shape_prep_path)
 
 # get city coords ----
 
-lgb_join_i1__int_lgb__short_for_map_no_lgb_ok <-
+lgb_join_i1__int_lgb__short_for_map_no_lgb_fips <-
   lgb_join_i1__int_lgb__short_for_map_no_lgb |>
-  filter(st_2 == state_code) |> 
-  select(-c(st_2)) |> 
-  distinct()
+  mutate(
+    county_fips_surv = paste0(st_2, cnty_3),
+    county_fips_pims = paste0(state_code, county_code)
+  )
 
-lgb_join_i1__int_lgb__short_for_map_no_lgb_ok |> 
-    filter(!VESSEL_OFFICIAL_NBR == survey_vessel_id) |> 
-    glimpse()
-# 30
+lgb_join_i1__int_lgb__short_for_map_no_lgb_fips__surv <-
+  urbnmapr::counties |>
+  left_join(
+    lgb_join_i1__int_lgb__short_for_map_no_lgb_fips,
+    join_by(county_fips == county_fips_surv)
+  )
 
-dim(lgb_join_i1__int_lgb__short_for_map_no_lgb_ok)
-# 631
-lgb_join_i1__int_lgb__short_for_map_no_lgb |>
-  dim()
-# 966
+# Investigate:
+# ℹ If a many-to-many relationship is expected, set `relationship = "many-to-many"` to silence this warning.
+# ℹ Row 52 of `x` matches multiple rows in `y`.
+# ℹ Row 2 of `y` matches multiple rows in `x`.
 
-lgb_join_i1__int_lgb__short_for_map_no_lgb |> 
-  mutate(county_fips_surv = paste0(st_2, cnty_3),
-         county_fips_pims = paste0(state_code, county_code))
+urbnmapr::counties[52,] |> glimpse()
+
+lgb_join_i1__int_lgb__short_for_map_no_lgb_fips |> 
+  filter(county_fips_surv == urbnmapr::counties[52,][["county_fips"]]) |> 
+  glimpse()
+# many entries with the same  county, st, as expected
 
 urbnmapr::counties |> 
-  left_join(counties, by = "county_fips") |> glimpse()
-  
-  
-  
+  filter(county_fips == lgb_join_i1__int_lgb__short_for_map_no_lgb_fips[2,][["county_fips_surv"]]) |> 
+  glimpse()
+
+
+
   filter(state_name =="California") |> 
   ggplot(mapping = aes(long, lat, group = group, fill = horate)) +
   geom_polygon(color = "#ffffff", size = .25) +
