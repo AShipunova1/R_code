@@ -129,15 +129,37 @@ processed_logbooks_2022_calendar$compliant_after_override |> unique()
 # processed_logbooks_2022_calendar_short <-
   processed_logbooks_2022_calendar |>
   filter(!permit_sa_gom == "sa_only") |>
-    select(compliant_after_override) |> 
+    count(IS_COMP)
+  
+#     IS_COMP      n
+#     <int>  <int>
+# 1       0   7132
+# 2       1 187530
+
+processed_logbooks_2022_calendar_non_comp_gom_short <-
+    processed_logbooks_2022_calendar |>
+    filter(!permit_sa_gom == "sa_only") |>
+    filter(IS_COMP == 0) |>
+    select(TRIP_ID,
+           VESSEL_OFFICIAL_NUMBER,
+           END_PORT_COUNTY,
+           END_PORT_STATE) |>
     distinct()
-  # all "yes"!
-    # filter(IS_COMP)
-  # filter(compliant_after_override == "no") |>  dim()
-  select(TRIP_ID,
-         VESSEL_OFFICIAL_NUMBER,
-         END_PORT_COUNTY,
-         END_PORT_STATE) |> 
-  distinct()
-    
-dim(processed_logbooks_2022_calendar_short)
+  
+dim(processed_logbooks_2022_calendar_non_comp_gom_short)
+# 1968
+
+processed_logbooks_2022_calendar_non_comp_gom_short |> 
+  glimpse()
+
+## convert lgb counties to fips ----
+
+processed_logbooks_2022_calendar_non_comp_gom_short__fips <-
+  processed_logbooks_2022_calendar_non_comp_gom_short |>
+  rowwise() |>
+  mutate(END_PORT_fips =
+           try(usmap::fips(state = END_PORT_STATE, county = END_PORT_COUNTY))
+  ) |>
+  ungroup()
+
+glimpse(processed_logbooks_2022_calendar_non_comp_gom_short__fips)
