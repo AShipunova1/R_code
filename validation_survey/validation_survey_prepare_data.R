@@ -1086,31 +1086,25 @@ lgb_join_i1__int_lgb__short <-
 # Prepare vms data ----
 # glimpse(vms_raw_data_all[[1]])
 
-vms_raw_data_all <- 
-  vms_raw_data_all |> 
-  purrr::map(\(x) {
-    rename(x, vessel_official_number = "DOC#")
-  })
-
-# View(vms_raw_data_all)
-
 vms_column_names <- 
   vms_raw_data_all[[1]] |> names()
 
-vms_raw_data_all[[1]] |> 
-  filter(UTC_TIME == "UTC_TIME") |> 
-  glimpse()
-
 # LATITUDE               NA
 
+## remove rows with column names coming from the csvs ----
+vms_raw_data_all_data <-
+  vms_raw_data_all |>
+  purrr::map(\(one_df) {
+    one_df |>
+      filter(!if_any(everything(), function(x) {
+        x == deparse(substitute(x))
+      }))
+  })
 
-    # .data[[vars[[1]]]] > cond[[1]],
-
-vms_raw_data_all[[1]] |> 
-  filter(if_any(everything(), function(x) {
-    # browser()
-    x == vms_column_names[[1]]})) |> 
-  glimpse()
+# vms_raw_data_all |>
+#   purrr::map(\(one_df) {one_df |> 
+#       filter(is.na("LATITUDE"))}) |> 
+#   glimpse()
 
   # filter(
   #   .data[[vms_column_names]] == vms_column_names
