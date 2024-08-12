@@ -10,6 +10,9 @@ if (any(installed_packages == FALSE)) {
 
 lapply(needed_packages, library, character.only = TRUE)
 
+devtools::install_github("UrbanInstitute/urbnmapr")
+library(urbnmapr)
+
 water_shape_prep_path <-
   file.path(my_paths$git_r,
             "get_data",
