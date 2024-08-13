@@ -152,6 +152,30 @@ dim(processed_logbooks_2022_calendar_non_comp_gom_short)
 processed_logbooks_2022_calendar_non_comp_gom_short |> 
   glimpse()
 
+##Fix lgb addresses ----
+
+lgb_addresses_fixes <-
+  list(
+    c("LAFOURCHE#LA", "LAFOURCHE PARISH#LA"),
+    c("PLAQUEMINES#LA", "PLAQUEMINES PARISH#LA"),
+    c("TERREBONNE#LA", "TERREBONNE PARISH#LA"),
+    c("JEFFERSON#LA", "JEFFERSON#AL")
+  )
+
+processed_logbooks_2022_calendar_non_comp_gom_short_fixed <-
+  purrr::map(lgb_addresses_fixes, \(one_fix) {
+    processed_logbooks_2022_calendar_non_comp_gom_short |>
+      mutate(END_PORT_county_state =
+               paste0(END_PORT_COUNTY, "#", END_PORT_STATE)) |>
+      mutate(
+        END_PORT_county_state_fixed =
+          case_when(END_PORT_county_state == one_fix[[1]] ~
+                      one_fix[[2]], .default = END_PORT_county_state)
+      )
+  })
+
+View(processed_logbooks_2022_calendar_non_comp_gom_short_fixed)
+
 ## convert lgb counties to fips ----
 
 processed_logbooks_2022_calendar_non_comp_gom_short__fips <-
