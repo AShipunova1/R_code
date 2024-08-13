@@ -178,7 +178,7 @@ fix_county_state <- function(my_df, one_fix) {
     return()
 }
 
-processed_logbooks_2022_calendar_non_comp_gom_short_fixed2 <- 
+processed_logbooks_2022_calendar_non_comp_gom_short_fixed <- 
   purrr::reduce(
   lgb_addresses_fixes, 
   \(acc, nxt) fix_county_state(acc, nxt), 
@@ -187,54 +187,27 @@ processed_logbooks_2022_calendar_non_comp_gom_short_fixed2 <-
 
 # View(processed_logbooks_2022_calendar_non_comp_gom_short_fixed2)
 
-processed_logbooks_2022_calendar_non_comp_gom_short_fixed <-
-  purrr::map(lgb_addresses_fixes, \(one_fix) {
-    processed_logbooks_2022_calendar_non_comp_gom_short |>
-      mutate(END_PORT_county_state =
-               paste0(END_PORT_COUNTY, "#", END_PORT_STATE)) |>
-      mutate(
-        END_PORT_county_state_fixed =
-          case_when(END_PORT_county_state == one_fix[[1]] ~
-                      one_fix[[2]], 
-                    .default = "")
-      )
-  }) |> 
-  purrr::list_rbind() |>
-  distinct()
-  # filter(!END_PORT_county_state == END_PORT_county_state_fixed)  
-
 dim(processed_logbooks_2022_calendar_non_comp_gom_short_fixed)
 
 n_distinct(filter(processed_logbooks_2022_calendar_non_comp_gom_short_fixed2,
-                  END_PORT_COUNTY == "TERREBONNE")$TRIP_ID)
-# 16
-# ok
-
-wrong_addr <-
-  sapply(lgb_addresses_fixes, "[", 1)
-
-nrow(processed_logbooks_2022_calendar_non_comp_gom_short_fixed) - 
-  nrow(processed_logbooks_2022_calendar_non_comp_gom_short)
-# 123
-
-processed_logbooks_2022_calendar_non_comp_gom_short_fixed_ok <-
-  processed_logbooks_2022_calendar_non_comp_gom_short_fixed |>
-  filter(!(END_PORT_county_state %in% wrong_addr &
-           END_PORT_county_state_fixed == ""))
-
-nrow(processed_logbooks_2022_calendar_non_comp_gom_short_fixed_ok) ==
-    nrow(processed_logbooks_2022_calendar_non_comp_gom_short)
+                  END_PORT_COUNTY == "TERREBONNE")$TRIP_ID) == 16
 # T
 
-# View(processed_logbooks_2022_calendar_non_comp_gom_short_fixed)
+n_distinct(
+  filter(
+    processed_logbooks_2022_calendar_non_comp_gom_short,
+    END_PORT_COUNTY == "LAFOURCHE"
+  )$TRIP_ID
+) ==
+  n_distinct(
+    filter(
+      processed_logbooks_2022_calendar_non_comp_gom_short_fixed,
+      END_PORT_COUNTY == "LAFOURCHE"
+    )$TRIP_ID
+  )
 
-processed_logbooks_2022_calendar_non_comp_gom_short_fixed |> 
-  filter(TRIP_ID ==  1000021124) |> 
-  glimpse()
   # df %>% separate_wider_delim(x, ".", names = c("A", "B"))
 
-
-View(processed_logbooks_2022_calendar_non_comp_gom_short_fixed)
 
 ## convert lgb counties to fips ----
 
