@@ -390,10 +390,10 @@ my_temp_dir <- tempdir(check = TRUE) # Create temporary directory to extract int
 
 purrr::map(vms_zip_filenames,
            \(zip_vile_name){unzip(zip_vile_name,
-                                  exdir = temp)})
+                                  exdir = my_temp_dir)})
 
 vms_file_names_unzipped <-
-  list.files(file.path(temp, "VMS raw data"),
+  list.files(file.path(my_temp_dir, "VMS raw data"),
              full.names = TRUE)
 
 vms_raw_data_all <-
