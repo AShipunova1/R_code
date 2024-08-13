@@ -170,9 +170,43 @@ processed_logbooks_2022_calendar_non_comp_gom_short_fixed <-
       mutate(
         END_PORT_county_state_fixed =
           case_when(END_PORT_county_state == one_fix[[1]] ~
-                      one_fix[[2]], .default = END_PORT_county_state)
+                      one_fix[[2]], 
+                    .default = "")
       )
-  })
+  }) |> 
+  purrr::list_rbind() |>
+  distinct()
+  # filter(!END_PORT_county_state == END_PORT_county_state_fixed)  
+
+dim(processed_logbooks_2022_calendar_non_comp_gom_short_fixed)
+
+# processed_logbooks_2022_calendar_non_comp_gom_short_fixed |> 
+#   filter(END_PORT_COUNTY == "TERREBONNE") |> 
+#   View()
+
+wrong_addr <-
+  sapply(lgb_addresses_fixes, "[", 1)
+
+nrow(processed_logbooks_2022_calendar_non_comp_gom_short_fixed) - 
+  nrow(processed_logbooks_2022_calendar_non_comp_gom_short)
+# 123
+
+processed_logbooks_2022_calendar_non_comp_gom_short_fixed_ok <-
+  processed_logbooks_2022_calendar_non_comp_gom_short_fixed |>
+  filter(!(END_PORT_county_state %in% wrong_addr &
+           END_PORT_county_state_fixed == ""))
+
+nrow(processed_logbooks_2022_calendar_non_comp_gom_short_fixed_ok) ==
+    nrow(processed_logbooks_2022_calendar_non_comp_gom_short)
+# T
+
+# View(processed_logbooks_2022_calendar_non_comp_gom_short_fixed)
+
+processed_logbooks_2022_calendar_non_comp_gom_short_fixed |> 
+  filter(TRIP_ID ==  1000021124) |> 
+  glimpse()
+  # df %>% separate_wider_delim(x, ".", names = c("A", "B"))
+
 
 View(processed_logbooks_2022_calendar_non_comp_gom_short_fixed)
 
