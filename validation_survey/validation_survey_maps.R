@@ -168,28 +168,46 @@ processed_logbooks_2022_calendar_non_comp_gom_short_1 <-
   mutate(END_PORT_county_state =
            paste0(END_PORT_COUNTY, "#", END_PORT_STATE))
 
-fix_county_state <- function(my_df, one_fix) {
-  my_df |>
-    mutate(
-      END_PORT_county_state_fixed =
-        case_when(END_PORT_county_state == one_fix[[1]] ~
-                    one_fix[[2]])
-    ) %>%
-    return()
-}
+wrong_addrs <-
+  sapply(lgb_addresses_fixes, "[", 1)
 
-processed_logbooks_2022_calendar_non_comp_gom_short_fixed <- 
-  purrr::reduce(
-  lgb_addresses_fixes, 
-  \(acc, nxt) fix_county_state(acc, nxt), 
-  .init = processed_logbooks_2022_calendar_non_comp_gom_short_1
-)
+get_correct_addr_by_wrong <-
+  function(wrong_addr) {
+    # browser()
+    idx <- grep(wrong_addr, lgb_addresses_fixes)
 
-View(processed_logbooks_2022_calendar_non_comp_gom_short_fixed)
+    names_pair <-
+      tryCatch(
+        lgb_addresses_fixes[[idx]],
+        error = function(e) {
+          print(e)
+          print(stringr::str_glue("Index: {idx}"))
+        }
+      )
+    good_addr <- names_pair[[2]]
 
-dim(processed_logbooks_2022_calendar_non_comp_gom_short_fixed)
+    return(good_addr)
+  }
 
-n_distinct(filter(processed_logbooks_2022_calendar_non_comp_gom_short_fixed,
+processed_logbooks_2022_calendar_non_comp_gom_short_1__fix1 <-
+  processed_logbooks_2022_calendar_non_comp_gom_short_1 |> 
+  dplyr::rowwise() |>
+  dplyr::mutate(END_PORT_county_state_fixed =
+           if (END_PORT_county_state %in% wrong_addrs)
+             get_correct_addr_by_wrong(END_PORT_county_state)
+         else
+           END_PORT_county_state) |>
+  dplyr::ungroup() |>
+  tidyr::separate_wider_delim(END_PORT_county_state_fixed,
+                              delim = "#",
+                              names = c("END_PORT_county_fixed",
+                                        "END_PORT_state_fixed")) |>
+  dplyr::distinct()
+
+# ---
+dim(processed_logbooks_2022_calendar_non_comp_gom_short_1__fix1)
+
+n_distinct(filter(processed_logbooks_2022_calendar_non_comp_gom_short_1__fix1,
                   END_PORT_COUNTY == "TERREBONNE")$TRIP_ID) == 16
 # T
 
@@ -201,20 +219,10 @@ n_distinct(
 ) ==
   n_distinct(
     filter(
-      processed_logbooks_2022_calendar_non_comp_gom_short_fixed,
+      processed_logbooks_2022_calendar_non_comp_gom_short_1__fix1,
       END_PORT_COUNTY == "LAFOURCHE"
     )$TRIP_ID
   )
-
-# back to separate columns
-processed_logbooks_2022_calendar_non_comp_gom_short_fixed_w <-
-  processed_logbooks_2022_calendar_non_comp_gom_short_fixed |>
-  tidyr::separate_wider_delim(
-    END_PORT_county_state_fixed,
-    "#",
-    names = c("END_PORT_county_fixed", "END_PORT_state_fixed")
-  )
-
 
 ## convert lgb counties to fips ----
 
@@ -235,13 +243,13 @@ get_fips <- function(my_st_ab) {
   return(result)
 }
 
-processed_logbooks_2022_calendar_non_comp_gom_short_fips <-
-  processed_logbooks_2022_calendar_non_comp_gom_short |>
-  select(END_PORT_STATE, END_PORT_COUNTY) |>
+processed_logbooks_2022_calendar_non_comp_gom_short_1__fix1_fips <-
+  processed_logbooks_2022_calendar_non_comp_gom_short_1__fix1 |>
+  select(END_PORT_county_fixed, END_PORT_state_fixed) |>
   distinct() |>
-  filter(END_PORT_STATE == "LA") |> 
+  filter(END_PORT_state_fixed == "LA") |> 
   rowwise() |>
-  mutate(END_PORT_fips = get_fips(c(END_PORT_STATE, END_PORT_COUNTY))) |>
+  mutate(END_PORT_fips = usmap::fips(c(END_PORT_state_fixed, END_PORT_state_fixed))) |>
   ungroup()
 
 
