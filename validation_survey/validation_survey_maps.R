@@ -162,6 +162,31 @@ lgb_addresses_fixes <-
     c("JEFFERSON#LA", "JEFFERSON#AL")
   )
 
+processed_logbooks_2022_calendar_non_comp_gom_short_1 <-
+  processed_logbooks_2022_calendar_non_comp_gom_short |>
+  mutate(END_PORT_county_state =
+           paste0(END_PORT_COUNTY, "#", END_PORT_STATE))
+
+fix_county_state <- function(my_df, one_fix) {
+  my_df |>
+    mutate(
+      END_PORT_county_state_fixed =
+        case_when(END_PORT_county_state == one_fix[[1]] ~
+                    one_fix[[2]], 
+                  .default = END_PORT_county_state)
+    ) %>%
+    return()
+}
+
+processed_logbooks_2022_calendar_non_comp_gom_short_fixed2 <- 
+  purrr::reduce(
+  lgb_addresses_fixes, 
+  \(acc, nxt) fix_county_state(acc, nxt), 
+  .init = processed_logbooks_2022_calendar_non_comp_gom_short_1
+)
+
+# View(processed_logbooks_2022_calendar_non_comp_gom_short_fixed2)
+
 processed_logbooks_2022_calendar_non_comp_gom_short_fixed <-
   purrr::map(lgb_addresses_fixes, \(one_fix) {
     processed_logbooks_2022_calendar_non_comp_gom_short |>
@@ -180,10 +205,10 @@ processed_logbooks_2022_calendar_non_comp_gom_short_fixed <-
 
 dim(processed_logbooks_2022_calendar_non_comp_gom_short_fixed)
 
-n_distinct(filter(processed_logbooks_2022_calendar_non_comp_gom_short_fixed_ok,
+n_distinct(filter(processed_logbooks_2022_calendar_non_comp_gom_short_fixed2,
                   END_PORT_COUNTY == "TERREBONNE")$TRIP_ID)
 # 16
-ok
+# ok
 
 wrong_addr <-
   sapply(lgb_addresses_fixes, "[", 1)
