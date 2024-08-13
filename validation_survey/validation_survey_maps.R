@@ -206,7 +206,14 @@ n_distinct(
     )$TRIP_ID
   )
 
-  # df %>% separate_wider_delim(x, ".", names = c("A", "B"))
+# back to separate columns
+processed_logbooks_2022_calendar_non_comp_gom_short_fixed_w <-
+  processed_logbooks_2022_calendar_non_comp_gom_short_fixed |>
+  tidyr::separate_wider_delim(
+    END_PORT_county_state_fixed,
+    "#",
+    names = c("END_PORT_county_fixed", "END_PORT_state_fixed")
+  )
 
 
 ## convert lgb counties to fips ----
