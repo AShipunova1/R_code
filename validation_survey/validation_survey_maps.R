@@ -146,6 +146,7 @@ processed_logbooks_2022_calendar_non_comp_gom_short <-
            END_PORT_STATE) |>
     distinct()
   
+
 dim(processed_logbooks_2022_calendar_non_comp_gom_short)
 # 1968
 
@@ -172,8 +173,7 @@ fix_county_state <- function(my_df, one_fix) {
     mutate(
       END_PORT_county_state_fixed =
         case_when(END_PORT_county_state == one_fix[[1]] ~
-                    one_fix[[2]], 
-                  .default = END_PORT_county_state)
+                    one_fix[[2]])
     ) %>%
     return()
 }
@@ -185,11 +185,11 @@ processed_logbooks_2022_calendar_non_comp_gom_short_fixed <-
   .init = processed_logbooks_2022_calendar_non_comp_gom_short_1
 )
 
-# View(processed_logbooks_2022_calendar_non_comp_gom_short_fixed2)
+View(processed_logbooks_2022_calendar_non_comp_gom_short_fixed)
 
 dim(processed_logbooks_2022_calendar_non_comp_gom_short_fixed)
 
-n_distinct(filter(processed_logbooks_2022_calendar_non_comp_gom_short_fixed2,
+n_distinct(filter(processed_logbooks_2022_calendar_non_comp_gom_short_fixed,
                   END_PORT_COUNTY == "TERREBONNE")$TRIP_ID) == 16
 # T
 
