@@ -121,15 +121,17 @@ source(get_data_path)
 # Prepare data ----
 prepare_data_path <-
   file.path(current_project_dir_name,
-            paste0(current_project_name, "_", "maximize_join.R"))
+            paste0(current_project_name, "_", "prepare_date.R"))
 
 file.exists(prepare_data_path)
 
 source(prepare_data_path)
 
-# result is in lgb_join_i1__int_lgb
+# Prepared data are in: 
+# lgb_join_i1__int_lgb
+# vms_raw_data_all_clean
 
-# print_df_names(lgb_join_i1__int_lgb)
+print_df_names(lgb_join_i1__int_lgb)
 # [1] "TRIP_ID, VESSEL_OFFICIAL_NBR, TRIP_START_DATE, TRIP_START_TIME, TRIP_END_DATE, TRIP_END_TIME, trip_end_date_only, trip_start_hour, trip_start_sec, trip_end_hour, trip_end_sec, trip_start_date_time, trip_end_date_time, id_code, vessel_name, interviewee_f_name, interviewee_l_name, survey_vessel_id, st_2, cnty_3, SERO_HOME_PORT_COUNTY, SERO_HOME_PORT_STATE, VESSEL_NAME, FIRST_NAME, LAST_NAME, county_short, state_code, state_name, county_code, vessel_id_dist, vsl_names_dissim, st_pass, cnty_pass, name_pass, vsl_name_pass, int_lgb"
 
 # Answer questions ----
@@ -226,4 +228,4 @@ maps_path <-
 
 file.exists(maps_path)
 
-source(maps_path)
+# source(maps_path)
