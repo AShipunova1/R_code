@@ -121,7 +121,7 @@ source(get_data_path)
 # Prepare data ----
 prepare_data_path <-
   file.path(current_project_dir_name,
-            paste0(current_project_name, "_", "prepare_date.R"))
+            paste0(current_project_name, "_", "prepare_data.R"))
 
 file.exists(prepare_data_path)
 
