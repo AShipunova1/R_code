@@ -178,11 +178,38 @@ View(processed_logbooks_2022_calendar_non_comp_gom_short_fixed)
 
 ## convert lgb counties to fips ----
 
+get_fips <- function(my_st_ab) {
+  END_PORT_STATE <- my_st_ab[[1]]
+  END_PORT_COUNTY <- my_st_ab[[2]]
+  browser()
+  result <-
+    tryCatch(
+      usmap::fips(state = END_PORT_STATE, county = END_PORT_COUNTY),
+      error = function(e) {
+        print(e)
+        return("00000")
+      }
+      
+    )
+  print(result)
+  return(result)
+}
+
+processed_logbooks_2022_calendar_non_comp_gom_short_fips <-
+  processed_logbooks_2022_calendar_non_comp_gom_short |>
+  select(END_PORT_STATE, END_PORT_COUNTY) |>
+  distinct() |>
+  filter(END_PORT_STATE == "LA") |> 
+  rowwise() |>
+  mutate(END_PORT_fips = get_fips(c(END_PORT_STATE, END_PORT_COUNTY))) |>
+  ungroup()
+
+
+
 processed_logbooks_2022_calendar_non_comp_gom_short__fips <-
   processed_logbooks_2022_calendar_non_comp_gom_short |>
   rowwise() |>
-  mutate(END_PORT_fips =
-           try(usmap::fips(state = END_PORT_STATE, county = END_PORT_COUNTY))
+  mutate(END_PORT_fips = get_fips(c(END_PORT_STATE, END_PORT_COUNTY))
   ) |>
   ungroup()
 
