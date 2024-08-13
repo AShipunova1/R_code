@@ -824,7 +824,8 @@ db_logbooks_2022_short0 <-
     TRIP_START_DATE,
     TRIP_START_TIME,
     TRIP_END_DATE,
-    TRIP_END_TIME
+    TRIP_END_TIME,
+    trip_end_date_only
   ) |>
   dplyr::distinct()
   
@@ -1152,3 +1153,4 @@ max(vms_raw_data_all_clean_df$LOCAL_TIME_dttm)
 auxfunctions::pretty_print(c("lgb_join_i1__int_lgb",
                              "vms_raw_data_all_clean"),
                            "Prepared data are in: ")
+
