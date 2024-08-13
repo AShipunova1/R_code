@@ -180,9 +180,10 @@ processed_logbooks_2022_calendar_non_comp_gom_short_fixed <-
 
 dim(processed_logbooks_2022_calendar_non_comp_gom_short_fixed)
 
-# processed_logbooks_2022_calendar_non_comp_gom_short_fixed |> 
-#   filter(END_PORT_COUNTY == "TERREBONNE") |> 
-#   View()
+n_distinct(filter(processed_logbooks_2022_calendar_non_comp_gom_short_fixed_ok,
+                  END_PORT_COUNTY == "TERREBONNE")$TRIP_ID)
+# 16
+ok
 
 wrong_addr <-
   sapply(lgb_addresses_fixes, "[", 1)
